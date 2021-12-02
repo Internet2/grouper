@@ -426,30 +426,12 @@ public class GrouperProvisioningBehavior {
       if (StringUtils.equals("groupFromId2", grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
         return grouperProvisioningConfigurationAttribute;
       }
-      
-      if (StringUtils.equals("groupFromId2", grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-      
-      if (StringUtils.equals("groupFromId2", grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-      
     }
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
       this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().values()) {
       if (StringUtils.equals("groupFromId2", grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
         return grouperProvisioningConfigurationAttribute;
       }
-      
-      if (StringUtils.equals("groupFromId2", grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-      
-      if (StringUtils.equals("groupFromId2", grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-      
     }
     return null;
   }

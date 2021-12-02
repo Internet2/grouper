@@ -195,6 +195,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String groupAttributesAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeValueColumn();
 
     String groupAttributesLastModifiedColumn = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumn();
+    String groupAttributesLastModifiedColumnType = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumnType();
     
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig();
     
@@ -228,7 +229,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       
       Map<String, Object> attributeNamesToValues = new HashMap<String, Object>();
       
-      String oldGroupIdentifier = null;
+      String groupIdentifierValue = targetGroup.retrieveAttributeValueString(groupTableIdColumn);
       
       // we are filling in the old values here and later replacing the ones that have changed with the new ones.
       for (String attributeName: targetGroupAttributes.keySet()) {
@@ -237,18 +238,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
           attributeNamesToValues.put(attributeName, oldValue);
         }
         
-        if (StringUtils.equals(attributeName, groupTableIdColumn)) {
-          // Because the translator always puts new uuid even when updating the same group
-          // we need to get the old id through the sync field
-          SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
-          String syncField = configurationAttribute.getTranslateToGroupSyncField(); // e.g. groupToId2
-          oldGroupIdentifier = targetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().retrieveField(syncField);
-        }
-        
       }
       
-      if (StringUtils.isBlank(oldGroupIdentifier)) {
-        throw new RuntimeException("Unable to retrieve old identifier value from sync group");
+      if (StringUtils.isBlank(groupIdentifierValue)) {
+        throw new RuntimeException("Unable to retrieve group identifier value");
       }
       
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
@@ -265,13 +258,20 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
               List<Object> bindInsertVarsForAttributesTable = new ArrayList<Object>();
               batchInsertBindVarsForAttributesTable.add(bindInsertVarsForAttributesTable);
               
-              bindInsertVarsForAttributesTable.add(oldGroupIdentifier);
+              bindInsertVarsForAttributesTable.add(groupIdentifierValue);
               bindInsertVarsForAttributesTable.add(attributeName);
               bindInsertVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
               
               if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-                bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+                if (StringUtils.equals(groupAttributesLastModifiedColumnType, "timestamp")) {
+                  bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+                } else if (StringUtils.equals(groupAttributesLastModifiedColumnType, "long")) {
+                  bindInsertVarsForAttributesTable.add(System.currentTimeMillis());
+                } else {
+                  throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+groupAttributesLastModifiedColumnType+"'");
+                }
               }
+              
               
             } else if (GrouperUtil.isEmpty(provisioningObjectChange.getNewValue())) {
               //attributeNamesToValuesNeedingDelete.put(attributeName, provisioningObjectChange.getOldValue());
@@ -279,7 +279,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
               List<Object> bindDeleteVarsForAttributesTable = new ArrayList<Object>();
               batchDeleteBindVarsForAttributesTable.add(bindDeleteVarsForAttributesTable);
               
-              bindDeleteVarsForAttributesTable.add(oldGroupIdentifier);
+              bindDeleteVarsForAttributesTable.add(groupIdentifierValue);
               bindDeleteVarsForAttributesTable.add(attributeName);
               bindDeleteVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
               
@@ -290,10 +290,16 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
               
               bindUpdateVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
               if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-                bindUpdateVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+                if (StringUtils.equals(groupAttributesLastModifiedColumnType, "timestamp")) {
+                  bindUpdateVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+                } else if (StringUtils.equals(groupAttributesLastModifiedColumnType, "long")) {
+                  bindUpdateVarsForAttributesTable.add(System.currentTimeMillis());
+                } else {
+                  throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+groupAttributesLastModifiedColumnType+"'");
+                }
               }
               
-              bindUpdateVarsForAttributesTable.add(oldGroupIdentifier);
+              bindUpdateVarsForAttributesTable.add(groupIdentifierValue);
               bindUpdateVarsForAttributesTable.add(attributeName);
               bindUpdateVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
               
@@ -304,12 +310,18 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             List<Object> bindInsertVarsForAttributesTable = new ArrayList<Object>();
             batchInsertBindVarsForAttributesTable.add(bindInsertVarsForAttributesTable);
             
-            bindInsertVarsForAttributesTable.add(oldGroupIdentifier);
+            bindInsertVarsForAttributesTable.add(groupIdentifierValue);
             bindInsertVarsForAttributesTable.add(attributeName);
             bindInsertVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
             
             if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-              bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+              if (StringUtils.equals(groupAttributesLastModifiedColumnType, "timestamp")) {
+                bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+              } else if (StringUtils.equals(groupAttributesLastModifiedColumnType, "long")) {
+                bindInsertVarsForAttributesTable.add(System.currentTimeMillis());
+              } else {
+                throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+groupAttributesLastModifiedColumnType+"'");
+              }
             }
             
             // attributeNamesToValuesNeedingInsert.put(attributeName, provisioningObjectChange.getNewValue());
@@ -318,7 +330,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             List<Object> bindDeleteVarsForAttributesTable = new ArrayList<Object>();
             batchDeleteBindVarsForAttributesTable.add(bindDeleteVarsForAttributesTable);
             
-            bindDeleteVarsForAttributesTable.add(oldGroupIdentifier);
+            bindDeleteVarsForAttributesTable.add(groupIdentifierValue);
             bindDeleteVarsForAttributesTable.add(attributeName);
             bindDeleteVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
           }
@@ -351,7 +363,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       
       // This always gives new uuid
       // bindVarsForPrimaryTable.add(targetGroupAttributes.get(groupTableIdColumn).getValue());
-       bindVarsForPrimaryTable.add(oldGroupIdentifier);
+       bindVarsForPrimaryTable.add(groupIdentifierValue);
       
       //TODO set it only after running the sql statement
       targetGroup.setProvisioned(true);
@@ -521,6 +533,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     String entityAttributesLastModifiedColumn = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumn();
     
+    String entityAttributesLastModifiedColumnType = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumnType();
+    
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
     
     List<ProvisioningEntity> targetEntities = targetDaoUpdateEntitiesRequest.getTargetEntities();
@@ -553,7 +567,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       
       Map<String, Object> attributeNamesToValues = new HashMap<String, Object>();
       
-      String oldEntityIdentifier = null;
+      String entityIdentifierValue = targetEntity.retrieveAttributeValueString(entityTableIdColumn);
       
       // we are filling in the old values here and later replacing the ones that have changed with the new ones.
       for (String attributeName: targetEntityAttributes.keySet()) {
@@ -562,18 +576,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
           attributeNamesToValues.put(attributeName, oldValue);
         }
         
-        if (StringUtils.equals(attributeName, entityTableIdColumn)) {
-          // Because the translator always puts new uuid even when updating the same group
-          // we need to get the old id through the sync field
-          SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
-          String syncField = configurationAttribute.getTranslateToMemberSyncField(); // e.g. memberToId2
-          oldEntityIdentifier = targetEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember().retrieveField(syncField);
-        }
-        
       }
       
-      if (StringUtils.isBlank(oldEntityIdentifier)) {
-        throw new RuntimeException("Unable to retrieve old identifier value from sync member");
+      if (StringUtils.isBlank(entityIdentifierValue)) {
+        throw new RuntimeException("Unable to retrieve entitiy identifier value");
       }
       
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
@@ -590,12 +596,18 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
               List<Object> bindInsertVarsForAttributesTable = new ArrayList<Object>();
               batchInsertBindVarsForAttributesTable.add(bindInsertVarsForAttributesTable);
               
-              bindInsertVarsForAttributesTable.add(oldEntityIdentifier);
+              bindInsertVarsForAttributesTable.add(entityIdentifierValue);
               bindInsertVarsForAttributesTable.add(attributeName);
               bindInsertVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
               
               if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-                bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+                if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
+                  bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+                } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
+                  bindInsertVarsForAttributesTable.add(System.currentTimeMillis());
+                } else {
+                  throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
+                }
               }
               
             } else if (GrouperUtil.isEmpty(provisioningObjectChange.getNewValue())) {
@@ -604,7 +616,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
               List<Object> bindDeleteVarsForAttributesTable = new ArrayList<Object>();
               batchDeleteBindVarsForAttributesTable.add(bindDeleteVarsForAttributesTable);
               
-              bindDeleteVarsForAttributesTable.add(oldEntityIdentifier);
+              bindDeleteVarsForAttributesTable.add(entityIdentifierValue);
               bindDeleteVarsForAttributesTable.add(attributeName);
               bindDeleteVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
               
@@ -615,10 +627,16 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
               
               bindUpdateVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
               if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-                bindUpdateVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+                if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
+                  bindUpdateVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+                } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
+                  bindUpdateVarsForAttributesTable.add(System.currentTimeMillis());
+                } else {
+                  throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
+                }
               }
               
-              bindUpdateVarsForAttributesTable.add(oldEntityIdentifier);
+              bindUpdateVarsForAttributesTable.add(entityIdentifierValue);
               bindUpdateVarsForAttributesTable.add(attributeName);
               bindUpdateVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
               
@@ -629,12 +647,18 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             List<Object> bindInsertVarsForAttributesTable = new ArrayList<Object>();
             batchInsertBindVarsForAttributesTable.add(bindInsertVarsForAttributesTable);
             
-            bindInsertVarsForAttributesTable.add(oldEntityIdentifier);
+            bindInsertVarsForAttributesTable.add(entityIdentifierValue);
             bindInsertVarsForAttributesTable.add(attributeName);
             bindInsertVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
             
             if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-              bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+              if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
+                bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+              } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
+                bindInsertVarsForAttributesTable.add(System.currentTimeMillis());
+              } else {
+                throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
+              }
             }
             
             // attributeNamesToValuesNeedingInsert.put(attributeName, provisioningObjectChange.getNewValue());
@@ -643,7 +667,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             List<Object> bindDeleteVarsForAttributesTable = new ArrayList<Object>();
             batchDeleteBindVarsForAttributesTable.add(bindDeleteVarsForAttributesTable);
             
-            bindDeleteVarsForAttributesTable.add(oldEntityIdentifier);
+            bindDeleteVarsForAttributesTable.add(entityIdentifierValue);
             bindDeleteVarsForAttributesTable.add(attributeName);
             bindDeleteVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
           }
@@ -676,7 +700,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       
       // This always gives new uuid
       // bindVarsForPrimaryTable.add(targetGroupAttributes.get(groupTableIdColumn).getValue());
-       bindVarsForPrimaryTable.add(oldEntityIdentifier);
+       bindVarsForPrimaryTable.add(entityIdentifierValue);
       
       //TODO set it only after running the sql statement
       targetEntity.setProvisioned(true);
@@ -1498,6 +1522,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String entityAttributesAttributeValueColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeValueColumn();
 
     String entityAttributesLastModifiedColumn = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumn();
+    String entityAttributesLastModifiedColumnType = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumnType();
     
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
     
@@ -1546,7 +1571,13 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             bindVarsForSecondaryTable.add(attributeName);
             bindVarsForSecondaryTable.add(provisioningObjectChange.getNewValue());
             if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-              bindVarsForSecondaryTable.add(new Timestamp(System.currentTimeMillis()));
+              if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
+                bindVarsForSecondaryTable.add(new Timestamp(System.currentTimeMillis()));
+              } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
+                bindVarsForSecondaryTable.add(System.currentTimeMillis());
+              } else {
+                throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
+              }
             }
             
             batchBindVarsForAttributesTable.add(bindVarsForSecondaryTable);
@@ -2032,13 +2063,30 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         String colName = colNames[i];
         
         Object value = entityAttributeValue[i];
+        
+        GrouperProvisioningConfigurationAttribute configurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+            .getTargetEntityAttributeNameToConfig().get(colName);
+        if (configurationAttribute.isMultiValued()) {
+          throw new RuntimeException("An attribute that's a column of the primary table to be provisioned cannot be multivalued. "+colName);
+        }
 
         if (StringUtils.equalsIgnoreCase(entityTableIdColumn, colName)) {
           List<Object[]> moreAttributesFromSeparateAttributesTable = entityIdentifierToAttributes.get(value);
           
           for (Object[] namesValues: GrouperUtil.nonNull(moreAttributesFromSeparateAttributesTable)) {
-            //TODO Vivek - handle multivalued attributes 
-            provisioningEntity.assignAttributeValue(namesValues[1].toString(), namesValues[2]);
+            
+            String attributeName = namesValues[1].toString();
+            Object attributeValue = namesValues[2];
+            
+            GrouperProvisioningConfigurationAttribute configurationAttributeForSeparateTable = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
+                .getTargetGroupAttributeNameToConfig().get(attributeName);
+            
+            if(configurationAttributeForSeparateTable.isMultiValued()) {
+              provisioningEntity.addAttributeValue(attributeName, attributeValue);
+            } else {
+              provisioningEntity.assignAttributeValue(attributeName, attributeValue);
+            }
+            
           }
           
         }
@@ -2109,7 +2157,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMemberships(true);
 //    grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroups(true);
-    grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
+    grouperProvisionerDaoCapabilities.setCanUpdateEntities(true);
     
   }
 

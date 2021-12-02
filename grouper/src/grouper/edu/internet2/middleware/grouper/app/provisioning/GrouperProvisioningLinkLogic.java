@@ -213,17 +213,12 @@ public class GrouperProvisioningLinkLogic {
       
       if (hasGroupLinkGroupFromId2) {
         String groupFromId2Value = null;
-        
         if (groupLinkGroupFromId2Attribute != null) {
           groupFromId2Value = targetGroup.retrieveFieldOrAttributeValueString(groupLinkGroupFromId2Attribute);
         } else {
           groupFromId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId2, variableMap, true, false, true));
         }
-        
-        if (!groupLinkGroupFromId2Attribute.isUpdate() && !provisioningGroupWrapper.isCreate()) {
-          provisioningGroupWrapper.getGrouperTargetGroup().assignAttributeValue(groupLinkGroupFromId2Attribute.getName(), gcGrouperSyncGroup.getGroupFromId2());
-          hasChange = true;
-        } else if (!StringUtils.equals(groupFromId2Value, gcGrouperSyncGroup.getGroupFromId2())) {
+        if (!StringUtils.equals(groupFromId2Value, gcGrouperSyncGroup.getGroupFromId2())) {
           gcGrouperSyncGroup.setGroupFromId2(groupFromId2Value);
           hasChange = true;
         }
@@ -249,11 +244,7 @@ public class GrouperProvisioningLinkLogic {
         } else {
           groupToId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId2, variableMap, true, false, true));
         }
-        
-        if (!groupLinkGroupToId2Attribute.isUpdate() && !provisioningGroupWrapper.isCreate()) {
-          provisioningGroupWrapper.getGrouperTargetGroup().assignAttributeValue(groupLinkGroupToId2Attribute.getName(), gcGrouperSyncGroup.getGroupToId2());
-          hasChange = true;
-        } else if (!StringUtils.equals(groupToId2Value, gcGrouperSyncGroup.getGroupToId2())) {
+        if (!StringUtils.equals(groupToId2Value, gcGrouperSyncGroup.getGroupToId2())) {
           gcGrouperSyncGroup.setGroupToId2(groupToId2Value);
           hasChange = true;
         }
