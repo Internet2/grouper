@@ -1373,8 +1373,14 @@ public class Membership extends GrouperAPI implements
       
       return ms;
     }
-    catch (InsufficientPrivilegeException | MemberNotFoundException | MembershipNotFoundException e)  {
-      throw new MemberDeleteException(e.getMessage(), e);
+    catch (InsufficientPrivilegeException eIP)  {
+      throw new MemberDeleteException(eIP.getMessage(), eIP);
+    }
+    catch (MemberNotFoundException eMNF)        {
+      throw new MemberDeleteException( eMNF.getMessage(), eMNF );
+    }
+    catch (MembershipNotFoundException eMSNF)   {
+      throw new MemberDeleteAlreadyDeletedException(eMSNF.getMessage(), eMSNF);
     }
   }
 
