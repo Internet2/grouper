@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import junit.framework.Assert;
 import junit.textui.TestRunner;
 
@@ -174,6 +175,98 @@ public class TestGroup1 extends GrouperTest {
       T.e(e);
     }
   } // public void testReplaceMembers()
+
+  public void testReplaceMembersWithField() {
+    LOG.info("testReplaceMembersWithField");
+    try {
+      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+      R registry = R.populateRegistry(1, 2, 0);
+      Group groupA = registry.getGroup("a", "a");
+      Group groupB = registry.getGroup("a", "b");
+
+      List<Subject> subjects = GrouperUtil.toList(SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ1);
+      Field readerField = FieldFinder.find(Field.FIELD_NAME_READERS, true);
+      Field updaterField = FieldFinder.find(Field.FIELD_NAME_UPDATERS, true);
+      Field adminField = FieldFinder.find(Field.FIELD_NAME_ADMINS, true);
+
+      //init readers (should not update members)
+      assertEquals(2, groupA.replaceMembers(subjects, readerField));
+      assertEquals(2, groupA.getReaders().size());
+      assertEquals(0, groupA.getMembers().size());
+
+      assertTrue(groupA.hasRead(SubjectTestHelper.SUBJ0));
+      assertTrue(groupA.hasRead(SubjectTestHelper.SUBJ1));
+
+      //sync readers (should not update members)
+      subjects = GrouperUtil.toList(SubjectTestHelper.SUBJ1, SubjectTestHelper.SUBJ2);
+
+      assertEquals(2, groupA.replaceMembers(subjects, readerField));
+      assertEquals(2, groupA.getReaders().size());
+
+      assertTrue(groupA.hasRead(SubjectTestHelper.SUBJ1));
+      assertTrue(groupA.hasRead(SubjectTestHelper.SUBJ2));
+      assertFalse(groupA.hasRead(SubjectTestHelper.SUBJ0));
+
+      //sync updaters
+      subjects = GrouperUtil.toList(SubjectTestHelper.SUBJ3, SubjectTestHelper.SUBJ4);
+
+      assertEquals(2, groupA.replaceMembers(subjects, updaterField));
+      assertEquals(2, groupA.getUpdaters().size());
+
+      assertTrue(groupA.hasUpdate(SubjectTestHelper.SUBJ3));
+      assertTrue(groupA.hasUpdate(SubjectTestHelper.SUBJ4));
+
+      //sync admins, only affects direct memberships, so other priv lists should not change, but implied privs should
+      subjects = GrouperUtil.toList(SubjectTestHelper.SUBJ5, SubjectTestHelper.SUBJ6, SubjectTestHelper.SUBJ7);
+
+      assertEquals(3, groupA.replaceMembers(subjects, adminField));
+      assertEquals(2, groupA.getReaders().size());
+      assertEquals(2, groupA.getUpdaters().size());
+
+      assertTrue(groupA.hasAdmin(SubjectTestHelper.SUBJ5));
+      assertTrue(groupA.hasAdmin(SubjectTestHelper.SUBJ6));
+      assertTrue(groupA.hasAdmin(SubjectTestHelper.SUBJ7));
+
+      assertFalse(groupA.hasRead(SubjectTestHelper.SUBJ5));
+      assertFalse(groupA.hasUpdate(SubjectTestHelper.SUBJ6));
+      assertTrue(groupA.canHavePrivilege(SubjectTestHelper.SUBJ5, "read", false));
+      assertTrue(groupA.canHavePrivilege(SubjectTestHelper.SUBJ6, "update", false));
+
+      //clear out admins
+      assertEquals(3, groupA.replaceMembers(null, adminField));
+      assertEquals(0, groupA.getAdmins().size());
+
+      //replace a group with its constituent members
+      subjects = GrouperUtil.toList(SubjectTestHelper.SUBJ8, SubjectTestHelper.SUBJ9);
+      groupB.replaceMembers(subjects);
+      groupA.grantPriv(groupB.toSubject(), AccessPrivilege.ADMIN);
+      assertEquals(3, groupA.getAdmins().size());
+
+      assertTrue(groupA.canHavePrivilege(SubjectTestHelper.SUBJ8, "admin", false));
+      assertTrue(groupA.canHavePrivilege(SubjectTestHelper.SUBJ9, "admin", false));
+      assertTrue(groupA.canHavePrivilege(groupB.toSubject(), "admin", false));
+
+      assertEquals(3, groupA.replaceMembers(subjects, adminField));
+      assertEquals(2, groupA.getAdmins().size());
+      assertTrue(groupA.canHavePrivilege(SubjectTestHelper.SUBJ8, "admin", false));
+      assertTrue(groupA.canHavePrivilege(SubjectTestHelper.SUBJ9, "admin", false));
+      assertFalse(groupA.canHavePrivilege(groupB.toSubject(), "admin", false));
+
+      //now reverse; replace immediate members with a group containing the same members
+      subjects = GrouperUtil.toList(groupB.toSubject());
+
+      assertEquals(3, groupA.replaceMembers(subjects, adminField));
+      assertEquals(3, groupA.getAdmins().size());
+      assertTrue(groupA.canHavePrivilege(SubjectTestHelper.SUBJ8, "admin", false));
+      assertTrue(groupA.canHavePrivilege(SubjectTestHelper.SUBJ9, "admin", false));
+      assertTrue(groupA.canHavePrivilege(groupB.toSubject(), "admin", false));
+
+      registry.rs.stop();
+    }
+    catch (Exception e) {
+      T.e(e);
+    }
+  } // public void testReplaceMembersWithField()
 
   public void testDeleteGroupMemberWithNonGroupMember() {
     LOG.info("testDeleteGroupMemberWithNonGroupMember");

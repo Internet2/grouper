@@ -1557,9 +1557,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
               hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
-              if ( !FieldType.LIST.equals( f.getType() ) ) {
-                throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
-              }
+              // (12/2021) This constraint was added in 2007 without comment. Seems ok to remove it
+              //if ( !FieldType.LIST.equals( f.getType() ) ) {
+              //  throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+              //}
               if (checkSecurity && !Group.this.canWriteField(f) ) { 
                 GrouperValidator v = CanOptinValidator.validate(Group.this, subj, f);
                 if (v.isInvalid()) {
@@ -2627,9 +2628,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
             hibernateHandlerBean.getHibernateSession().setCachingEnabled(false);
 
-            if ( !FieldType.LIST.equals( f.getType() ) ) {
-              throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
-            }
+            // (12/2021) This constraint was added in 2007 without comment. Seems ok to remove it
+            //if ( !FieldType.LIST.equals( f.getType() ) ) {
+            //  throw new SchemaException( E.FIELD_INVALID_TYPE + f.getType() );
+            //}
             if (checkSecurity && !Group.this.canWriteField(f) ) {
               GrouperValidator v = CanOptoutValidator.validate(Group.this, subj, f);
               if (v.isInvalid()) {
