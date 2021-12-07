@@ -3254,7 +3254,9 @@ public enum GrouperLoaderType {
         if (subjectToAdd != null) {
           subjectsToAdd.remove(subjectToAdd);
           currentMembersIter.remove();
-          LOG.warn("Subject " + member.getSubjectId() + " marked to be added and removed from group " + groupName + ".  Possible case issue between subject source and loader source.  Or loading based on subject identifier and identifier is not cached in Grouper's grouper_members table.");
+          if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.log.subject.identifier.mismatch", true)) {
+            LOG.warn("Subject " + member.getSubjectId() + " marked to be added and removed from group " + groupName + ".  Possible case issue between subject source and loader source.  Or loading based on subject identifier and identifier is not cached in Grouper's grouper_members table.");
+          }
         }
       }
             
