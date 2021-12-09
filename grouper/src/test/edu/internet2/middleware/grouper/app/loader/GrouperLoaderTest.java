@@ -136,7 +136,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testSyncFolderListLevelsConfig"));
+    TestRunner.run(new GrouperLoaderTest("testIncrementalLoaderSimpleSubjectId"));
   }
 
   public void testLoaderExit() {
@@ -3377,9 +3377,11 @@ public class GrouperLoaderTest extends GrouperTest {
     
     List<TestgrouperIncrementalLoader> testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();    
     testIncrementalDataList.add(new TestgrouperIncrementalLoader(1, SubjectTestHelper.SUBJ0_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
-    testIncrementalDataList.add(new TestgrouperIncrementalLoader(2, SubjectTestHelper.SUBJ1_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
-    testIncrementalDataList.add(new TestgrouperIncrementalLoader(3, SubjectTestHelper.SUBJ5_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
-    testIncrementalDataList.add(new TestgrouperIncrementalLoader(4, SubjectTestHelper.SUBJ6_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(2, null, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(3, SubjectTestHelper.SUBJ1_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(4, SubjectTestHelper.SUBJ5_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(5, SubjectTestHelper.SUBJ6_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(6, null, null, null, null, "loader:group1", System.currentTimeMillis(), null));
     HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
     
     GrouperLoaderIncrementalJob.runJob(this.grouperSession, "OTHER_JOB_incrementalLoader1");
