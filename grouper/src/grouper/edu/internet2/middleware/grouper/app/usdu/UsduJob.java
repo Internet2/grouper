@@ -464,28 +464,14 @@ public class UsduJob extends OtherJobBase {
    */
   private void populateUnresolvableMembersConfig(Set<Member> unresolvables, Map<String, Set<Member>> sourceIdToMembers, 
       Set<Member> membersWithoutExplicitSourceConfiguration) {
-    
-    Set<Field> fields = getMemberFields();
-    Set<Member> unresolvablesWithMemberships = new HashSet<Member>();
-    
-    for (Member member : unresolvables) {
-      
-      Set<Membership> memberships = getAllImmediateMemberships(member, fields);
-      
-      if (memberships.isEmpty()) {
-        LOG.info("member_uuid='" + member.getUuid() + "' subject=" + member + " no_memberships");
-        continue;
-      }
-      unresolvablesWithMemberships.add(member);
-    }
-    
-    if (unresolvablesWithMemberships.size() == 0) {
+        
+    if (unresolvables.size() == 0) {
       return;
     }
 
     AttributeAssignValueFinder attributeAssignValueFinder = new AttributeAssignValueFinder();
     
-    for (Member member : unresolvablesWithMemberships) {
+    for (Member member : unresolvables) {
       
       attributeAssignValueFinder.addOwnerMemberIdOfAssignAssign(member.getId());
     }
@@ -493,7 +479,7 @@ public class UsduJob extends OtherJobBase {
     attributeAssignValueFinder.addAttributeDefNameId(UsduAttributeNames.retrieveAttributeDefNameBase().getId());
     AttributeAssignValueFinderResult attributeAssignValueFinderResult = attributeAssignValueFinder.findAttributeAssignValuesResult();
     
-    for (Member member : unresolvablesWithMemberships) {
+    for (Member member : unresolvables) {
       
       SubjectResolutionAttributeValue savedSubjectResolutionAttributeValue = saveSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
       

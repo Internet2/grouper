@@ -40,7 +40,7 @@ public class UsduJobTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new UsduJobTest("testUsduJobWithAttributes"));
+    TestRunner.run(new UsduJobTest("testUsduWithUnusedMemberMarkedUnresolvable"));
   }
   
   public UsduJobTest(String name) {
@@ -55,7 +55,37 @@ public class UsduJobTest extends GrouperTest {
     
   }
   
+  public void testUsduWithUnusedMemberMarkedUnresolvable() throws InterruptedException {
+    int initialSize = GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size();
+
+    Group group = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    Subject subject0 = SubjectFinder.findById("test.subject.0", true);
+    Subject subject1 = SubjectFinder.findById("test.subject.1", true);
+
+    group.addMember(subject0);
+    group.addMember(subject1);
+
+    deleteSubject(subject0);
+
+    UsduJob.runDaemonStandalone();
+    assertTrue(group.hasMember(subject0));
+    assertTrue(group.hasMember(subject1));
+
+    group.deleteMember(subject0);
+
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "-1");
+
+    assertEquals(initialSize + 2, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size());
+    UsduJob.runDaemonStandalone();
+    assertEquals(initialSize + 1, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size());
+
+    assertFalse(group.hasMember(subject0));
+    assertTrue(group.hasMember(subject1));
+  }
+  
   public void testUsduJobWithAttributes() throws InterruptedException {
+    int initialSize = GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size();
+    
     Group group = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
     Stem stem = group.getParentStem();
     Subject subject = SubjectFinder.findById("test.subject.0", true);
@@ -86,9 +116,9 @@ public class UsduJobTest extends GrouperTest {
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "-1");
 
-    assertEquals(1, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size());
+    assertEquals(initialSize + 1, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size());
     UsduJob.runDaemonStandalone();
-    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size());
+    assertEquals(initialSize, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size());
 
     assertFalse(group.hasMember(subject));
     

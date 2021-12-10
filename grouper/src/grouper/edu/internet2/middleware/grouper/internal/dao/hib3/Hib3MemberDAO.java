@@ -910,13 +910,14 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     
     StringBuilder query = new StringBuilder("select distinct theMember.uuid from Member as theMember where ");
    
+    query.append(" (subjectResolutionDeletedDb='F' and subjectResolutionResolvableDb='F') or (");
     query.append(" ((theMember.subjectSourceIdDb != 'g:gsa' and theMember.subjectSourceIdDb != 'g:isa') or " );
     query.append(" (theMember.subjectSourceIdDb = 'g:gsa' and not exists (select 1 from Group g where g.uuid=theMember.subjectIdDb))) " );
 
     //memberships or attributes
     query.append(" and (exists (select 1 from ImmediateMembershipEntry as theMembership where theMembership.memberUuid = theMember.uuid) " +
         " or exists (select 1 from AttributeAssign as theAttributeAssign where theAttributeAssign.ownerMemberId = theMember.uuid"
-        + " and theAttributeAssign.attributeDefNameId != :theAttributeDefNameId )) ");
+        + " and theAttributeAssign.attributeDefNameId != :theAttributeDefNameId ))) ");
     
     // dont worry about the unresolvable attributes
     byHqlStatic.setString("theAttributeDefNameId", UsduAttributeNames.retrieveAttributeDefNameBase().getId());
