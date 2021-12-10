@@ -5,14 +5,22 @@ import java.util.List;
 import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -23,8 +31,21 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import junit.textui.TestRunner;
 
 public class UsduJobTest extends GrouperTest {
+
+  /**
+   * @param args
+   * @throws Exception
+   */
+  public static void main(String[] args) throws Exception {
+    TestRunner.run(new UsduJobTest("testUsduJobWithAttributes"));
+  }
+  
+  public UsduJobTest(String name) {
+    super(name);
+  }
   
   @Override
   protected void setUp() {
@@ -32,6 +53,48 @@ public class UsduJobTest extends GrouperTest {
     GrouperCheckConfig.checkGroups();
     GrouperCheckConfig.waitUntilDoneWithExtraConfig();
     
+  }
+  
+  public void testUsduJobWithAttributes() throws InterruptedException {
+    Group group = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem = group.getParentStem();
+    Subject subject = SubjectFinder.findById("test.subject.0", true);
+    
+    AttributeDef attributeDef = stem.addChildAttributeDef("attributeDef", AttributeDefType.attr);
+    attributeDef.setAssignToMember(true);
+    attributeDef.setAssignToMemberAssn(true);
+    attributeDef.setAssignToEffMembership(true);
+    attributeDef.setValueType(AttributeDefValueType.string);
+    attributeDef.store();
+    AttributeDefName attributeDefName = stem.addChildAttributeDefName(attributeDef, "attributeDefName", "attributeDefName");
+    
+    group.addMember(subject);
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+    AttributeAssign assign = member.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "test").getAttributeAssignResult().getAttributeAssign();
+    assign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), "test2");
+    new GroupMember(group, member).getAttributeValueDelegate().assignValue(attributeDefName.getName(), "test3");
+    
+    deleteSubject(subject);
+    
+    UsduJob.runDaemonStandalone();
+    assertTrue(group.hasMember(subject));
+    
+    assertTrue(member.getAttributeDelegate().retrieveAttributes().contains(UsduAttributeNames.retrieveAttributeDefNameBase()));
+    assertTrue(member.getAttributeDelegate().retrieveAttributes().contains(attributeDefName));
+    assertTrue(new GroupMember(group, member).getAttributeDelegate().retrieveAttributes().contains(attributeDefName));
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "-1");
+
+    assertEquals(1, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size());
+    UsduJob.runDaemonStandalone();
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size());
+
+    assertFalse(group.hasMember(subject));
+    
+    assertTrue(member.getAttributeDelegate().retrieveAttributes().contains(UsduAttributeNames.retrieveAttributeDefNameBase()));
+    assertFalse(member.getAttributeDelegate().retrieveAttributes().contains(attributeDefName));
+    assertFalse(new GroupMember(group, member).getAttributeDelegate().retrieveAttributes().contains(attributeDefName));
   }
   
   public void testUsduJobWhenSubjectIsDeleted() throws InterruptedException {
@@ -226,10 +289,9 @@ public class UsduJobTest extends GrouperTest {
     
     List<RegistrySubject> registrySubjects = HibernateSession.byCriteriaStatic()
       .list(RegistrySubject.class, Restrictions.eq("id", subject.getId()));
-    if (registrySubjects.size() > 0) {
-      
-      RegistrySubjectDAO dao = GrouperDAOFactory.getFactory().getRegistrySubject();
-      dao.delete(registrySubjects.get(0));
+
+    for (RegistrySubject registrySubject : registrySubjects) {
+      registrySubject.delete(GrouperSession.staticGrouperSession());
     }
 
     SubjectFinder.flushCache();
