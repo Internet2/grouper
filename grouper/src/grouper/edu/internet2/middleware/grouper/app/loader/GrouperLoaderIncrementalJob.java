@@ -203,9 +203,11 @@ public class GrouperLoaderIncrementalJob implements Job {
           String sourceId = null;
           String subjectColumn = null;
           String subjectValue = null;
+          boolean subjectColumnFound = false;
           
           for (int i = 0; i < columnCount; i++) {
             if (columnNames.get(i).equalsIgnoreCase("subject_id")) {
+              subjectColumnFound = true;
               subjectId = resultSet.getString(i + 1);
               
               if (!StringUtils.isEmpty(subjectId)) {
@@ -213,6 +215,7 @@ public class GrouperLoaderIncrementalJob implements Job {
                 subjectValue = subjectId;
               }
             } else if (columnNames.get(i).equalsIgnoreCase("subject_identifier")) {
+              subjectColumnFound = true;
               subjectIdentifier = resultSet.getString(i + 1);
               
               if (!StringUtils.isEmpty(subjectIdentifier)) {
@@ -220,6 +223,7 @@ public class GrouperLoaderIncrementalJob implements Job {
                 subjectValue = subjectIdentifier;
               }
             } else if (columnNames.get(i).equalsIgnoreCase("subject_id_or_identifier")) {
+              subjectColumnFound = true;
               subjectIdOrIdentifier = resultSet.getString(i + 1);
               
               if (!StringUtils.isEmpty(subjectIdOrIdentifier)) {
@@ -235,8 +239,19 @@ public class GrouperLoaderIncrementalJob implements Job {
             }
           }
           
-          if (subjectColumn == null) {
+          if (!subjectColumnFound) {
             throw new RuntimeException("Didn't find the subject column!");
+          }
+          
+          if (subjectColumn == null) {
+            String warnMessage = "Unable to find subject value in table " + tableName + " for id=" + id + " in any of these columns: subject_id, subject_identifier, subject_id_or_identifier.";
+            LOG.warn(warnMessage);
+            nonFatalWarnings.add(warnMessage);
+            
+            // mark row done
+            setRowCompleted(connection, tableName, id, true);
+            
+            continue;
           }
           
           Row row = new Row(id, timestamp, loaderGroupName, subjectId, subjectIdentifier, subjectIdOrIdentifier, sourceId, subjectColumn, subjectValue);

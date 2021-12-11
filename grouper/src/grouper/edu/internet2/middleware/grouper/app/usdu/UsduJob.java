@@ -35,6 +35,8 @@ import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
@@ -462,28 +464,14 @@ public class UsduJob extends OtherJobBase {
    */
   private void populateUnresolvableMembersConfig(Set<Member> unresolvables, Map<String, Set<Member>> sourceIdToMembers, 
       Set<Member> membersWithoutExplicitSourceConfiguration) {
-    
-    Set<Field> fields = getMemberFields();
-    Set<Member> unresolvablesWithMemberships = new HashSet<Member>();
-    
-    for (Member member : unresolvables) {
-      
-      Set<Membership> memberships = getAllImmediateMemberships(member, fields);
-      
-      if (memberships.isEmpty()) {
-        LOG.info("member_uuid='" + member.getUuid() + "' subject=" + member + " no_memberships");
-        continue;
-      }
-      unresolvablesWithMemberships.add(member);
-    }
-    
-    if (unresolvablesWithMemberships.size() == 0) {
+        
+    if (unresolvables.size() == 0) {
       return;
     }
 
     AttributeAssignValueFinder attributeAssignValueFinder = new AttributeAssignValueFinder();
     
-    for (Member member : unresolvablesWithMemberships) {
+    for (Member member : unresolvables) {
       
       attributeAssignValueFinder.addOwnerMemberIdOfAssignAssign(member.getId());
     }
@@ -491,7 +479,7 @@ public class UsduJob extends OtherJobBase {
     attributeAssignValueFinder.addAttributeDefNameId(UsduAttributeNames.retrieveAttributeDefNameBase().getId());
     AttributeAssignValueFinderResult attributeAssignValueFinderResult = attributeAssignValueFinder.findAttributeAssignValuesResult();
     
-    for (Member member : unresolvablesWithMemberships) {
+    for (Member member : unresolvables) {
       
       SubjectResolutionAttributeValue savedSubjectResolutionAttributeValue = saveSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
       
@@ -711,6 +699,7 @@ public class UsduJob extends OtherJobBase {
   public static long deleteUnresolvableMembers(Set<Member> unresolvableMembers, int howMany) {
     
     long deletedCount = 0;
+    AttributeDefName usduMarkerAttributeDefName = UsduAttributeNames.retrieveAttributeDefNameBase();
     
     for (final Member member: unresolvableMembers) {
       
@@ -754,6 +743,24 @@ public class UsduJob extends OtherJobBase {
           }
         });
                 
+      }
+      
+      Set<AttributeAssign> attributeAssignsToDelete = new HashSet<AttributeAssign>();
+      attributeAssignsToDelete.addAll(member.getAttributeDelegate().retrieveAssignments());
+      attributeAssignsToDelete.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(AttributeAssignType.any_mem, null, null, null, null, member.getId(), null, null, null, false));
+      for (AttributeAssign attributeAssign : attributeAssignsToDelete) {
+        
+        if (!attributeAssign.getAttributeDefNameId().equals(usduMarkerAttributeDefName.getId())) {
+          HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+            public Object callback(HibernateHandlerBean hibernateHandlerBean) throws GrouperDAOException {
+              
+              LOG.info("member_uuid='" + member.getUuid() + "' subject=" + member + " attributeAssignId=" + attributeAssign.getId());
+              attributeAssign.delete();
+              
+              return null;
+            }
+          });
+        }
       }
       
       UsduService.markMemberAsDeleted(member);
