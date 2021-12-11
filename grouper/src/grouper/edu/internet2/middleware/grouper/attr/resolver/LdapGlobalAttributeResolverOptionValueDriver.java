@@ -20,7 +20,9 @@ public class LdapGlobalAttributeResolverOptionValueDriver implements OptionValue
     
     for (GlobalAttributeResolverConfiguration resolverConfig: resolverConfigs) {
       
-      if (StringUtils.equals(resolverConfig.retrieveAttributes().get("resolverType").getValueOrExpressionEvaluation(), "ldap")) {
+      if (StringUtils.equals(resolverConfig.retrieveAttributes().get("resolverType").getValueOrExpressionEvaluation(), "ldap") &&
+          (StringUtils.isBlank(resolverConfig.retrieveAttributes().get("enabled").getValueOrExpressionEvaluation()) || 
+              resolverConfig.retrieveAttributes().get("enabled").getValueOrExpressionEvaluation().equalsIgnoreCase("true"))) {
         String configId = resolverConfig.getConfigId();
         keysAndLabels.add(new MultiKey(configId, configId));
       }

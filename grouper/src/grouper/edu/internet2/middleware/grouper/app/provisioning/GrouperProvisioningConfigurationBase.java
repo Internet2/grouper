@@ -31,6 +31,284 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  *
  */
 public abstract class GrouperProvisioningConfigurationBase {
+  
+  
+  private boolean hasEntityAttributes;
+  
+  private boolean resolveAttributesWithSql;
+
+  private boolean resolveAttributesWithLdap;
+
+  private boolean useGlobalSqlResolver;
+  private boolean useGlobalLdapResolver;
+
+  private String globalSqlResolver;
+
+  private String globalLdapResolver;
+  
+  private boolean selectAllSqlOnFull = true;
+  private boolean filterAllLDAPOnFull = true;
+  
+  private String entityAttributesSqlExternalSystem;
+  private String entityAttributesTableViewName;
+  private String entityAttributesColumnNames;
+  private String entityAttributesSubjectSourceIdColumn;
+  private String entityAttributesSubjectSearchMatchingColumn;
+  private String entityAttributesSqlMappingType;
+  private String entityAttributesSqlMappingEntityAttribute;
+  private String entityAttributesSqlMappingExpression;
+  private String entityAttributesLastUpdatedColumn;
+  private String entityAttributesLastUpdatedType;
+  
+  private String entityAttributesLdapExternalSystem;
+  private String entityAttributesLdapBaseDn;
+  private String entityAttributesLdapSearchScope;
+  private String entityAttributesLdapFilterPart;
+  private String entityAttributesLdapAttributes;
+  private String entityAttributesLdapMutliValuedAttributes;
+  private String entityAttributesLdapMatchingSearchAttribute;
+  private String entityAttributesLdapMappingType;
+  private String entityAttributesLdapMappingEntityAttribute;
+  private String entityAttributesLdapMatchingExpression;
+  private String entityAttributesLdapLastUpdatedAttribute;
+  private String entityAttributesLdapLastUpdatedAttributeFormat;
+  
+  
+  
+  
+  
+  public boolean isFilterAllLDAPOnFull() {
+    return filterAllLDAPOnFull;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapExternalSystem() {
+    return entityAttributesLdapExternalSystem;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapBaseDn() {
+    return entityAttributesLdapBaseDn;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapSearchScope() {
+    return entityAttributesLdapSearchScope;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapFilterPart() {
+    return entityAttributesLdapFilterPart;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapAttributes() {
+    return entityAttributesLdapAttributes;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapMutliValuedAttributes() {
+    return entityAttributesLdapMutliValuedAttributes;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapMatchingSearchAttribute() {
+    return entityAttributesLdapMatchingSearchAttribute;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapMappingType() {
+    return entityAttributesLdapMappingType;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapMappingEntityAttribute() {
+    return entityAttributesLdapMappingEntityAttribute;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapMatchingExpression() {
+    return entityAttributesLdapMatchingExpression;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapLastUpdatedAttribute() {
+    return entityAttributesLdapLastUpdatedAttribute;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapLastUpdatedAttributeFormat() {
+    return entityAttributesLdapLastUpdatedAttributeFormat;
+  }
+
+
+
+
+
+  public boolean isUseGlobalLdapResolver() {
+    return useGlobalLdapResolver;
+  }
+
+
+
+
+  
+  public String getGlobalLdapResolver() {
+    return globalLdapResolver;
+  }
+
+
+
+
+  public String getEntityAttributesSqlExternalSystem() {
+    return entityAttributesSqlExternalSystem;
+  }
+
+
+
+  
+  public String getEntityAttributesTableViewName() {
+    return entityAttributesTableViewName;
+  }
+
+
+  
+  
+  public String getEntityAttributesColumnNames() {
+    return entityAttributesColumnNames;
+  }
+
+
+
+
+
+  public String getEntityAttributesSubjectSourceIdColumn() {
+    return entityAttributesSubjectSourceIdColumn;
+  }
+
+
+
+  
+  public String getEntityAttributesSubjectSearchMatchingColumn() {
+    return entityAttributesSubjectSearchMatchingColumn;
+  }
+
+
+
+  
+  public String getEntityAttributesSqlMappingType() {
+    return entityAttributesSqlMappingType;
+  }
+
+
+
+  
+  public String getEntityAttributesSqlMappingEntityAttribute() {
+    return entityAttributesSqlMappingEntityAttribute;
+  }
+
+
+
+  
+  public String getEntityAttributesSqlMappingExpression() {
+    return entityAttributesSqlMappingExpression;
+  }
+
+
+
+  
+  public String getEntityAttributesLastUpdatedColumn() {
+    return entityAttributesLastUpdatedColumn;
+  }
+
+
+
+  
+  public String getEntityAttributesLastUpdatedType() {
+    return entityAttributesLastUpdatedType;
+  }
+
+
+
+  public boolean isHasEntityAttributes() {
+    return hasEntityAttributes;
+  }
+
+
+  
+  public boolean isResolveAttributesWithSql() {
+    return resolveAttributesWithSql;
+  }
+
+  
+  public boolean isResolveAttributesWithLdap() {
+    return resolveAttributesWithLdap;
+  }
+
+  
+  public boolean isUseGlobalSqlResolver() {
+    return useGlobalSqlResolver;
+  }
+
+  
+  
+  public String getGlobalSqlResolver() {
+    return globalSqlResolver;
+  }
+
+  
+  
+  public boolean isSelectAllSqlOnFull() {
+    return selectAllSqlOnFull;
+  }
 
   /**
    * if set then only provision users who are in this group
@@ -2177,6 +2455,41 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.deleteEntitiesIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperCreated", false), false);
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
+    
+    
+    this.hasEntityAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityAttributesNotInSubjectSource", false), false);
+    this.resolveAttributesWithSql = GrouperUtil.booleanValue(this.retrieveConfigBoolean("resolveAttributesWithSQL", false), false);
+    this.resolveAttributesWithLdap = GrouperUtil.booleanValue(this.retrieveConfigBoolean("resolveAttributesWithLDAP", false), false);
+    this.useGlobalSqlResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useGlobalSQLResolver", false), false);
+    this.useGlobalLdapResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useGlobalLDAPResolver", false), false);
+    this.globalSqlResolver = this.retrieveConfigString("globalSQLResolver", false);
+    this.globalLdapResolver = this.retrieveConfigString("globalLDAPResolver", false);
+    this.selectAllSqlOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllSQLOnFull", false), true);
+    this.filterAllLDAPOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("filterAllLDAPOnFull", false), true);
+
+    this.entityAttributesSqlExternalSystem = this.retrieveConfigString("sqlConfigId", false);
+    this.entityAttributesTableViewName = this.retrieveConfigString("tableOrViewName", false);
+    this.entityAttributesColumnNames = this.retrieveConfigString("columnNames", false);
+    this.entityAttributesSubjectSourceIdColumn = this.retrieveConfigString("subjectSourceIdColumn", false);
+    this.entityAttributesSubjectSearchMatchingColumn = this.retrieveConfigString("subjectSearchMatchingColumn", false);
+    this.entityAttributesSqlMappingType = this.retrieveConfigString("sqlMappingType", false);
+    this.entityAttributesSqlMappingEntityAttribute = this.retrieveConfigString("sqlMappingEntityAttribute", false);
+    this.entityAttributesSqlMappingExpression = this.retrieveConfigString("sqlMappingExpression", false);
+    this.entityAttributesLastUpdatedColumn = this.retrieveConfigString("lastUpdatedColumn", false);
+    this.entityAttributesLastUpdatedType = this.retrieveConfigString("lastUpdatedType", false);
+    
+    this.entityAttributesLdapExternalSystem = this.retrieveConfigString("ldapConfigId", false);
+    this.entityAttributesLdapBaseDn = this.retrieveConfigString("baseDN", false);
+    this.entityAttributesLdapSearchScope = this.retrieveConfigString("searchScope", false);
+    this.entityAttributesLdapFilterPart = this.retrieveConfigString("filterPart", false);
+    this.entityAttributesLdapAttributes = this.retrieveConfigString("attributes", false);
+    this.entityAttributesLdapMutliValuedAttributes = this.retrieveConfigString("multiValuedLdapAttributes", false);
+    this.entityAttributesLdapMatchingSearchAttribute = this.retrieveConfigString("ldapMatchingSearchAttribute", false);
+    this.entityAttributesLdapMappingType = this.retrieveConfigString("ldapMappingType", false);
+    this.entityAttributesLdapMappingEntityAttribute = this.retrieveConfigString("ldapMappingEntityAttribute", false);
+    this.entityAttributesLdapMatchingExpression = this.retrieveConfigString("ldapMatchingExpression", false);
+    this.entityAttributesLdapLastUpdatedAttribute = this.retrieveConfigString("lastUpdatedAttribute", false);
+    this.entityAttributesLdapLastUpdatedAttributeFormat = this.retrieveConfigString("lastUpdatedFormat", false);
 
     // init this in the behavior
     this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().setGroupIdOfUsersToProvision(this.groupIdOfUsersToProvision);

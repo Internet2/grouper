@@ -78,7 +78,7 @@ public interface LdapSession {
    * @param ldapSearchScope 
    * @param filter 
    * @param attributeNames 
-   * @param sizeLimit
+   * @param sizeLimit - null for no limit
    * @return the list of results, never null
    */
   public abstract List<LdapEntry> list(final String ldapServerId, final String searchDn, 

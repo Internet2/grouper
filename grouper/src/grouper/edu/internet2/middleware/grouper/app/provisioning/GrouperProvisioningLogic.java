@@ -23,8 +23,14 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoSendChangesToTargetRequest;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ldap.LdapAttribute;
+import edu.internet2.middleware.grouper.ldap.LdapEntry;
+import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
+import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
@@ -32,6 +38,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogSta
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
  * does the logic to use the data from the DAOs and call the correct methods to synnc things up or dry run or send messages for async
@@ -1344,6 +1351,10 @@ public class GrouperProvisioningLogic {
 
     retrieveGrouperDataFull();
     
+    enhanceEntityAttributesWithSqlResolver(true);
+    
+    enhanceEntityAttributesWithLdapResolver();
+    
     GrouperClientUtils.join(targetQueryThread);
     if (RUNTIME_EXCEPTION[0] != null) {
       throw RUNTIME_EXCEPTION[0];
@@ -1353,6 +1364,440 @@ public class GrouperProvisioningLogic {
     
     processTargetWrappers();
     
+  }
+  
+  public void enhanceEntityAttributesWithSqlResolver(boolean isFullSync) {
+    
+    GrouperProvisioningConfigurationBase provisioningConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    if (!provisioningConfiguration.isResolveAttributesWithSql()) {
+      return;
+    }
+    
+    String dbConnectionName = null;
+    String grouperAttributeThatMatchesRow = null;
+    String subjectSearchMatchingColumn = null;
+    String subjectSourceIdColumn = null;
+    String tableOrViewName = null;
+    String expression = null;
+    String commaSeparatedColumns = null;
+    String lastUpdatedColumn = null;
+    String lastUpdatedColumnType = null;
+    
+    String globalSqlResolver = provisioningConfiguration.getGlobalSqlResolver();
+    
+    if (StringUtils.isNotBlank(globalSqlResolver)) {
+      
+      boolean isEnabled = GrouperConfig.retrieveConfig().propertyValueBoolean("entityAttributeResolver."+globalSqlResolver+".enabled", true);
+      
+      if (!isEnabled) {
+        return;
+      }
+      
+      dbConnectionName = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalSqlResolver+".sqlConfigId");
+      
+      grouperAttributeThatMatchesRow = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalSqlResolver+".grouperAttributeThatMatchesRow");
+
+      subjectSearchMatchingColumn = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalSqlResolver+".subjectSearchMatchingColumn");
+
+      tableOrViewName = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalSqlResolver+".tableOrViewName");
+
+      commaSeparatedColumns = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalSqlResolver+".columnNames");
+
+      subjectSourceIdColumn = GrouperConfig.retrieveConfig().propertyValueString("entityAttributeResolver."+globalSqlResolver+".subjectSourceIdColumn");
+
+      lastUpdatedColumn = GrouperConfig.retrieveConfig().propertyValueString("entityAttributeResolver."+globalSqlResolver+".lastUpdatedColumn");
+      
+      lastUpdatedColumnType = GrouperConfig.retrieveConfig().propertyValueString("entityAttributeResolver."+globalSqlResolver+".lastUpdatedType");
+        
+    } else {
+      
+      dbConnectionName = provisioningConfiguration.getEntityAttributesSqlExternalSystem();
+      
+      grouperAttributeThatMatchesRow = provisioningConfiguration.getEntityAttributesSqlMappingEntityAttribute();
+
+      subjectSearchMatchingColumn = provisioningConfiguration.getEntityAttributesSubjectSearchMatchingColumn();
+      
+      tableOrViewName = provisioningConfiguration.getEntityAttributesTableViewName();
+      
+      commaSeparatedColumns = provisioningConfiguration.getEntityAttributesColumnNames();
+      
+      subjectSourceIdColumn = provisioningConfiguration.getEntityAttributesSubjectSourceIdColumn();
+      
+      expression = provisioningConfiguration.getEntityAttributesSqlMappingExpression();
+      
+      lastUpdatedColumn = provisioningConfiguration.getEntityAttributesLastUpdatedColumn();
+
+      lastUpdatedColumnType = provisioningConfiguration.getEntityAttributesLastUpdatedType();
+      
+    }
+    
+    Set<String> columnsWhichAreAttributes = GrouperUtil.splitTrimToSet(commaSeparatedColumns, ",");
+    
+    Set<String> columnNamesToFetch = GrouperUtil.splitTrimToSet(commaSeparatedColumns, ",");
+    
+    if (StringUtils.isNotBlank(lastUpdatedColumn) && !columnNamesToFetch.contains(lastUpdatedColumn.trim())) {
+      columnNamesToFetch.add(lastUpdatedColumn.trim());
+    }
+    
+    if (StringUtils.isNotBlank(subjectSourceIdColumn) && !columnNamesToFetch.contains(subjectSourceIdColumn.trim())) {
+      columnNamesToFetch.add(subjectSourceIdColumn.trim());
+    }
+
+    if (!columnNamesToFetch.contains(subjectSearchMatchingColumn.trim())) {
+      columnNamesToFetch.add(subjectSearchMatchingColumn.trim());
+    }
+    
+    String commaSeparatedColNames = GrouperUtil.setToString(columnNamesToFetch);
+      
+    boolean selectAllSqlOnFull = provisioningConfiguration.isSelectAllSqlOnFull();
+    
+    GrouperProvisioningLists grouperProvisioningObjects = 
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects();
+    
+    List<ProvisioningEntity> provisioningEntities = grouperProvisioningObjects.getProvisioningEntities();
+    
+    StringBuilder sqlInitial = new StringBuilder("select ");
+    sqlInitial.append(commaSeparatedColNames);
+    sqlInitial.append(" from ");
+    sqlInitial.append(tableOrViewName);
+    
+    List<Object[]> attributesFromTable = new ArrayList<Object[]>();
+    
+    if ( (isFullSync && !selectAllSqlOnFull) || !isFullSync) {
+      if (provisioningEntities.size() == 0) {
+        return;
+      }
+      
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(provisioningEntities.size(), 900);
+      
+      Map<String, Object> elVariableMap = new HashMap<String, Object>();
+      
+      for (int i = 0; i < numberOfBatches; i++) {
+        
+        List<ProvisioningEntity> currentBatchProvisioningEntities = GrouperUtil.batchList(provisioningEntities, 900, i);
+        StringBuilder sql = new StringBuilder(sqlInitial);
+        
+        sql.append(" where "+ subjectSearchMatchingColumn + " in ( ");
+        
+        GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbConnectionName);
+        
+        for (int j=0; j<currentBatchProvisioningEntities.size();j++) {
+          ProvisioningEntity provisioningEntity = currentBatchProvisioningEntities.get(j);
+          
+          String subjectMatchingIdentifier = null;
+          if (StringUtils.isNotBlank(expression)) {
+            elVariableMap.clear();
+            elVariableMap.put("grouperProvisioningEntity", provisioningEntity);
+            Object object = this.getGrouperProvisioner().retrieveGrouperTranslator().runScript(expression, elVariableMap);
+            subjectMatchingIdentifier = GrouperUtil.stringValue(object);
+          } else if (StringUtils.equals(grouperAttributeThatMatchesRow, "subjectId")) {
+              subjectMatchingIdentifier = provisioningEntity.getSubjectId();
+          } else if (StringUtils.equals(grouperAttributeThatMatchesRow, "subjectIdentifier0")) {
+            subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+          } else {
+              throw new RuntimeException("invalid grouperAttributeThatMatchesRow: "+grouperAttributeThatMatchesRow + " expected 'subjectId' or 'subjectIdentifier0'");
+          }
+          
+          gcDbAccess.addBindVar(subjectMatchingIdentifier);
+          if (j>0) {
+            sql.append(",");
+          }
+          sql.append("?");
+        }
+        sql.append(" ) ");
+        attributesFromTable.addAll(gcDbAccess.sql(sql.toString()).selectList(Object[].class));
+      
+      }
+    } else {
+      attributesFromTable.addAll(new GcDbAccess().connectionName(dbConnectionName).sql(sqlInitial.toString()).selectList(Object[].class));
+    }
+
+    String[] colNamesFromAttributesTable = GrouperUtil.splitTrim(commaSeparatedColNames, ",");
+    
+    Map<String, Object[]> subjectSearchMatchingColumnToAttributes = new HashMap<String, Object[]>();
+    
+    int indexOfSubjectSearchMatchingColumn = GrouperUtil.indexOf(colNamesFromAttributesTable, subjectSearchMatchingColumn);
+    
+    for (Object[] oneRowOfAttributes: attributesFromTable) {
+      Object subjectSearchMatchingValue = oneRowOfAttributes[indexOfSubjectSearchMatchingColumn];
+      if (subjectSearchMatchingValue != null) {
+        String subjectSearchMatchingValueString = GrouperUtil.stringValue(subjectSearchMatchingValue);
+        subjectSearchMatchingColumnToAttributes.put(subjectSearchMatchingValueString, oneRowOfAttributes);
+      }
+    }
+    
+    /**
+     * subjectSearchMatchingColumnToAttributes looks like
+     * test.subject.0 -> [school0, description0,....]
+     */
+    
+    Map<String, Object> elVariableMap = new HashMap<String, Object>();
+    
+    for (ProvisioningEntity provisioningEntity: provisioningEntities) {
+      
+      String subjectMatchingIdentifier = null;
+      
+      if (StringUtils.isNotBlank(expression)) {
+        elVariableMap.clear();
+        elVariableMap.put("grouperProvisioningEntity", provisioningEntity);
+        Object object = this.getGrouperProvisioner().retrieveGrouperTranslator().runScript(expression, elVariableMap);
+        subjectMatchingIdentifier = GrouperUtil.stringValue(object);
+      } else if (StringUtils.equals(grouperAttributeThatMatchesRow, "subjectId")) {
+          subjectMatchingIdentifier = provisioningEntity.getSubjectId();
+      } else if (StringUtils.equals(grouperAttributeThatMatchesRow, "subjectIdentifier0")) {
+        subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+      } else {
+          throw new RuntimeException("invalid grouperAttributeThatMatchesRow: "+grouperAttributeThatMatchesRow + " expected 'subjectId' or 'subjectIdentifier0'");
+      }
+        
+      Object[] attributeValues = subjectSearchMatchingColumnToAttributes.get(subjectMatchingIdentifier);
+      
+      int i = 0;
+      for (String attributeName: colNamesFromAttributesTable) {
+        
+        if (columnsWhichAreAttributes.contains(attributeName)) {
+          provisioningEntity.assignAttributeValue("entityAttributeResolverSql__"+attributeName.toLowerCase(), attributeValues[i]);
+        }
+
+        i++;
+       
+      }
+    }
+        
+  }
+  
+  public void enhanceEntityAttributesWithLdapResolver() {
+    
+    GrouperProvisioningConfigurationBase provisioningConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    if (!provisioningConfiguration.isResolveAttributesWithLdap()) {
+      return;
+    }
+    
+    GrouperProvisioningLists grouperProvisioningObjects = this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects();
+    
+    List<ProvisioningEntity> provisioningEntities = grouperProvisioningObjects.getProvisioningEntities();
+    
+    String globalLdapResolver = provisioningConfiguration.getGlobalLdapResolver();
+    
+    String ldapConfigId = null;
+    String baseDn = null;
+    String searchScope = null;
+    String ldapAttributes = null;
+    String subjectSearchMatchingAttribute = null;
+    String grouperAttributeThatMatchesRecord = null;
+    String filterPart = null;
+    String lastUpdatedAttribute = null;
+    String multiValuedLdapAttributes = null;
+    String expression = null;
+    String lastUpdatedAttributeFormat = null;
+    boolean filterAllLdapOnFull = true;
+    
+    if (StringUtils.isNotBlank(globalLdapResolver)) {
+      
+      boolean isEnabled = GrouperConfig.retrieveConfig().propertyValueBoolean("entityAttributeResolver."+globalLdapResolver+".enabled", true);
+      
+      if (!isEnabled) {
+        return;
+      }
+      
+      ldapConfigId = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".ldapConfigId");
+      baseDn = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".baseDn");
+      searchScope = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".searchScope");
+      ldapAttributes = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".ldapAttributes");
+      subjectSearchMatchingAttribute = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".subjectSearchMatchingAttribute");
+      grouperAttributeThatMatchesRecord = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".grouperAttributeThatMatchesRecord");
+      filterPart = GrouperConfig.retrieveConfig().propertyValueString("entityAttributeResolver."+globalLdapResolver+".filterPart");
+      lastUpdatedAttribute = GrouperConfig.retrieveConfig().propertyValueString("entityAttributeResolver."+globalLdapResolver+".lastUpdatedAttribute");
+      lastUpdatedAttributeFormat = GrouperConfig.retrieveConfig().propertyValueString("entityAttributeResolver."+globalLdapResolver+".ldapLastUpdatedFormat");
+      multiValuedLdapAttributes = GrouperConfig.retrieveConfig().propertyValueString("entityAttributeResolver."+globalLdapResolver+".multiValuedLdapAttributes");
+      
+    } else {
+      
+      ldapConfigId = provisioningConfiguration.getEntityAttributesLdapExternalSystem();
+      baseDn = provisioningConfiguration.getEntityAttributesLdapBaseDn();
+      searchScope = provisioningConfiguration.getEntityAttributesLdapSearchScope();
+      ldapAttributes = provisioningConfiguration.getEntityAttributesLdapAttributes();
+      subjectSearchMatchingAttribute = provisioningConfiguration.getEntityAttributesLdapMatchingSearchAttribute();
+      grouperAttributeThatMatchesRecord = provisioningConfiguration.getEntityAttributesLdapMappingEntityAttribute();
+      filterPart = provisioningConfiguration.getEntityAttributesLdapFilterPart();
+      lastUpdatedAttribute = provisioningConfiguration.getEntityAttributesLdapLastUpdatedAttribute();
+      lastUpdatedAttributeFormat = provisioningConfiguration.getEntityAttributesLdapLastUpdatedAttributeFormat();
+      expression = provisioningConfiguration.getEntityAttributesLdapMatchingExpression();
+    }
+    
+    List<LdapEntry> ldapEntries = new ArrayList<LdapEntry>();
+    
+    filterAllLdapOnFull = provisioningConfiguration.isFilterAllLDAPOnFull();
+    
+    Set<String> ldapAttributesSet = GrouperUtil.splitTrimToSet(ldapAttributes, ",");
+    
+    Set<String> multiValuedAttributesSet = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(multiValuedLdapAttributes, ","));
+    
+    if (StringUtils.isNotBlank(multiValuedLdapAttributes)) {
+      ldapAttributesSet.addAll(multiValuedAttributesSet);
+    }
+    
+    if (StringUtils.isNotBlank(subjectSearchMatchingAttribute)) {
+      ldapAttributesSet.add(subjectSearchMatchingAttribute);
+    }
+    
+    String[] ldapAttributesArray = GrouperUtil.toArray(ldapAttributesSet, String.class);
+    
+    LdapSearchScope ldapSearchScope = LdapSearchScope.valueOfIgnoreCase(searchScope, true);
+    
+    if (!filterAllLdapOnFull) {
+      
+      if (provisioningEntities.size() == 0) {
+        return;
+      }
+      
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(provisioningEntities.size(), 900);
+      
+      Map<String, Object> elVariableMap = new HashMap<String, Object>();
+      
+      for (int i = 0; i < numberOfBatches; i++) {
+        
+        List<ProvisioningEntity> currentBatchProvisioningEntities = GrouperUtil.batchList(provisioningEntities, 900, i);
+        
+        String filter = null;
+        if (StringUtils.isNotBlank(filterPart)) {
+          filter = "(&";
+          filterPart = filterPart.trim();
+          if (filterPart.startsWith("(")) {
+            filter += filterPart;
+          } else {
+            filter += "(" + filterPart + ")";
+          }
+        } else {
+          filter = "(|";
+        }
+        
+        
+        for (int j=0; j<currentBatchProvisioningEntities.size(); j++) {
+          
+          ProvisioningEntity provisioningEntity = currentBatchProvisioningEntities.get(j);
+          
+          String subjectMatchingIdentifier = null;
+          if (StringUtils.isNotBlank(expression)) {
+            elVariableMap.clear();
+            elVariableMap.put("grouperProvisioningEntity", provisioningEntity);
+            Object object = this.getGrouperProvisioner().retrieveGrouperTranslator().runScript(expression, elVariableMap);
+            subjectMatchingIdentifier = GrouperUtil.stringValue(object);
+          } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectId")) {
+              subjectMatchingIdentifier = provisioningEntity.getSubjectId();
+          } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier0")) {
+            subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+          } else {
+              throw new RuntimeException("invalid grouperAttributeThatMatchesRecord: "+grouperAttributeThatMatchesRecord + " expected 'subjectId' or 'subjectIdentifier0'");
+          }
+          
+          filter += "("+subjectSearchMatchingAttribute+"="+subjectMatchingIdentifier+")";  
+        }
+        
+        filter += ")";
+        ldapEntries.addAll(LdapSessionUtils.ldapSession().list(ldapConfigId, baseDn, ldapSearchScope, filter, ldapAttributesArray, null));
+      
+      }
+    } else {
+      
+      String filter = null;
+      if (StringUtils.isNotBlank(filterPart)) {
+        filter = "(&";
+        filterPart = filterPart.trim();
+        if (filterPart.startsWith("(")) {
+          filter += filterPart;
+        } else {
+          filter += "(" + filterPart + ")";
+        }
+        filter += "("+subjectSearchMatchingAttribute+"=*))"; 
+        
+      } else {
+        filter = "("+subjectSearchMatchingAttribute+"=*)"; 
+      }
+      
+      ldapEntries.addAll(LdapSessionUtils.ldapSession().list(ldapConfigId, baseDn, ldapSearchScope, filter, ldapAttributesArray, null));
+      
+    }
+    
+    Map<String, LdapEntry> identifierToLdapEntry = new HashMap<String, LdapEntry>();
+    
+    for (LdapEntry ldapEntry: GrouperUtil.nonNull(ldapEntries)) {
+      
+      LdapAttribute attribute = ldapEntry.getAttribute(subjectSearchMatchingAttribute);
+      if (attribute != null) {
+        
+        Collection<String> stringValues = attribute.getStringValues();
+        if (GrouperUtil.length(stringValues) == 1) {
+          identifierToLdapEntry.put(stringValues.iterator().next(), ldapEntry);
+        }
+        
+      }
+    }
+    
+    Map<String, Object> elVariableMap = new HashMap<String, Object>();
+    
+    for (ProvisioningEntity provisioningEntity: provisioningEntities) {
+      
+      String subjectMatchingIdentifier = null;
+      if (StringUtils.isNotBlank(expression)) {
+        elVariableMap.clear();
+        elVariableMap.put("grouperProvisioningEntity", provisioningEntity);
+        Object object = this.getGrouperProvisioner().retrieveGrouperTranslator().runScript(expression, elVariableMap);
+        subjectMatchingIdentifier = GrouperUtil.stringValue(object);
+      } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectId")) {
+          subjectMatchingIdentifier = provisioningEntity.getSubjectId();
+      } 
+      else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier0")) {
+        subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+      } else {
+          throw new RuntimeException("invalid grouperAttributeThatMatchesRecord: "+grouperAttributeThatMatchesRecord + " expected 'subjectId' or 'subjectIdentifier0'");
+      }
+        
+      LdapEntry ldapEntry = identifierToLdapEntry.get(subjectMatchingIdentifier);
+      if (ldapEntry != null) {
+        
+        for (String ldapAttributeName: ldapAttributesArray) {
+          
+          if (StringUtils.equals(ldapAttributeName, "lastUpdatedAttribute")) {
+            continue;
+          }
+          
+          LdapAttribute attribute = ldapEntry.getAttribute(ldapAttributeName);
+          if (attribute != null) {
+            
+            if (multiValuedAttributesSet.contains(attribute.getName())) {
+              
+              for ( String attributeValue: GrouperUtil.nonNull(attribute.getStringValues())) {
+                provisioningEntity.addAttributeValue("entityAttributeResolverLdap__"+attribute.getName().toLowerCase(), attributeValue);
+              }
+              
+            } else {
+              
+              if (GrouperUtil.length(attribute.getStringValues()) == 0) {
+                continue;
+              }
+              
+              if (GrouperUtil.length(attribute.getStringValues()) == 1) {
+                provisioningEntity.assignAttributeValue("entityAttributeResolverLdap__"+attribute.getName().toLowerCase(), attribute.getStringValues().iterator().next());
+              } else {
+                
+                String concatenatedAttributeValues = GrouperUtil.join(attribute.getStringValues().iterator(), ",");
+                provisioningEntity.assignAttributeValue("entityAttributeResolverLdap__"+attribute.getName().toLowerCase(), concatenatedAttributeValues);
+                
+              }
+              
+             
+            }
+            
+          }
+        }
+        
+      }
+      
+    }
+      
   }
 
   /** 
