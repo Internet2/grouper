@@ -62,6 +62,7 @@ public abstract class GrouperProvisioningConfigurationBase {
   
   private String entityAttributesLdapExternalSystem;
   private String entityAttributesLdapBaseDn;
+  private String entityAttributesLdapSubjectSource;
   private String entityAttributesLdapSearchScope;
   private String entityAttributesLdapFilterPart;
   private String entityAttributesLdapAttributes;
@@ -2480,6 +2481,7 @@ public abstract class GrouperProvisioningConfigurationBase {
     
     this.entityAttributesLdapExternalSystem = this.retrieveConfigString("ldapConfigId", false);
     this.entityAttributesLdapBaseDn = this.retrieveConfigString("baseDN", false);
+    this.entityAttributesLdapSubjectSource = this.retrieveConfigString("subjectSourceId", false);
     this.entityAttributesLdapSearchScope = this.retrieveConfigString("searchScope", false);
     this.entityAttributesLdapFilterPart = this.retrieveConfigString("filterPart", false);
     this.entityAttributesLdapAttributes = this.retrieveConfigString("attributes", false);
@@ -3155,6 +3157,15 @@ public abstract class GrouperProvisioningConfigurationBase {
   public void setGrouperProvisioningMembershipFieldType(
       GrouperProvisioningMembershipFieldType grouperProvisioningMembershipFieldType) {
     this.grouperProvisioningMembershipFieldType = grouperProvisioningMembershipFieldType;
+  }
+
+
+
+
+
+
+  public String getEntityAttributesLdapSubjectSource() {
+    return entityAttributesLdapSubjectSource;
   }
   
 }

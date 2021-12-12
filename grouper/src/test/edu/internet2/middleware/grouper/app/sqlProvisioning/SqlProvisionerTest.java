@@ -465,6 +465,23 @@ public class SqlProvisionerTest extends GrouperTest {
     
     stopAndStartLdapContainer();
     
+    new GcDbAccess().sql("delete from testgrouper_prov_entity1").executeSql();
+    
+    new GcDbAccess().sql("insert into testgrouper_prov_entity1 values (?, ?, ?)").addBindVar("test.subject.0")
+    .addBindVar("school0")
+    .addBindVar("jdbc")
+    .executeSql();
+    
+    new GcDbAccess().sql("insert into testgrouper_prov_entity1 values (?, ?, ?)").addBindVar("test.subject.1")
+    .addBindVar("school1")
+    .addBindVar("jdbc")
+    .executeSql();
+    
+    new GcDbAccess().sql("insert into testgrouper_prov_entity1 values (?, ?, ?)").addBindVar("test.subject.2")
+    .addBindVar("school2")
+    .addBindVar("invalidSource")
+    .executeSql();
+    
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("ldap.personLdap.url").value("ldap://localhost:389").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("ldap.personLdap.user").value("cn=admin,dc=example,dc=edu").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("ldap.personLdap.pass").value("secret").store();
@@ -494,6 +511,7 @@ public class SqlProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.grouperAttributeThatMatchesRow").value("subjectId").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.resolverType").value("sql").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.sqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.subjectSourceIdColumn").value("subject_source_id").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.subjectSearchMatchingColumn").value("subject_id_or_identifier").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.tableOrViewName").value("testgrouper_prov_entity1").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.columnNames").value("school,subject_id_or_identifier").store();
@@ -689,6 +707,7 @@ public class SqlProvisionerTest extends GrouperTest {
     
     testGroup.addMember(SubjectTestHelper.SUBJ0, false);
     testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
     
     testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
     testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
@@ -720,11 +739,12 @@ public class SqlProvisionerTest extends GrouperTest {
     assertEquals(testGroup.getName(), groups.get(0)[2]);
     assertEquals(testGroup.getDescription(), groups.get(0)[3]);
     
-    List<Object[]> entities = new GcDbAccess().sql("select uuid, name, subject_id_or_identifier, description from testgrouper_prov_entity").selectList(Object[].class);
-    assertEquals(2, entities.size());
+    List<Object[]> entities = new GcDbAccess().sql("select uuid, name, subject_id_or_identifier, description, school from testgrouper_prov_entity").selectList(Object[].class);
+    assertEquals(3, entities.size());
     
     String subject0EntityUUID = null;
-    String subject1EntityUUID2 = null;
+    String subject1EntityUUID = null;
+    String subject2EntityUUID = null;
     
     Map<String, Object[]> entityNameToAllAttributes = new HashMap<String, Object[]>();
     for (Object[] entityAttributes: entities) {
@@ -733,12 +753,26 @@ public class SqlProvisionerTest extends GrouperTest {
         subject0EntityUUID = entityAttributes[0].toString();
       }
       if (StringUtils.equals(entityAttributes[1].toString(), SubjectTestHelper.SUBJ1.getName())) {
-        subject1EntityUUID2 = entityAttributes[0].toString();
+        subject1EntityUUID = entityAttributes[0].toString();
+      }
+      if (StringUtils.equals(entityAttributes[1].toString(), SubjectTestHelper.SUBJ2.getName())) {
+        subject2EntityUUID = entityAttributes[0].toString();
       }
     }
     
     assertTrue(entityNameToAllAttributes.containsKey(SubjectTestHelper.SUBJ0.getName()));
     assertTrue(entityNameToAllAttributes.containsKey(SubjectTestHelper.SUBJ1.getName()));
+    assertTrue(entityNameToAllAttributes.containsKey(SubjectTestHelper.SUBJ2.getName()));
+    
+    String schoolForSubject0 = new GcDbAccess().sql("select school from testgrouper_prov_entity where uuid = '"+subject0EntityUUID+"'").select(String.class);
+    assertNotNull(schoolForSubject0);
+    
+    String schoolForSubject1 = new GcDbAccess().sql("select school from testgrouper_prov_entity where uuid = '"+subject1EntityUUID+"'").select(String.class);
+    assertNotNull(schoolForSubject1);
+    
+    // for subject2EntityUUID, school is going to be null because subject source for that entity in the entity attributes table is not jdbc
+    String schoolForSubject2 = new GcDbAccess().sql("select school from testgrouper_prov_entity where uuid = '"+subject2EntityUUID+"'").select(String.class);
+    assertNull(schoolForSubject2);
     
     List<Object[]> memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
     
@@ -748,13 +782,15 @@ public class SqlProvisionerTest extends GrouperTest {
       groupIdSubjectIdsInTable.add(new MultiKey(membershipAttributes[0], membershipAttributes[1]));
     }
     
-    assertEquals(2, groupIdSubjectIdsInTable.size());
+    assertEquals(3, groupIdSubjectIdsInTable.size());
     
     assertTrue(groupIdSubjectIdsInTable.contains(new MultiKey(testGroupUuidInTarget, subject0EntityUUID)));
-    assertTrue(groupIdSubjectIdsInTable.contains(new MultiKey(testGroupUuidInTarget, subject1EntityUUID2)));
+    assertTrue(groupIdSubjectIdsInTable.contains(new MultiKey(testGroupUuidInTarget, subject1EntityUUID)));
+    assertTrue(groupIdSubjectIdsInTable.contains(new MultiKey(testGroupUuidInTarget, subject2EntityUUID)));
     
-    // delete a member from testGroup and reprovision
+    // delete two members from testGroup and reprovision
     testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+    testGroup.deleteMember(SubjectTestHelper.SUBJ2);
     
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
     
@@ -1695,14 +1731,14 @@ public class SqlProvisionerTest extends GrouperTest {
         public void changeDatabase(DdlVersionBean ddlVersionBean) {
           
           Database database = ddlVersionBean.getDatabase();
-    
           
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName1);
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id_or_identifier", Types.VARCHAR, "1024", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "school", Types.VARCHAR, "1024", false, false);
-
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_source_id", Types.VARCHAR, "1024", false, false);
+          
         }
         
       });

@@ -1515,15 +1515,31 @@ public class GrouperProvisioningLogic {
 
     String[] colNamesFromAttributesTable = GrouperUtil.splitTrim(commaSeparatedColNames, ",");
     
-    Map<String, Object[]> subjectSearchMatchingColumnToAttributes = new HashMap<String, Object[]>();
+    Map<MultiKey, Object[]> subjectSearchMatchingColumnToAttributes = new HashMap<MultiKey, Object[]>();
     
     int indexOfSubjectSearchMatchingColumn = GrouperUtil.indexOf(colNamesFromAttributesTable, subjectSearchMatchingColumn);
+    int indexOfSubjectSourceIdColumn = GrouperUtil.indexOf(colNamesFromAttributesTable, subjectSourceIdColumn);
     
     for (Object[] oneRowOfAttributes: attributesFromTable) {
       Object subjectSearchMatchingValue = oneRowOfAttributes[indexOfSubjectSearchMatchingColumn];
       if (subjectSearchMatchingValue != null) {
+        
+        List<String> keysForIdentifier = new ArrayList<String>();
+        
         String subjectSearchMatchingValueString = GrouperUtil.stringValue(subjectSearchMatchingValue);
-        subjectSearchMatchingColumnToAttributes.put(subjectSearchMatchingValueString, oneRowOfAttributes);
+        keysForIdentifier.add(subjectSearchMatchingValueString);
+        
+        // user specified subject source column as well so we need to match based on the subject source in addition to the subject search matching column
+        if (indexOfSubjectSourceIdColumn > -1) {
+          Object subjectSourceObject = oneRowOfAttributes[indexOfSubjectSourceIdColumn];
+          if (subjectSourceObject != null) {
+            String subjectSourceIdString = GrouperUtil.stringValue(subjectSourceObject);
+            keysForIdentifier.add(subjectSourceIdString);
+          }
+        }
+        String[] keysArray = new String[keysForIdentifier.size()];
+        keysArray = keysForIdentifier.toArray(keysArray);
+        subjectSearchMatchingColumnToAttributes.put(new MultiKey(keysArray), oneRowOfAttributes);
       }
     }
     
@@ -1550,19 +1566,31 @@ public class GrouperProvisioningLogic {
       } else {
           throw new RuntimeException("invalid grouperAttributeThatMatchesRow: "+grouperAttributeThatMatchesRow + " expected 'subjectId' or 'subjectIdentifier0'");
       }
-        
-      Object[] attributeValues = subjectSearchMatchingColumnToAttributes.get(subjectMatchingIdentifier);
       
-      int i = 0;
-      for (String attributeName: colNamesFromAttributesTable) {
-        
-        if (columnsWhichAreAttributes.contains(attributeName)) {
-          provisioningEntity.assignAttributeValue("entityAttributeResolverSql__"+attributeName.toLowerCase(), attributeValues[i]);
-        }
-
-        i++;
-       
+      List<String> identifierKeys = new ArrayList<String>();
+      identifierKeys.add(subjectMatchingIdentifier);
+      if (indexOfSubjectSourceIdColumn > -1) {
+        String subjectSourceId = provisioningEntity.retrieveAttributeValueString("subjectSourceId");
+        identifierKeys.add(subjectSourceId);
       }
+      String[] keysArray = new String[identifierKeys.size()];
+      keysArray = identifierKeys.toArray(keysArray);
+        
+      Object[] attributeValues = subjectSearchMatchingColumnToAttributes.get(new MultiKey(keysArray));
+      if (attributeValues != null) {
+        int i = 0;
+        for (String attributeName: colNamesFromAttributesTable) {
+          
+          if (columnsWhichAreAttributes.contains(attributeName)) {
+            
+            provisioningEntity.assignAttributeValue("entityAttributeResolverSql__"+attributeName.toLowerCase(), attributeValues[i]);
+          }
+
+          i++;
+         
+        }
+      }
+      
     }
         
   }
@@ -1586,6 +1614,7 @@ public class GrouperProvisioningLogic {
     String searchScope = null;
     String ldapAttributes = null;
     String subjectSearchMatchingAttribute = null;
+    String subjectSourceId = null;
     String grouperAttributeThatMatchesRecord = null;
     String filterPart = null;
     String lastUpdatedAttribute = null;
@@ -1604,6 +1633,7 @@ public class GrouperProvisioningLogic {
       
       ldapConfigId = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".ldapConfigId");
       baseDn = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".baseDn");
+      subjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("entityAttributeResolver."+globalLdapResolver+".subjectSourceId");
       searchScope = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".searchScope");
       ldapAttributes = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".ldapAttributes");
       subjectSearchMatchingAttribute = GrouperConfig.retrieveConfig().propertyValueStringRequired("entityAttributeResolver."+globalLdapResolver+".subjectSearchMatchingAttribute");
@@ -1617,6 +1647,7 @@ public class GrouperProvisioningLogic {
       
       ldapConfigId = provisioningConfiguration.getEntityAttributesLdapExternalSystem();
       baseDn = provisioningConfiguration.getEntityAttributesLdapBaseDn();
+      subjectSourceId = provisioningConfiguration.getEntityAttributesLdapSubjectSource();
       searchScope = provisioningConfiguration.getEntityAttributesLdapSearchScope();
       ldapAttributes = provisioningConfiguration.getEntityAttributesLdapAttributes();
       subjectSearchMatchingAttribute = provisioningConfiguration.getEntityAttributesLdapMatchingSearchAttribute();
@@ -1721,7 +1752,7 @@ public class GrouperProvisioningLogic {
       
     }
     
-    Map<String, LdapEntry> identifierToLdapEntry = new HashMap<String, LdapEntry>();
+    Map<MultiKey, LdapEntry> identifierToLdapEntry = new HashMap<MultiKey, LdapEntry>();
     
     for (LdapEntry ldapEntry: GrouperUtil.nonNull(ldapEntries)) {
       
@@ -1730,9 +1761,15 @@ public class GrouperProvisioningLogic {
         
         Collection<String> stringValues = attribute.getStringValues();
         if (GrouperUtil.length(stringValues) == 1) {
-          identifierToLdapEntry.put(stringValues.iterator().next(), ldapEntry);
+          
+          MultiKey identifier = null;
+          if (StringUtils.isNotBlank(subjectSourceId)) {
+            identifier = new MultiKey(stringValues.iterator().next(), subjectSourceId);
+          } else {
+            identifier = new MultiKey(new String[] {stringValues.iterator().next()});
+          }
+          identifierToLdapEntry.put(identifier, ldapEntry);
         }
-        
       }
     }
     
@@ -1755,7 +1792,15 @@ public class GrouperProvisioningLogic {
           throw new RuntimeException("invalid grouperAttributeThatMatchesRecord: "+grouperAttributeThatMatchesRecord + " expected 'subjectId' or 'subjectIdentifier0'");
       }
         
-      LdapEntry ldapEntry = identifierToLdapEntry.get(subjectMatchingIdentifier);
+      MultiKey identifier = null;
+      if (StringUtils.isNotBlank(subjectSourceId)) {
+        String subjectSourceIdFromProvisioningEntity = provisioningEntity.retrieveAttributeValueString("subjectSourceId");
+        identifier = new MultiKey(subjectMatchingIdentifier, subjectSourceIdFromProvisioningEntity);
+      } else {
+        identifier = new MultiKey(new String[] {subjectMatchingIdentifier});
+      }
+      
+      LdapEntry ldapEntry = identifierToLdapEntry.get(identifier);
       if (ldapEntry != null) {
         
         for (String ldapAttributeName: ldapAttributesArray) {
