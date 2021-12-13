@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
@@ -67,7 +69,7 @@ public class GshTemplateConfig {
   
   private GshTemplateFolderShowType gshTemplateFolderShowType;
   
-  private Stem folderToShow;
+  private Set<Stem> foldersToShow = new HashSet<Stem>();
   
   private GshTemplateFolderShowOnDescendants gshTemplateFolderShowOnDescendants;
   
@@ -213,12 +215,14 @@ public class GshTemplateConfig {
 
 
   
-  public Stem getFolderToShow() {
-    return folderToShow;
+  
+  
+  public Set<Stem> getFoldersToShow() {
+    return foldersToShow;
   }
 
 
-  
+
   public GshTemplateFolderShowOnDescendants getGshTemplateFolderShowOnDescendants() {
     return gshTemplateFolderShowOnDescendants;
   }
@@ -299,16 +303,21 @@ public class GshTemplateConfig {
         useExternalizedText = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"externalizedText", false);
         
         showInMoreActions = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"showInMoreActions", false);
-        if (showInMoreActions) {
-          if (useExternalizedText) {
+        
+        if (useExternalizedText) {
+          
+          if (showInMoreActions) {
             moreActionsLabelExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"moreActionsLabelExternalizedTextKey");
-            templateNameExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateNameExternalizedTextKey");
-            templateDescriptionExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateDescriptionExternalizedTextKey");
-          } else {
-            moreActionsLabel = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"moreActionsLabel");
-            templateName = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateName");
-            templateDescription = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateDescription");
           }
+          templateNameExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateNameExternalizedTextKey");
+          templateDescriptionExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateDescriptionExternalizedTextKey");
+          
+        } else {
+          if (showInMoreActions) {
+            moreActionsLabel = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"moreActionsLabel");
+          }
+          templateName = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateName");
+          templateDescription = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateDescription");
         }
 
         displayErrorOutput = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"displayErrorOutput", false);
@@ -343,10 +352,15 @@ public class GshTemplateConfig {
         if (showOnFolders) {
           gshTemplateFolderShowType = GshTemplateFolderShowType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderShowType"), true);
           
-          if(gshTemplateFolderShowType == GshTemplateFolderShowType.certainFolder) {
-            String folderUuidToShow = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderUuidToShow");
-            folderToShow = StemFinder.findByUuid(grouperSession, folderUuidToShow, false);
-            GrouperUtil.assertion(folderToShow != null, "could not find group for folderUuidToShow: "+folderUuidToShow);
+          if(gshTemplateFolderShowType == GshTemplateFolderShowType.certainFolders) {
+            String folderUuidsToShow = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderUuidsToShow");
+            
+            String[] folderUuids = GrouperUtil.splitTrim(folderUuidsToShow, ",");
+            for (String folderUuid: folderUuids) {
+              Stem folderToShow = StemFinder.findByUuid(grouperSession, folderUuid, false);
+              GrouperUtil.assertion(folderToShow != null, "could not find folder for folderUuidToShow: "+folderUuidsToShow);
+              foldersToShow.add(folderToShow);
+            }
             
             gshTemplateFolderShowOnDescendants = GshTemplateFolderShowOnDescendants.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderShowOnDescendants"), true);
           }
@@ -515,49 +529,70 @@ public class GshTemplateConfig {
       return true;
     }
     
-    Stem folderToShow = getFolderToShow();
-    if (folderToShow == null) {
-      LOG.error("folderToShow is not configured correctly for template with config id: "+getConfigId());
+    Set<Stem> foldersToShow = getFoldersToShow();
+    if (GrouperUtil.nonNull(foldersToShow).size() == 0) {
+      LOG.error("foldersToShow is not configured correctly for template with config id: "+getConfigId());
       return false;
+    }
+    
+    Set<String> foldersToShowUuids = new HashSet<String>();
+
+    Set<String> foldersToShowParentNames = new HashSet<String>();
+    
+    for (Stem folderToShow: foldersToShow) {
+      foldersToShowUuids.add(folderToShow.getUuid());
+      foldersToShowParentNames.add(GrouperUtil.parentStemNameFromName(folderToShow.getName()));
     }
     
     GshTemplateFolderShowOnDescendants gshTemplateFolderShowOnDescendants = getGshTemplateFolderShowOnDescendants();
-    if (GshTemplateFolderShowOnDescendants.certainFolder == gshTemplateFolderShowOnDescendants && 
-        !StringUtils.equals(folderToShow.getUuid(), folder.getUuid())) {
-      return false;
-    }
-    
-    if (GshTemplateFolderShowOnDescendants.oneChildLevel == gshTemplateFolderShowOnDescendants && 
-        !folder.getName().equals(GrouperUtil.parentStemNameFromName(folderToShow.getName()))) {
+    if (GshTemplateFolderShowOnDescendants.certainFolders == gshTemplateFolderShowOnDescendants) {
       
-      return false;
-    }
-    
-    if (GshTemplateFolderShowOnDescendants.certainFolderAndOneChildLevel == gshTemplateFolderShowOnDescendants) {
-      
-      if (!folder.getName().equals(GrouperUtil.parentStemNameFromName(folderToShow.getName())) &&
-          !StringUtils.equals(folderToShow.getUuid(), folder.getUuid())) {            
-        return false;
+      if (foldersToShowUuids.contains(folder.getUuid())) {
+        return true;
       }
       
-    }
-    
-    if (GshTemplateFolderShowOnDescendants.descendants == gshTemplateFolderShowOnDescendants &&
-        !folder.getName().startsWith(folderToShow.getName()+":")) {
-      
       return false;
-    }
-    
-    if (GshTemplateFolderShowOnDescendants.certainFolderAndDescendants == gshTemplateFolderShowOnDescendants) {
+    } else if (GshTemplateFolderShowOnDescendants.oneChildLevel == gshTemplateFolderShowOnDescendants) {
       
-      if (!folder.getName().startsWith(folderToShow.getName()+":") &&
-          !StringUtils.equals(folderToShow.getUuid(), folder.getUuid())) {            
-        return false;
+      if (foldersToShowParentNames.contains(folder.getName())) {
+        return true;
       }
       
+      return false;
+    } else if (GshTemplateFolderShowOnDescendants.certainFoldersAndOneChildLevel == gshTemplateFolderShowOnDescendants) {
+      
+      if (foldersToShowParentNames.contains(folder.getName()) || foldersToShowUuids.contains(folder.getUuid())) {            
+        return true;
+      } 
+      
+      return false;
+    } else if (GshTemplateFolderShowOnDescendants.descendants == gshTemplateFolderShowOnDescendants) {
+      
+      for (Stem folderToShow: foldersToShow) {
+        if (folder.getName().startsWith(folderToShow.getName()+":")) {
+          return true;
+        }
+      }
+      
+      return false;
+    } else if (GshTemplateFolderShowOnDescendants.certainFoldersAndDescendants == gshTemplateFolderShowOnDescendants) {
+      
+      for (Stem folderToShow: foldersToShow) {
+        if (folder.getName().startsWith(folderToShow.getName()+":")) {
+          return true;
+        }
+      }
+      
+      if (foldersToShowUuids.contains(folder.getUuid())) {
+        return true;
+      }
+      
+      return false;
+      
+    } else {
+      throw new RuntimeException("Invalid gshTemplateFolderShowOnDescendants: "+gshTemplateFolderShowOnDescendants);
     }
     
-    return true;
   }
 
   /**

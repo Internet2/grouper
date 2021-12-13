@@ -4,7 +4,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public enum GshTemplateFolderShowOnDescendants {
 
-  certainFolder, oneChildLevel, certainFolderAndOneChildLevel, descendants, certainFolderAndDescendants;
+  certainFolders, oneChildLevel, certainFoldersAndOneChildLevel, descendants, certainFoldersAndDescendants;
   
   /**
    * do a case-insensitive matching
