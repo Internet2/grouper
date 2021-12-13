@@ -1440,10 +1440,6 @@ public class GrouperProvisioningLogic {
       columnNamesToFetch.add(lastUpdatedColumn.trim());
     }
     
-    if (StringUtils.isNotBlank(subjectSourceIdColumn) && !columnNamesToFetch.contains(subjectSourceIdColumn.trim())) {
-      columnNamesToFetch.add(subjectSourceIdColumn.trim());
-    }
-
     if (!columnNamesToFetch.contains(subjectSearchMatchingColumn.trim())) {
       columnNamesToFetch.add(subjectSearchMatchingColumn.trim());
     }
@@ -1518,28 +1514,21 @@ public class GrouperProvisioningLogic {
     Map<MultiKey, Object[]> subjectSearchMatchingColumnToAttributes = new HashMap<MultiKey, Object[]>();
     
     int indexOfSubjectSearchMatchingColumn = GrouperUtil.indexOf(colNamesFromAttributesTable, subjectSearchMatchingColumn);
-    int indexOfSubjectSourceIdColumn = GrouperUtil.indexOf(colNamesFromAttributesTable, subjectSourceIdColumn);
     
     for (Object[] oneRowOfAttributes: attributesFromTable) {
       Object subjectSearchMatchingValue = oneRowOfAttributes[indexOfSubjectSearchMatchingColumn];
       if (subjectSearchMatchingValue != null) {
         
-        List<String> keysForIdentifier = new ArrayList<String>();
-        
         String subjectSearchMatchingValueString = GrouperUtil.stringValue(subjectSearchMatchingValue);
-        keysForIdentifier.add(subjectSearchMatchingValueString);
         
-        // user specified subject source column as well so we need to match based on the subject source in addition to the subject search matching column
-        if (indexOfSubjectSourceIdColumn > -1) {
-          Object subjectSourceObject = oneRowOfAttributes[indexOfSubjectSourceIdColumn];
-          if (subjectSourceObject != null) {
-            String subjectSourceIdString = GrouperUtil.stringValue(subjectSourceObject);
-            keysForIdentifier.add(subjectSourceIdString);
-          }
+        MultiKey identifier = null;
+        if (StringUtils.isNotBlank(subjectSourceIdColumn)) {
+          identifier = new MultiKey(subjectSearchMatchingValueString, subjectSourceIdColumn);
+        } else {
+          identifier = new MultiKey(new String[] {subjectSearchMatchingValueString});
         }
-        String[] keysArray = new String[keysForIdentifier.size()];
-        keysArray = keysForIdentifier.toArray(keysArray);
-        subjectSearchMatchingColumnToAttributes.put(new MultiKey(keysArray), oneRowOfAttributes);
+        
+        subjectSearchMatchingColumnToAttributes.put(identifier, oneRowOfAttributes);
       }
     }
     
@@ -1567,16 +1556,15 @@ public class GrouperProvisioningLogic {
           throw new RuntimeException("invalid grouperAttributeThatMatchesRow: "+grouperAttributeThatMatchesRow + " expected 'subjectId' or 'subjectIdentifier0'");
       }
       
-      List<String> identifierKeys = new ArrayList<String>();
-      identifierKeys.add(subjectMatchingIdentifier);
-      if (indexOfSubjectSourceIdColumn > -1) {
-        String subjectSourceId = provisioningEntity.retrieveAttributeValueString("subjectSourceId");
-        identifierKeys.add(subjectSourceId);
+      MultiKey identifier = null;
+      if (StringUtils.isNotBlank(subjectSourceIdColumn)) {
+        String subjectSourceIdFromProvisioningEntity = provisioningEntity.retrieveAttributeValueString("subjectSourceId");
+        identifier = new MultiKey(subjectMatchingIdentifier, subjectSourceIdFromProvisioningEntity);
+      } else {
+        identifier = new MultiKey(new String[] {subjectMatchingIdentifier});
       }
-      String[] keysArray = new String[identifierKeys.size()];
-      keysArray = identifierKeys.toArray(keysArray);
         
-      Object[] attributeValues = subjectSearchMatchingColumnToAttributes.get(new MultiKey(keysArray));
+      Object[] attributeValues = subjectSearchMatchingColumnToAttributes.get(identifier);
       if (attributeValues != null) {
         int i = 0;
         for (String attributeName: colNamesFromAttributesTable) {
