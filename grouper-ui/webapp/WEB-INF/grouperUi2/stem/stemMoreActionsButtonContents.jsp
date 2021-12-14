@@ -113,15 +113,14 @@
                               >${textContainer.text['stemViewAuditButton'] }</a></li>
                         </c:if>
                         
-                        <c:if test="${ (grouperRequestContainer.stemContainer.canCreateGroups && grouperRequestContainer.stemContainer.canCreateStems) 
-                            || (grouperRequestContainer.stemTemplateContainer.templatesToShowInMoreActions.size() > 0 || grouperRequestContainer.stemTemplateContainer.customGshTemplates.size() > 0)}">
+                        <c:if test="${ (grouperRequestContainer.stemContainer.canCreateGroups && grouperRequestContainer.stemContainer.canCreateStems) || (grouperRequestContainer.groupStemTemplateContainer.templatesToShowInMoreActions.size() > 0 || grouperRequestContainer.groupStemTemplateContainer.customGshTemplates.size() > 0)}">
 
                           <li class="divider"></li>
 
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Template.newTemplate&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['createNewTemplateMenuButton'] }</a></li>
                               
-                          <c:forEach items="${grouperRequestContainer.stemTemplateContainer.templatesToShowInMoreActions}" var="gshTemplate">
+                          <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.templatesToShowInMoreActions}" var="gshTemplate">
 	                          <li><a href="#" onclick="return guiV2link('operation=UiV2Template.newTemplate&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&templateType=${gshTemplate.key}'); return false;"
 	                              >${gshTemplate.value} </a></li>
                           </c:forEach>

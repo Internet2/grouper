@@ -17,20 +17,20 @@ public abstract class GrouperTemplateLogicBase {
   /**
    * 
    */
-  private StemTemplateContainer stemTemplateContainer;
+  private GroupStemTemplateContainer groupStemTemplateContainer;
   
   /**
    * @return the stemTemplateContainer
    */
-  public StemTemplateContainer getStemTemplateContainer() {
-    return this.stemTemplateContainer;
+  public GroupStemTemplateContainer getStemTemplateContainer() {
+    return this.groupStemTemplateContainer;
   }
   
   /**
    * @param stemTemplateContainer1 the templateContainer to set
    */
-  public void setStemTemplateContainer(StemTemplateContainer stemTemplateContainer1) {
-    this.stemTemplateContainer = stemTemplateContainer1;
+  public void setStemTemplateContainer(GroupStemTemplateContainer stemTemplateContainer1) {
+    this.groupStemTemplateContainer = stemTemplateContainer1;
   }
 
   /**

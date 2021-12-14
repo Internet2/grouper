@@ -15,6 +15,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
@@ -29,7 +30,7 @@ import edu.internet2.middleware.subject.Subject;
  * @author vsachdeva
  *
  */
-public class StemTemplateContainer {
+public class GroupStemTemplateContainer {
   
   /**
    * template type eg: service
@@ -271,7 +272,7 @@ public class StemTemplateContainer {
 
   }
 
-  private static final Log LOG = GrouperUtil.getLog(StemTemplateContainer.class);
+  private static final Log LOG = GrouperUtil.getLog(GroupStemTemplateContainer.class);
 
   /**
    * get templates to show in more actions. map of configId to template name
@@ -287,9 +288,19 @@ public class StemTemplateContainer {
     Map<String, String> configsToShowInTemplateTypeDropdown = new HashMap<String, String>();
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    Stem stem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem().getStem();
+    StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
+    GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+    
+    Stem stem = null;
+    Group group = null;
+    if (stemContainer != null && stemContainer.getGuiStem() != null && stemContainer.getGuiStem().getStem() != null) {
+      stem = stemContainer.getGuiStem().getStem();
+    } else if (groupContainer != null && groupContainer.getGuiGroup() != null && groupContainer.getGuiGroup().getGroup() != null) {
+      group  = groupContainer.getGuiGroup().getGroup();
+    }
     
     List<GshTemplateConfiguration> gshTemplateConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
+    
     for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
       if (gshTemplateConfiguration.isEnabled()) {
         
@@ -300,17 +311,32 @@ public class StemTemplateContainer {
           if (StringUtils.isBlank(gshTemplateConfiguration.getConfigId())) {
             continue;
           }
-          if (!gshTemplateConfig.canFolderRunTemplate(stem)) {
-            continue;
+          
+          GshTemplateExec gshTemplateExec = null;
+          
+          if (stem != null) {
+            if (!gshTemplateConfig.canFolderRunTemplate(stem)) {
+              continue;
+            }
+            gshTemplateExec = new GshTemplateExec()
+                .assignConfigId(gshTemplateConfiguration.getConfigId())
+                .assignCurrentUser(loggedInSubject)
+                .assignGshTemplateOwnerType(GshTemplateOwnerType.stem)
+                .assignOwnerStemName(stem.getName());
+          } else if (group != null) {
+            
+            if (!gshTemplateConfig.canGroupRunTemplate(group)) {
+              continue;
+            }
+            
+            gshTemplateExec = new GshTemplateExec()
+                .assignConfigId(gshTemplateConfiguration.getConfigId())
+                .assignCurrentUser(loggedInSubject)
+                .assignGshTemplateOwnerType(GshTemplateOwnerType.group)
+                .assignOwnerGroupName(group.getName());
           }
           
-          GshTemplateExec gshTemplateExec = new GshTemplateExec()
-            .assignConfigId(gshTemplateConfiguration.getConfigId())
-            .assignCurrentUser(loggedInSubject)
-            .assignGshTemplateOwnerType(GshTemplateOwnerType.stem)
-            .assignOwnerStemName(stem.getName());
-          
-          if (!new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
+          if (gshTemplateExec == null || !new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
             continue;
           }
 

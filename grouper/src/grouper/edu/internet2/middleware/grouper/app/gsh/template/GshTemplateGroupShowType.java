@@ -4,7 +4,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public enum GshTemplateGroupShowType {
 
-  certainGroup, groupsInFolder, allGroups;
+  certainGroups, groupsInFolder, allGroups;
   
   /**
    * do a case-insensitive matching

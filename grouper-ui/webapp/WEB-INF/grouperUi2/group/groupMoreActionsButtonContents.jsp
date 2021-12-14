@@ -110,6 +110,22 @@
                               >${textContainer.text['groupViewPrivilegeAuditButton'] }</a></li>
                           
                         </c:if>
+                        
+                        
+                        
+                        <c:if test="${ (grouperRequestContainer.groupContainer.canAdmin) || (grouperRequestContainer.groupStemTemplateContainer.templatesToShowInMoreActions.size() > 0 || grouperRequestContainer.groupStemTemplateContainer.customGshTemplates.size() > 0)}">
+
+                          <li class="divider"></li>
+
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Template.newTemplate&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['createNewTemplateMenuButton'] }</a></li>
+                              
+                          <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.templatesToShowInMoreActions}" var="gshTemplate">
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Template.newTemplate&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&templateType=${gshTemplate.key}'); return false;"
+                                >${gshTemplate.value} </a></li>
+                          </c:forEach>
+                         
+                        </c:if>
                                                 
                         <c:if test="${grouperRequestContainer.groupContainer.canReadAttributes}">
 	                        <li class="divider"></li>

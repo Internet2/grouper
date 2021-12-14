@@ -22,6 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
@@ -36,19 +38,21 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupStemTemplateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperTemplateLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GshTemplateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGshTemplateConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGshTemplateInputConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ServiceAction;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemTemplateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
@@ -86,18 +90,20 @@ public class UiV2Template {
     GrouperSession grouperSession = null;
   
 	  Stem stem = null;
+	  Group group = null;
 	  
 	  try {
 	    grouperSession = GrouperSession.start(loggedInSubject);
-	    stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+	    stem = UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+	    group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
 	    
-	    if (stem == null) {
+	    if (stem == null && group == null) {
 	      return;
 	    }
 	    
 	    setTemplateOptions();
 	    
-	    StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+	    GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
 	    
 	    String templateType = request.getParameter("templateType");
 	    
@@ -123,11 +129,21 @@ public class UiV2Template {
 	    
 	    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/stem/stemTemplate.jsp"));
+	    if (stem != null) {
+	      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+	          "/WEB-INF/grouperUi2/stem/stemTemplate.jsp"));
+	      
+	      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemTemplate", 
+	          "/WEB-INF/grouperUi2/stem/stemNewTemplate.jsp"));
+	    } else {
+	      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/group/groupTemplate.jsp"));
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupTemplate", 
+            "/WEB-INF/grouperUi2/group/groupNewTemplate.jsp"));
+	    }
+	    
       
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemTemplate", 
-          "/WEB-INF/grouperUi2/stem/stemNewTemplate.jsp"));
 	    
 	  } finally {
         GrouperSession.stopQuietly(grouperSession);
@@ -167,7 +183,7 @@ public class UiV2Template {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      final StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+      final GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
       
       templateLogic.setStemId(stem.getUuid());
       
@@ -278,7 +294,7 @@ public class UiV2Template {
     }
     
     guiGshTemplateConfig.setGuiGshTemplateInputConfigs(guiTemplateInputConfigsMap);
-    StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+    GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
     templateContainer.setGuiGshTemplateConfig(guiGshTemplateConfig);
     
     return guiTemplateInputConfigsMap;
@@ -297,16 +313,17 @@ public class UiV2Template {
     GrouperSession grouperSession = null;
   
     Stem stem = null;
-    
+    Group group = null;
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
       
-      if (stem == null) {
+      if (stem == null && group == null) {
         return;
       }
       
-      StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+      GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
       GshTemplateContainer gshTemplateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGshTemplateContainer();
       
       String templateType = request.getParameter("templateType");
@@ -322,8 +339,13 @@ public class UiV2Template {
       exec.assignConfigId(templateType);
       exec.assignCurrentUser(loggedInSubject);
       
-      exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
-      exec.assignOwnerStemName(stem.getName());
+      if (stem != null) {
+        exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
+        exec.assignOwnerStemName(stem.getName());
+      } else {
+        exec.assignGshTemplateOwnerType(GshTemplateOwnerType.group);
+        exec.assignOwnerGroupName(group.getName());
+      }
       
       GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
       gshTemplateConfig.populateConfiguration();
@@ -460,9 +482,16 @@ public class UiV2Template {
         return;
       }
 
-      Stem stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), gshTemplateExec.getOwnerStemName(), true);
+      Stem stem = null;
+      Group group = null;
+      if (StringUtils.isNotBlank(gshTemplateExec.getOwnerStemName())) {
+        stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), gshTemplateExec.getOwnerStemName(), true);
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setGuiStem(new GuiStem(stem));      
+      } else {
+        group = GroupFinder.findByName(gshTemplateExec.getOwnerGroupName(), true);
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setGuiGroup(new GuiGroup(group));
+      }
 
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setGuiStem(new GuiStem(stem));      
 
       GshTemplateExecOutput gshTemplateExecOutput = gshTemplateExec.getGshTemplateExecOutput();
       String templateType = gshTemplateExec.getConfigId();
@@ -599,17 +628,31 @@ public class UiV2Template {
             guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('" + redirectToGrouperOperation + "')"));
           } else {
             
-            String currentName = stem.getName();
-            //lets see if stem exists, maybe template deleted it
-            for (int i=0;i<20;i++) {
-              Stem currentStem = currentName == null ? StemFinder.findRootStem(GrouperSession.staticGrouperSession()) 
-                  : StemFinder.findByName(GrouperSession.staticGrouperSession(), currentName, false);
-              if (currentStem !=  null) {
+            if (stem != null) {
+              String currentName = stem.getName();
+              //lets see if stem exists, maybe template deleted it
+              for (int i=0;i<20;i++) {
+                Stem currentStem = currentName == null ? StemFinder.findRootStem(GrouperSession.staticGrouperSession()) 
+                    : StemFinder.findByName(GrouperSession.staticGrouperSession(), currentName, false);
+                if (currentStem !=  null) {
+                  guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + currentStem.getId() + "')"));
+                  break;
+                } 
+                currentName = GrouperUtil.parentStemNameFromName(currentName);
+              }
+            } else {
+              String currentName = group.getName();
+              //lets see if group exists, maybe template deleted it
+              Group currentGroup = GroupFinder.findByName(currentName, false);
+              if (currentGroup !=  null) {
+                guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + currentGroup.getId() + "')"));
+              } else {
+                Stem currentStem = StemFinder.findRootStem(GrouperSession.staticGrouperSession());
                 guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + currentStem.getId() + "')"));
-                break;
-              } 
-              currentName = GrouperUtil.parentStemNameFromName(currentName);
+              }
+              
             }
+            
           }
           for (GuiScreenAction guiScreenAction : guiScreenActions) {
             guiResponseJs.addAction(guiScreenAction);
@@ -657,7 +700,7 @@ public class UiV2Template {
         return;
       }
 
-      final StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+      final GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
 
       templateContainer.setTemplateLogic(templateLogic);
 
@@ -753,7 +796,7 @@ public class UiV2Template {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      final StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+      final GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
       
       templateLogic.setStemId(stem.getUuid());
       
@@ -813,7 +856,7 @@ public class UiV2Template {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
-    StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+    GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
     
     String createSubfolder = request.getParameter("createSubfolder");
     
@@ -867,7 +910,7 @@ public class UiV2Template {
     try {
       
       GrouperTemplateLogicBase templateLogic = getTemplateLogic(templateType, 
-          GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer());
+          GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer());
 
       return templateLogic;
     } catch(Exception e) {
@@ -881,7 +924,7 @@ public class UiV2Template {
    * @param stemTemplateContainer 
    * @return the instance
    */
-  public static GrouperTemplateLogicBase getTemplateLogic(String templateType, StemTemplateContainer stemTemplateContainer) {
+  public static GrouperTemplateLogicBase getTemplateLogic(String templateType, GroupStemTemplateContainer stemTemplateContainer) {
     
     String implementationClass = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("grouper.template."+templateType+".logicClass");
     
@@ -898,15 +941,29 @@ public class UiV2Template {
    */
   private void setTemplateOptions() {
     
-    StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
-    
-    Map<String, String> serviceClassPatterns = GrouperUiConfig.retrieveConfig().propertiesMap(grouperTemplateServiceClassPattern);
+    GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
     
     // add the standard ones if can create
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    // final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    Stem stem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem().getStem();
-    if (stem.canHavePrivilege(loggedInSubject, "creators", false)) {
+    
+    
+//    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+//    Group group = null;
+//    if (guiGroup != null && guiGroup.getGroup() != null) {
+//      group = guiGroup.getGroup();
+//    }
+    
+//    if (stem.canHavePrivilege(loggedInSubject, "creators", false)) {
+//      
+//    }
+    
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    if (guiStem != null && guiStem.getStem() != null) {
+      // only for stems; predefined templates are valid
+      
+      Map<String, String> serviceClassPatterns = GrouperUiConfig.retrieveConfig().propertiesMap(grouperTemplateServiceClassPattern);
+      
       for (Entry<String, String> entry: serviceClassPatterns.entrySet()) {
         
         String property = entry.getKey();
@@ -927,6 +984,7 @@ public class UiV2Template {
           
         }
       }
+      
     }
     
     // add custom gsh templates

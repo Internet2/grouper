@@ -83,14 +83,14 @@ public class GshTemplateValidationService {
   
   public boolean canSubjectExecuteTemplate(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec) {
     
-    if (PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser())) {
-      return true;
-    }
     return (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.specifiedGroup) {
+        
+        if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.everyone) {
+          return true;
+        } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.specifiedGroup) {
           return templateConfig.getGroupThatCanRun().hasMember(gshTemplateExec.getCurrentUser());
         } else if (templateConfig.getGshTemplateSecurityRunType() == GshTemplateSecurityRunType.wheel) {
           return PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser());
@@ -112,11 +112,12 @@ public class GshTemplateValidationService {
             GshTemplateRequireGroupPrivilege gshTemplateRequireGroupPrivilege = templateConfig.getGshTemplateRequireGroupPrivilege();
             return ownerGroup.canHavePrivilege(gshTemplateExec.getCurrentUser(), gshTemplateRequireGroupPrivilege.getPrivilege().getName(), true);
           } else {
-            throw new RuntimeException("Invalid gshTemplateOwnerType");
+            throw new RuntimeException("Invalid gshTemplateOwnerType: "+gshTemplateExec.getGshTemplateOwnerType());
           }
          
-        }
-        return true;
+        } else {
+          throw new RuntimeException("Invalid gshTemplateSecurityRunType: "+templateConfig.getGshTemplateSecurityRunType());
+        } 
       }
     });
     

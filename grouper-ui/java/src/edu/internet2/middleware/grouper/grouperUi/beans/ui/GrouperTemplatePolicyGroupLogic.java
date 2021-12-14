@@ -42,7 +42,7 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
   public void initScreen() {
     super.initScreen();
     
-    StemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemTemplateContainer();
+    GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
     
     templateContainer.setShowInThisFolderCheckbox(false);
     
@@ -257,7 +257,7 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     Stem stem = StemFinder.findByUuid(grouperSession, this.getStemId(), true);
     
-    StemTemplateContainer templateContainer = this.getStemTemplateContainer();
+    GroupStemTemplateContainer templateContainer = this.getStemTemplateContainer();
     String baseGroup = templateContainer.getTemplateKey();
     String baseGroupFriendlyName = templateContainer.getTemplateFriendlyName();
 

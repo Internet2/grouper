@@ -651,7 +651,7 @@ public class GrouperRequestContainer {
   /**
    * container for template screen
    */
-  private StemTemplateContainer stemTemplateContainer;
+  private GroupStemTemplateContainer groupStemTemplateContainer;
   
   /**
    * container for groups/stems object types
@@ -776,11 +776,11 @@ public class GrouperRequestContainer {
    * lazy load the template container
    * @return the template container
    */
-  public StemTemplateContainer getStemTemplateContainer() {
-    if (this.stemTemplateContainer == null) {
-      this.stemTemplateContainer = new StemTemplateContainer();
+  public GroupStemTemplateContainer getGroupStemTemplateContainer() {
+    if (this.groupStemTemplateContainer == null) {
+      this.groupStemTemplateContainer = new GroupStemTemplateContainer();
     }
-    return this.stemTemplateContainer;
+    return this.groupStemTemplateContainer;
   }
   
   /**

@@ -15,19 +15,19 @@
             <option value="">
             </option>
             
-            <c:forEach items="${grouperRequestContainer.stemTemplateContainer.templateOptions}"
+            <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.templateOptions}"
                  var="templateOption">
               <option value="${templateOption.key}"
-              ${grouperRequestContainer.stemTemplateContainer.templateType == templateOption.key ? 'selected="selected"' : '' }>${templateOption.value}</option>
+              ${grouperRequestContainer.groupStemTemplateContainer.templateType == templateOption.key ? 'selected="selected"' : '' }>${templateOption.value}</option>
             </c:forEach>
                                               
         </select> <br /> <span class="description">${textContainer.text['stemTemplateTypeDescription']}</span>
         </td>
       </tr>
       
-      <c:if test="${not empty grouperRequestContainer.stemTemplateContainer.templateLogic}">
+      <c:if test="${not empty grouperRequestContainer.groupStemTemplateContainer.templateLogic}">
       	
-      	<c:if test="${grouperRequestContainer.stemTemplateContainer.showInThisFolderCheckbox}">
+      	<c:if test="${grouperRequestContainer.groupStemTemplateContainer.showInThisFolderCheckbox}">
         <tr>
           <td style="vertical-align: top; white-space: nowrap;">
             <strong><label for="createSubfolder">${textContainer.text['stemCreateTemplateInThisFolder']}</label></strong>
@@ -35,18 +35,18 @@
           <td>
           <input type="checkbox" id="createSubfolder" name="createSubfolder"
                  onchange="$('.stem-template-key').toggle('slow'); $('.stem-template-friendlyName').toggle('slow'); $('.stem-template-description').toggle('slow'); return false;"
-                 ${grouperRequestContainer.stemTemplateContainer.createNoSubfolder == true ? 'checked="checked"' : '' } />
+                 ${grouperRequestContainer.groupStemTemplateContainer.createNoSubfolder == true ? 'checked="checked"' : '' } />
           </td>
         </tr>
       </c:if>      
-      <c:if test="${!grouperRequestContainer.stemTemplateContainer.createNoSubfolder}">
+      <c:if test="${!grouperRequestContainer.groupStemTemplateContainer.createNoSubfolder}">
 	      <tr class="stem-template-key">
 	        <td style="vertical-align: top; white-space: nowrap;"><strong><label
 	            for="serviceKeyId">${textContainer.text['stemServiceKey']}</label></strong></td>
 	        <td>
 	        
 	          <span style="white-space: nowrap">
-	            <input type="text" style="width: 35em" value="${grouper:escapeHtml(grouperRequestContainer.stemTemplateContainer.templateKey)}"
+	            <input type="text" style="width: 35em" value="${grouper:escapeHtml(grouperRequestContainer.groupStemTemplateContainer.templateKey)}"
 	               name="templateKey" id="serviceKeyId"
 	               onkeyup="syncNameAndId('serviceKeyId', 'serviceFriendlyNameId', 'nameDifferentThanIdId', false, null); return true;"
 	                />
@@ -65,7 +65,7 @@
 	        <td>
 	        
 	          <span style="white-space: nowrap">
-	            <input type="text" style="width: 35em" value="${grouper:escapeHtml(grouperRequestContainer.stemTemplateContainer.templateFriendlyName)}"
+	            <input type="text" style="width: 35em" value="${grouper:escapeHtml(grouperRequestContainer.groupStemTemplateContainer.templateFriendlyName)}"
 	               name="serviceFriendlyName" id="serviceFriendlyNameId" disabled="disabled" />
 	          </span>
 	          <span style="white-space: nowrap;">
@@ -84,7 +84,7 @@
 	            for="serviceDescriptionId">${textContainer.text['stemServiceDescription']}</label></strong></td>
 	        <td>
 	          <span style="white-space: nowrap">    
-	            <textarea id="serviceDescriptionId" name=serviceDescription rows="3" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.stemTemplateContainer.templateDescription)}</textarea>
+	            <textarea id="serviceDescriptionId" name=serviceDescription rows="3" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.groupStemTemplateContainer.templateDescription)}</textarea>
 	          </span>
 	        
 	          <br /> <span class="description">${textContainer.text['stemServiceDescriptionDescription']}</span>
@@ -95,15 +95,15 @@
       
       </c:if>
       
-      <c:if test="${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig != null}">
+      <c:if test="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig != null}">
 
         <tr class="stem-template-description">
-          <td style="vertical-align: top; white-space: nowrap;" colspan="2"><br /><strong style="font-size: larger;">${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig.gshTemplateConfig.templateNameForUi }</strong>
+          <td style="vertical-align: top; white-space: nowrap;" colspan="2"><br /><strong style="font-size: larger;">${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.gshTemplateConfig.templateNameForUi }</strong>
           <br />
-          <span class="description">${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig.gshTemplateConfig.templateDescriptionForUi }</span><br /><br /></td>
+          <span class="description">${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.gshTemplateConfig.templateDescriptionForUi }</span><br /><br /></td>
         </tr>
       
-      	<c:forEach items="${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig.guiGshTemplateInputConfigs}" var="guiGshTemplateInputConfigMap">
+      	<c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.guiGshTemplateInputConfigs}" var="guiGshTemplateInputConfigMap">
 			
 			<c:set var="guiGshTemplateInputConfigName" value="${guiGshTemplateInputConfigMap.key}"></c:set>		  				
 			<c:set var="guiGshTemplateInputConfig" value="${guiGshTemplateInputConfigMap.value}"></c:set>		  				
@@ -120,7 +120,7 @@
 				shouldShowElCheckbox="false"
 				value="${guiGshTemplateInputConfig.value}"
 				hasExpressionLanguage="false"
-				ajaxCallback="ajax('../app/UiV2Template.newTemplate?templateType=${grouperRequestContainer.stemTemplateContainer.templateType}', {formIds: 'newStemTemplateFormId'}); return false;"
+				ajaxCallback="ajax('../app/UiV2Template.newTemplate?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}', {formIds: 'newStemTemplateFormId'}); return false;"
 				valuesAndLabels="${guiGshTemplateInputConfig.gshTemplateInputConfig.dropdownKeysAndLabels}"
 			/>
   				
@@ -128,7 +128,7 @@
       
       </c:if>
       
-      <c:if test="${not empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
+      <c:if test="${not empty grouperRequestContainer.groupStemTemplateContainer.serviceActions}">
       <tr>
         <td colspan="2">
           ${textContainer.text['stemServiceActionsHelpText']}
@@ -137,10 +137,10 @@
       <tr>
       <td colspan="2">
 
-	      <c:forEach items="${grouperRequestContainer.stemTemplateContainer.serviceActions}" var="serviceAction">
+	      <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.serviceActions}" var="serviceAction">
 	       
           <div style="margin: 10px;">
-		        <c:set target="${grouperRequestContainer.stemTemplateContainer}" property="currentServiceAction" value="${serviceAction}" />
+		        <c:set target="${grouperRequestContainer.groupStemTemplateContainer}" property="currentServiceAction" value="${serviceAction}" />
 		        <span style="padding-left: ${serviceAction.indentLevel * 20}px;" class="${serviceAction.id}">
 		          
 			        <input type="checkbox" name="serviceActionId"
@@ -161,21 +161,21 @@
         <td
           style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;">
           
-          <c:if test="${not empty grouperRequestContainer.stemTemplateContainer.serviceActions}">
+          <c:if test="${not empty grouperRequestContainer.groupStemTemplateContainer.serviceActions}">
             <input type="submit" class="btn btn-primary"
 	          aria-controls="groupFilterResultsId" id="filterSubmitId"
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
 	          onclick="$('#stemTemplateBody').empty(); ajax('../app/UiV2Template.newTemplateSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
           </c:if>
           
-          <c:if test="${grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig != null}">
+          <c:if test="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig != null}">
             <input type="submit" class="btn btn-primary"
 	          aria-controls="groupFilterResultsId" id="filterSubmitId"
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
 	          onclick="$('#stemTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
           </c:if>
           
-          <c:if test="${empty grouperRequestContainer.stemTemplateContainer.serviceActions and grouperRequestContainer.stemTemplateContainer.guiGshTemplateConfig == null}">
+          <c:if test="${empty grouperRequestContainer.groupStemTemplateContainer.serviceActions and grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig == null}">
             <input type="submit" class="btn btn-primary"
             aria-controls="groupFilterResultsId" id="filterSubmitId"
             value="${textContainer.text['stemTemplateNextButton'] }"

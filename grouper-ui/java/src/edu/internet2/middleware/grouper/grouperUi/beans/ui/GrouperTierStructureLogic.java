@@ -18,7 +18,7 @@ public class GrouperTierStructureLogic extends GrouperTemplateLogicBase {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
     Stem stem = StemFinder.findByUuid(grouperSession, this.getStemId(), true);
     
-    StemTemplateContainer templateContainer = this.getStemTemplateContainer();
+    GroupStemTemplateContainer templateContainer = this.getStemTemplateContainer();
     String baseStem = templateContainer.getTemplateKey();
     String baseStemFriendlyName = templateContainer.getTemplateFriendlyName();
     
