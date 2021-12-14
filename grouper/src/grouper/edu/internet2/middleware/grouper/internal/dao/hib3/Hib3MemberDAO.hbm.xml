@@ -120,6 +120,7 @@
 
     <property name="subjectResolutionResolvableDb" column="subject_resolution_resolvable"/>
     <property name="subjectResolutionDeletedDb" column="subject_resolution_deleted"/>
+    <property name="subjectResolutionEligibleDb" column="subject_resolution_eligible"/>
   </class>
 
 </hibernate-mapping>

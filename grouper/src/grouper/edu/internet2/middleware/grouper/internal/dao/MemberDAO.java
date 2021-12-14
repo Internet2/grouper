@@ -353,9 +353,15 @@ public interface MemberDAO extends GrouperDAO {
   public Set<Member> getUnresolvableMembers(QueryOptions queryOptions, Boolean deleted);
   
   /**
-   * returns all member ids of non-internal sources.  plus member ids for groups that are deleted but have attributes/memberships.
+   * Returns member ids that are checked by USDU
    * @return set of member ids
    */
   public Set<String> findAllMemberIdsForUnresolvableCheck();
+  
+  /**
+   * Returns member ids that need to have subject resolution eligible updated to F
+   * @return set of member ids
+   */
+  public Set<String> findAllMemberIdsNoLongerSubjectResolutionEligible();
 } 
 

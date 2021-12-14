@@ -20,6 +20,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
@@ -40,7 +42,7 @@ public class UsduJobTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new UsduJobTest("testUsduWithUnusedMemberMarkedUnresolvable"));
+    TestRunner.run(new UsduJobTest("testNoLongerSubjectResolutionEligibleLocalEntities"));
   }
   
   public UsduJobTest(String name) {
@@ -53,6 +55,154 @@ public class UsduJobTest extends GrouperTest {
     GrouperCheckConfig.checkGroups();
     GrouperCheckConfig.waitUntilDoneWithExtraConfig();
     
+  }
+  
+  public void testNoLongerSubjectResolutionEligibleLocalEntities() throws InterruptedException {
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+    Entity testEntity1 = new EntitySave(GrouperSession.staticGrouperSession()).assignCreateParentStemsIfNotExist(true).assignName("test:testEntity1").save();
+    Entity testEntity2 = new EntitySave(GrouperSession.staticGrouperSession()).assignCreateParentStemsIfNotExist(true).assignName("test:testEntity2").save();
+
+    Group group1 = new GroupSave().assignName("test:testGroup1").assignCreateParentStemsIfNotExist(true).save();
+    group1.addMember(testEntity1.toSubject());
+    
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity1.toSubject(), false).isSubjectResolutionEligible());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity2.toSubject(), false).isSubjectResolutionEligible());
+
+    testEntity1.delete();
+    
+    // testEntity1
+    assertEquals(1, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    // run usdu
+    UsduJob.runDaemonStandalone();
+
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity1.toSubject(), false).isSubjectResolutionEligible());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity2.toSubject(), false).isSubjectResolutionEligible());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    testEntity2.delete();
+    
+    // testEntity2
+    assertEquals(1, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    // run usdu
+    UsduJob.runDaemonStandalone();
+    
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity1.toSubject(), false).isSubjectResolutionEligible());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity2.toSubject(), false).isSubjectResolutionEligible());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+  }
+  
+  public void testNoLongerSubjectResolutionEligible() throws InterruptedException {
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+    
+    Group group1 = new GroupSave().assignName("test:testGroup1").assignCreateParentStemsIfNotExist(true).save();
+    Group group2 = new GroupSave().assignName("test:testGroup2").assignCreateParentStemsIfNotExist(true).save();
+    Group group3 = new GroupSave().assignName("test:testGroup3").assignCreateParentStemsIfNotExist(true).save();
+
+    Subject subject0 = SubjectFinder.findById("test.subject.0", true);
+    Subject subject1 = SubjectFinder.findById("test.subject.1", true);
+    
+    group2.addMember(subject0);
+    group2.addMember(subject1);
+    group3.addMember(subject0);
+    group3.delete();
+    
+    // group3
+    assertEquals(1, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+    
+    group2.deleteMember(subject0);
+
+    // group3, subject0
+    assertEquals(2, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    // run usdu
+    UsduJob.runDaemonStandalone();
+
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionEligible());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject1, false).isSubjectResolutionEligible());
+    assertTrue(MemberFinder.internal_findAllMember().isSubjectResolutionEligible());
+    assertTrue(MemberFinder.internal_findRootMember().isSubjectResolutionEligible());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), group1.toSubject(), false).isSubjectResolutionEligible());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), group2.toSubject(), false).isSubjectResolutionEligible());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), group3.toSubject(), false).isSubjectResolutionEligible());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+    
+    // add subject0 again so it's eligible again
+    group1.addMember(subject0);
+    
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    // run usdu
+    UsduJob.runDaemonStandalone();
+    
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionEligible());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionResolvable());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionDeleted());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+    
+    // subject0 gone but still in a group so eligible
+    deleteSubject(subject0);
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    // run usdu
+    UsduJob.runDaemonStandalone();
+    
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionEligible());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionResolvable());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionDeleted());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+    
+    // even if membership is deleted, subject0 is still eligible because resolvable=F and deleted=F
+    group1.deleteMember(subject0);
+
+    // run usdu
+    UsduJob.runDaemonStandalone();
+    
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionEligible());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionResolvable());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionDeleted());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+    
+    // subject0 will get cleaned up
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "-1");
+
+    // run usdu
+    UsduJob.runDaemonStandalone();
+    
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionEligible());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionResolvable());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionDeleted());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+    
+    // subject0 becomes resolvable again    
+    RegistrySubject newSubject = new RegistrySubject();
+    newSubject.setId(subject0.getId());
+    newSubject.setName(subject0.getName());
+    newSubject.setTypeString("person");
+    GrouperDAOFactory.getFactory().getRegistrySubject().create(newSubject);
+    SubjectFinder.flushCache();
+    
+    // run usdu
+    UsduJob.runDaemonStandalone();
+    
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionEligible());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionResolvable());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionDeleted());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+    
+    // and add back to a group
+    group1.addMember(subject0);
+    
+    // run usdu
+    UsduJob.runDaemonStandalone();
+    
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionEligible());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionResolvable());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionDeleted());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
   }
   
   public void testUsduWithUnusedMemberMarkedUnresolvable() throws InterruptedException {

@@ -1877,7 +1877,7 @@ public class SubjectFinder implements CheckboxValueDriver {
 
     // Grab the subjects from the members found in database
     for ( Member matchingMember : matchingMembers ) {
-      if (matchingMember.isSubjectResolutionResolvable()) {
+      if (matchingMember.isSubjectResolutionResolvable() && !matchingMember.isSubjectResolutionDeleted() && matchingMember.isSubjectResolutionEligible()) {
         Subject matchingSubject = matchingMember.getSubject();
 
         result.put(matchingSubject.getId(), matchingSubject);

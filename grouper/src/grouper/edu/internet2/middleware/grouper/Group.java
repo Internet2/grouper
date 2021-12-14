@@ -2006,6 +2006,11 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                 
                 public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
                   Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerGroupId(Group.this.getId());
+
+                  Member member = Group.this.toMember();
+                  if (member != null) {
+                    attributeAssigns.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMemberId(member.getId()));
+                  }
                   
                   for (AttributeAssign attributeAssign : attributeAssigns) {
                     attributeAssign.delete();

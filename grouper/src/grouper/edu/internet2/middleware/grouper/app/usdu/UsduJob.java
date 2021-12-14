@@ -191,6 +191,11 @@ public class UsduJob extends OtherJobBase {
   
         for (Member member : currentMembers) {
           
+          if (!member.isSubjectResolutionEligible()) {
+            member.setSubjectResolutionEligible(true);
+            member.store();
+          }
+          
           if (!USDU.isMemberResolvable(grouperSession, member, memberIdToSubjectMap)) {
             unresolvableMembers.add(member);
           }
@@ -204,8 +209,30 @@ public class UsduJob extends OtherJobBase {
       
       long nowResolvedMembers = clearMetadataFromNowResolvedMembers(grouperSession);
       otherJobInput.getHib3GrouperLoaderLog().store();
+      
+      int updateBatchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
+      if (updateBatchSize <= 0) {
+        updateBatchSize = 1;
+      }
+
+      List<String> memberIdsNoLongerSubjectResolutionEligible = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible());
+      numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsNoLongerSubjectResolutionEligible.size(), batchSize);
+      for (int i = 0; i < numberOfBatches; i++) {
+        List<String> currentBatch = GrouperUtil.batchList(memberIdsNoLongerSubjectResolutionEligible, batchSize, i);
+        List<Member> currentMembers = new ArrayList<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null));
+        
+        for (Member member : currentMembers) {
+          member.setSubjectResolutionEligible(false);
+        }
+        
+        int numberOfUpdateBatches = GrouperUtil.batchNumberOfBatches(currentMembers.size(), updateBatchSize);
+        for (int j = 0; j < numberOfUpdateBatches; j++) {
+          List<Member> currentUpdateBatch = GrouperUtil.batchList(currentMembers, updateBatchSize, j);
+          HibernateSession.byObjectStatic().updateBatch(currentUpdateBatch);
+        }
+      }
           
-      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects.");
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects. Marked " + memberIdsNoLongerSubjectResolutionEligible.size() + " members no longer subject resolution eligible.");
       
       int duplicateSubjectIdentifierIssuesCount = checkDuplicateSubjectIdentifiers(otherJobInput.getHib3GrouperLoaderLog());
       
@@ -745,10 +772,7 @@ public class UsduJob extends OtherJobBase {
                 
       }
       
-      Set<AttributeAssign> attributeAssignsToDelete = new HashSet<AttributeAssign>();
-      attributeAssignsToDelete.addAll(member.getAttributeDelegate().retrieveAssignments());
-      attributeAssignsToDelete.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(AttributeAssignType.any_mem, null, null, null, null, member.getId(), null, null, null, false));
-      for (AttributeAssign attributeAssign : attributeAssignsToDelete) {
+      for (AttributeAssign attributeAssign : GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMemberId(member.getId())) {
         
         if (!attributeAssign.getAttributeDefNameId().equals(usduMarkerAttributeDefName.getId())) {
           HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
