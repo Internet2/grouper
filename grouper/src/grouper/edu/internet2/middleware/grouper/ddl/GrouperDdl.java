@@ -2679,12 +2679,14 @@ public enum GrouperDdl implements DdlVersionable {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "2.6.6";
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      
+      GrouperDdl2_6_6.fixGrouperMembersColumnPostgres(database, ddlVersionBean);
     }
   },
   V41 {
