@@ -911,8 +911,8 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     StringBuilder query = new StringBuilder("select distinct theMember.uuid from Member as theMember where ");
    
     query.append(" (subjectResolutionDeletedDb='F' and subjectResolutionResolvableDb='F') or (");
-    query.append(" ((theMember.subjectSourceIdDb != 'g:gsa' and theMember.subjectSourceIdDb != 'g:isa') or " );
-    query.append(" (theMember.subjectSourceIdDb = 'g:gsa' and not exists (select 1 from Group g where g.uuid=theMember.subjectIdDb))) " );
+    query.append(" ((theMember.subjectSourceIdDb != 'g:gsa' and theMember.subjectSourceIdDb != 'g:isa' and theMember.subjectSourceIdDb != 'grouperEntities') or " );
+    query.append(" ((theMember.subjectSourceIdDb = 'g:gsa' or theMember.subjectSourceIdDb = 'grouperEntities') and not exists (select 1 from Group g where g.uuid=theMember.subjectIdDb))) " );
 
     //memberships or attributes
     query.append(" and (exists (select 1 from ImmediateMembershipEntry as theMembership where theMembership.memberUuid = theMember.uuid) " +
@@ -935,11 +935,11 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     // These two are added to the query in findAllMemberIdsForUnresolvableCheck since they aren't checked but they should remain subjectResolutionEligibleDb=T.
     // Otherwise, it's the opposite of findAllMemberIdsForUnresolvableCheck.
     query.append(" theMember.subjectSourceIdDb = 'g:isa' or ");
-    query.append(" (theMember.subjectSourceIdDb = 'g:gsa' and exists (select 1 from Group g where g.uuid=theMember.subjectIdDb)) or " );
+    query.append(" ((theMember.subjectSourceIdDb = 'g:gsa' or theMember.subjectSourceIdDb = 'grouperEntities') and exists (select 1 from Group g where g.uuid=theMember.subjectIdDb)) or " );
 
     query.append(" (subjectResolutionDeletedDb='F' and subjectResolutionResolvableDb='F') or (");
-    query.append(" ((theMember.subjectSourceIdDb != 'g:gsa' and theMember.subjectSourceIdDb != 'g:isa') or " );
-    query.append(" (theMember.subjectSourceIdDb = 'g:gsa' and not exists (select 1 from Group g where g.uuid=theMember.subjectIdDb))) " );
+    query.append(" ((theMember.subjectSourceIdDb != 'g:gsa' and theMember.subjectSourceIdDb != 'g:isa' and theMember.subjectSourceIdDb != 'grouperEntities') or " );
+    query.append(" ((theMember.subjectSourceIdDb = 'g:gsa' or theMember.subjectSourceIdDb = 'grouperEntities') and not exists (select 1 from Group g where g.uuid=theMember.subjectIdDb))) " );
 
     //memberships or attributes
     query.append(" and (exists (select 1 from ImmediateMembershipEntry as theMembership where theMembership.memberUuid = theMember.uuid) " +

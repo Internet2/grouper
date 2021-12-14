@@ -772,10 +772,7 @@ public class UsduJob extends OtherJobBase {
                 
       }
       
-      Set<AttributeAssign> attributeAssignsToDelete = new HashSet<AttributeAssign>();
-      attributeAssignsToDelete.addAll(member.getAttributeDelegate().retrieveAssignments());
-      attributeAssignsToDelete.addAll(GrouperDAOFactory.getFactory().getAttributeAssign().findAttributeAssignments(AttributeAssignType.any_mem, null, null, null, null, member.getId(), null, null, null, false));
-      for (AttributeAssign attributeAssign : attributeAssignsToDelete) {
+      for (AttributeAssign attributeAssign : GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMemberId(member.getId())) {
         
         if (!attributeAssign.getAttributeDefNameId().equals(usduMarkerAttributeDefName.getId())) {
           HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {

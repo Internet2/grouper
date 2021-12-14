@@ -20,6 +20,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.entity.Entity;
+import edu.internet2.middleware.grouper.entity.EntitySave;
 import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.R;
@@ -40,7 +42,7 @@ public class UsduJobTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new UsduJobTest("testNoLongerSubjectResolutionEligible"));
+    TestRunner.run(new UsduJobTest("testNoLongerSubjectResolutionEligibleLocalEntities"));
   }
   
   public UsduJobTest(String name) {
@@ -53,6 +55,44 @@ public class UsduJobTest extends GrouperTest {
     GrouperCheckConfig.checkGroups();
     GrouperCheckConfig.waitUntilDoneWithExtraConfig();
     
+  }
+  
+  public void testNoLongerSubjectResolutionEligibleLocalEntities() throws InterruptedException {
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+    Entity testEntity1 = new EntitySave(GrouperSession.staticGrouperSession()).assignCreateParentStemsIfNotExist(true).assignName("test:testEntity1").save();
+    Entity testEntity2 = new EntitySave(GrouperSession.staticGrouperSession()).assignCreateParentStemsIfNotExist(true).assignName("test:testEntity2").save();
+
+    Group group1 = new GroupSave().assignName("test:testGroup1").assignCreateParentStemsIfNotExist(true).save();
+    group1.addMember(testEntity1.toSubject());
+    
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity1.toSubject(), false).isSubjectResolutionEligible());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity2.toSubject(), false).isSubjectResolutionEligible());
+
+    testEntity1.delete();
+    
+    // testEntity1
+    assertEquals(1, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    // run usdu
+    UsduJob.runDaemonStandalone();
+
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity1.toSubject(), false).isSubjectResolutionEligible());
+    assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity2.toSubject(), false).isSubjectResolutionEligible());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    testEntity2.delete();
+    
+    // testEntity2
+    assertEquals(1, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
+
+    // run usdu
+    UsduJob.runDaemonStandalone();
+    
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity1.toSubject(), false).isSubjectResolutionEligible());
+    assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testEntity2.toSubject(), false).isSubjectResolutionEligible());
+    assertEquals(0, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible().size());
   }
   
   public void testNoLongerSubjectResolutionEligible() throws InterruptedException {
