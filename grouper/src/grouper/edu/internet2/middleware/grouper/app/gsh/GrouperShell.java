@@ -91,9 +91,6 @@ public class GrouperShell {
 	  mainLookups.put("-loader",    
 			  "edu.internet2.middleware.grouper.app.loader.GrouperLoader");
 	  
-	  mainLookups.put("-usdu",      
-			  "edu.internet2.middleware.grouper.app.usdu.USDU");
-	  
 	  mainLookups.put("-registry",  
 			  "edu.internet2.middleware.grouper.registry.RegistryInitializeSchema");
 	  
@@ -697,7 +694,7 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "       For *nix 'source gsh.sh' for the same result"                    + GrouperConfig.NL
 	            + "       configDir optionally adds an alternative conf directory than"    + GrouperConfig.NL 
 	            + "       GROUPER_HOME/conf to the classpath"                              + GrouperConfig.NL
-	            + "args: (-xmlimport | -xmlexport | -loader | -test | -registry | -usdu |"   + GrouperConfig.NL
+	            + "args: (-xmlimport | -xmlexport | -loader | -test | -registry |"   + GrouperConfig.NL
 	            + "       -findbadmemberships | -ldappc | -pspngAttributesToProvisioningAttributes) "
 	            + "                        Enter option to get additional usage for that " + GrouperConfig.NL
 	            + "                        option "                                        + GrouperConfig.NL
@@ -711,8 +708,6 @@ private static boolean handleSpecialCase(String[] args) {
 	            + "                        bootstrap data"                                 + GrouperConfig.NL
 	            + "  -test,                Run JUnit tests"                                + GrouperConfig.NL
 	             
-	            + "  -usdu,                Invoke USDU - Unresolvable Subject Deletion "   + GrouperConfig.NL
-	            + "                        Utility"                                        + GrouperConfig.NL
 	            + "  -pspngAttributesToProvisioningAttributes Copies pspng attributes to " + GrouperConfig.NL
 	            + "                        provisioning, enter pspngConfigId and provisioningFrameworkConfigId"  + GrouperConfig.NL
 	            + "  -findbadmemberships,  Check for membership data inconsistencies    "  + GrouperConfig.NL

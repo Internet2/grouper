@@ -159,7 +159,6 @@ public class help {
       appendLine(builder, "* typeDelField(type, name)"                            );
       appendLine(builder, "* typeFind(name)"                                      );
       appendLine(builder, "* typeGetFields(name)"                                 );
-      appendLine(builder, "* usdu: type  help(\"usdu\")  for more info on unresolvable subject deletion utility");
       appendLine(builder, "* XmlExport: type  help(\"XmlExport\")  for more info on xml export");
       appendLine(builder, "* XmlImport: type  help(\"XmlImport\")  for more info on xml import");
       appendLine(builder, "* version()"                                           );
@@ -370,30 +369,6 @@ public class help {
           + "    Can use: \"ROLLBACK_NOW\", \"ROLLBACK_IF_NEW_TRANSACTION\n"
           + "- transactionEnd()         end a transaction.\n"
           + "    Note if it was read/write, and not committed or rolled back, this will commit and end\n");
-      } else if (StringUtils.equalsIgnoreCase(helpOn, "usdu")) {
-        appendLine(builder, "usdu help: unresolvable subject deletion utility\n"
-            + "- usdu finds which memberships are with subjects which cannot be found in a subject source, \n"
-            +   "and prints them on the screen\n"
-            + "- if the usdu.DELETE option is passed in, then the memberships will be deleted\n"
-            + "- a grouper session must be open when this command is run.\n"
-            + "- here is an example is a complete usdu run (a couple of commands):\n\n"
-            + "subject=SubjectFinder.findById(\"GrouperSystem\")\n"
-            + "session=GrouperSession.start(subject)\n"
-            + "usdu()\n\n"
-            + "- you can pass in that you want to delete memberships in the usdu call:\n\n"
-            + "usdu(usdu.DELETE)\n"
-            + "- you can work only in a specific subject source, pass in the sourceId from subject.properties:\n"
-            + "usduBySource(\"schoolperson\")\n"
-            + "- you can work in a specific source and delete membeships:\n"
-            + "usduBySource(\"schoolperson\", usdu.DELETE)\n"
-            + "- you can work only with a specific member\n\n"
-            + "subject=SubjectFinder.findById(\"GrouperSystem\")\n"
-            + "session=GrouperSession.start(subject)\n"
-            + "memberSubject=SubjectFinder.findById(\"1234567\")\n"
-            + "member = MemberFinder.findBySubject(session, memberSubject)\n"
-            + "usduByMember(member)\n"
-            + "- usdu by member, and delete memberships:\n"
-            + "usduByMember(member, usdu.DELETE)\n");
         
       } else if (StringUtils.equalsIgnoreCase(helpOn, "findBadMemberships")) {
         appendLine(builder, "findBadMemberships help: \n"

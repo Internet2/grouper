@@ -18,20 +18,9 @@ package edu.internet2.middleware.grouper.app.usdu;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.OptionGroup;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
@@ -40,14 +29,12 @@ import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -56,8 +43,6 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
-import edu.internet2.middleware.grouper.hibernate.GrouperContext;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -68,7 +53,6 @@ import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
-import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /**
@@ -85,9 +69,6 @@ public class USDU {
   /** logger */
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(USDU.class);
-
-  /** store the identifier for the GrouperSourceAdapter, probably "g:gsa" */
-  private static String grouperSourceAdapterId = null;
 
   /** map list names to corresponding privileges, a better way probably exists */
   private static Map<String, Privilege> list2priv = new HashMap<String, Privilege>();
@@ -107,98 +88,8 @@ public class USDU {
   }
 
   /**
-   * Run {@link USDU}.
+   * Deprecated - USDU is now run using the daemon and doesn't call this method
    * 
-   * <pre class="eg">
-   * // to print usage
-   * usdu.sh
-   * // or
-   * usdu.bat
-   * </pre>
-   * @param args 
-   * 
-   * @since 1.3.0
-   */
-  public static void main(String[] args) {
-
-    //set this and leave it...
-    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.USDU, false, true);
-
-    Options options = new Options();
-    OptionGroup optionGroup = new OptionGroup();
-    optionGroup.addOption(new Option("all", false, "find unresolvable subjects from all sources"));
-    optionGroup.addOption(new Option("source", true, "find unresolvable subjects from source"));
-    optionGroup.addOption(new Option("uuid", true, "find unresolvable subject with member uuid"));
-    optionGroup.setRequired(true);
-    options.addOptionGroup(optionGroup);
-    options.addOption("delete", false, "delete memberships and privileges");
-    options.addOption("start", true, "start session as this subject, default GrouperSystem");
-
-    if (args.length == 0) {
-      printUsage(options);
-      System.exit(0);
-    }
-
-    CommandLineParser parser = new GnuParser();
-    CommandLine line = null;
-    try {
-      line = parser.parse(options, args);
-    } catch (ParseException e) {
-      System.err.println(e.getMessage());
-      printUsage(options);
-      System.exit(1);
-    }
-
-    try {
-      GrouperSession s = null;
-      if (line.hasOption("start")) {
-        s = GrouperSession.start(SubjectFinder.findByIdentifier(line.getOptionValue("start"), true));
-      } else {
-        s = GrouperSession.start(SubjectFinder.findRootSubject());
-      }
-
-      if (line.hasOption("uuid")) {
-        resolveMember(s, line.getOptionValue("uuid"), line.hasOption("delete"));
-      } else if (line.hasOption("all")) {
-        resolveMembers(s, line.hasOption("delete"));
-      } else if (line.hasOption("source")) {
-        resolveMembers(s, SubjectFinder.getSource(line.getOptionValue("source")), line.hasOption("delete"));
-      } else {
-        printUsage(options);
-        System.exit(0);
-      }
-
-    } catch (Exception e) {
-      System.err.println(e.getMessage());
-      System.exit(1);
-    }
-
-    System.exit(0);
-  }
-
-  /**
-   * 
-   * @param options
-   */
-  private static void printUsage(Options options) {
-
-    System.out.println();
-
-    HelpFormatter formatter = new HelpFormatter();
-    formatter.printHelp(USDU.class.getSimpleName(), options, true);
-
-    System.out.println();
-    System.out.println("Unresolvable subjects are printed to stdout.");
-    System.out.println();
-    System.out.println("If an unresolvable subject is not a member of any groups:");
-    System.out.println(" member_uuid='<uuid>' subject='<id>' no_memberships");
-    System.out.println();
-    System.out.println("For every group or stem and list that an unresolvable subject is a member of:");
-    System.out.println(" member_uuid='<uuid>' subject='<id>' group|stem='<name>' list='<name>' [delete]");
-    System.out.println();
-  }
-
-  /**
    * Find and optionally delete memberships and privileges for the unresolvable
    * subject with given member uuid.
    * 
@@ -208,6 +99,7 @@ public class USDU {
    *          the uuid of the member
    * @param delete
    *          if true will delete memberships and privileges
+   * @deprecated
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
    * @throws GroupNotFoundException
@@ -241,6 +133,8 @@ public class USDU {
   }
 
   /**
+   * Deprecated - USDU is now run using the daemon and doesn't call this method
+   * 
    * Find and optionally delete memberships and privileges for unresolvable
    * subjects from all sources.
    * 
@@ -248,6 +142,7 @@ public class USDU {
    *          the Grouper session
    * @param delete
    *          if true will delete memberships and privileges
+   * @deprecated
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
    * @throws GroupNotFoundException
@@ -266,6 +161,8 @@ public class USDU {
   }
 
   /**
+   * Deprecated - USDU is now run using the daemon and doesn't call this method
+   * 
    * Find and optionally delete memberships and privileges for unresolvable
    * subjects from the specified source.
    * 
@@ -274,6 +171,7 @@ public class USDU {
    * @param source 
    * @param delete
    *          if true will delete memberships and privileges
+   * @deprecated
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
    * @throws GroupNotFoundException
@@ -292,6 +190,8 @@ public class USDU {
   }
 
   /**
+   * Deprecated - USDU is now run using the daemon and doesn't call this method
+   * 
    * Print to stdout and optionally delete memberships and privileges for the
    * given unresolvable subjects.
    * 
@@ -299,6 +199,7 @@ public class USDU {
    *          a set of unresolvable members
    * @param delete
    *          if true will delete memberships and privileges
+   * @deprecated
    * @throws IllegalArgumentException
    * @throws InsufficientPrivilegeException
    * @throws GroupNotFoundException
@@ -498,12 +399,15 @@ public class USDU {
   }
   
   /**
+   * Deprecated - USDU is now run using the daemon and doesn't call this method
+   * 
    * Find members whose subjects can not be found by their source.
    * 
    * @param s
    *          GrouperSession
    * @param source
    *          if null will find members from all sources
+   * @deprecated
    * @return unresolvable members
    */
   public static Set<Member> getUnresolvableMembers(GrouperSession s, Source source) {
@@ -511,6 +415,8 @@ public class USDU {
   }
 
   /**
+   * Deprecated - USDU is now run using the daemon and doesn't call this method
+   * 
    * Find members whose subjects can not be found by their source.
    * 
    * @param s
@@ -519,6 +425,7 @@ public class USDU {
    *          if null will find members from all sources
    * @param memberIdToSubjectMap 
    *          if you'd like this map filled with subjects as they are resolved
+   * @deprecated
    * @return unresolvable members
    */
   public static Set<Member> getUnresolvableMembers(GrouperSession s, Source source, Map<String, Subject> memberIdToSubjectMap) {
