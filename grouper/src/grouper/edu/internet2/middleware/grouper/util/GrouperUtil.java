@@ -117,6 +117,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.log4j.Appender;
 import org.apache.log4j.Category;
 import org.apache.log4j.ConsoleAppender;
@@ -133,6 +134,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.googlecode.ipv6.IPv6Address;
+import com.googlecode.ipv6.IPv6AddressRange;
+import com.googlecode.ipv6.IPv6Network;
+import com.googlecode.ipv6.IPv6NetworkHelpers;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
@@ -12781,11 +12786,23 @@ public class GrouperUtil {
 
     //check each one
     for (String networkIpString : networkIpStringsArray) {
-
+      
       if (ipv4regex.matcher(networkIpString).matches()) {
+        networkIpString = networkIpString + "/32";
+      } else if (InetAddressValidator.getInstance().isValidInet6Address(networkIpString)) {
         networkIpString = networkIpString + "/32";
       }
       
+      try {
+        final IPv6Network ipV6Network = IPv6Network.fromString(networkIpString);
+        final IPv6Address iPv6Address = IPv6Address.fromString(ipString);
+        if (ipV6Network != null && iPv6Address != null) {
+          return ipV6Network.contains(iPv6Address);
+        }
+      } catch (Exception e) {
+        // ignore and try ipv4
+      }
+
       if (!contains(networkIpString, "/")) {
         throw new RuntimeException("String must contain slash and CIDR network bits, e.g. 1.2.3.4/14");
       }
