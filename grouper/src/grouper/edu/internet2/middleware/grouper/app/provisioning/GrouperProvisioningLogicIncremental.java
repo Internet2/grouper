@@ -1006,23 +1006,25 @@ public class GrouperProvisioningLogicIncremental {
         PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(esbEvent.getAttributeAssignId(), false);
         if (pitAttributeAssign != null && pitAttributeAssign.getOwnerAttributeAssignId() != null) {
           PITAttributeAssign pitAttributeAssignOwner = GrouperDAOFactory.getFactory().getPITAttributeAssign().findById(pitAttributeAssign.getOwnerAttributeAssignId(), true);
-
-          PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitAttributeAssignOwner.getOwnerGroupId(), true);
-          Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(pitGroup.getSourceId(), false);
-
-          if (group != null) {
-            GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(group.getId());
-            if (grouperProvisioningObjectAttributes == null) {
-              grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName(), group.getIdIndex(), null);
-              grouperProvisioningObjectAttributes.setOwnedByGroup(true);
-            }
-
-            grouperProvisioningGroupAttributesToProcess.put(group.getId(), grouperProvisioningObjectAttributes);
-
-            String parentFolderName = GrouperUtil.parentStemNameFromName(group.getName());
-            if (!allAncestorProvisioningGroupAttributes.containsKey(parentFolderName)) {
-              Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(group.getParentUuid());
-              allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
+          
+          if (pitAttributeAssignOwner.getOwnerGroupId() != null) {
+            PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitAttributeAssignOwner.getOwnerGroupId(), true);
+            Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(pitGroup.getSourceId(), false);
+  
+            if (group != null) {
+              GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(group.getId());
+              if (grouperProvisioningObjectAttributes == null) {
+                grouperProvisioningObjectAttributes = new GrouperProvisioningObjectAttributes(group.getId(), group.getName(), group.getIdIndex(), null);
+                grouperProvisioningObjectAttributes.setOwnedByGroup(true);
+              }
+  
+              grouperProvisioningGroupAttributesToProcess.put(group.getId(), grouperProvisioningObjectAttributes);
+  
+              String parentFolderName = GrouperUtil.parentStemNameFromName(group.getName());
+              if (!allAncestorProvisioningGroupAttributes.containsKey(parentFolderName)) {
+                Map<String, GrouperProvisioningObjectAttributes> ancestorProvisioningGroupAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveAncestorProvisioningAttributesByFolder(group.getParentUuid());
+                allAncestorProvisioningGroupAttributes.putAll(ancestorProvisioningGroupAttributes);
+              }
             }
           }
         }

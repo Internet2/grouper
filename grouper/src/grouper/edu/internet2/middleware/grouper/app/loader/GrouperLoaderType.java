@@ -3488,8 +3488,8 @@ public enum GrouperLoaderType {
         AttributeDefName grouperLoaderMetadataLastSummary = AttributeDefNameFinder.findByName(
             GrouperCheckConfig.loaderMetadataStemName()+":"+GrouperLoader.ATTRIBUTE_GROUPER_LOADER_METADATA_LAST_SUMMARY, true);
         attributeAssign.getAttributeValueDelegate().assignValue(grouperLoaderMetadataLastSummary.getName(),
-            "total: "+hib3GrouploaderLog.getTotalCount() +" inserted: "+hib3GrouploaderLog.getInsertCount()+" deleted: "+ hib3GrouploaderLog.getDeleteCount()
-            + " updated: "+ hib3GrouploaderLog.getUpdateCount());
+            "total: "+hib3GrouploaderLog.getTotalCount() +", inserted: "+hib3GrouploaderLog.getInsertCount()+", deleted: "+ hib3GrouploaderLog.getDeleteCount()
+            + ", updated: "+ hib3GrouploaderLog.getUpdateCount());
         loaderGroup = null;  
       }      
     } catch (Exception e) {
