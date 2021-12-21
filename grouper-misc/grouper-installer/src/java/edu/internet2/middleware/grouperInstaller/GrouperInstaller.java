@@ -11186,9 +11186,9 @@ public class GrouperInstaller {
     // put logging related jars in tomee/bin directory
     File tomeeBinDir = new File(containerTomeeDir + File.separator + "bin");
     
-    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.13.1/log4j-core-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-core-2.13.1.jar", "");
-    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul/2.13.1/log4j-jul-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-jul-2.13.1.jar", "");
-    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.13.1/log4j-api-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-api-2.13.1.jar", "");
+    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.17.0/log4j-core-2.17.0.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-core-2.17.0.jar", "");
+    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul/2.17.0/log4j-jul-2.17.0.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-jul-2.17.0.jar", "");
+    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.17.0/log4j-api-2.17.0.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-api-2.17.0.jar", "");
     
     // put slf4j in lib dir
     downloadFile("https://repo1.maven.org/maven2/org/slf4j/slf4j-log4j12/1.7.21/slf4j-log4j12-1.7.21.jar", libDir + File.separator + "slf4j-log4j12-1.7.21.jar", "");

@@ -113,11 +113,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- override slf4j-api version (in downstream projects) pulled from cron-parser-core -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
         <dependency>
             <groupId>net.sf.ezmorph</groupId>
             <artifactId>ezmorph</artifactId>
