@@ -19,8 +19,20 @@
  */
 package edu.internet2.middleware.grouper.util;
 
+import java.io.File;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -33,18 +45,6 @@ import junit.textui.TestRunner;
 import net.sf.json.JSONObject;
 import net.sf.json.JsonConfig;
 import net.sf.json.util.PropertyFilter;
-import org.apache.commons.logging.Log;
-
-import java.io.File;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 
 /**
@@ -58,7 +58,7 @@ public class GrouperUtilTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testExceptionTruncate"));
+    TestRunner.run(new GrouperUtilTest("testIpOnNetworks"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
   }
@@ -1187,6 +1187,50 @@ public class GrouperUtilTest extends GrouperTest {
     assertEquals("beanBa2", v2BeanA.getField4()[1].getFieldB2()[0]);
     assertNull(v2BeanA.getField4()[1].getFieldB1a());
     assertEquals("beanBb2", v2BeanA.getField4()[1].getFieldB2()[1]);
+    
+  }
+  
+  public void testIpOnNetworks() {
+    
+    String ipString = "1.2.3.4";
+    String networkIpStrings = "1.2.3.5,1.2.3.6";
+    boolean ipOnNetworks = GrouperUtil.ipOnNetworks(ipString, networkIpStrings);
+    assertFalse(ipOnNetworks);
+    
+    ipString = "1.2.3.4";
+    networkIpStrings = "1.2.3.4,1.2.3.6";
+    ipOnNetworks = GrouperUtil.ipOnNetworks(ipString, networkIpStrings);
+    assertTrue(ipOnNetworks);
+    
+    ipString = "1.2.3.4";
+    networkIpStrings = "1.2.3.0/10";
+    ipOnNetworks = GrouperUtil.ipOnNetworks(ipString, networkIpStrings);
+    assertTrue(ipOnNetworks);
+    
+    ipString = "1.2.3.4";
+    networkIpStrings = "0.0.0.0/0";
+    ipOnNetworks = GrouperUtil.ipOnNetworks(ipString, networkIpStrings);
+    assertTrue(ipOnNetworks);
+    
+    ipString = "1.2.3.4";
+    networkIpStrings = "0.0.0.0.0.0/0";
+    ipOnNetworks = GrouperUtil.ipOnNetworks(ipString, networkIpStrings);
+    assertTrue(ipOnNetworks);
+
+    ipString = "1.2.3.4";
+    networkIpStrings = "2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF";
+    ipOnNetworks = GrouperUtil.ipOnNetworks(ipString, networkIpStrings);
+    assertFalse(ipOnNetworks);
+    
+    ipString = "0.0.0.0.0.1";
+    networkIpStrings = "0.0.0.0.0.0/0";
+    ipOnNetworks = GrouperUtil.ipOnNetworks(ipString, networkIpStrings);
+    assertTrue(ipOnNetworks);
+
+    ipString = "2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF";
+    networkIpStrings = "2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF";
+    ipOnNetworks = GrouperUtil.ipOnNetworks(ipString, networkIpStrings);
+    assertTrue(ipOnNetworks);
     
   }
   
