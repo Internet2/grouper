@@ -83,6 +83,10 @@ public class GshTemplateValidationService {
   
   public boolean canSubjectExecuteTemplate(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec) {
     
+    if (PrivilegeHelper.isWheelOrRoot(gshTemplateExec.getCurrentUser())) {
+      return true;
+    }
+    
     return (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
