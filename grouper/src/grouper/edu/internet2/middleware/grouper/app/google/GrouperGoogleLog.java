@@ -1,8 +1,4 @@
-/**
- * @author mchyzer
- * $Id: TfRestLogicTrafficLog.java,v 1.1 2013/06/20 06:02:50 mchyzer Exp $
- */
-package edu.internet2.middleware.grouper.app.duo;
+package edu.internet2.middleware.grouper.app.google;
 
 import java.util.Map;
 
@@ -11,21 +7,16 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
-
-
-/**
- * logger to log the traffic of box
- */
-public class GrouperDuoLog {
+public class GrouperGoogleLog {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperDuoLog.class);
+  private static final Log LOG = LogFactory.getLog(GrouperGoogleLog.class);
  
   /**
    * log something to the log file
    * @param message
    */
-  public static void duoLog(String message) {
+  public static void googleLog(String message) {
     LOG.debug(message);
   }
   
@@ -34,7 +25,7 @@ public class GrouperDuoLog {
    * @param messageMap
    * @param startTimeNanos nanos when the request started
    */
-  public static void duoLog(Map<String, Object> messageMap, Long startTimeNanos) {
+  public static void googleLog(Map<String, Object> messageMap, Long startTimeNanos) {
     if (LOG.isDebugEnabled()) {
       if (messageMap != null && startTimeNanos != null) {
         messageMap.put("elapsedMillis", (System.nanoTime() - startTimeNanos) / 1000000);
@@ -42,6 +33,5 @@ public class GrouperDuoLog {
       LOG.debug(GrouperClientUtils.mapToString(messageMap));
     }
   }
-
   
 }

@@ -954,8 +954,10 @@ public class GrouperProvisioningTranslatorBase {
           id = targetEntity.getSubjectId();
         } else if ("loginId".equals(entityIdField)) {
           id = targetEntity.getLoginId();
+        } else if ("email".equals(entityIdField)) {
+          id = targetEntity.getEmail(); 
         } else {
-          throw new RuntimeException("Invalid entityMatchingIdField, expecting id, subjectId, or loginId '" + entityIdField + "'");
+          throw new RuntimeException("Invalid entityMatchingIdField, expecting id, subjectId, loginId, or email '" + entityIdField + "'");
         }
       } else if (!StringUtils.isBlank(entityIdAttribute)) {
         Object idValue = targetEntity.retrieveAttributeValue(entityIdAttribute);

@@ -51,6 +51,9 @@ import edu.internet2.middleware.grouper.app.azure.GrouperAzureUser;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoGroup;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoMembership;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoUser;
+import edu.internet2.middleware.grouper.app.google.GrouperGoogleGroup;
+import edu.internet2.middleware.grouper.app.google.GrouperGoogleMembership;
+import edu.internet2.middleware.grouper.app.google.GrouperGoogleUser;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
@@ -229,6 +232,9 @@ public abstract class Hib3DAO {
         addClass(configuration, GrouperDuoGroup.class);
         addClass(configuration, GrouperDuoUser.class);
         addClass(configuration, GrouperDuoMembership.class);
+        addClass(configuration, GrouperGoogleGroup.class);
+        addClass(configuration, GrouperGoogleUser.class);
+        addClass(configuration, GrouperGoogleMembership.class);
       }
       addClass(configuration, Hib3MemberDAO.class);
       addClass(configuration, Hib3MembershipDAO.class);

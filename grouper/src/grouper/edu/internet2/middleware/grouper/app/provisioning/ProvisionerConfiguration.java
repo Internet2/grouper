@@ -42,6 +42,7 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
   static {
     provisionerConfigClassNames.add(AzureProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(DuoProvisionerConfiguration.class.getName());
+    provisionerConfigClassNames.add(GoogleProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(LdapProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(GrouperScim2Configuration.class.getName());
     provisionerConfigClassNames.add(MessagingProvisionerConfiguration.class.getName());
