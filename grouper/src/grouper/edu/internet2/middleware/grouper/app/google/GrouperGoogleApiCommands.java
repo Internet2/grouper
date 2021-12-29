@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.google;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
@@ -10,6 +12,7 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -21,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
@@ -37,7 +41,6 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
@@ -45,10 +48,10 @@ import edu.internet2.middleware.morphString.Morph;
 public class GrouperGoogleApiCommands {
   
   /**
-   * cache of config key to expires on and encrypted bearer token
+   * cache of config key to encrypted bearer token
    */
-  private static ExpirableCache<String, MultiKey> configKeyToExpiresOnAndBearerToken = new ExpirableCache<String, MultiKey>(60);
-  private static ExpirableCache<String, MultiKey> configKeyToExpiresOnAndSettingsToken = new ExpirableCache<String, MultiKey>(60);
+  private static ExpirableCache<String, String> configKeyToExpiresOnAndBearerToken = new ExpirableCache<String, String>();
+  private static ExpirableCache<String, String> configKeyToExpiresOnAndSettingsToken = new ExpirableCache<String, String>();
 
   
   static class GoogleRsaKeyProvider implements RSAKeyProvider {
@@ -74,31 +77,19 @@ public class GrouperGoogleApiCommands {
       return privateKey;
     }
       
-  } 
+  }
   
   /**
-   * get bearer token for google config id
+   * get access token from google
+   * @param debugMap
    * @param configId
-   * @return the bearer token
+   * @param scope
+   * @return token in the first index and its expiry in the second index
    */
-  public static String retrieveBearerTokenForGoogleConfigId(Map<String, Object> debugMap, String configId) {
+  private static Object[] generateAccessToken(Map<String, Object> debugMap, String configId, String scope) {
     
     long startedNanos = System.nanoTime();
-        
-    MultiKey expiresOnAndEncryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
-  
-    String encryptedBearerToken = null;
-    if (expiresOnAndEncryptedBearerToken != null) {
-      long expiresOnSeconds = (Long)expiresOnAndEncryptedBearerToken.getKey(0);
-      encryptedBearerToken = (String)expiresOnAndEncryptedBearerToken.getKey(1);
-      if (expiresOnSeconds * 1000 > System.currentTimeMillis()) {
-        // use it
-        if (debugMap != null) {
-          debugMap.put("googleCachedAccessToken", true);
-        }
-        return Morph.decrypt(encryptedBearerToken);
-      }
-    }
+    
     try {
       // we need to get another one
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
@@ -130,12 +121,12 @@ public class GrouperGoogleApiCommands {
       } else if (StringUtils.isNotBlank(privateKeyString)) {
         
         try {
-          byte[] privateKeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(privateKeyString);
-          KeyFactory kf = KeyFactory.getInstance("RSA");
-         
-          PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
           
-          privateKey = kf.generatePrivate(privateKeySpec);
+          privateKeyString = privateKeyString.replaceAll("\n", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
+          PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString));
+          
+          KeyFactory kf = KeyFactory.getInstance("RSA");
+          privateKey = kf.generatePrivate(keySpec);
           
         } catch (NoSuchAlgorithmException e) {
           throw new RuntimeException("Could not reconstruct the private key, the given algorithm could not be found.", e);
@@ -150,13 +141,13 @@ public class GrouperGoogleApiCommands {
       Algorithm algorithm = Algorithm.RSA256(new GoogleRsaKeyProvider(privateKey));
       
       long now = System.currentTimeMillis();
-      
+
       signedJwt = JWT.create()
           .withKeyId("privateKeyId")
           .withIssuer(serviceAccountEmail)
           .withSubject(serviceImpersonationUser)
           .withAudience("https://oauth2.googleapis.com/token")
-          .withClaim("scope", "https://www.googleapis.com/auth/admin.directory.user https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.group.member")
+          .withClaim("scope", scope)
           .withIssuedAt(new Date(now))
           .withExpiresAt(new Date(now + 3600 * 1000L))
           .sign(algorithm);
@@ -182,12 +173,10 @@ public class GrouperGoogleApiCommands {
       }
       
       JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
-      long expiresOn = GrouperUtil.jsonJacksonGetLong(jsonObject, "expires_in", -1L);
+      int expiresInSeconds = GrouperUtil.jsonJacksonGetInteger(jsonObject, "expires_in");
       String accessToken = GrouperUtil.jsonJacksonGetString(jsonObject, "access_token");
-  
-      expiresOnAndEncryptedBearerToken = new MultiKey(expiresOn, Morph.encrypt(accessToken));
-      configKeyToExpiresOnAndBearerToken.put(configId, expiresOnAndEncryptedBearerToken);
-      return accessToken;
+      return new Object[] {accessToken, expiresInSeconds};
+      
     } catch (RuntimeException re) {
       
       if (debugMap != null) {
@@ -203,129 +192,54 @@ public class GrouperGoogleApiCommands {
   }
   
   /**
+   * get bearer token for google config id
+   * @param configId
+   * @return the bearer token
+   */
+  private static String retrieveBearerTokenForGoogleConfigId(Map<String, Object> debugMap, String configId) {
+    
+    String encryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
+  
+    if (StringUtils.isNotBlank(encryptedBearerToken)) {
+      if (debugMap != null) {
+        debugMap.put("googleCachedAccessToken", true);
+      }
+      return Morph.decrypt(encryptedBearerToken);
+    }
+    
+    Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId, 
+        "https://www.googleapis.com/auth/admin.directory.user https://www.googleapis.com/auth/admin.directory.group https://www.googleapis.com/auth/admin.directory.group.member");
+    
+    String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
+    int expiresInSeconds = (Integer) accessTokenAndExpiry[1] - 5; // subtracting 5 just in case if there are network delays
+    int timeToLive = expiresInSeconds/60;
+    configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), timeToLive - 5);
+    return accessToken;
+  }
+  
+  /**
    * get bearer token for google settings config id
    * @param configId
    * @return the bearer token
    */
-  public static String retrieveBearerTokenForGoogleSettingsConfigId(Map<String, Object> debugMap, String configId) {
+  private static String retrieveBearerTokenForGoogleSettingsConfigId(Map<String, Object> debugMap, String configId) {
     
-    long startedNanos = System.nanoTime();
-        
-    MultiKey expiresOnAndEncryptedBearerToken = configKeyToExpiresOnAndSettingsToken.get(configId);
-  
-    String encryptedBearerToken = null;
-    if (expiresOnAndEncryptedBearerToken != null) {
-      long expiresOnSeconds = (Long)expiresOnAndEncryptedBearerToken.getKey(0);
-      encryptedBearerToken = (String)expiresOnAndEncryptedBearerToken.getKey(1);
-      if (expiresOnSeconds * 1000 > System.currentTimeMillis()) {
-        // use it
-        if (debugMap != null) {
-          debugMap.put("googleCachedAccessTokenForSettings", true);
-        }
-        return Morph.decrypt(encryptedBearerToken);
-      }
-    }
-    try {
-      // we need to get another one
-      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
-      
-      final String url = "https://oauth2.googleapis.com/token";
-      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
-      grouperHttpClient.assignUrl(url);
-      
-      String signedJwt = null;
-
-      String privateKeyFilePath = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".serviceAccountPKCS12FilePath");
-
-      String privateKeyString = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".serviceAccountPKCS12Pass");
-      
-      String serviceAccountEmail = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".serviceAccountEmail");
-      
-      String serviceImpersonationUser = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".serviceImpersonationUser");
-      
-      PrivateKey privateKey = null;
-      
-      if (StringUtils.isNotBlank(privateKeyFilePath)) {
-        try {
-          KeyStore keyStore = KeyStore.getInstance("PKCS12");
-          keyStore.load(new FileInputStream(privateKeyFilePath), "notasecret".toCharArray());
-          privateKey = (PrivateKey) keyStore.getKey("privatekey", "notasecret".toCharArray());
-        } catch (Exception e) {
-          throw new RuntimeException("Could not construct private key from p12 file");
-        }
-      } else if (StringUtils.isNotBlank(privateKeyString)) {
-        
-        try {
-          byte[] privateKeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(privateKeyString);
-          KeyFactory kf = KeyFactory.getInstance("RSA");
-         
-          PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
-          
-          privateKey = kf.generatePrivate(privateKeySpec);
-          
-        } catch (NoSuchAlgorithmException e) {
-          throw new RuntimeException("Could not reconstruct the private key, the given algorithm could not be found.", e);
-        } catch (InvalidKeySpecException e) {
-          throw new RuntimeException("Could not reconstruct the private key", e);
-        }
-        
-      } else {
-        throw new RuntimeException("Supply privateKeyFilePath or privateKeyFileString");
-      }
-      
-      Algorithm algorithm = Algorithm.RSA256(new GoogleRsaKeyProvider(privateKey));
-      
-      long now = System.currentTimeMillis();
-      
-      signedJwt = JWT.create()
-          .withKeyId("privateKeySettingsId")
-          .withIssuer(serviceAccountEmail)
-          .withSubject(serviceImpersonationUser)
-          .withAudience("https://oauth2.googleapis.com/token")
-          .withClaim("scope", "https://www.googleapis.com/auth/apps.groups.settings")
-          .withIssuedAt(new Date(now))
-          .withExpiresAt(new Date(now + 3600 * 1000L))
-          .sign(algorithm);
-      
-      grouperHttpClient.addBodyParameter("assertion", signedJwt);
-      grouperHttpClient.addBodyParameter("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
-  
-      int code = -1;
-      String json = null;
-  
-      try {
-        grouperHttpClient.executeRequest();
-        code = grouperHttpClient.getResponseCode();
-        // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
-        
-        json = grouperHttpClient.getResponseBody();
-      } catch (Exception e) {
-        throw new RuntimeException("Error connecting to '" + url + "'", e);
-      }
-  
-      if (code != 200) {
-        throw new RuntimeException("Cant get access token for settings from '" + url + "' " + code + ", " + json);
-      }
-      
-      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
-      long expiresOn = GrouperUtil.jsonJacksonGetLong(jsonObject, "expires_in", -1L);
-      String accessToken = GrouperUtil.jsonJacksonGetString(jsonObject, "access_token");
-  
-      expiresOnAndEncryptedBearerToken = new MultiKey(expiresOn, Morph.encrypt(accessToken));
-      configKeyToExpiresOnAndSettingsToken.put(configId, expiresOnAndEncryptedBearerToken);
-      return accessToken;
-    } catch (RuntimeException re) {
-      
+    String encryptedBearerToken = configKeyToExpiresOnAndSettingsToken.get(configId);
+    
+    if (StringUtils.isNotBlank(encryptedBearerToken)) {
       if (debugMap != null) {
-        debugMap.put("googleSettingsTokenError", GrouperUtil.getFullStackTrace(re));
+        debugMap.put("googleCachedAccessTokenForSettings", true);
       }
-      throw re;
-  
-    } finally {
-      if (debugMap != null) {
-        debugMap.put("googleSettingsTokenTookMillis", (System.nanoTime()-startedNanos)/1000000);
-      }
+      return Morph.decrypt(encryptedBearerToken);
     }
+  
+    Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId, "https://www.googleapis.com/auth/apps.groups.settings");
+    
+    String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
+    int expiresInSeconds = (Integer) accessTokenAndExpiry[1] - 5; // subtracting 5 just in case if there are network delays
+    int timeToLive = expiresInSeconds/60;
+    configKeyToExpiresOnAndSettingsToken.put(configId, Morph.encrypt(accessToken), timeToLive);
+    return accessToken;
   }
   
   private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId, String url, boolean useSettingsBearerToken) {
