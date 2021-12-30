@@ -1,8 +1,13 @@
 package edu.internet2.middleware.grouper.app.google;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.io.FileUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -14,19 +19,14 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -52,7 +52,7 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
   
   private boolean startTomcat = false;
   
-  public void testFullSyncGoogle() {
+  public void testFullSyncGoogle() throws IOException {
     
     int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
     boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
@@ -60,7 +60,19 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.domain").value("viveksachdeva.com").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.serviceAccountEmail").value("vivek-grouper@industrial-keep-335804.iam.gserviceaccount.com").store();
+    
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.serviceAccountPKCS12FilePath").value("/Users/vsachdeva/Downloads/industrial-keep-335804-e02ab89e4f2d.p12").store();
+    
+    String fileContents = GrouperUtil.readFileIntoString(new File("/Users/vsachdeva/Downloads/industrial-keep-335804-e02ab89e4f2d.p12"));
+    
+    String secretBase64Encoded = new String(Base64.getEncoder().encode(fileContents.getBytes()));
+    
+    byte[] byteArray = FileUtils.readFileToByteArray(new File("/Users/vsachdeva/Downloads/industrial-keep-335804-e02ab89e4f2d.p12"));
+    String fileBeforEncoding = new String(byteArray);
+    byte[] encoded = Base64.getEncoder().encode(byteArray);
+    String secretBase64Encoded1  = new String(encoded);
+    
+    //new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.serviceAccountPKCS12Pass").value(secretBase64Encoded1).store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.serviceImpersonationUser").value("vivek@viveksachdeva.com").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.enabled").value("true").store();
    

@@ -33,15 +33,14 @@
     <property name="description" column="description" />
     <property name="name" column="name" />
     
-    <!-- <set name="users" table="mock_duo_membership" 
-      inverse="false" lazy="true" fetch="select" cascade="all" >
-        <key>
-            <column name="group_id" not-null="true" />
-        </key>
-        <many-to-many entity-name="edu.internet2.middleware.grouper.app.duo.GrouperDuoUser">
-            <column name="user_id" not-null="true" />
-        </many-to-many>
-    </set> -->
+    <property name="whoCanAdd" column="who_can_add" />
+    <property name="whoCanJoin" column="who_can_join" />
+    <property name="whoCanViewMembership" column="who_can_view_membership" />
+    <property name="whoCanViewGroup" column="who_can_view_group" />
+    <property name="whoCanInvite" column="who_can_invite" />
+    <property name="whoCanPostMessage" column="who_can_post_message" />
+    <property name="allowExternalMembersDb" column="allow_external_members" />
+    <property name="allowWebPostingDb" column="allow_web_posting" />
 
   </class>
 </hibernate-mapping>

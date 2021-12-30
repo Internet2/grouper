@@ -187,7 +187,6 @@ public void setPassword(String password) {
    } catch (Exception e) {
          
      Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
-     // email, first_name, groups, last_name, real_name, user_id, user_name
      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "primary_email", Types.VARCHAR, "256", false, false);
      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "given_name", Types.VARCHAR, "256", false, false);
      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "family_name", Types.VARCHAR, "256", false, false);

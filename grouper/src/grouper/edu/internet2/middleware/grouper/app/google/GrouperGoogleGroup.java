@@ -26,20 +26,31 @@ public class GrouperGoogleGroup {
    */
   public static void createTableGoogleGroup(DdlVersionBean ddlVersionBean, Database database) {
 
-    final String tableName = "mock_google_group";
+    final String groupTableName = "mock_google_group";
 
     try {
-      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+      new GcDbAccess().sql("select count(*) from " + groupTableName).select(int.class);
     } catch (Exception e) {
     
       
-      Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+      Table groupTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, groupTableName);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "name", Types.VARCHAR, "256", false, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id", Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "description", Types.VARCHAR, "1024", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "name", Types.VARCHAR, "256", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "id", Types.VARCHAR, "40", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "email", Types.VARCHAR, "1024", false, true);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_google_group_name_idx", true, "name");
+      //settings
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_add", Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_join", Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_membership", Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_group", Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_invite", Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_post_message", Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "allow_external_members", Types.VARCHAR, "1", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "allow_web_hosting", Types.VARCHAR, "1", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTableName, "mock_google_group_name_idx", true, "name");
     }
             
   }
@@ -141,6 +152,24 @@ public class GrouperGoogleGroup {
   private boolean allowExternalMembers;
   private String whoCanPostMessage;
   private boolean allowWebPosting;
+  
+  public String getAllowExternalMembersDb() {
+    return allowExternalMembers ? "T" : "F";
+  }
+
+  
+  public void setAllowExternalMembersDb(String allowExternalMembers) {
+    this.allowExternalMembers = GrouperUtil.booleanValue(allowExternalMembers, false);
+  }
+  
+  public String getAllowWebPostingDb() {
+    return allowWebPosting ? "T" : "F";
+  }
+
+  
+  public void setAllowWebPostingDb(String allowWebPosting) {
+    this.allowWebPosting = GrouperUtil.booleanValue(allowWebPosting, false);
+  }
   
 
   public String getDescription() {
