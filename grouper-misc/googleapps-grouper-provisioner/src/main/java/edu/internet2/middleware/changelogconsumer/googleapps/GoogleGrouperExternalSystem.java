@@ -43,10 +43,10 @@ public class GoogleGrouperExternalSystem extends GrouperExternalSystem {
     super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
     
     GrouperConfigurationModuleAttribute serviceAccountPKCS12FilePath = this.retrieveAttributes().get("serviceAccountPKCS12FilePath");
-    GrouperConfigurationModuleAttribute serviceAccountPKCS12Pass = this.retrieveAttributes().get("serviceAccountPKCS12Pass");
+    GrouperConfigurationModuleAttribute serviceAccountPrivateKeyPEM = this.retrieveAttributes().get("serviceAccountPrivateKeyPEM");
 
-    if (StringUtils.isBlank(serviceAccountPKCS12FilePath.getValueOrExpressionEvaluation()) && StringUtils.isBlank(serviceAccountPKCS12Pass.getValueOrExpressionEvaluation())) {
-      validationErrorsToDisplay.put(serviceAccountPKCS12FilePath.getHtmlForElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationGoogleFilePathOrPasswordRequired"));
+    if (StringUtils.isBlank(serviceAccountPKCS12FilePath.getValueOrExpressionEvaluation()) && StringUtils.isBlank(serviceAccountPrivateKeyPEM.getValueOrExpressionEvaluation())) {
+      validationErrorsToDisplay.put(serviceAccountPKCS12FilePath.getHtmlForElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationGoogleFilePathOrPrivateKeyRequired"));
     }
     
   }

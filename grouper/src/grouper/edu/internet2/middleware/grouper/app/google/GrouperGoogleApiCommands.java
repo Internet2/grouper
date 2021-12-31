@@ -96,7 +96,7 @@ public class GrouperGoogleApiCommands {
 
       String privateKeyFilePath = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".serviceAccountPKCS12FilePath");
 
-      String privateKeyString = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".serviceAccountPKCS12Pass");
+      String privateKeyString = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".serviceAccountPrivateKeyPEM");
       
       String serviceAccountEmail = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".serviceAccountEmail");
       
@@ -266,8 +266,6 @@ public class GrouperGoogleApiCommands {
       url = directoryApiBaseUrl + urlSuffix;
       bearerToken = retrieveBearerTokenForGoogleConfigId(debugMap, configId);
     }
-    
-    System.out.println(bearerToken);
     
     debugMap.put("url", url);
 
