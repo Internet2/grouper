@@ -34,8 +34,8 @@ public class GrouperGoogleMembership {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_google_mship_uid_idx", false, "user_id");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_google_mship_uid_idx", true, "group_id", "user_id");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "mock_google_mship_gid_fkey", "mock_google_group", "group_id", "group_id");
-      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "mock_google_mship_uid_fkey", "mock_google_user", "user_id", "user_id");
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "mock_google_mship_gid_fkey", "mock_google_group", "group_id", "id");
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "mock_google_mship_uid_fkey", "mock_google_user", "user_id", "id");
     }
     
   }

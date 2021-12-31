@@ -32,6 +32,7 @@
 
     <property name="description" column="description" />
     <property name="name" column="name" />
+    <property name="email" column="email" />
     
     <property name="whoCanAdd" column="who_can_add" />
     <property name="whoCanJoin" column="who_can_join" />

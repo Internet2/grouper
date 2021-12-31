@@ -45,10 +45,10 @@ public class GrouperGoogleGroup {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_join", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_membership", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_group", Types.VARCHAR, "40", false, false);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_invite", Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_invite", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_post_message", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "allow_external_members", Types.VARCHAR, "1", false, false);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "allow_web_hosting", Types.VARCHAR, "1", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "allow_web_posting", Types.VARCHAR, "1", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, groupTableName, "mock_google_group_name_idx", true, "name");
     }
@@ -149,26 +149,26 @@ public class GrouperGoogleGroup {
   private String whoCanViewMembership;
   private String whoCanViewGroup;
   private String whoCanInvite;
-  private boolean allowExternalMembers;
+  private Boolean allowExternalMembers;
   private String whoCanPostMessage;
-  private boolean allowWebPosting;
+  private Boolean allowWebPosting;
   
   public String getAllowExternalMembersDb() {
-    return allowExternalMembers ? "T" : "F";
+    return allowExternalMembers == null ? "F" : allowExternalMembers ? "T" : "F";
   }
 
   
   public void setAllowExternalMembersDb(String allowExternalMembers) {
-    this.allowExternalMembers = GrouperUtil.booleanValue(allowExternalMembers, false);
+    this.allowExternalMembers = GrouperUtil.booleanObjectValue(allowExternalMembers);
   }
   
   public String getAllowWebPostingDb() {
-    return allowWebPosting ? "T" : "F";
+    return allowWebPosting == null ? "F": allowWebPosting ? "T" : "F";
   }
 
   
   public void setAllowWebPostingDb(String allowWebPosting) {
-    this.allowWebPosting = GrouperUtil.booleanValue(allowWebPosting, false);
+    this.allowWebPosting = GrouperUtil.booleanObjectValue(allowWebPosting);
   }
   
 
@@ -211,29 +211,26 @@ public class GrouperGoogleGroup {
   
 
   
-  public boolean isAllowExternalMembers() {
+  
+  public Boolean getAllowExternalMembers() {
     return allowExternalMembers;
   }
 
   
-  public void setAllowExternalMembers(boolean allowExternalMembers) {
+  public void setAllowExternalMembers(Boolean allowExternalMembers) {
     this.allowExternalMembers = allowExternalMembers;
   }
 
   
-  
-  public boolean isAllowWebPosting() {
+  public Boolean getAllowWebPosting() {
     return allowWebPosting;
   }
 
   
-  public void setAllowWebPosting(boolean allowWebPosting) {
+  public void setAllowWebPosting(Boolean allowWebPosting) {
     this.allowWebPosting = allowWebPosting;
   }
-  
-  
 
-  
   public String getWhoCanAdd() {
     return whoCanAdd;
   }

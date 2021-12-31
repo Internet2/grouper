@@ -11,12 +11,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +31,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
@@ -113,7 +110,7 @@ public class GrouperGoogleApiCommands {
           keyStore.load(new FileInputStream(privateKeyFilePath), "notasecret".toCharArray());
           privateKey = (PrivateKey) keyStore.getKey("privatekey", "notasecret".toCharArray());
         } catch (Exception e) {
-          throw new RuntimeException("Could not construct private key from p12 file");
+          throw new RuntimeException("Could not construct private key from p12 file", e);
         }
       } else if (StringUtils.isNotBlank(privateKeyString)) {
         
@@ -482,7 +479,7 @@ public class GrouperGoogleApiCommands {
 //      String url = "https://admin.googleapis.com/admin/directory/v1/users/"+userId;
     
       executeMethod(debugMap, "DELETE", configId, "/users/"+userId,
-          GrouperUtil.toSet(204, 404), new int[] { -1 }, null, false);
+          GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null, false);
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -616,7 +613,7 @@ public class GrouperGoogleApiCommands {
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId;
       
       executeMethod(debugMap, "DELETE", configId, "/groups/"+groupId,
-          GrouperUtil.toSet(204, 404), new int[] { -1 }, null, false);
+          GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null, false);
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -939,7 +936,7 @@ public class GrouperGoogleApiCommands {
   
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId+"/members/"+userId;
       executeMethod(debugMap, "DELETE", configId, "/groups/"+groupId+"/members/"+userId,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, false);
+          GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null, false);
   
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

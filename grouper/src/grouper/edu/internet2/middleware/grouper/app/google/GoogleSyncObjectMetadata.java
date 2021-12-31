@@ -29,7 +29,6 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWhoCanAddLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_whoCanAdd");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
-      grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN);
       
@@ -54,7 +53,6 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWhoCanJoinLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_whoCanJoin");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
-      grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
@@ -78,7 +76,6 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWhoCanViewMembershipLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_whoCanViewMembership");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
-      grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
@@ -100,7 +97,6 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWhoCanInviteLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_whoCanInvite");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
-      grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
@@ -123,7 +119,6 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWhoCanViewGroupLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_whoCanViewGroup");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
-      grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
@@ -146,7 +141,6 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWhoCanPostMessageLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_whoCanPostMessage");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
-      grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
@@ -172,7 +166,6 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAllowExternalMembersLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowExternalMembers");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
-      grouperProvisioningObjectMetadataItem.setCanChange(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
@@ -195,7 +188,6 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAllowWebPostingLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowWebPosting");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
-      grouperProvisioningObjectMetadataItem.setCanChange(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);

@@ -33,8 +33,8 @@ public class GrouperProvisioningObjectMetadataItem {
   private boolean showForMembership;
   private boolean showForFolder;
   
-  private boolean canUpdate;
-  private boolean canChange;
+  private boolean canUpdate = true;
+  private boolean canChange = true;
   private boolean readOnly;
   
   

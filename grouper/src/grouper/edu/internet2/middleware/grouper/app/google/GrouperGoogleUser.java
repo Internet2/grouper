@@ -145,6 +145,11 @@ public void setPassword(String password) {
    if (fieldNamesToSet == null || fieldNamesToSet.contains("email")) {      
      GrouperUtil.jsonJacksonAssignString(result, "primaryEmail", this.primaryEmail);
    }
+   
+   if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {  
+     GrouperUtil.jsonJacksonAssignString(result, "id", this.id);
+   }
+   
    if (fieldNamesToSet == null || fieldNamesToSet.contains("password")) {      
      GrouperUtil.jsonJacksonAssignString(result, "password", this.password);
    }
