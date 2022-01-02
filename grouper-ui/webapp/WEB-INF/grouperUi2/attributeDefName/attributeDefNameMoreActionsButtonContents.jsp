@@ -11,7 +11,7 @@
                     <div class="btn-group btn-block">
                       <a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreAttributeNameActions']}" href="#" class="btn btn-medium btn-block dropdown-toggle" aria-haspopup="true" aria-expanded="false" 
                         role="menu" onclick="$('#attribute-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#attribute-more-options li').first().focus();return true;});">
-                        ${textContainer.text['attributeDefViewActionsButton'] } <span class="caret"></span></a>
+                        ${textContainer.text['attributeDefViewActionsDropdownButton'] } <span class="caret"></span></a>
                       <ul class="dropdown-menu dropdown-menu-right" id="attribute-more-options">
 
                         <c:choose>
