@@ -111,6 +111,9 @@
                           
                         </c:if>
                         
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.canSeeLoader}">   
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loader&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {dontScrollTop: true});">${textContainer.text['grouperMenuItemLoader'] }</a></li>
+                        </c:if>
                         
                         
                         <c:if test="${ (grouperRequestContainer.groupContainer.canAdmin) || (grouperRequestContainer.groupStemTemplateContainer.templatesToShowInMoreActions.size() > 0 || grouperRequestContainer.groupStemTemplateContainer.customGshTemplates.size() > 0)}">
