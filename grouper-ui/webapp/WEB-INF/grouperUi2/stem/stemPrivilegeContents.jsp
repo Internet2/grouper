@@ -4,7 +4,7 @@
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update table-privileges footable">
                   <thead>
                     <tr>
-                      <td colspan="7" class="table-toolbar gradient-background">
+                      <td colspan="8" class="table-toolbar gradient-background">
                         <div class="row-fluid">
                           <div class="span1">
                             <label for="people-update">${textContainer.text['stemPrivilegesUpdateBulkLabel'] }</label>
