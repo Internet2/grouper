@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrantPrivilegeException;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -78,6 +79,7 @@ import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -99,7 +101,7 @@ public class TestMember extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMember("testGetSource"));
+    TestRunner.run(new TestMember("testGetAndHasPrivs"));
   }
   
   /** logger */
@@ -978,7 +980,14 @@ public class TestMember extends GrouperTest {
     Assert.assertTrue("hasGroupAttrUpdate == 1",   m.hasGroupAttrUpdate().size() == 1);
     Assert.assertTrue("!hasGroupAttrUpdate: i2",   !m.hasGroupAttrUpdate(i2));
     Assert.assertTrue("hasGroupAttrUpdate: uofc",  m.hasGroupAttrUpdate(uofc));
-    
+
+    Stem            edu2   = root.addChildStem("edu2", "edu2");
+    edu2.grantPriv(subj, NamingPrivilege.STEM_VIEW);
+
+    Assert.assertTrue("hasStemView should == 1" + ", but does == " + m.hasStemView().size(),   m.hasStemView().size() == 1);
+    Assert.assertTrue("!hasStemView: edu",   !m.hasStemView(edu));
+    Assert.assertTrue("hasStemView: edu2",  m.hasStemView(edu2));
+
     s.stop();
   }
 

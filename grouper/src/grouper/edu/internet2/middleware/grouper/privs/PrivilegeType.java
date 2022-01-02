@@ -123,6 +123,9 @@ public enum PrivilegeType {
       if (StringUtils.equalsIgnoreCase(name, NamingPrivilege.STEM_ATTR_READ.getName())) {
         return NamingPrivilege.STEM_ATTR_READ;
       }
+      if (StringUtils.equalsIgnoreCase(name, NamingPrivilege.STEM_VIEW.getName())) {
+        return NamingPrivilege.STEM_VIEW;
+      }
       if (StringUtils.equalsIgnoreCase(name, NamingPrivilege.STEM_ATTR_UPDATE.getName())) {
         return NamingPrivilege.STEM_ATTR_UPDATE;
       }

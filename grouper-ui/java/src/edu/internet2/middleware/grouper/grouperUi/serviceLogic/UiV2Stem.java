@@ -1597,6 +1597,9 @@ public class UiV2Stem {
               failures[0]++;
             }
           }
+
+          // remove from engine
+          RuleEngine.clearRuleEngineCache();
           
           return null;
         }
@@ -3206,7 +3209,13 @@ public class UiV2Stem {
           privileges.add(NamingPrivilege.STEM_ATTR_UPDATE);
         }
 
-        if (!stemAdminsChecked && !creatorsChecked && !stemAttrReadersChecked && !stemAttrUpdatersChecked) {
+        boolean stemViewersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemViewers[]"), false);
+
+        if (stemViewersChecked) {
+          privileges.add(NamingPrivilege.STEM_VIEW);
+        }
+
+        if (!stemAdminsChecked && !creatorsChecked && !stemAttrReadersChecked && !stemAttrUpdatersChecked && !stemViewersChecked) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
               "#stemPrivsErrorId",
               TextContainer.retrieveFromRequest().getText().get("stemPrivilegesInheritAddMemberStemPrivRequired")));
@@ -3492,8 +3501,9 @@ public class UiV2Stem {
       boolean creatorsChecked = GrouperUtil.booleanValue(request.getParameter("privileges_creators[]"), false);
       boolean stemAttrReadersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrReaders[]"), false);
       boolean stemAttrUpdatersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrUpdaters[]"), false);
+      boolean stemViewersChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemViewers[]"), false);
 
-      if (!stemAdminsChecked && !creatorsChecked && !stemAttrReadersChecked && !stemAttrUpdatersChecked) {
+      if (!stemAdminsChecked && !creatorsChecked && !stemAttrReadersChecked && !stemAttrUpdatersChecked && !stemViewersChecked) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#stemPrivsErrorId",
             TextContainer.retrieveFromRequest().getText().get("stemAddMemberPrivRequired")));
@@ -3502,7 +3512,7 @@ public class UiV2Stem {
       }
 
       
-      boolean madeChanges = stem.grantPrivs(subject, stemAdminsChecked, creatorsChecked, stemAttrReadersChecked, stemAttrUpdatersChecked, false);
+      boolean madeChanges = stem.grantPrivs(subject, stemAdminsChecked, creatorsChecked, stemAttrReadersChecked, stemAttrUpdatersChecked, stemViewersChecked, false);
 
       if (madeChanges) {
 

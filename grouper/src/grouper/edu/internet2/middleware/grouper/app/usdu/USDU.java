@@ -83,6 +83,7 @@ public class USDU {
     list2priv.put(Field.FIELD_NAME_GROUP_ATTR_UPDATERS, AccessPrivilege.GROUP_ATTR_UPDATE);
     list2priv.put(Field.FIELD_NAME_CREATORS, NamingPrivilege.CREATE);
     list2priv.put(Field.FIELD_NAME_STEM_ADMINS, NamingPrivilege.STEM_ADMIN);
+    list2priv.put(Field.FIELD_NAME_STEM_VIEWERS, NamingPrivilege.STEM_VIEW);
     list2priv.put(Field.FIELD_NAME_STEM_ATTR_READERS, NamingPrivilege.STEM_ATTR_READ);
     list2priv.put(Field.FIELD_NAME_STEM_ATTR_UPDATERS, NamingPrivilege.STEM_ATTR_UPDATE);
   }

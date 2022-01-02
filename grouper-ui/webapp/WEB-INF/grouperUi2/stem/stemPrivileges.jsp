@@ -26,6 +26,7 @@
                         <option value="stemAdmins">${textContainer.text['stemPrivilegesFilterStemAdmins']}</option>
                         <option value="stemAttrReaders">${textContainer.text['stemPrivilegesFilterAttrReaders']}</option>
                         <option value="stemAttrUpdaters">${textContainer.text['stemPrivilegesFilterAttrUpdaters']}</option>
+                        <option value="stemViewers">${textContainer.text['stemPrivilegesFilterStemViewers']}</option>
                       </select>
                     </div>
                   </div>

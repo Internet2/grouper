@@ -335,7 +335,7 @@ public interface StemDAO extends GrouperDAO {
    * @param ns 
    * @param scope 
    * @param queryOptions 
-   * @param checkSecurity if true, then possibly check security based on security.show.folders.where.user.can.see.subobjects and 
+   * @param checkSecurity if true, then possibly check security based on security.folders.are.viewable.by.all and 
    * security.show.all.folders.if.in.group configuration
    * @return stems
    * @throws GrouperDAOException 

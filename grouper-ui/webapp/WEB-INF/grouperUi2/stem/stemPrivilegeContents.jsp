@@ -16,11 +16,13 @@
                               <option value="assign_stemAdmins">${textContainer.text['groupPrivilegesAssignStemAdminPrivilege'] }</option>
                               <option value="assign_stemAttrReaders">${textContainer.text['groupPrivilegesAssignStemAttributeReadPrivilege'] }</option>
                               <option value="assign_stemAttrUpdaters">${textContainer.text['groupPrivilegesAssignStemAttributeUpdatePrivilege'] }</option>
+                              <option value="assign_stemViewers">${textContainer.text['groupPrivilegesAssignStemViewPrivilege'] }</option>
                               <option value="assign_all">${textContainer.text['groupPrivilegesAssignAllStemPrivilege'] }</option>
                               <option value="revoke_creators">${textContainer.text['groupPrivilegesRevokeCreatePrivilege'] }</option>
                               <option value="revoke_stemAdmins">${textContainer.text['groupPrivilegesRevokeStemAdminPrivilege'] }</option>
                               <option value="revoke_stemAttrReaders">${textContainer.text['groupPrivilegesRevokeStemAttributeReadPrivilege'] }</option>
                               <option value="revoke_stemAttrUpdaters">${textContainer.text['groupPrivilegesRevokeStemAttributeUpdatePrivilege'] }</option>
+                              <option value="revoke_stemViewers">${textContainer.text['groupPrivilegesRevokeStemViewPrivilege'] }</option>
                               <option value="revoke_all">${textContainer.text['groupPrivilegesRevokeAllStemPrivilege'] }</option>
                             </select>
                           </div>
@@ -43,6 +45,7 @@
                       <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colCreate'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colStemAttributeRead'] }</th>
                       <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colStemAttributeUpdate'] }</th>
+                      <th data-hide="phone" style="white-space: nowrap; text-align: center;">${textContainer.text['priv.colStemView'] }</th>
                       <th style="width:100px;">${textContainer.text['headerChooseAction']}</th>
                     </tr>
                   </thead>
@@ -60,7 +63,7 @@
                         <td class="expand foo-clicker">${guiMembershipSubjectContainer.guiSubject.shortLinkWithIcon}
                         </td>
                         <%-- loop through the fields for stems --%>
-                        <c:forEach items="stemAdmins,creators,stemAttrReaders,stemAttrUpdaters" var="fieldName">
+                        <c:forEach items="stemAdmins,creators,stemAttrReaders,stemAttrUpdaters,stemViewers" var="fieldName">
                           <td data-hide="phone,medium" class="direct-actions privilege" >
                             <c:set value="${guiMembershipSubjectContainer.guiMembershipContainers[fieldName]}" var="guiMembershipContainer" />
                             <%-- if there is a container, then there is an assignment of some sort... --%>

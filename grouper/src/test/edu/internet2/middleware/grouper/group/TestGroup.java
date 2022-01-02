@@ -909,7 +909,7 @@ public class TestGroup extends GrouperTest {
   protected void setupConfigs() {
     super.setupConfigs();
     
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.show.folders.where.user.can.see.subobjects", "true");
+    // GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.folders.are.viewable.by.all", "false");
     
   }
 

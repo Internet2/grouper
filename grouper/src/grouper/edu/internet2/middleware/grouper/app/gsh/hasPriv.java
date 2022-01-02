@@ -139,6 +139,9 @@ public class hasPriv {
       else if (priv.equals( NamingPrivilege.STEM_ATTR_UPDATE )) {
         return ns.hasStemAttrUpdate(subj);
       }
+      else if (priv.equals( NamingPrivilege.STEM_VIEW )) {
+        return ns.hasStemView(subj);
+      }
       else if (priv.equals(NamingPrivilege.STEM) || priv.equals(NamingPrivilege.STEM_ADMIN)) {
         return ns.hasStemAdmin(subj);
       } else {

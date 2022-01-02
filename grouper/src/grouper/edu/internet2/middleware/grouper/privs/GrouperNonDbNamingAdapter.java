@@ -104,6 +104,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
 
   // STATIC //
   static {
+    priv2list.put(  NamingPrivilege.STEM_VIEW, Field.FIELD_NAME_STEM_VIEWERS  );
     priv2list.put(  NamingPrivilege.CREATE, Field.FIELD_NAME_CREATORS  );
     priv2list.put(  NamingPrivilege.STEM_ADMIN  , Field.FIELD_NAME_STEM_ADMINS  );
     priv2list.put(  NamingPrivilege.STEM_ATTR_READ  , Field.FIELD_NAME_STEM_ATTR_READERS  );

@@ -293,10 +293,19 @@ public class GrouperUtil {
 //    }
 //    System.out.println("All: " + ((System.nanoTime()-mainStart) / 1000000));
     
-    GrouperSession.startRootSession();
-    OtherJobScript otherJobScript = new OtherJobScript();
-    otherJobScript.execute("OTHER_JOB_deleteNgssWsProxyCache", null);
+//    GrouperSession.startRootSession();
+//    OtherJobScript otherJobScript = new OtherJobScript();
+//    otherJobScript.execute("OTHER_JOB_deleteNgssWsProxyCache", null);
+
+    Map<String, Object> envVars = new HashMap<String, Object>();
+
+    Map<String, Object> groupAttributes = new HashMap<String, Object>();
+    envVars.put("groupAttributes", groupAttributes);
+    String result = null;
+    //dont be lenient on undefined variables
+    result = GrouperUtil.substituteExpressionLanguage("${groupAttributes['umichdescription'] ? groupAttributes['umichdescription'] : ''}", envVars, false, false, false);
     
+    System.out.println("Result: '" + result + "'");
   }
   
   /**
@@ -7834,6 +7843,49 @@ public class GrouperUtil {
   }
 
   /**
+   * log first few items, separate with semicolons and spaces
+   * @param collection
+   * @param numberToLog
+   * @return the string to log
+   */
+  public static String logFirstMax(Collection<?> collection, int numberToLog) {
+    if (length(collection) == 0) {
+      return null;
+    }
+    StringBuilder result = new StringBuilder();
+    int count = 0;
+    for (Object object : collection) {
+      if (count >= numberToLog) {
+        break;
+      }
+      
+      if (count > 0) {
+        result.append("; ");
+      }
+      result.append(toStringForLog(object));
+      
+      count++;
+    }
+    return result.toString();
+  }
+  
+  /**
+   * take a collection of Objectp[
+   * @param collection
+   * @return the set of multikeys
+   */
+  public static Set<MultiKey> multiKeySet(Collection<Object[]> collection) {
+    if (collection == null) {
+      return null;
+    }
+    Set<MultiKey> result = new LinkedHashSet<MultiKey>();
+    for (Object[] row : collection) {
+      result.add(new MultiKey(row));
+    }
+    return result;
+  }
+  
+  /**
    * convert an object to a long
    * @param input
    * @param valueIfNull is if the input is null or empty, return this value
@@ -10703,6 +10755,24 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * @param times
+   * @param runnable
+   */
+  public static void tryMultipleTimes(int times, Runnable runnable) {
+    for (int i=0;i<times;i++) {
+      try {
+        runnable.run();
+        break;
+      } catch (RuntimeException re) {
+        if (i==times-1) {
+          injectInException(re, "Tried " + times + " times, ");
+          throw re;
+        }
+      }
+    }
+  }
+  
   /**
    * substitute an EL for objects
    * @param stringToParse

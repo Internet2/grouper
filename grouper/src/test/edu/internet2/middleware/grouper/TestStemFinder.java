@@ -36,9 +36,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.Assert;
-import junit.textui.TestRunner;
-
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -61,6 +58,8 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 /**
  * Test {@link Stem}.
@@ -75,7 +74,7 @@ public class TestStemFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemFinder("testFindByAttributeValueOfAssignment"));
+    TestRunner.run(new TestStemFinder("testFindByNameSecure"));
   }
   
   // Private Class Constants
@@ -306,6 +305,276 @@ public class TestStemFinder extends GrouperTest {
 
 
   // Tests
+
+  /**
+   * 
+   */
+  public void testFindByNameSecure() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem rootStem = StemFinder.findRootStem(grouperSession);
+    
+    Stem stem = new StemSave(grouperSession).assignName("stem").assignCreateParentStemsIfNotExist(true).save();
+    stem.store();
+
+    stem.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN);
+    stem.grantPriv(SubjectTestHelper.SUBJ1, NamingPrivilege.STEM_ADMIN);
+    stem.grantPriv(SubjectTestHelper.SUBJ2, NamingPrivilege.CREATE);
+    
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ4, true);
+    
+    Stem stem1 = new StemSave(grouperSession).assignName("stem1").assignCreateParentStemsIfNotExist(true).save();
+    stem1.store();
+
+    stem1.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM_ADMIN);
+    stem1.grantPriv(SubjectTestHelper.SUBJ3, NamingPrivilege.STEM_VIEW);
+
+    Set<Object[]> membershipsOwnersMembers = null;
+    
+    // as GrouperSession
+    Set<Stem> stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertEquals(3, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(rootStem, stem, stem1), "Should find both stems and root since subject0 has privs on both stems and can see ancestor stems");
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertEquals(2, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem, stem1), "Should find both stems since subject0 has privs on both stems");
+    
+    membershipsOwnersMembers = new MembershipFinder().addSubject(SubjectTestHelper.SUBJ0).assignCheckSecurity(true).assignFieldType(FieldType.NAMING).assignEnabled(true).assignHasFieldForStem(true)
+        .assignHasMembershipTypeForStem(true).assignSplitScopeForStem(true).findMembershipResult().getMembershipsOwnersMembers();
+    
+    assertEquals(2, GrouperUtil.length(membershipsOwnersMembers));
+    assertEqualsObjectArrays(GrouperUtil.toSet(
+        new Object[] {new MembershipFinder().assignFieldName("stemAdmins").assignFieldType(FieldType.NAMING).addMemberId(member0.getId()).addStem(stem).findMembership(true), stem, member0},
+        new Object[] {new MembershipFinder().assignFieldName("stemAdmins").assignFieldType(FieldType.NAMING).addMemberId(member0.getId()).addStem(stem1).findMembership(true), stem1, member0}
+        ), membershipsOwnersMembers);
+    
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ1).findStems();
+    
+    assertEquals(2, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(rootStem, stem), "Should find first stem and root since subject1 has privs on first stem and can see ancestor stem");
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ1).findStems();
+    
+    assertEquals(1, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem), "Should find one stem since subject0 has privs on the stem");
+
+    membershipsOwnersMembers = new MembershipFinder().addSubject(SubjectTestHelper.SUBJ1).assignCheckSecurity(true).assignFieldType(FieldType.NAMING).assignEnabled(true).assignHasFieldForStem(true)
+        .assignHasMembershipTypeForStem(true).assignSplitScopeForStem(true).findMembershipResult().getMembershipsOwnersMembers();
+    
+    assertEquals(1, GrouperUtil.length(membershipsOwnersMembers));
+    assertEqualsObjectArrays(GrouperUtil.toSetObject(
+        new Object[] {new MembershipFinder().assignFieldName("stemAdmins").assignFieldType(FieldType.NAMING).addMemberId(member1.getId()).addStem(stem).findMembership(true), stem, member1}
+        ), membershipsOwnersMembers);
+
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ2).findStems();
+    
+    assertEquals(2, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(rootStem, stem), "Should find first stem and root since subject2 has privs on the first stem and can see ancestor stems");
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ2).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    membershipsOwnersMembers = new MembershipFinder().addSubject(SubjectTestHelper.SUBJ2).assignCheckSecurity(true).assignFieldType(FieldType.NAMING).assignEnabled(true).assignHasFieldForStem(true)
+        .assignHasMembershipTypeForStem(true).assignSplitScopeForStem(true).findMembershipResult().getMembershipsOwnersMembers();
+    
+    assertEquals(1, GrouperUtil.length(membershipsOwnersMembers));
+    assertEqualsObjectArrays(GrouperUtil.toSetObject(
+        new Object[] {new MembershipFinder().assignFieldName("creators").assignFieldType(FieldType.NAMING).addMemberId(member2.getId()).addStem(stem).findMembership(true), stem, member2}
+        ), membershipsOwnersMembers);
+
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ3).findStems();
+    
+    assertEquals(2, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(rootStem, stem1), "Should find second stem and root since subject3 has privs on second stem and can see ancestor stem");
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ3).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    membershipsOwnersMembers = new MembershipFinder().addSubject(SubjectTestHelper.SUBJ3).assignCheckSecurity(true).assignFieldType(FieldType.NAMING).assignEnabled(true).assignHasFieldForStem(true)
+        .assignHasMembershipTypeForStem(true).assignSplitScopeForStem(true).findMembershipResult().getMembershipsOwnersMembers();
+    
+    assertEquals(1, GrouperUtil.length(membershipsOwnersMembers));
+    assertEqualsObjectArrays(GrouperUtil.toSetObject(
+        new Object[] {new MembershipFinder().assignFieldName("stemViewers").assignFieldType(FieldType.NAMING).addMemberId(member3.getId()).addStem(stem1).findMembership(true), stem1, member3}
+        ), membershipsOwnersMembers);
+
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ4).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ4).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    GrouperSession.stopQuietly(grouperSession);
+
+    // as subj0
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+    
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertEquals(3, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(rootStem, stem, stem1), "Should find both stems since subject0 has privs on both stems and subj0 cant stemAdmin the root stem");
+    
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertEquals(2, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem, stem1), "Should find both stems since subject0 has privs on both stems");
+    
+    membershipsOwnersMembers = new MembershipFinder().addSubject(SubjectTestHelper.SUBJ0).assignCheckSecurity(true).assignFieldType(FieldType.NAMING).assignEnabled(true).assignHasFieldForStem(true)
+        .assignHasMembershipTypeForStem(true).assignSplitScopeForStem(true).findMembershipResult().getMembershipsOwnersMembers();
+    
+    assertEquals(2, GrouperUtil.length(membershipsOwnersMembers));
+    assertEqualsObjectArrays(GrouperUtil.toSet(
+        new Object[] {new MembershipFinder().assignFieldName("stemAdmins").assignFieldType(FieldType.NAMING).addMemberId(member0.getId()).addStem(stem).findMembership(true), stem, member0},
+        new Object[] {new MembershipFinder().assignFieldName("stemAdmins").assignFieldType(FieldType.NAMING).addMemberId(member0.getId()).addStem(stem1).findMembership(true), stem1, member0}
+        ), membershipsOwnersMembers);
+
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ1).findStems();
+    
+    assertEquals(1, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem), "Should find first stem since subject1 has privs on first stem and stem0 has stemAdmin on first stem");
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ1).findStems();
+    
+    assertEquals(1, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem), "Should find one stem since subject0 has privs on the stem");
+
+    membershipsOwnersMembers = new MembershipFinder().addSubject(SubjectTestHelper.SUBJ1).assignCheckSecurity(true).assignFieldType(FieldType.NAMING).assignEnabled(true).assignHasFieldForStem(true)
+        .assignHasMembershipTypeForStem(true).assignSplitScopeForStem(true).findMembershipResult().getMembershipsOwnersMembers();
+    
+    assertEquals(1, GrouperUtil.length(membershipsOwnersMembers));
+    assertEqualsObjectArrays(GrouperUtil.toSetObject(
+        new Object[] {new MembershipFinder().assignFieldName("stemAdmins").assignFieldType(FieldType.NAMING).addMemberId(member1.getId()).addStem(stem).findMembership(true), stem, member1}
+        ), membershipsOwnersMembers);
+
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ2).findStems();
+    
+    assertEquals(1, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem), "Should find first stem since subject2 has privs on the first stem and subject0 can stemAdmin on first stem");
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ2).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    membershipsOwnersMembers = new MembershipFinder().addSubject(SubjectTestHelper.SUBJ2).assignCheckSecurity(true).assignFieldType(FieldType.NAMING).assignEnabled(true).assignHasFieldForStem(true)
+        .assignHasMembershipTypeForStem(true).assignSplitScopeForStem(true).findMembershipResult().getMembershipsOwnersMembers();
+    
+    assertEquals(1, GrouperUtil.length(membershipsOwnersMembers));
+    assertEqualsObjectArrays(GrouperUtil.toSetObject(
+        new Object[] {new MembershipFinder().assignFieldName("creators").assignFieldType(FieldType.NAMING).addMemberId(member2.getId()).addStem(stem).findMembership(true), stem, member2}
+        ), membershipsOwnersMembers);
+
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ3).findStems();
+    
+    assertEquals(1, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem1), "Should find second stem since subject3 has privs on second stem and subject0 can stemAdmin second stem");
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ3).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ4).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ4).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    // as subj1
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+    
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertEquals(1, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem), "Should find one stem since subject0 has privs on both stems but subject1 can only stemAdmin one stem");
+    
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertEquals(2, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem, stem1), "Should find both stems since subject0 has privs on both stems");
+    
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ1).findStems();
+    
+    assertEquals(2, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem, rootStem), "Should find first stem and root since subject1 has privs on first stem and subject1 has can see ancestor stem");
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ1).findStems();
+    
+    assertEquals(1, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem), "Should find one stem since subject0 has privs on the stem");
+
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ2).findStems();
+    
+    assertEquals(1, GrouperUtil.length(stems));
+
+    assertContainsStems(stems, GrouperUtil.toSet(stem), "Should find first stem since subject2 has privs on the first stem and subject1 can stemAdmin on first stem");
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ2).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ3).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ3).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ4).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ4).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+    // as subj2
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ2);
+    
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertEquals(0, GrouperUtil.length(stems));
+
+//    stems = new StemFinder().assignPrivileges(GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN)).assignSubject(SubjectTestHelper.SUBJ0).findStems();
+//    
+//    assertEquals(0, GrouperUtil.length(stems));
+
+    GrouperSession.stopQuietly(grouperSession);
+    
+  }
+  
 
   /**
    * 

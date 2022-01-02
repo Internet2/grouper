@@ -17,7 +17,11 @@ package edu.internet2.middleware.grouper.helper;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.hibernate.Session;
 import org.hibernate.internal.SessionImpl;
@@ -26,8 +30,16 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.exception.GroupAddException;
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.StemAddException;
@@ -38,8 +50,15 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
-import edu.internet2.middleware.grouper.subj.InternalSourceAdapter;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.permissions.role.Role;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -62,7 +81,163 @@ public class LoadData {
    * @throws Exception
    */
   public static void main (String args[]) throws Exception {
-    loadDukeData();
+    //loadDukeData();
+    //loadDukeRandomPrivileges();
+    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+    provisioningGroup.setId("theId");
+    Map<String, Object> substituteMap = new HashMap<String, Object>();
+    substituteMap.put("grouperProvisioningGroup", provisioningGroup);
+    System.out.println(GrouperUtil.substituteExpressionLanguageScript("${grouperProvisioningGroup.getId() + '@vsachdeva.com'}", substituteMap, true, true, true));
+    
+    
+//    GrouperSession grouperSession = GrouperSession.startRootSession();
+//    Stem stem = StemFinder.findRootStem(grouperSession);
+//    GrouperSession.stopQuietly(grouperSession);
+//    boolean first = true;
+//    for (String subjectId : new String[] {"2105111", "2104114", "2105119", "2105117", "21051111", "2105112", "2105225", "2105220", "2105221", "21041111", "2105116", "2105110", "2105118", "2105113"}) {
+//      long startNanos = System.nanoTime();
+//      grouperSession = GrouperSession.startRootSession();
+//      Subject subject = SubjectFinder.findByIdAndSource(subjectId, "jdbc", true);
+//      GrouperSession.stopQuietly(grouperSession);
+//      grouperSession = GrouperSession.start(subject);
+//
+//      stem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, 50));
+//
+//      GrouperSession.stopQuietly(grouperSession);
+//      if (!first) {
+//        System.out.println("Find root stems: " + ((System.nanoTime()-startNanos)/1000000) + "ms");
+//      }
+//      first = false;
+//    }
+
+    
+    //  select gm.subject_id, count(1) from grouper_memberships_all_v gmav, grouper_fields gf, grouper_members gm 
+    //  where gmav.member_id = gm.id and gmav.field_id = gf.id and gf.type = 'naming' group by subject_id having count(*) > 5 order by count(*) desc ;
+    
+//    GrouperSession grouperSession = GrouperSession.startRootSession();
+//
+//    Stem stem = StemFinder.findRootStem(grouperSession);
+//    GrouperSession.stopQuietly(grouperSession);
+//    boolean first = true;
+//    for (String subjectId : new String[] {"2105172", "2101128", "21051710", "2105111", "21051111"}) {
+//      long startNanos = System.nanoTime();
+//      grouperSession = GrouperSession.startRootSession();
+//      Subject subject = SubjectFinder.findByIdAndSource(subjectId, "jdbc", true);
+//      GrouperSession.stopQuietly(grouperSession);
+//      grouperSession = GrouperSession.start(subject);
+//
+//      stem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, 50));
+//
+//      GrouperSession.stopQuietly(grouperSession);
+//      if (!first) {
+//        System.out.println("Find root stems: " + ((System.nanoTime()-startNanos)/1000000) + "ms");
+//      }
+//      first = false;
+//    }
+//    
+//      
+//    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_stemViewPrivilegesFull");
+
+    //  GrouperSession grouperSession = GrouperSession.startRootSession();
+    //  Stem stem = StemFinder.findRootStem(grouperSession);
+    //  GrouperSession.stopQuietly(grouperSession);
+    //  boolean first = true;
+    //  for (String subjectId : new String[] {"2106221", "2104219", "2104211", "2106229", "2103288", "2104216", "2108104", "2104218" , "2101281", "0104280"}) {
+    //    long startNanos = System.nanoTime();
+    //    grouperSession = GrouperSession.startRootSession();
+    //    Subject subject = SubjectFinder.findByIdAndSource(subjectId, "jdbc", true);
+    //    GrouperSession.stopQuietly(grouperSession);
+    //    grouperSession = GrouperSession.start(subject);
+    //
+    //    stem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, 50));
+    //
+    //    GrouperSession.stopQuietly(grouperSession);
+    //    if (!first) {
+    //      System.out.println("Find root stems: " + ((System.nanoTime()-startNanos)/1000000) + "ms");
+    //    }
+    //    first = false;
+    //  }
+
+  }
+  
+  /**
+   * 
+   */
+  public static void loadDukeRandomPrivileges() {
+
+    GrouperSession.startRootSession();
+
+    List<Stem> stems = new ArrayList<Stem>(HibernateSession.byHqlStatic()
+        .createQuery("from Stem where nameDb like 'duke%' order by nameDb").listSet(Stem.class));
+    
+    List<Group> groups = new ArrayList<Group>(HibernateSession.byHqlStatic()
+        .createQuery("from Group where nameDb like 'duke%' order by nameDb").listSet(Group.class));
+
+    List<String> subjectIds = new GcDbAccess().sql(
+        "select subjectid from subject where subjectid not like 'test%' order by subjectid").selectList(String.class);
+    
+    List<Privilege> attributeDefPrivileges = new ArrayList<Privilege>(AttributeDefPrivilege.ALL_PRIVILEGES);
+    List<Privilege> stemPrivileges = new ArrayList<Privilege>(NamingPrivilege.ALL_PRIVILEGES);
+    List<Privilege> groupPrivileges = new ArrayList<Privilege>(AccessPrivilege.ALL_PRIVILEGES);
+    
+    int groupPrivCount = 0;
+    int stemPrivCount = 0;
+    int attributeDefPrivCount = 0;
+    int assignToGroupCount = 0;
+    
+    // lets add 20k privileges stem/group, 500 attribute defs with privs
+    int loopMax = 20000;
+    for (int i=0;i<loopMax;i++) {
+
+      Subject subject = null;
+      
+      // maybe assign privilege to group instead of subject
+      if (Math.random() < 0.5d) {
+        int group2Index = Math.min((int)(Math.random()*groups.size()), groups.size()-1);
+        Group group2 = groups.get(group2Index);
+
+        subject = group2.toSubject();
+        assignToGroupCount++;
+      } else {
+        int subjectIndex = Math.min((int)(Math.random()*subjectIds.size()), subjectIds.size()-1);
+        subject = SubjectFinder.findByIdAndSource(subjectIds.get(subjectIndex), "jdbc", true);
+      }
+      int stemIndex = Math.min((int)(Math.random()*stems.size()), stems.size()-1);
+      Stem stem = stems.get(stemIndex);
+      
+      Double actionRandom = Math.random();
+      if (actionRandom < 0.1d) {
+        
+        AttributeDef attributeDef = new AttributeDefSave(GrouperSession.staticGrouperSession())
+            .assignName(stem.getName() + ":" + "attributeDef_" + i).assignToStem(true).assignAttributeDefType(AttributeDefType.attr)
+            .assignMultiAssignable(false).assignMultiValued(false).assignValueType(AttributeDefValueType.string).save();
+        
+        int attributeDefPrivilegeIndex = Math.min((int)(Math.random()*attributeDefPrivileges.size()), attributeDefPrivileges.size()-1);
+        Privilege attributeDefPrivilege = attributeDefPrivileges.get(attributeDefPrivilegeIndex);
+        
+        attributeDef.getPrivilegeDelegate().grantPriv(subject, attributeDefPrivilege, false);
+        attributeDefPrivCount++;
+      } else if (actionRandom < 0.55d) {
+        int stemPrivilegeIndex = Math.min((int)(Math.random()*stemPrivileges.size()), stemPrivileges.size()-1);
+        Privilege stemPrivilege = stemPrivileges.get(stemPrivilegeIndex);
+        // make a stem priv to an individual or a group
+        stem.grantPriv(subject, stemPrivilege, false);
+        stemPrivCount++;
+      } else {
+        int groupPrivilegeIndex = Math.min((int)(Math.random()*groupPrivileges.size()), groupPrivileges.size()-1);
+        Privilege groupPrivilege = groupPrivileges.get(groupPrivilegeIndex);
+
+        // make a group priv
+        int groupIndex = Math.min((int)(Math.random()*groups.size()), groups.size()-1);
+        Group group = groups.get(groupIndex);
+        
+        group.grantPriv(subject, groupPrivilege, false);
+        groupPrivCount++;
+      }
+      if ((i+1)%100==0) {
+        System.out.println("Granted priv " + (i+1) + " out of " + loopMax + " (group: " + groupPrivCount + ", stem: " + stemPrivCount + ", attributeDef: " + attributeDefPrivCount + "), (assignedToGroup: " + assignToGroupCount + ")");
+      }
+    }
   }
 
   /**
@@ -88,8 +263,7 @@ public class LoadData {
   public static void loadDukeData() throws Exception {
     GrouperSession session = GrouperSession.startRootSession();
 
-    Stem eduStem = Stem.saveStem(session, "edu", null, "edu", "edu", "", 
-        null, false);
+    Stem eduStem = Stem.saveStem(session, "edu", null, "edu", "edu", "", null, false);
 
     AttributeDef attributeDef = new AttributeDefSave(session).assignName("edu:attributeDef").assignAttributeDefType(AttributeDefType.perm).assignToGroup(true).save();
 
@@ -276,10 +450,8 @@ public class LoadData {
         }
         
       });
-      
+      SubjectSourceCache.clearCache();
     }
-    SubjectSourceCache.clearCache();
-
     return SubjectFinder.findById(subjectId, true);
   }
   

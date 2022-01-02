@@ -299,6 +299,11 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   public static final String ATTESTATION_PROPAGATION = "attestation";
 
   /**
+   * use this to propagate attestation from folders to groups
+   */
+  public static final String STEM_VIEW_PRIVILEGES = "stemViewPrivileges";
+
+  /**
    * 
    */
   private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSync.class);

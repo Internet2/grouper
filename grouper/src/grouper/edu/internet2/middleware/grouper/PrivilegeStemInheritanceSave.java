@@ -235,6 +235,7 @@ public class PrivilegeStemInheritanceSave {
     if (privilege == null || !privilege.isNaming()) {
       throw new RuntimeException("Cant find field" + (StringUtils.isBlank(searchFor) ? "" : " '" + searchFor + "',") + " expecting: " 
           + Field.FIELD_NAME_STEM_ADMINS + ", "
+          + Field.FIELD_NAME_VIEWERS + ", "
           + Field.FIELD_NAME_STEM_ATTR_READERS + ", "
           + Field.FIELD_NAME_STEM_ATTR_UPDATERS + ", "
           + Field.FIELD_NAME_CREATORS);

@@ -232,6 +232,8 @@ public class Privilege implements Serializable {
   /** */
   private static final Privilege              STEM_ADMIN    = new Privilege("stemAdmin"  );
   /** */
+  private static final Privilege              STEM_VIEW    = new Privilege("stemView"  );
+  /** */
   private static final Privilege              STEM_ATTR_UPDATE    = new Privilege("stemAttrUpdate"  );
   /** */
   private static final Set<Privilege>         NAMING  = new LinkedHashSet<Privilege>();
@@ -322,6 +324,10 @@ public class Privilege implements Serializable {
     
     if (this.equals(STEM_ADMIN)) {
       return NamingPrivilege.ADMIN_PRIVILEGES;
+    }
+    
+    if (this.equals(STEM_VIEW)) {
+      return NamingPrivilege.STEM_VIEW_PRIVILEGES;
     }
     
     if (this.equals(CREATE)) {
@@ -428,6 +434,10 @@ public class Privilege implements Serializable {
       return NamingPrivilege.STEM_ATTR_READ_IMPLIED_PRIVILEGES;
     }
     
+    if (this.equals(STEM_VIEW)) {
+      return NamingPrivilege.STEM_VIEW_IMPLIED_PRIVILEGES;
+    }
+    
     if (this.equals(STEM_ATTR_UPDATE)) {
       return NamingPrivilege.STEM_ATTR_UPDATE_IMPLIED_PRIVILEGES;
     }
@@ -487,6 +497,8 @@ public class Privilege implements Serializable {
     //NAMING.add( STEM                        );
     PRIVS.put(STEM_ADMIN.toString().toLowerCase(), STEM_ADMIN);
     NAMING.add(STEM_ADMIN);
+    PRIVS.put(STEM_VIEW.toString().toLowerCase(), STEM_VIEW);
+    NAMING.add(STEM_VIEW);
     PRIVS.put(  SYSTEM.toString().toLowerCase() , SYSTEM  );
     PRIVS.put(  UPDATE.toString().toLowerCase() , UPDATE  );
     ACCESS.add( UPDATE                      );

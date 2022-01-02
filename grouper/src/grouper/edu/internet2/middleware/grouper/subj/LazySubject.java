@@ -33,6 +33,8 @@ package edu.internet2.middleware.grouper.subj;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -58,6 +60,12 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
 @SuppressWarnings("serial")
 public class LazySubject implements Subject {
 
+  private String subjectId;
+  
+  private String sourceId;
+  
+  
+  
   /**
    * 
    * @see java.lang.Object#toString()
@@ -65,14 +73,19 @@ public class LazySubject implements Subject {
   @Override
   public String toString() {
     try {
-      Member theMember = this.getMember();
-      return "'" + theMember.getSubjectId() + "'/'"
-          + theMember.getSubjectTypeId() + "'/'" + theMember.getSubjectSourceId() + "'";
+      return "'" + this.getId() + "'/'" + this.getSourceId() + "'";
     } catch (Exception e) {
-
-      return "LazySubject with member uuid: " + this.member.getUuid();
-
+      if (this.member != null) {
+        return "LazySubject with member uuid: " + this.member.getUuid();
+      }
+      return "LazySubject : " + this.getSourceId() + " / " + this.getId();
     }
+  }
+  
+  public LazySubject(String sourceId, String subjectId) {
+    super();
+    this.sourceId = sourceId;
+    this.subjectId = subjectId;
   }
 
   /** membership if built from membership */
@@ -161,6 +174,9 @@ public class LazySubject implements Subject {
    * @see edu.internet2.middleware.subject.Subject#getId()
    */
   public String getId() {
+    if (!StringUtils.isBlank(this.subjectId)) {
+      return this.subjectId;
+    }
     try {
       return member.getSubjectId();
     } catch (Exception e) {
@@ -184,7 +200,7 @@ public class LazySubject implements Subject {
    */
   public Source getSource() {
     if (this.subjectSource == null) {
-      this.subjectSource = new LazySource(this.member.getSubjectSourceId());
+      this.subjectSource = new LazySource(this.getSourceId());
     }
     return subjectSource;
   }
@@ -192,6 +208,9 @@ public class LazySubject implements Subject {
   /** get the source id 
    * @return the soruce id */
   public String getSourceId() {
+    if (!StringUtils.isBlank(this.sourceId)) {
+      return this.sourceId;
+    }
     return this.member.getSubjectSourceId();
   }
 
@@ -213,22 +232,22 @@ public class LazySubject implements Subject {
       final String[] error = new String[1];
       try {
         this.subject = SubjectFinder.findByIdAndSource(
-            this.member.getSubjectId(), this.member.getSubjectSourceId(), true
+            this.getId(), this.getSourceId(), true
             );
         return subject;
       } catch (SubjectNotFoundException snfe) {
         //dont change this unless you change the UI code too
-        error[0] = this.member.getSubjectId() + " entity not found";
+        error[0] = this.getId() + " entity not found";
       } catch (SourceUnavailableException eSU) {
-        error[0] = this.member.getSubjectId() + " source unavailable "
-            + this.member.getSubjectSourceId();
+        error[0] = this.getId() + " source unavailable "
+            + this.getSourceId();
       } catch (SubjectNotUniqueException eSNU) {
-        error[0] = this.member.getSubjectId() + " entity not unique";
+        error[0] = this.getId() + " entity not unique";
       }
       //there was an error, note, dont return an error for every attribute...
-      this.subject = new SubjectImpl(LazySubject.this.member.getSubjectId(), error[0],
+      this.subject = new SubjectImpl(LazySubject.this.getId(), error[0],
           error[0],
-          this.getTypeName(), this.getSourceId(), SubjectImpl.toAttributeMap("error", error[0]));
+          this.getType() == null ? null : this.getTypeName(), this.getSourceId(), SubjectImpl.toAttributeMap("error", error[0]));
     }
     return subject;
   }

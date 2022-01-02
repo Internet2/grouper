@@ -56,6 +56,10 @@ import edu.internet2.middleware.subject.Subject;
 public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
 
   /** can create objects in this stem */
+  public static final Privilege STEM_VIEW  = Privilege.getInstance("stemView");
+
+
+  /** can create objects in this stem */
   public static final Privilege CREATE  = Privilege.getInstance("create");
 
   /** can create stems in this stem */
@@ -87,19 +91,23 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
   
   /** these privileges are implied by STEM_ADMIN  */
   public static Set<Privilege> STEM_ADMIN_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM, STEM_ADMIN, CREATE, STEM_ATTR_READ, STEM_ATTR_UPDATE));
+      GrouperUtil.toSet(STEM, STEM_ADMIN, CREATE, STEM_VIEW, STEM_ATTR_READ, STEM_ATTR_UPDATE));
   
   /** these privileges are implied by CREATE  */
   public static Set<Privilege> CREATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(CREATE));
+      GrouperUtil.toSet(CREATE, STEM_ADMIN));
   
   /** these privileges are implied by STEM_ATTR_READ  */
   public static Set<Privilege> STEM_ATTR_READ_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM_ATTR_READ));
+      GrouperUtil.toSet(STEM_ATTR_READ, STEM_VIEW));
+  
+  /** these privileges are implied by STEM_VIEW  */
+  public static Set<Privilege> STEM_VIEW_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM_VIEW));
   
   /** these privileges are implied by STEM_ATTR_UPDATE  */
   public static Set<Privilege> STEM_ATTR_UPDATE_IMPLIED_PRIVILEGES = Collections.unmodifiableSet(
-      GrouperUtil.toSet(STEM_ATTR_UPDATE));
+      GrouperUtil.toSet(STEM_ATTR_UPDATE, STEM_VIEW));
   
 
   /** any of these constitutes STEM_ATTR_UPDATE on a stem
@@ -121,6 +129,11 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
    * note, keep most common/likely privs toward the front  */
   public static Set<Privilege> ATTRIBUTE_READ_PRIVILEGES = Collections.unmodifiableSet(
       GrouperUtil.toSet(STEM_ADMIN, STEM, STEM_ATTR_READ));
+  
+  /** any of these constitutes STEM_VIEW on a group
+   * note, keep most common/likely privs toward the front  */
+  public static Set<Privilege> STEM_VIEW_PRIVILEGES = Collections.unmodifiableSet(
+      GrouperUtil.toSet(STEM_ADMIN, STEM, STEM_VIEW, STEM_ATTR_UPDATE, STEM_ATTR_READ));
   
   /** any of these constitutes STEM_ATTR_UPDATE on a group
    * note, keep most common/likely privs toward the front  */
@@ -144,6 +157,7 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
     list2priv.put( Field.FIELD_NAME_CREATORS,  NamingPrivilege.CREATE);
     list2priv.put( Field.FIELD_NAME_STEMMERS,  NamingPrivilege.STEM);
     list2priv.put( Field.FIELD_NAME_STEM_ADMINS,  NamingPrivilege.STEM_ADMIN);
+    list2priv.put( Field.FIELD_NAME_STEM_VIEWERS,  NamingPrivilege.STEM_VIEW);
     list2priv.put( Field.FIELD_NAME_STEM_ATTR_READERS,  NamingPrivilege.STEM_ATTR_READ);
     list2priv.put( Field.FIELD_NAME_STEM_ATTR_UPDATERS,  NamingPrivilege.STEM_ATTR_UPDATE);
   }
@@ -155,6 +169,7 @@ public class NamingPrivilege implements GrouperPrivilege, Comparable<Object> {
     priv2list.put(  NamingPrivilege.CREATE , Field.FIELD_NAME_CREATORS    );
     priv2list.put(  NamingPrivilege.STEM , Field.FIELD_NAME_STEM_ADMINS    );
     priv2list.put(  NamingPrivilege.STEM_ADMIN , Field.FIELD_NAME_STEM_ADMINS    );
+    priv2list.put(  NamingPrivilege.STEM_VIEW , Field.FIELD_NAME_STEM_VIEWERS    );
     priv2list.put(  NamingPrivilege.STEM_ATTR_READ , Field.FIELD_NAME_STEM_ATTR_READERS    );
     priv2list.put(  NamingPrivilege.STEM_ATTR_UPDATE , Field.FIELD_NAME_STEM_ATTR_UPDATERS    );
   }

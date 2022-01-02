@@ -945,15 +945,16 @@ public class UiV2Subject {
       boolean createChecked = GrouperUtil.booleanValue(request.getParameter("privileges_creators[]"), false);
       boolean attrReadChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrReaders[]"), false);
       boolean attrUpdateChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemAttrUpdaters[]"), false);
+      boolean stemViewChecked = GrouperUtil.booleanValue(request.getParameter("privileges_stemViewers[]"), false);
 
-      if (!stemAdminChecked && !createChecked && !attrReadChecked && !attrUpdateChecked) {
+      if (!stemAdminChecked && !createChecked && !attrReadChecked && !attrUpdateChecked && !stemViewChecked) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#stemPrivsErrorId", 
             TextContainer.retrieveFromRequest().getText().get("subjectAddMemberStemPrivRequired")));
         return;
       }
       
       boolean madeChanges = stem.grantPrivs(subject, stemAdminChecked, createChecked, attrReadChecked, 
-          attrUpdateChecked, false);
+          attrUpdateChecked, stemViewChecked, false);
       
       if (madeChanges) {
   

@@ -196,11 +196,15 @@ public class MembershipSubjectContainer {
       boolean grouperAllHasAttrRead = grouperAllHasStemAdmin || grouperAllHasCreate || stem.hasStemAttrRead(SubjectFinder.findAllSubject());
       stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_READ.getName()), grouperAllHasAttrRead);
 
-      boolean grouperAllHasAttrUpdate = grouperAllHasStemAdmin || grouperAllHasCreate || stem.hasStemAttrUpdate(SubjectFinder.findAllSubject());
+      boolean grouperAllHasAttrUpdate = grouperAllHasStemAdmin || grouperAllHasCreate || grouperAllHasAttrRead || stem.hasStemAttrUpdate(SubjectFinder.findAllSubject());
       stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_UPDATE.getName()), grouperAllHasAttrUpdate);
+
+      boolean grouperAllHasStemView = grouperAllHasStemAdmin || grouperAllHasCreate || grouperAllHasAttrUpdate || stem.hasStemView(SubjectFinder.findAllSubject());
+      stemIdPermissionNameAllowedForGrouperAll.put(new MultiKey(stem.getId(), NamingPrivilege.STEM_VIEW.getName()), grouperAllHasStemView);
+
     }
     
-    Set<String> stemFieldNames = GrouperUtil.toSet(Field.FIELD_NAME_STEM_ADMINS, Field.FIELD_NAME_CREATORS, 
+    Set<String> stemFieldNames = GrouperUtil.toSet(Field.FIELD_NAME_STEM_ADMINS, Field.FIELD_NAME_CREATORS, Field.FIELD_NAME_VIEWERS, 
         Field.FIELD_NAME_STEM_ATTR_READERS, Field.FIELD_NAME_STEM_ATTR_UPDATERS);
     
     Subject rootSubject = SubjectFinder.findRootSubject();
@@ -214,6 +218,7 @@ public class MembershipSubjectContainer {
       boolean grouperAllHasCreate = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.CREATE.getName()));
       boolean grouperAllHasAttrRead = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_READ.getName()));
       boolean grouperAllHasAttrUpdate = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.STEM_ATTR_UPDATE.getName()));
+      boolean grouperAllHasStemView = stemIdPermissionNameAllowedForGrouperAll.get(new MultiKey(stem.getId(), NamingPrivilege.STEM_VIEW.getName()));
       
       Subject subject = membershipSubjectContainer.getSubject();
       
@@ -248,9 +253,20 @@ public class MembershipSubjectContainer {
             && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_READERS).getMembershipAssignType().isNonImmediate()
             || subjectHasStemAdmin || (isEveryEntity ? false : grouperAllHasAttrRead);
         
+        boolean subjectHasAttrRead = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_READERS) != null 
+            || subjectHasAttrReadEffective || grouperAllHasAttrRead;
+        
         boolean subjectHasAttrUpdateEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_UPDATERS) != null
             && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_UPDATERS).getMembershipAssignType().isNonImmediate()
             || subjectHasStemAdmin  || (isEveryEntity ? false : grouperAllHasAttrUpdate);
+
+        boolean subjectHasAttrUpdate = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_ATTR_UPDATERS) != null 
+            || subjectHasAttrUpdateEffective || grouperAllHasAttrUpdate;
+        
+        boolean subjectHasStemViewEffective = membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_VIEWERS) != null
+            && membershipSubjectContainer.getMembershipContainers().get(Field.FIELD_NAME_STEM_VIEWERS).getMembershipAssignType().isNonImmediate()
+            || subjectHasStemAdmin || subjectHasCreate || subjectHasAttrRead || subjectHasAttrUpdate
+            || (isEveryEntity ? false : grouperAllHasStemView);
 
         //if the subject has an effective stem priv, add it in
         if (subjectHasStemAdminEffective) {
@@ -264,6 +280,9 @@ public class MembershipSubjectContainer {
         }
         if (subjectHasAttrUpdateEffective) {
           membershipSubjectContainer.addMembership(Field.FIELD_NAME_STEM_ATTR_UPDATERS, MembershipAssignType.EFFECTIVE);
+        }
+        if (subjectHasStemViewEffective) {
+          membershipSubjectContainer.addMembership(Field.FIELD_NAME_STEM_VIEWERS, MembershipAssignType.EFFECTIVE);
         }
         
       }

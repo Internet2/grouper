@@ -205,6 +205,9 @@ public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasCo
   /** field name for stemAttrReaders */
   public static final String FIELD_NAME_STEM_ATTR_READERS = "stemAttrReaders";
   
+  /** field name for stemViewers */
+  public static final String FIELD_NAME_STEM_VIEWERS = "stemViewers";
+  
   /** field name for stemAttrUpdaters */
   public static final String FIELD_NAME_STEM_ATTR_UPDATERS = "stemAttrUpdaters";
   

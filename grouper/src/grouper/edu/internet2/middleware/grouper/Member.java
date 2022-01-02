@@ -3209,6 +3209,31 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   }
   
   /**
+   * Can this {@link Member} <b>STEM_VIEW</b> on this {@link Stem}.
+   * <pre class="eg">
+   * boolean rv = m.canStemView(stem);
+   * </pre>
+   * @param   stem   Check privileges on this {@link Stem}.
+   * @return true if allowed
+   * @throws  IllegalArgumentException if null {@link Stem}
+   * @since   1.0
+   */
+  public boolean canStemView(Stem stem) 
+    throws  IllegalArgumentException
+  {
+    NotNullValidator v = NotNullValidator.validate(stem);
+    if (v.isInvalid()) {
+      throw new IllegalArgumentException(E.GROUP_NULL);
+    }
+    try {
+      return PrivilegeHelper.canStemView( GrouperSession.staticGrouperSession(), stem, this.getSubject() );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      return false; 
+    }
+  }
+  
+  /**
    * Can this {@link Member} <b>STEM_ADMIN</b> on this {@link Stem}.
    * <pre class="eg">
    * boolean rv = m.canStemAdmin(stem);
@@ -4734,6 +4759,44 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     }
     
     return false;
+  }
+
+  /**
+   * Get stems where this member has the STEM_VIEW privilege.
+   * <pre class="eg">
+   * Set<Stem> results = m.hasStemView();
+   * </pre>
+   * @return  Set of {@link Stem} objects.
+   * @throws  GrouperException
+   */
+  public Set<Stem> hasStemView() 
+    throws  GrouperException
+  {
+    Set<Stem> stems = new LinkedHashSet<Stem>();
+    try {
+      stems = GrouperSession.staticGrouperSession().getNamingResolver().getStemsWhereSubjectHasPrivilege(
+                this.getSubject(), NamingPrivilege.STEM_VIEW
+              );
+    }
+    catch (SubjectNotFoundException eSNF) {
+      LOG.error( E.MEMBER_SUBJNOTFOUND + eSNF.getMessage());
+    }
+    return stems;
+  }
+
+  /**
+   * Report whether this member has STEM_VIEW on the specified stem.
+   * <pre class="eg">
+   * // Check whether this member has STEM_VIEW on the specified stem.
+   * if (m.hasStemView(stem)) {
+   *   // Member has privilege
+   * }
+   * </pre>
+   * @param   stem   Test for privilege on this {@link Stem}
+   * @return true if the member has the privilege.
+   */
+  public boolean hasStemView(Stem stem) {
+    return this._hasPriv(stem, NamingPrivilege.STEM_VIEW);
   }
 } 
 

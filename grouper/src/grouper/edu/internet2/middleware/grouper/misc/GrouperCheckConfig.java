@@ -142,6 +142,7 @@ import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
+import edu.internet2.middleware.grouper.stem.StemViewPrivilege;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
@@ -1250,6 +1251,17 @@ public class GrouperCheckConfig {
             wasInCheckConfig, null,
             "Workflow editors group",
             "Workflow editors group",
+            null);
+      }
+      
+      {
+        // add stem view admin
+        String stemViewAdminGroup = StemViewPrivilege.stemViewAdminGroupName();
+
+        checkGroup(grouperSession, stemViewAdminGroup, wasInCheckConfig, true, 
+            wasInCheckConfig, null,
+            "Can view all stems.  Cached for 5 minutes",
+            "Can view all stems.  Cached for 5 minutes",
             null);
       }
       

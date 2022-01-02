@@ -34,6 +34,7 @@ package edu.internet2.middleware.grouper.helper;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -87,6 +88,7 @@ import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -104,7 +106,66 @@ public class GrouperTest extends TestCase {
   public static boolean isTesting() {
     return testing;
   }
-  
+
+  /**
+   * Asserts that two object arrays are equal. If they are not
+   * an AssertionFailedError is thrown with the given message.
+   */
+  static public void assertEqualsObjectArrays(Set<Object[]> expected, Set<Object[]> actual) {
+    assertEqualsObjectArrays("", expected, actual);
+  }
+
+  /**
+   * Asserts that two subjects are equal. If they are not
+   * an AssertionFailedError is thrown with the given message.
+   */
+  static public void assertEqualsObjectArrays(String message, Set<Object[]> expected, Set<Object[]> actual) {
+    if (GrouperUtil.length(expected) == 0 && GrouperUtil.length(actual) == 0) {
+      return;
+    }
+    Set<MultiKey> expectedMultikeys = new HashSet<MultiKey>();
+    for (Object[] expectedItem : GrouperUtil.nonNull(expected)) {
+      expectedMultikeys.add(new MultiKey(expectedItem));
+    }
+    Set<MultiKey> actualMultikeys = new HashSet<MultiKey>();
+    for (Object[] actualItem : GrouperUtil.nonNull(actual)) {
+      actualMultikeys.add(new MultiKey(actualItem));
+    }
+    assertEqualsMultiKey(message, expectedMultikeys, actualMultikeys);
+  }
+
+  /**
+   * Asserts that two subjects are equal. If they are not
+   * an AssertionFailedError is thrown with the given message.
+   */
+  static public void assertEqualsMultiKey(Set<MultiKey> expected, Set<MultiKey> actual) {
+    assertEqualsMultiKey("", expected, actual);
+  }
+
+  /**
+   * Asserts that two subjects are equal. If they are not
+   * an AssertionFailedError is thrown with the given message.
+   */
+  static public void assertEqualsMultiKey(String message, Set<MultiKey> expected, Set<MultiKey> actual) {
+    if (GrouperUtil.length(expected) == 0 && GrouperUtil.length(actual) == 0) {
+      return;
+    }
+    for (MultiKey expectedKey : expected) {
+      if (!actual.contains(expectedKey)) {
+        fail(StringUtils.defaultString(message) + ", expected multiKey: " + GrouperUtil.toStringForLog(expectedKey, 2000) + " (size: " + GrouperUtil.length(expected) + "), but not in actual (size: " + GrouperUtil.length(actual) + ")");
+      }
+    }
+    for (MultiKey actualKey : actual) {
+      if (!expected.contains(actualKey)) {
+        fail(StringUtils.defaultString(message) + ", actual multiKey: " + GrouperUtil.toStringForLog(actualKey, 2000) + " (size: " + GrouperUtil.length(actual) + "), but not in expected (size: " + GrouperUtil.length(expected) + ")");
+      }
+    }
+    if (GrouperUtil.length(expected) != GrouperUtil.length(actual)) {
+      // shouldnt really get here
+      fail(StringUtils.defaultString(message) + ", expected multiKeys: " + GrouperUtil.toStringForLog(expected, 2000) + " (size: " + GrouperUtil.length(expected) + "), but actual was: " + GrouperUtil.toStringForLog(actual, 2000) + " (size: " + GrouperUtil.length(actual) + ")");
+    }
+  }
+
   /**
    * Asserts that two subjects are equal. If they are not
    * an AssertionFailedError is thrown with the given message.

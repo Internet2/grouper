@@ -178,6 +178,11 @@ public class TestField extends GrouperTest {
       );
     FieldHelper.testField( 
         (Field) iter.next()   , 
+        Field.FIELD_NAME_STEM_VIEWERS            , FieldType.NAMING,
+        NamingPrivilege.STEM_VIEW  , NamingPrivilege.STEM_VIEW
+      );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
         Field.FIELD_NAME_STEM_ATTR_READERS          , FieldType.NAMING,
         NamingPrivilege.STEM_ADMIN  , NamingPrivilege.STEM_ADMIN
       );

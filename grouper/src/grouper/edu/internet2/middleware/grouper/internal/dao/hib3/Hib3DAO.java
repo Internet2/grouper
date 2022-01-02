@@ -69,6 +69,7 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksLifecycleHibInitBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.stem.StemViewPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -273,6 +274,7 @@ public abstract class Hib3DAO {
       addClass(configuration, Hib3PITConfigDAO.class);
       addClass(configuration, Hib3ServiceRoleViewDAO.class);
       addClass(configuration, Hib3StemSetDAO.class);
+      addClass(configuration, StemViewPrivilege.class, "Hib3StemViewPrivilegeDAO");
       addClass(configuration, Hib3TableIndexDAO.class);
       addClass(configuration, Hib3GrouperPasswordDAO.class);
       addClass(configuration, Hib3GrouperPasswordRecentlyUsedDAO.class);

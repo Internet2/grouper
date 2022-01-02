@@ -334,6 +334,21 @@ public class PrivilegeHelper {
    * @param subj 
    * @return true if allowed
    */
+  public static boolean canStemView(GrouperSession s, Stem stem, Subject subj) {
+    NamingResolver resolver = s.getNamingResolver();
+    return resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_READ)
+        || resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ADMIN)
+        || resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_UPDATE)
+        || resolver.hasPrivilege(stem, subj, NamingPrivilege.CREATE)
+        || resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_VIEW);
+  } 
+  
+  /**
+   * @param s 
+   * @param stem 
+   * @param subj 
+   * @return true if allowed
+   */
   public static boolean canStemAttrUpdate(GrouperSession s, Stem stem, Subject subj) {
     NamingResolver resolver = s.getNamingResolver();
     return resolver.hasPrivilege(stem, subj, NamingPrivilege.STEM_ATTR_UPDATE)
@@ -849,6 +864,12 @@ public class PrivilegeHelper {
       rv = PrivilegeHelper.canStemAttrRead(s, ns, subj);
       if (!rv) {
         msg = "subject " + subj.getId() + " cannot STEM_ATTR_READ stem: " + ns.getName();
+      }
+    }
+    else if (priv.equals(NamingPrivilege.STEM_VIEW))   {
+      rv = PrivilegeHelper.canStemView(s, ns, subj);
+      if (!rv) {
+        msg = "subject " + subj.getId() + " cannot STEM_VIEW stem: " + ns.getName();
       }
     }
     else if (priv.equals(NamingPrivilege.STEM_ATTR_UPDATE))   {

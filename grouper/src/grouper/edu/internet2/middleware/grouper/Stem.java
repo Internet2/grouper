@@ -49,11 +49,11 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 import org.hibernate.type.LongType;
+import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
-import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningLogic;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -155,6 +155,7 @@ import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
 import edu.internet2.middleware.grouper.stem.StemSet;
+import edu.internet2.middleware.grouper.stem.StemViewPrivilege;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
@@ -171,6 +172,7 @@ import edu.internet2.middleware.grouper.validator.NamingValidator;
 import edu.internet2.middleware.grouper.validator.NotNullOrEmptyValidator;
 import edu.internet2.middleware.grouper.xml.export.XmlExportStem;
 import edu.internet2.middleware.grouper.xml.export.XmlImportable;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -1394,6 +1396,20 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   } 
 
   /**
+   * Get subjects with STEM_VIEW privilege on this stem.
+   * <pre class="eg">
+   * Set subjects = ns.getStemViewers();
+   * </pre>
+   * @return  Set of {@link Subject} objects
+   * @throws  GrouperException
+   */
+  public Set getStemViewers() 
+    throws  GrouperException
+  {
+    return GrouperSession.staticGrouperSession().getNamingResolver().getSubjectsWithPrivilege(this, NamingPrivilege.STEM_VIEW);
+  } 
+
+  /**
    * @return uuid
    */
   public String getUuid() {
@@ -1481,7 +1497,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     final String errorMessageSuffix = ", stem name: " + this.name 
       + ", subject: " + GrouperUtil.subjectToString(subj) + ", privilege: " + (priv == null ? null : priv.getName());
 
-    return (Boolean)HibernateSession.callbackHibernateSession(
+    boolean existed = (Boolean)HibernateSession.callbackHibernateSession(
       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
       new HibernateHandler() {
   
@@ -1533,6 +1549,9 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
           return didNotExist;
         }
       });
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
+    StemViewPrivilege.addStemPrivilegeIfNeeded(this.getId(), member.getId());
+    return existed;
   } 
 
   /**
@@ -1581,6 +1600,22 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    */
   public boolean hasStemAttrUpdate(Subject subj) {
     return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(this, subj, NamingPrivilege.STEM_ATTR_UPDATE);
+  }
+ 
+  /**
+   * Check whether a subject has the STEM_VIEW privilege on this stem.
+   * <pre class="eg">
+   * if (ns.hasStemView(subj)) {
+   *   // Has STEM_VIEW
+   * }
+   *   // Does not have STEM_VIEW
+   * } 
+   * </pre>
+   * @param   subj  Check whether this subject has STEM_VIEW.
+   * @return  Boolean true if the subject has STEM_VIEW.
+   */
+  public boolean hasStemView(Subject subj) {
+    return GrouperSession.staticGrouperSession().getNamingResolver().hasPrivilege(this, subj, NamingPrivilege.STEM_VIEW);
   }
  
   /**
@@ -1639,6 +1674,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_UPDATE.getName()) 
         || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_UPDATE.getListName())) {
       return this.hasStemAttrUpdate(subject);
+    }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_VIEW.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_VIEW.getListName())) {
+      return this.hasStemView(subject);
     }
     throw new RuntimeException("Cant find privilege: '" + privilegeOrListName + "'");
 
@@ -3055,6 +3094,55 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             ns, GrouperSession.staticGrouperSession().getSubject(), NamingPrivilege.STEM_ADMIN, null
           );
         }
+        
+        // someone not an admin created a folder, now they need to be able to see it
+        if (!GrouperConfig.retrieveConfig().propertyValueBoolean("security.folders.are.viewable.by.all", false)) {
+          
+          int recalcChangeLogIfNeededInLastSeconds = StemViewPrivilege.recalcChangeLogIfNeededInLastSeconds();
+
+          //  # 0 means dont do this for anyone (full recalc each time),
+          //  # -1 means do this for everyone who has ever checked stem view,
+          //  # other negative values are not valid.
+          if (recalcChangeLogIfNeededInLastSeconds == -1 || recalcChangeLogIfNeededInLastSeconds > 0) {
+
+            String memberId = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), GrouperSession.staticGrouperSession().getSubject(), true).getId();
+
+            GcDbAccess gcDbAccess = new GcDbAccess();
+            
+            if (recalcChangeLogIfNeededInLastSeconds == -1) {
+
+              gcDbAccess.sql("select count(1) from grouper_last_login gll where gll.member_uuid = ?");
+              gcDbAccess.addBindVar(memberId);
+            } else {
+              gcDbAccess.sql("select count(1) from grouper_last_login gll where gll.member_uuid = ? and gll.last_stem_view_need >= ?");
+              gcDbAccess.addBindVar(memberId);
+              gcDbAccess.addBindVar(System.currentTimeMillis() - (recalcChangeLogIfNeededInLastSeconds*1000));
+              
+            }
+
+            int rows = gcDbAccess.select(int.class);
+            if (rows > 0) {
+
+              rows = HibernateSession.bySqlStatic().select(int.class, 
+                  "select count(1) from grouper_stem_view_privilege where stem_uuid = ? and object_type = ? and member_uuid = ?",
+                  GrouperUtil.toList(ns.getId(), "S", memberId), GrouperUtil.toList(StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE));
+
+              if (rows == 0) {
+                // this table locks in mysql for some reason
+                GrouperUtil.tryMultipleTimes(5, new Runnable() {
+
+                  @Override
+                  public void run() {
+                    HibernateSession.bySqlStatic().executeSql("insert into grouper_stem_view_privilege (stem_uuid, object_type, member_uuid) values (?,?,?)",
+                        GrouperUtil.toList(ns.getId(), "S", memberId), GrouperUtil.toList(StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE));
+                    
+                  }
+                  
+                });
+              }
+            }
+          }
+        }
       }
       
       // Now optionally grant other privs
@@ -3301,6 +3389,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
               try {
                 Stem.this.revokePriv(NamingPrivilege.CREATE);
                 Stem.this.revokePriv(NamingPrivilege.STEM_ADMIN);
+                Stem.this.revokePriv(NamingPrivilege.STEM_VIEW);
                 Stem.this.revokePriv(NamingPrivilege.STEM_ATTR_READ);
                 Stem.this.revokePriv(NamingPrivilege.STEM_ATTR_UPDATE);
                 return null;
@@ -4953,6 +5042,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.CREATE.getListName())) {
       return PrivilegeHelper.canCreate(grouperSession, this, subject);
     }
+    if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_VIEW.getName()) 
+        || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_VIEW.getListName())) {
+      return PrivilegeHelper.canStemView(grouperSession, this, subject);
+    }
     if (StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_READ.getName()) 
         || StringUtils.equalsIgnoreCase(privilegeOrListName, NamingPrivilege.STEM_ATTR_READ.getListName())) {
       return PrivilegeHelper.canStemAttrRead(grouperSession, this, subject);
@@ -4974,11 +5067,30 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @param attrUpdateChecked
    * @param revokeIfUnchecked
    * @return if something was changed
+   * @deprecated use the overloaded method
    */
+  @Deprecated
   public boolean grantPrivs(final Subject subject,
       final boolean stemAdminChecked,
       final boolean createChecked, final boolean attrReadChecked,
       final boolean attrUpdateChecked, final boolean revokeIfUnchecked) {
+    return grantPrivs(subject, stemAdminChecked, createChecked, attrReadChecked, attrUpdateChecked, false, revokeIfUnchecked);
+  }
+
+  /**
+   * grant privs to stem
+   * @param subject to add
+   * @param createChecked
+   * @param stemAdminChecked
+   * @param attrReadChecked
+   * @param attrUpdateChecked
+   * @param revokeIfUnchecked
+   * @return if something was changed
+   */
+  public boolean grantPrivs(final Subject subject,
+      final boolean stemAdminChecked,
+      final boolean createChecked, final boolean attrReadChecked,
+      final boolean attrUpdateChecked, final boolean stemViewChecked, final boolean revokeIfUnchecked) {
     
     return (Boolean)GrouperTransaction.callbackGrouperTransaction(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, new GrouperTransactionHandler() {
       
@@ -5003,6 +5115,15 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         } else {
           if (revokeIfUnchecked) {
             hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.CREATE, false);
+          }
+        }
+
+        //see if add or remove
+        if (stemViewChecked) {
+          hadChange = hadChange | Stem.this.grantPriv(subject, NamingPrivilege.STEM_VIEW, false);
+        } else {
+          if (revokeIfUnchecked) {
+            hadChange = hadChange | Stem.this.revokePriv(subject, NamingPrivilege.STEM_VIEW, false);
           }
         }
 

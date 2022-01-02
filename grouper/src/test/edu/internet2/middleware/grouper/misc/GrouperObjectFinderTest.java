@@ -89,7 +89,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.show.folders.where.user.can.see.subobjects", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.folders.are.viewable.by.all", "false");
     
   }
 
@@ -100,7 +100,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
   public void tearDown() {
     super.tearDown();
     
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.show.folders.where.user.can.see.subobjects");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().remove("security.folders.are.viewable.by.all");
   }
 
   /**
@@ -209,7 +209,7 @@ public class GrouperObjectFinderTest extends GrouperTest {
    */
   public void testFindObjects() {
     
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.show.folders.where.user.can.see.subobjects", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("security.folders.are.viewable.by.all", "true");
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     List<Stem> stems = new ArrayList<Stem>();

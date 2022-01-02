@@ -30,6 +30,14 @@ public enum GshTemplateRequireFolderPrivilege {
     }
   }, 
   
+  stemView {
+
+    @Override
+    public Privilege getPrivilege() {
+      return NamingPrivilege.STEM_VIEW;
+    }
+  }, 
+  
   stemAttrUpdate {
 
     @Override

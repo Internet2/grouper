@@ -224,6 +224,8 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3ExternalSubjectDAO.reset(hibernateSession);
             
             new GcDbAccess().sql("delete from grouper_recent_mships_conf").executeSql();
+            new GcDbAccess().sql("delete from grouper_stem_view_privilege").executeSql();
+            new GcDbAccess().sql("delete from grouper_last_login").executeSql();
             
             new edu.internet2.middleware.grouper.misc.AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
             

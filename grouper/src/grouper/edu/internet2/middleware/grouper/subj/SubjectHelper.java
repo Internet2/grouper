@@ -47,6 +47,7 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -63,6 +64,24 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
  */
 public class SubjectHelper {
 
+  /**
+   * see if the subject passed in equals the all subject
+   * @param subject
+   * @return true
+   */
+  public static boolean subjectEqualsGrouperAll(Subject subject) {
+    return subject != null && StringUtils.equals(subject.getId(), GrouperConfig.ALL) && StringUtils.equals(subject.getSourceId(), InternalSourceAdapter.ID);
+  }
+  
+  /**
+   * see if the subject passed in equals the all subject
+   * @param subject
+   * @return true
+   */
+  public static boolean subjectEqualsGrouperAll(String sourceId, String subjectId) {
+    return StringUtils.equals(subjectId, GrouperConfig.ALL) && StringUtils.equals(sourceId, InternalSourceAdapter.ID);
+  }
+  
   /** */
   private static final String SUBJECT_DELIM = "/";
 

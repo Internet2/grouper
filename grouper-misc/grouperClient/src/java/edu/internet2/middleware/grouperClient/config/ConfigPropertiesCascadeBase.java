@@ -1128,18 +1128,28 @@ public abstract class ConfigPropertiesCascadeBase {
 
           configObject = configFileCache.get(this.getClass());
 
-          //check again in case another thread did it
-          if (configObject.needToCheckIfFilesNeedReloading()) {
-
+          //why is this null?
+          if (configObject == null) {
             if (LOG != null && isDebugEnabled) {
-              debugMap.put("needToCheckIfFilesNeedReloading2", true);
+              debugMap.put("phantomNull", true);
             }
-            if (configObject.filesNeedReloadingBasedOnContents()) {
+            configObject = retrieveFromConfigFiles();
+            configFileCache.put(this.getClass(), configObject);
+          } else {
+          
+            //check again in case another thread did it
+            if (configObject.needToCheckIfFilesNeedReloading()) {
+  
               if (LOG != null && isDebugEnabled) {
-                debugMap.put("filesNeedReloadingBasedOnContents", true);
+                debugMap.put("needToCheckIfFilesNeedReloading2", true);
               }
-              configObject = retrieveFromConfigFiles();
-              configFileCache.put(this.getClass(), configObject);
+              if (configObject.filesNeedReloadingBasedOnContents()) {
+                if (LOG != null && isDebugEnabled) {
+                  debugMap.put("filesNeedReloadingBasedOnContents", true);
+                }
+                configObject = retrieveFromConfigFiles();
+                configFileCache.put(this.getClass(), configObject);
+              }
             }
           }
         }
