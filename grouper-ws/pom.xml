@@ -42,16 +42,4 @@
         <module>grouper-ws-scim</module>
     </modules>
 	
-	<build>
-		<plugins>
-	       <plugin>
-	            <artifactId>maven-compiler-plugin</artifactId>
-	            <configuration>
-	                <fork>true</fork>
-	                <meminitial>128m</meminitial>
-	                <maxmem>256m</maxmem>
-	            </configuration>
-	        </plugin>
-	    </plugins>
-	</build>
 </project>

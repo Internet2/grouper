@@ -987,6 +987,9 @@
                         <!-- useIncrementalCompilation does the opposite of what you would think. Set to
                              false to not rebuild everything constantly -->
                         <useIncrementalCompilation>false</useIncrementalCompilation>
+                        <fork>true</fork>
+                        <meminitial>128m</meminitial>
+                        <maxmem>512m</maxmem>
                     </configuration>
                 </plugin>
                 <plugin>
