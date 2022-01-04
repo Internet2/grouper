@@ -207,7 +207,7 @@ public class RegistryInstall {
         NamingPrivilege.STEM_ADMIN, NamingPrivilege.STEM_ADMIN, false, false, changedArray, null);
     changed = changed || changedArray[0];
     Field.internal_addField( s, Field.FIELD_NAME_STEM_VIEWERS, FieldType.NAMING, 
-        NamingPrivilege.STEM_VIEW, NamingPrivilege.STEM_VIEW, false, false, changedArray, null);
+        NamingPrivilege.STEM_ADMIN, NamingPrivilege.STEM_ADMIN, false, false, changedArray, null);
     changed = changed || changedArray[0];
     Field.internal_addField( s, Field.FIELD_NAME_STEM_ATTR_READERS, FieldType.NAMING, 
         NamingPrivilege.STEM_ADMIN, NamingPrivilege.STEM_ADMIN, false, false, changedArray, null);
