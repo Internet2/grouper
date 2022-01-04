@@ -83,7 +83,8 @@ public class StemViewPrivilege implements Serializable {
    * @return group name where membership means a subject can edit/add workflow
    */
   public static String stemViewAdminGroupName() {
-    return GrouperConfig.retrieveConfig().propertyValueStringRequired("security.show.all.folders.if.in.group");
+    return GrouperConfig.retrieveConfig().propertyValueString("security.show.all.folders.if.in.group", 
+        GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":sysadminStemViewers");
   }
 
   /**
