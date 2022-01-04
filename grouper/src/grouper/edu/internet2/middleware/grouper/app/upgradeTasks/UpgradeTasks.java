@@ -33,7 +33,6 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SyncPITTables;
-import edu.internet2.middleware.grouper.rules.RuleApi;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 
 /**
@@ -145,6 +144,16 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
 
       RuleUtils.changeInheritedPrivsToActAsGrouperSystem();
       
+    }
+    
+  },
+  V6 {
+
+    @Override
+    public void updateVersionFromPrevious() {
+
+      new AddMissingGroupSets().addMissingSelfGroupSetsForStems();
+
     }
     
   }
