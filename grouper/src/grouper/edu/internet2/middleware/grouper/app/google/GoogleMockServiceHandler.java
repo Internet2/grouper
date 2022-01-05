@@ -1,24 +1,30 @@
 package edu.internet2.middleware.grouper.app.google;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Base64;
-import java.util.Enumeration;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.EncodedKeySpec;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.codec.digest.HmacAlgorithms;
-import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ddlutils.model.Database;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.azure.GrouperAzureAuth;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
@@ -76,7 +82,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     try {
       new GcDbAccess().sql("select count(*) from mock_google_group").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_google_user").select(int.class);
-//      new GcDbAccess().sql("select count(*) from mock_google_auth").select(int.class);
+      new GcDbAccess().sql("select count(*) from mock_google_auth").select(int.class);
       new GcDbAccess().sql("select count(*) from mock_google_membership").select(int.class);
     } catch (Exception e) {
 
@@ -87,7 +93,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
 
           Database database = ddlVersionBean.getDatabase();
           GrouperGoogleGroup.createTableGoogleGroup(ddlVersionBean, database);
-//          GrouperAzureAuth.createTableAzureAuth(ddlVersionBean, database);
+          GrouperGoogleAuth.createTableGoogleAuth(ddlVersionBean, database);
           GrouperGoogleUser.createTableGoogleUser(ddlVersionBean, database);
           GrouperGoogleMembership.createTableGoogleMembership(ddlVersionBean, database);
           
@@ -101,10 +107,10 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
    * 
    */
   public static void dropGoogleMockTables() {
-//    MockServiceServlet.dropMockTable("mock_google_membership");
-//    MockServiceServlet.dropMockTable("mock_google_user");
+    MockServiceServlet.dropMockTable("mock_google_membership");
+    MockServiceServlet.dropMockTable("mock_google_user");
     MockServiceServlet.dropMockTable("mock_google_group");
-//    MockServiceServlet.dropMockTable("mock_google_auth");
+    MockServiceServlet.dropMockTable("mock_google_auth");
   }
   
   private static boolean mockTablesThere = false;
@@ -244,85 +250,42 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
   
   public void checkAuthorization(MockServiceRequest mockServiceRequest) {
     
-    //TODO come back
-    if (true) {
-      return;
-    }
+//    String bearerToken = mockServiceRequest.getHttpServletRequest().getHeader("Authorization");
+//    if (!bearerToken.startsWith("Bearer ")) {
+//      throw new RuntimeException("Authorization token must start with 'Bearer '");
+//    }
+//    String authorizationToken = GrouperUtil.prefixOrSuffix(bearerToken, "Bearer ", false);
+//    
+//    DecodedJWT decodedJwt = JWT.decode(authorizationToken);
+//    
+//    GoogleMockRsaKeyProvider googleMockRsaKeyProvider = new GoogleMockRsaKeyProvider();
+//    
+//    Algorithm.RSA256(googleMockRsaKeyProvider).verify(decodedJwt);
+    
+//    //TODO come back
+//    if (true) {
+//      return;
+//    }
     
     String bearerToken = mockServiceRequest.getHttpServletRequest().getHeader("Authorization");
-    if (!bearerToken.startsWith("Basic ")) {
-      throw new RuntimeException("Authorization token must start with 'Basic '");
+    if (!bearerToken.startsWith("Bearer ")) {
+      throw new RuntimeException("Authorization token must start with 'Bearer '");
     }
-    String authorizationToken = GrouperUtil.prefixOrSuffix(bearerToken, "Basic ", false);
+    String authorizationToken = GrouperUtil.prefixOrSuffix(bearerToken, "Bearer ", false);
     
-    String credentials = "";
-    try {
-      credentials = new String(Base64.getDecoder().decode(authorizationToken), "UTF-8");
-    } catch (UnsupportedEncodingException e1) {
-      throw new RuntimeException(e1);
-    }
-    int colonIndex = credentials.indexOf(":");
-    GrouperUtil.assertion(colonIndex != -1, "Need to pass in integrationKey and password in Authorization header");
-    String integrationKey = credentials.substring(0, colonIndex).trim();
+    List<GrouperGoogleAuth> grouperGoogleAuths = 
+        HibernateSession.byHqlStatic().createQuery("from GrouperGoogleAuth where accessToken = :theAccessToken").setString("theAccessToken", authorizationToken).list(GrouperGoogleAuth.class);
     
-    
-    String configId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.google.mock.configId");
-    String expectedIntegrationKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.googleConnector."+configId+".adminIntegrationKey");
-    String adminDomainName = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.googleConnector."+configId+".domain");
-    if (!StringUtils.equals(expectedIntegrationKey, integrationKey)) {
-      throw new RuntimeException("Integration key does not match with what is in grouper config");
+    if (GrouperUtil.length(grouperGoogleAuths) != 1) {
+      throw new RuntimeException("Invalid access token, not found!");
     }
     
-    String password = credentials.substring(colonIndex + 1).trim();
-    
-    String date = mockServiceRequest.getHttpServletRequest().getHeader("Date");
-    String method = mockServiceRequest.getHttpServletRequest().getMethod().toUpperCase();
-    
-    String path = "/"+mockServiceRequest.getPostMockNamePath();
-    
-    Map<String, String> paramNamesToValues = new TreeMap<String, String>();
-    Enumeration<String> parameterNames = mockServiceRequest.getHttpServletRequest().getParameterNames();
-    while (parameterNames.hasMoreElements()) {
-      
-      String paramName = parameterNames.nextElement();
-      
-      String value = mockServiceRequest.getHttpServletRequest().getParameter(paramName);
-      paramNamesToValues.put(paramName, value);
-      
-    }
-    
-    String paramsLine = "";
-    if (paramNamesToValues.size() > 0) {
-      for (String paramName: paramNamesToValues.keySet()) {
-        if (StringUtils.isNotBlank(paramsLine)) {
-          paramsLine += "&";
-        }
-        paramsLine = paramsLine + GrouperUtil.escapeUrlEncode(paramName).replace("+", "%20") + "="+ GrouperUtil.escapeUrlEncode(paramNamesToValues.get(paramName)).replace("+", "%20");
-        
-      }
-    }
-    
-    String hmacSource = date + "\n" + method + "\n" + adminDomainName + "\n" + path + "\n" + paramsLine;
-    
-    String adminSecretKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.googleConnector."+configId+".adminSecretKey");
-    
-    String hmac = new HmacUtils(HmacAlgorithms.HMAC_SHA_1, adminSecretKey).hmacHex(hmacSource);
-    if (!StringUtils.equals(hmac, password)) {
-      throw new RuntimeException("hmac1 password does not match: "+StringUtils.abbreviate(hmac, 10));
-    }
-//    List<GrouperAzureAuth> grouperAzureAuths = 
-//        HibernateSession.byHqlStatic().createQuery("from GrouperAzureAuth where accessToken = :theAccessToken").setString("theAccessToken", authorizationToken).list(GrouperAzureAuth.class);
-//    
-//    if (GrouperUtil.length(grouperAzureAuths) != 1) {
-//      throw new RuntimeException("Invalid access token, not found!");
-//    }
-//    
-//    GrouperAzureAuth grouperAzureAuth = grouperAzureAuths.get(0);    
-//
-//    if (grouperAzureAuth.getExpiresOnSeconds() < System.currentTimeMillis()/1000) {
-//      throw new RuntimeException("Invalid access token, expired!");
-//    }
+    GrouperGoogleAuth grouperGoogleAuth = grouperGoogleAuths.get(0);    
 
+    if (grouperGoogleAuth.getExpiresInSeconds() < System.currentTimeMillis()/1000) {
+      throw new RuntimeException("Invalid access token, expired!");
+    }
+    
     // all good
   }
 
@@ -1113,67 +1076,38 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
   
   public void postAuth(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     
-    //TODO come back and check for auth
-    if (true) {
-      
-      ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-      
-      resultNode.put("expires_in", 3599);
-      resultNode.put("access_token", "test");
-      
-      mockServiceResponse.setResponseCode(200);
-      mockServiceResponse.setContentType("application/json");
-      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-      return;
-    }
-    
-    String clientId = mockServiceRequest.getHttpServletRequest().getParameter("client_id");
-    if (StringUtils.isBlank(clientId)) {
-      throw new RuntimeException("client_id is required!");
-    }
-    
-    Pattern clientIdPattern = Pattern.compile("^grouper\\.googleConnector\\.([^.]+)\\.clientId$");
-    String configId = null;
-    for (String propertyName : GrouperLoaderConfig.retrieveConfig().propertyNames()) {
-      
-      Matcher matcher = clientIdPattern.matcher(propertyName);
-      if (matcher.matches()) {
-        if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(propertyName), clientId)) {
-          configId = matcher.group(1);
-          break;
-        }
-      }
-    }
-    
-    if (StringUtils.isBlank(configId)) {
-      throw new RuntimeException("Cant find client id!");
-    }
-
-    String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.googleConnector." + configId + ".clientSecret");
-    clientSecret = Morph.decryptIfFile(clientSecret);
-    if (!StringUtils.equals(clientSecret, mockServiceRequest.getHttpServletRequest().getParameter("client_secret"))) {
-      throw new RuntimeException("Cant find client secret!");
-    }
-    
-    String tenantId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.googleConnector." + configId + ".tenantId");
-    
-    if (4 != mockServiceRequest.getPostMockNamePaths().length
-        || !StringUtils.equals(tenantId, mockServiceRequest.getPostMockNamePaths()[1])
-        || !StringUtils.equals("oauth2", mockServiceRequest.getPostMockNamePaths()[2])
-        || !StringUtils.equals("token", mockServiceRequest.getPostMockNamePaths()[3])
-        ) {
-      throw new RuntimeException("Invalid request! expecting: auth/<tenantId>/oauth2/token");
-    }
-    
     String grantType = mockServiceRequest.getHttpServletRequest().getParameter("grant_type");
-    if (!StringUtils.equals("client_credentials", grantType)) {
-      throw new RuntimeException("Invalid request! client_credentials must equal 'grant_type'");
+    String assertion = mockServiceRequest.getHttpServletRequest().getParameter("assertion");
+    
+    if (StringUtils.isBlank(grantType) || StringUtils.isBlank(assertion)) {
+      throw new RuntimeException("grant_type and assertion are required!");
     }
-    String resourceConfig = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.googleConnector." + configId + ".resource");
-    String resourceHttp =  mockServiceRequest.getHttpServletRequest().getParameter("resource");
-    if (StringUtils.isBlank(resourceConfig) || !StringUtils.equals(resourceConfig, resourceHttp)) {
-      throw new RuntimeException("Invalid request! resource: '" + resourceHttp + "' must equal '" + resourceConfig + "'");
+    
+    if (!StringUtils.equals(grantType, "urn:ietf:params:oauth:grant-type:jwt-bearer")) {
+      throw new RuntimeException("grant_type must be set to urn:ietf:params:oauth:grant-type:jwt-bearer");
     }
+    
+    DecodedJWT decodedJwt = JWT.decode(assertion);
+    
+    GoogleMockRsaKeyProvider googleMockRsaKeyProvider = new GoogleMockRsaKeyProvider();
+    
+    Algorithm.RSA256(googleMockRsaKeyProvider).verify(decodedJwt);
+    
+    //TODO come back and check for auth
+//    if (true) {
+//      
+//      ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+//      
+//      resultNode.put("expires_in", 3599);
+//      resultNode.put("access_token", "test");
+//      
+//      mockServiceResponse.setResponseCode(200);
+//      mockServiceResponse.setContentType("application/json");
+//      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+//      return;
+//    }
+    
+    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.google.mock.configId");
 
     mockServiceResponse.setResponseCode(200);
 
@@ -1182,15 +1116,15 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     //expires in a minute
     long expiresOnSeconds = System.currentTimeMillis()/1000 + 60;
     
-    resultNode.put("expires_on", expiresOnSeconds);
+    resultNode.put("expires_in", expiresOnSeconds);
     
     String accessToken = GrouperUuid.getUuid();
     
-//    GrouperAzureAuth grouperAzureAuth = new GrouperAzureAuth();
-//    grouperAzureAuth.setConfigId(configId);
-//    grouperAzureAuth.setAccessToken(accessToken);
-//    grouperAzureAuth.setExpiresOnSeconds(expiresOnSeconds);
-//    HibernateSession.byObjectStatic().save(grouperAzureAuth);
+    GrouperGoogleAuth grouperGoogleAuth = new GrouperGoogleAuth();
+    grouperGoogleAuth.setConfigId(configId);
+    grouperGoogleAuth.setAccessToken(accessToken);
+    grouperGoogleAuth.setExpiresInSeconds(expiresOnSeconds);
+    HibernateSession.byObjectStatic().save(grouperGoogleAuth);
     
     resultNode.put("access_token", accessToken);
     
@@ -1203,13 +1137,13 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       
       long secondsToDelete = System.currentTimeMillis()/1000 - 60*60;
       
-//      int accessTokensDeleted = HibernateSession.byHqlStatic()
-//        .createQuery("delete from GrouperAzureAuth where expiresOnSeconds < :theExpiresOnSeconds")
-//        .setLong("theExpiresOnSeconds", secondsToDelete).executeUpdateInt();
-//      
-//      if (accessTokensDeleted > 0) {
-//        mockServiceRequest.getDebugMap().put("accessTokensDeleted", accessTokensDeleted);
-//      }
+      int accessTokensDeleted = HibernateSession.byHqlStatic()
+        .createQuery("delete from GrouperGoogleAuth where expiresInSeconds < :theExpiresOnSeconds")
+        .setLong("theExpiresOnSeconds", secondsToDelete).executeUpdateInt();
+      
+      if (accessTokensDeleted > 0) {
+        mockServiceRequest.getDebugMap().put("accessTokensDeleted", accessTokensDeleted);
+      }
     }
     
   }
@@ -1318,25 +1252,39 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     return result;
   }
   
-  /**
-   * convert from jackson json
-   * @param grouperGoogleGroup
-   * @return the group
-   */
-//  private static ObjectNode toGroupJson(GrouperGoogleGroup grouperGoogleGroup) {
-//    ObjectMapper objectMapper = new ObjectMapper();
-//    ObjectNode result = objectMapper.createObjectNode();
-//
-//    result.put("description", grouperGoogleGroup.getDescription());
-//    result.put("name", grouperGoogleGroup.getName());
-//    result.put("id", grouperGoogleGroup.getId());
-//    result.put("mobile_otp_enabled", false);
-//    result.put("push_enabled", false);
-//    result.put("sms_enabled", false);
-//    result.put("voice_enabled", false);
-//    result.put("status", "active");
-//    
-//    return result;
-//  }
+  class GoogleMockRsaKeyProvider implements RSAKeyProvider {
+    
+    @Override
+    public RSAPublicKey getPublicKeyById(String keyId) {
+      PublicKey publicKey = null;
+      try {
+        String publicKeyEncoded = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.google.mock.publicKey");
+        byte[] publicKeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(publicKeyEncoded);
+        KeyFactory kf = KeyFactory.getInstance("RSA");
+        EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+        publicKey = kf.generatePublic(publicKeySpec);
+      } catch (NoSuchAlgorithmException e) {
+        throw new RuntimeException(
+            "Could not reconstruct the public key, the given algorithm could not be found.", e);
+      } catch (InvalidKeySpecException e) {
+        throw new RuntimeException("Could not reconstruct the public key", e);
+      }
+      
+      if (publicKey instanceof RSAPublicKey) {
+        return (RSAPublicKey)publicKey;
+      }
+      return null;
+    }
 
+    @Override
+    public RSAPrivateKey getPrivateKey() {
+      throw new RuntimeException("Doesnt do private keys");
+    }
+
+    @Override
+    public String getPrivateKeyId() {
+      throw new RuntimeException("Doesnt do private keys");
+    }
+  }
+  
 }

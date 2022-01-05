@@ -1,13 +1,9 @@
 package edu.internet2.middleware.grouper.app.google;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.io.FileUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -19,14 +15,19 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -60,19 +61,17 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.domain").value("viveksachdeva.com").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.serviceAccountEmail").value("vivek-grouper@industrial-keep-335804.iam.gserviceaccount.com").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.tokenUrl").value("http" + (ssl?"s":"") + "://" + domainName + ":" + port + "/grouper/mockServices/google/token/").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.directoryApiBaseUrl").value("http" + (ssl?"s":"") + "://" + domainName + ":" + port + "/grouper/mockServices/google").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.groupSettingsApiBaseUrl").value("http" + (ssl?"s":"") + "://" + domainName + ":" + port + "/grouper/mockServices/google/settings").store();
     
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.serviceAccountPKCS12FilePath").value("/Users/vsachdeva/Downloads/industrial-keep-335804-e02ab89e4f2d.p12").store();
+    String[] rsaKeypair = GrouperUtil.generateRsaKeypair(2048);
+    String privateKey = rsaKeypair[1];
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.google.mock.publicKey").value(rsaKeypair[0]).store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.google.mock.configId").value("myGoogle").store();
     
-    String fileContents = GrouperUtil.readFileIntoString(new File("/Users/vsachdeva/Downloads/industrial-keep-335804-e02ab89e4f2d.p12"));
-    
-    String secretBase64Encoded = new String(Base64.getEncoder().encode(fileContents.getBytes()));
-    
-    byte[] byteArray = FileUtils.readFileToByteArray(new File("/Users/vsachdeva/Downloads/industrial-keep-335804-e02ab89e4f2d.p12"));
-    String fileBeforEncoding = new String(byteArray);
-    byte[] encoded = Base64.getEncoder().encode(byteArray);
-    String secretBase64Encoded1  = new String(encoded);
-    
-    //new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.serviceAccountPKCS12Pass").value(secretBase64Encoded1).store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.serviceAccountPrivateKeyPEM").value(privateKey).store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.serviceImpersonationUser").value("vivek@viveksachdeva.com").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.googleConnector.myGoogle.enabled").value("true").store();
    
@@ -207,9 +206,9 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
       // this will create tables
       List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle");
   
-//      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
-//      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
-//      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
       
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
@@ -241,36 +240,36 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
       //lets sync these over
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
       
-//      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
-//  
-//      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
+  
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       
       GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-//      assertTrue(1 <= grouperProvisioningOutput.getInsert());
-//      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
-//      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
-//      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
-//      GrouperGoogleGroup grouperGoogleGroup = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).get(0);
-//      
-//      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) > 0);
-//      
-//      for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
-//        assertTrue(provisioningGroupWrapper.isRecalc());
-//      }
-//      
-//      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) > 0);
-//      
-//      for (ProvisioningEntityWrapper provisioningEntityWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
-//        assertTrue(provisioningEntityWrapper.isRecalc());
-//      }
-//      
-//      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) > 0);
-//      
-//      for (ProvisioningMembershipWrapper provisioningMembershipWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
-//        assertTrue(provisioningMembershipWrapper.isRecalc());
-//      }
-//      
-//      assertEquals("test:testGroup", grouperGoogleGroup.getName());
+      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
+      GrouperGoogleGroup grouperGoogleGroup = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).get(0);
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) > 0);
+      
+      for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
+        assertTrue(provisioningGroupWrapper.isRecalc());
+      }
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) > 0);
+      
+      for (ProvisioningEntityWrapper provisioningEntityWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
+        assertTrue(provisioningEntityWrapper.isRecalc());
+      }
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) > 0);
+      
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        assertTrue(provisioningMembershipWrapper.isRecalc());
+      }
+      
+      assertEquals("test:testGroup", grouperGoogleGroup.getName());
       
       GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myGoogleProvisioner");
       assertEquals(1, gcGrouperSync.getGroupCount().intValue());
@@ -278,7 +277,7 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
       GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
       assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
       assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
-     // assertEquals(grouperGoogleGroup.getId(), gcGrouperSyncGroup.getGroupToId2());
+      assertEquals(grouperGoogleGroup.getId(), gcGrouperSyncGroup.getGroupToId2());
       
       
       //now remove one of the subjects from the testGroup
@@ -287,9 +286,9 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
       // now run the full sync again and the member should be deleted from mock_google_membership also
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
-//      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
-//      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
-//      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
       
       //now add one subject
       testGroup.addMember(SubjectTestHelper.SUBJ3);
@@ -297,9 +296,9 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
       // now run the full sync again
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
-//      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
-//      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
-//      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
       
       
       // update group description and settings
@@ -320,8 +319,10 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
-      //TODO assertions
       
+      GrouperGoogleGroup groupWithUpdatedDescription = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).get(0);
+      assertEquals("newDescription", groupWithUpdatedDescription.getDescription());
+      assertEquals("ALL_MEMBERS_CAN_VIEW", groupWithUpdatedDescription.getWhoCanViewGroup());
       
       //now delete the group and sync again
       testGroup.delete();
@@ -329,9 +330,9 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
       
-//      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
-//      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
-//      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
       
     } finally {
       
