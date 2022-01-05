@@ -250,23 +250,6 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
   
   public void checkAuthorization(MockServiceRequest mockServiceRequest) {
     
-//    String bearerToken = mockServiceRequest.getHttpServletRequest().getHeader("Authorization");
-//    if (!bearerToken.startsWith("Bearer ")) {
-//      throw new RuntimeException("Authorization token must start with 'Bearer '");
-//    }
-//    String authorizationToken = GrouperUtil.prefixOrSuffix(bearerToken, "Bearer ", false);
-//    
-//    DecodedJWT decodedJwt = JWT.decode(authorizationToken);
-//    
-//    GoogleMockRsaKeyProvider googleMockRsaKeyProvider = new GoogleMockRsaKeyProvider();
-//    
-//    Algorithm.RSA256(googleMockRsaKeyProvider).verify(decodedJwt);
-    
-//    //TODO come back
-//    if (true) {
-//      return;
-//    }
-    
     String bearerToken = mockServiceRequest.getHttpServletRequest().getHeader("Authorization");
     if (!bearerToken.startsWith("Bearer ")) {
       throw new RuntimeException("Authorization token must start with 'Bearer '");
@@ -1093,28 +1076,14 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     Algorithm.RSA256(googleMockRsaKeyProvider).verify(decodedJwt);
     
-    //TODO come back and check for auth
-//    if (true) {
-//      
-//      ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-//      
-//      resultNode.put("expires_in", 3599);
-//      resultNode.put("access_token", "test");
-//      
-//      mockServiceResponse.setResponseCode(200);
-//      mockServiceResponse.setContentType("application/json");
-//      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-//      return;
-//    }
-    
     String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.google.mock.configId");
 
     mockServiceResponse.setResponseCode(200);
 
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
-    //expires in a minute
-    long expiresOnSeconds = System.currentTimeMillis()/1000 + 60;
+    //expires in an hour
+    long expiresOnSeconds = System.currentTimeMillis()/1000 + 60*60;
     
     resultNode.put("expires_in", expiresOnSeconds);
     
