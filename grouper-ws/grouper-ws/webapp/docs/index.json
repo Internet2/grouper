@@ -12,7 +12,683 @@
   } ],
   "schemes" : [ "https" ],
   "paths" : {
-    "/grouper-ws/servicesRest/vX_Y_FGF/groups" : {
+    "/grouper-ws/servicesRest/vA_A_MAF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Acknowledge message",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "acknowledgeMessage",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsMessageAcknowledgeResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_A_MEF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Add member",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "addMember",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAddMemberResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_A_MEL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Add member lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "addMemberLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAddMemberLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_D_ACF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Assign attribute def actions",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "assignAttributeDefActions",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAttributeDefAssignActionResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_D_ANF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Assign attribute def name inheritance",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "assignAttributeDefNameInheritance",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAssignAttributeDefNameInheritanceResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_D_ANL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Assign attribute def name inheritance lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "assignAttributeDefNameInheritanceLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAssignAttributeDefNameInheritanceResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_E_ATF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Assign attributes",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "assignAttributes",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAssignAttributesResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_E_ATG" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Assign attributes batch",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "assignAttributesBatch",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAssignAttributesBatchResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_E_ATL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Assign attributes lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "assignAttributesLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAssignAttributesLiteResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_G_PRF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Assign grouper privileges",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "assignGrouperPrivileges",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAssignGrouperPrivilegesResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_G_PRL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Assign grouper privileges lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "assignGrouperPrivilegesLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAssignGrouperPrivilegesLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_H_PRF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Assign permissions",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "assignPermissions",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAssignPermissionsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_H_PRL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Assign permissions lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "assignPermissionsLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAssignPermissionsLiteResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_I_DEF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Attribute def delete",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "attributeDefDelete",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAttributeDefDeleteResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_I_DEL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Attribute def delete lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "attributeDefDeleteLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAttributeDefDeleteLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_J_DEF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Attribute def name delete",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "attributeDefNameDelete",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAttributeDefNameDeleteResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_J_DEL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Attribute def name delete lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "attributeDefNameDeleteLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAttributeDefNameDeleteLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_K_SAF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Attribute def name save",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "attributeDefNameSave",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAttributeDefNameSaveResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_K_SAL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Attribute def name save lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "attributeDefNameSaveLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAttributeDefNameSaveLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_L_SAF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Attribute def save",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "attributeDefSave",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAttributeDefSaveResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vA_L_SAL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Attribute def save lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "attributeDefSaveLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsAttributeDefSaveLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vD_M_EMF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Delete member",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "deleteMember",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsDeleteMemberResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vD_M_EML" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Delete member lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "deleteMemberLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsDeleteMemberLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vE_G_TEM" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Execute GSH template",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "executeGshTemplate",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGshTemplateExecResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vE_S_DEL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "External subject delete",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "externalSubjectDelete",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsExternalSubjectDeleteResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vE_S_SAV" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "External subject save",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "externalSubjectSave",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsExternalSubjectSaveResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vF_A_DNF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Find attribute def names",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "findAttributeDefNames",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindAttributeDefNamesResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vF_A_DNL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Find attribute def names lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "findAttributeDefNamesLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindAttributeDefNamesResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vF_A_DSF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Find attribute defs",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "findAttributeDefs",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindAttributeDefsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vF_A_DSL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Find attribute defs lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "findAttributeDefsLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindAttributeDefsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vF_E_SUB" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Find external subjects",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "findExternalSubjects",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindExternalSubjectsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vF_G_UPF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find groups",
@@ -54,7 +730,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vX_Y_FGL/groups" : {
+    "/grouper-ws/servicesRest/vF_G_UPL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find groups lite",
@@ -284,9 +960,1924 @@
           }
         }
       }
+    },
+    "/grouper-ws/servicesRest/vF_S_EMF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Find stems",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "findStems",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindStemsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vF_S_EML" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Find stems lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "findStemsLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsFindStemsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_AAF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get attribute assign actions",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getAttributeAssignActions",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetAttributeAssignActionsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_ABF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get attribute assignments",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getAttributeAssignments",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetAttributeAssignmentsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_ABL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get attribute assign actions lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getAttributeAssignActionsLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetAttributeAssignActionsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_AEF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get audit entries",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getAuditEntries",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetAuditEntriesResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_AEL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get audit entries lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getAuditEntriesLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetAuditEntriesResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_GPL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get grouper privileges lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getGrouperPrivilegesLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetGrouperPrivilegesLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_GRF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get groups",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getGroups",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetGroupsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_GRL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get groups lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getGroupsLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetGroupsLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_MEF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get memebers",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getMembers",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetMembersResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_MEL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get members lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getMembersLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetMembersLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_MSF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get memberships",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getMemberships",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetMembershipsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_MSL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get memberships lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getMembershipsLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetMembershipsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_PAF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get permission assignments",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getPermissionAssignments",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetPermissionAssignmentsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_PAL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get permission assignments lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getPermissionAssignmentsLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetPermissionAssignmentsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_SUF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get subjects",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getSubjects",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetSubjectsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_SUL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get subjects lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "getSubjectsLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetSubjectsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_R_DEF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Group delete",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "groupDelete",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGroupDeleteResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_R_DEL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Group delete lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "groupDeleteLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGroupDeleteLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_R_SAF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Group save",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "groupSave",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGroupSaveResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_R_SAL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Group save lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "groupSaveLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGroupSaveLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vH_M_EMF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Has member",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "hasMember",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsHasMemberResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vH_M_EML" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Has member lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "hasMemberLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsHasMemberLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vM_C_SUF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Member change subject",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "memberChangeSubject",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsMemberChangeSubjectResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vM_C_SUL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Member change subject lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "memberChangeSubjectLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsMemberChangeSubjectLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vR_C_MES" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Receive message",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "receiveMessage",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsMessageResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vS_E_MES" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Send message",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "sendMessage",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsMessageResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vS_T_DEF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Stem delete",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "stemDelete",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsStemDeleteResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vS_T_DEL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Stem delete lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "stemDeleteLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsStemDeleteLiteResult"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vS_T_SAF" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Stem save",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "stemSave",
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsStemSaveResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vS_T_SAL" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Stem save lite",
+        "description" : "<b>Sample 1</b>: ",
+        "operationId" : "stemSaveLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsStemSaveLiteResult"
+            }
+          }
+        }
+      }
     }
   },
   "definitions" : {
+    "WsAddMemberLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "wsGroupAssigned" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAddMemberResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsAddMemberResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAddMemberResult"
+          }
+        },
+        "wsGroupAssigned" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAssignAttributeBatchResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeAssignValueResults" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignValueResult"
+          }
+        },
+        "changed" : {
+          "type" : "string"
+        },
+        "valuesChanged" : {
+          "type" : "string"
+        },
+        "deleted" : {
+          "type" : "string"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "wsAttributeAssigns" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssign"
+          }
+        }
+      }
+    },
+    "WsAssignAttributeDefNameInheritanceResults" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAssignAttributeResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeAssignValueResults" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignValueResult"
+          }
+        },
+        "wsAttributeAssigns" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssign"
+          }
+        },
+        "changed" : {
+          "type" : "string"
+        },
+        "valuesChanged" : {
+          "type" : "string"
+        },
+        "deleted" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsAssignAttributesBatchResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "wsAttributeDefNames" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefName"
+          }
+        },
+        "wsAssignAttributeBatchResultArray" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAssignAttributeBatchResult"
+          }
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroup"
+          }
+        },
+        "wsStems" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStem"
+          }
+        },
+        "wsMemberships" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMembership"
+          }
+        },
+        "wsSubjects" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubject"
+          }
+        }
+      }
+    },
+    "WsAssignAttributesLiteResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "wsAttributeDefName" : {
+          "$ref" : "#/definitions/WsAttributeDefName"
+        },
+        "wsAttributeAssignResult" : {
+          "$ref" : "#/definitions/WsAssignAttributeResult"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "wsStem" : {
+          "$ref" : "#/definitions/WsStem"
+        },
+        "wsMembership" : {
+          "$ref" : "#/definitions/WsMembership"
+        },
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsAssignAttributesResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "wsAttributeDefNames" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefName"
+          }
+        },
+        "wsAttributeAssignResults" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAssignAttributeResult"
+          }
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroup"
+          }
+        },
+        "wsStems" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStem"
+          }
+        },
+        "wsMemberships" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMembership"
+          }
+        },
+        "wsSubjects" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubject"
+          }
+        }
+      }
+    },
+    "WsAssignGrouperPrivilegesLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "allowed" : {
+          "type" : "string"
+        },
+        "privilegeName" : {
+          "type" : "string"
+        },
+        "privilegeType" : {
+          "type" : "string"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "wsStem" : {
+          "$ref" : "#/definitions/WsStem"
+        },
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsAssignGrouperPrivilegesResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "allowed" : {
+          "type" : "string"
+        },
+        "privilegeName" : {
+          "type" : "string"
+        },
+        "privilegeType" : {
+          "type" : "string"
+        },
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsAssignGrouperPrivilegesResults" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "wsStem" : {
+          "$ref" : "#/definitions/WsStem"
+        },
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAssignGrouperPrivilegesResult"
+          }
+        }
+      }
+    },
+    "WsAssignPermissionResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeAssigns" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssign"
+          }
+        },
+        "changed" : {
+          "type" : "string"
+        },
+        "deleted" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsAssignPermissionsLiteResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "wsAttributeDefName" : {
+          "$ref" : "#/definitions/WsAttributeDefName"
+        },
+        "wsPermissionAssignResult" : {
+          "$ref" : "#/definitions/WsAssignPermissionResult"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsAssignPermissionsResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "wsAttributeDefNames" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefName"
+          }
+        },
+        "wsAssignPermissionResults" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAssignPermissionResult"
+          }
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroup"
+          }
+        },
+        "wsSubjects" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubject"
+          }
+        }
+      }
+    },
+    "WsAttributeAssign" : {
+      "type" : "object",
+      "properties" : {
+        "disallowed" : {
+          "type" : "string"
+        },
+        "attributeAssignActionType" : {
+          "type" : "string"
+        },
+        "attributeAssignDelegatable" : {
+          "type" : "string"
+        },
+        "attributeAssignActionId" : {
+          "type" : "string"
+        },
+        "attributeAssignActionName" : {
+          "type" : "string"
+        },
+        "attributeAssignType" : {
+          "type" : "string"
+        },
+        "attributeDefNameId" : {
+          "type" : "string"
+        },
+        "attributeDefNameName" : {
+          "type" : "string"
+        },
+        "attributeDefId" : {
+          "type" : "string"
+        },
+        "attributeDefName" : {
+          "type" : "string"
+        },
+        "wsAttributeAssignValues" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignValue"
+          }
+        },
+        "createdOn" : {
+          "type" : "string"
+        },
+        "disabledTime" : {
+          "type" : "string"
+        },
+        "enabled" : {
+          "type" : "string"
+        },
+        "enabledTime" : {
+          "type" : "string"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "lastUpdated" : {
+          "type" : "string"
+        },
+        "notes" : {
+          "type" : "string"
+        },
+        "ownerAttributeAssignId" : {
+          "type" : "string"
+        },
+        "ownerAttributeDefId" : {
+          "type" : "string"
+        },
+        "ownerAttributeDefName" : {
+          "type" : "string"
+        },
+        "ownerGroupId" : {
+          "type" : "string"
+        },
+        "ownerGroupName" : {
+          "type" : "string"
+        },
+        "ownerMemberId" : {
+          "type" : "string"
+        },
+        "ownerMemberSubjectId" : {
+          "type" : "string"
+        },
+        "ownerMemberSourceId" : {
+          "type" : "string"
+        },
+        "ownerMembershipId" : {
+          "type" : "string"
+        },
+        "ownerStemId" : {
+          "type" : "string"
+        },
+        "ownerStemName" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsAttributeAssignActionTuple" : {
+      "type" : "object",
+      "properties" : {
+        "action" : {
+          "type" : "string"
+        },
+        "attributeDefId" : {
+          "type" : "string"
+        },
+        "nameOfAttributeDef" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsAttributeAssignValue" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "valueSystem" : {
+          "type" : "string"
+        },
+        "valueFormatted" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsAttributeAssignValueResult" : {
+      "type" : "object",
+      "properties" : {
+        "changed" : {
+          "type" : "string"
+        },
+        "deleted" : {
+          "type" : "string"
+        },
+        "wsAttributeAssignValue" : {
+          "$ref" : "#/definitions/WsAttributeAssignValue"
+        }
+      }
+    },
+    "WsAttributeDef" : {
+      "type" : "object",
+      "properties" : {
+        "idIndex" : {
+          "type" : "string"
+        },
+        "extension" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "uuid" : {
+          "type" : "string"
+        },
+        "attributeDefType" : {
+          "type" : "string"
+        },
+        "multiAssignable" : {
+          "type" : "string"
+        },
+        "multiValued" : {
+          "type" : "string"
+        },
+        "valueType" : {
+          "type" : "string"
+        },
+        "assignToAttributeDef" : {
+          "type" : "string"
+        },
+        "assignToAttributeDefAssignment" : {
+          "type" : "string"
+        },
+        "assignToEffectiveMembership" : {
+          "type" : "string"
+        },
+        "assignToEffectiveMembershipAssignment" : {
+          "type" : "string"
+        },
+        "assignToGroup" : {
+          "type" : "string"
+        },
+        "assignToGroupAssignment" : {
+          "type" : "string"
+        },
+        "assignToImmediateMembership" : {
+          "type" : "string"
+        },
+        "assignToImmediateMembershipAssignment" : {
+          "type" : "string"
+        },
+        "assignToMember" : {
+          "type" : "string"
+        },
+        "assignToMemberAssignment" : {
+          "type" : "string"
+        },
+        "assignToStem" : {
+          "type" : "string"
+        },
+        "assignToStemAssignment" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsAttributeDefActionOperationPerformed" : {
+      "type" : "object",
+      "properties" : {
+        "action" : {
+          "type" : "string"
+        },
+        "status" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsAttributeDefAssignActionResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDef" : {
+          "$ref" : "#/definitions/WsAttributeDef"
+        },
+        "actions" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefActionOperationPerformed"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAttributeDefDeleteLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsAttributeDef" : {
+          "$ref" : "#/definitions/WsAttributeDef"
+        }
+      }
+    },
+    "WsAttributeDefDeleteResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDef" : {
+          "$ref" : "#/definitions/WsAttributeDef"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsAttributeDefDeleteResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefDeleteResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAttributeDefName" : {
+      "type" : "object",
+      "properties" : {
+        "idIndex" : {
+          "type" : "string"
+        },
+        "extension" : {
+          "type" : "string"
+        },
+        "displayExtension" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "displayName" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "uuid" : {
+          "type" : "string"
+        },
+        "attributeDefId" : {
+          "type" : "string"
+        },
+        "attributeDefName" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsAttributeDefNameDeleteLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsAttributeDefName" : {
+          "$ref" : "#/definitions/WsAttributeDefName"
+        }
+      }
+    },
+    "WsAttributeDefNameDeleteResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefName" : {
+          "$ref" : "#/definitions/WsAttributeDefName"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsAttributeDefNameDeleteResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameDeleteResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAttributeDefNameSaveLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsAttributeDefName" : {
+          "$ref" : "#/definitions/WsAttributeDefName"
+        }
+      }
+    },
+    "WsAttributeDefNameSaveResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefName" : {
+          "$ref" : "#/definitions/WsAttributeDefName"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsAttributeDefNameSaveResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameSaveResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAttributeDefSaveLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsAttributeDef" : {
+          "$ref" : "#/definitions/WsAttributeDef"
+        }
+      }
+    },
+    "WsAttributeDefSaveResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDef" : {
+          "$ref" : "#/definitions/WsAttributeDef"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsAttributeDefSaveResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefSaveResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAuditEntry" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "actionName" : {
+          "type" : "string"
+        },
+        "auditCategory" : {
+          "type" : "string"
+        },
+        "timestamp" : {
+          "type" : "string"
+        },
+        "auditEntryColumns" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAuditEntryColumn"
+          }
+        }
+      }
+    },
+    "WsAuditEntryColumn" : {
+      "type" : "object",
+      "properties" : {
+        "label" : {
+          "type" : "string"
+        },
+        "valueInt" : {
+          "type" : "string"
+        },
+        "valueString" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsDeleteMemberLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "WsDeleteMemberResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsDeleteMemberResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsDeleteMemberResult"
+          }
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "WsExternalSubject" : {
+      "type" : "object",
+      "properties" : {
+        "uuid" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "email" : {
+          "type" : "string"
+        },
+        "enabled" : {
+          "type" : "string"
+        },
+        "identifier" : {
+          "type" : "string"
+        },
+        "institution" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "searchStringLower" : {
+          "type" : "string"
+        },
+        "vettedEmailAddresses" : {
+          "type" : "string"
+        },
+        "wsExternalSubjectAttributes" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsExternalSubjectAttribute"
+          }
+        }
+      }
+    },
+    "WsExternalSubjectAttribute" : {
+      "type" : "object",
+      "properties" : {
+        "attributeValue" : {
+          "type" : "string"
+        },
+        "attributeSystemName" : {
+          "type" : "string"
+        },
+        "uuid" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsExternalSubjectDeleteResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsExternalSubject" : {
+          "$ref" : "#/definitions/WsExternalSubject"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsExternalSubjectDeleteResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsExternalSubjectDeleteResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsExternalSubjectSaveResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsExternalSubject" : {
+          "$ref" : "#/definitions/WsExternalSubject"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsExternalSubjectSaveResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsExternalSubjectSaveResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsFindAttributeDefNamesResults" : {
+      "type" : "object",
+      "properties" : {
+        "attributeDefNameResults" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefName"
+          }
+        },
+        "attributeDefs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsFindAttributeDefsResults" : {
+      "type" : "object",
+      "properties" : {
+        "attributeDefResults" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsFindExternalSubjectsResults" : {
+      "type" : "object",
+      "properties" : {
+        "externalSubjectResults" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsExternalSubject"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
     "WsFindGroupsResults" : {
       "type" : "object",
       "properties" : {
@@ -327,6 +2918,409 @@
         }
       },
       "description" : "Response body when not successful contains error message and metadata"
+    },
+    "WsFindStemsResults" : {
+      "type" : "object",
+      "properties" : {
+        "stemResults" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStem"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsGetAttributeAssignActionsResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeAssignActionTuples" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignActionTuple"
+          }
+        },
+        "wsAttributeDefs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsGetAttributeAssignmentsResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "wsAttributeDefNames" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefName"
+          }
+        },
+        "wsAttributeAssigns" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssign"
+          }
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroup"
+          }
+        },
+        "wsStems" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStem"
+          }
+        },
+        "wsMemberships" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMembership"
+          }
+        },
+        "wsSubjects" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubject"
+          }
+        }
+      }
+    },
+    "WsGetAuditEntriesResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsAuditEntries" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAuditEntry"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsGetGrouperPrivilegesLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "privilegeResults" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGrouperPrivilegeResult"
+          }
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsGetGroupsLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroup"
+          }
+        },
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsGetGroupsResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsGroups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroup"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsGetGroupsResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGetGroupsResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsGetMembersLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "wsSubjects" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubject"
+          }
+        }
+      }
+    },
+    "WsGetMembersResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "wsSubjects" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubject"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsGetMembersResults" : {
+      "type" : "object",
+      "properties" : {
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGetMembersResult"
+          }
+        }
+      }
+    },
+    "WsGetMembershipsResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsMemberships" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMembership"
+          }
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "wsGroups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroup"
+          }
+        },
+        "wsStems" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStem"
+          }
+        },
+        "wsAttributeDefs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "wsSubjects" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubject"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsGetPermissionAssignmentsResults" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDef"
+          }
+        },
+        "wsAttributeDefNames" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefName"
+          }
+        },
+        "wsPermissionAssigns" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsPermissionAssign"
+          }
+        },
+        "wsAttributeAssigns" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssign"
+          }
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroup"
+          }
+        },
+        "wsSubjects" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubject"
+          }
+        }
+      }
+    },
+    "WsGetSubjectsResults" : {
+      "type" : "object",
+      "properties" : {
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "wsSubjects" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubject"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        }
+      }
     },
     "WsGroup" : {
       "type" : "object",
@@ -397,6 +3391,48 @@
         }
       },
       "description" : "Result of one group being retrieved"
+    },
+    "WsGroupDeleteLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        }
+      }
+    },
+    "WsGroupDeleteResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsGroupDeleteResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupDeleteResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
     },
     "WsGroupDetail" : {
       "type" : "object",
@@ -501,6 +3537,373 @@
       },
       "description" : "Template to lookup a group: groupName, uuid, and idIndex are mutually exclusive."
     },
+    "WsGroupSaveLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        }
+      }
+    },
+    "WsGroupSaveResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsGroupSaveResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupSaveResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsGrouperPrivilegeResult" : {
+      "type" : "object",
+      "properties" : {
+        "allowed" : {
+          "type" : "string"
+        },
+        "ownerSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        },
+        "privilegeName" : {
+          "type" : "string"
+        },
+        "privilegeType" : {
+          "type" : "string"
+        },
+        "revokable" : {
+          "type" : "string"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "wsStem" : {
+          "$ref" : "#/definitions/WsStem"
+        },
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsGshOutputLine" : {
+      "type" : "object",
+      "properties" : {
+        "messageType" : {
+          "type" : "string"
+        },
+        "text" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsGshTemplateExecResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "transaction" : {
+          "type" : "boolean"
+        },
+        "gshValidationLines" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGshValidationLine"
+          }
+        },
+        "gshOutputLines" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGshOutputLine"
+          }
+        },
+        "gshScriptOutput" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsGshValidationLine" : {
+      "type" : "object",
+      "properties" : {
+        "inputName" : {
+          "type" : "string"
+        },
+        "validationText" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsHasMemberLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsHasMemberResult"
+          }
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsHasMemberResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsSubject" : {
+          "$ref" : "#/definitions/WsSubject"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsHasMemberResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsHasMemberResult"
+          }
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsMemberChangeSubjectLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "wsSubjectNew" : {
+          "$ref" : "#/definitions/WsSubject"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsSubjectOld" : {
+          "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsMemberChangeSubjectResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsSubjectNew" : {
+          "$ref" : "#/definitions/WsSubject"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "wsSubjectOld" : {
+          "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsMemberChangeSubjectResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMemberChangeSubjectResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsMembership" : {
+      "type" : "object",
+      "properties" : {
+        "membershipId" : {
+          "type" : "string"
+        },
+        "immediateMembershipId" : {
+          "type" : "string"
+        },
+        "listName" : {
+          "type" : "string"
+        },
+        "listType" : {
+          "type" : "string"
+        },
+        "membershipType" : {
+          "type" : "string"
+        },
+        "enabled" : {
+          "type" : "string"
+        },
+        "enabledTime" : {
+          "type" : "string"
+        },
+        "disabledTime" : {
+          "type" : "string"
+        },
+        "memberId" : {
+          "type" : "string"
+        },
+        "groupId" : {
+          "type" : "string"
+        },
+        "ownerStemId" : {
+          "type" : "string"
+        },
+        "ownerStemName" : {
+          "type" : "string"
+        },
+        "ownerIdOfAttributeDef" : {
+          "type" : "string"
+        },
+        "ownerNameOfAttributeDef" : {
+          "type" : "string"
+        },
+        "subjectId" : {
+          "type" : "string"
+        },
+        "subjectSourceId" : {
+          "type" : "string"
+        },
+        "groupName" : {
+          "type" : "string"
+        },
+        "createTime" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsMessage" : {
+      "type" : "object",
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "fromMemberId" : {
+          "type" : "string"
+        },
+        "messageBody" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsMessageAcknowledgeResults" : {
+      "type" : "object",
+      "properties" : {
+        "queueOrTopicName" : {
+          "type" : "string"
+        },
+        "messageSystemName" : {
+          "type" : "string"
+        },
+        "messageIds" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsMessageResults" : {
+      "type" : "object",
+      "properties" : {
+        "queueOrTopicName" : {
+          "type" : "string"
+        },
+        "messageSystemName" : {
+          "type" : "string"
+        },
+        "messages" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMessage"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
     "WsParam" : {
       "type" : "object",
       "properties" : {
@@ -514,6 +3917,129 @@
         }
       },
       "description" : "Name value pairs"
+    },
+    "WsPermissionAssign" : {
+      "type" : "object",
+      "properties" : {
+        "limits" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsPermissionLimit"
+          }
+        },
+        "detail" : {
+          "$ref" : "#/definitions/WsPermissionAssignDetail"
+        },
+        "action" : {
+          "type" : "string"
+        },
+        "permissionType" : {
+          "type" : "string"
+        },
+        "attributeDefNameId" : {
+          "type" : "string"
+        },
+        "attributeDefNameName" : {
+          "type" : "string"
+        },
+        "attributeDefId" : {
+          "type" : "string"
+        },
+        "attributeDefName" : {
+          "type" : "string"
+        },
+        "enabled" : {
+          "type" : "string"
+        },
+        "attributeAssignId" : {
+          "type" : "string"
+        },
+        "roleId" : {
+          "type" : "string"
+        },
+        "roleName" : {
+          "type" : "string"
+        },
+        "subjectId" : {
+          "type" : "string"
+        },
+        "sourceId" : {
+          "type" : "string"
+        },
+        "membershipId" : {
+          "type" : "string"
+        },
+        "allowedOverall" : {
+          "type" : "string"
+        },
+        "disallowed" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsPermissionAssignDetail" : {
+      "type" : "object",
+      "properties" : {
+        "heuristicFriendlyScore" : {
+          "type" : "string"
+        },
+        "roleSetDepth" : {
+          "type" : "string"
+        },
+        "membershipDepth" : {
+          "type" : "string"
+        },
+        "attributeDefNameSetDepth" : {
+          "type" : "string"
+        },
+        "actionDepth" : {
+          "type" : "string"
+        },
+        "permissionDelegatable" : {
+          "type" : "string"
+        },
+        "disabledTime" : {
+          "type" : "string"
+        },
+        "enabledTime" : {
+          "type" : "string"
+        },
+        "assignmentNotes" : {
+          "type" : "string"
+        },
+        "memberId" : {
+          "type" : "string"
+        },
+        "actionId" : {
+          "type" : "string"
+        },
+        "immediateMembership" : {
+          "type" : "string"
+        },
+        "immediatePermission" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsPermissionLimit" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeAssignValues" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignValue"
+          }
+        },
+        "attributeAssignId" : {
+          "type" : "string"
+        },
+        "attributeDefNameId" : {
+          "type" : "string"
+        },
+        "attributeDefNameName" : {
+          "type" : "string"
+        }
+      }
     },
     "WsQueryFilter" : {
       "type" : "object",
@@ -737,6 +4263,148 @@
         }
       },
       "description" : "Response when not successful contains error message and metadata"
+    },
+    "WsStem" : {
+      "type" : "object",
+      "properties" : {
+        "idIndex" : {
+          "type" : "string"
+        },
+        "extension" : {
+          "type" : "string"
+        },
+        "displayExtension" : {
+          "type" : "string"
+        },
+        "description" : {
+          "type" : "string"
+        },
+        "displayName" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "uuid" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsStemDeleteLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsStem" : {
+          "$ref" : "#/definitions/WsStem"
+        }
+      }
+    },
+    "WsStemDeleteResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsStem" : {
+          "$ref" : "#/definitions/WsStem"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsStemDeleteResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStemDeleteResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsStemSaveLiteResult" : {
+      "type" : "object",
+      "properties" : {
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        },
+        "wsStem" : {
+          "$ref" : "#/definitions/WsStem"
+        }
+      }
+    },
+    "WsStemSaveResult" : {
+      "type" : "object",
+      "properties" : {
+        "wsStem" : {
+          "$ref" : "#/definitions/WsStem"
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        }
+      }
+    },
+    "WsStemSaveResults" : {
+      "type" : "object",
+      "properties" : {
+        "results" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStemSaveResult"
+          }
+        },
+        "resultMetadata" : {
+          "$ref" : "#/definitions/WsResultMeta"
+        },
+        "responseMetadata" : {
+          "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsSubject" : {
+      "type" : "object",
+      "properties" : {
+        "identifierLookup" : {
+          "type" : "string"
+        },
+        "resultCode" : {
+          "type" : "string"
+        },
+        "success" : {
+          "type" : "string"
+        },
+        "memberId" : {
+          "type" : "string"
+        },
+        "id" : {
+          "type" : "string"
+        },
+        "name" : {
+          "type" : "string"
+        },
+        "sourceId" : {
+          "type" : "string"
+        },
+        "attributeValues" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
     },
     "WsSubjectLookup" : {
       "type" : "object",

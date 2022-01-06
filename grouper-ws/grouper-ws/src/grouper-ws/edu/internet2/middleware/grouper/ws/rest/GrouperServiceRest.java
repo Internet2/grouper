@@ -190,7 +190,7 @@ public class GrouperServiceRest {
    * @return the results
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vX_Y_FGF/groups")
+  @Path("/grouper-ws/servicesRest/vF_G_UPF/groups")
   @ApiOperation(httpMethod = "POST", value = "Find groups", nickname = "findGroups", response = WsFindGroupsResultsWrapper.class,
       notes = "<b>Sample 1</b>: Find by substring in a folder<br /><pre>POST /grouper-ws/servicesRest/v2_6_001/groups<br />"
           + "{<br>  &quot;WsRestFindGroupsRequest&quot;:{<br>    &quot;wsQueryFilter&quot;:{<br>      &quot;queryFilterType&quot;:&quot;FIND_BY_GROUP_NAME_APPROXIMATE&quot;,<br>      &quot;stemName&quot;:&quot;aStem&quot;,<br>      &quot;groupName&quot;:&quot;aGr&quot;<br>    }<br>  }<br>}</pre>") 
@@ -366,6 +366,10 @@ public class GrouperServiceRest {
    * @param wsRestAddMembersRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_A_MEF")
+  @ApiOperation(httpMethod = "POST", value = "Add member", nickname = "addMember", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsAddMemberResults addMember(GrouperVersion clientVersion,
       String groupName, WsRestAddMemberRequest wsRestAddMembersRequest) {
 
@@ -412,6 +416,10 @@ public class GrouperServiceRest {
    * @param wsRestAssignGrouperPrivilegeRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_G_PRF")
+  @ApiOperation(httpMethod = "POST", value = "Assign grouper privileges", nickname = "assignGrouperPrivileges", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsAssignGrouperPrivilegesResults assignGrouperPrivileges(GrouperVersion clientVersion,
       WsRestAssignGrouperPrivilegesRequest wsRestAssignGrouperPrivilegeRequest) {
 
@@ -496,6 +504,10 @@ public class GrouperServiceRest {
    * @param wsRestDeleteMembersRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vD_M_EMF")
+  @ApiOperation(httpMethod = "POST", value = "Delete member", nickname = "deleteMember", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsDeleteMemberResults deleteMember(GrouperVersion clientVersion,
       String groupName, WsRestDeleteMemberRequest wsRestDeleteMembersRequest) {
   
@@ -542,6 +554,10 @@ public class GrouperServiceRest {
    * @param wsRestHasMembersRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vH_M_EMF")
+  @ApiOperation(httpMethod = "POST", value = "Has member", nickname = "hasMember", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsHasMemberResults hasMember(GrouperVersion clientVersion,
       String groupName, WsRestHasMemberRequest wsRestHasMembersRequest) {
 
@@ -588,6 +604,10 @@ public class GrouperServiceRest {
    * @param wsRestGetMembersRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_MEF")
+  @ApiOperation(httpMethod = "POST", value = "Get memebers", nickname = "getMembers", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGetMembersResults getMembers(GrouperVersion clientVersion,
       WsRestGetMembersRequest wsRestGetMembersRequest) {
 
@@ -689,6 +709,10 @@ public class GrouperServiceRest {
    * @param wsRestMemberChangeSubjectRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vM_C_SUF")
+  @ApiOperation(httpMethod = "POST", value = "Member change subject", nickname = "memberChangeSubject", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsMemberChangeSubjectResults memberChangeSubject(GrouperVersion clientVersion,
       WsRestMemberChangeSubjectRequest wsRestMemberChangeSubjectRequest) {
 
@@ -866,6 +890,10 @@ public class GrouperServiceRest {
    * @param wsRestGetGroupsRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_GRF")
+  @ApiOperation(httpMethod = "POST", value = "Get groups", nickname = "getGroups", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGetGroupsResults getGroups(GrouperVersion clientVersion,
       String subjectId, String sourceId, WsRestGetGroupsRequest wsRestGetGroupsRequest) {
 
@@ -977,6 +1005,10 @@ public class GrouperServiceRest {
    * @param wsRestFindStemsRequest is the request body converted to an object
    * @return the results
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vF_S_EMF")
+  @ApiOperation(httpMethod = "POST", value = "Find stems", nickname = "findStems", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsFindStemsResults findStems(GrouperVersion clientVersion,
       WsRestFindStemsRequest wsRestFindStemsRequest) {
 
@@ -1033,6 +1065,10 @@ public class GrouperServiceRest {
    * @param wsRestStemSaveRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vS_T_SAF")
+  @ApiOperation(httpMethod = "POST", value = "Stem save", nickname = "stemSave", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsStemSaveResults stemSave(GrouperVersion clientVersion,
       WsRestStemSaveRequest wsRestStemSaveRequest) {
 
@@ -1107,6 +1143,10 @@ public class GrouperServiceRest {
    * @param wsRestStemDeleteRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vS_T_DEF")
+  @ApiOperation(httpMethod = "POST", value = "Stem delete", nickname = "stemDelete", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsStemDeleteResults stemDelete(GrouperVersion clientVersion,
       WsRestStemDeleteRequest wsRestStemDeleteRequest) {
 
@@ -1176,6 +1216,10 @@ public class GrouperServiceRest {
    * @param wsRestGroupDeleteRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_R_DEF")
+  @ApiOperation(httpMethod = "POST", value = "Group delete", nickname = "groupDelete", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGroupDeleteResults groupDelete(GrouperVersion clientVersion,
       WsRestGroupDeleteRequest wsRestGroupDeleteRequest) {
 
@@ -1250,6 +1294,10 @@ public class GrouperServiceRest {
    * @param wsRestGroupSaveRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_R_SAF")
+  @ApiOperation(httpMethod = "POST", value = "Group save", nickname = "groupSave", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGroupSaveResults groupSave(GrouperVersion clientVersion,
       WsRestGroupSaveRequest wsRestGroupSaveRequest) {
   
@@ -1332,6 +1380,10 @@ public class GrouperServiceRest {
    * @param wsRestGetMembershipsRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_MSF")
+  @ApiOperation(httpMethod = "POST", value = "Get memberships", nickname = "getMemberships", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGetMembershipsResults getMemberships(GrouperVersion clientVersion,
       String groupName, String subjectId, String sourceId, 
       WsRestGetMembershipsRequest wsRestGetMembershipsRequest) {
@@ -1489,6 +1541,10 @@ public class GrouperServiceRest {
    * @param wsRestGetSubjectsRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_SUF")
+  @ApiOperation(httpMethod = "POST", value = "Get subjects", nickname = "getSubjects", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGetSubjectsResults getSubjects(GrouperVersion clientVersion,
       String subjectId, String sourceId, 
       WsRestGetSubjectsRequest wsRestGetSubjectsRequest) {
@@ -1598,6 +1654,10 @@ public class GrouperServiceRest {
    * @param wsRestGetAttributesRequest
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_ABF")
+  @ApiOperation(httpMethod = "POST", value = "Get attribute assignments", nickname = "getAttributeAssignments", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGetAttributeAssignmentsResults getAttributeAssignments(GrouperVersion clientVersion,
       WsRestGetAttributeAssignmentsRequest wsRestGetAttributesRequest) {
     //cant be null
@@ -1676,6 +1736,10 @@ public class GrouperServiceRest {
    * @param wsRestAssignAttributeDefActionsRequest
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_D_ACF")
+  @ApiOperation(httpMethod = "POST", value = "Assign attribute def actions", nickname = "assignAttributeDefActions", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsAttributeDefAssignActionResults assignAttributeDefActions(
       GrouperVersion clientVersion,
       WsRestAssignAttributeDefActionsRequest wsRestAssignAttributeDefActionsRequest) {
@@ -1707,6 +1771,10 @@ public class GrouperServiceRest {
    * @param wsRestGetAttributeAssignActionsRequest
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_AAF")
+  @ApiOperation(httpMethod = "POST", value = "Get attribute assign actions", nickname = "getAttributeAssignActions", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGetAttributeAssignActionsResults getAttributeAssignActions(
       GrouperVersion clientVersion,
       WsRestGetAttributeAssignActionsRequest wsRestGetAttributeAssignActionsRequest) {
@@ -1773,6 +1841,10 @@ public class GrouperServiceRest {
    * @param wsRestAssignAttributesRequest
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_E_ATF")
+  @ApiOperation(httpMethod = "POST", value = "Assign attributes", nickname = "assignAttributes", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsAssignAttributesResults assignAttributes(GrouperVersion clientVersion,
       WsRestAssignAttributesRequest wsRestAssignAttributesRequest) {
     //cant be null
@@ -1854,6 +1926,10 @@ public class GrouperServiceRest {
    * @param wsRestGetPermissionAssignmentsRequest
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_PAF")
+  @ApiOperation(httpMethod = "POST", value = "Get permission assignments", nickname = "getPermissionAssignments", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGetPermissionAssignmentsResults getPermissionAssignments(GrouperVersion clientVersion,
       WsRestGetPermissionAssignmentsRequest wsRestGetPermissionAssignmentsRequest) {
     //cant be null
@@ -1936,6 +2012,10 @@ public class GrouperServiceRest {
    * @param wsRestAssignPermissionsRequest
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_H_PRF")
+  @ApiOperation(httpMethod = "POST", value = "Assign permissions", nickname = "assignPermissions", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsAssignPermissionsResults assignPermissions(GrouperVersion clientVersion,
       WsRestAssignPermissionsRequest wsRestAssignPermissionsRequest) {
     //cant be null
@@ -2011,7 +2091,10 @@ public class GrouperServiceRest {
    * @param wsRestAttributeDefSaveRequest 
    * @return the results
    */
-
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_L_SAF")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def save", nickname = "attributeDefSave", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsAttributeDefSaveResults attributeDefSave(GrouperVersion clientVersion,
       WsRestAttributeDefSaveRequest wsRestAttributeDefSaveRequest) {
 
@@ -2108,6 +2191,10 @@ public class GrouperServiceRest {
    * @param wsRestAttributeDefDeleteRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_I_DEF")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def delete", nickname = "attributeDefDelete", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsAttributeDefDeleteResults attributeDefDelete(
       GrouperVersion clientVersion,
       WsRestAttributeDefDeleteRequest wsRestAttributeDefDeleteRequest) {
@@ -2180,6 +2267,10 @@ public class GrouperServiceRest {
    * @param wsRestFindAttributeDefsRequest 
    * @return the attribute defs, or no attribute def if none found
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vF_A_DSF")
+  @ApiOperation(httpMethod = "POST", value = "Find attribute defs", nickname = "findAttributeDefs", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsFindAttributeDefsResults findAttributeDefs(
       GrouperVersion clientVersion,
       WsRestFindAttributeDefsRequest wsRestFindAttributeDefsRequest) {
@@ -2272,6 +2363,10 @@ public class GrouperServiceRest {
    * @param wsRestAssignAttributeDefNameInheritanceRequest 
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_D_ANF")
+  @ApiOperation(httpMethod = "POST", value = "Assign attribute def name inheritance", nickname = "assignAttributeDefNameInheritance", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static  WsAssignAttributeDefNameInheritanceResults assignAttributeDefNameInheritance(GrouperVersion clientVersion, 
       WsRestAssignAttributeDefNameInheritanceRequest wsRestAssignAttributeDefNameInheritanceRequest) {
     //cant be null
@@ -2325,6 +2420,10 @@ public class GrouperServiceRest {
    * @param wsRestAttributeDefNameDeleteRequest 
    * @return the results
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_J_DEF")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def name delete", nickname = "attributeDefNameDelete", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsAttributeDefNameDeleteResults attributeDefNameDelete(GrouperVersion clientVersion,
       WsRestAttributeDefNameDeleteRequest wsRestAttributeDefNameDeleteRequest) {
   
@@ -2383,7 +2482,10 @@ public class GrouperServiceRest {
    * @param wsRestAttributeDefNameSaveRequest 
    * @return the results
    */
-  
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_K_SAF")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def name save", nickname = "attributeDefNameSave", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsAttributeDefNameSaveResults attributeDefNameSave(GrouperVersion clientVersion,
       WsRestAttributeDefNameSaveRequest wsRestAttributeDefNameSaveRequest) {
   
@@ -2455,6 +2557,10 @@ public class GrouperServiceRest {
    * @param wsRestFindAttributeDefNamesRequest 
    * @return the attribute def names, or no attribute def names if none found
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vF_A_DNF")
+  @ApiOperation(httpMethod = "POST", value = "Find attribute def names", nickname = "findAttributeDefNames", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsFindAttributeDefNamesResults findAttributeDefNames(GrouperVersion clientVersion, 
       WsRestFindAttributeDefNamesRequest wsRestFindAttributeDefNamesRequest) {
   
@@ -2549,6 +2655,10 @@ public class GrouperServiceRest {
    * @param wsRestAssignAttributesBatchRequest 
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_E_ATG")
+  @ApiOperation(httpMethod = "POST", value = "Assign attributes batch", nickname = "assignAttributesBatch", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsAssignAttributesBatchResults assignAttributesBatch(GrouperVersion clientVersion,
       WsRestAssignAttributesBatchRequest wsRestAssignAttributesBatchRequest) {
     
@@ -2577,6 +2687,10 @@ public class GrouperServiceRest {
    * @param wsRestSendMessageRequest 
    * @return the messages sent
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vS_E_MES")
+  @ApiOperation(httpMethod = "POST", value = "Send message", nickname = "sendMessage", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsMessageResults sendMessage(GrouperVersion clientVersion,
       WsRestSendMessageRequest wsRestSendMessageRequest) {
 
@@ -2609,6 +2723,10 @@ public class GrouperServiceRest {
    * @param wsRestReceiveMessageRequest 
    * @return the messages received
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vR_C_MES")
+  @ApiOperation(httpMethod = "POST", value = "Receive message", nickname = "receiveMessage", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsMessageResults receiveMessage(GrouperVersion clientVersion,
       WsRestReceiveMessageRequest wsRestReceiveMessageRequest) {
 
@@ -2642,6 +2760,10 @@ public class GrouperServiceRest {
    * @param wsRestMessageAcknowledgeRequest 
    * @return the processed messages
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_A_MAF")
+  @ApiOperation(httpMethod = "POST", value = "Acknowledge message", nickname = "acknowledgeMessage", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsMessageAcknowledgeResults acknowledgeMessages(
       GrouperVersion clientVersion,
       WsRestAcknowledgeMessageRequest wsRestMessageAcknowledgeRequest) {
@@ -2676,6 +2798,10 @@ public class GrouperServiceRest {
    * @param wsRestFindExternalSubjectsRequest is the request body converted to an object
    * @return the results
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vF_E_SUB")
+  @ApiOperation(httpMethod = "POST", value = "Find external subjects", nickname = "findExternalSubjects", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsFindExternalSubjectsResults findExternalSubjects(GrouperVersion clientVersion,
       WsRestFindExternalSubjectsRequest wsRestFindExternalSubjectsRequest) {
 
@@ -2700,6 +2826,10 @@ public class GrouperServiceRest {
    * @param wsRestExternalSubjectDeleteRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vE_S_DEL")
+  @ApiOperation(httpMethod = "POST", value = "External subject delete", nickname = "externalSubjectDelete", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsExternalSubjectDeleteResults externalSubjectDelete(GrouperVersion clientVersion,
       WsRestExternalSubjectDeleteRequest wsRestExternalSubjectDeleteRequest) {
   
@@ -2732,6 +2862,10 @@ public class GrouperServiceRest {
    * @param wsRestExternalSubjectSaveRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vE_S_SAV")
+  @ApiOperation(httpMethod = "POST", value = "External subject save", nickname = "externalSubjectSave", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsExternalSubjectSaveResults externalSubjectSave(GrouperVersion clientVersion,
       WsRestExternalSubjectSaveRequest wsRestExternalSubjectSaveRequest) {
   
@@ -2804,6 +2938,10 @@ public class GrouperServiceRest {
    * @param wsRestGetAuditEntriesRequest is the request body converted to an object
    * @return the results
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_AEF")
+  @ApiOperation(httpMethod = "POST", value = "Get audit entries", nickname = "getAuditEntries", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGetAuditEntriesResults getAuditEntries(GrouperVersion clientVersion,
       WsRestGetAuditEntriesRequest wsRestGetAuditEntriesRequest) {
 
@@ -2845,6 +2983,10 @@ public class GrouperServiceRest {
    * @param wsRestGshTemplateExecRequest is the request body converted to an object
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vE_G_TEM")
+  @ApiOperation(httpMethod = "POST", value = "Execute GSH template", nickname = "executeGshTemplate", //response = .class,
+      notes = "<b>Sample 1</b>: ") 
   public static WsGshTemplateExecResult executeGshTemplate(GrouperVersion clientVersion,
       WsRestGshTemplateExecRequest wsRestGshTemplateExecRequest) {
   

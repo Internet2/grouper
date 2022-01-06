@@ -179,7 +179,7 @@ public class GrouperService {
    * @return the groups, or no groups if none found
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vX_Y_FGL/groups")
+  @Path("/grouper-ws/servicesRest/vF_G_UPL/groups")
   @ApiOperation(httpMethod = "POST", value = "Find groups lite", nickname = "findGroupsLite", response = WsFindGroupsResultsWrapper.class,
   notes = "<b>Sample 1</b>: Find by substring in a folder<br /><pre>POST /grouper-ws/servicesRest/v2_6_001/groups<br /><b>wsLiteObjectType</b>=WsRestFindGroupsLiteRequest&amp;<b>"
       + "groupName</b>=aGr&amp;<b>queryFilterType</b>=FIND_BY_GROUP_NAME_APPROXIMATE&amp;<b>stemName</b>=aStem</pre>") 
@@ -448,6 +448,16 @@ public class GrouperService {
    * @param pageCursorFieldIncludesLastRetrieved should the result has last retrieved item
    * @return the members, or no members if none found
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_MEL/")
+  @ApiOperation(httpMethod = "POST", value = "Get members lite", nickname = "getMembersLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsGetMembersLiteResult getMembersLite(final String clientVersion,
       String groupName, String groupUuid, String memberFilter, String actAsSubjectId,
       String actAsSubjectSourceId, String actAsSubjectIdentifier, final String fieldName,
@@ -848,6 +858,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vS_T_DEL/")
+  @ApiOperation(httpMethod = "POST", value = "Stem delete lite", nickname = "stemDeleteLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+  })
   public WsStemDeleteLiteResult stemDeleteLite(final String clientVersion,
       String stemName, String stemUuid, String actAsSubjectId, String actAsSubjectSourceId,
       String actAsSubjectIdentifier, String paramName0, String paramValue0,
@@ -902,6 +922,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_R_DEL/")
+  @ApiOperation(httpMethod = "POST", value = "Group delete lite", nickname = "groupDeleteLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+  })
   public WsGroupDeleteLiteResult groupDeleteLite(final String clientVersion,
       String groupName, String groupUuid, String actAsSubjectId,
       String actAsSubjectSourceId, String actAsSubjectIdentifier,
@@ -1055,6 +1085,16 @@ public class GrouperService {
    * @param enabledTime 
    * @return the result of one member add
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_R_SAL/")
+  @ApiOperation(httpMethod = "POST", value = "Group save lite", nickname = "groupSaveLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+  })
   public WsGroupSaveLiteResult groupSaveLite(final String clientVersion,
       String groupLookupUuid, String groupLookupName, String groupUuid,String groupName, 
       String displayExtension,String description,  String saveMode,
@@ -1128,6 +1168,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vS_T_SAL/")
+  @ApiOperation(httpMethod = "POST", value = "Stem save lite", nickname = "stemSaveLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+  })
   public WsStemSaveLiteResult stemSaveLite(final String clientVersion,
       String stemLookupUuid, String stemLookupName, String stemUuid, String stemName, 
       String displayExtension, String description, String saveMode,
@@ -1566,6 +1616,16 @@ public class GrouperService {
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the result of one member add
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_GRL/")
+  @ApiOperation(httpMethod = "POST", value = "Get groups lite", nickname = "getGroupsLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsGetGroupsLiteResult getGroupsLite(final String clientVersion, String subjectId,
       String subjectSourceId, String subjectIdentifier, String memberFilter,
       String actAsSubjectId, String actAsSubjectSourceId,
@@ -1676,6 +1736,16 @@ public class GrouperService {
    * and the subject is not found, then add an external subject (if the user is allowed
    * @return the result of one member add
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_A_MEL/")
+  @ApiOperation(httpMethod = "POST", value = "Add member lite", nickname = "addMemberLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsAddMemberLiteResult addMemberLite(final String clientVersion,
       String groupName, String groupUuid, String subjectId, String subjectSourceId,
       String subjectIdentifier, String actAsSubjectId, String actAsSubjectSourceId,
@@ -1961,6 +2031,16 @@ public class GrouperService {
      *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
      * @return the result of one member query
      */
+    @POST
+    @Path("/grouper-ws/servicesRest/vH_M_EML/")
+    @ApiOperation(httpMethod = "POST", value = "Has member lite", nickname = "hasMemberLite", //response = .class,
+    notes = "<b>Sample 1</b>: ") 
+    @ApiImplicitParams({
+      @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+          value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+      @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+          value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    })
     public WsHasMemberLiteResult hasMemberLite(final String clientVersion, String groupName,
         String groupUuid, String subjectId, String subjectSourceId, String subjectIdentifier,
         String memberFilter,
@@ -2050,6 +2130,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member query
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vM_C_SUL/")
+  @ApiOperation(httpMethod = "POST", value = "Member change subject lite", nickname = "memberChangeSubjectLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+  })
   public WsMemberChangeSubjectLiteResult memberChangeSubjectLite(final String clientVersion, 
       String oldSubjectId, String oldSubjectSourceId, String oldSubjectIdentifier,
       String newSubjectId, String newSubjectSourceId, String newSubjectIdentifier,
@@ -2185,6 +2275,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member delete
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vD_M_EML/")
+  @ApiOperation(httpMethod = "POST", value = "Delete member lite", nickname = "deleteMemberLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsDeleteMemberLiteResult deleteMemberLite(final String clientVersion,
       String groupName, String groupUuid, String subjectId, String subjectSourceId,
       String subjectIdentifier, String actAsSubjectId, String actAsSubjectSourceId,
@@ -2267,6 +2367,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the stems, or no stems if none found
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vF_S_EML/")
+  @ApiOperation(httpMethod = "POST", value = "Find stems lite", nickname = "findStemsLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsFindStemsResults findStemsLite(final String clientVersion,
       String stemQueryFilterType, String stemName, String parentStemName,
       String parentStemNameScope, String stemUuid, String stemAttributeName,
@@ -2345,6 +2455,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member query
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_GPL/")
+  @ApiOperation(httpMethod = "POST", value = "Get grouper privileges lite", nickname = "getGrouperPrivilegesLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+  })
   public WsGetGrouperPrivilegesLiteResult getGrouperPrivilegesLite(String clientVersion, 
       String subjectId, String subjectSourceId, String subjectIdentifier,
       String groupName, String groupUuid, 
@@ -2456,6 +2576,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member query
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_G_PRL/")
+  @ApiOperation(httpMethod = "POST", value = "Assign grouper privileges lite", nickname = "assignGrouperPrivilegesLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsAssignGrouperPrivilegesLiteResult assignGrouperPrivilegesLite(String clientVersion, 
       String subjectId, String subjectSourceId, String subjectIdentifier,
       String groupName, String groupUuid, 
@@ -2776,6 +2906,16 @@ public class GrouperService {
    *            minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS
    * @return the memberships, or none if none found
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_MSL/")
+  @ApiOperation(httpMethod = "POST", value = "Get memberships lite", nickname = "getMembershipsLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
       String groupName, String groupUuid, String subjectId, String sourceId, String subjectIdentifier, 
       String wsMemberFilter,
@@ -2982,6 +3122,16 @@ public class GrouperService {
    * found in list is much lower e.g. 1000)
    * @return the results or none if none found
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_SUL/")
+  @ApiOperation(httpMethod = "POST", value = "Get subjects lite", nickname = "getSubjectsLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+  })
   public WsGetSubjectsResults getSubjectsLite(final String clientVersion,
       String subjectId, String sourceId, String subjectIdentifier, String searchString,
       String includeSubjectDetail, String subjectAttributeNames,
@@ -3314,6 +3464,16 @@ public class GrouperService {
    * @return the results
    */
   @SuppressWarnings("unchecked")
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_ABL/")
+  @ApiOperation(httpMethod = "POST", value = "Get attribute assignments lite", nickname = "getAttributeAssignmentsLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+  })
   public WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
       String clientVersion, String attributeAssignType,
       String attributeAssignId,
@@ -3492,6 +3652,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the results
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_ABL/")
+  @ApiOperation(httpMethod = "POST", value = "Get attribute assign actions lite", nickname = "getAttributeAssignActionsLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsGetAttributeAssignActionsResults getAttributeAssignActionsLite(
 		  String clientVersion, String wsNameOfAttributeDef, String wsIdOfAtttributeDef, String wsIdIndexOfAtrrbuteDef,
 	      String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, 
@@ -3736,6 +3906,16 @@ public class GrouperService {
    * @return the results
    */
   @SuppressWarnings("unchecked")
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_E_ATL/")
+  @ApiOperation(httpMethod = "POST", value = "Assign attributes lite", nickname = "assignAttributesLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsAssignAttributesLiteResults assignAttributesLite(
       String clientVersion, String attributeAssignType,
       String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -3987,6 +4167,16 @@ public class GrouperService {
    * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the results
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_PAL/")
+  @ApiOperation(httpMethod = "POST", value = "Get permission assignments lite", nickname = "getPermissionAssignmentsLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+  })
   public WsGetPermissionAssignmentsResults getPermissionAssignmentsLite(
       String clientVersion, 
       String wsAttributeDefName, String wsAttributeDefId, String wsAttributeDefNameName, String wsAttributeDefNameId,
@@ -4195,6 +4385,16 @@ public class GrouperService {
    * @return the results
    */
   @SuppressWarnings("unchecked")
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_H_PRL/")
+  @ApiOperation(httpMethod = "POST", value = "Assign permissions lite", nickname = "assignPermissionsLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsAssignPermissionsLiteResults assignPermissionsLite(
       String clientVersion, String permissionType,
       String permissionDefNameName, String permissionDefNameId,
@@ -4340,6 +4540,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_D_ANL/")
+  @ApiOperation(httpMethod = "POST", value = "Assign attribute def name inheritance lite", nickname = "assignAttributeDefNameInheritanceLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsAssignAttributeDefNameInheritanceResults assignAttributeDefNameInheritanceLite(final String clientVersion,
       String attributeDefNameUuid, String attributeDefNameName, String relatedAttributeDefNameUuid, String relatedAttributeDefNameName,
       String assign,
@@ -4469,6 +4679,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_L_SAL/")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def save lite", nickname = "attributeDefSaveLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsAttributeDefSaveLiteResult attributeDefSaveLite(final String clientVersion,
       String attributeDefLookupUuid, String attributeDefLookupName,
       String uuidOfAttributeDef, String nameOfAttributeDef,
@@ -4610,6 +4830,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_I_DEL/")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def delete lite", nickname = "attributeDefDeleteLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsAttributeDefDeleteLiteResult attributeDefDeleteLite(
       final String clientVersion,
       String wsNameOfAttributeDef, String wsIdOfAttributeDef,
@@ -4774,6 +5004,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the attribute defs, or no attribute defs if none found
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vF_A_DSL/")
+  @ApiOperation(httpMethod = "POST", value = "Find attribute defs lite", nickname = "findAttributeDefsLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsFindAttributeDefsResults findAttributeDefsLite(final String clientVersion,
       String scope, String splitScope, String uuidOfAttributeDef,
       String nameOfAttributeDef,
@@ -4910,6 +5150,16 @@ public class GrouperService {
    * @param typeOfGroup type of group can be an enum of TypeOfGroup, e.g. group, role, entity
    * @return the result of one member add
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_J_DEL/")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def name delete lite", nickname = "attributeDefNameDeleteLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsAttributeDefNameDeleteLiteResult attributeDefNameDeleteLite(final String clientVersion,
       String attributeDefNameUuid, String attributeDefNameName,
       String actAsSubjectId, String actAsSubjectSourceId,
@@ -5024,6 +5274,16 @@ public class GrouperService {
    *            reserved for future use
    * @return the result of one member add
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vA_K_SAL/")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def name save lite", nickname = "attributeDefNameSaveLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsAttributeDefNameSaveLiteResult attributeDefNameSaveLite(final String clientVersion,
       String attributeDefNameLookupUuid, String attributeDefNameLookupName, String attributeDefLookupUuid, 
       String attributeDefLookupName, String attributeDefNameUuid,String attributeDefNameName, 
@@ -5207,6 +5467,16 @@ public class GrouperService {
    * @param serviceRole to filter attributes that a user has a certain role
    * @return the attribute def names, or no attribute def names if none found
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vF_A_DNL/")
+  @ApiOperation(httpMethod = "POST", value = "Find attribute def names lite", nickname = "findAttributeDefNamesLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  })
   public WsFindAttributeDefNamesResults findAttributeDefNamesLite(final String clientVersion,
       String scope, String splitScope, String uuidOfAttributeDef, String nameOfAttributeDef,
       String attributeAssignType, String attributeDefType, String attributeDefNameUuid, String attributeDefNameName,
@@ -5581,6 +5851,16 @@ public class GrouperService {
    * @param pointInTimeTo
    * @return audit entries result
    */
+  @POST
+  @Path("/grouper-ws/servicesRest/vG_E_AEL/")
+  @ApiOperation(httpMethod = "POST", value = "Get audit entries lite", nickname = "getAuditEntriesLite", //response = .class,
+  notes = "<b>Sample 1</b>: ") 
+  @ApiImplicitParams({
+    @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+        value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+    @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+  })
   public WsGetAuditEntriesResults getAuditEntriesLite(final String clientVersion,
       String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
       String auditType, String auditActionId,
