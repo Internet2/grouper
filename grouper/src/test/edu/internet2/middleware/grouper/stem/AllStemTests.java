@@ -30,6 +30,7 @@ public class AllStemTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.stem");
     suite.addTestSuite(StemSetTests.class);
+    suite.addTestSuite(StemViewPrivilegeTest.class);
     return suite;
   }
 }

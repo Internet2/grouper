@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafeBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -154,6 +155,7 @@ public class LoaderJobBean {
         FIELD_START_TIME);
 
     //*****  END GENERATED WITH GenerateFieldConstants.java *****//
+
 
   /**
    * extension of the attribute def name for type of ldap loader (e.g. LDAP_SIMPLE).
@@ -1301,4 +1303,26 @@ public class LoaderJobBean {
     this.ldapResultsTransformationClass = ldapResultsTransformationClass1;
   }
 
+  /**
+   * failsafe settings, defaults, etc
+   */
+  private GrouperFailsafeBean grouperFailsafeBean;
+  
+  /**
+   * failsafe settings, defaults, etc
+   * @param grouperFailsafeBean1
+   */
+  public void setGrouperFailsafeBean(GrouperFailsafeBean grouperFailsafeBean1) {
+    this.grouperFailsafeBean = grouperFailsafeBean1;
+  }
+
+  /**
+   * failsafe settings, defaults, etc
+   * @return
+   */
+  public GrouperFailsafeBean getGrouperFailsafeBean() {
+    return grouperFailsafeBean;
+  }
+
+  
 }

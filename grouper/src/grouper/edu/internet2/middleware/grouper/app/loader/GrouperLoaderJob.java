@@ -23,6 +23,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -55,6 +56,9 @@ import edu.internet2.middleware.grouper.hooks.beans.HooksLoaderBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafeBean;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -470,6 +474,66 @@ public class GrouperLoaderJob implements Job {
       LoaderJobBean loaderJobBean = new LoaderJobBean(grouperLoaderTypeEnum, groupName, grouperLoaderDb, grouperLoaderQuery, 
           hib3GrouploaderLog, grouperSession, andGroups, groupTypes, groupLikeString, groupQuery, startTime,
           grouperLoaderDisplayNameSyncType, displayNameSyncBaseFolderName, displayNameSyncLevels);
+
+      GrouperFailsafeBean grouperFailsafeBean = new GrouperFailsafeBean();
+      
+      if (jobGroup != null) {
+
+        {
+          Boolean failsafeUse = GrouperUtil.booleanObjectValue(GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_FAILSAFE_USE));
+          grouperFailsafeBean.assignUseFailsafeOverride(failsafeUse);
+        }
+
+        {
+          String failsafeSendEmailToAddresses = GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.failsafe.sendEmailToAddresses");
+          String failsafeSendEmailToGroup = GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.failsafe.sendEmailToGroup");
+          grouperFailsafeBean.assignEmailAddressesOverride(failsafeSendEmailToAddresses, failsafeSendEmailToGroup);
+        }
+
+        {
+          Boolean failsafeSendEmail = GrouperUtil.booleanObjectValue(GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_FAILSAFE_SEND_EMAIL));
+          grouperFailsafeBean.assignSendEmailOverride(failsafeSendEmail);
+          
+        }
+
+        {
+          Integer maxGroupPercentRemove = GrouperUtil.intObjectValue(GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE), true);
+          grouperFailsafeBean.assignMaxGroupPercentRemoveOverride(maxGroupPercentRemove);
+        }
+        
+        {
+          Integer maxOverallPercentRemove = GrouperUtil.intObjectValue(GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE), true);
+          grouperFailsafeBean.assignMaxOverallPercentGroupsRemoveOverride(maxOverallPercentRemove);
+        }
+        
+        {
+          Integer maxOverallPercentRemove = GrouperUtil.intObjectValue(GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE), true);
+          grouperFailsafeBean.assignMaxOverallPercentMembershipsRemoveOverride(maxOverallPercentRemove);
+        }
+        
+        {
+          Integer minGroupSize = GrouperUtil.intObjectValue(GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE), true);
+          grouperFailsafeBean.assignMinGroupSizeOverride(minGroupSize);
+        }
+        
+        {
+          Integer minManagedGroups = GrouperUtil.intObjectValue(GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS), true);
+          grouperFailsafeBean.assignMinManagedGroupsOverride(minManagedGroups);
+        }
+        
+        {
+          Integer minGroupNumberOfMembers = GrouperUtil.intObjectValue(GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MIN_GROUP_NUMBER_OF_MEMBERS), true);
+          grouperFailsafeBean.assignMinGroupNumberOfMembersOverride(minGroupNumberOfMembers);
+        }
+        
+        {
+          Integer minOverallNumberOfMembers = GrouperUtil.intObjectValue(GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS), true);
+          grouperFailsafeBean.assignMinOverallNumberOfMembersOverride(minOverallNumberOfMembers);
+        }
+        
+      }
+      grouperFailsafeBean.setJobName(jobName);
+      loaderJobBean.setGrouperFailsafeBean(grouperFailsafeBean);
       
       //call hooks if registered
       GrouperHooksUtils.callHooksIfRegistered(GrouperHookType.LOADER, 
@@ -483,8 +547,7 @@ public class GrouperLoaderJob implements Job {
         GrouperLoaderStatus grouperLoaderStatus = StringUtils.isBlank(hib3GrouploaderLog.getStatus()) ? null : 
           GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), true);
         
-        if (grouperLoaderStatus == null || grouperLoaderStatus == GrouperLoaderStatus.ERROR 
-            || grouperLoaderStatus == GrouperLoaderStatus.CONFIG_ERROR) {
+        if (grouperLoaderStatus == null || grouperLoaderStatus.isError()) {
           
           throw new RuntimeException("Error in loader job: " + groupName + ", check logs: " + StringUtils.trimToEmpty(hib3GrouploaderLog.getJobMessage()));
           
@@ -498,8 +561,13 @@ public class GrouperLoaderJob implements Job {
       
     } catch (Exception t) {
       LOG.error("Error on job: " + jobName, t);
-      
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+      GrouperLoaderStatus grouperLoaderStatus = null;
+      if (!StringUtils.isBlank(hib3GrouploaderLog.getStatus())) {
+        grouperLoaderStatus = GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), false);
+      }
+      if (grouperLoaderStatus == null || !grouperLoaderStatus.isError()) {
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+      }
       hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(t));
       throwExceptionsInFinally = false;
       GrouperUtil.injectInException(t, "jobName: "+jobName);
@@ -661,8 +729,7 @@ public class GrouperLoaderJob implements Job {
         GrouperLoaderStatus grouperLoaderStatus = StringUtils.isBlank(hib3GrouploaderLog.getStatus()) ? null : 
           GrouperLoaderStatus.valueOfIgnoreCase(hib3GrouploaderLog.getStatus(), true);
         
-        if (grouperLoaderStatus == null || grouperLoaderStatus == GrouperLoaderStatus.ERROR 
-            || grouperLoaderStatus == GrouperLoaderStatus.CONFIG_ERROR) {
+        if (grouperLoaderStatus == null || grouperLoaderStatus.isError()) {
           
           throw new RuntimeException("Error in loader job: " + groupName + ", check logs: " + hib3GrouploaderLog.getJobMessage());
           

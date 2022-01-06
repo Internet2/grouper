@@ -712,6 +712,16 @@ public class GrouperStartup {
             loaderType.addAttribute(grouperSession,"grouperLoaderDisplayNameSyncLevels", false);
             loaderType.addAttribute(grouperSession,"grouperLoaderDisplayNameSyncType", false);
 
+            loaderType.addAttribute(grouperSession,"grouperLoaderFailsafeUse", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderMaxGroupPercentRemove", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderMaxOverallPercentGroupsRemove", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderMaxOverallPercentMembershipsRemove", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderMinGroupSize", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderMinManagedGroups", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderFailsafeSendEmail", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderMinGroupNumberOfMembers", false);
+            loaderType.addAttribute(grouperSession,"grouperLoaderMinOverallNumberOfMembers", false);
+            
           } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
           } finally {

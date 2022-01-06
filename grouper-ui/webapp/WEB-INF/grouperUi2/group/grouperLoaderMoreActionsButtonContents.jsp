@@ -23,6 +23,10 @@
                           <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.editGrouperLoader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['grouperLoaderEditConfiguration'] }</a></li>
                         </c:if>
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader && grouperRequestContainer.grouperLoaderContainer.failsafeIssue}" >
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.failsafeApprove?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['grouperLoaderFailsafeApprove'] }</a></li>
+                        </c:if>
 
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.canEditLoader}" >
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiDaemonJob != null  && !grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}" >

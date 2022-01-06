@@ -11238,6 +11238,27 @@ public class GrouperUtil {
   }
 
   /**
+   * strip the last comma or semi from a string if it exists
+   *
+   * @param input
+   *
+   * @return input - the last , or ;
+   */
+  public static String stripLastCommaOrSemiIfExists(String input) {
+    if ((input == null) || (input.length() == 0)) {
+      return input;
+    }
+
+    char lastChar = input.charAt(input.length() - 1);
+
+    if ((lastChar == ',') || (lastChar == ';')) {
+      return input.substring(0, input.length() - 1);
+    }
+
+    return input;
+  }
+
+  /**
    * strip the first slash (/ or \) from a string if it exists
    *
    * @param input

@@ -264,6 +264,68 @@ public class GrouperLoader {
    */
   public static final String GROUPER_LOADER_PRIORITY = "grouperLoaderPriority";
 
+  
+  /**
+   * T or F if using failsafe.  If blank use the global defaults
+   */
+  public static final String GROUPER_LOADER_FAILSAFE_USE = "grouperLoaderFailsafeUse";
+
+  /**
+   * integer from 0 to 100 which specifies the maximum percent of a group which can be removed in a loader run.
+   * If not specified will use the global default grouper-loader.properties config setting:
+   * loader.failsafe.maxPercentRemove = 30
+   */
+  public static final String GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE = "grouperLoaderMaxGroupPercentRemove";
+
+  /**
+   * If the group list meets the criteria above and the percentage of memberships that are managed by
+   * the loader (i.e. match the groupLikeString) that currently have members in Grouper but 
+   * wouldn't after the job runs is greater than this percentage, then don't remove members,
+   * log it as an error and fail the job.  An admin would need to approve the failsafe or change this param in the config,
+   * and run the job manually, then change this config back.
+   * {valueType: "integer", required: true}
+   * loader.failsafe.groupList.managedGroups.maxPercentMembershipsRemove = 30
+   */
+  public static final String GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE = "grouperLoaderMaxOverallPercentGroupsRemove";
+  
+  /**
+   * integer from 0 to 100 which specifies the maximum percent of all loaded groups in the job
+   * which can be removed in a loader run.
+   * If not specified will use the global default grouper-loader.properties config setting:
+   * loader.failsafe.groupList.managedGroups.maxPercentGroupsRemove = 30
+   */
+  public static final String GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE = "grouperLoaderMaxOverallPercentMembershipsRemove";
+  
+  /**
+   * minimum number of members for the group to be tracked by failsafe
+   * defaults to grouper-loader.base.properties: loader.failsafe.minGroupSize
+   */
+  public static final String GROUPER_LOADER_MIN_GROUP_SIZE = "grouperLoaderMinGroupSize";
+  
+  /**
+   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
+   * of managed groups is smaller than this amount
+   */
+  public static final String GROUPER_LOADER_MIN_MANAGED_GROUPS = "grouperLoaderMinManagedGroups";
+  
+  /**
+   * The minimum group number of members for this group, a failsafe alert will trigger if the group is smaller than this amount
+   */
+  public static final String GROUPER_LOADER_MIN_GROUP_NUMBER_OF_MEMBERS = "grouperLoaderMinGroupNumberOfMembers";
+  
+  /**
+   * The minimum overall number of members for this job across all managed groups, 
+   * a failsafe alert will trigger if the job's overall membership count is smaller than this amount
+   */
+  public static final String GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS = "grouperLoaderMinOverallNumberOfMembers";
+  
+  /**
+   * If an email should be sent out when a failsafe alert happens.
+   * The email will be sent to the list or group configured in grouper-loader.properties:
+   * loader.failsafe.sendEmailToAddresses, or loader.failsafe.sendEmailToGroup 
+   */
+  public static final String GROUPER_LOADER_FAILSAFE_SEND_EMAIL = "grouperLoaderFailsafeSendEmail";
+
   /**
    * group attribute name of the db connection where this query comes from.
    * if the name is "grouper", then it will be the group db name.  defaults to "grouper" for sql type
@@ -1666,7 +1728,7 @@ public class GrouperLoader {
       }
       
       String status = "SUBJECT_PROBLEMS".equals(hib3GrouperLoaderLog.getStatus()) ? "with subject problems" :
-        "successfully";
+        hib3GrouperLoaderLog.getStatus();
       
       return "loader " + (isDryRun() ? "dry " : "") + "ran " + status + ", " + (isDryRun() ? "would have " : "") + "inserted " + hib3GrouperLoaderLog.getInsertCount()
         + " memberships, " + (isDryRun() ? "would have " : "") + "deleted " + hib3GrouperLoaderLog.getDeleteCount() + " memberships, total membership count: "

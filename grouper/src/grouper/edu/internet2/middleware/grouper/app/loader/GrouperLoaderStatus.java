@@ -28,35 +28,46 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public enum GrouperLoaderStatus {
   
   /** job was started */
-  STARTED("started"),
+  STARTED("started", false),
 
   /** job is running */
-  RUNNING("running"),
+  RUNNING("running", false),
 
   /** job cant even start */
-  CONFIG_ERROR("config error"),
+  CONFIG_ERROR("config error", true),
 
   /** job finished but there were problems with one or more subjects (e.g. not found, duplicate, unresolvable) */
-  SUBJECT_PROBLEMS("subject problems"),
+  SUBJECT_PROBLEMS("subject problems", false),
 
   /** job finished with success */
-  SUCCESS("successes"),
+  SUCCESS("successes", false),
 
   /** job finished, but had problems.  Or maybe some subjobs ok, some not */
-  WARNING("warnings"),
+  WARNING("warnings", false),
   
   /** job didnt finish, it had problems */
-  ERROR("errors");
+  ERROR("errors", true),
+
+  /**
+   * if there is a failsafe error
+   */
+  ERROR_FAILSAFE("failsafe error", true);
   
   /** friendly string */
   private String friendlyString;
   
   /**
+   * if this is an error
+   */
+  private boolean error;
+  
+  /**
    * 
    * @param theFriendlyStatus
    */
-  private GrouperLoaderStatus(String theFriendlyStatus) {
+  private GrouperLoaderStatus(String theFriendlyStatus, boolean isError) {
     this.friendlyString = theFriendlyStatus;
+    this.error = isError;
   }
   
   /**
@@ -67,6 +78,14 @@ public enum GrouperLoaderStatus {
     return this.friendlyString;
   }
   
+  /**
+   * if this is an error
+   * @return
+   */
+  public boolean isError() {
+    return error;
+  }
+
   /**
    * do a case-insensitive matching
    * 
