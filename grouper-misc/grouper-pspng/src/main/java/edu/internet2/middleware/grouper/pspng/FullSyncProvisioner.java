@@ -26,7 +26,7 @@ import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.pspng.lbmq.LinkedBlockingMultiQueue;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.*;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.ThreadContext;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,7 +217,7 @@ public class FullSyncProvisioner  {
    * sync'ed. 
    */
   protected void thread_manageFullSyncProcessing() {
-    MDC.put("who", getName()+"/");
+      ThreadContext.put("who", getName()+"/");
     Provisioner.activeProvisioner.set(this.provisioner);
 
     GrouperSession grouperSession = null;
@@ -253,7 +253,7 @@ public class FullSyncProvisioner  {
       LOG.info("Starting to process full-sync queue item: {}", queueItem);
 
       try {
-        MDC.put("why", String.format("qid=%d/", queueItem.id));
+          ThreadContext.put("why", String.format("qid=%d/", queueItem.id));
         processQueueItem(queueItem);
       }
       catch (Throwable t) {
@@ -264,7 +264,7 @@ public class FullSyncProvisioner  {
 
       }
       finally {
-        MDC.remove("why");
+          ThreadContext.remove("why");
       }
       if ( provisioner.getConfig().needsTargetSystemUsers() || provisioner.getConfig().needsTargetSystemGroups()) {
         LOG.debug("Caching Stats: TSSubject: {} || TSGroup: {}",
@@ -289,8 +289,8 @@ public class FullSyncProvisioner  {
    * messaging queues
    */
   protected void thread_fullSyncMessageQueueReader(QUEUE_TYPE queueType) {
-      MDC.put("why", String.format("full-sync-message-reader:%s/", queueType.queueName_short));
-      MDC.put("who", getName() + "/");
+      ThreadContext.put("why", String.format("full-sync-message-reader:%s/", queueType.queueName_short));
+      ThreadContext.put("who", getName() + "/");
 
       String messagingQueueName = queueType.getQueueName_grouperMessaging(this);
       String subQueueName = queueType.queueName_short;
@@ -779,23 +779,23 @@ public class FullSyncProvisioner  {
       fullSyncQueueItem.startStep("StartCoordination");
       provisioner.startCoordination(workItems);
       try {
-          MDC.put("what", String.format("%s/", grouperGroupInfo));
-          MDC.put("why", String.format("QID=%d/ExtRef=%s/", fullSyncQueueItem.id, fullSyncQueueItem.externalReference));
-          MDC.put("step", "start/");
+          ThreadContext.put("what", String.format("%s/", grouperGroupInfo));
+          ThreadContext.put("why", String.format("QID=%d/ExtRef=%s/", fullSyncQueueItem.id, fullSyncQueueItem.externalReference));
+          ThreadContext.put("step", "start/");
           LOG.info("{}: Starting Full-Sync ({}) of group {}",
                   new Object[]{getName(), fullSyncQueueItem.reason, grouperGroupInfo});
 
           fullSyncQueueItem.startStep("StartProvisioning(get group & subject info)");
           provisioner.startProvisioningBatch(workItems);
 
-          MDC.put("step",  "doit/");
+          ThreadContext.put("step",  "doit/");
 
           provisioner.setCurrentWorkItem(workItem);
 
           fullSyncQueueItem.startStep("doFullSync");
           boolean changesWereNecessary = provisioner.doFullSync(grouperGroupInfo, fullSyncQueueItem.asofDate, fullSyncQueueItem.stats);
 
-          MDC.put("step", "finsh/");
+          ThreadContext.put("step", "finsh/");
           fullSyncQueueItem.startStep("FinishProvisioning");
           provisioner.finishProvisioningBatch(workItems);
 
@@ -823,27 +823,27 @@ public class FullSyncProvisioner  {
       }
       finally {
         provisioner.finishCoordination(workItems, false);
-        MDC.remove("step");
-        MDC.remove("what");
-        MDC.remove("why");
+        ThreadContext.remove("step");
+        ThreadContext.remove("what");
+        ThreadContext.remove("why");
       }
   }
   
   protected boolean processGroupCleanup(FullSyncQueueItem queueItem) {
     try {
-      MDC.put("what", "group_cleanup/");
-      MDC.put("why", String.format("QID=%d/ExtRef=%s/", queueItem.id, queueItem.externalReference));
+      ThreadContext.put("what", "group_cleanup/");
+      ThreadContext.put("why", String.format("QID=%d/ExtRef=%s/", queueItem.id, queueItem.externalReference));
 
       LOG.info("{}: Starting Group Cleanup ({})", getName(), queueItem.reason);
       ProvisioningWorkItem workItem = ProvisioningWorkItem.createForGroupCleanup(queueItem.asofDate);
-      MDC.put("step", "start/");
+      ThreadContext.put("step", "start/");
       provisioner.startProvisioningBatch(Arrays.asList(workItem));
 
-      MDC.put("step", "doit/");
+      ThreadContext.put("step", "doit/");
       provisioner.setCurrentWorkItem(workItem);
       provisioner.prepareAndRunGroupCleanup(queueItem.stats);
-      
-      MDC.put("step",  "finish/");
+
+      ThreadContext.put("step",  "finish/");
       provisioner.finishProvisioningBatch(Arrays.asList(workItem));
       queueItem.processingCompletedSuccessfully("Success");
       return true;
@@ -860,9 +860,9 @@ public class FullSyncProvisioner  {
       return false;
     }
     finally {
-      MDC.remove("step");
-      MDC.remove("what");
-      MDC.remove("why");
+      ThreadContext.remove("step");
+      ThreadContext.remove("what");
+      ThreadContext.remove("why");
     }
   
   }

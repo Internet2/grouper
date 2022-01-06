@@ -17,7 +17,6 @@ package edu.internet2.middleware.grouper.instrumentation;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -31,9 +30,10 @@ import java.util.concurrent.Executors;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
-import org.apache.log4j.Appender;
-import org.apache.log4j.FileAppender;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.core.Appender;
+import org.apache.logging.log4j.core.appender.FileAppender;
+import org.apache.logging.log4j.LogManager;
+import  org.apache.logging.log4j.Logger;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -229,15 +229,13 @@ public class InstrumentationThread {
       parentFiles.add(new File(instrumentationDirectoryName));
     } else {
       /* No writable directory configured, try the Logger appender locations until a writable directory is found */
-      Logger rootLogger = Logger.getRootLogger();
+      Logger rootLogger = LogManager.getRootLogger();
 
       if (rootLogger != null) {
-        Enumeration appenders = rootLogger.getAllAppenders();
-        while (appenders.hasMoreElements()) {
-          Appender appender = (Appender) appenders.nextElement();
-
+        Map<String, Appender> appenderMap = ((org.apache.logging.log4j.core.Logger) rootLogger).getAppenders();
+        for (Appender appender: appenderMap.values()) {
           if (appender instanceof FileAppender) {
-            String filename = ((FileAppender) appender).getFile();
+            String filename = ((FileAppender) appender).getFileName();
             if (!GrouperUtil.isEmpty(filename)) {
               File file = new File(filename);
               if (file.getParentFile().exists()) {

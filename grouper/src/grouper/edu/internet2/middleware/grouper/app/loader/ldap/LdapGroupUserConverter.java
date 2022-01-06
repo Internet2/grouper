@@ -19,7 +19,8 @@ package edu.internet2.middleware.grouper.app.loader.ldap;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.apache.commons.logging.Log;
 
 
 /**
@@ -64,7 +65,7 @@ public class LdapGroupUserConverter {
   }
 
   /** logger */
-  final static Logger LOG = Logger.getLogger(LdapGroupUserConverter.class);
+  private static final Log LOG = GrouperUtil.getLog(LdapGroupUserConverter.class);
   
   /**
    * convert dn to subject identifier or group name, log the result

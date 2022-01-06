@@ -8,9 +8,10 @@ import edu.internet2.middleware.grouper.changeLog.consumer.Office365ChangeLogCon
 import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.UnableToPerformException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
 import retrofit2.Retrofit;
 import retrofit2.converter.moshi.MoshiConverterFactory;
 
@@ -23,7 +24,7 @@ import java.util.*;
  * This class interacts with the Microsoft Graph API.
  */
 public class GraphApiClient {
-    private static final Logger logger = Logger.getLogger(GraphApiClient.class);
+    private static final Log logger = GrouperUtil.getLog(GraphApiClient.class);
     private final String authUrlBase;
     private final String resourceUrlBase;
     private final String clientId;

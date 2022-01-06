@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
 import static org.powermock.api.mockito.PowerMockito.mock;
 
 @RunWith(PowerMockRunner.class)
-@PowerMockIgnore({"javax.net.ssl.*", "org.apache.log4j.*"})
+@PowerMockIgnore({"javax.net.ssl.*", "org.apache.log4j.*", " org.apache.logging.log4j.*"})
 @PrepareForTest(value = { })
 public class GoogleAppsChangeLogConsumerTest {
 

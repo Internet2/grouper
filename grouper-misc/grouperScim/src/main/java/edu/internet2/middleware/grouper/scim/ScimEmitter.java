@@ -18,7 +18,8 @@ package edu.internet2.middleware.grouper.scim;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import org.apache.log4j.Logger;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.apache.commons.logging.Log;
 import org.apache.wink.client.ClientConfig;
 import org.apache.wink.client.ClientWebException;
 import org.apache.wink.client.handlers.ClientHandler;
@@ -39,7 +40,7 @@ import org.wso2.charon.utils.authentication.BasicAuthInfo;
  */
 public class ScimEmitter {
 
-  protected static Logger log = Logger.getLogger(ScimEmitter.class);
+  protected static final Log log = GrouperUtil.getLog(ScimEmitter.class);
 
   protected SCIMClient scimClient;
   protected CharonResponseHandler crh;

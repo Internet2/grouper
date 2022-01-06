@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.ThreadContext;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1828,7 +1828,7 @@ public abstract class Provisioner
 	  tsUserCache_shortTerm.clear();
 	  tsGroupCache_shortTerm.clear();
 	  try {
-	    MDC.put("step", "clean/");
+        ThreadContext.put("step", "clean/");
 	    doFullSync_cleanupExtraGroups(stats);
 	  }
 	  catch (PspException e) {
@@ -1836,7 +1836,7 @@ public abstract class Provisioner
 		  throw e;
 	  }
 	  finally {
-		  MDC.remove("step");
+          ThreadContext.remove("step");
 	  }
   }
   
@@ -1925,11 +1925,11 @@ public abstract class Provisioner
               new ArrayList<Subject>(correctSubjects).subList(0, Math.min(10, correctSubjects.size()))});
 
     try {
-      MDC.put("step", "prov/");
+      ThreadContext.put("step", "prov/");
       return doFullSync(grouperGroupInfo, tsGroup, correctSubjects, tsUserCache_shortTerm, correctTSUsers, stats);
     }
     finally {
-      MDC.remove("step");
+      ThreadContext.remove("step");
     }
   }
 
@@ -2416,43 +2416,43 @@ public abstract class Provisioner
     // we flush group information when groups and their attributes are edited
     // because we don't know what attributes of groups could be used in various
     // JEXL expressions
-    MDC.put("step", "cache_eval");
+    ThreadContext.put("step", "cache_eval");
     try {
       flushCachesIfNecessary(allWorkItems);
     } catch (PspException e) {
       LOG.error("Unable to evaluate our caches", e);
-      MDC.remove("step");
+      ThreadContext.remove("step");
       throw new RuntimeException("No entries provisioned. Cache evaluation failed: " + e.getMessage(), e);
     }
 
     // Let the provisioner filter out any unnecessary work items.
     // This particularly filters out groups that we're not supposed to provision
-    MDC.put("step", "filter/");
+    ThreadContext.put("step", "filter/");
     try {
       filteredWorkItems = filterWorkItems(allWorkItems);
       LOG.info("{}: {} work items need to be processed further", getDisplayName(), filteredWorkItems.size());
     } catch (PspException e) {
       LOG.error("Unable to filter the provisioning batch", e);
-      MDC.remove("step");
+      ThreadContext.remove("step");
       throw new RuntimeException("No entries provisioned. Batch-filtering failed: " + e.getMessage(), e);
     }
 
     // Tell the provisioner about this batch of workItems
-    MDC.put("step", "start/");
+    ThreadContext.put("step", "start/");
     try {
       try {
         startCoordination(filteredWorkItems);
         startProvisioningBatch(filteredWorkItems);
       } catch (PspException e) {
         LOG.error("Unable to begin the provisioning batch", e);
-        MDC.remove("step");
+        ThreadContext.remove("step");
         throw new RuntimeException("No entries provisioned. Batch-Start failed: " + e.getMessage(), e);
       }
 
       // Go through the workItems that were not marked as processed by the startProvisioningBatch
       // and provision them
       for (ProvisioningWorkItem workItem : allWorkItems) {
-        MDC.put("step", String.format("prov/%s/", workItem.getMdcLabel()));
+        ThreadContext.put("step", String.format("prov/%s/", workItem.getMdcLabel()));
         if (!workItem.hasBeenProcessed()) {
           try {
             provisionItem(workItem);
@@ -2465,7 +2465,7 @@ public abstract class Provisioner
 
       // Do 'finish' task for workItems that are not marked as processed before now
 
-      MDC.put("step", "fin/");
+      ThreadContext.put("step", "fin/");
       List<ProvisioningWorkItem> workItemsToFinish = new ArrayList<ProvisioningWorkItem>();
       try {
         for (ProvisioningWorkItem workItem : allWorkItems) {
@@ -2481,7 +2481,7 @@ public abstract class Provisioner
             workItem.markAsFailure("Unable to finish provisioning (%s)", e.getMessage());
         }
       }
-      MDC.remove("step");
+      ThreadContext.remove("step");
     }
     finally{
       finishCoordination(filteredWorkItems, false);

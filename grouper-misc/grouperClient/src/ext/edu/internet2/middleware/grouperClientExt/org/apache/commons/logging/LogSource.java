@@ -92,7 +92,7 @@ public class LogSource {
 
         // Is Log4J Available?
         try {
-            if (null != Class.forName("org.apache.log4j.Logger")) {
+            if (null != Class.forName(" org.apache.logging.log4j.Logger")) {
                 log4jIsAvailable = true;
             } else {
                 log4jIsAvailable = false;
