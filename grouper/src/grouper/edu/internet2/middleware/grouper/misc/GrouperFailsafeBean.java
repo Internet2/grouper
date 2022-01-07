@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.misc;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -143,8 +146,9 @@ public class GrouperFailsafeBean {
       throw new RuntimeException("jobName is blank");
     }
     
-    String subject = GrouperConfig.retrieveConfig().propertyValueString("loader.failsafe.email.subject", "Grouper failsafe caused job to not run: $jobName$");
+    String subject = GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.failsafe.email.subject", "Grouper failsafe caused job to not run: $jobName$");
     subject = GrouperUtil.replace(subject, "$jobName$", this.jobName);
+    subject = GrouperUtil.replace(subject, "$timestamp$", new Date().toString());
 
     if (StringUtils.isBlank(subject)) {
       return false;
@@ -153,9 +157,11 @@ public class GrouperFailsafeBean {
     //  # you can use the variables $newline$, $jobName$.
     //  # {valueType: "string"}
     //  loader.failsafe.email.body = Hello,$newline$$newline$This is a notification that Grouper job $jobName$ did not run due to a failsafe condition.  Approve the failsafe in the UI if this is expected.$newline$$newline$${edu.internet2.middleware.grouper.cfg.GrouperConfig.retrieveConfig().propertyValueString("grouper.ui.url")}$newline$$newline$Regards.
-    String body = GrouperConfig.retrieveConfig().propertyValueString("loader.failsafe.email.body", "Hello,$newline$$newline$This is a notification that Grouper job $jobName$ did not run due to a failsafe condition.  Approve the failsafe in the UI if this is expected.$newline$$newline$${edu.internet2.middleware.grouper.cfg.GrouperConfig.retrieveConfig().propertyValueString(\"grouper.ui.url\")}$newline$$newline$Regards.");
+    String body = GrouperLoaderConfig.retrieveConfig().propertyValueString("loader.failsafe.email.body", 
+        "Hello,$newline$$newline$This is a notification that Grouper job $jobName$ did not run due to a failsafe condition.  Approve the failsafe in the UI if this is expected.$newline$$newline$${edu.internet2.middleware.grouper.cfg.GrouperConfig.retrieveConfig().getGrouperUiUrl(true)}grouperUi/app/UiV2Main.index?operation=UiV2Admin.daemonJobs&daemonJobsFilter=${grouperUtil.escapeUrlEncode(jobName)}$newline$$newline$Timestamp: $timestamp$$newline$$newline$Regards.");
     body = GrouperUtil.replace(body, "$newline$", "\n");
     body = GrouperUtil.replace(body, "$jobName$", this.jobName);
+    body = GrouperUtil.replace(body, "$timestamp$", new Date().toString());
 
     if (StringUtils.isBlank(body)) {
       return false;
@@ -165,7 +171,17 @@ public class GrouperFailsafeBean {
     if (StringUtils.isBlank(emailAddresses)) {
       return false;
     }
-    
+    if (subject.contains("${")) {
+      Map<String, Object> elVariableMap = new HashMap<String, Object>();
+      elVariableMap.put("jobName", this.jobName);
+      subject = (String)GrouperUtil.substituteExpressionLanguageTemplate(subject, elVariableMap, true, true, true);
+    }
+    if (body.contains("${")) {
+      Map<String, Object> elVariableMap = new HashMap<String, Object>();
+      elVariableMap.put("jobName", this.jobName);
+
+      body = (String)GrouperUtil.substituteExpressionLanguageTemplate(body, elVariableMap, true, true, true);
+    }
     new GrouperEmail().setTo(emailAddresses).setSubject(subject).setBody(body).send();
     return true;
   }
