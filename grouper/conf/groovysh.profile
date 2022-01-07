@@ -272,18 +272,6 @@ def typeAddList (String type, String name, Privilege read, Privilege write) {
   new typeAddList().invoke(GrouperSession.staticGrouperSession(), type, name, read, write)
 }
 
-def usdu (int options=0) {
-  new usdu().invoke(GrouperSession.staticGrouperSession(), options)
-}
-
-def usduByMember (Member member, int options=0) {
-  new usduByMember().invoke(GrouperSession.staticGrouperSession(), member, options)
-}
-
-def usduBySource (String sourceName, int options=0) {
-  new usduBySource().invoke(GrouperSession.staticGrouperSession(), sourceName, options)
-}
-
 def version () {
   new version().invoke(GrouperSession.staticGrouperSession())
 }
