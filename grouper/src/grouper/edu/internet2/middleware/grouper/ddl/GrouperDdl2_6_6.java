@@ -1,7 +1,10 @@
 package edu.internet2.middleware.grouper.ddl;
 
+import java.sql.Types;
+
 import org.apache.commons.logging.Log;
 import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -82,5 +85,44 @@ public class GrouperDdl2_6_6 {
       ddlVersionBean.getAdditionalScripts().append(          
           "ALTER TABLE " + Member.TABLE_GROUPER_MEMBERS + " ALTER COLUMN " + Member.COLUMN_SUBJECT_RESOLUTION_ELIGIBLE + " SET DEFAULT 'T';\n");
     }
+  }
+  
+  static void addGrouperMembersColumns(Database database, DdlVersionBean ddlVersionBean) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v2_6_6_addGrouperMembersColumns", true)) {
+      return;
+    }
+
+    {
+      Table grouperMembersTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_members", true);
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperMembersTable, Member.COLUMN_SUBJECT_IDENTIFIER1, Types.VARCHAR, "255", false, false); 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperMembersTable, Member.COLUMN_SUBJECT_IDENTIFIER2, Types.VARCHAR, "255", false, false); 
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperMembersTable, Member.COLUMN_EMAIL0, Types.VARCHAR, "255", false, false);     
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperMembersTable.getName(), "member_subjidentifier1_idx", false, Member.COLUMN_SUBJECT_IDENTIFIER1);       
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperMembersTable.getName(), "member_subjidentifier2_idx", false, Member.COLUMN_SUBJECT_IDENTIFIER2);       
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperMembersTable.getName(), "member_email0_idx", false, Member.COLUMN_EMAIL0);       
+    }
+    
+  }
+
+  static void addGrouperMembersComments(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v2_6_6_addGrouperMembersComments", true)) {
+      return;
+    }
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_members", Member.COLUMN_SUBJECT_IDENTIFIER1, "subject identifier of the subject");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_members", Member.COLUMN_SUBJECT_IDENTIFIER2, "subject identifier of the subject");
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_members", Member.COLUMN_EMAIL0, "email of the subject");
   }
 }

@@ -120,6 +120,9 @@ CREATE TABLE grouper_members
     subject_type VARCHAR(255) NOT NULL,
     hibernate_version_number BIGINT,
     subject_identifier0 VARCHAR(255) NULL,
+    subject_identifier1 VARCHAR(255) NULL,
+    subject_identifier2 VARCHAR(255) NULL,
+    email0 VARCHAR(255) NULL,
     sort_string0 VARCHAR(50) NULL,
     sort_string1 VARCHAR(50) NULL,
     sort_string2 VARCHAR(50) NULL,
@@ -160,6 +163,12 @@ CREATE INDEX member_sort_string4_idx ON grouper_members (sort_string4);
 CREATE INDEX member_context_idx ON grouper_members (context_id);
 
 CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0);
+
+CREATE INDEX member_subjidentifier1_idx ON grouper_members (subject_identifier1);
+
+CREATE INDEX member_subjidentifier2_idx ON grouper_members (subject_identifier2);
+
+CREATE INDEX member_email0_idx ON grouper_members (email0);
 
 CREATE INDEX member_resolvable_idx ON grouper_members (subject_resolution_resolvable);
 
@@ -2439,6 +2448,6 @@ CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, rece
 CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject_id) AS select grmc.group_name_to as group_name, gpmglv.subject_source as subject_source_id, gpmglv.subject_id as subject_id from grouper_recent_mships_conf grmc,  grouper_pit_mship_group_lw_v gpmglv, grouper_time gt, grouper_members gm where gm.id = gpmglv.member_id and gm.subject_resolution_deleted = 'F' and gt.time_label = 'now' and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) and gpmglv.subject_source != 'g:gsa' and gpmglv.field_name = 'members' and (gpmglv.the_end_time is null or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) and ( grmc.include_eligible = 'T' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'));
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 39, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V39, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 40, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V40, '));
 commit;
