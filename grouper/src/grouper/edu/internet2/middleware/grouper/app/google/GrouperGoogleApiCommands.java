@@ -640,12 +640,12 @@ public class GrouperGoogleApiCommands {
       boolean firstRequest = true;
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups?domain="+domain+"&maxResults=200&fields=nextPageToken,groups(id,email,name,description)";
-      String urlSuffix = "/groups?domain="+domain+"&maxResults=200&fields=nextPageToken,groups(id,email,name,description)";
+      String urlSuffixConstant = "/groups?domain="+domain+"&maxResults=200&fields=nextPageToken,groups(id,email,name,description)";
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
         
         firstRequest = false;
         
-        
+        String urlSuffix = urlSuffixConstant;
         if (StringUtils.isNotBlank(nextPageToken)) {
           urlSuffix = urlSuffix + "&pageToken="+nextPageToken;
         }
@@ -703,14 +703,15 @@ public class GrouperGoogleApiCommands {
       String nextPageToken = null;
       boolean firstRequest = true;
 
-//      String url = "https://admin.googleapis.com/admin/directory/v1/users?domain="+domain+"&maxResults=200&fields=nextPageToken,users(id,primaryEmail,name)";
+//      String url = "https://admin.googleapis.com/admin/directory/v1/users?domain="+domain+"&maxResults=500&fields=nextPageToken,users(id,primaryEmail,name)";
       
-      String urlSuffix = "/users?domain="+domain+"&maxResults=200&fields=nextPageToken,users(id,primaryEmail,name)";
+      String urlSuffixConstant = "/users?domain="+domain+"&maxResults=1&fields=nextPageToken,users(id,primaryEmail,name)";
       
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
+
         
         firstRequest = false;
-        
+        String urlSuffix = urlSuffixConstant;
         if (StringUtils.isNotBlank(nextPageToken)) {
           urlSuffix = urlSuffix + "&pageToken="+nextPageToken;
         }
@@ -722,6 +723,8 @@ public class GrouperGoogleApiCommands {
         JsonNode nextPageTokenNode = jsonNode.get("nextPageToken");
         if (nextPageTokenNode != null && nextPageTokenNode.asText() != null) {
           nextPageToken = nextPageTokenNode.asText();
+        } else {
+          nextPageToken = null;
         }
 
         for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
@@ -813,11 +816,11 @@ public class GrouperGoogleApiCommands {
       boolean firstRequest = true;
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId+"/members?maxResults=200&fields=nextPageToken,members(id)";
-      String urlSuffix = "/groups/"+groupId+"/members?maxResults=200&fields=nextPageToken,members(id)";
+      String urlSuffixConstant = "/groups/"+groupId+"/members?maxResults=200&fields=nextPageToken,members(id)";
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
         
         firstRequest = false;
-        
+        String urlSuffix = urlSuffixConstant;
         if (StringUtils.isNotBlank(nextPageToken)) {
           urlSuffix = urlSuffix + "&pageToken="+nextPageToken;
         }

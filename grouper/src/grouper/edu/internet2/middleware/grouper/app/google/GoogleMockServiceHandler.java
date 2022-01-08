@@ -10,8 +10,6 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.ddlutils.model.Database;
@@ -24,8 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.app.azure.GrouperAzureAuth;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -34,37 +30,22 @@ import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
-import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.j2ee.MockServiceHandler;
 import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
 import edu.internet2.middleware.grouper.j2ee.MockServiceResponse;
 import edu.internet2.middleware.grouper.j2ee.MockServiceServlet;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
-import edu.internet2.middleware.morphString.Morph;
 
 public class GoogleMockServiceHandler extends MockServiceHandler {
   
-  /**
-   * 
-   */
-  public static final Set<String> doNotLogParameters = GrouperUtil.toSet("client_secret");
 
   /**
    * 
    */
   public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
-
-  /**
-   * params to not log all of
-   */
-  @Override
-  public Set<String> doNotLogParameters() {
-    
-    return doNotLogParameters;
-  }
 
   /**
    * headers to not log all of
@@ -129,12 +110,6 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     List<String> mockNamePaths = GrouperUtil.toList(mockServiceRequest.getPostMockNamePaths());
     
-//    GrouperUtil.assertion(mockNamePaths.size() >= 2, "Must start with admin/v1 or admin/v2");
-//    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(0), "admin"), "");
-//    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(1), "v1") || StringUtils.equals(mockNamePaths.get(1), "v2"), "");
-    
-    //mockNamePaths = mockNamePaths.subList(2, mockNamePaths.size());
-    
     String[] paths = new String[mockNamePaths.size()];
     paths = mockNamePaths.toArray(paths);
     
@@ -166,12 +141,6 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       }
       if ("users".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
         getUser(mockServiceRequest, mockServiceResponse);
-        return;
-      }
-      if ("users".equals(mockNamePaths.get(0))  
-          && "groups".equals(mockNamePaths.get(2))
-          && 3 == mockNamePaths.size()) {
-        getGroupsByUser(mockServiceRequest, mockServiceResponse);
         return;
       }
     }
@@ -233,21 +202,6 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
         + "', '" + mockServiceRequest.getPostMockNamePath() + "'");
   }
 
-  public static void main(String[] args) {
-//    String key = "gtdfxv9YgVBYcF6dl2Eq17KUQJN2PLM2ODVTkvoT";
-//    String msg = "Fri, 07 Dec 2012 17:18:00 -0000\nPOST\nfoo.bar52.com\n/Foo/BaR2/qux\n%E4%9A%9A%E2%A1%BB%E3%97%90%E8%BB%B3%E6%9C%A7%E5%80%AA%E0%A0%90%ED%82%91%C3%88%EC%85%B0=%E0%BD%85%E1%A9%B6%E3%90%9A%E6%95%8C%EC%88%BF%E9%AC%89%EA%AF%A2%E8%8D%83%E1%AC%A7%E6%83%90&%E7%91%89%E7%B9%8B%EC%B3%BB%E5%A7%BF%EF%B9%9F%E8%8E%B7%EA%B7%8C%E9%80%8C%EC%BF%91%E7%A0%93=%E8%B6%B7%E5%80%A2%E9%8B%93%E4%8B%AF%E2%81%BD%E8%9C%B0%EA%B3%BE%E5%98%97%E0%A5%86%E4%B8%B0&%E7%91%B0%E9%8C%94%E9%80%9C%E9%BA%AE%E4%83%98%E4%88%81%E8%8B%98%E8%B1%B0%E1%B4%B1%EA%81%82=%E1%9F%99%E0%AE%A8%E9%8D%98%EA%AB%9F%EA%90%AA%E4%A2%BE%EF%AE%96%E6%BF%A9%EB%9F%BF%E3%8B%B3&%EC%8B%85%E2%B0%9D%E2%98%A0%E3%98%97%E9%9A%B3F%E8%98%85%E2%83%A8%EA%B0%A1%E5%A4%B4=%EF%AE%A9%E4%86%AA%EB%B6%83%E8%90%8B%E2%98%95%E3%B9%AE%E6%94%AD%EA%A2%B5%ED%95%ABU";
-//
-////    Assert.assertEquals("failure - HMAC-SHA1",
-////                        "f01811cbbf9561623ab45b893096267fd46a5178",
-////                        h.signHMAC(key, msg));
-//    
-//    String hmac = new HmacUtils(HmacAlgorithms.HMAC_SHA_1, key).hmacHex(msg);
-//    System.out.println(hmac);
-    
-    GrouperStartup.startup();
-    ensureGoogleMockTables();
-  }
-  
   public void checkAuthorization(MockServiceRequest mockServiceRequest) {
     
     String bearerToken = mockServiceRequest.getHttpServletRequest().getHeader("Authorization");
@@ -287,58 +241,57 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       return;
     }
 
-//    String offset = mockServiceRequest.getHttpServletRequest().getParameter("offset");
-//    String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
-//    
-//    int limitInt = 100;
-//    if (StringUtils.isNotBlank(limit)) {
-//      limitInt = GrouperUtil.intValue(limit);
-//      if (limitInt <= 0) {
-//        throw new RuntimeException("limit cannot be less than or equal to 0.");
-//      }
-//      if (limitInt > 300) {
-//        limitInt = 300;
-//      }
-//    }
-//    
-//    int offsetInt = 0;
-//    int pageNumber = 1;
-//    if (StringUtils.isNotBlank(offset)) {
-//      offsetInt = GrouperUtil.intValue(offset);
-//      pageNumber = offsetInt/limitInt + 1;
-//    }
-//    
+    String limit = mockServiceRequest.getHttpServletRequest().getParameter("maxResults");
+    String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("pageToken");
+      
+    int limitInt = 100;
+    if (StringUtils.isNotBlank(limit)) {
+      limitInt = GrouperUtil.intValue(limit);
+      if (limitInt <= 0) {
+        throw new RuntimeException("maxResults cannot be less than or equal to 0.");
+      }
+      if (limitInt > 500) {
+        limitInt = 500;
+      }
+    }
+
     List<GrouperGoogleUser> grouperGoogleUsers = null;
+    ByHqlStatic query = null;
+    QueryOptions queryOptions = new QueryOptions();
+    if (StringUtils.isNotBlank(pageToken)) {
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser where primaryEmail > :pageToken");
+      query.setScalar("pageToken", pageToken);
+    } else {
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser");
+    }
     
-    ByHqlStatic query = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser");
-    
-//    QueryOptions queryOptions = new QueryOptions();
-//    QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber, true);
-//    queryOptions = queryOptions.paging(queryPaging);
-//    
-//    query.options(queryOptions);
+    queryOptions.paging(limitInt, 1, true);
+    queryOptions.sort(new QuerySort("primaryEmail", true));
+    query.options(queryOptions);
     
     grouperGoogleUsers = query.list(GrouperGoogleUser.class);
     
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
-//    resultNode.put("stat", "OK");
+    int totalRecordCount = queryOptions.getQueryPaging().getTotalRecordCount();
+    if (totalRecordCount > grouperGoogleUsers.size()) {
+      
+      String nextPageToken = grouperGoogleUsers.get(grouperGoogleUsers.size()-1).getPrimaryEmail();
+      resultNode.put("nextPageToken", nextPageToken);
+    }
+    
+    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
     for (GrouperGoogleUser grouperGoogleUser : grouperGoogleUsers) {
       valueNode.add(toUserJson(grouperGoogleUser));
     }
     
     resultNode.set("users", valueNode);
-//    if (queryPaging.getTotalRecordCount() > offsetInt + grouperGoogleUsers.size()) {
-//      ObjectNode metadataNode = GrouperUtil.jsonJacksonNode();
-//      metadataNode.put("next_offset", offsetInt + limitInt);
-//      resultNode.set("metadata", metadataNode);
-//    }
     
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+    
   }
   
   public void getUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -362,12 +315,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
 
       mockServiceResponse.setContentType("application/json");
       
-//      ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-      
-//      resultNode.put("stat", "OK");
       ObjectNode objectNode = toUserJson(grouperGoogleUsers.get(0));
-      
-//      resultNode.set("response", objectNode);
       
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
 
@@ -378,75 +326,6 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     }
 
   }
-  
-  public void getGroupsByUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-
-    try {      
-      checkAuthorization(mockServiceRequest);
-    } catch (Exception e) {
-      mockServiceResponse.setResponseCode(401);
-      return;
-    }
-
-    String userId = mockServiceRequest.getPostMockNamePaths()[1];
-    
-    GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
-    
-    String offset = mockServiceRequest.getHttpServletRequest().getParameter("offset");
-    String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
-    
-    int limitInt = 100;
-    if (StringUtils.isNotBlank(limit)) {
-      limitInt = GrouperUtil.intValue(limit);
-      if (limitInt <= 0) {
-        throw new RuntimeException("limit cannot be less than or equal to 0.");
-      }
-      if (limitInt > 500) {
-        limitInt = 500;
-      }
-    }
-    
-    int offsetInt = 0;
-    int pageNumber = 1;
-    if (StringUtils.isNotBlank(offset)) {
-      offsetInt = GrouperUtil.intValue(offset);
-      pageNumber = offsetInt/limitInt + 1;
-    }
-    
-    ByHqlStatic query = HibernateSession.byHqlStatic()
-        .createQuery("from GrouperGoogleGroup g where g.id in (select m.groupId from GrouperGoogleMembership m where m.userId = :theUserId) ")
-        .setString("theUserId", userId);
-    
-    QueryOptions queryOptions = new QueryOptions();
-    QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber , true);
-    queryOptions = queryOptions.paging(queryPaging);
-    
-    query.options(queryOptions);
-    
-    List<GrouperGoogleGroup> grouperGoogleGroups = query.list(GrouperGoogleGroup.class);
-
-    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
-    
-    resultNode.put("stat", "OK");
-    
-    for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
-      // valueNode.add(toGroupJson(grouperGoogleGroup));
-    }
-    
-    resultNode.set("response", valueNode);
-    if (queryPaging.getTotalRecordCount() > offsetInt + grouperGoogleGroups.size()) {
-      ObjectNode metadataNode = GrouperUtil.jsonJacksonNode();
-      metadataNode.put("next_offset", offsetInt + limitInt);
-      resultNode.set("metadata", metadataNode);
-    }
-    
-    mockServiceResponse.setResponseCode(200);
-    mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-
-  }
-  
   
   public void disassociateGroupFromUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
 
@@ -479,16 +358,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       .setString("groupId", groupId)
       .executeUpdateInt();
 
-//    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
-//    resultNode.put("stat", "OK");
-//    resultNode.put("response", "");
-    
-//    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-    
     mockServiceResponse.setResponseCode(200);
-//    mockServiceResponse.setContentType("application/json");
-//    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode)); 
   }
   
   public void associateGroupWithUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -527,21 +397,21 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     }
     
     // check if user has already 100 or more groups
-    ByHqlStatic query = HibernateSession.byHqlStatic()
-        .createQuery("from GrouperGoogleGroup g where g.id in (select m.groupId from GrouperGoogleMembership m where m.userId = :theUserId) ")
-        .setString("theUserId", userId);
-    
-    QueryOptions queryOptions = new QueryOptions();
-    QueryPaging queryPaging = QueryPaging.page(1, 0, true);
-    queryOptions = queryOptions.paging(queryPaging);
-    
-    query.options(queryOptions);
-    
-    grouperGoogleGroups = query.list(GrouperGoogleGroup.class);
-    if (queryPaging.getTotalRecordCount() >= 100) {
-      mockServiceResponse.setResponseCode(400);
-      return;
-    }
+//    ByHqlStatic query = HibernateSession.byHqlStatic()
+//        .createQuery("from GrouperGoogleGroup g where g.id in (select m.groupId from GrouperGoogleMembership m where m.userId = :theUserId) ")
+//        .setString("theUserId", userId);
+//    
+//    QueryOptions queryOptions = new QueryOptions();
+//    QueryPaging queryPaging = QueryPaging.page(1, 0, true);
+//    queryOptions = queryOptions.paging(queryPaging);
+//    
+//    query.options(queryOptions);
+//    
+//    grouperGoogleGroups = query.list(GrouperGoogleGroup.class);
+//    if (queryPaging.getTotalRecordCount() >= 100) {
+//      mockServiceResponse.setResponseCode(400);
+//      return;
+//    }
     
     //check if this groupId and userId are already connected
     List<GrouperGoogleMembership> memberships = HibernateSession.byHqlStatic()
@@ -563,8 +433,11 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     }
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
-    resultNode.put("stat", "OK");
-    resultNode.put("response", "");
+    resultNode.put("type", "GROUP");
+    resultNode.put("role", "MEMBER");
+    resultNode.put("email", grouperGoogleUsers.get(0).getPrimaryEmail());
+    resultNode.put("id", grouperGoogleUsers.get(0).getId());
+    resultNode.put("kind", "directory#member");
     
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
 
@@ -596,17 +469,6 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     String userJsonString = mockServiceRequest.getRequestBody();
     JsonNode userJsonNode = GrouperUtil.jsonJacksonNode(userJsonString);
-
-    //check require args
-//    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "primaryEmail")) > 0, "primaryEmail is required");
-//    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "password")) > 0 , "password is required");
-//    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "mailNickname")) <= 64, "mailNickname must be less than 64");
-//    GrouperUtil.assertion(GrouperUtil.jsonJacksonGetBoolean(userJsonNode, "accountEnabled") != null, "accountEnabled is required");
-//    
-//    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "userPrincipalName")) > 0, "userPrincipalName is required");
-//
-//
-//    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "id")) == 0, "id is forbidden");
 
     GrouperGoogleUser grouperGoogleUser = GrouperGoogleUser.fromJson(userJsonNode);
     grouperGoogleUser.setId(GrouperUuid.getUuid());
@@ -662,9 +524,6 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
     
-    
-
-    
     HibernateSession.byObjectStatic().saveOrUpdate(grouperGoogleUser);
     
     // we want users in response
@@ -691,16 +550,8 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     HibernateSession.byObjectStatic().save(grouperGoogleGroup);
     
-    //ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
-//    resultNode.put("stat", "OK");
-//    ObjectNode objectNode = toGroupJson(grouperGoogleGroup);
     ObjectNode objectNode = grouperGoogleGroup.toJsonGroupOnly(null);
     
-//    resultNode.set("response", objectNode);
-    
-    //mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
@@ -717,52 +568,54 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       return;
     }
 
-//    String offset = mockServiceRequest.getHttpServletRequest().getParameter("offset");
-//    String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
-    
-//    int limitInt = 100;
-//    if (StringUtils.isNotBlank(limit)) {
-//      limitInt = GrouperUtil.intValue(limit);
-//      if (limitInt <= 0) {
-//        throw new RuntimeException("limit cannot be less than or equal to 0.");
-//      }
-//    }
-//    
-//    int offsetInt = 0;
-//    int pageNumber = 1;
-//    if (StringUtils.isNotBlank(offset)) {
-//      offsetInt = GrouperUtil.intValue(offset);
-//      pageNumber = offsetInt/limitInt + 1;
-//    }
-    
+
+    String limit = mockServiceRequest.getHttpServletRequest().getParameter("maxResults");
+    String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("pageToken");
+      
+    int limitInt = 100;
+    if (StringUtils.isNotBlank(limit)) {
+      limitInt = GrouperUtil.intValue(limit);
+      if (limitInt <= 0) {
+        throw new RuntimeException("maxResults cannot be less than or equal to 0.");
+      }
+      if (limitInt > 200) {
+        limitInt = 200;
+      }
+    }
+
     List<GrouperGoogleGroup> grouperGoogleGroups = null;
+    ByHqlStatic query = null;
+    QueryOptions queryOptions = new QueryOptions();
+    if (StringUtils.isNotBlank(pageToken)) {
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup where email > :pageToken");
+      query.setScalar("pageToken", pageToken);
+    } else {
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup");
+    }
     
-    ByHqlStatic query = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup");
-    
-//    QueryOptions queryOptions = new QueryOptions();
-//    QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber, true);
-//    queryOptions = queryOptions.paging(queryPaging);
-//    
-//    query.options(queryOptions);
+    queryOptions.paging(limitInt, 1, true);
+    queryOptions.sort(new QuerySort("email", true));
+    query.options(queryOptions);
     
     grouperGoogleGroups = query.list(GrouperGoogleGroup.class);
-
+    
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    
+    int totalRecordCount = queryOptions.getQueryPaging().getTotalRecordCount();
+    if (totalRecordCount > grouperGoogleGroups.size()) {
+      
+      String nextPageToken = grouperGoogleGroups.get(grouperGoogleGroups.size()-1).getEmail();
+      resultNode.put("nextPageToken", nextPageToken);
+    }
+    
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
-    //resultNode.put("stat", "OK");
-    
     for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
-//      valueNode.add(toGroupJson(grouperGoogleGroup));
-      valueNode.add(grouperGoogleGroup.toJsonGroupOnly(null));
+      ObjectNode objectNode = grouperGoogleGroup.toJsonGroupOnly(null);
+      valueNode.add(objectNode);
     }
     
     resultNode.set("groups", valueNode);
-//    if (queryPaging.getTotalRecordCount() > offsetInt + grouperGoogleGroups.size()) {
-//      ObjectNode metadataNode = GrouperUtil.jsonJacksonNode();
-//      metadataNode.put("next_offset", offsetInt + limitInt);
-//      resultNode.set("metadata", metadataNode);
-//    }
     
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
@@ -782,56 +635,57 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
     
-//    String offset = mockServiceRequest.getHttpServletRequest().getParameter("offset");
-//    String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
-    
-//    int limitInt = 100;
-//    if (StringUtils.isNotBlank(limit)) {
-//      limitInt = GrouperUtil.intValue(limit);
-//      if (limitInt <= 0) {
-//        throw new RuntimeException("limit cannot be less than or equal to 0.");
-//      }
-//      if (limitInt > 500) {
-//        limitInt = 500;
-//      }
-//    }
-//    
-//    int offsetInt = 0;
-//    int pageNumber = 1;
-//    if (StringUtils.isNotBlank(offset)) {
-//      offsetInt = GrouperUtil.intValue(offset);
-//      pageNumber = offsetInt/limitInt + 1;
-//    }
-    
+    String limit = mockServiceRequest.getHttpServletRequest().getParameter("maxResults");
+    String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("pageToken");
+      
+    int limitInt = 100;
+    if (StringUtils.isNotBlank(limit)) {
+      limitInt = GrouperUtil.intValue(limit);
+      if (limitInt <= 0) {
+        throw new RuntimeException("maxResults cannot be less than or equal to 0.");
+      }
+      if (limitInt > 200) {
+        limitInt = 200;
+      }
+    }
+
     List<GrouperGoogleUser> grouperGoogleUsers = null;
+    ByHqlStatic query = null;
+    QueryOptions queryOptions = new QueryOptions();
+    if (StringUtils.isNotBlank(pageToken)) {
+      
+      query = HibernateSession.byHqlStatic()
+          .createQuery("from GrouperGoogleUser u where u.id in (select m.userId from GrouperGoogleMembership m where m.groupId = :theGroupId) and primaryEmail > :pageToken ")
+          .setString("theGroupId", groupId);
+      query.setScalar("pageToken", pageToken);
+    } else {
+      query = HibernateSession.byHqlStatic()
+          .createQuery("from GrouperGoogleUser u where u.id in (select m.userId from GrouperGoogleMembership m where m.groupId = :theGroupId) ")
+          .setString("theGroupId", groupId);
+    }
     
-    ByHqlStatic query = HibernateSession.byHqlStatic()
-        .createQuery("from GrouperGoogleUser u where u.id in (select m.userId from GrouperGoogleMembership m where m.groupId = :theGroupId) ")
-        .setString("theGroupId", groupId);
-    
-//    QueryOptions queryOptions = new QueryOptions();
-//    QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber , true);
-//    queryOptions = queryOptions.paging(queryPaging);
-//    
-//    query.options(queryOptions);
+    queryOptions.paging(limitInt, 1, true);
+    queryOptions.sort(new QuerySort("primaryEmail", true));
+    query.options(queryOptions);
     
     grouperGoogleUsers = query.list(GrouperGoogleUser.class);
     
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
-    //resultNode.put("stat", "OK");
+    int totalRecordCount = queryOptions.getQueryPaging().getTotalRecordCount();
+    if (totalRecordCount > grouperGoogleUsers.size()) {
+      
+      String nextPageToken = grouperGoogleUsers.get(grouperGoogleUsers.size()-1).getPrimaryEmail();
+      resultNode.put("nextPageToken", nextPageToken);
+    }
+    
+    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
     for (GrouperGoogleUser grouperGoogleUser : grouperGoogleUsers) {
       valueNode.add(toUserJson(grouperGoogleUser));
     }
     
     resultNode.set("members", valueNode);
-//    if (queryPaging.getTotalRecordCount() > offsetInt + grouperGoogleUsers.size()) {
-//      ObjectNode metadataNode = GrouperUtil.jsonJacksonNode();
-//      metadataNode.put("next_offset", offsetInt + limitInt);
-//      resultNode.set("metadata", metadataNode);
-//    }
     
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
@@ -859,15 +713,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       mockServiceResponse.setResponseCode(200);
 
       mockServiceResponse.setContentType("application/json");
-
-      
-//      ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-      
-//      resultNode.put("stat", "OK");
-//      ObjectNode objectNode = toGroupJson(grouperGoogleGroups.get(0));
       ObjectNode objectNode = grouperGoogleGroups.get(0).toJsonGroupOnly(null);
-      
-//      resultNode.set("response", objectNode);
       
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
 
@@ -899,15 +745,8 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       mockServiceResponse.setResponseCode(200);
 
       mockServiceResponse.setContentType("application/json");
-
       
-//      ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-      
-//      resultNode.put("stat", "OK");
-//      ObjectNode objectNode = toGroupJson(grouperGoogleGroups.get(0));
       ObjectNode objectNode = grouperGoogleGroups.get(0).toJsonGroupSettings(null);
-      
-//      resultNode.set("response", objectNode);
       
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
 
@@ -962,16 +801,8 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
 
     HibernateSession.byObjectStatic().saveOrUpdate(grouperGoogleGroup);
     
-//    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
-//    resultNode.put("stat", "OK");
-//    ObjectNode objectNode = toGroupJson(grouperGoogleGroup);
     ObjectNode objectNode = grouperGoogleGroup.toJsonGroupOnly(null);
     
-//    resultNode.set("response", objectNode);
-    
-//    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
-
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode)); 
@@ -1007,11 +838,8 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     String groupSettingsJson = mockServiceRequest.getRequestBody();
     JsonNode groupSettingsJsonNode = GrouperUtil.jsonJacksonNode(groupSettingsJson);
-//    GrouperGoogleGroup grouperGoogleGroupToBeUpdated = GrouperGoogleGroup.fromJson(groupSettingsJsonNode);
-    
     grouperGoogleGroup.populateGroupSettings(groupSettingsJsonNode);
     
-//    grouperGoogleGroupToBeUpdated.populateGroupSettings(groupSettingsJsonNode);
     
     if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanAdd())) {
       grouperGoogleGroup.setWhoCanAdd(grouperGoogleGroup.getWhoCanAdd());
@@ -1117,7 +945,6 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
   }
 
-
   public void deleteGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     try {      
       checkAuthorization(mockServiceRequest);
@@ -1138,16 +965,8 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
         .createQuery("delete from GrouperGoogleGroup where id = :theId")
         .setString("theId", groupId).executeUpdateInt();
 
-//    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
-//    resultNode.put("stat", "OK");
-//    resultNode.put("response", "");
-    
-//    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
-//    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
         
   }
   
@@ -1171,16 +990,8 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
         .createQuery("delete from GrouperGoogleUser where id = :theId")
         .setString("theId", userId).executeUpdateInt();
 
-    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
-    resultNode.put("stat", "OK");
-    resultNode.put("response", "");
-    
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode)); 
         
   }
   
