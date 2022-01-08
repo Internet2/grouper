@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGrouperLoaderJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -1946,9 +1947,288 @@ public class GrouperLoaderContainer {
     return retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName());
 
   }
+
+  /**
+   * for list of groups this is the failsafe setting for max overall percent of memberships being removed
+   */
+  private String editLoaderMaxOverallPercentMembershipsRemove;
+
+  /**
+   * for list of groups this is the failsafe setting for max overall percent of memberships being removed
+   * @return
+   */
+  public String getEditLoaderMaxOverallPercentMembershipsRemove() {
+    return editLoaderMaxOverallPercentMembershipsRemove;
+  }
+
+  /**
+   * for list of groups this is the failsafe setting for max overall percent of memberships being removed
+   * @param editLoaderMaxOverallPercentMembershipsRemove
+   */
+  public void setEditLoaderMaxOverallPercentMembershipsRemove(
+      String editLoaderMaxOverallPercentMembershipsRemove) {
+    this.editLoaderMaxOverallPercentMembershipsRemove = editLoaderMaxOverallPercentMembershipsRemove;
+  }
+
+  /**
+   * for list of groups this is the failsafe setting for max overall percent of groups being removed
+   */
+  private String editLoaderMaxOverallPercentGroupsRemove;
+
+  /**
+   * for list of groups this is the failsafe setting for max overall percent of groups being removed
+   * @return
+   */
+  public String getEditLoaderMaxOverallPercentGroupsRemove() {
+    return editLoaderMaxOverallPercentGroupsRemove;
+  }
+
+  /**
+   * for list of groups this is the failsafe setting for max overall percent of groups being removed
+   * @param editLoaderMaxOverallPercentGroupsRemove
+   */
+  public void setEditLoaderMaxOverallPercentGroupsRemove(
+      String editLoaderMaxOverallPercentGroupsRemove) {
+    this.editLoaderMaxOverallPercentGroupsRemove = editLoaderMaxOverallPercentGroupsRemove;
+  }
+
+  /**
+   * T or F if using failsafe.  If blank use the global defaults
+   */
+  private Boolean editLoaderFailsafeUse;
   
   /**
-   * 
+   * T or F if using failsafe.  If blank use the global defaults
+   * @return true or false
+   */
+  public Boolean getEditLoaderFailsafeUse() {
+    return editLoaderFailsafeUse;
+  }
+
+  /**
+   * T or F if using failsafe.  If blank use the global defaults
+   * @param editLoaderFailsafeUse
+   */
+  public void setEditLoaderFailsafeUse(Boolean editLoaderFailsafeUse) {
+    this.editLoaderFailsafeUse = editLoaderFailsafeUse;
+  }
+
+  /**
+   * if any 
+   * @return
+   */
+  public boolean isEditLoaderFailsafeUseTrue() {
+    if (this.editLoaderFailsafeUse != null) {
+      return this.editLoaderFailsafeUse;
+    }
+    return false;
+    
+  }
+  
+
+  /**
+   * integer from 0 to 100 which specifies the maximum percent of a group which can be removed in a loader run.
+   * If not specified will use the global default grouper-loader.properties config setting:
+   * loader.failsafe.maxPercentRemove = 30
+   */
+  private String editLoaderMaxGroupPercentRemove;
+  
+  /**
+   * integer from 0 to 100 which specifies the maximum percent of a group which can be removed in a loader run.
+   * If not specified will use the global default grouper-loader.properties config setting:
+   * loader.failsafe.maxPercentRemove = 30
+   * @return
+   */
+  public String getEditLoaderMaxGroupPercentRemove() {
+    return editLoaderMaxGroupPercentRemove;
+  }
+
+  /**
+   * integer from 0 to 100 which specifies the maximum percent of a group which can be removed in a loader run.
+   * If not specified will use the global default grouper-loader.properties config setting:
+   * loader.failsafe.maxOverallPercentRemove = 30
+   * @param editLoaderMaxGroupPercentRemove
+   */
+  public void setEditLoaderMaxGroupPercentRemove(String editLoaderMaxGroupPercentRemove) {
+    this.editLoaderMaxGroupPercentRemove = editLoaderMaxGroupPercentRemove;
+  }
+
+  /**
+   * minimum number of members for the group to be tracked by failsafe
+   * defaults to grouper-loader.base.properties: loader.failsafe.defaultGroupLevel.minGroupSize
+   */
+  private String editLoaderMinGroupSize;
+
+  
+  
+  /**
+   * minimum number of members for the group to be tracked by failsafe
+   * defaults to grouper-loader.base.properties: loader.failsafe.defaultGroupLevel.minGroupSize
+   * @return
+   */
+  public String getEditLoaderMinGroupSize() {
+    return editLoaderMinGroupSize;
+  }
+
+  /**
+   * minimum number of members for the group to be tracked by failsafe
+   * defaults to grouper-loader.base.properties: loader.failsafe.defaultGroupLevel.minGroupSize
+   * @param editLoaderMinGroupSize
+   */
+  public void setEditLoaderMinGroupSize(String editLoaderMinGroupSize) {
+    this.editLoaderMinGroupSize = editLoaderMinGroupSize;
+  }
+
+  /**
+   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
+   * of managed groups is smaller than this amount
+   */
+  private String editLoaderMinManagedGroups;
+
+  
+  
+  /**
+   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
+   * of managed groups is smaller than this amount
+   * @return
+   */
+  public String getEditLoaderMinManagedGroups() {
+    return editLoaderMinManagedGroups;
+  }
+
+  /**
+   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
+   * of managed groups is smaller than this amount
+   * @param editLoaderMinManagedGroups
+   */
+  public void setEditLoaderMinManagedGroups(String editLoaderMinManagedGroups) {
+    this.editLoaderMinManagedGroups = editLoaderMinManagedGroups;
+  }
+
+  /**
+   * The minimum group number of members for this group, a failsafe alert will trigger if the group is smaller than this amount
+   */
+  private String editLoaderMinGroupNumberOfMembers;
+
+  
+  
+  /**
+   * The minimum group number of members for this group, a failsafe alert will trigger if the group is smaller than this amount
+   * @return min
+   */
+  public String getEditLoaderMinGroupNumberOfMembers() {
+    return editLoaderMinGroupNumberOfMembers;
+  }
+
+  /**
+   * The minimum group number of members for this group, a failsafe alert will trigger if the group is smaller than this amount
+   * @param editLoaderMinGroupNumberOfMembers
+   */
+  public void setEditLoaderMinGroupNumberOfMembers(String editLoaderMinGroupNumberOfMembers) {
+    this.editLoaderMinGroupNumberOfMembers = editLoaderMinGroupNumberOfMembers;
+  }
+
+  /**
+   * The minimum overall number of members for this job across all managed groups, 
+   * a failsafe alert will trigger if the job's overall membership count is smaller than this amount
+   */
+  private String editLoaderMinOverallNumberOfMembers;
+
+  
+  
+  /**
+   * The minimum overall number of members for this job across all managed groups, 
+   * a failsafe alert will trigger if the job's overall membership count is smaller than this amount
+   * @return
+   */
+  public String getEditLoaderMinOverallNumberOfMembers() {
+    return editLoaderMinOverallNumberOfMembers;
+  }
+
+  /**
+   * The minimum overall number of members for this job across all managed groups, 
+   * a failsafe alert will trigger if the job's overall membership count is smaller than this amount
+   * @param editLoaderMinOverallNumberOfMembers
+   */
+  public void setEditLoaderMinOverallNumberOfMembers(
+      String editLoaderMinOverallNumberOfMembers) {
+    this.editLoaderMinOverallNumberOfMembers = editLoaderMinOverallNumberOfMembers;
+  }
+
+  /**
+   * If an email should be sent out when a failsafe alert happens.
+   * The email will be sent to the list or group configured in grouper-loader.properties:
+   * loader.failsafe.sendEmailToAddresses, or loader.failsafe.sendEmailToGroup 
+   */
+  private Boolean editLoaderFailsafeSendEmail;
+
+  
+  /**
+   * If an email should be sent out when a failsafe alert happens.
+   * The email will be sent to the list or group configured in grouper-loader.properties:
+   * loader.failsafe.sendEmailToAddresses, or loader.failsafe.sendEmailToGroup 
+   * @return
+   */
+  public Boolean getEditLoaderFailsafeSendEmail() {
+    return editLoaderFailsafeSendEmail;
+  }
+
+  /**
+   * If an email should be sent out when a failsafe alert happens.
+   * The email will be sent to the list or group configured in grouper-loader.properties:
+   * loader.failsafe.sendEmailToAddresses, or loader.failsafe.sendEmailToGroup 
+   * @return
+   */
+  public boolean isEditLoaderFailsafeSendEmailTrue() {
+    return editLoaderFailsafeSendEmail == null ? false : editLoaderFailsafeSendEmail;
+  }
+
+  /**
+   * If an email should be sent out when a failsafe alert happens.
+   * The email will be sent to the list or group configured in grouper-loader.properties:
+   * loader.failsafe.sendEmailToAddresses, or loader.failsafe.sendEmailToGroup 
+   * @param editLoaderFailsafeSendEmail
+   */
+  public void setEditLoaderFailsafeSendEmail(Boolean editLoaderFailsafeSendEmail) {
+    this.editLoaderFailsafeSendEmail = editLoaderFailsafeSendEmail;
+  }
+
+  /**
+   * if the user explicitly selected the failsafe to customize or not
+   */
+  private Boolean customizeFailsafeSelected;
+  
+  /**
+   * if the user explicitly selected the failsafe to customize or not
+   * @return true or false
+   */
+  public Boolean getCustomizeFailsafeSelected() {
+    return this.customizeFailsafeSelected;
+  }
+
+  /**
+   * if the user explicitly selected the failsafe to customize or not
+   * @param customizeFailsafeSelected1
+   */
+  public void setCustomizeFailsafeSelected(Boolean customizeFailsafeSelected1) {
+    this.customizeFailsafeSelected = customizeFailsafeSelected1;
+  }
+
+  /**
+   * if any 
+   * @return
+   */
+  public boolean isCustomizeFailsafeTrue() {
+    if (this.customizeFailsafeSelected != null) {
+      return this.customizeFailsafeSelected;
+    }
+    
+    return false;
+    
+  }
+  
+  /**
+   * not a normal loader group
    * @return if loader group
    */
   public boolean isLoaderGroup() {
@@ -2706,6 +2986,19 @@ public class GrouperLoaderContainer {
     return false;
   }
 
+  private Boolean failsafeIssue = null;
+  
+  /**
+   * see if there is a failsafe issue that is not approved
+   * @return true if failsafe issue
+   */
+  public boolean isFailsafeIssue() {
+    if (this.failsafeIssue == null) {
+      String jobName = this.getJobName();
+      this.failsafeIssue = !StringUtils.isBlank(jobName) && !GrouperFailsafe.isApproved(jobName) && GrouperFailsafe.isFailsafeIssue(jobName);
+    }
+    return this.failsafeIssue;
+  }
   
   /**
    * @return the guiDaemonJob
@@ -2739,4 +3032,95 @@ public class GrouperLoaderContainer {
   public void setGuiDaemonJob(GuiDaemonJob guiDaemonJob) {
     this.guiDaemonJob = guiDaemonJob;
   }
+
+  public Integer getSqlMaxOverallPercentGroupsRemove() {
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE);
+    
+    return GrouperUtil.intObjectValue(grouperLoaderType, true);
+
+  }
+
+  public Integer getSqlMaxOverallPercentMembershipsRemove() {
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE);
+    
+    return GrouperUtil.intObjectValue(grouperLoaderType, true);
+  }
+
+  public Integer getSqlMinManagedGroups() {
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS);
+    
+    return GrouperUtil.intObjectValue(grouperLoaderType, true);
+  }
+
+  public Integer getSqlMinOverallNumberOfMembers() {
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS);
+    
+    return GrouperUtil.intObjectValue(grouperLoaderType, true);
+  }
+
+  public Integer getSqlMaxGroupPercentRemove() {
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE);
+    
+    return GrouperUtil.intObjectValue(grouperLoaderType, true);
+  }
+
+  public Integer getSqlMinGroupSize() {
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE);
+    
+    return GrouperUtil.intObjectValue(grouperLoaderType, true);
+  }
+
+  public Integer getSqlMinGroupNumberOfMembers() {
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_MIN_GROUP_NUMBER_OF_MEMBERS);
+    
+    return GrouperUtil.intObjectValue(grouperLoaderType, true);
+  }
+
+  public Boolean getSqlFailsafeUse() {
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_FAILSAFE_USE);
+    
+    return GrouperUtil.booleanObjectValue(grouperLoaderType);
+  }
+
+  public boolean isSqlFailsafeUseTrue() {
+    return GrouperUtil.booleanValue(this.getSqlFailsafeUse(), false);
+  }
+
+  public boolean isSqlFailsafeSendEmailTrue() {
+    return GrouperUtil.booleanValue(this.getSqlFailsafeSendEmail(), false);
+  }
+
+  public Boolean getSqlFailsafeSendEmail() {
+    Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_FAILSAFE_SEND_EMAIL);
+    
+    return GrouperUtil.booleanObjectValue(grouperLoaderType);
+  }
+
+  public void grouperLoaderFailsafeAssignUse() {
+    if (this.isLoaderGroup() && this.isGrouperSqlLoader()
+        && (this.getSqlFailsafeUse() != null || this.getSqlFailsafeSendEmail() != null
+        || this.getSqlMaxGroupPercentRemove() != null
+        || this.getSqlMaxOverallPercentGroupsRemove() != null
+        || this.getSqlMaxOverallPercentMembershipsRemove() != null
+        || this.getSqlMinGroupNumberOfMembers() != null
+        || this.getSqlMinGroupSize() != null
+        || this.getSqlMinManagedGroups() != null
+        || this.getSqlMinOverallNumberOfMembers() != null
+        )) {
+      this.setCustomizeFailsafeSelected(true);
+    }
+    
+
+    
+  }
+
 }

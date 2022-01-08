@@ -42,7 +42,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.NDC;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.ws.security.WSConstants;
 import org.apache.ws.security.WSSecurityEngineResult;
 import org.apache.ws.security.WSUsernameTokenPrincipal;
@@ -252,7 +252,7 @@ public class GrouperServiceJ2ee implements Filter {
     }
     
     //puts it in the log4j ndc context so userid is logged
-    if (NDC.getDepth() == 0) {
+    if (ThreadContext.getDepth() == 0) {
       StringBuilder ndcBuilder = new StringBuilder("< ");
       if (!StringUtils.isBlank(sourceId)) {
         ndcBuilder.append(sourceId).append(" - ");
@@ -263,7 +263,7 @@ public class GrouperServiceJ2ee implements Filter {
         ndcBuilder.append(request.getRemoteAddr());
       }
       ndcBuilder.append(" >");
-      NDC.push(ndcBuilder.toString());
+      ThreadContext.push(ndcBuilder.toString());
     }
 
     debugMap.put("userIdLoggedIn", userIdLoggedIn);
@@ -1028,8 +1028,8 @@ public class GrouperServiceJ2ee implements Filter {
       }
       
       request.setAttribute("debugMap", debugMap);
-      
-      NDC.clear();
+
+      ThreadContext.clearStack();
       
       //servlet will set this...
       threadLocalServlet.remove();

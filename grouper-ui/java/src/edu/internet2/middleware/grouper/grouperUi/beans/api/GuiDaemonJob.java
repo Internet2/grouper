@@ -714,5 +714,25 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
   public boolean isLoader() {
     return isLoader;
   }
+
+  /**
+   * if needs failsafe approval
+   */
+  private boolean failsafeNeedsApproval;
+  
+  /**
+   * if needs failsafe approval
+   * @param theFailsafeNeed
+   */
+  public void assignFailsafeNeedsApproval(boolean theFailsafeNeed) {
+    this.failsafeNeedsApproval = theFailsafeNeed;
+  }
+
+  
+  public boolean isFailsafeNeedsApproval() {
+    return this.failsafeNeedsApproval;
+  }
+  
+  
   
 }

@@ -126,6 +126,9 @@ CREATE TABLE grouper_members
     subject_type VARCHAR(255) NOT NULL,
     hibernate_version_number BIGINT,
     subject_identifier0 VARCHAR(255),
+    subject_identifier1 VARCHAR(255),
+    subject_identifier2 VARCHAR(255),
+    email0 VARCHAR(255),
     sort_string0 VARCHAR(50),
     sort_string1 VARCHAR(50),
     sort_string2 VARCHAR(50),
@@ -170,6 +173,12 @@ CREATE INDEX member_description_idx ON grouper_members (description);
 CREATE INDEX member_context_idx ON grouper_members (context_id);
 
 CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0);
+
+CREATE INDEX member_subjidentifier1_idx ON grouper_members (subject_identifier1);
+
+CREATE INDEX member_subjidentifier2_idx ON grouper_members (subject_identifier2);
+
+CREATE INDEX member_email0_idx ON grouper_members (email0);
 
 CREATE INDEX member_resolvable_idx ON grouper_members (subject_resolution_resolvable);
 
@@ -2308,6 +2317,12 @@ ALTER TABLE grouper_stem_view_privilege
     ADD CONSTRAINT fk_grouper_st_v_pr_st FOREIGN KEY (stem_uuid) REFERENCES grouper_stems (id) ON DELETE CASCADE;
 
 COMMENT ON COLUMN grouper_members.subject_identifier0 IS 'subject identifier of the subject';
+
+COMMENT ON COLUMN grouper_members.subject_identifier1 IS 'subject identifier of the subject';
+
+COMMENT ON COLUMN grouper_members.subject_identifier2 IS 'subject identifier of the subject';
+
+COMMENT ON COLUMN grouper_members.email0 IS 'email of the subject';
 
 COMMENT ON COLUMN grouper_pit_members.subject_identifier0 IS 'subject identifier of the subject';
 
@@ -6990,7 +7005,7 @@ COMMENT ON COLUMN grouper_recent_mships_load_v.subject_source_id IS 'subject_sou
 COMMENT ON COLUMN grouper_recent_mships_load_v.subject_id IS 'subject_id: subject id of subject in recent membership';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 39, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V39, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 40, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V40, ');
 commit;
 

@@ -35,8 +35,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -55,8 +56,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 
 public class TestWebappSources {
 	public static void main(String[] args) throws Exception{
-		Logger subjectLogger = Logger.getLogger(Subject.class);
-		subjectLogger.setLevel(Level.DEBUG);
+		Logger subjectLogger = LogManager.getLogger(Subject.class);
 		SourceManager sm = SourceManager.getInstance();
 		BaseSourceAdapter isa = InternalSourceAdapter.instance();
 		      sm.loadSource(isa);

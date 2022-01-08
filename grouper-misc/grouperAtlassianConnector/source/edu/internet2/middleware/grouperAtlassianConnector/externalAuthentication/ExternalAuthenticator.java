@@ -30,7 +30,6 @@ import javax.servlet.http.HttpSession;
 
 import com.atlassian.seraph.auth.AuthenticatorException;
 import com.atlassian.seraph.auth.DefaultAuthenticator;
-import com.atlassian.user.User;
 
 import edu.internet2.middleware.grouperClient.api.GcGetSubjects;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -209,7 +208,7 @@ public class ExternalAuthenticator extends DefaultAuthenticator implements Atlas
    * @see AtlassianGetUserable#getUser(String)
    */
   @Override
-  public User getUser(final String username) {
+  public Principal getUser(final String username) {
 
     WsGetSubjectsResults wsGetSubjectsResults = new GcGetSubjects().addWsSubjectLookup(new WsSubjectLookup(null, "pennperson", username)).execute();
     
@@ -231,7 +230,7 @@ public class ExternalAuthenticator extends DefaultAuthenticator implements Atlas
     
     final int EMAIL_ATTRIBUTE_INDEX = emailAttributeIndex;
     
-    return new User() {
+    return new Principal() {
       
       /**
        * 

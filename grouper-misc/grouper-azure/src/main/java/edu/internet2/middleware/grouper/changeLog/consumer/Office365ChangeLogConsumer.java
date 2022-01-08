@@ -24,7 +24,7 @@ import edu.internet2.middleware.subject.Subject;
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.MapContext;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
 
 import java.io.IOException;
 import java.util.*;
@@ -33,7 +33,7 @@ import java.util.*;
  * Created by jj on 5/30/16.
  */
 public class Office365ChangeLogConsumer extends ChangeLogConsumerBaseImpl {
-    private static final Logger logger = Logger.getLogger(Office365ChangeLogConsumer.class);
+    private static final Log logger = GrouperUtil.getLog(Office365ChangeLogConsumer.class);
     private static final String CONFIG_PREFIX = "changeLog.consumer.";
     private static final String DEFAULT_ID_ATTRIBUTE = "uid";
     public static final String GROUP_ID_ATTRIBUTE_NAME = "etc:attribute:office365:o365Id";

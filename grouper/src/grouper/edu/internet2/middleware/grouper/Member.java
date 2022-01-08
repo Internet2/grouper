@@ -219,6 +219,15 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** subjectIdentifier0 */
   public static final String COLUMN_SUBJECT_IDENTIFIER0 = "subject_identifier0";
   
+  /** subjectIdentifier1 */
+  public static final String COLUMN_SUBJECT_IDENTIFIER1 = "subject_identifier1";
+  
+  /** subjectIdentifier2 */
+  public static final String COLUMN_SUBJECT_IDENTIFIER2 = "subject_identifier2";
+  
+  /** email0 */
+  public static final String COLUMN_EMAIL0 = "email0";
+  
   /** subjectResolutionResolvable */
   public static final String COLUMN_SUBJECT_RESOLUTION_RESOLVABLE = "subject_resolution_resolvable";
 

@@ -79,6 +79,7 @@ import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInsta
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceFinder;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -321,6 +322,10 @@ public class UiV2Admin extends UiServiceLogicBase {
             scheduler.pauseJob(jobKey);
           } else if ("enable".equals(action)) {
             scheduler.resumeJob(jobKey);
+          } else if ("failsafeApprove".equals(action)) {
+            GrouperFailsafe.assignApproveNextRun(jobName);
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("failsafeApproved")));
+
           } else {
             throw new RuntimeException("Unexpected action: " + action);
           }
@@ -374,6 +379,9 @@ public class UiV2Admin extends UiServiceLogicBase {
       }
 
       Collections.sort(allJobNamesAfterFilter);
+
+      // see which jobs are not failsafe approved and need approval
+      Set<String> jobNamesNeedApprovalNotApproved = GrouperFailsafe.retrieveJobNamesNeedApprovalNotApproved();
       
       if (adminContainer.isDaemonJobsShowOnlyErrors()) {
         
@@ -409,6 +417,10 @@ public class UiV2Admin extends UiServiceLogicBase {
           GuiDaemonJob guiDaemonJob = new GuiDaemonJob(jobName);
           guiDaemonJobs.add(guiDaemonJob);
         }
+      }
+      
+      for (GuiDaemonJob guiDaemonJob : GrouperUtil.nonNull(guiDaemonJobs)) {
+        guiDaemonJob.assignFailsafeNeedsApproval(jobNamesNeedApprovalNotApproved.contains(guiDaemonJob.getJobName()));
       }
       
       if (GrouperUtil.length(guiDaemonJobs) == 0) {

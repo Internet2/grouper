@@ -28,7 +28,7 @@ import com.unboundid.ldap.sdk.RDN;
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.ThreadContext;
 import org.ldaptive.*;
 import org.ldaptive.io.LdifReader;
 
@@ -433,7 +433,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
   @Override
   public void finishProvisioningBatch(List<ProvisioningWorkItem> workItems) throws PspException {
     try {
-      MDC.put("step", "coalesced");
+      ThreadContext.put("step", "coalesced");
       makeCoalescedLdapChanges(workItems);
 
       // They all worked, so mark them all as successful
@@ -445,7 +445,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       
         for ( ProvisioningWorkItem workItem : workItems ) {
           try {
-            MDC.put("step", "ldap_retry:"+workItem.getMdcLabel());
+            ThreadContext.put("step", "ldap_retry:"+workItem.getMdcLabel());
             makeIndividualLdapChanges(workItem);
             workItem.markAsSuccess("Modification complete");
           } catch (PspException e2) {
@@ -455,7 +455,7 @@ extends Provisioner<ConfigurationClass, LdapUser, LdapGroup>
       }
     }
     finally {
-      MDC.remove("step");
+      ThreadContext.remove("step");
     }
     
     super.finishProvisioningBatch(workItems);

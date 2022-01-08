@@ -16,7 +16,7 @@
 package edu.internet2.middleware.grouper.util;
 
 import org.apache.commons.logging.Log;
-import org.apache.log4j.NDC;
+import org.apache.logging.log4j.ThreadContext;
 
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
@@ -114,7 +114,7 @@ public class GrouperThreadLocalState {
     GrouperSourceAdapter.clearSearchForGroupsWithReadPrivilege();
     GrouperLoaderLogger.removeThreadLocalMaps();
     HibUtils.clearDisallowCacheThreadLocal();
-    NDC.remove();
+    ThreadContext.removeStack();
 
     // edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto.class, 
     for (Class theClass : new Class[]{Crypto.class}) {

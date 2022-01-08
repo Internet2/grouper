@@ -787,8 +787,138 @@
                         </c:if>
                       </c:if>
 
+                      <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderType != null}">
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editFailsafeId">${textContainer.text['grouperLoaderFailsafeLabel']}</label></strong></td>
+                          <td>
+                            <span style="white-space: nowrap">
+                              <select name="editFailsafeName" id="editFailsafeId" style="width: 30em"
+                              onchange="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;">
+                                <option value="false"
+                                 ${grouperRequestContainer.grouperLoaderContainer.customizeFailsafeTrue ? '' : 'selected="selected"' }
+                                >${textContainer.textEscapeXml['grouperLoaderNoFailsafeLabel']}</option>
+                                <option value="true"
+                                 ${grouperRequestContainer.grouperLoaderContainer.customizeFailsafeTrue ? 'selected="selected"' : '' }
+                                >${textContainer.textEscapeXml['grouperLoaderYesFailsafeLabel']}</option>
+                              </select>
+                            </span>
+                            <br />
+                            <span class="description">${textContainer.text['grouperLoaderFailsafeDescription']}</span>
+                          </td>
+                        </tr>
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.customizeFailsafeTrue}">
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderFailsafeUseId">${textContainer.text['grouperLoaderFailsafeUseLabel']}</label></strong></td>
+                            <td>
+                              <span style="white-space: nowrap">
+                                <select name="editFailsafeUseName" id="editFailsafeUseId" style="width: 30em">
+                                  <option value="false"
+                                  >${textContainer.textEscapeXml['grouperLoaderNoDoNotUseFailsafeLabel']}</option>
+                                  <option value="true"
+                                   ${grouperRequestContainer.grouperLoaderContainer.editLoaderFailsafeUse ? 'selected="selected"' : '' }
+                                  >${textContainer.textEscapeXml['grouperLoaderYesUseFailsafeLabel']}</option>
+                                </select>
+                              </span>
+                              <br />
+                              <span class="description">${textContainer.text['grouperLoaderFailsafeUseDescription']}</span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderFailsafeSendEmailId">${textContainer.text['grouperLoaderFailsafeSendEmailLabel']}</label></strong></td>
+                            <td>
+                              <span style="white-space: nowrap">
+                                <select name="editFailsafeSendEmailName" id="editFailsafeSendEmailId" style="width: 30em">
+                                  <option value="false"
+                                  >${textContainer.textEscapeXml['grouperLoaderNoDoNotSendEmailFailsafeLabel']}</option>
+                                  <option value="true"
+                                   ${grouperRequestContainer.grouperLoaderContainer.editLoaderFailsafeSendEmail ? 'selected="selected"' : '' }
+                                  >${textContainer.textEscapeXml['grouperLoaderYesSendEmailFailsafeLabel']}</option>
+                                </select>
+                              </span>
+                              <br />
+                              <span class="description">${textContainer.text['grouperLoaderFailsafeSendEmailDescription']}</span>
+                            </td>
+                          </tr>
+                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderSqlType == 'SQL_SIMPLE'}">
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderMaxOverallPercentMembershipsRemoveId">${textContainer.text['grouperLoaderMinGroupSizeLabel']}</label></strong></td>
+                              <td>
+                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderMinGroupSize)}"
+                                 name="editLoaderMinGroupSizeName" id="editLoaderMinGroupSizeId" />
+                              <br />
+                              <span class="description">
+                              ${textContainer.text['grouperLoaderMinGroupSizeDescription']}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderMaxOverallPercentGroupsRemoveId">${textContainer.text['grouperLoaderMaxGroupPercentRemoveLabel']}</label></strong></td>
+                              <td>
+                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderMaxGroupPercentRemove)}"
+                                 name="editLoaderMaxGroupPercentRemoveName" id="editLoaderMaxGroupPercentRemoveId" />
+                              <br />
+                              <span class="description">
+                              ${textContainer.text['grouperLoaderMaxGroupPercentRemoveDescription']}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderMinGroupNumberOfMembersId">${textContainer.text['grouperLoaderMinGroupNumberOfMembersLabel']}</label></strong></td>
+                              <td>
+                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderMinGroupNumberOfMembers)}"
+                                 name="editLoaderMinGroupNumberOfMembersName" id="editLoaderMinGroupNumberOfMembersId" />
+                              <br />
+                              <span class="description">
+                              ${textContainer.text['grouperLoaderMinGroupNumberOfMembersDescription']}</span>
+                              </td>
+                            </tr>
+                          </c:if>
+                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderSqlType == 'SQL_GROUP_LIST'}">
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderMinManagedGroupsId">${textContainer.text['grouperLoaderMinManagedGroupsLabel']}</label></strong></td>
+                              <td>
+                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderMinManagedGroups)}"
+                                 name="editLoaderMinManagedGroupsName" id="editLoaderMinManagedGroupsId" />
+                              <br />
+                              <span class="description">
+                              ${textContainer.text['grouperLoaderMinManagedGroupsDescription']}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderMaxOverallPercentGroupsRemoveId">${textContainer.text['grouperLoaderMaxOverallPercentGroupsRemoveLabel']}</label></strong></td>
+                              <td>
+                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderMaxOverallPercentGroupsRemove)}"
+                                 name="editLoaderMaxOverallPercentGroupsRemoveName" id="editLoaderMaxOverallPercentGroupsRemoveId" />
+                              <br />
+                              <span class="description">
+                              ${textContainer.text['grouperLoaderMaxOverallPercentGroupsRemoveDescription']}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderMaxOverallPercentMembershipsRemoveId">${textContainer.text['grouperLoaderMaxOverallPercentMembershipsRemoveLabel']}</label></strong></td>
+                              <td>
+                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderMaxOverallPercentMembershipsRemove)}"
+                                 name="editLoaderMaxOverallPercentMembershipsRemoveName" id="editLoaderMaxOverallPercentMembershipsRemoveId" />
+                              <br />
+                              <span class="description">
+                              ${textContainer.text['grouperLoaderMaxOverallPercentMembershipsRemoveDescription']}</span>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderMinOverallNumberOfMembersId">${textContainer.text['grouperLoaderMinOverallNumberOfMembersLabel']}</label></strong></td>
+                              <td>
+                              <input type="text" style="width: 40em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderMinOverallNumberOfMembers)}"
+                                 name="editLoaderMinOverallNumberOfMembersName" id="editLoaderMinOverallNumberOfMembersId" />
+                              <br />
+                              <span class="description">
+                              ${textContainer.text['grouperLoaderMinOverallNumberOfMembersDescription']}</span>
+                              </td>
+                            </tr>
+                          
+                          </c:if>
+                        </c:if>
+                      </c:if>
+
                       <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderShowFields}">
-                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.isLoaderGroup() == false}">
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.isLoaderGroup() == true}">
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderScheduleJobId">${textContainer.text['grouperLoaderScheduleJob']}</label></strong></td>
                             <td>
@@ -802,6 +932,8 @@
                               <span class="description">${textContainer.text['grouperLoaderScheduleJobDescription']}</span>
                             </td>
                           </tr>
+                          
+                          
                         </c:if>
                       </c:if>
                       

@@ -2687,6 +2687,9 @@ public enum GrouperDdl implements DdlVersionable {
         DdlVersionBean ddlVersionBean) {
       
       GrouperDdl2_6_6.fixGrouperMembersColumnPostgres(database, ddlVersionBean);
+      
+      GrouperDdl2_6_6.addGrouperMembersColumns(database, ddlVersionBean);
+      GrouperDdl2_6_6.addGrouperMembersComments(database, ddlVersionBean);
     }
   },
   V41 {
@@ -5696,6 +5699,7 @@ public enum GrouperDdl implements DdlVersionable {
           COLUMN_CONTEXT_ID, "Context id links together multiple operations into one high level action");
       
       GrouperDdl2_6_5.addGrouperMembersComments(database, ddlVersionBean);
+      GrouperDdl2_6_6.addGrouperMembersComments(database, ddlVersionBean);
 
     }
     

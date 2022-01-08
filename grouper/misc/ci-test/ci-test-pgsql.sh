@@ -222,7 +222,7 @@ pspng_summary_code=$?
 
 
 GROUPER_ATTACH=
-if [ -n grouper/logs/grouper_error.log]; then
+if [ -s grouper/logs/grouper_error.log ]; then
   GROUPER_ATTACH="-a grouper/logs/grouper_error.log"
 fi
 

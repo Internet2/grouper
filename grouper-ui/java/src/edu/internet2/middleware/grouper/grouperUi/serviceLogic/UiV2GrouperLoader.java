@@ -74,6 +74,7 @@ import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -698,6 +699,8 @@ public class UiV2GrouperLoader {
       
       setupLoaderManagedGroup(group, grouperLoaderContainer);
       
+      grouperLoaderContainer.grouperLoaderFailsafeAssignUse();
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/grouperLoaderGroupTab.jsp"));
 
@@ -788,6 +791,46 @@ public class UiV2GrouperLoader {
     loader(request, response);
   }
   
+  /**
+   * Button to approve failsafe
+   * @param request
+   * @param response
+   */
+  public void failsafeApprove(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (group == null) {
+        return;
+      }
+      
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
+
+      if (!canEditLoader) {
+        return;
+      }
+
+      GrouperFailsafe.assignApproveNextRun(grouperLoaderContainer.getJobName());
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("failsafeApproved")));
+
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+    loader(request, response);
+  }
+
   /**
    * Button to enable job
    * @param request
@@ -1190,7 +1233,119 @@ public class UiV2GrouperLoader {
           }
 
         }
+        if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderMaxGroupPercentRemove())) {
+          try {
+            int maxGroupPercentRemove = GrouperUtil.intValue(StringUtils.trim(grouperLoaderContainer.getEditLoaderMaxGroupPercentRemove()));
+            if (maxGroupPercentRemove < -1 || maxGroupPercentRemove > 100) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderMaxGroupPercentRemoveInvalid")));
+              hasError = true;
+            }
+          } catch (Exception e) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderMaxGroupPercentRemoveInvalid")));
+            hasError = true;
+          }
+          
+        }
         
+        if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderMaxOverallPercentGroupsRemove())) {
+          try {
+            int maxOverallPercentGroupsRemove = GrouperUtil.intValue(StringUtils.trim(grouperLoaderContainer.getEditLoaderMaxOverallPercentGroupsRemove()));
+            if (maxOverallPercentGroupsRemove < -1 || maxOverallPercentGroupsRemove > 100) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderMaxOverallPercentGroupsRemoveInvalid")));
+              hasError = true;
+            }
+          } catch (Exception e) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderMaxOverallPercentGroupsRemoveInvalid")));
+            hasError = true;
+          }
+          
+        }
+        
+        if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderMaxOverallPercentMembershipsRemove())) {
+          try {
+            int maxOverallPercentMemberships = GrouperUtil.intValue(StringUtils.trim(grouperLoaderContainer.getEditLoaderMaxOverallPercentMembershipsRemove()));
+            if (maxOverallPercentMemberships < -1 || maxOverallPercentMemberships > 100) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderMaxOverallPercentMembershipsInvalid")));
+              hasError = true;
+            }
+          } catch (Exception e) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderMaxOverallPercentMembershipsInvalid")));
+            hasError = true;
+          }
+          
+        }
+        
+        if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderMinGroupNumberOfMembers())) {
+          try {
+            int minGroupNumberOfMembers = GrouperUtil.intValue(StringUtils.trim(grouperLoaderContainer.getEditLoaderMinGroupNumberOfMembers()));
+            if (minGroupNumberOfMembers < -1) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderMinGroupNumberOfMembersInvalid")));
+              hasError = true;
+            }
+          } catch (Exception e) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderMinGroupNumberOfMembersInvalid")));
+            hasError = true;
+          }
+          
+        }
+        
+        if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderMinGroupSize())) {
+          try {
+            int minGroupSize = GrouperUtil.intValue(StringUtils.trim(grouperLoaderContainer.getEditLoaderMinGroupSize()));
+            if (minGroupSize < -1) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderMinGroupSizeInvalid")));
+              hasError = true;
+            }
+          } catch (Exception e) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderMinGroupSizeInvalid")));
+            hasError = true;
+          }
+          
+        }
+        
+        if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderMinManagedGroups())) {
+          try {
+            int minManagedGroups = GrouperUtil.intValue(StringUtils.trim(grouperLoaderContainer.getEditLoaderMinManagedGroups()));
+            if (minManagedGroups < -1) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderMinManagedGroupsInvalid")));
+              hasError = true;
+            }
+          } catch (Exception e) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderMinManagedGroupsInvalid")));
+            hasError = true;
+          }
+          
+        }
+        
+        if (!hasError && !StringUtils.isBlank(grouperLoaderContainer.getEditLoaderMinOverallNumberOfMembers())) {
+          try {
+            int minOverallNumberOfMembers = GrouperUtil.intValue(StringUtils.trim(grouperLoaderContainer.getEditLoaderMinOverallNumberOfMembers()));
+            if (minOverallNumberOfMembers < -1) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderMinOverallNumberOfMembersInvalid")));
+              hasError = true;
+            }
+          } catch (Exception e) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderMinOverallNumberOfMembersInvalid")));
+            hasError = true;
+          }
+          
+        }
+        
+
       }
       if (!hasError) {
 
@@ -1311,6 +1466,17 @@ public class UiV2GrouperLoader {
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_TYPE, grouperLoaderContainer.getEditLoaderDisplayNameSyncType());
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_BASE_FOLDER_NAME, grouperLoaderContainer.getEditLoaderDisplayNameSyncBaseFolderName());
             assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_DISPLAY_NAME_SYNC_LEVELS, grouperLoaderContainer.getEditLoaderDisplayNameSyncLevels());
+
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, grouperLoaderContainer.getEditLoaderFailsafeUse() == null ? null : (grouperLoaderContainer.getEditLoaderFailsafeUse() ? "T" : "F"));
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_FAILSAFE_SEND_EMAIL, grouperLoaderContainer.getEditLoaderFailsafeSendEmail() == null ? null : (grouperLoaderContainer.getEditLoaderFailsafeSendEmail() ? "T" : "F"));
+
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE, StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMaxGroupPercentRemove()));
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE, StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMaxOverallPercentGroupsRemove()));
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE, StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMaxOverallPercentMembershipsRemove()));
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_MIN_GROUP_NUMBER_OF_MEMBERS, StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMinGroupNumberOfMembers()));
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE, StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMinGroupSize()));
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS, StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMinManagedGroups()));
+            assignGroupSqlAttribute(group, GrouperLoader.GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS, StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMinOverallNumberOfMembers()));
             
             if (grouperLoaderContainer.getGuiDaemonJob() != null || "true".equalsIgnoreCase(request.getParameter("editLoaderScheduleJobName"))) {
               GrouperLoaderType.validateAndScheduleSqlLoad(group, null, false);
@@ -1360,7 +1526,7 @@ public class UiV2GrouperLoader {
               GrouperLoaderType.validateAndScheduleLdapLoad(attributeAssign, null, false);
             }
           }
-
+          
         }
 
       }
@@ -1386,7 +1552,7 @@ public class UiV2GrouperLoader {
             "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
       }
           return null;
-        }
+      }
       });
     } catch (RuntimeException re) {
       if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
@@ -1505,8 +1671,22 @@ public class UiV2GrouperLoader {
             grouperLoaderContainer.setEditLoaderDisplayNameSyncType(grouperLoaderContainer.getDisplayNameSyncType());
             grouperLoaderContainer.setEditLoaderDisplayNameSyncBaseFolderName(grouperLoaderContainer.getDisplayNameSyncBaseFolderName());
             grouperLoaderContainer.setEditLoaderDisplayNameSyncLevels(grouperLoaderContainer.getDisplayNameSyncLevels());
-            
+
+            grouperLoaderContainer.setEditLoaderMaxOverallPercentGroupsRemove(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMaxOverallPercentGroupsRemove()));
+            grouperLoaderContainer.setEditLoaderMaxOverallPercentMembershipsRemove(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMaxOverallPercentMembershipsRemove()));
+            grouperLoaderContainer.setEditLoaderMinManagedGroups(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMinManagedGroups()));
+            grouperLoaderContainer.setEditLoaderMinOverallNumberOfMembers(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMinOverallNumberOfMembers()));
+
           }
+          if (StringUtils.equals("SQL_SIMPLE", grouperLoaderContainer.getEditLoaderSqlType())) {
+            grouperLoaderContainer.setEditLoaderMaxGroupPercentRemove(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMaxGroupPercentRemove()));
+            grouperLoaderContainer.setEditLoaderMinGroupSize(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMinGroupSize()));
+            grouperLoaderContainer.setEditLoaderMinGroupNumberOfMembers(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMinGroupNumberOfMembers()));
+          }
+          
+          grouperLoaderContainer.setEditLoaderFailsafeUse(grouperLoaderContainer.getSqlFailsafeUse());
+          grouperLoaderContainer.setEditLoaderFailsafeSendEmail(grouperLoaderContainer.getSqlFailsafeSendEmail());
+
         } else if (StringUtils.equals("LDAP", grouperLoaderContainer.getEditLoaderType())) {
           grouperLoaderContainer.setEditLoaderLdapType(grouperLoaderContainer.getLdapLoaderType());
           grouperLoaderContainer.setEditLoaderAndGroups(grouperLoaderContainer.getLdapAndGroups());
@@ -1546,8 +1726,10 @@ public class UiV2GrouperLoader {
           grouperLoaderContainer.setEditLoaderLdapSubjectLookupType(grouperLoaderContainer.getLdapSubjectLookupType());
           
         }
+        grouperLoaderContainer.grouperLoaderFailsafeAssignUse();
+
       }      
-      
+
       editGrouperLoaderHelper(request, grouperLoaderContainer);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -1809,8 +1991,6 @@ public class UiV2GrouperLoader {
             
           }
         }
-        
-        
       }
     }
     
@@ -2085,7 +2265,130 @@ public class UiV2GrouperLoader {
       
     }
 
+    Boolean editFailsafe = null;
+    {
+      String editFailsafeUseName = StringUtils.trimToNull(request.getParameter("editFailsafeUseName"));
+      if (!error && !StringUtils.isBlank(editFailsafeUseName)) {
+        
+        boolean editFailsafeUseNameBoolean = GrouperUtil.booleanValue(StringUtils.trim(editFailsafeUseName));
+        grouperLoaderContainer.setEditLoaderFailsafeUse(editFailsafeUseNameBoolean);
+        editFailsafe = true;
+      }
+    }
+
+    {
+      String editFailsafeSendEmail = StringUtils.trimToNull(request.getParameter("editFailsafeSendEmailName"));
+      if (!error && !StringUtils.isBlank(editFailsafeSendEmail)) {
+        
+        boolean editFailsafeSendEmailNameBoolean = GrouperUtil.booleanValue(StringUtils.trim(editFailsafeSendEmail));
+        grouperLoaderContainer.setEditLoaderFailsafeSendEmail(editFailsafeSendEmailNameBoolean);
+        editFailsafe = true;
+        
+      }
+    }
     
+    {
+      String editLoaderMaxOverallPercentGroupsRemoveName = StringUtils.trimToNull(request.getParameter("editLoaderMaxOverallPercentGroupsRemoveName"));
+      if (!error && !StringUtils.isBlank(editLoaderMaxOverallPercentGroupsRemoveName)) {
+        try {
+          editFailsafe = true;
+          int editLoaderMaxOverallPercentGroupsRemoveNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMaxOverallPercentGroupsRemoveName));
+          grouperLoaderContainer.setEditLoaderMaxOverallPercentGroupsRemove(GrouperUtil.stringValue(editLoaderMaxOverallPercentGroupsRemoveNameInt));
+        } catch (Exception e) {
+          error = true;
+        }
+      }
+    }
+    
+    {
+      String editLoaderMaxOverallPercentMembershipsRemoveName = StringUtils.trimToNull(request.getParameter("editLoaderMaxOverallPercentMembershipsRemoveName"));
+      if (!error && !StringUtils.isBlank(editLoaderMaxOverallPercentMembershipsRemoveName)) {
+        try {
+          editFailsafe = true;
+          int editLoaderMaxOverallPercentMembershipsRemoveNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMaxOverallPercentMembershipsRemoveName));
+          grouperLoaderContainer.setEditLoaderMaxOverallPercentMembershipsRemove(GrouperUtil.stringValue(editLoaderMaxOverallPercentMembershipsRemoveNameInt));
+        } catch (Exception e) {
+          error = true;
+        }
+      }
+    }
+    
+    {
+      String editLoaderMinManagedGroupsName = StringUtils.trimToNull(request.getParameter("editLoaderMinManagedGroupsName"));
+      if (!error && !StringUtils.isBlank(editLoaderMinManagedGroupsName)) {
+        try {
+          editFailsafe = true;
+          int editLoaderMinManagedGroupsNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMinManagedGroupsName));
+          grouperLoaderContainer.setEditLoaderMinManagedGroups(GrouperUtil.stringValue(editLoaderMinManagedGroupsNameInt));
+        } catch (Exception e) {
+          error = true;
+        }
+      }
+    }
+    
+    {
+      String editLoaderMinOverallNumberOfMembersName = StringUtils.trimToNull(request.getParameter("editLoaderMinOverallNumberOfMembersName"));
+      if (!error && !StringUtils.isBlank(editLoaderMinOverallNumberOfMembersName)) {
+        try {
+          editFailsafe = true;
+          int editLoaderMinOverallNumberOfMembersNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMinOverallNumberOfMembersName));
+          grouperLoaderContainer.setEditLoaderMinOverallNumberOfMembers(GrouperUtil.stringValue(editLoaderMinOverallNumberOfMembersNameInt));
+        } catch (Exception e) {
+          error = true;
+        }
+      }
+    }
+    
+    {
+      String editLoaderMaxGroupPercentRemoveName = StringUtils.trimToNull(request.getParameter("editLoaderMaxGroupPercentRemoveName"));
+      if (!error && !StringUtils.isBlank(editLoaderMaxGroupPercentRemoveName)) {
+        try {
+          editFailsafe = true;
+          int editLoaderMaxGroupPercentRemoveNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMaxGroupPercentRemoveName));
+          grouperLoaderContainer.setEditLoaderMaxGroupPercentRemove(GrouperUtil.stringValue(editLoaderMaxGroupPercentRemoveNameInt));
+        } catch (Exception e) {
+          error = true;
+        }
+      }
+    }
+    
+    {
+      String editLoaderMinGroupSizeName = StringUtils.trimToNull(request.getParameter("editLoaderMinGroupSizeName"));
+      if (!error && !StringUtils.isBlank(editLoaderMinGroupSizeName)) {
+        try {
+          editFailsafe = true;
+          int editLoaderMinGroupSizeNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMinGroupSizeName));
+          grouperLoaderContainer.setEditLoaderMinGroupSize(GrouperUtil.stringValue(editLoaderMinGroupSizeNameInt));
+        } catch (Exception e) {
+          error = true;
+        }
+      }
+    }
+    
+    {
+      String editLoaderMinGroupNumberOfMembersName = StringUtils.trimToNull(request.getParameter("editLoaderMinGroupNumberOfMembersName"));
+      if (!error && !StringUtils.isBlank(editLoaderMinGroupNumberOfMembersName)) {
+        try {
+          editFailsafe = true;
+          int editLoaderMinGroupNumberOfMembersNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMinGroupNumberOfMembersName));
+          grouperLoaderContainer.setEditLoaderMinGroupNumberOfMembers(GrouperUtil.stringValue(editLoaderMinGroupNumberOfMembersNameInt));
+        } catch (Exception e) {
+          error = true;
+        }
+      }
+    }
+
+    {
+      String editFailsafeName = StringUtils.trimToNull(request.getParameter("editFailsafeName"));
+      if (!error && !StringUtils.isBlank(editFailsafeName)) {
+        
+        editFailsafe = GrouperUtil.booleanValue(StringUtils.trim(editFailsafeName));
+        
+      }
+      if (editFailsafe != null) {
+        grouperLoaderContainer.setCustomizeFailsafeSelected(editFailsafe);
+      }
+    }
   }
 
 

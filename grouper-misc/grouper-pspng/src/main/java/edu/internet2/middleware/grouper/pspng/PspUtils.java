@@ -34,7 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.ThreadContext;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Period;
@@ -115,7 +115,7 @@ public class PspUtils {
    * PSPNG should call this.
    */
   public static void setupNewThread() {
-    MDC.put(THREAD_ID_MDC, getThreadId());
+    ThreadContext.put(THREAD_ID_MDC, getThreadId());
   }
 
   /**

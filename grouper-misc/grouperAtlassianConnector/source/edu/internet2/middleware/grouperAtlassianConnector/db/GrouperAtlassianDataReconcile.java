@@ -587,7 +587,7 @@ public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
         String grouperEmailAddress = massageGrouperEmailAddress(grouperUser.getEmailAddress(), username);
         if (!GrouperClientUtils.equalsIgnoreCase(grouperEmailAddress, atlassianUser.getEmailAddress())) {
           atlassianUser.setEmailAddress(grouperEmailAddress);
-          atlassianUser.setLowerEmailAddress(grouperEmailAddress.toLowerCase());
+          atlassianUser.setLowerEmailAddress(grouperEmailAddress == null ? null : grouperEmailAddress.toLowerCase());
           hasChange = true;
         }
         //if has change, then store it
