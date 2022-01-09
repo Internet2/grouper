@@ -1625,7 +1625,11 @@ public enum GrouperLoaderType {
               
               List<String> groupNamesInBatch = GrouperUtil.batchList(groupNamesList, 800, i);
               
-              currentMembershipsSize += new GcDbAccess().sql(queryPrefix + " in ("+ GrouperClientUtils.appendQuestions(groupNamesInBatch.size()) + ")").select(int.class);
+              GcDbAccess gcDbAccess = new GcDbAccess().sql(queryPrefix + " in ("+ GrouperClientUtils.appendQuestions(groupNamesInBatch.size()) + ")");
+              for (String groupName : groupNamesInBatch) {
+                gcDbAccess.addBindVar(groupName);
+              }
+              currentMembershipsSize += gcDbAccess.select(int.class);
   
             }
           }
@@ -1650,7 +1654,11 @@ public enum GrouperLoaderType {
               
               List<String> groupNamesInBatch = GrouperUtil.batchList(groupNamesList, 800, i);
               
-              currentNumberOfGroups += new GcDbAccess().sql(queryPrefix + " in ("+ GrouperClientUtils.appendQuestions(groupNamesInBatch.size()) + ")").select(int.class);
+              GcDbAccess gcDbAccess = new GcDbAccess().sql(queryPrefix + " in ("+ GrouperClientUtils.appendQuestions(groupNamesInBatch.size()) + ")");
+              for (String groupName : groupNamesInBatch) {
+                gcDbAccess.addBindVar(groupName);
+              }
+              currentNumberOfGroups += gcDbAccess.select(int.class);
   
             }
           }
