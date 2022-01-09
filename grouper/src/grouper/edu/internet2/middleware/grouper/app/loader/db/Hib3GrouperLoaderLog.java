@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.app.loader.db;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -56,15 +57,31 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
   /**
    * 
    * @param jobName
-   * @return
+   * @return the most recent
    */
   public static Hib3GrouperLoaderLog retrieveMostRecentLog(String jobName) {
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = HibernateSession.byHqlStatic().createQuery("from Hib3GrouperLoaderLog theLoaderLog1 " +
+    List<Hib3GrouperLoaderLog> hib3GrouperLoaderLogs = HibernateSession.byHqlStatic().createQuery("from Hib3GrouperLoaderLog theLoaderLog1 " +
         "where theLoaderLog1.jobName = :jobName and theLoaderLog1.endedTime = "
         + "(select max(theLoaderLog2.endedTime) from Hib3GrouperLoaderLog theLoaderLog2 where theLoaderLog2.jobName = theLoaderLog1.jobName)")
-        .setString("jobName", jobName)
-        .uniqueResult(edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog.class);
-    return hib3GrouperLoaderLog;
+        .setString("jobName", jobName).list(edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog.class);
+    if (GrouperUtil.length(hib3GrouperLoaderLogs) == 0) {
+      return null;
+    }
+    if (GrouperUtil.length(hib3GrouperLoaderLogs) == 1) {
+      return hib3GrouperLoaderLogs.get(0);
+    }
+    
+    // there could be multiple logs, same end time, maybe different start time?  or random?
+    
+    Hib3GrouperLoaderLog hib3GrouperLoaderLogMin = null;
+    Timestamp minStartTime = null;
+    for (Hib3GrouperLoaderLog hib3GrouperLoaderLog : hib3GrouperLoaderLogs) {
+      if (minStartTime == null || (hib3GrouperLoaderLog.getStartedTime() != null && hib3GrouperLoaderLog.getStartedTime().getTime() < minStartTime.getTime())) {
+        hib3GrouperLoaderLogMin = hib3GrouperLoaderLog;
+        minStartTime = hib3GrouperLoaderLog.getStartedTime();
+      }
+    }
+    return hib3GrouperLoaderLogMin;
   }
   
   /**

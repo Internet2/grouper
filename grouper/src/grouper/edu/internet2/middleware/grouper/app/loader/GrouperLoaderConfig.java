@@ -37,6 +37,25 @@ import edu.internet2.middleware.morphString.Morph;
 public class GrouperLoaderConfig extends ConfigPropertiesCascadeBase  {
 
   /**
+   * 
+   * @return
+   */
+  public boolean failsafeSendEmailDefault() {
+    
+    Boolean sendEmail = propertyValueBoolean("loader.failsafe.sendEmail");
+    
+    if (sendEmail == null) {
+      
+      String sendEmailToAddresses = propertyValueString("loader.failsafe.sendEmailToAddresses");
+      String sendEmailToGroup = propertyValueString("loader.failsafe.sendEmailToGroup");
+      
+      sendEmail = !StringUtils.isBlank(sendEmailToAddresses) && !StringUtils.isBlank(sendEmailToGroup);
+    }
+    return sendEmail;
+  }
+
+  
+  /**
    * name of param: loader.retain.db.logs.days
    * number of days to retain db logs in table grouperloader_log.  -1 is forever.  default is 7
    */
@@ -164,7 +183,6 @@ public class GrouperLoaderConfig extends ConfigPropertiesCascadeBase  {
    * db.warehouse.user = mylogin
    * db.warehouse.pass = secret
    * db.warehouse.url = jdbc:mysql://localhost:3306/grouper
-   * db.warehouse.driver = com.mysql.jdbc.Driver
    * @param name
    * @return the db
    */

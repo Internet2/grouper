@@ -8,13 +8,17 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
+/**
+ *
+ */
 public class GrouperFailsafeBean {
 
-  
+  /**
+   * 
+   */
   public GrouperFailsafeBean() {
     
     Boolean theSendEmail = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.failsafe.sendEmail");
@@ -24,6 +28,29 @@ public class GrouperFailsafeBean {
     }
   }
 
+  /**
+   * @return clone of this
+   * 
+   */
+  @Override
+  public GrouperFailsafeBean clone() {
+    GrouperFailsafeBean result = new GrouperFailsafeBean();
+    result.emailAddresses = this.emailAddresses;
+    result.emailGroupName = this.emailGroupName;
+    result.jobName = this.jobName;
+    result.maxGroupPercentRemove = this.maxGroupPercentRemove;
+    result.maxOverallPercentGroupsRemove = this.maxOverallPercentGroupsRemove;
+    result.maxOverallPercentMembershipsRemove = this.maxOverallPercentMembershipsRemove;
+    result.minGroupNumberOfMembers = this.minGroupNumberOfMembers;
+    result.minGroupSize = this.minGroupSize;
+    result.minManagedGroups = this.minManagedGroups;
+    result.minOverallNumberOfMembers = this.minOverallNumberOfMembers;
+    result.sendEmail = this.sendEmail;
+    result.useFailsafe = this.useFailsafe;
+    
+    return result;
+  }
+  
   /**
    * see if too many members are being removed and if we should abort this job
    * @param originalGroupSize
@@ -39,12 +66,16 @@ public class GrouperFailsafeBean {
     }
 
     // if approved, dont abort
-    if (GrouperFailsafe.isApproved(jobName)) {
+    if (GrouperFailsafe.isApproved(this.jobName)) {
       return false;
     }
     
     //if not above the min size then dont check
     if (this.minGroupSize != -1 && originalGroupSize < this.minGroupSize) {
+      return false;
+    }
+    
+    if (originalGroupSize == 0) {
       return false;
     }
     
@@ -54,7 +85,7 @@ public class GrouperFailsafeBean {
     }
     
     //see if group size is too small
-    if (this.minGroupNumberOfMembers != null && (originalGroupSize + memberToAddSize - membersToRemoveSize) < this.minGroupNumberOfMembers ) {
+    if (this.minGroupNumberOfMembers != null && this.minGroupNumberOfMembers != -1 && (originalGroupSize + memberToAddSize - membersToRemoveSize) < this.minGroupNumberOfMembers ) {
       return true;
     }
     
@@ -68,22 +99,21 @@ public class GrouperFailsafeBean {
    * @param overallMembersToAddCount
    * @return true if should abort or false if not
    */
-  public boolean shouldAbortDueToTooManyOverallMembersRemoved(int originalManagedGroupsWithMembersCount, int originalTotalMembershipSize, int overallMembersToRemoveCount, int overallMembersToAddCount) {
+  public boolean shouldAbortDueToTooManyOverallMembersRemoved(int originalTotalMembershipSize, int overallMembersToRemoveCount, int overallMembersToAddCount) {
     //maybe dont use this feature
     if (!this.useFailsafe) {
       return false;
     }
     
     // if approved, dont abort
-    if (GrouperFailsafe.isApproved(jobName)) {
+    if (GrouperFailsafe.isApproved(this.jobName)) {
       return false;
     }
 
-    //must be a group of a minimum size, and not so many members removed
-    if (this.minManagedGroups != null && originalManagedGroupsWithMembersCount < this.minManagedGroups) {
+    if (originalTotalMembershipSize == 0) {
       return false;
     }
-
+    
     //see if max percent removed
     if (this.maxOverallPercentMembershipsRemove != -1 && ((overallMembersToRemoveCount * 100)/originalTotalMembershipSize)  > this.maxOverallPercentMembershipsRemove) {
       return true;
@@ -120,6 +150,10 @@ public class GrouperFailsafeBean {
 
     //must be a group of a minimum size, and not so many members removed
     if (this.minManagedGroups != null && originalManagedGroupsWithMembersCount < this.minManagedGroups) {
+      return false;
+    }
+    
+    if (originalManagedGroupsWithMembersCount == 0) {
       return false;
     }
     
@@ -276,7 +310,7 @@ public class GrouperFailsafeBean {
    * T or F if using failsafe.  If blank use the global defaults
    * @return
    */
-  public boolean getUseFailsafe() {
+  public boolean isUseFailsafe() {
     return useFailsafe;
   }
 
@@ -327,7 +361,7 @@ public class GrouperFailsafeBean {
    * The email will be sent to the list or group configured in grouper-loader.properties:
    * loader.failsafe.sendEmailToAddresses, or loader.failsafe.sendEmailToGroup 
    */
-  private boolean sendEmail = false;
+  private boolean sendEmail = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.failsafe.sendEmail", false);
   
   /**
    * If an email should be sent out when a failsafe alert happens.

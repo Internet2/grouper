@@ -1625,7 +1625,6 @@ public class GrouperCheckConfig {
     //db.warehouse.user = mylogin
     //db.warehouse.pass = secret
     //db.warehouse.url = jdbc:mysql://localhost:3306/grouper
-    //db.warehouse.driver = com.mysql.jdbc.Driver
     //make sure sequences are ok
     Map<String, String> dbMap = GrouperLoaderConfig.retrieveConfig().propertiesMap( 
         grouperLoaderDbPattern);

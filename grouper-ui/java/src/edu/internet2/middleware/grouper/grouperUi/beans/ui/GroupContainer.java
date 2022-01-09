@@ -15,9 +15,15 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -49,6 +55,50 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GroupContainer {
 
+  private List<GroupTypeForEdit> groupTypesForEdit;
+  
+  private static Pattern groupTypeForEditPattern = Pattern.compile("^groupScreenType\\.([^.]+)\\.[a-zA-Z0-9]+$");
+  
+  public List<GroupTypeForEdit> getGroupTypesForEdit() {
+    if (this.groupTypesForEdit == null) {
+      List<GroupTypeForEdit> result = new ArrayList<GroupTypeForEdit>();
+      Map<String, String> properties = GrouperConfig.retrieveConfig().propertiesMap(groupTypeForEditPattern);
+      
+      if (GrouperUtil.length(properties) > 0) {
+      
+        // convert the properties to beans
+        List<GroupTypeForEdit> groupTypeForEdits = new ArrayList<GroupTypeForEdit>();
+        
+        for (String key : properties.keySet()) {
+          
+          if (key.endsWith(".attributeName")) {
+            Matcher matcher = groupTypeForEditPattern.matcher(key);
+            matcher.matches();
+            String configId = matcher.group(1);
+            String attributeName = properties.get("groupScreenType." + configId + ".attributeName");
+            if (!StringUtils.isBlank(attributeName)) {
+              String label = StringUtils.defaultIfBlank(properties.get("groupScreenType." + configId + ".label"), attributeName);
+              String description = properties.get("groupScreenType." + configId + ".description");
+              int index = GrouperUtil.intValue(properties.get("groupScreenType." + configId + ".index"), 100);
+              
+              GroupTypeForEdit groupTypeForEdit = new GroupTypeForEdit();
+              //groupTypeForEdit.se
+              
+            }
+            
+          }
+          
+        }
+        
+        Map<Integer, Set<GroupTypeForEdit>> indexToMapNameToEdits = new HashMap<Integer, Set<GroupTypeForEdit>>();
+
+      }
+      
+    }
+    // TODO
+    return null;
+  }
+  
   /**
    * 
    * @return if has custom ui attribute

@@ -113,6 +113,8 @@ import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -580,7 +582,7 @@ public enum GrouperLoaderType {
               statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, 
               groupNameToDescription, privsToAdd, groupNamesFromGroupQuery,
               loaderJobBean.getGrouperLoaderDisplayNameSyncType(),
-              loaderJobBean.getDisplayNameSyncBaseFolderName(), loaderJobBean.getDisplayNameSyncLevels(), loaderJobBean
+              loaderJobBean.getDisplayNameSyncBaseFolderName(), loaderJobBean.getDisplayNameSyncLevels(), loaderJobBean.getGrouperFailsafeBean()
               );
           
         } finally {
@@ -1069,7 +1071,7 @@ public enum GrouperLoaderType {
           syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
               andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
               statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, groupNameToDescription, 
-              privsToAdd, groupNames, null, null, null, loaderJobBean);
+              privsToAdd, groupNames, null, null, null, loaderJobBean.getGrouperFailsafeBean());
           
         } finally {
           hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
@@ -1213,7 +1215,7 @@ public enum GrouperLoaderType {
           syncGroupList(grouperLoaderResultsetOverall, startTime, grouperSession, 
               andGroups, groupTypes, groupLikeString, groupNameOverall, hib3GrouploaderLogOverall,
               statusOverall, loaderJobBean.getGrouperLoaderDb(), groupNameToDisplayName, 
-              groupNameToDescription, privsToAdd, null, null, null, null, loaderJobBean);
+              groupNameToDescription, privsToAdd, null, null, null, null, loaderJobBean.getGrouperFailsafeBean());
           
         } finally {
           hib3GrouploaderLogOverall.setStatus(statusOverall[0].name());
@@ -1567,9 +1569,10 @@ public enum GrouperLoaderType {
       final Map<String, String> groupNameToDisplayName, final Map<String, String> groupNameToDescription,
       final Map<String, Map<Privilege, List<Subject>>> privsToAdd, final Set<String> groupNamesFromGroupQuery,
       final GrouperLoaderDisplayNameSyncType grouperLoaderDisplayNameSyncType, final String displayNameSyncBaseFolderName,
-      final Integer displayNameSyncLevels, final LoaderJobBean loaderJobBean) {
+      final Integer displayNameSyncLevels, final GrouperFailsafeBean grouperFailsafeBean) {
         
     long startTimeLoadData = 0;
+    boolean failsafeProblem = false;
     try {
     
       if (LOG.isDebugEnabled()) {
@@ -1597,6 +1600,85 @@ public enum GrouperLoaderType {
 
       GrouperLoaderLogger.addLogEntry("overallLog", "groupsNoLongerManagedByLoaderCount", GrouperUtil.length(groupsNoLongerManagedByLoader));
 
+      if (grouperFailsafeBean != null && grouperFailsafeBean.isUseFailsafe()){
+        // lets see what current membership count is and see if failsafe
+        
+        int currentMembershipsSize = -1;
+
+        {
+          String queryPrefix = "select count(1) from grouper_memberships gm, grouper_groups gg, grouper_fields gf "
+              + " where gm.mship_type = 'immediate' and gg.id = gm.owner_group_id "
+              + " and gf.id = gm.field_id and gf.name = 'members' and gg.name ";
+            
+          //lets see which type to do
+          if (!StringUtils.isBlank(groupLikeString)) {
+            
+            currentMembershipsSize = new GcDbAccess().sql(queryPrefix + " like ?").addBindVar(groupLikeString).select(int.class);
+                          
+          } else {
+            //just batch up the group names to get the results, in size of 100
+            int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNamesFromGroupQueryAndMembershipQuery, 800);
+  
+            List<String> groupNamesList = new ArrayList<String>(groupNamesFromGroupQueryAndMembershipQuery);
+  
+            for (int i=0;i<numberOfBatches;i++) {
+              
+              List<String> groupNamesInBatch = GrouperUtil.batchList(groupNamesList, 800, i);
+              
+              currentMembershipsSize += new GcDbAccess().sql(queryPrefix + " in ("+ GrouperClientUtils.appendQuestions(groupNamesInBatch.size()) + ")").select(int.class);
+  
+            }
+          }
+        }
+        
+        int currentNumberOfGroups = -1;
+        
+        {
+          String queryPrefix = "select count(1) from grouper_groups gg where gg.name ";
+
+          if (!StringUtils.isBlank(groupLikeString)) {
+            
+            currentNumberOfGroups = new GcDbAccess().sql(queryPrefix + " like ?").addBindVar(groupLikeString).select(int.class);
+                          
+          } else {
+            //just batch up the group names to get the results, in size of 100
+            int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNamesFromGroupQueryAndMembershipQuery, 800);
+  
+            List<String> groupNamesList = new ArrayList<String>(groupNamesFromGroupQueryAndMembershipQuery);
+  
+            for (int i=0;i<numberOfBatches;i++) {
+              
+              List<String> groupNamesInBatch = GrouperUtil.batchList(groupNamesList, 800, i);
+              
+              currentNumberOfGroups += new GcDbAccess().sql(queryPrefix + " in ("+ GrouperClientUtils.appendQuestions(groupNamesInBatch.size()) + ")").select(int.class);
+  
+            }
+          }
+        }
+          
+        int assumedAdditions = 0;
+        int assumedDeletions = 0;
+        if (grouperLoaderResultsetOverall.numberOfRows() > currentMembershipsSize) {
+          assumedAdditions = grouperLoaderResultsetOverall.numberOfRows() - currentMembershipsSize;
+        } else if (currentMembershipsSize > grouperLoaderResultsetOverall.numberOfRows()) {
+          assumedDeletions = currentMembershipsSize - grouperLoaderResultsetOverall.numberOfRows();
+        }
+        
+        if (grouperFailsafeBean != null 
+            && grouperFailsafeBean.shouldAbortDueToTooManyOverallMembersRemoved(currentMembershipsSize, 
+                assumedDeletions, assumedAdditions)) {
+          statusOverall[0] = GrouperLoaderStatus.ERROR_FAILSAFE;
+          hib3GrouploaderLogOverall.insertJobMessage("Failsafe error current group count: " + currentNumberOfGroups
+              + ", current mship count: " + currentMembershipsSize + ", assumed deletions: " + assumedDeletions + ", assumedInserts: " + assumedAdditions
+              + " unless data problem is fixed, failsafe is approved, or failsafe settings changed");
+          hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+          hib3GrouploaderLogOverall.store();
+          failsafeProblem = true;
+          return;
+        } 
+
+      }
+      
       updateLoaderMetadataForGroupsNoLongerInLoader(groupsNoLongerManagedByLoader);
       
       if (StringUtils.isBlank(groupLikeString) &&
@@ -1680,19 +1762,21 @@ public enum GrouperLoaderType {
         }
         
         int totalManagedGroupsWithMembersCount = totalManagedGroupsCount - totalManagedGroupsAlreadyEmptyCount;
+
         // TODO
-        if (false) { //shouldAbortDueToTooManyGroupListManagedGroupsBeingCleared(totalManagedGroupsWithMembersCount, totalManagedGroupsBeingClearedCount)) {
-          statusOverall[0] = GrouperLoaderStatus.ERROR;
+        if (grouperFailsafeBean != null 
+            && grouperFailsafeBean.shouldAbortDueToTooManyGroupListManagedGroupsBeingCleared(totalManagedGroupsWithMembersCount, totalManagedGroupsBeingClearedCount)) {
+          statusOverall[0] = GrouperLoaderStatus.ERROR_FAILSAFE;
           hib3GrouploaderLogOverall.insertJobMessage("Can't clear out "
               + totalManagedGroupsBeingClearedCount + " groups (totalManagedGroupsWithMembersCount: "
               + totalManagedGroupsWithMembersCount + ")"
-              + " unless loader.failsafe.groupList.managedGroups.use is false, or loader.failsafe.groupList.managedGroups.minManagedGroups"
-              + " or loader.failsafe.groupList.managedGroups.maxPercentRemove properties are changed.");
+              + " unless data problem is fixed, failsafe is approved, or failsafe settings changed");
           hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
           hib3GrouploaderLogOverall.store();
+          failsafeProblem = true;
           return;
         } 
-                  
+
         for (String groupNameEmpty : groupNamesManaged) {
           Group groupEmpty = groups.get(groupNameEmpty);
           if (groupEmpty == null) {
@@ -1720,35 +1804,53 @@ public enum GrouperLoaderType {
             millisSetData = System.currentTimeMillis();
             memberCount = members.size();
 
-            didSomething = removeMembers(members, groupEmpty);
-
-            GrouperLoaderLogger.addLogEntry("groupManagement", "removeMemberCount", memberCount);
-
-            //see if we are deleting group.  It must not be in the group query (if exists), and it 
-            //must be configured to do this in the grouper loader properties
-            boolean groupQueryContainsGroup = GrouperUtil.nonNull(groupNamesFromGroupQuery).contains(groupNameEmpty);
-            GrouperLoaderLogger.addLogEntry("groupManagement", "groupQueryContainsGroup", true);
-            if (!groupQueryContainsGroup && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
-                "loader.sqlTable.likeString.removeGroupIfNotUsed", true)) {
-
-              GrouperLoaderLogger.addLogEntry("groupManagement", "deleteGroup", true);
-
-              //see if we need to log
+            if(grouperFailsafeBean != null && grouperFailsafeBean.shouldAbortDueToTooManyMembersRemoved(memberCount, memberCount, 0)) {
+              status = GrouperLoaderStatus.ERROR_FAILSAFE;
+              statusOverall[0] = GrouperLoaderStatus.ERROR_FAILSAFE;
+              String error = "Can't remove "
+                  + memberCount + " members from " + groupEmpty.getName() + " (originalGroupSize: "
+                  + memberCount + ") "
+                  + " unless the failsafe is approved or settings are adjusted.";
+              jobDescription.append(error);
+              LOG.error("Failsafe error in loader job: '" + groupNameOverall + "', " + error);
+              GrouperFailsafe.assignFailed("subjobFor_" + groupEmpty.getName());
               didSomething = true;
-              StringBuilder theLog = new StringBuilder();
-              int groupsDeleted = GroupTypeTupleIncludeExcludeHook.deleteGroupsIfNotUsed(grouperSession, 
-                  groupNameEmpty, theLog, true);
-              GrouperUtil.append(jobDescription, "\n", theLog.toString());
-
-              if (groupsDeleted == 0) {
-                //this is a problem, something is being used...  warning
-                status = GrouperLoaderStatus.WARNING;
-              }
+              GrouperLoaderLogger.addLogEntry("groupManagement", "failsafe", true);
+              failsafeProblem = true;
+              hib3GrouploaderLogOverall.insertJobMessage("Failsafe issue: '" + groupEmpty.getName() + "', ");
             } else {
-              GrouperLoaderLogger.addLogEntry("groupManagement", "deleteGroup", false);
 
+              didSomething = removeMembers(members, groupEmpty);
+  
+              GrouperLoaderLogger.addLogEntry("groupManagement", "removeMemberCount", memberCount);
+  
+              //see if we are deleting group.  It must not be in the group query (if exists), and it 
+              //must be configured to do this in the grouper loader properties
+              boolean groupQueryContainsGroup = GrouperUtil.nonNull(groupNamesFromGroupQuery).contains(groupNameEmpty);
+              GrouperLoaderLogger.addLogEntry("groupManagement", "groupQueryContainsGroup", true);
+              if (!groupQueryContainsGroup && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
+                  "loader.sqlTable.likeString.removeGroupIfNotUsed", true)) {
+  
+                GrouperLoaderLogger.addLogEntry("groupManagement", "deleteGroup", true);
+  
+                //see if we need to log
+                didSomething = true;
+                StringBuilder theLog = new StringBuilder();
+                int groupsDeleted = GroupTypeTupleIncludeExcludeHook.deleteGroupsIfNotUsed(grouperSession, 
+                    groupNameEmpty, theLog, true);
+                GrouperUtil.append(jobDescription, "\n", theLog.toString());
+  
+                if (groupsDeleted == 0) {
+                  //this is a problem, something is being used...  warning
+                  status = GrouperLoaderStatus.WARNING;
+                }
+                GrouperFailsafe.assignSuccess("subjobFor_" + groupEmpty.getName());
+              } else {
+                GrouperLoaderLogger.addLogEntry("groupManagement", "deleteGroup", false);
+  
+              }
+              millisSetData = System.currentTimeMillis() - millisSetData;
             }
-            millisSetData = System.currentTimeMillis() - millisSetData;
           } catch (Exception e) {
             didSomething = true;
             status = GrouperLoaderStatus.ERROR;
@@ -1770,7 +1872,21 @@ public enum GrouperLoaderType {
       }
       //End delete records in groups not there anymore.  maybe delete group too
       //#######################################
-  
+
+// TODO
+//      if (grouperFailsafeBean != null 
+//          && grouperFailsafeBean.shouldAbortDueToTooManyOverallMembersRemoved(originalManagedGroupsWithMembersCount, originalTotalMembershipSize, overallMembersToRemoveCount, overallMembersToAddCount)) {
+//        statusOverall[0] = GrouperLoaderStatus.ERROR;
+//        hib3GrouploaderLogOverall.insertJobMessage("Can't clear out "
+//            + totalManagedGroupsBeingClearedCount + " groups (totalManagedGroupsWithMembersCount: "
+//            + totalManagedGroupsWithMembersCount + ")"
+//            + " unless data problem is fixed, failsafe is approved, or failsafe settings changed");
+//        hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
+//        hib3GrouploaderLogOverall.store();
+//        return;
+//      }
+
+
       int count=1;
       
       final long groupStartedMillis = System.currentTimeMillis();
@@ -1845,7 +1961,7 @@ public enum GrouperLoaderType {
   
         */
       }
-      
+
       Set<String> groupNamesToSync = new LinkedHashSet<String>();
       if (groupNamesFromGroupQuery != null) {
         groupNamesToSync.addAll(groupNamesFromGroupQuery);
@@ -1868,6 +1984,8 @@ public enum GrouperLoaderType {
       syncFolderList(groupNamesToSync, groupNameToDisplayName, grouperLoaderDisplayNameSyncType, displayNameSyncBaseFolderName,
           displayNameSyncLevels);
       
+      final boolean approved = grouperFailsafeBean == null ? false : GrouperFailsafe.isApproved(grouperFailsafeBean.getJobName());
+      
       for (final String groupName : groupNamesToSync) {
         
         if (LOG.isDebugEnabled()) {
@@ -1883,11 +2001,21 @@ public enum GrouperLoaderType {
               GrouperLoaderLogger.assignOverallId(OVERALL_LOGGER_ID);
               GrouperLoaderLogger.initializeThreadLocalMap("subjobLog");
               GrouperLoaderLogger.addLogEntry("subjobLog", "groupName", groupName);
-
+              
+              GrouperFailsafeBean grouperFailsafeBeanLocal = grouperFailsafeBean == null ? null : grouperFailsafeBean.clone();
+              if (approved && grouperFailsafeBeanLocal == null) {
+                grouperFailsafeBeanLocal = new GrouperFailsafeBean();
+              }
+              // let the overall approve flow through
+              if (approved) {
+                grouperFailsafeBeanLocal.setUseFailsafe(false);
+              }
+              grouperFailsafeBeanLocal.setJobName("subjobFor_" + groupName);
+              
               syncGroupLogicForOneGroup(grouperLoaderResultsetOverall,
                   GrouperSession.staticGrouperSession(), andGroups, groupTypes, hib3GrouploaderLogOverall,
                   statusOverall, groupNameToDisplayName, groupNameToDescription, privsToAdd,
-                  groupStartedMillis, groupName, groupNameOverall, loaderJobBean);
+                  groupStartedMillis, groupName, groupNameOverall, grouperFailsafeBeanLocal);
               
               GrouperLoaderLogger.addLogEntry("subjobLog", "success", true);
             } catch (RuntimeException re) {
@@ -1930,6 +2058,14 @@ public enum GrouperLoaderType {
       hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
       statusOverall[0] = getFinalStatusAfterUnresolvables(statusOverall[0], 
           hib3GrouploaderLogOverall.getTotalCount(), hib3GrouploaderLogOverall.getUnresolvableSubjectCount());
+      if (!failsafeProblem && statusOverall[0] != null && !statusOverall[0].isError()) {
+        GrouperFailsafe.assignSuccess(hib3GrouploaderLogOverall.getJobName());
+      }
+      if (failsafeProblem || GrouperLoaderStatus.ERROR_FAILSAFE == statusOverall[0]) {
+        GrouperFailsafe.assignFailed(hib3GrouploaderLogOverall.getJobName());
+        grouperFailsafeBean.notifyEmailAboutFailsafe();
+      }
+
     }
     
   }
@@ -2143,7 +2279,7 @@ public enum GrouperLoaderType {
       GrouperLoaderStatus[] statusOverall, Map<String, String> groupNameToDisplayName,
       Map<String, String> groupNameToDescription,
       Map<String, Map<Privilege, List<Subject>>> privsToAdd, long groupStartedMillis,
-      String groupName, String groupNameOverall, LoaderJobBean loaderJobBean) {
+      String groupName, String groupNameOverall, GrouperFailsafeBean grouperFailsafeBean) {
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
     try {
       GrouperLoaderResultset grouperLoaderResultset = new GrouperLoaderResultset(
@@ -2193,10 +2329,9 @@ public enum GrouperLoaderType {
       }
       
       //based on type, run query from the db and sync members
-      // TODO
       syncOneGroupMembership(groupName, groupNameOverall, displayName, 
           description, hib3GrouploaderLog, groupStartedMillis,
-          grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName), null);
+          grouperLoaderResultset, true, grouperSession, andGroups, groupTypes, privsToAdd.get(groupName), grouperFailsafeBean);
       
       long endTime = System.currentTimeMillis();
       hib3GrouploaderLog.setEndedTime(new Timestamp(endTime));
@@ -2867,7 +3002,7 @@ public enum GrouperLoaderType {
     
     //keep this separate so we can prepend stuff inside...
     final StringBuilder jobMessage = new StringBuilder(StringUtils.defaultString(hib3GrouploaderLog.getJobMessage()));
-    
+
     final String[] jobStatus = new String[1];
     
     //assume success
@@ -3271,16 +3406,19 @@ public enum GrouperLoaderType {
       final List<LoaderMemberWrapper> membersToRemove = new ArrayList<LoaderMemberWrapper>(currentMembers);
    
       // GRP-1130
-      if(grouperFailsafeBean.shouldAbortDueToTooManyMembersRemoved(originalGroupSize, membersToRemove.size(), subjectsToAdd.size())) {
+      if(grouperFailsafeBean != null && grouperFailsafeBean.shouldAbortDueToTooManyMembersRemoved(originalGroupSize, GrouperUtil.length(membersToRemove), GrouperUtil.length(subjectsToAdd))) {
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR_FAILSAFE.name());
         hib3GrouploaderLog.insertJobMessage("Can't remove "
-            + membersToRemove.size() + " members from " + theGroup.getName() + " (originalGroupSize: "
+            + GrouperUtil.length(membersToRemove) + " members from " + theGroup.getName() + " (originalGroupSize: "
             + originalGroupSize + ") "
             + " unless the failsafe is approved or settings are adjusted.");
         hib3GrouploaderLog.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
         hib3GrouploaderLog.store();
         
-        grouperFailsafeBean.notifyEmailAboutFailsafe();
+        // the group list will send one email
+        if (!groupList) {
+          grouperFailsafeBean.notifyEmailAboutFailsafe();
+        }
         GrouperFailsafe.assignFailed(grouperFailsafeBean.getJobName());
         return;
       } 
@@ -3288,7 +3426,7 @@ public enum GrouperLoaderType {
       numberOfRows = currentMembers.size();
       count = 1;
       //first remove members
-      for (LoaderMemberWrapper loaderMemberWrapper : membersToRemove) {
+      for (LoaderMemberWrapper loaderMemberWrapper : GrouperUtil.nonNull(membersToRemove)) {
         if (LOG.isDebugEnabled()) {
           LOG.debug(groupName + " will remove subject from group: " + loaderMemberWrapper.getSourceId() + "/" + loaderMemberWrapper.getSubjectId() + ", " + count + " of " + numberOfRows + " members");
         }

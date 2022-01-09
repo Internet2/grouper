@@ -791,6 +791,11 @@ public class GrouperDdlUtils {
   }
 
   public static synchronized String runScriptFileIfShouldReturnString(String connectionName, File scriptFile, boolean runScript) {
+    
+    if (StringUtils.length(StringUtils.trim(GrouperUtil.readFileIntoString(scriptFile))) == 0) {
+      return "";
+    }
+    
     GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile(connectionName);
 
     String logMessage = (runScript ? "Ran" : "Run") + " this DDL:\n" + scriptFile.getAbsolutePath();
@@ -861,6 +866,9 @@ public class GrouperDdlUtils {
 
     String logMessage = runScriptIfShouldReturnString(script, runScript, false);
     
+    if (StringUtils.isBlank(logMessage)) {
+      return;
+    }
     //if call from command line, print to screen
     if (LOG.isErrorEnabled()) {
       LOG.error(logMessage);

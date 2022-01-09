@@ -137,8 +137,598 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderShouldAbortWithoutChangingMembershipsMaxPercentRemove"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderShouldAbortListWithoutChangingMembershipsMaxGroupPercentRemove"));
   }
+
+  /**
+   * loader job should abort when it is trying to remove more number of members than
+   * configured in the loader.failsafe.maxPercentRemove and also when the group size is more than
+   *  loader.failsafe.minGroupSize
+   * @throws Exception 
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderShouldAbortListWithoutChangingMembershipsMaxGroupPercentRemove() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    Group[] groups = new Group[10];
+    for (int i=0;i<10;i++) {
+      
+      groups[i] = new GroupSave(this.grouperSession).assignName("loader:group" + i).assignCreateParentStemsIfNotExist(true).save();
+      
+      for (int j=0;j<=i;j++) {
+        TestgrouperLoader subj = new TestgrouperLoader("test.subject." + j, "loader:group" + i, null);
+        testDataList.add(subj);
+      }
+    }
+    //group0 has 1 member, group9 has 10 members
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID, col2 as group_name from testgrouper_loader "); //where col1 in ('test.subject.0', 'test.subject.1')
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, "T");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE, "20");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE, "6");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS, "-1");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    //group0 has 1 member, group9 has 10 members
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertEquals(4, GrouperUtil.length(groups[3].getMembers()));
+    assertEquals(10, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ5));
+
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID, col2 as group_name from testgrouper_loader where col2 not in ('loader:group3', 'loader:group9') or col1 = 'test.subject.0'");
+
+    GrouperUtil.sleep(1000);
+
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+      fail();
+    }
+    catch(RuntimeException e) {
+    }
+    // group3 has been cleared except test.subject.0
+    for (int i=0;i<10;i++) {
+      groups[i] = GroupFinder.findByName("loader:group" + i, false);
+    }
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertEquals(1, GrouperUtil.length(groups[3].getMembers()));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ0));
+    assertEquals(10, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ5));
+
+    String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+
+    assertTrue(GrouperFailsafe.isFailsafeIssue(jobName));
+
+    String subJobName = "subjobFor_loader:group9";
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(subJobName);
+    assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+
+    assertTrue(GrouperFailsafe.isFailsafeIssue(subJobName));
+
+    GrouperUtil.sleep(1000);
+    
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+    GrouperFailsafe.assignApproveNextRun(jobName);
+    assertTrue(GrouperFailsafe.isApproved(jobName));
+    
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    }
+    catch(RuntimeException e) {
+      e.printStackTrace();
+      fail();
+    }
+    
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    
+    // group3, 4, 5, 9 has been cleared
+    for (int i=0;i<10;i++) {
+      groups[i] = GroupFinder.findByName("loader:group" + i, false);
+    }
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertEquals(1, GrouperUtil.length(groups[3].getMembers()));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ0));
+    assertNotNull(groups[4]);
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertEquals(1, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ0));
+  
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    subJobName = "subjobFor_loader:group9";
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(subJobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+  
+  }
+  
+  /**
+   * loader job should abort when it is trying to remove more number of members than
+   * configured in the loader.failsafe.maxPercentRemove and also when the group size is more than
+   *  loader.failsafe.minGroupSize
+   * @throws Exception 
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderShouldAbortListWithoutChangingMembershipsMinOverallMemberships() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    Group[] groups = new Group[10];
+    for (int i=0;i<10;i++) {
+      
+      groups[i] = new GroupSave(this.grouperSession).assignName("loader:group" + i).assignCreateParentStemsIfNotExist(true).save();
+      
+      for (int j=0;j<=i;j++) {
+        TestgrouperLoader subj = new TestgrouperLoader("test.subject." + j, "loader:group" + i, null);
+        testDataList.add(subj);
+      }
+    }
+    //group0 has 1 member, group9 has 10 members
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID, col2 as group_name from testgrouper_loader "); //where col1 in ('test.subject.0', 'test.subject.1')
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, "T");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE, "10");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS, "-1");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    //group0 has 1 member, group9 has 10 members
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertEquals(4, GrouperUtil.length(groups[3].getMembers()));
+    assertEquals(10, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ5));
+
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID, col2 as group_name from testgrouper_loader where col2 not in ('loader:group3', 'loader:group4', 'loader:group5', 'loader:group9')");
+
+    GrouperUtil.sleep(1000);
+
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+      fail();
+    }
+    catch(RuntimeException e) {
+    }
+    // nothing has been cleared
+    for (int i=0;i<10;i++) {
+      groups[i] = GroupFinder.findByName("loader:group" + i, false);
+    }
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertEquals(4, GrouperUtil.length(groups[3].getMembers()));
+    assertEquals(10, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ5));
+  
+    String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+    
+    GrouperUtil.sleep(1000);
+    
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+    GrouperFailsafe.assignApproveNextRun(jobName);
+    assertTrue(GrouperFailsafe.isApproved(jobName));
+    
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    }
+    catch(RuntimeException e) {
+      fail();
+    }
+    
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    
+    // group3, 4, 5, 9 has been cleared
+    for (int i=0;i<10;i++) {
+      groups[i] = GroupFinder.findByName("loader:group" + i, false);
+    }
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertNull(groups[3]);
+    assertNull(groups[4]);
+    assertNull(groups[5]);
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertNull(groups[9]);
+  
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    String subJobName = "subjobFor_loader:group0";
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(subJobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+  
+  }
+  
+  /**
+   * loader job should abort when it is trying to remove more number of members than
+   * configured in the loader.failsafe.maxPercentRemove and also when the group size is more than
+   *  loader.failsafe.minGroupSize
+   * @throws Exception 
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderShouldAbortListWithoutChangingMembershipsOverallMinManagedGroups() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    Group[] groups = new Group[10];
+    for (int i=0;i<10;i++) {
+      
+      groups[i] = new GroupSave(this.grouperSession).assignName("loader:group" + i).assignCreateParentStemsIfNotExist(true).save();
+      
+      for (int j=0;j<=i;j++) {
+        TestgrouperLoader subj = new TestgrouperLoader("test.subject." + j, "loader:group" + i, null);
+        testDataList.add(subj);
+      }
+    }
+    //group0 has 1 member, group9 has 10 members
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID, col2 as group_name from testgrouper_loader "); //where col1 in ('test.subject.0', 'test.subject.1')
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, "T");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE, "10");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS, "8");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS, "-1");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    //group0 has 1 member, group9 has 10 members
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertEquals(4, GrouperUtil.length(groups[3].getMembers()));
+    assertEquals(10, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ5));
+
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID, col2 as group_name from testgrouper_loader where col2 not in ('loader:group3', 'loader:group4', 'loader:group5', 'loader:group9')");
+
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+      fail();
+    }
+    catch(RuntimeException e) {
+    }
+    // nothing has been cleared
+    for (int i=0;i<10;i++) {
+      groups[i] = GroupFinder.findByName("loader:group" + i, false);
+    }
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertEquals(4, GrouperUtil.length(groups[3].getMembers()));
+    assertEquals(10, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ5));
+  
+    String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+    
+    GrouperUtil.sleep(1000);
+    
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS, "12");
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+    
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    }
+    catch(RuntimeException e) {
+      fail();
+    }
+    
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    
+    // group3, 4, 5, 9 has been cleared
+    for (int i=0;i<10;i++) {
+      groups[i] = GroupFinder.findByName("loader:group" + i, false);
+    }
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertNull(groups[3]);
+    assertNull(groups[4]);
+    assertNull(groups[5]);
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertNull(groups[9]);
+  
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    String subJobName = "subjobFor_loader:group0";
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(subJobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+  
+  }
+  
+  /**
+   * loader job should abort when it is trying to remove more number of members than
+   * configured in the loader.failsafe.maxPercentRemove and also when the group size is more than
+   *  loader.failsafe.minGroupSize
+   * @throws Exception 
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderShouldAbortListWithoutChangingMembershipsOverallMinMemberships() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    Group[] groups = new Group[10];
+    for (int i=0;i<10;i++) {
+      
+      groups[i] = new GroupSave(this.grouperSession).assignName("loader:group" + i).assignCreateParentStemsIfNotExist(true).save();
+      
+      for (int j=0;j<=i;j++) {
+        TestgrouperLoader subj = new TestgrouperLoader("test.subject." + j, "loader:group" + i, null);
+        testDataList.add(subj);
+      }
+    }
+    //group0 has 1 member, group9 has 10 members
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID, col2 as group_name from testgrouper_loader "); //where col1 in ('test.subject.0', 'test.subject.1')
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, "T");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE, "20");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE, "6");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS, "45");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    //group0 has 1 member, group9 has 10 members
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertEquals(4, GrouperUtil.length(groups[3].getMembers()));
+    assertEquals(10, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ5));
+
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID, col2 as group_name from testgrouper_loader where col2 not in ('loader:group3', 'loader:group9')");
+
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+      fail();
+    }
+    catch(RuntimeException e) {
+    }
+    // nothing has been cleared
+    for (int i=0;i<10;i++) {
+      groups[i] = GroupFinder.findByName("loader:group" + i, false);
+    }
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertEquals(4, GrouperUtil.length(groups[3].getMembers()));
+    assertEquals(10, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ5));
+  
+    String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+    
+    GrouperUtil.sleep(1000);
+    
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+    GrouperFailsafe.assignApproveNextRun(jobName);
+    assertTrue(GrouperFailsafe.isApproved(jobName));
+    
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    }
+    catch(RuntimeException e) {
+      fail();
+    }
+    
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    
+    // group3 has been cleared, group9 has not
+    for (int i=0;i<10;i++) {
+      groups[i] = GroupFinder.findByName("loader:group" + i, false);
+    }
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertNull(groups[3]);
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertNull(groups[9]);
+  
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    String subJobName = "subjobFor_loader:group9";
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(subJobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+  
+  }
+  
+  /**
+   * loader job should abort when it is trying to remove more number of members than
+   * configured in the loader.failsafe.maxPercentRemove and also when the group size is more than
+   *  loader.failsafe.minGroupSize
+   * @throws Exception 
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderShouldAbortListWithoutChangingMembershipsGroupMaxPercentRemove() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    Group[] groups = new Group[10];
+    for (int i=0;i<10;i++) {
+      
+      groups[i] = new GroupSave(this.grouperSession).assignName("loader:group" + i).assignCreateParentStemsIfNotExist(true).save();
+      
+      for (int j=0;j<=i;j++) {
+        TestgrouperLoader subj = new TestgrouperLoader("test.subject." + j, "loader:group" + i, null);
+        testDataList.add(subj);
+      }
+    }
+    //group0 has 1 member, group9 has 10 members
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_GROUP_LIST");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID, col2 as group_name from testgrouper_loader "); //where col1 in ('test.subject.0', 'test.subject.1')
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_GROUPS_LIKE, "loader:group%");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 0 4 * * ?");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, "T");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE, "20");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE, "6");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS, "-1");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+    //group0 has 1 member, group9 has 10 members
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertEquals(4, GrouperUtil.length(groups[3].getMembers()));
+    assertEquals(10, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[3].hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ5));
+
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID, col2 as group_name from testgrouper_loader where col2 not in ('loader:group3', 'loader:group9')");
+
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+      fail();
+    }
+    catch(RuntimeException e) {
+    }
+    // group3 has been cleared, group9 has not
+    for (int i=0;i<10;i++) {
+      groups[i] = GroupFinder.findByName("loader:group" + i, false);
+    }
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertNull(groups[3]);
+    assertEquals(10, GrouperUtil.length(groups[9].getMembers()));
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(groups[9].hasMember(SubjectTestHelper.SUBJ5));
+  
+    String jobName = "SQL_GROUP_LIST__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+    
+    String subJobName = "subjobFor_loader:group9";
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(subJobName);
+    assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+
+    subJobName = "subjobFor_loader:group3";
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(subJobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+
+    GrouperUtil.sleep(1000);
+    
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+    GrouperFailsafe.assignApproveNextRun(jobName);
+    assertTrue(GrouperFailsafe.isApproved(jobName));
+    
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    }
+    catch(RuntimeException e) {
+      fail();
+    }
+    
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    
+    // group3 has been cleared, group9 has not
+    for (int i=0;i<10;i++) {
+      groups[i] = GroupFinder.findByName("loader:group" + i, false);
+    }
+    assertEquals(1, GrouperUtil.length(groups[0].getMembers()));
+    assertNull(groups[3]);
+    assertTrue(groups[0].hasMember(SubjectTestHelper.SUBJ0));
+    assertNull(groups[9]);
+  
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    subJobName = "subjobFor_loader:group9";
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(subJobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+  
+  }
+  
 
   public void testLoaderExit() {
     GrouperLoader.scheduleJobs();
@@ -1755,13 +2345,107 @@ public class GrouperLoaderTest extends GrouperTest {
    * @throws Exception 
    */
   @SuppressWarnings("deprecation")
+  public void testLoaderShouldAbortWithoutChangingMembershipsMinGroupNumberOfMembersRemove() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    for (int i=0;i<10;i++) {
+      TestgrouperLoader subj = new TestgrouperLoader("test.subject." + i, null, null);
+      testDataList.add(subj);
+    }
+
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID from testgrouper_loader where col1 in ('test.subject.0', 'test.subject.1')");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, "T");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE, "6");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_GROUP_NUMBER_OF_MEMBERS, "8");
+    
+    loaderGroup.addMember(SubjectTestHelper.SUBJ0);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ1);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ2);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ3);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ4);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ5);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ6);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ7);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ8);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ9);
+    
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+      fail();
+    }
+    catch(RuntimeException e) {
+    }
+    // Loader failed and group still has all the subjects.
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ4));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ7));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ8));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ9));
+
+    String jobName = "SQL_SIMPLE__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+
+    assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+    
+    GrouperUtil.sleep(1000);
+    
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+    GrouperFailsafe.assignApproveNextRun(jobName);
+    assertTrue(GrouperFailsafe.isApproved(jobName));
+    
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    }
+    catch(RuntimeException e) {
+      fail();
+    }
+    
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    
+    // Loader failed and group still has all the subjects.
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ4));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ7));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ8));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ9));
+
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+
+  }
+  
+  /**
+   * loader job should abort when it is trying to remove more number of members than
+   * configured in the loader.failsafe.maxPercentRemove and also when the group size is more than
+   *  loader.failsafe.minGroupSize
+   * @throws Exception 
+   */
+  @SuppressWarnings("deprecation")
   public void testLoaderShouldAbortWithoutChangingMembershipsMaxPercentRemove() throws Exception {
     
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
-    TestgrouperLoader subj0 = new TestgrouperLoader("test.subject.0", null, null);
-    testDataList.add(subj0);
-    TestgrouperLoader subj1 = new TestgrouperLoader("test.subject.1", null, null);
-    testDataList.add(subj1);
+    for (int i=0;i<10;i++) {
+      TestgrouperLoader subj = new TestgrouperLoader("test.subject." + i, null, null);
+      testDataList.add(subj);
+    }
 
     HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
   
@@ -1838,6 +2522,74 @@ public class GrouperLoaderTest extends GrouperTest {
 
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
     assertFalse(GrouperFailsafe.isApproved(jobName));
+
+  }
+  
+  
+  /**
+   * loader job should abort when it is trying to remove more number of members than
+   * configured in the loader.failsafe.maxPercentRemove and also when the group size is more than
+   *  loader.failsafe.minGroupSize
+   * @throws Exception 
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderShouldAbortWithoutChangingMembershipsIgnoreMinGroupSize() throws Exception {
+    
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    for (int i=0;i<10;i++) {
+      TestgrouperLoader subj = new TestgrouperLoader("test.subject." + i, null, null);
+      testDataList.add(subj);
+    }
+    
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+    //lets add a group which will load these
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+        "loader:owner",null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col1 as SUBJECT_ID from testgrouper_loader where col1 in ('test.subject.0', 'test.subject.1')");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, "T");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE, "12");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE, "20");
+    
+    loaderGroup.addMember(SubjectTestHelper.SUBJ0);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ1);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ2);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ3);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ4);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ5);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ6);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ7);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ8);
+    loaderGroup.addMember(SubjectTestHelper.SUBJ9);
+    
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    }
+    catch(RuntimeException e) {
+      fail();
+    }
+    // Loader failed and group still has all the subjects.
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ4));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ7));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ8));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ9));
+
+    String jobName = "SQL_SIMPLE__" + loaderGroup.getName() + "__" + loaderGroup.getId();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+    assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
+
 
   }
   
@@ -4413,6 +5165,6 @@ public class GrouperLoaderTest extends GrouperTest {
     assertEquals("A1:B1:C1:D1", stem.getDisplayName());
     
   }
-  
+
   
 }

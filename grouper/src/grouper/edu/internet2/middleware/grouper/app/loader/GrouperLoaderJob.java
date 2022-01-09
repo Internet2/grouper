@@ -549,7 +549,7 @@ public class GrouperLoaderJob implements Job {
         
         if (grouperLoaderStatus == null || grouperLoaderStatus.isError()) {
           
-          throw new RuntimeException("Error in loader job: " + groupName + ", check logs: " + StringUtils.trimToEmpty(hib3GrouploaderLog.getJobMessage()));
+          throw new RuntimeException("Error in loader job: " + groupName + ", status: " + grouperLoaderStatus + ", check logs: " + StringUtils.trimToEmpty(hib3GrouploaderLog.getJobMessage()));
           
         }
       }

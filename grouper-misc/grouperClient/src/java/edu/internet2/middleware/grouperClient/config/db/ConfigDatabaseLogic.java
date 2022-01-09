@@ -1108,7 +1108,14 @@ public class ConfigDatabaseLogic {
     if (isBlank(driverClassName)) {
       
       if (isMysql(connectionUrl)) {
-        driverClassName = "com.mysql.jdbc.Driver";
+        
+        try {
+          driverClassName = "com.mysql.cj.jdbc.Driver";  
+          Class.forName(driverClassName);
+        } catch (Exception e) {
+          driverClassName = "com.mysql.jdbc.Driver";
+        }
+          
       } else if (isOracle(connectionUrl)) {
         driverClassName = "oracle.jdbc.driver.OracleDriver";
       } else if (isPostgres(connectionUrl)) { 

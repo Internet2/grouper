@@ -268,7 +268,6 @@
                             
                             </td>
                           </tr>
-                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.sqlLoaderType == 'SQL_SIMPLE' }">
 
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMinGroupSizeLabel']}</strong></td>
@@ -290,6 +289,7 @@
                               </td>
                             </tr>
   
+                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.sqlLoaderType == 'SQL_SIMPLE' }">
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMinGroupNumberOfMembersLabel']}</strong></td>
                               <td style="vertical-align: top;">

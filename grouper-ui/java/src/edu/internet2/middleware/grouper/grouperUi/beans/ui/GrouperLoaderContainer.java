@@ -2014,15 +2014,14 @@ public class GrouperLoaderContainer {
   }
 
   /**
-   * if any 
+   * true, false, default
    * @return
    */
-  public boolean isEditLoaderFailsafeUseTrue() {
-    if (this.editLoaderFailsafeUse != null) {
-      return this.editLoaderFailsafeUse;
+  public String getEditLoaderFailsafeUseOrDefault() {
+    if (this.editLoaderFailsafeUse == null) {
+      return "default";
     }
-    return false;
-    
+    return this.editLoaderFailsafeUse ? "true" : "false";
   }
   
 
@@ -2174,13 +2173,16 @@ public class GrouperLoaderContainer {
   }
 
   /**
-   * If an email should be sent out when a failsafe alert happens.
-   * The email will be sent to the list or group configured in grouper-loader.properties:
-   * loader.failsafe.sendEmailToAddresses, or loader.failsafe.sendEmailToGroup 
+   * true false or default
    * @return
    */
-  public boolean isEditLoaderFailsafeSendEmailTrue() {
-    return editLoaderFailsafeSendEmail == null ? false : editLoaderFailsafeSendEmail;
+  public String getEditLoaderFailsafeSendEmailOrDefault() {
+
+    if (this.editLoaderFailsafeSendEmail == null) {
+      return "default";
+    }
+    return this.editLoaderFailsafeSendEmail ? "true" : "false";
+
   }
 
   /**

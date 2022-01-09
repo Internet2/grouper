@@ -2268,7 +2268,7 @@ public class UiV2GrouperLoader {
     Boolean editFailsafe = null;
     {
       String editFailsafeUseName = StringUtils.trimToNull(request.getParameter("editFailsafeUseName"));
-      if (!error && !StringUtils.isBlank(editFailsafeUseName)) {
+      if (!StringUtils.isBlank(editFailsafeUseName)) {
         
         boolean editFailsafeUseNameBoolean = GrouperUtil.booleanValue(StringUtils.trim(editFailsafeUseName));
         grouperLoaderContainer.setEditLoaderFailsafeUse(editFailsafeUseNameBoolean);
@@ -2278,7 +2278,7 @@ public class UiV2GrouperLoader {
 
     {
       String editFailsafeSendEmail = StringUtils.trimToNull(request.getParameter("editFailsafeSendEmailName"));
-      if (!error && !StringUtils.isBlank(editFailsafeSendEmail)) {
+      if (!StringUtils.isBlank(editFailsafeSendEmail)) {
         
         boolean editFailsafeSendEmailNameBoolean = GrouperUtil.booleanValue(StringUtils.trim(editFailsafeSendEmail));
         grouperLoaderContainer.setEditLoaderFailsafeSendEmail(editFailsafeSendEmailNameBoolean);
@@ -2289,7 +2289,7 @@ public class UiV2GrouperLoader {
     
     {
       String editLoaderMaxOverallPercentGroupsRemoveName = StringUtils.trimToNull(request.getParameter("editLoaderMaxOverallPercentGroupsRemoveName"));
-      if (!error && !StringUtils.isBlank(editLoaderMaxOverallPercentGroupsRemoveName)) {
+      if (!StringUtils.isBlank(editLoaderMaxOverallPercentGroupsRemoveName)) {
         try {
           editFailsafe = true;
           int editLoaderMaxOverallPercentGroupsRemoveNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMaxOverallPercentGroupsRemoveName));
@@ -2302,7 +2302,7 @@ public class UiV2GrouperLoader {
     
     {
       String editLoaderMaxOverallPercentMembershipsRemoveName = StringUtils.trimToNull(request.getParameter("editLoaderMaxOverallPercentMembershipsRemoveName"));
-      if (!error && !StringUtils.isBlank(editLoaderMaxOverallPercentMembershipsRemoveName)) {
+      if (!StringUtils.isBlank(editLoaderMaxOverallPercentMembershipsRemoveName)) {
         try {
           editFailsafe = true;
           int editLoaderMaxOverallPercentMembershipsRemoveNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMaxOverallPercentMembershipsRemoveName));
@@ -2315,7 +2315,7 @@ public class UiV2GrouperLoader {
     
     {
       String editLoaderMinManagedGroupsName = StringUtils.trimToNull(request.getParameter("editLoaderMinManagedGroupsName"));
-      if (!error && !StringUtils.isBlank(editLoaderMinManagedGroupsName)) {
+      if (!StringUtils.isBlank(editLoaderMinManagedGroupsName)) {
         try {
           editFailsafe = true;
           int editLoaderMinManagedGroupsNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMinManagedGroupsName));
@@ -2328,7 +2328,7 @@ public class UiV2GrouperLoader {
     
     {
       String editLoaderMinOverallNumberOfMembersName = StringUtils.trimToNull(request.getParameter("editLoaderMinOverallNumberOfMembersName"));
-      if (!error && !StringUtils.isBlank(editLoaderMinOverallNumberOfMembersName)) {
+      if (!StringUtils.isBlank(editLoaderMinOverallNumberOfMembersName)) {
         try {
           editFailsafe = true;
           int editLoaderMinOverallNumberOfMembersNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMinOverallNumberOfMembersName));
@@ -2341,7 +2341,7 @@ public class UiV2GrouperLoader {
     
     {
       String editLoaderMaxGroupPercentRemoveName = StringUtils.trimToNull(request.getParameter("editLoaderMaxGroupPercentRemoveName"));
-      if (!error && !StringUtils.isBlank(editLoaderMaxGroupPercentRemoveName)) {
+      if (!StringUtils.isBlank(editLoaderMaxGroupPercentRemoveName)) {
         try {
           editFailsafe = true;
           int editLoaderMaxGroupPercentRemoveNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMaxGroupPercentRemoveName));
@@ -2354,7 +2354,7 @@ public class UiV2GrouperLoader {
     
     {
       String editLoaderMinGroupSizeName = StringUtils.trimToNull(request.getParameter("editLoaderMinGroupSizeName"));
-      if (!error && !StringUtils.isBlank(editLoaderMinGroupSizeName)) {
+      if (!StringUtils.isBlank(editLoaderMinGroupSizeName)) {
         try {
           editFailsafe = true;
           int editLoaderMinGroupSizeNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMinGroupSizeName));
@@ -2367,7 +2367,7 @@ public class UiV2GrouperLoader {
     
     {
       String editLoaderMinGroupNumberOfMembersName = StringUtils.trimToNull(request.getParameter("editLoaderMinGroupNumberOfMembersName"));
-      if (!error && !StringUtils.isBlank(editLoaderMinGroupNumberOfMembersName)) {
+      if (!StringUtils.isBlank(editLoaderMinGroupNumberOfMembersName)) {
         try {
           editFailsafe = true;
           int editLoaderMinGroupNumberOfMembersNameInt = GrouperUtil.intValue(StringUtils.trim(editLoaderMinGroupNumberOfMembersName));
@@ -2380,7 +2380,7 @@ public class UiV2GrouperLoader {
 
     {
       String editFailsafeName = StringUtils.trimToNull(request.getParameter("editFailsafeName"));
-      if (!error && !StringUtils.isBlank(editFailsafeName)) {
+      if (!StringUtils.isBlank(editFailsafeName)) {
         
         editFailsafe = GrouperUtil.booleanValue(StringUtils.trim(editFailsafeName));
         
