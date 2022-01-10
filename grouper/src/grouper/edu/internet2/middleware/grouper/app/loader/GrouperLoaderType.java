@@ -929,10 +929,9 @@ public enum GrouperLoaderType {
             loaderJobBean.getHib3GrouploaderLogOverall().getJobName(), 
             loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getLdapSubjectExpression());
         
-        // TODO
         syncOneGroupMembership(loaderJobBean.getGroupNameOverall(), loaderJobBean.getGroupNameOverall(), null, null, 
             loaderJobBean.getHib3GrouploaderLogOverall(), loaderJobBean.getStartTime(), 
-            grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), loaderJobBean.getAndGroups(), null, null, null);
+            grouperLoaderResultset, false, loaderJobBean.getGrouperSession(), loaderJobBean.getAndGroups(), null, null, loaderJobBean.getGrouperFailsafeBean());
         
       }
     }, 
@@ -3589,7 +3588,7 @@ public enum GrouperLoaderType {
       
       GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
       
-      if (!status.isError()) {
+      if (!status.isError() && grouperFailsafeBean != null) {
         GrouperFailsafe.assignSuccess(grouperFailsafeBean.getJobName());
       }
       

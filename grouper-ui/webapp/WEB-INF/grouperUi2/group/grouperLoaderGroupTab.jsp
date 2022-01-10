@@ -253,7 +253,8 @@
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderFailsafeUseLabel']}</strong></td>
                             <td style="vertical-align: top;">
                             
-                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlFailsafeUseTrue ? textContainer.text['grouperLoaderYesUseFailsafeLabel'] : textContainer.text['grouperLoaderNoDoNotUseFailsafeLabel'])}
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.getSqlFailsafeUseOrDefault() == "true" ? textContainer.text['grouperLoaderYesUseFailsafeLabel'] : 
+                                 (grouperRequestContainer.grouperLoaderContainer.getSqlFailsafeUseOrDefault() == "false" ? textContainer.text['grouperLoaderNoDoNotUseFailsafeLabel'] : textContainer.text['grouperLoaderDefaultUseFailsafeLabel']))}
                               <br /><span class="description">${textContainer.text['grouperLoaderFailsafeUseDescription']}</span>
                             
                             </td>
@@ -263,31 +264,32 @@
                             <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderFailsafeSendEmailLabel']}</strong></td>
                             <td style="vertical-align: top;">
                             
-                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlFailsafeSendEmailTrue ? textContainer.text['grouperLoaderYesSendEmailFailsafeLabel'] : textContainer.text['grouperLoaderNoDoNotSendEmailFailsafeLabel'])}
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.getSqlFailsafeSendEmailOrDefault() == "true" ? textContainer.text['grouperLoaderYesSendEmailFailsafeLabel'] : 
+                                 (grouperRequestContainer.grouperLoaderContainer.getSqlFailsafeSendEmailOrDefault() == "false" ? textContainer.text['grouperLoaderNoDoNotSendEmailFailsafeLabel'] : textContainer.text['grouperLoaderDefaultSendEmailLabel']))}
                               <br /><span class="description">${textContainer.text['grouperLoaderFailsafeSendEmailDescription']}</span>
                             
                             </td>
                           </tr>
 
-                            <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMinGroupSizeLabel']}</strong></td>
-                              <td style="vertical-align: top;">
-                              
-                                ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlMinGroupSize)}
-                                <br /><span class="description">${textContainer.text['grouperLoaderMinGroupSizeDescription']}</span>
-                              
-                              </td>
-                            </tr>
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMinGroupSizeLabel']}</strong></td>
+                            <td style="vertical-align: top;">
+                            
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlMinGroupSize)}
+                              <br /><span class="description">${textContainer.text['grouperLoaderMinGroupSizeDescription']}</span>
+                            
+                            </td>
+                          </tr>
 
-                            <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMaxGroupPercentRemoveLabel']}</strong></td>
-                              <td style="vertical-align: top;">
-                              
-                                ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlMaxGroupPercentRemove)}
-                                <br /><span class="description">${textContainer.text['grouperLoaderMaxGroupPercentRemoveDescription']}</span>
-                              
-                              </td>
-                            </tr>
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMaxGroupPercentRemoveLabel']}</strong></td>
+                            <td style="vertical-align: top;">
+                            
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.sqlMaxGroupPercentRemove)}
+                              <br /><span class="description">${textContainer.text['grouperLoaderMaxGroupPercentRemoveDescription']}</span>
+                            
+                            </td>
+                          </tr>
   
                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.sqlLoaderType == 'SQL_SIMPLE' }">
                             <tr>
@@ -644,6 +646,117 @@
                             </td>
                           </tr>
                         
+                        </c:if>
+                        
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderFailsafeLabel']}</strong></td>
+                          <td style="vertical-align: top;">
+                          
+                            ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.customizeFailsafeTrue ? textContainer.text['grouperLoaderYesFailsafeLabel'] : textContainer.text['grouperLoaderNoFailsafeLabel'])}
+
+                            <br /><span class="description">${textContainer.text['grouperLoaderFailsafeDescription']}</span>
+                          
+                          </td>
+                        </tr>
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.customizeFailsafeTrue }">
+                          
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderFailsafeUseLabel']}</strong></td>
+                            <td style="vertical-align: top;">
+                            
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.getLdapFailsafeUseOrDefault() == "true" ? textContainer.text['grouperLoaderYesUseFailsafeLabel'] : 
+                                 (grouperRequestContainer.grouperLoaderContainer.getLdapFailsafeUseOrDefault() == "false" ? textContainer.text['grouperLoaderNoDoNotUseFailsafeLabel'] : textContainer.text['grouperLoaderDefaultUseFailsafeLabel']))}
+                              <br /><span class="description">${textContainer.text['grouperLoaderFailsafeUseDescription']}</span>
+                            
+                            </td>
+                          </tr>
+                          
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderFailsafeSendEmailLabel']}</strong></td>
+                            <td style="vertical-align: top;">
+                            
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.getLdapFailsafeSendEmailOrDefault() == "true" ? textContainer.text['grouperLoaderYesSendEmailFailsafeLabel'] : 
+                                 (grouperRequestContainer.grouperLoaderContainer.getLdapFailsafeSendEmailOrDefault() == "false" ? textContainer.text['grouperLoaderNoDoNotSendEmailFailsafeLabel'] : textContainer.text['grouperLoaderDefaultSendEmailLabel']))}
+                              <br /><span class="description">${textContainer.text['grouperLoaderFailsafeSendEmailDescription']}</span>
+                            
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMinGroupSizeLabel']}</strong></td>
+                            <td style="vertical-align: top;">
+                            
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapMinGroupSize)}
+                              <br /><span class="description">${textContainer.text['grouperLoaderMinGroupSizeDescription']}</span>
+                            
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMaxGroupPercentRemoveLabel']}</strong></td>
+                            <td style="vertical-align: top;">
+                            
+                              ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapMaxGroupPercentRemove)}
+                              <br /><span class="description">${textContainer.text['grouperLoaderMaxGroupPercentRemoveDescription']}</span>
+                            
+                            </td>
+                          </tr>
+  
+                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_SIMPLE' }">
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMinGroupNumberOfMembersLabel']}</strong></td>
+                              <td style="vertical-align: top;">
+                              
+                                ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapMinGroupNumberOfMembers)}
+                                <br /><span class="description">${textContainer.text['grouperLoaderMinGroupNumberOfMembersDescription']}</span>
+                              
+                              </td>
+                            </tr>
+                          </c:if>
+                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_GROUP_LIST'
+                            || grouperRequestContainer.grouperLoaderContainer.ldapLoaderType == 'LDAP_GROUPS_FROM_ATTRIBUTES' }">
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMinManagedGroupsLabel']}</strong></td>
+                              <td style="vertical-align: top;">
+                              
+                                ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapMinManagedGroups)}
+                                <br /><span class="description">${textContainer.text['grouperLoaderMinManagedGroupsDescription']}</span>
+                              
+                              </td>
+                            </tr>
+  
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMaxOverallPercentGroupsRemoveLabel']}</strong></td>
+                              <td style="vertical-align: top;">
+                              
+                                ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapMaxOverallPercentGroupsRemove)}
+                                <br /><span class="description">${textContainer.text['grouperLoaderMaxOverallPercentGroupsRemoveDescription']}</span>
+                              
+                              </td>
+                            </tr>
+  
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMaxOverallPercentMembershipsRemoveLabel']}</strong></td>
+                              <td style="vertical-align: top;">
+                              
+                                ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapMaxOverallPercentMembershipsRemove)}
+                                <br /><span class="description">${textContainer.text['grouperLoaderMaxOverallPercentMembershipsRemoveDescription']}</span>
+                              
+                              </td>
+                            </tr>
+  
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderMinOverallNumberOfMembersLabel']}</strong></td>
+                              <td style="vertical-align: top;">
+                              
+                                ${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.ldapMinOverallNumberOfMembers)}
+                                <br /><span class="description">${textContainer.text['grouperLoaderMinOverallNumberOfMembersDescription']}</span>
+                              
+                              </td>
+                            </tr>
+  
+                          </c:if>
+                          
                         </c:if>
                         
                         <tr>

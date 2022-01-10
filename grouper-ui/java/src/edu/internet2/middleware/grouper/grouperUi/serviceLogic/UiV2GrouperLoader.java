@@ -1522,6 +1522,17 @@ public class UiV2GrouperLoader {
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapSubjectExpressionAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapSubjectExpression());
             assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeAttributeDefName(), grouperLoaderContainer.getEditLoaderLdapSubjectLookupType());
 
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapFailsafeUseAttributeDefName(), grouperLoaderContainer.getEditLoaderFailsafeUse() == null ? null : (grouperLoaderContainer.getEditLoaderFailsafeUse() ? "T" : "F"));
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapFailsafeSendEmailAttributeDefName(), grouperLoaderContainer.getEditLoaderFailsafeSendEmail() == null ? null : (grouperLoaderContainer.getEditLoaderFailsafeSendEmail() ? "T" : "F"));
+
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapMaxGroupPercentRemoveAttributeDefName(), StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMaxGroupPercentRemove()));
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapMaxOverallPercentGroupsRemoveAttributeDefName(), StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMaxOverallPercentGroupsRemove()));
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapMaxOverallPercentMembershipsRemoveAttributeDefName(), StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMaxOverallPercentMembershipsRemove()));
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapMinGroupNumberOfMembersAttributeDefName(), StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMinGroupNumberOfMembers()));
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapMinGroupSizeAttributeDefName(), StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMinGroupSize()));
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapMinManagedGroupsAttributeDefName(), StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMinManagedGroups()));
+            assignGroupLdapAttribute(group, LoaderLdapUtils.grouperLoaderLdapMinOverallNumberOfMembersAttributeDefName(), StringUtils.trimToNull(grouperLoaderContainer.getEditLoaderMinOverallNumberOfMembers()));
+
             if (grouperLoaderContainer.getGuiDaemonJob() != null || "true".equalsIgnoreCase(request.getParameter("editLoaderScheduleJobName"))) {
               GrouperLoaderType.validateAndScheduleLdapLoad(attributeAssign, null, false);
             }
@@ -1679,11 +1690,11 @@ public class UiV2GrouperLoader {
 
           }
           if (StringUtils.equals("SQL_SIMPLE", grouperLoaderContainer.getEditLoaderSqlType())) {
-            grouperLoaderContainer.setEditLoaderMaxGroupPercentRemove(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMaxGroupPercentRemove()));
-            grouperLoaderContainer.setEditLoaderMinGroupSize(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMinGroupSize()));
             grouperLoaderContainer.setEditLoaderMinGroupNumberOfMembers(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMinGroupNumberOfMembers()));
           }
           
+          grouperLoaderContainer.setEditLoaderMaxGroupPercentRemove(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMaxGroupPercentRemove()));
+          grouperLoaderContainer.setEditLoaderMinGroupSize(GrouperUtil.stringValue(grouperLoaderContainer.getSqlMinGroupSize()));
           grouperLoaderContainer.setEditLoaderFailsafeUse(grouperLoaderContainer.getSqlFailsafeUse());
           grouperLoaderContainer.setEditLoaderFailsafeSendEmail(grouperLoaderContainer.getSqlFailsafeSendEmail());
 
@@ -1712,7 +1723,18 @@ public class UiV2GrouperLoader {
             grouperLoaderContainer.setEditLoaderLdapReaders(grouperLoaderContainer.getLdapReaders());
             grouperLoaderContainer.setEditLoaderLdapUpdaters(grouperLoaderContainer.getLdapUpdaters());
             grouperLoaderContainer.setEditLoaderLdapViewers(grouperLoaderContainer.getLdapViewers());
+            
+            grouperLoaderContainer.setEditLoaderMaxOverallPercentGroupsRemove(GrouperUtil.stringValue(grouperLoaderContainer.getLdapMaxOverallPercentGroupsRemove()));
+            grouperLoaderContainer.setEditLoaderMaxOverallPercentMembershipsRemove(GrouperUtil.stringValue(grouperLoaderContainer.getLdapMaxOverallPercentMembershipsRemove()));
+            grouperLoaderContainer.setEditLoaderMinManagedGroups(GrouperUtil.stringValue(grouperLoaderContainer.getLdapMinManagedGroups()));
+            grouperLoaderContainer.setEditLoaderMinOverallNumberOfMembers(GrouperUtil.stringValue(grouperLoaderContainer.getLdapMinOverallNumberOfMembers()));
+
           }
+          
+          if (StringUtils.equals("LDAP_SIMPLE", grouperLoaderContainer.getEditLoaderLdapType())) {
+            grouperLoaderContainer.setEditLoaderMinGroupNumberOfMembers(GrouperUtil.stringValue(grouperLoaderContainer.getLdapMinGroupNumberOfMembers()));
+          }
+
           grouperLoaderContainer.setEditLoaderLdapServerId(grouperLoaderContainer.getLdapServerId());
           grouperLoaderContainer.setEditLoaderCron(grouperLoaderContainer.getLdapCron());
           grouperLoaderContainer.setEditLoaderLdapFilter(grouperLoaderContainer.getLdapLoaderFilter());
@@ -1724,6 +1746,12 @@ public class UiV2GrouperLoader {
 
           grouperLoaderContainer.setEditLoaderLdapSubjectExpression(grouperLoaderContainer.getLdapSubjectExpression());
           grouperLoaderContainer.setEditLoaderLdapSubjectLookupType(grouperLoaderContainer.getLdapSubjectLookupType());
+          
+          grouperLoaderContainer.setEditLoaderMaxGroupPercentRemove(GrouperUtil.stringValue(grouperLoaderContainer.getLdapMaxGroupPercentRemove()));
+          grouperLoaderContainer.setEditLoaderMinGroupSize(GrouperUtil.stringValue(grouperLoaderContainer.getLdapMinGroupSize()));
+          grouperLoaderContainer.setEditLoaderFailsafeUse(grouperLoaderContainer.getLdapFailsafeUse());
+          grouperLoaderContainer.setEditLoaderFailsafeSendEmail(grouperLoaderContainer.getLdapFailsafeSendEmail());
+
           
         }
         grouperLoaderContainer.grouperLoaderFailsafeAssignUse();

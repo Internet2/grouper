@@ -577,6 +577,61 @@ public class GrouperLoaderContainer {
 
   }
 
+  public Integer getLdapMaxOverallPercentGroupsRemove() {
+    return GrouperUtil.intObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapMaxOverallPercentGroupsRemoveName()), true);
+
+
+  }
+
+  public Integer getLdapMaxOverallPercentMembershipsRemove() {
+    return GrouperUtil.intObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapMaxOverallPercentMembershipsRemoveName()), true);
+  }
+
+  public Integer getLdapMinManagedGroups() {
+    return GrouperUtil.intObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapMinManagedGroupsName()), true);
+  }
+
+  public Integer getLdapMinOverallNumberOfMembers() {
+    return GrouperUtil.intObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapMinOverallNumberOfMembersName()), true);
+  }
+
+  public Integer getLdapMaxGroupPercentRemove() {
+    return GrouperUtil.intObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapMaxGroupPercentRemoveName()), true);
+  }
+
+  public Integer getLdapMinGroupSize() {
+    return GrouperUtil.intObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapMinGroupSizeName()), true);
+  }
+
+  public Integer getLdapMinGroupNumberOfMembers() {
+    return GrouperUtil.intObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapMinGroupNumberOfMembersName()), true);
+  }
+
+  public Boolean getLdapFailsafeUse() {
+    return GrouperUtil.booleanObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapFailsafeUseName()));
+  }
+
+  public Boolean getLdapFailsafeSendEmail() {
+    return GrouperUtil.booleanObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapFailsafeSendEmailName()));
+  }
+
+  public String getLdapFailsafeUseOrDefault() {
+    Boolean failsafeUse = GrouperUtil.booleanObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapFailsafeUseName()));
+    if (failsafeUse == null) {
+      return "default";
+    }
+    return failsafeUse ? "true" : "false";
+  }
+
+  public String getLdapFailsafeSendEmailOrDefault() {
+    Boolean failsafeSendEmail = GrouperUtil.booleanObjectValue(retrieveLdapAttributeValue(LoaderLdapUtils.grouperLoaderLdapFailsafeSendEmailName()));
+    if (failsafeSendEmail == null) {
+      return "default";
+    }
+    return failsafeSendEmail ? "true" : "false";
+  }
+
+  
   /**
    * extra attributes
    */
@@ -3092,19 +3147,28 @@ public class GrouperLoaderContainer {
     return GrouperUtil.booleanObjectValue(grouperLoaderType);
   }
 
-  public boolean isSqlFailsafeUseTrue() {
-    return GrouperUtil.booleanValue(this.getSqlFailsafeUse(), false);
+  public String getSqlFailsafeUseOrDefault() {
+    Boolean sqlFailsafeUse = this.getSqlFailsafeUse();
+    if (sqlFailsafeUse == null) {
+      return "default";
+    }
+    return sqlFailsafeUse ? "true" : "false";
   }
-
-  public boolean isSqlFailsafeSendEmailTrue() {
-    return GrouperUtil.booleanValue(this.getSqlFailsafeSendEmail(), false);
-  }
-
+  
+  
   public Boolean getSqlFailsafeSendEmail() {
     Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
     String grouperLoaderType = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_FAILSAFE_SEND_EMAIL);
     
     return GrouperUtil.booleanObjectValue(grouperLoaderType);
+  }
+
+  public String getSqlFailsafeSendEmailOrDefault() {
+    Boolean sqlFailsafeSendEmail = this.getSqlFailsafeSendEmail();
+    if (sqlFailsafeSendEmail == null) {
+      return "default";
+    }
+    return sqlFailsafeSendEmail ? "true" : "false";
   }
 
   public void grouperLoaderFailsafeAssignUse() {
@@ -3121,7 +3185,18 @@ public class GrouperLoaderContainer {
       this.setCustomizeFailsafeSelected(true);
     }
     
-
+    if (this.isLoaderGroup() && this.isGrouperLdapLoader()
+        && (this.getLdapFailsafeUse() != null || this.getLdapFailsafeSendEmail() != null
+        || this.getLdapMaxGroupPercentRemove() != null
+        || this.getLdapMaxOverallPercentGroupsRemove() != null
+        || this.getLdapMaxOverallPercentMembershipsRemove() != null
+        || this.getLdapMinGroupNumberOfMembers() != null
+        || this.getLdapMinGroupSize() != null
+        || this.getLdapMinManagedGroups() != null
+        || this.getLdapMinOverallNumberOfMembers() != null
+        )) {
+      this.setCustomizeFailsafeSelected(true);
+    }
     
   }
 

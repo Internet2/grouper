@@ -3675,6 +3675,66 @@ public class GrouperCheckConfig {
                 "Comma separated subjectIds or subjectIdentifiers who will be allowed to GROUP_ATTR_UPDATE on the group.  " +
                 "optional for LDAP_GROUP_LIST or LDAP_GROUPS_FROM_ATTRIBUTES", 
                 wasInCheckConfig);
+
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_FAILSAFE_USE, 
+                "Grouper loader LDAP failsafe use", 
+                "T or F if using failsafe.  If blank use the global defaults", 
+                wasInCheckConfig);
+
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_FAILSAFE_SEND_EMAIL, 
+                "Grouper loader LDAP failsafe send email", 
+                "If an email should be sent out when a failsafe alert happens. "
+                + "The email will be sent to the list or group configured in grouper-loader.properties:"
+                + "loader.failsafe.sendEmailToAddresses, or loader.failsafe.sendEmailToGroup", 
+                wasInCheckConfig);
+
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MAX_GROUP_PERCENT_REMOVE, 
+                "Grouper loader LDAP failsafe max group percent remove", 
+                "integer from 0 to 100 which specifies the maximum percent of a group which can be removed in a loader run. "
+                + "If not specified will use the global default grouper-loader.properties config setting: "
+                + "loader.failsafe.maxPercentRemove = 30",
+                wasInCheckConfig);
+
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MAX_OVERALL_PERCENT_GROUPS_REMOVE, 
+                "Grouper loader LDAP failsafe max overall percent groups remove", 
+                "If the group list meets the criteria above and the percentage of memberships that are managed by "
+                + "the loader (i.e. match the groupLikeString) that currently have members in Grouper but "
+                + "wouldn't after the job runs is greater than this percentage, then don't remove members, "
+                + "log it as an error and fail the job.  An admin would need to approve the failsafe or change this param in the config, "
+                + "and run the job manually, then change this config back.",
+                wasInCheckConfig);
+
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE, 
+                "Grouper loader LDAP failsafe max overall percent memberships remove", 
+                "integer from 0 to 100 which specifies the maximum percent of all loaded groups in the job "
+                + "which can be removed in a loader run. "
+                + "If not specified will use the global default grouper-loader.properties config setting: "
+                + "loader.failsafe.groupList.managedGroups.maxPercentGroupsRemove = 30",
+                wasInCheckConfig);
+
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MIN_GROUP_SIZE, 
+                "Grouper loader LDAP failsafe min group size", 
+                "minimum number of members for the group to be tracked by failsafe "
+                + "defaults to grouper-loader.base.properties: loader.failsafe.minGroupSize",
+                wasInCheckConfig);
+
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MIN_MANAGED_GROUPS, 
+                "Grouper loader LDAP failsafe min managed groups", 
+                "The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number "
+                + "of managed groups is smaller than this amount",
+                wasInCheckConfig);
+
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MIN_GROUP_NUMBER_OF_MEMBERS, 
+                "Grouper loader LDAP failsafe min group number of members", 
+                "The minimum group number of members for this group, a failsafe alert will trigger if the group is smaller than this amount",
+                wasInCheckConfig);
+
+            checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MIN_OVERALL_NUMBER_OF_MEMBERS, 
+                "Grouper loader LDAP failsafe min overall number of members", 
+                "The minimum overall number of members for this job across all managed groups, "
+                + "a failsafe alert will trigger if the job's overall membership count is smaller than this amount",
+                wasInCheckConfig);
+            
           }
         }
       }

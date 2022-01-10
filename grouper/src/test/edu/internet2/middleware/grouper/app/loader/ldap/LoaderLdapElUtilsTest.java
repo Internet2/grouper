@@ -32,6 +32,7 @@ import org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -41,6 +42,8 @@ import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTest
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.TestgrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerTest;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
@@ -48,9 +51,13 @@ import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
 import edu.internet2.middleware.grouper.ldap.LdapModificationType;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
@@ -66,7 +73,7 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LoaderLdapElUtilsTest("testLoaderCopyLdapToSql"));
+    TestRunner.run(new LoaderLdapElUtilsTest("testLoaderShouldAbortWithoutChangingMembershipsSimpleIgnoreMinGroupSize"));
   }
   
   /**
@@ -86,13 +93,120 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
   }
 
   /**
+   * loader job should abort when it is trying to remove more number of members than
+   * configured in the loader.failsafe.maxPercentRemove and also when the group size is more than
+   *  loader.failsafe.minGroupSize
+   * @throws Exception 
+   */
+  @SuppressWarnings("deprecation")
+  public void testLoaderShouldAbortWithoutChangingMembershipsSimpleIgnoreMinGroupSize() throws Exception {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    setupLdap();
+    
+    try {
+      
+      Group group = new GroupSave(grouperSession).assignName("test:testLdapSimpleConvertDn").assignCreateParentStemsIfNotExist(true).save();
+      
+      Set<Member> members = group.getMembers();
+      assertEquals(0, members.size());
+
+      AttributeAssign attributeAssign = group.getAttributeDelegate().assignAttribute(LoaderLdapUtils.grouperLoaderLdapAttributeDefName()).getAttributeAssign();
+      
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(uid=a*)");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapQuartzCronName(), "0 0 6 * * ?");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchDnName(), "ou=People,dc=example,dc=edu");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSearchScopeName(), "SUBTREE_SCOPE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapServerIdName(), "personLdap");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSourceIdName(), "personLdapSource");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectAttributeName(), "uid");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapSubjectIdTypeName(), "subjectId");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapTypeName(), "LDAP_SIMPLE");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFailsafeUseName(), "T");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapMinGroupSizeName(), "12");
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapMaxGroupPercentRemoveName(), "20");
+      
+      GrouperLoader.runJobOnceForGroup(grouperSession, group);
+
+      members = group.getMembers();
+      assertTrue(""+members.size(), members.size() > 900);
+      
+      Subject aanderson = SubjectFinder.findByIdAndSource("a-aanderson", "personLdapSource", true);
+      Subject ablewis = SubjectFinder.findByIdAndSource("a-blewis", "personLdapSource", true);
+
+      Member aandersonMember = MemberFinder.findBySubject(grouperSession, aanderson, true); 
+      Member ablewisMember = MemberFinder.findBySubject(grouperSession, ablewis, true); 
+
+      assertTrue(members.contains(aandersonMember));
+      assertTrue(members.contains(ablewisMember));
+      
+      GrouperUtil.sleep(1000);
+      
+      attributeAssign.getAttributeValueDelegate().assignValue(LoaderLdapUtils.grouperLoaderLdapFilterName(), "(uid=a-a*)");
+
+      try {
+        GrouperLoader.runJobOnceForGroup(grouperSession, group);
+        fail();
+      } catch (Exception e) {
+        
+      }
+
+      String jobName = "LDAP_SIMPLE__" + group.getName() + "__" + group.getId();
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+      assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+
+      members = group.getMembers();
+      assertTrue(""+members.size(), members.size() > 900);
+      assertTrue(members.contains(aandersonMember));
+      assertTrue(members.contains(ablewisMember));
+      
+      GrouperUtil.sleep(1000);
+      
+      assertFalse(GrouperFailsafe.isApproved(jobName));
+      GrouperFailsafe.assignApproveNextRun(jobName);
+      assertTrue(GrouperFailsafe.isApproved(jobName));
+      
+      try {
+        GrouperLoader.runJobOnceForGroup(grouperSession, group);
+      }
+      catch(RuntimeException e) {
+        fail();
+      }
+
+      hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+      assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+
+      assertFalse(GrouperFailsafe.isApproved(jobName));
+      assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
+
+      members = group.getMembers();
+      assertTrue(""+members.size(), members.size() < 900);
+      assertTrue(members.contains(aandersonMember));
+      assertFalse(members.contains(ablewisMember));
+      
+    } finally {
+      teardownLdap();
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+
+  private void setupLdap() {
+    // TODO LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+    LdapProvisionerTestUtils.setupLdapExternalSystem();
+    LdapProvisionerTestUtils.setupSubjectSource();
+  }
+  
+  /**
    * 
    */
   public void testLoaderLdapSimpleConvertDn() {
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
-    LdapProvisionerIncrementalTest.setupLdapAndSubjectSource();
+    setupLdap();
+    
     try {
       
       Group group = new GroupSave(grouperSession).assignName("test:testLdapSimpleConvertDn").assignCreateParentStemsIfNotExist(true).save();
@@ -129,10 +243,14 @@ public class LoaderLdapElUtilsTest extends GrouperTest {
       assertTrue(members.contains(jsmithMember));
       
     } finally {
-      LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+      teardownLdap();
       GrouperSession.stopQuietly(grouperSession);
     }
     
+  }
+  
+  private void teardownLdap() {
+    // TODO LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
   }
   
   public void testLoaderLdapReverse() {

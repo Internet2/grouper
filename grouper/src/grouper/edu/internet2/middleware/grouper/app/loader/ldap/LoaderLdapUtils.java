@@ -860,6 +860,268 @@ public class LoaderLdapUtils {
   /** Attribute name of admins  */
   public static final String ATTR_DEF_EXTENSION_LDAP_ADMINS = "grouperLoaderLdapAdmins";
 
+  
+  /**
+   * T or F if using failsafe.  If blank use the global defaults
+   */
+  public static final String ATTR_DEF_EXTENSION_FAILSAFE_USE = "grouperLoaderLdapFailsafeUse";
+  
+  /** attribute def name of failsafe use */
+  private static String grouperLoaderLdapFailsafeUseName;
+
+  /**
+   * attribute def name of failsafe use
+   * @return name
+   */
+  public static String grouperLoaderLdapFailsafeUseName() {
+    if (grouperLoaderLdapFailsafeUseName == null) {
+      grouperLoaderLdapFailsafeUseName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_FAILSAFE_USE;
+    }
+    return grouperLoaderLdapFailsafeUseName;
+  }
+  
+  /**
+   * attribute def name of failsafe use
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapFailsafeUseAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapFailsafeUseName(), true);
+  }
+
+  /**
+   * integer from 0 to 100 which specifies the maximum percent of a group which can be removed in a loader run.
+   * If not specified will use the global default grouper-loader.properties config setting:
+   * loader.failsafe.maxPercentRemove = 30
+   */
+  public static final String ATTR_DEF_EXTENSION_MAX_GROUP_PERCENT_REMOVE = "grouperLoaderLdapMaxGroupPercentRemove";
+
+  /** attribute def name of integer from 0 to 100 which specifies the maximum percent of a group which can be removed in a loader run. */
+  private static String grouperLoaderLdapMaxGroupPercentRemoveName;
+
+  /**
+   * attribute def name of integer from 0 to 100 which specifies the maximum percent of a group which can be removed in a loader run.
+   * @return name
+   */
+  public static String grouperLoaderLdapMaxGroupPercentRemoveName() {
+    if (grouperLoaderLdapMaxGroupPercentRemoveName == null) {
+      grouperLoaderLdapMaxGroupPercentRemoveName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_MAX_GROUP_PERCENT_REMOVE;
+    }
+    return grouperLoaderLdapMaxGroupPercentRemoveName;
+  }
+  
+  /**
+   * attribute def name of integer from 0 to 100 which specifies the maximum percent of a group which can be removed in a loader run.
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapMaxGroupPercentRemoveAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapMaxGroupPercentRemoveName(), true);
+  }
+
+  /**
+   * If the group list meets the criteria above and the percentage of memberships that are managed by
+   * the loader (i.e. match the groupLikeString) that currently have members in Grouper but 
+   * wouldn't after the job runs is greater than this percentage, then don't remove members,
+   * log it as an error and fail the job.  An admin would need to approve the failsafe or change this param in the config,
+   * and run the job manually, then change this config back.
+   * {valueType: "integer", required: true}
+   * loader.failsafe.groupList.managedGroups.maxPercentMembershipsRemove = 30
+   */
+  public static final String ATTR_DEF_EXTENSION_MAX_OVERALL_PERCENT_GROUPS_REMOVE = "grouperLoaderLdapMaxOverallPercentGroupsRemove";
+  
+  /** attribute def name of If the group list meets the criteria above and the percentage of memberships that are managed by */
+  private static String grouperLoaderLdapMaxOverallPercentGroupsRemoveName;
+
+
+  /**
+   * attribute def name of If the group list meets the criteria above and the percentage of memberships that are managed by
+   * @return name
+   */
+  public static String grouperLoaderLdapMaxOverallPercentGroupsRemoveName() {
+    if (grouperLoaderLdapMaxOverallPercentGroupsRemoveName == null) {
+      grouperLoaderLdapMaxOverallPercentGroupsRemoveName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_MAX_OVERALL_PERCENT_GROUPS_REMOVE;
+    }
+    return grouperLoaderLdapMaxOverallPercentGroupsRemoveName;
+  }
+  
+  /**
+   * attribute def name of If the group list meets the criteria above and the percentage of memberships that are managed by
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapMaxOverallPercentGroupsRemoveAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapMaxOverallPercentGroupsRemoveName(), true);
+  }
+
+  /**
+   * integer from 0 to 100 which specifies the maximum percent of all loaded groups in the job
+   * which can be removed in a loader run.
+   * If not specified will use the global default grouper-loader.properties config setting:
+   * loader.failsafe.groupList.managedGroups.maxPercentGroupsRemove = 30
+   */
+  public static final String ATTR_DEF_EXTENSION_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE = "grouperLoaderLdapMaxOverallPercentMembershipsRemove";
+  
+  /** attribute def name of integer from 0 to 100 which specifies the maximum percent of all loaded groups in the job */
+  private static String grouperLoaderLdapMaxOverallPercentMembershipsRemoveName;
+
+  /**
+   * attribute def name of integer from 0 to 100 which specifies the maximum percent of all loaded groups in the job
+   * @return name
+   */
+  public static String grouperLoaderLdapMaxOverallPercentMembershipsRemoveName() {
+    if (grouperLoaderLdapMaxOverallPercentMembershipsRemoveName == null) {
+      grouperLoaderLdapMaxOverallPercentMembershipsRemoveName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE;
+    }
+    return grouperLoaderLdapMaxOverallPercentMembershipsRemoveName;
+  }
+  
+  /**
+   * attribute def name of integer from 0 to 100 which specifies the maximum percent of all loaded groups in the job
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapMaxOverallPercentMembershipsRemoveAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapMaxOverallPercentMembershipsRemoveName(), true);
+  }
+
+  /**
+   * minimum number of members for the group to be tracked by failsafe
+   * defaults to grouper-loader.base.properties: loader.failsafe.minGroupSize
+   */
+  public static final String ATTR_DEF_EXTENSION_MIN_GROUP_SIZE = "grouperLoaderLdapMinGroupSize";
+  
+  /** attribute def name of minimum number of members for the group to be tracked by failsafe */
+  private static String grouperLoaderLdapMinGroupSizeName;
+
+  /**
+   * attribute def name of 
+   * @return name
+   */
+  public static String grouperLoaderLdapMinGroupSizeName() {
+    if (grouperLoaderLdapMinGroupSizeName == null) {
+      grouperLoaderLdapMinGroupSizeName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_MIN_GROUP_SIZE;
+    }
+    return grouperLoaderLdapMinGroupSizeName;
+  }
+  
+  /**
+   * attribute def name of 
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapMinGroupSizeAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapMinGroupSizeName(), true);
+  }
+
+  /**
+   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
+   * of managed groups is smaller than this amount
+   */
+  public static final String ATTR_DEF_EXTENSION_MIN_MANAGED_GROUPS = "grouperLoaderLdapMinManagedGroups";
+  
+  /** attribute def name of The minimum number of managed groups for this loader job */
+  private static String grouperLoaderLdapMinManagedGroupsName;
+
+  /**
+   * attribute def name of The minimum number of managed groups for this loader job
+   * @return name
+   */
+  public static String grouperLoaderLdapMinManagedGroupsName() {
+    if (grouperLoaderLdapMinManagedGroupsName == null) {
+      grouperLoaderLdapMinManagedGroupsName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_MIN_MANAGED_GROUPS;
+    }
+    return grouperLoaderLdapMinManagedGroupsName;
+  }
+  
+  /**
+   * attribute def name of The minimum number of managed groups for this loader job
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapMinManagedGroupsAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapMinManagedGroupsName(), true);
+  }
+
+  /**
+   * The minimum group number of members for this group, a failsafe alert will trigger if the group is smaller than this amount
+   */
+  public static final String ATTR_DEF_EXTENSION_MIN_GROUP_NUMBER_OF_MEMBERS = "grouperLoaderLdapMinGroupNumberOfMembers";
+  
+  /** attribute def name of The minimum group number of members for this group, a failsafe alert will trigger if the group is smaller than this amount */
+  private static String grouperLoaderLdapMinGroupNumberOfMembersName;
+
+  /**
+   * attribute def name of The minimum group number of members for this group, a failsafe alert will trigger if the group is smaller than this amount
+   * @return name
+   */
+  public static String grouperLoaderLdapMinGroupNumberOfMembersName() {
+    if (grouperLoaderLdapMinGroupNumberOfMembersName == null) {
+      grouperLoaderLdapMinGroupNumberOfMembersName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_MIN_GROUP_NUMBER_OF_MEMBERS;
+    }
+    return grouperLoaderLdapMinGroupNumberOfMembersName;
+  }
+  
+  /**
+   * attribute def name of The minimum group number of members for this group, a failsafe alert will trigger if the group is smaller than this amount
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapMinGroupNumberOfMembersAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapMinGroupNumberOfMembersName(), true);
+  }
+
+  /**
+   * The minimum overall number of members for this job across all managed groups, 
+   * a failsafe alert will trigger if the job's overall membership count is smaller than this amount
+   */
+  public static final String ATTR_DEF_EXTENSION_MIN_OVERALL_NUMBER_OF_MEMBERS = "grouperLoaderLdapMinOverallNumberOfMembers";
+  
+  /** attribute def name of The minimum overall number of members for this job across all managed groups */
+  private static String grouperLoaderLdapMinOverallNumberOfMembersName;
+
+  /**
+   * attribute def name of The minimum overall number of members for this job across all managed groups
+   * @return name
+   */
+  public static String grouperLoaderLdapMinOverallNumberOfMembersName() {
+    if (grouperLoaderLdapMinOverallNumberOfMembersName == null) {
+      grouperLoaderLdapMinOverallNumberOfMembersName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_MIN_OVERALL_NUMBER_OF_MEMBERS;
+    }
+    return grouperLoaderLdapMinOverallNumberOfMembersName;
+  }
+  
+  /**
+   * attribute def name of The minimum overall number of members for this job across all managed groups
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapMinOverallNumberOfMembersAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapMinOverallNumberOfMembersName(), true);
+  }
+
+  /**
+   * If an email should be sent out when a failsafe alert happens.
+   * The email will be sent to the list or group configured in grouper-loader.properties:
+   * loader.failsafe.sendEmailToAddresses, or loader.failsafe.sendEmailToGroup 
+   */
+  public static final String ATTR_DEF_EXTENSION_FAILSAFE_SEND_EMAIL = "grouperLoaderLdapFailsafeSendEmail";
+
+  /** attribute def name of If an email should be sent out when a failsafe alert happens. */
+  private static String grouperLoaderLdapFailsafeSendEmailName;
+
+  /**
+   * attribute def name of If an email should be sent out when a failsafe alert happens.
+   * @return name
+   */
+  public static String grouperLoaderLdapFailsafeSendEmailName() {
+    if (grouperLoaderLdapFailsafeSendEmailName == null) {
+      grouperLoaderLdapFailsafeSendEmailName = grouperLoaderLdapStemName() + ":" + ATTR_DEF_EXTENSION_FAILSAFE_SEND_EMAIL;
+    }
+    return grouperLoaderLdapFailsafeSendEmailName;
+  }
+  
+  /**
+   * attribute def name of If an email should be sent out when a failsafe alert happens.
+   * @return attribute def name
+   */
+  public static AttributeDefName grouperLoaderLdapFailsafeSendEmailAttributeDefName() {
+    return AttributeDefNameFinder.findByName(grouperLoaderLdapFailsafeSendEmailName(), true);
+  }
+
+  
   /** attribute def name of admins */
   private static String grouperLoaderLdapAdminsName;
 
