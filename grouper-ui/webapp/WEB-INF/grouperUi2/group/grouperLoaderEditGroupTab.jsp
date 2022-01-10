@@ -873,8 +873,8 @@
                             ${textContainer.text['grouperLoaderMaxGroupPercentRemoveDescription']}</span>
                             </td>
                           </tr>
-                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL' 
-                            && grouperRequestContainer.grouperLoaderContainer.editLoaderSqlType == 'SQL_SIMPLE'}">
+                          <c:if test="${(grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL' && grouperRequestContainer.grouperLoaderContainer.editLoaderSqlType == 'SQL_SIMPLE')
+                              || (grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'LDAP' && grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_SIMPLE')}">
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderMinGroupNumberOfMembersId">${textContainer.text['grouperLoaderMinGroupNumberOfMembersLabel']}</label></strong></td>
                               <td>
@@ -886,8 +886,9 @@
                               </td>
                             </tr>
                           </c:if>
-                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL' 
-                            && grouperRequestContainer.grouperLoaderContainer.editLoaderSqlType == 'SQL_GROUP_LIST'}">
+                          <c:if test="${(grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL' && grouperRequestContainer.grouperLoaderContainer.editLoaderSqlType == 'SQL_GROUP_LIST')
+                              || (grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'LDAP' && (grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUP_LIST'
+                                      || grouperRequestContainer.grouperLoaderContainer.editLoaderLdapType == 'LDAP_GROUPS_FROM_ATTRIBUTES' ))}">
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="editLoaderMinManagedGroupsId">${textContainer.text['grouperLoaderMinManagedGroupsLabel']}</label></strong></td>
                               <td>
