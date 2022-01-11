@@ -412,7 +412,9 @@ public class UsduJob extends OtherJobBase {
           gcGrouperSyncJob.assignHeartbeatAndEndJob();
         } catch (RuntimeException re2) {
           if (gcGrouperSyncLog != null) {
-            gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+            if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
+              gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+            }
           }
         }
         

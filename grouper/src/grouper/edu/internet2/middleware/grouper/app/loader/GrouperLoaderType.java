@@ -1675,8 +1675,7 @@ public enum GrouperLoaderType {
             && grouperFailsafeBean.shouldAbortDueToTooManyOverallMembersRemoved(currentMembershipsSize, 
                 assumedDeletions, assumedAdditions)) {
           statusOverall[0] = GrouperLoaderStatus.ERROR_FAILSAFE;
-          hib3GrouploaderLogOverall.insertJobMessage("Failsafe error current group count: " + currentNumberOfGroups
-              + ", current mship count: " + currentMembershipsSize + ", assumed deletions: " + assumedDeletions + ", assumedInserts: " + assumedAdditions
+          hib3GrouploaderLogOverall.insertJobMessage("Failsafe error current mship count: " + currentMembershipsSize + ", assumed deletions: " + assumedDeletions + ", assumedInserts: " + assumedAdditions
               + " unless data problem is fixed, failsafe is approved, or failsafe settings changed");
           hib3GrouploaderLogOverall.setMillisLoadData((int)(System.currentTimeMillis()-startTimeLoadData));
           hib3GrouploaderLogOverall.store();

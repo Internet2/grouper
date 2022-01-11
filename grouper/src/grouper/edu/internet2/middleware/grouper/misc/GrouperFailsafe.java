@@ -88,6 +88,18 @@ public class GrouperFailsafe {
   }
 
   /**
+   * remove failure from this job
+   * @param jobName
+   */
+  public static void removeFailure(String jobName) {
+    insertRow(jobName);
+    long now = System.currentTimeMillis();
+    new GcDbAccess().sql("update grouper_failsafe set approved_once = 'F', last_failsafe_issue_started = null, last_failsafe_issue = null, "
+        + "last_updated = ? where name = ?").addBindVar(now).addBindVar(jobName).executeSql();
+    
+  }
+
+  /**
    * assign an failure to this job
    * @param jobName
    */

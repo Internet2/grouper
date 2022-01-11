@@ -260,6 +260,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateAttributeCount();
     validateGroupIdToProvisionExists();
     validateMetadata();
+    validateFailsafes();
 
 
     // if there are problems with the basics, then other things could throw exceptions
@@ -268,6 +269,61 @@ public class GrouperProvisioningConfigurationValidation {
     }
 
     validateProvisionerConfig();
+  }
+
+  /**
+   * 
+   */
+  public void validateFailsafes() {
+    
+    GrouperUtil.booleanValue(this.suffixToConfigValue.get("showFailsafe"), false);
+    
+    {
+      String failsafeUse = this.suffixToConfigValue.get("failsafeUse");
+      GrouperUtil.booleanValue(failsafeUse, false);
+    }
+    
+    {
+      String failsafeSendEmail = this.suffixToConfigValue.get("failsafeSendEmail");
+      GrouperUtil.booleanValue(failsafeSendEmail, false);
+    }
+    
+    try {
+      GrouperUtil.intObjectValue(this.suffixToConfigValue.get("failsafeMinGroupSize"), true);
+    } catch (Exception e) {
+      this.addErrorMessage(GrouperTextContainer.textOrNull("grouperLoaderMinGroupSizeInvalid"));
+    }
+    
+    try {
+      GrouperUtil.intObjectValue(this.suffixToConfigValue.get("failsafeMaxPercentRemove"), true);
+    } catch (Exception e) {
+      this.addErrorMessage(GrouperTextContainer.textOrNull("grouperLoaderMaxGroupPercentRemoveInvalid"));
+    }
+    
+    try {
+      GrouperUtil.intObjectValue(this.suffixToConfigValue.get("failsafeMinManagedGroups"), true);
+    } catch (Exception e) {
+      this.addErrorMessage(GrouperTextContainer.textOrNull("grouperLoaderMinManagedGroupsInvalid"));
+    }
+    
+    try {
+      GrouperUtil.intObjectValue(this.suffixToConfigValue.get("failsafeMaxOverallPercentGroupsRemove"), true);
+    } catch (Exception e) {
+      this.addErrorMessage(GrouperTextContainer.textOrNull("grouperLoaderMaxOverallPercentGroupsRemoveInvalid"));
+    }
+    
+    try {
+      GrouperUtil.intObjectValue(this.suffixToConfigValue.get("failsafeMaxOverallPercentMembershipsRemove"), true);
+    } catch (Exception e) {
+      this.addErrorMessage(GrouperTextContainer.textOrNull("grouperLoaderMaxOverallPercentMembershipsInvalid"));
+    }
+    
+    try {
+      GrouperUtil.intObjectValue(this.suffixToConfigValue.get("failsafeMinOverallNumberOfMembers"), true);
+    } catch (Exception e) {
+      this.addErrorMessage(GrouperTextContainer.textOrNull("grouperLoaderMinOverallNumberOfMembersInvalid"));
+    }
+    
   }
 
   public void validateMatchingAttributes() {

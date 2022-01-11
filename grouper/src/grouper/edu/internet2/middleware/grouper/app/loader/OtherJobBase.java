@@ -444,6 +444,13 @@ public abstract class OtherJobBase implements Job {
         } catch (RuntimeException e) {
           LOG.error("Error occurred while running job: " + jobName, e);
           hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+          if (e instanceof OtherJobException) {
+            OtherJobException otherJobException = (OtherJobException)e;
+            GrouperLoaderStatus grouperLoaderStatus = otherJobException.getGrouperLoaderStatus();
+            if (grouperLoaderStatus != null) {
+              hib3GrouperLoaderLog.setStatus(grouperLoaderStatus.name());
+            }
+          }
           hib3GrouperLoaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
           
           storeLogInDb(hib3GrouperLoaderLog, false, startTime);

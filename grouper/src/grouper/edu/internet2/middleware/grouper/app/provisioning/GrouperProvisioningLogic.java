@@ -9,11 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.OtherJobException;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
@@ -24,10 +29,13 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoSendChangesToTargetRequest;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafeBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -38,7 +46,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogSta
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
  * does the logic to use the data from the DAOs and call the correct methods to synnc things up or dry run or send messages for async
@@ -282,6 +289,9 @@ public class GrouperProvisioningLogic {
     
     this.countInsertsUpdatesDeletes();
 
+    this.processFailsafeAtStart();
+    this.processFailsafes();
+    
     RuntimeException runtimeException = null;
     try {
       debugMap.put("state", "sendChangesToTarget");
@@ -357,6 +367,109 @@ public class GrouperProvisioningLogic {
 
   }
 
+  private GrouperFailsafeBean grouperFailsafeBean = null;
+  
+  
+  public GrouperFailsafeBean getGrouperFailsafeBean() {
+    return grouperFailsafeBean;
+  }
+
+  /**
+   * see if there is a failsafe issue and throw a failsafe error
+   */
+  public void processFailsafeAtStart() {
+    String jobName = this.getGrouperProvisioner().getJobName();
+    
+    if (StringUtils.isBlank(jobName)) {
+      return;
+    }
+    
+    // lets see if we are configured to do failsafes
+    Boolean showFailsafe = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigBoolean("showFailsafe", false);
+    
+    grouperFailsafeBean = new GrouperFailsafeBean();
+    grouperFailsafeBean.setJobName(jobName);
+    
+    if (showFailsafe != null && showFailsafe) {
+      {
+        Boolean failsafeUse = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigBoolean("failsafeUse", false);
+        grouperFailsafeBean.assignUseFailsafeOverride(failsafeUse);
+        if (!grouperFailsafeBean.isUseFailsafe()) {
+          return;
+        }
+      }
+      
+      {
+        Boolean failsafeSendEmail = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigBoolean("failsafeSendEmail", false);
+        grouperFailsafeBean.assignSendEmailOverride(failsafeSendEmail);
+      }
+      {
+        Integer failsafeMinGroupSize = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMinGroupSize", false);
+        grouperFailsafeBean.assignMinGroupSizeOverride(failsafeMinGroupSize);
+      }
+      {
+        Integer failsafeMaxPercentRemove = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMaxPercentRemove", false);
+        grouperFailsafeBean.assignMaxGroupPercentRemoveOverride(failsafeMaxPercentRemove);
+      }
+      {
+        Integer failsafeMinManagedGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMinManagedGroups", false);
+        grouperFailsafeBean.assignMinManagedGroupsOverride(failsafeMinManagedGroups);
+      }
+      {
+        Integer failsafeMaxOverallPercentGroupsRemove = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMaxOverallPercentGroupsRemove", false);
+        grouperFailsafeBean.assignMaxOverallPercentGroupsRemoveOverride(failsafeMaxOverallPercentGroupsRemove);
+      }
+      {
+        Integer failsafeMaxOverallPercentMembershipsRemove = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMaxOverallPercentMembershipsRemove", false);
+        grouperFailsafeBean.assignMaxOverallPercentMembershipsRemoveOverride(failsafeMaxOverallPercentMembershipsRemove);
+      }
+      {
+        Integer failsafeMinOverallNumberOfMembers = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigInt("failsafeMinOverallNumberOfMembers", false);
+        grouperFailsafeBean.assignMinOverallNumberOfMembersOverride(failsafeMinOverallNumberOfMembers);
+      }
+    }
+    
+    // if we are incremental, and there is a failsafe issue, then dont even try...
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
+      for (String theJobName : GrouperUtil.nonNull(this.getGrouperProvisioner().getJobNames())) {
+        if (GrouperFailsafe.isFailsafeIssue(theJobName)) {
+          grouperFailsafeBean.setJobName(theJobName);
+          grouperFailsafeBean.notifyEmailAboutFailsafe();
+          throw new RuntimeException("Failsafe error from full sync '" + theJobName + "' prevents the incremental from running");
+        }
+      }
+    }
+
+  }
+  
+  /**
+   * see if there is a failsafe issue and throw a failsafe error
+   */
+  public void processFailsafes() {
+
+
+      
+    if (grouperFailsafeBean.getMinOverallNumberOfMembers() != -1) {
+      
+      String sqlInitial = "select count(1) from grouper_sync_membership gsm where gsm.grouper_sync_id = ? and gsm.in_target = 'T' ";
+
+      int currentMembershipCount = new GcDbAccess().sql(sqlInitial).addBindVar(this.getGrouperProvisioner().getGcGrouperSync().getId()).select(int.class);
+      
+      int membershipAdds = this.getGrouperProvisioner().retrieveGrouperProvisioningCompare().getMembershipAddCount();
+      int membershipDeletes = this.getGrouperProvisioner().retrieveGrouperProvisioningCompare().getMembershipDeleteCount();
+      
+      if (grouperFailsafeBean.shouldAbortDueToTooManyOverallMembersRemoved(currentMembershipCount, membershipDeletes, membershipAdds)) {
+        this.getGrouperProvisioner().getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR_FAILSAFE);
+        GrouperFailsafe.assignFailed(grouperFailsafeBean.getJobName());
+        grouperFailsafeBean.notifyEmailAboutFailsafe();
+        throw new OtherJobException(GrouperLoaderStatus.ERROR_FAILSAFE, "Failsafe error current mship count: " + currentMembershipCount + ", assumed deletions: " + membershipDeletes + ", assumedInserts: " + membershipAdds
+            + " unless data problem is fixed, failsafe is approved, or failsafe settings changed");
+      }
+    }
+    
+    
+  }
+
   /**
    * when data was retrieved (i.e. when the group syncs start)
    */
@@ -430,6 +543,8 @@ public class GrouperProvisioningLogic {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
 
     GrouperProvisioningLogicIncremental grouperProvisioningLogicIncremental = this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental();
+
+    this.processFailsafeAtStart();
 
     try {
       // ######### STEP 1: propagate provisioning data to group sync table
@@ -845,6 +960,8 @@ public class GrouperProvisioningLogic {
           
           this.countInsertsUpdatesDeletes();
       
+          this.processFailsafes();
+
           // ######### STEP 37: send changes to target
           RuntimeException runtimeException = null;
           try {

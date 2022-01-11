@@ -3,14 +3,24 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.OtherJobException;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -21,8 +31,85 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogSta
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.DurationFormatUtils;
 
+/**
+ * 
+ * @author mchyzer
+ *
+ */
 public abstract class GrouperProvisioner {
 
+  /**
+   * job name from full or incremental
+   */
+  private String jobName;
+  
+  /**
+   * job name from full or incremental
+   * @return
+   */
+  public String getJobName() {
+    return jobName;
+  }
+  
+  /**
+   * job name from full or incremental
+   * @param jobName1
+   */
+  public void setJobName(String jobName1) {
+    this.jobName = jobName1;
+  }
+
+  /**
+   * 
+   */
+  private Set<String> jobNames = null;
+
+  /**
+   * get job names configured for this provisioner
+   * @return the job name
+   */
+  public Set<String> getJobNames() {
+
+    if (this.jobNames == null) {
+      Set<String> tempJobNames = new LinkedHashSet<String>();
+      {
+        String fullSyncRegex = "^otherJob\\.([^.]+)\\.provisionerConfigId$";
+        Pattern fullSyncPattern = Pattern.compile(fullSyncRegex);
+        Map<String, String> fullSyncProvisioningJobs = GrouperLoaderConfig.retrieveConfig().propertiesMap(fullSyncPattern);
+        if (GrouperUtil.length(fullSyncProvisioningJobs) > 0) {
+          for (Entry<String, String> entry : fullSyncProvisioningJobs.entrySet()) {
+            if (StringUtils.equals(this.configId, entry.getValue())) {
+              Matcher matcher = fullSyncPattern.matcher(entry.getKey());
+              matcher.matches();
+              String theConfigId = matcher.group(1);
+              tempJobNames.add("OTHER_JOB_" + theConfigId);
+            }
+          }
+        }
+      }
+      {
+        String incrementalSyncRegex = "^changeLog\\.consumer\\.([^.]+)\\.provisionerConfigId$";
+        Pattern incrementalSyncPattern = Pattern.compile(incrementalSyncRegex);
+        Map<String, String> incrementalSyncProvisioningJobs = GrouperLoaderConfig.retrieveConfig().propertiesMap(incrementalSyncPattern);
+        if (GrouperUtil.length(incrementalSyncProvisioningJobs) > 0) {
+          for (Entry<String, String> entry : incrementalSyncProvisioningJobs.entrySet()) {
+            if (StringUtils.equals(this.configId, entry.getValue())) {
+              Matcher matcher = incrementalSyncPattern.matcher(entry.getKey());
+              matcher.matches();
+              String theConfigId = matcher.group(1);
+              tempJobNames.add("CHANGE_LOG_consumer_" + theConfigId);
+            }
+          }
+        }
+      }
+      
+      this.jobNames = tempJobNames;
+    }
+    
+    
+    return this.jobNames;
+  }
+  
   /**
    */
   private ProvisionerConfiguration provisionerConfiguration = null;
@@ -586,10 +673,27 @@ public abstract class GrouperProvisioner {
     
       this.retrieveGrouperProvisioningLogic().provision();
       
+      // assign a success, and if this is a full, then remove failures from incremental if they are there
+      if (gcGrouperSyncJob != null && gcGrouperSyncLog.getStatus() != null && !gcGrouperSyncLog.getStatus().isError()) {
+        if (!StringUtils.isBlank(this.getJobName())) {
+          GrouperFailsafe.assignSuccess(this.getJobName());
+          if (this.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) {
+            for (String theJobName : GrouperUtil.nonNull(this.getJobNames())) {
+              if (theJobName.startsWith("CHANGE_LOG_consumer_")) {
+                GrouperFailsafe.removeFailure(theJobName);
+              }
+            }
+          }
+
+        }
+      }
+          
       return this.getGrouperProvisioningOutput();
     } catch (RuntimeException re) {
       if (gcGrouperSyncLog != null) {
-        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+        if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
+          gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+        }
       }
       if (debugMap != null) {
         debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -618,7 +722,9 @@ public abstract class GrouperProvisioner {
         }
       } catch (RuntimeException re2) {
         if (this.gcGrouperSyncLog != null) {
-          this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+          if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
+            this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+          }
         }
         debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
       }
@@ -657,6 +763,9 @@ public abstract class GrouperProvisioner {
 
     // this isnt good
     if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
+      if (gcGrouperSyncJob != null && gcGrouperSyncLog.getStatus() == GcGrouperSyncLogState.ERROR_FAILSAFE) {
+        throw new OtherJobException(GrouperLoaderStatus.ERROR_FAILSAFE, debugString);
+      }
       throw new RuntimeException(debugString);
     }
   }

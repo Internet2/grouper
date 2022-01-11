@@ -521,7 +521,9 @@ public class GcTableSync {
       debugMap.put("gcSyncObjectChanges", gcSyncObjectChanges + gcGrouperSync.getInternalObjectsCreatedCount());
 
     } catch (RuntimeException re) {
-      gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+      if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
+        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+      }
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {

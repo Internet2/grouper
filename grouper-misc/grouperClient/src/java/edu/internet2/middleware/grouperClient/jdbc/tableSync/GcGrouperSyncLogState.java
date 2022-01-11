@@ -5,27 +5,42 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public enum GcGrouperSyncLogState {
 
   /** if job is running */
-  SUCCESS, 
+  SUCCESS(false), 
   
   /**
    * if waiting for another job to finish
    */
-  ERROR, 
+  ERROR(true), 
   
   /**
    * if not running
    */
-  WARNING,
+  WARNING(false),
   
   /**
    * if interrupted
    */
-  INTERRUPTED,
+  INTERRUPTED(true),
   
   /**
    * if has config error
    */
-  CONFIG_ERROR;
+  CONFIG_ERROR(true),
+  
+  /**
+   * if a failsafe issues had
+   */
+  ERROR_FAILSAFE(true);
+  
+  private GcGrouperSyncLogState(boolean theError) {
+    this.error = theError;
+  }
+  
+  private boolean error;
+  
+  public boolean isError() {
+    return this.error;
+  }
   
   /**
    * 

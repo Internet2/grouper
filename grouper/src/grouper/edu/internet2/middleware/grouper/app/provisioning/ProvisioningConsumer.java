@@ -59,9 +59,10 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     String provisioningConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("changeLog.consumer." + this.getChangeLogProcessorMetadata().getConsumerName() + ".provisionerConfigId");
     
     this.grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisioningConfigId);
+    final Hib3GrouperLoaderLog hib3GrouperLoaderLog = ProvisioningConsumer.this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
+    grouperProvisioner.setJobName(hib3GrouperLoaderLog.getJobName());
     grouperProvisioner.setProvisioningConsumer(this);
     grouperProvisioner.setDebugMap(debugMapOverall);
-    final Hib3GrouperLoaderLog hib3GrouperLoaderLog = ProvisioningConsumer.this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
     grouperProvisioner.getGcGrouperSyncHeartbeat().insertHeartbeatLogic(new Runnable() {
 
       @Override
