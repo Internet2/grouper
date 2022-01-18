@@ -820,6 +820,13 @@ public abstract class BaseSourceAdapter implements Source {
   }
   
   /**
+   * @param subjectIdentifierAttributesAll
+   */
+  public void setSubjectIdentifierAttributesAll(Map<Integer, String> subjectIdentifierAttributesAll) {
+    this.subjectIdentifierAttributesAll = subjectIdentifierAttributesAll;
+  }
+  
+  /**
    * @param sortAttributes
    */
   public void setSortAttributes(Map<Integer, String> sortAttributes) {

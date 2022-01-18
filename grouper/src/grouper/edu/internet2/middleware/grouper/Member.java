@@ -115,6 +115,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.MemberModifyValidator;
@@ -304,6 +305,15 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
   /** constant for field name for: subjectIdentifier0 */
   public static final String FIELD_SUBJECT_IDENTIFIER0 = "subjectIdentifier0";
+  
+  /** constant for field name for: subjectIdentifier1 */
+  public static final String FIELD_SUBJECT_IDENTIFIER1 = "subjectIdentifier1";
+  
+  /** constant for field name for: subjectIdentifier2 */
+  public static final String FIELD_SUBJECT_IDENTIFIER2 = "subjectIdentifier2";
+  
+  /** constant for field name for: email0 */
+  public static final String FIELD_EMAIL0 = "email0";
 
   /** constant for field name for: subjectResolutionEligible */
   public static final String FIELD_SUBJECT_RESOLUTION_ELIGIBLE = "subjectResolutionEligible";
@@ -358,7 +368,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
       FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_ELIGIBLE, FIELD_SUBJECT_RESOLUTION_RESOLVABLE, 
-      FIELD_SUBJECT_RESOLUTION_DELETED);
+      FIELD_SUBJECT_RESOLUTION_DELETED, FIELD_SUBJECT_IDENTIFIER1, FIELD_SUBJECT_IDENTIFIER2, FIELD_EMAIL0);
 
   /**
    * fields which are included in clone method
@@ -369,7 +379,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
       FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_ELIGIBLE, FIELD_SUBJECT_RESOLUTION_RESOLVABLE,
-      FIELD_SUBJECT_RESOLUTION_DELETED);
+      FIELD_SUBJECT_RESOLUTION_DELETED, FIELD_SUBJECT_IDENTIFIER1, FIELD_SUBJECT_IDENTIFIER2, FIELD_EMAIL0);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -399,6 +409,15 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   
   /** subject identfier */
   private String subjectIdentifier0;
+  
+  /** subject identfier */
+  private String subjectIdentifier1;
+  
+  /** subject identfier */
+  private String subjectIdentifier2;
+  
+  /** subject email */
+  private String email0;
   
   /** false if has no memberships or privileges */
   private boolean subjectResolutionEligible = true;
@@ -4033,6 +4052,15 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     if (!StringUtils.equals(this.subjectIdentifier0, other.subjectIdentifier0)) {
       return true;
     }
+    if (!StringUtils.equals(this.subjectIdentifier1, other.subjectIdentifier1)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.subjectIdentifier2, other.subjectIdentifier2)) {
+      return true;
+    }
+    if (!StringUtils.equals(this.email0, other.email0)) {
+      return true;
+    }
     if (this.subjectResolutionDeleted != other.subjectResolutionDeleted) {
       return true;
     }
@@ -4106,6 +4134,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     existingRecord.subjectSourceID = this.subjectSourceID;
     existingRecord.subjectTypeID = this.subjectTypeID;
     existingRecord.subjectIdentifier0 = this.subjectIdentifier0;
+    existingRecord.subjectIdentifier1 = this.subjectIdentifier1;
+    existingRecord.subjectIdentifier2 = this.subjectIdentifier2;
+    existingRecord.email0 = this.email0;
     existingRecord.subjectResolutionDeleted = this.subjectResolutionDeleted;
     existingRecord.subjectResolutionEligible = this.subjectResolutionEligible;
     existingRecord.subjectResolutionResolvable = this.subjectResolutionResolvable;
@@ -4180,6 +4211,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     xmlExportMember.setUuid(this.getUuid());
     
     xmlExportMember.setSubjectIdentifier0(this.getSubjectIdentifier0());
+    xmlExportMember.setSubjectIdentifier1(this.getSubjectIdentifier1());
+    xmlExportMember.setSubjectIdentifier2(this.getSubjectIdentifier2());
+    xmlExportMember.setEmail0(this.getEmail0());
     xmlExportMember.setSubjectResolutionEligible(this.getSubjectResolutionEligibleDb());
     xmlExportMember.setSubjectResolutionResolvable(this.getSubjectResolutionResolvableDb());
     xmlExportMember.setSubjectResolutionDeleted(this.getSubjectResolutionDeletedDb());
@@ -4243,6 +4277,49 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   }
   
   
+  
+  /**
+   * @return the subjectIdentifier1
+   */
+  public String getSubjectIdentifier1() {
+    return subjectIdentifier1;
+  }
+
+  /**
+   * @param subjectIdentifier1
+   */
+  public void setSubjectIdentifier1(String subjectIdentifier1) {
+    this.subjectIdentifier1 = subjectIdentifier1;
+  }
+
+  /**
+   * @return the subjectIdentifier2
+   */
+  public String getSubjectIdentifier2() {
+    return subjectIdentifier2;
+  }
+
+  /**
+   * @param subjectIdentifier2
+   */
+  public void setSubjectIdentifier2(String subjectIdentifier2) {
+    this.subjectIdentifier2 = subjectIdentifier2;
+  }
+
+  /**
+   * @return the email0
+   */
+  public String getEmail0() {
+    return email0;
+  }
+
+  /**
+   * @param email0
+   */
+  public void setEmail0(String email0) {
+    this.email0 = email0;
+  }
+
   public boolean isSubjectResolutionEligible() {
     return subjectResolutionEligible;
   }
@@ -4541,13 +4618,33 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   }
   
   private void internal_checkAndUpdateSubjectIdentifierDuplicates() {
-    if (GrouperUtil.isEmpty(this.subjectIdentifier0)) {
+    if (GrouperUtil.isEmpty(this.subjectIdentifier0) && GrouperUtil.isEmpty(this.subjectIdentifier1) && GrouperUtil.isEmpty(this.subjectIdentifier2)) {
       return;
     }
     
-    String sql = "select id, subject_id, subject_source, subject_type from grouper_members where subject_identifier0 = ? and subject_source = ? and subject_id != ?";
-    List<Object> bindVars = GrouperUtil.toList(this.subjectIdentifier0, this.subjectSourceID, this.subjectID);
-    List<Type> types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+    Set<String> distinctSubjectIdentifiers = new LinkedHashSet<String>();
+    if (!GrouperUtil.isEmpty(this.subjectIdentifier0)) {
+      distinctSubjectIdentifiers.add(this.subjectIdentifier0);
+    }
+    if (!GrouperUtil.isEmpty(this.subjectIdentifier1)) {
+      distinctSubjectIdentifiers.add(this.subjectIdentifier1);
+    }
+    if (!GrouperUtil.isEmpty(this.subjectIdentifier2)) {
+      distinctSubjectIdentifiers.add(this.subjectIdentifier2);
+    }
+    
+    String sql = "select id, subject_id, subject_source, subject_type, subject_identifier0 from grouper_members where "
+        + " (subject_identifier0 in (" + HibUtils.convertToInClauseForSqlStatic(distinctSubjectIdentifiers) + ") or "
+        + "  subject_identifier1 in (" + HibUtils.convertToInClauseForSqlStatic(distinctSubjectIdentifiers) + ") or "
+        + "  subject_identifier2 in (" + HibUtils.convertToInClauseForSqlStatic(distinctSubjectIdentifiers) + ")) and subject_source = ? and subject_id != ?";
+    List<Object> bindVars = GrouperUtil.toList(this.subjectSourceID, this.subjectID);
+    bindVars.addAll(0, distinctSubjectIdentifiers);
+    bindVars.addAll(0, distinctSubjectIdentifiers);
+    bindVars.addAll(0, distinctSubjectIdentifiers);
+    List<Type> types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE);
+    for (int i = 0; i < (distinctSubjectIdentifiers.size() * 3); i++) {
+      types.add(0, StringType.INSTANCE);
+    }
     
     List<String[]> memberDataList = HibernateSession.bySqlStatic().listSelect(String[].class, sql, bindVars, types);
     for (String[] memberData : memberDataList) {
@@ -4555,42 +4652,51 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       String subjectId = memberData[1];
       String subjectSourceId = memberData[2];
       String subjectTypeId = memberData[3];
+      String subjectIdentifier0 = memberData[4];
       
       // found a duplicate, let's try to resolve it.
       Subject duplicateSubject = SubjectFinder.findByIdAndSource(subjectId, subjectSourceId, false);
       
       if (duplicateSubject == null) {
-        // duplicate subject is not resolvable so clear out subject_identifier0
+        // duplicate subject is not resolvable so clear out subject_identifier0/1/2
 
-        String sql2 = "update grouper_members set subject_identifier0 = null where id = ?";
+        String sql2 = "update grouper_members set subject_identifier0 = null, subject_identifier1 = null, subject_identifier2 = null where id = ?";
         List<Object> bindVars2 = GrouperUtil.toList(memberId);
         List<Type> types2 = HibUtils.listType(StringType.INSTANCE);
         HibernateSession.bySqlStatic().executeSql(sql2, bindVars2, types2);
         
-        String oldValue = this.subjectIdentifier0;
-        String newValue = null;
-        ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
-        String sql3 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        List<Object> bindVars3 = GrouperUtil.toList(
-            (Object)GrouperUuid.getUuid(), 
-            changeLogType.getId(),
-            ChangeLogId.changeLogId(),
-            memberId,
-            subjectId,
-            subjectSourceId,
-            subjectTypeId,
-            newValue,
-            oldValue,
-            newValue,
-            "subjectIdentifier0");
-        List<Type> types3 = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
-            StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
-            StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
-        HibernateSession.bySqlStatic().executeSql(sql3, bindVars3, types3);
+        if (!GrouperUtil.isEmpty(subjectIdentifier0)) {
+          String oldValue = subjectIdentifier0;
+          String newValue = null;
+          ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
+          String sql3 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+          List<Object> bindVars3 = GrouperUtil.toList(
+              (Object)GrouperUuid.getUuid(), 
+              changeLogType.getId(),
+              ChangeLogId.changeLogId(),
+              memberId,
+              subjectId,
+              subjectSourceId,
+              subjectTypeId,
+              newValue,
+              oldValue,
+              newValue,
+              "subjectIdentifier0");
+          List<Type> types3 = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
+              StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
+              StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+          HibernateSession.bySqlStatic().executeSql(sql3, bindVars3, types3);
+        }
       } else {
         String duplicateSubjectSubjectIdentifier0 = duplicateSubject.getSource().getSubjectIdentifierAttributes().size() > 0 ? duplicateSubject.getAttributeValue(duplicateSubject.getSource().getSubjectIdentifierAttributes().get(0), false) : null;
-        if (StringUtils.equals(this.subjectIdentifier0, duplicateSubjectSubjectIdentifier0)) {
-          LOG.error("There are subjects with the same subject identifier=" + this.subjectIdentifier0 + ", subjectIds=" + this.getSubjectId() + "," + duplicateSubject.getId());
+        String duplicateSubjectSubjectIdentifier1 = duplicateSubject.getSource().getSubjectIdentifierAttributes().size() > 1 ? duplicateSubject.getAttributeValue(duplicateSubject.getSource().getSubjectIdentifierAttributes().get(1), false) : null;
+        String duplicateSubjectSubjectIdentifier2 = duplicateSubject.getSource().getSubjectIdentifierAttributes().size() > 2 ? duplicateSubject.getAttributeValue(duplicateSubject.getSource().getSubjectIdentifierAttributes().get(2), false) : null;
+        if (!GrouperUtil.isEmpty(duplicateSubjectSubjectIdentifier0) && distinctSubjectIdentifiers.contains(duplicateSubjectSubjectIdentifier0)) {
+          LOG.error("There are subjects with the same subject identifier=" + duplicateSubjectSubjectIdentifier0 + ", subjectIds=" + this.getSubjectId() + "," + duplicateSubject.getId());
+        } else if (!GrouperUtil.isEmpty(duplicateSubjectSubjectIdentifier1) && distinctSubjectIdentifiers.contains(duplicateSubjectSubjectIdentifier1)) {
+          LOG.error("There are subjects with the same subject identifier=" + duplicateSubjectSubjectIdentifier1 + ", subjectIds=" + this.getSubjectId() + "," + duplicateSubject.getId());
+        } else if (!GrouperUtil.isEmpty(duplicateSubjectSubjectIdentifier2) && distinctSubjectIdentifiers.contains(duplicateSubjectSubjectIdentifier2)) {
+          LOG.error("There are subjects with the same subject identifier=" + duplicateSubjectSubjectIdentifier2 + ", subjectIds=" + this.getSubjectId() + "," + duplicateSubject.getId());
         } else {
           // nothing - the member data should have been updated to no longer be a duplicate
         }
@@ -4601,6 +4707,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   private boolean internal_updateMemberAttributes(Subject subject, boolean storeChanges) {
     
     this.subjectIdentifier0 = null;
+    this.subjectIdentifier1 = null;
+    this.subjectIdentifier2 = null;
+    this.email0 = null;
     this.sortString0 = null;
     this.sortString1 = null;
     this.sortString2 = null;
@@ -4615,9 +4724,20 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.name = GrouperUtil.isEmpty(subject.getName()) ? null : subject.getName();
     this.description = GrouperUtil.isEmpty(subject.getDescription()) ? null : subject.getDescription();
     
-    Map<Integer, String> subjectIdentifierAttributes = subject.getSource().getSubjectIdentifierAttributes();
+    Map<Integer, String> subjectIdentifierAttributes = subject.getSource().getSubjectIdentifierAttributesAll();
     if (subjectIdentifierAttributes.containsKey(0)) {
       this.subjectIdentifier0 = subject.getAttributeValue(subjectIdentifierAttributes.get(0), false);
+    }
+    if (subjectIdentifierAttributes.containsKey(1)) {
+      this.subjectIdentifier1 = subject.getAttributeValue(subjectIdentifierAttributes.get(1), false);
+    }
+    if (subjectIdentifierAttributes.containsKey(2)) {
+      this.subjectIdentifier2 = subject.getAttributeValue(subjectIdentifierAttributes.get(2), false);
+    }
+    
+    String emailAttributeName = GrouperEmailUtils.emailAttributeNameForSource(subject.getSourceId());
+    if (!StringUtils.isBlank(emailAttributeName)) {
+      this.email0 = subject.getAttributeValue(emailAttributeName, false);
     }
     
     Map<Integer, String> sortAttributes = subject.getSource().getSortAttributes();
@@ -4680,6 +4800,18 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     if (GrouperUtil.isEmpty(this.subjectIdentifier0)) {
       this.subjectIdentifier0 = null;
     }
+    
+    if (GrouperUtil.isEmpty(this.subjectIdentifier1)) {
+      this.subjectIdentifier1 = null;
+    }
+    
+    if (GrouperUtil.isEmpty(this.subjectIdentifier2)) {
+      this.subjectIdentifier2 = null;
+    }
+    
+    if (GrouperUtil.isEmpty(this.email0)) {
+      this.email0 = null;
+    }
 
     this.sortString0 = GrouperUtil.isEmpty(this.sortString0) ? null : GrouperUtil.truncateAscii(this.sortString0, 50);
     this.sortString1 = GrouperUtil.isEmpty(this.sortString1) ? null : GrouperUtil.truncateAscii(this.sortString1, 50);
@@ -4712,15 +4844,17 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                   throws GrouperDAOException {
                 String query = "update grouper_members set sort_string0 = ?, sort_string1 = ?, sort_string2 = ?, sort_string3 = ?, " +
                   "sort_string4 = ?, search_string0 = ?, search_string1 = ?, search_string2 = ?, " +
-                  "search_string3 = ?, search_string4 = ?, name = ?, description = ?, subject_identifier0 = ? where id = ?";
+                  "search_string3 = ?, search_string4 = ?, name = ?, description = ?, subject_identifier0 = ?, subject_identifier1 = ?, subject_identifier2 = ?, email0 = ? where id = ?";
                 List<Object> bindVars = GrouperUtil.toList((Object)Member.this.sortString0, Member.this.sortString1,
                     Member.this.sortString2, Member.this.sortString3, Member.this.sortString4, Member.this.searchString0,
                     Member.this.searchString1, Member.this.searchString2, Member.this.searchString3, Member.this.searchString4, 
-                    Member.this.name, Member.this.description, Member.this.subjectIdentifier0,
+                    Member.this.name, Member.this.description, Member.this.subjectIdentifier0, Member.this.subjectIdentifier1,
+                    Member.this.subjectIdentifier2, Member.this.email0,
                     Member.this.getUuid());
                 List<Type> types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, 
                     StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, 
-                    StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+                    StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
+                    StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
                 hibernateHandlerBean.getHibernateSession().bySql().executeSql(query, bindVars, types);
                 
                 // if subject identifier is changing, we're sending that to the change log
@@ -4745,7 +4879,11 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                       StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
                       StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
                   hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
-                  
+                }
+                
+                if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0) ||
+                    Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER1) ||
+                    Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER2)) {
                   // also check if there are duplicates with subject identifier
                   internal_checkAndUpdateSubjectIdentifierDuplicates();
                 }

@@ -104,6 +104,9 @@
     <property name="contextId" column="context_id"/>
 
     <property name="subjectIdentifier0" column="subject_identifier0"/>
+    <property name="subjectIdentifier1" column="subject_identifier1"/>
+    <property name="subjectIdentifier2" column="subject_identifier2"/>
+    <property name="email0" column="email0"/>
 
     <property name="sortString0" column="sort_string0"/>
     <property name="sortString1" column="sort_string1"/>

@@ -746,5 +746,12 @@ public class GrouperSourceAdapter extends BaseSourceAdapter {
     
     return this.subjectIdentifierAttributes;
   }
+  
+  /**
+   * @see edu.internet2.middleware.subject.Source#getSubjectIdentifierAttributesAll()
+   */
+  public Map<Integer, String> getSubjectIdentifierAttributesAll() {
+    return getSubjectIdentifierAttributes();
+  }
 }
 

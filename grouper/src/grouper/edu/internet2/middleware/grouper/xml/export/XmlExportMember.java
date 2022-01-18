@@ -238,6 +238,9 @@ public class XmlExportMember {
     member.setSubjectTypeId(this.subjectType);
     member.setUuid(this.uuid);
     member.setSubjectIdentifier0(this.subjectIdentifier0);
+    member.setSubjectIdentifier1(this.subjectIdentifier1);
+    member.setSubjectIdentifier2(this.subjectIdentifier2);
+    member.setEmail0(this.email0);
     member.setSubjectResolutionEligible(GrouperUtil.booleanValue(this.subjectResolutionEligible, false));
     member.setSubjectResolutionResolvable(GrouperUtil.booleanValue(this.subjectResolutionResolvable, false));
     member.setSubjectResolutionDeleted(GrouperUtil.booleanValue(this.subjectResolutionDeleted, false));
@@ -319,6 +322,15 @@ public class XmlExportMember {
   
   /** subjectIdentifier0 */
   private String subjectIdentifier0;
+  
+  /** subjectIdentifier1 */
+  private String subjectIdentifier1;
+  
+  /** subjectIdentifier2 */
+  private String subjectIdentifier2;
+  
+  /** email0 */
+  private String email0;
   
   /** subjectResolutionResolvable */
   private String subjectResolutionResolvable;
@@ -496,8 +508,48 @@ public class XmlExportMember {
     this.subjectIdentifier0 = subjectIdentifier0;
   }
 
-  
-  
+  /**
+   * @return the subjectIdentifier1
+   */
+  public String getSubjectIdentifier1() {
+    return subjectIdentifier1;
+  }
+
+  /**
+   * @param subjectIdentifier1
+   */
+  public void setSubjectIdentifier1(String subjectIdentifier1) {
+    this.subjectIdentifier1 = subjectIdentifier1;
+  }
+
+  /**
+   * @return the subjectIdentifier2
+   */
+  public String getSubjectIdentifier2() {
+    return subjectIdentifier2;
+  }
+
+  /**
+   * @param subjectIdentifier2
+   */
+  public void setSubjectIdentifier2(String subjectIdentifier2) {
+    this.subjectIdentifier2 = subjectIdentifier2;
+  }
+
+  /**
+   * @return the email0
+   */
+  public String getEmail0() {
+    return email0;
+  }
+
+  /**
+   * @param email0
+   */
+  public void setEmail0(String email0) {
+    this.email0 = email0;
+  }
+
   /**
    * @returnsubjectResolutionResolvable
    */

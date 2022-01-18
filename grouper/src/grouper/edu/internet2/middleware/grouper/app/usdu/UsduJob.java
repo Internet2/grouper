@@ -36,7 +36,6 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
@@ -670,55 +669,95 @@ public class UsduJob extends OtherJobBase {
   public static int checkDuplicateSubjectIdentifiers(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     int issues = 0;
     
-    String sqlAllDuplicates = "select subjectSourceIdDb, subjectIdentifier0 from Member where subjectIdentifier0 is not null group by subjectSourceIdDb, subjectIdentifier0 having count(*) > 1";
-
-    Set<Object[]> resultsAllDuplicates = HibernateSession.byHqlStatic().createQuery(sqlAllDuplicates).setCacheable(false).listSet(Object[].class);
-
-    for (Object[] result : resultsAllDuplicates) {
+    String sqlAll = "select subjectSourceIdDb, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2 from Member where subjectIdentifier0 is not null or subjectIdentifier1 is not null or subjectIdentifier2 is not null";
+    Map<String, Set<String>> foundIdentifiers = new HashMap<String, Set<String>>();
+    Map<String, Set<String>> duplicateIdentifiers = new HashMap<String, Set<String>>();
+    Set<Object[]> resultsAll = HibernateSession.byHqlStatic().createQuery(sqlAll).setCacheable(false).listSet(Object[].class);
+    for (Object[] result : resultsAll) {
+      Set<String> distinctIdentifiers = new HashSet<String>();
       String sourceId = (String)result[0];
-      String subjectIdentifier = (String)result[1];
-
-      Set<Member> members = HibernateSession.byHqlStatic()
-        .createQuery("from Member where subjectIdentifier0 = :subjectIdentifier0 and subjectSourceIdDb = :subjectSourceIdDb")
-        .setString("subjectIdentifier0", subjectIdentifier)
-        .setString("subjectSourceIdDb", sourceId)
-        .listSet(Member.class);
-            
-      Set<Member> resolvableMembersWithSameIdentifier = new HashSet<Member>();
+      String subjectIdentifier0 = (String)result[1];
+      String subjectIdentifier1 = (String)result[2];
+      String subjectIdentifier2 = (String)result[3];
       
-      try {
-        for (Member member : members) {
-          Subject subject = SubjectFinder.findByIdAndSource(member.getSubjectId(), member.getSubjectSourceId(), false);
-          if (subject == null) {
-            member.setSubjectIdentifier0(null);
-            member.store();
-            LOG.info("Cleared duplicate subject identifier for subjectId=" + member.getSubjectId());
-          } else {
-            member.updateMemberAttributes(subject, false); // resolving it above should store it.  just need to make sure we have the new data.
-  
-            if (StringUtils.equals(subjectIdentifier, member.getSubjectIdentifier0())) {
-              resolvableMembersWithSameIdentifier.add(member);
-            }
-          }
-        }
-      } catch (SourceUnavailableException e) {
-        // might be an old/unused source.  skip.
-        LOG.warn("Skipping duplicate fix due to source error", e);
-        
-        continue;
+      if (!StringUtils.isEmpty(subjectIdentifier0)) {
+        distinctIdentifiers.add(subjectIdentifier0);
       }
       
-      if (resolvableMembersWithSameIdentifier.size() > 1) {
-        issues++;
-        
-        // ok duplicates still exist after resolving.
-        if (hib3GrouperLoaderLog != null) {
-          Set<String> subjectIds = new HashSet<String>();
-          for (Member member : resolvableMembersWithSameIdentifier) {
-            subjectIds.add(member.getSubjectId());
+      if (!StringUtils.isEmpty(subjectIdentifier1)) {
+        distinctIdentifiers.add(subjectIdentifier1);
+      }
+      
+      if (!StringUtils.isEmpty(subjectIdentifier2)) {
+        distinctIdentifiers.add(subjectIdentifier2);
+      }
+
+      if (!foundIdentifiers.containsKey(sourceId)) {
+        foundIdentifiers.put(sourceId, new HashSet<String>());
+      }
+      
+      for (String identifier : distinctIdentifiers) {
+        if (foundIdentifiers.get(sourceId).contains(identifier)) {
+          if (!duplicateIdentifiers.containsKey(sourceId)) {
+            duplicateIdentifiers.put(sourceId, new HashSet<String>());
           }
           
-          hib3GrouperLoaderLog.appendJobMessage(" There are subjects with the same subject identifier=" + subjectIdentifier + ", subjectIds=" + String.join(",", subjectIds) + ". ");
+          duplicateIdentifiers.get(sourceId).add(identifier);
+        } else {
+          foundIdentifiers.get(sourceId).add(identifier);
+        }
+      }
+    }
+    
+    for (String sourceId : duplicateIdentifiers.keySet()) {
+      for (String subjectIdentifier : duplicateIdentifiers.get(sourceId)) {
+  
+        Set<Member> members = HibernateSession.byHqlStatic()
+          .createQuery("from Member where (subjectIdentifier0 = :subjectIdentifier or subjectIdentifier1 = :subjectIdentifier or subjectIdentifier2 = :subjectIdentifier)  and subjectSourceIdDb = :subjectSourceIdDb")
+          .setString("subjectIdentifier", subjectIdentifier)
+          .setString("subjectSourceIdDb", sourceId)
+          .listSet(Member.class);
+              
+        Set<Member> resolvableMembersWithSameIdentifier = new HashSet<Member>();
+        
+        try {
+          for (Member member : members) {
+            Subject subject = SubjectFinder.findByIdAndSource(member.getSubjectId(), member.getSubjectSourceId(), false);
+            if (subject == null) {
+              member.setSubjectIdentifier0(null);
+              member.setSubjectIdentifier1(null);
+              member.setSubjectIdentifier2(null);
+              member.store();
+              LOG.info("Cleared duplicate subject identifier for subjectId=" + member.getSubjectId());
+            } else {
+              member.updateMemberAttributes(subject, false); // resolving it above should store it.  just need to make sure we have the new data.
+    
+              if (StringUtils.equals(subjectIdentifier, member.getSubjectIdentifier0()) ||
+                  StringUtils.equals(subjectIdentifier, member.getSubjectIdentifier1()) || 
+                  StringUtils.equals(subjectIdentifier, member.getSubjectIdentifier2())) {
+                resolvableMembersWithSameIdentifier.add(member);
+              }
+            }
+          }
+        } catch (SourceUnavailableException e) {
+          // might be an old/unused source.  skip.
+          LOG.warn("Skipping duplicate fix due to source error", e);
+          
+          continue;
+        }
+        
+        if (resolvableMembersWithSameIdentifier.size() > 1) {
+          issues++;
+          
+          // ok duplicates still exist after resolving.
+          if (hib3GrouperLoaderLog != null) {
+            Set<String> subjectIds = new HashSet<String>();
+            for (Member member : resolvableMembersWithSameIdentifier) {
+              subjectIds.add(member.getSubjectId());
+            }
+            
+            hib3GrouperLoaderLog.appendJobMessage(" There are subjects with the same subject identifier=" + subjectIdentifier + ", subjectIds=" + String.join(",", subjectIds) + ". ");
+          }
         }
       }
     }
