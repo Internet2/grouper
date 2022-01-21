@@ -502,14 +502,12 @@ public class GrouperFailsafeBean {
   }
 
   /**
-   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
-   * of managed groups is smaller than this amount
+   * The minimum number of managed groups for this loader job for the list of groups job to be applicable
    */
   private Integer minManagedGroups;
   
   /**
-   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
-   * of managed groups is smaller than this amount
+   * The minimum number of managed groups for this loader job for the list of groups job to be applicable
    * @return
    */
   public Integer getMinManagedGroups() {
@@ -517,8 +515,7 @@ public class GrouperFailsafeBean {
   }
 
   /**
-   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
-   * of managed groups is smaller than this amount
+   * The minimum number of managed groups for this loader job for the list of groups job to be applicable
    * @param minManagedGroups
    */
   public void setMinManagedGroups(Integer minManagedGroups) {
@@ -608,8 +605,7 @@ public class GrouperFailsafeBean {
   }
   
   /**
-   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
-   * of managed groups is smaller than this amount
+   * The minimum number of managed groups for this loader job for the list of groups job to be applicable
    * @param theMinManagedGroupsOverride
    */
   public void assignMinManagedGroupsOverride(Integer theMinManagedGroupsOverride) {

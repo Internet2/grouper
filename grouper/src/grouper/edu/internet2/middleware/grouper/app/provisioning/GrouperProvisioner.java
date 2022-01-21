@@ -180,6 +180,9 @@ public abstract class GrouperProvisioner {
     if (!(this.retrieveGrouperProvisioningDiagnosticsContainer().getClass().equals(GrouperProvisioningDiagnosticsContainer.class))) {
       result.append(", DiagnosticsContainer: ").append(this.retrieveGrouperProvisioningDiagnosticsContainer().getClass().getName());
     }
+    if (!(this.retrieveGrouperProvisioningFailsafe().getClass().equals(GrouperProvisioningFailsafe.class))) {
+      result.append(", Failsafe: ").append(this.retrieveGrouperProvisioningFailsafe().getClass().getName());
+    }
     if (!GrouperProvisionerGrouperDao.class.equals(this.grouperDaoClass())) {
       result.append(", GrouperDao: ").append(this.grouperDaoClass().getName());
     }
@@ -1017,6 +1020,8 @@ public abstract class GrouperProvisioner {
 
   private GrouperProvisioningBehavior grouperProvisioningBehavior = new GrouperProvisioningBehavior(this);
 
+  private GrouperProvisioningFailsafe grouperProvisioningFailsafe;
+
 
 
   
@@ -1103,5 +1108,23 @@ public abstract class GrouperProvisioner {
 
     this.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
 
+  }
+
+  protected Class<? extends GrouperProvisioningFailsafe> grouperProvisioningFailsafeClass() {
+    return GrouperProvisioningFailsafe.class;
+  }
+
+  /**
+   * return the instance of the failsafe logic
+   * @return the logic
+   */
+  public GrouperProvisioningFailsafe retrieveGrouperProvisioningFailsafe() {
+    if (this.grouperProvisioningFailsafe == null) {
+      Class<? extends GrouperProvisioningFailsafe> grouperProvisioningLogicClass = this.grouperProvisioningFailsafeClass();
+      this.grouperProvisioningFailsafe = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningFailsafe.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningFailsafe;
+    
   }
 }

@@ -303,8 +303,7 @@ public class GrouperLoader {
   public static final String GROUPER_LOADER_MIN_GROUP_SIZE = "grouperLoaderMinGroupSize";
   
   /**
-   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
-   * of managed groups is smaller than this amount
+   * The minimum number of managed groups for this loader job for the list of groups job to be applicable
    */
   public static final String GROUPER_LOADER_MIN_MANAGED_GROUPS = "grouperLoaderMinManagedGroups";
   

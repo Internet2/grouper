@@ -22,13 +22,36 @@ public class GrouperProvisioningCompare {
 
   private int membershipAddCount = 0;
   
+  private Map<String, Integer> groupUuidToMembershipDeleteCount = new HashMap<String, Integer>();
   
+  public Map<String, Integer> getGroupUuidToMembershipDeleteCount() {
+    return groupUuidToMembershipDeleteCount;
+  }
+
+  private Map<String, Integer> groupUuidToMembershipAddCount = new HashMap<String, Integer>();
   
+  public Map<String, Integer> getGroupUuidToMembershipAddCount() {
+    return groupUuidToMembershipAddCount;
+  }
+
+
   public int getMembershipAddCount() {
     return membershipAddCount;
   }
 
+  /**
+   * group uuids to delete
+   */
+  private Set<String> groupUuidsToDelete = new HashSet<String>();
 
+
+  /**
+   * group uuids to delete
+   * @return
+   */
+  public Set<String> getGroupUuidsToDelete() {
+    return groupUuidsToDelete;
+  }
 
   private int membershipDeleteCount = 0;
 
@@ -129,6 +152,7 @@ public class GrouperProvisioningCompare {
   }
 
 
+
   public void compareAttributesForDelete(ProvisioningUpdatable provisioningUpdatableToDelete) {
     
     boolean membershipAttribute = false;
@@ -154,13 +178,16 @@ public class GrouperProvisioningCompare {
 
     for (String attributeName : GrouperUtil.nonNull(GrouperUtil.nonNull(provisioningUpdatableToDelete.getAttributes()).keySet())) {
 
-      Object grouperValue = provisioningUpdatableToDelete.getAttributes().get(attributeName).getValue();
+      ProvisioningAttribute provisioningAttribute = provisioningUpdatableToDelete.getAttributes().get(attributeName);
+      Object grouperValue = provisioningAttribute.getValue();
   
       if (GrouperUtil.isArrayOrCollection(grouperValue)) {
         if (grouperValue instanceof Collection) {
           for (Object value : (Collection)grouperValue) {
             if (membershipAttribute && StringUtils.equals(attributeNameForMemberships, attributeName)) {
               this.membershipDeleteCount++;
+              countDeleteMembershipObjectCount(provisioningAttribute, value);
+
             }
             provisioningUpdatableToDelete.addInternal_objectChange(
                 new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
@@ -170,10 +197,11 @@ public class GrouperProvisioningCompare {
         } else {
           // array
           for (int i=0;i<GrouperUtil.length(grouperValue);i++) {
+            Object value = Array.get(grouperValue, i);
             if (membershipAttribute && StringUtils.equals(attributeNameForMemberships, attributeName)) {
               this.membershipDeleteCount++;
+              countDeleteMembershipObjectCount(provisioningAttribute, value);
             }
-            Object value = Array.get(grouperValue, i);
             provisioningUpdatableToDelete.addInternal_objectChange(
                 new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
                     ProvisioningObjectChangeAction.delete, null, value)
@@ -187,6 +215,25 @@ public class GrouperProvisioningCompare {
         provisioningUpdatableToDelete.addInternal_objectChange(provisioningObjectChange);
         
       }
+    }
+  }
+
+
+  private void countDeleteMembershipObjectCount(ProvisioningAttribute provisioningAttribute, Object value) {
+    
+    if (provisioningAttribute == null) {
+      return;
+    }
+      
+    Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = 
+        provisioningAttribute.getValueToProvisioningMembershipWrapper();
+
+    if (valueToProvisioningMembershipWrapper == null) {
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(value);
+      if (provisioningMembershipWrapper == null) {
+        return;
+      }
+      countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
     }
   }
 
@@ -218,7 +265,9 @@ public class GrouperProvisioningCompare {
       if (!provisioningUpdatableToInsert.canInsertAttribute(attributeName)) {
         continue;
       }
-      Object grouperValue = provisioningUpdatableToInsert.getAttributes().get(attributeName).getValue();
+      ProvisioningAttribute provisioningAttribute = provisioningUpdatableToInsert.getAttributes().get(attributeName);
+
+      Object grouperValue = provisioningAttribute.getValue();
   
       if (GrouperUtil.isArrayOrCollection(grouperValue)) {
         if (grouperValue instanceof Collection) {
@@ -229,6 +278,7 @@ public class GrouperProvisioningCompare {
                 );
             if (membershipAttribute && StringUtils.equals(attributeNameForMemberships, attributeName)) {
               this.membershipAddCount++;
+              countAddMembershipObjectCount(provisioningAttribute, value);
             }
           }
         } else {
@@ -241,6 +291,7 @@ public class GrouperProvisioningCompare {
                 );
             if (membershipAttribute && StringUtils.equals(attributeNameForMemberships, attributeName)) {
               this.membershipAddCount++;
+              countAddMembershipObjectCount(provisioningAttribute, value);
             }
           }
         }
@@ -324,6 +375,8 @@ public class GrouperProvisioningCompare {
                 
                 if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper.getGcGrouperSyncMembership())) {
                   this.membershipDeleteCount++;
+                  countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+
                   grouperProvisioningUpdatable.addInternal_objectChange(
                     new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeForMemberships, 
                         ProvisioningObjectChangeAction.delete, value, null)
@@ -333,6 +386,7 @@ public class GrouperProvisioningCompare {
               case insert:
                 if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertMemberships()) {
                   this.membershipAddCount++;
+                  countAddMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
                   grouperProvisioningUpdatable.addInternal_objectChange(
                     new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeForMemberships, 
                         ProvisioningObjectChangeAction.insert, null, value)
@@ -1069,6 +1123,8 @@ public class GrouperProvisioningCompare {
           continue;
         }
         
+        this.groupUuidsToDelete.add(provisioningGroupWrapper.getGrouperProvisioningGroup().getId());
+        
         provisioningGroupsToDelete.add(groupToDelete);
         
         if (groupToDelete.getId() != null) {
@@ -1321,6 +1377,7 @@ public class GrouperProvisioningCompare {
         for (Object groupIdEntityIdToInsert: matchingIdsToInsert) {
           this.membershipAddCount++;
           ProvisioningMembership membershipToInsert = grouperMatchingIdToTargetMembership.get(groupIdEntityIdToInsert);
+          countAddMembershipObjectCount(membershipToInsert);
           if (membershipToInsert.getId() != null) {
             membershipToInsert.addInternal_objectChange(
                 new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, 
@@ -1380,6 +1437,8 @@ public class GrouperProvisioningCompare {
           GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
           if (grouperProvisioningBehavior.isDeleteMembership(gcGrouperSyncMembership)) {
             this.membershipDeleteCount++;
+            countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+
 //            boolean shouldDelete = false;
 //            
 //            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfNotExistInGrouper()) {
@@ -1460,6 +1519,31 @@ public class GrouperProvisioningCompare {
       }
     }
   }
+
+  /**
+   * 
+   * @param grouperProvisioningMembership
+   */
+  private void countDeleteMembershipObjectCount(ProvisioningMembership grouperProvisioningMembership) {
+    if (grouperProvisioningMembership == null) {
+      return;
+    }
+    ProvisioningGroup provisioningGroup = grouperProvisioningMembership.getProvisioningGroup();
+    if (provisioningGroup == null) {
+      return;
+    }
+    String groupUuid = provisioningGroup.getId();
+    if (StringUtils.isBlank(groupUuid)) {
+      return;
+    }
+    Integer count = this.groupUuidToMembershipDeleteCount.get(groupUuid);
+    if (count == null) {
+      count = 0;
+    }
+    count++;
+    this.groupUuidToMembershipDeleteCount.put(groupUuid, count);
+  }
+
 
   public void compareTargetObjects() {
     compareTargetGroups(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
@@ -1736,6 +1820,50 @@ public class GrouperProvisioningCompare {
     }
     
     
+  }
+
+
+  private void countAddMembershipObjectCount(ProvisioningAttribute provisioningAttribute, Object value) {
+    
+    if (provisioningAttribute == null) {
+      return;
+    }
+      
+    Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = 
+        provisioningAttribute.getValueToProvisioningMembershipWrapper();
+  
+    if (valueToProvisioningMembershipWrapper == null) {
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(value);
+      if (provisioningMembershipWrapper == null) {
+        return;
+      }
+      countAddMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+    }
+  }
+
+
+  /**
+   * 
+   * @param grouperProvisioningMembership
+   */
+  private void countAddMembershipObjectCount(ProvisioningMembership grouperProvisioningMembership) {
+    if (grouperProvisioningMembership == null) {
+      return;
+    }
+    ProvisioningGroup provisioningGroup = grouperProvisioningMembership.getProvisioningGroup();
+    if (provisioningGroup == null) {
+      return;
+    }
+    String groupUuid = provisioningGroup.getId();
+    if (StringUtils.isBlank(groupUuid)) {
+      return;
+    }
+    Integer count = this.groupUuidToMembershipAddCount.get(groupUuid);
+    if (count == null) {
+      count = 0;
+    }
+    count++;
+    this.groupUuidToMembershipAddCount.put(groupUuid, count);
   }
   
   

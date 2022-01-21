@@ -1010,16 +1010,15 @@ public class LoaderLdapUtils {
   }
 
   /**
-   * The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number
-   * of managed groups is smaller than this amount
+   * The minimum number of managed groups for this loader job for the list of groups job to be applicable
    */
   public static final String ATTR_DEF_EXTENSION_MIN_MANAGED_GROUPS = "grouperLoaderLdapMinManagedGroups";
   
-  /** attribute def name of The minimum number of managed groups for this loader job */
+  /** attribute def name of The minimum number of managed groups for this loader job for the list of groups job to be applicable */
   private static String grouperLoaderLdapMinManagedGroupsName;
 
   /**
-   * attribute def name of The minimum number of managed groups for this loader job
+   * attribute def name of The minimum number of managed groups for this loader job for the list of groups job to be applicable
    * @return name
    */
   public static String grouperLoaderLdapMinManagedGroupsName() {
@@ -1030,7 +1029,7 @@ public class LoaderLdapUtils {
   }
   
   /**
-   * attribute def name of The minimum number of managed groups for this loader job
+   * attribute def name of The minimum number of managed groups for this loader job for the list of groups job to be applicable
    * @return attribute def name
    */
   public static AttributeDefName grouperLoaderLdapMinManagedGroupsAttributeDefName() {

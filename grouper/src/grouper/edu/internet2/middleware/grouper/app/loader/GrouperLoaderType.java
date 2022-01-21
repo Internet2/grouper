@@ -1769,7 +1769,6 @@ public enum GrouperLoaderType {
         
         int totalManagedGroupsWithMembersCount = totalManagedGroupsCount - totalManagedGroupsAlreadyEmptyCount;
 
-        // TODO
         if (grouperFailsafeBean != null 
             && grouperFailsafeBean.shouldAbortDueToTooManyGroupListManagedGroupsBeingCleared(totalManagedGroupsWithMembersCount, totalManagedGroupsBeingClearedCount)) {
           statusOverall[0] = GrouperLoaderStatus.ERROR_FAILSAFE;

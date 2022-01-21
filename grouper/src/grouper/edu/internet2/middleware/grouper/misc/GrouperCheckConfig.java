@@ -3720,8 +3720,7 @@ public class GrouperCheckConfig {
 
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MIN_MANAGED_GROUPS, 
                 "Grouper loader LDAP failsafe min managed groups", 
-                "The minimum number of managed groups for this loader job, a failsafe alert will trigger if the number "
-                + "of managed groups is smaller than this amount",
+                "The minimum number of managed groups for this loader job for the list of groups job to be applicable",
                 wasInCheckConfig);
 
             checkAttribute(loaderLdapStem, loaderLdapValueDef, LoaderLdapUtils.ATTR_DEF_EXTENSION_MIN_GROUP_NUMBER_OF_MEMBERS, 
