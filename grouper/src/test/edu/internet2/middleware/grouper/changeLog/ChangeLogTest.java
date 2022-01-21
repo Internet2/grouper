@@ -78,7 +78,10 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 
 /**
@@ -97,7 +100,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testStemRenameOrder"));
+    TestRunner.run(new ChangeLogTest("testMembersAdditionalAttributes"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -1625,7 +1628,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Should have added 10 change log entries", 10, newChangeLogCount);
 
     List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity where string06 <> 'subjectIdentifier0' order by sequenceNumber")
+      .createQuery("from ChangeLogEntryEntity where string09 is null or string09 <> 'subjectIdentifier0' order by sequenceNumber")
       .list(ChangeLogEntry.class);
 
     {
@@ -1719,7 +1722,7 @@ public class ChangeLogTest extends GrouperTest {
     // check first subjectIdentifier0 update
     {
       ChangeLogEntry entry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where string06 = 'subjectIdentifier0' and string05 = 'oneNew:two:two-group'")
+        .createQuery("from ChangeLogEntryEntity where string09 = 'subjectIdentifier0' and string05 = 'oneNew:two:two-group'")
         .uniqueResult(ChangeLogEntry.class);
       assertEquals(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType(), entry.getChangeLogType());
       assertEquals(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name(), entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
@@ -1731,7 +1734,7 @@ public class ChangeLogTest extends GrouperTest {
     // check second subjectIdentifier0 update
     {
       ChangeLogEntry entry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where string06 = 'subjectIdentifier0' and string05 = 'oneNew:two:three:three-group'")
+        .createQuery("from ChangeLogEntryEntity where string09 = 'subjectIdentifier0' and string05 = 'oneNew:two:three:three-group'")
         .uniqueResult(ChangeLogEntry.class);
       assertEquals(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType(), entry.getChangeLogType());
       assertEquals(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name(), entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
@@ -4925,7 +4928,7 @@ public class ChangeLogTest extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='subjectIdentifier0'")
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier0'")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
       .uniqueResult(ChangeLogEntry.class);
   
@@ -4986,6 +4989,277 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member.getSubjectSourceId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectSourceId));
     assertEquals(member.getSubjectTypeId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectTypeId));
     assertEquals(member.getSubjectIdentifier0(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectIdentifier0));
+
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry4.getContextId()));
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry4.getContextId()));
+    assertEquals("Context id's should match", changeLogEntry4.getContextId(), member.getContextId());
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testMembersAdditionalAttributes() throws Exception {
+    BaseSourceAdapter source = (BaseSourceAdapter) SourceManager.getInstance().getSource("jdbc");
+    source.addInitParam("subjectIdentifierAttribute1", "lfname");
+    source.addInitParam("subjectIdentifierAttribute2", "description");
+    ExpirableCache.clearAll();
+    source.setSubjectIdentifierAttributesAll(null);
+    
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+
+    // add member
+    SessionHelper.getRootSession();
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+        return null;
+      }
+    });
+    
+    Member member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+
+    int newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have added exactly one change log temp", 1, newChangeLogTempCount);
+    assertEquals("Should be the same", 0, newChangeLogCount);
+
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryTemp where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+  
+    //make sure some time has passed
+    GrouperUtil.sleep(100);
+  
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime()  < 5000);
+    assertTrue("This should have happened in the last 5 seconds: + " + changeLogEntry.getCreatedOn(), 
+        System.currentTimeMillis() - changeLogEntry.getCreatedOn().getTime() > 0);
+  
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) < 5000);
+    assertTrue("This should have happened in the last 5 seconds", 
+        System.currentTimeMillis() - (changeLogEntry.getCreatedOnDb() / 1000) > 0);
+  
+    assertNull(changeLogEntry.getSequenceNumber());
+
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), member.getContextId());
+  
+    assertEquals(member.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.id));
+    assertEquals(member.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectId));
+    assertEquals(member.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectSourceId));
+    assertEquals(member.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectTypeId));
+    assertEquals(member.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
+    assertEquals(member.getSubjectIdentifier1(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectIdentifier1));
+    assertEquals(member.getSubjectIdentifier2(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectIdentifier2));
+    assertEquals(member.getEmail0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.email0));
+
+    //move the temp objects to the regular change log table
+    ChangeLogTempToEntity.convertRecords();
+    
+    //#########################
+    // Check the change log table, and temp table, see the record moved over.
+    
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have nothing in temp table", 0, newChangeLogTempCount);
+    assertEquals("Should have one record in the change log table", 1, newChangeLogCount);
+  
+    changeLogEntry = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_ADD.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertTrue(!StringUtils.isBlank(changeLogEntry.getContextId()));
+    
+    assertNotNull("createdOn should exist", changeLogEntry.getCreatedOn());
+    assertNotNull(changeLogEntry.getSequenceNumber());
+    
+    assertEquals("Context id's should match", changeLogEntry.getContextId(), member.getContextId());
+    
+    // check PIT table
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member.getUuid(), false);
+    assertNotNull(pitMember);
+    assertEquals(member.getSubjectId(), pitMember.getSubjectId());
+    assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
+    assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
+    assertEquals(member.getContextId(), pitMember.getContextId());
+    assertEquals(member.getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
+    
+    //##################################
+    // try an update
+  
+    //try an update of one field
+    member.setSubjectIdentifier2("newIdentifier");
+  
+    final Member MEMBER = member;
+  
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().update(MEMBER);
+        return null;
+      }
+    });
+  
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have one record in the change log table", 1, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry2 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry2.getContextId()));
+
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry2.getContextId()));
+    
+    assertEquals(member.getUuid(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+    assertEquals(member.getSubjectId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+    assertEquals(member.getSubjectSourceId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+    assertEquals(member.getSubjectTypeId(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+    assertEquals(member.getSubjectIdentifier0(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+    assertEquals(member.getSubjectIdentifier1(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1));
+    assertEquals("newIdentifier", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2));
+    assertEquals(member.getEmail0(), changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.email0));
+    assertEquals("subjectIdentifier2", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+    assertEquals("description.test.subject.0", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+    assertEquals("newIdentifier", changeLogEntry2.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    
+    // Check PIT table
+    pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member.getUuid(), false);
+    assertNotNull(pitMember);
+    assertEquals(member.getSubjectId(), pitMember.getSubjectId());
+    assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
+    assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
+    assertEquals(member.getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
+    
+    
+    //##################################
+    // try another update
+  
+    //try an update of one field
+    member.setEmail0("newEmail@sdf.sdf");
+  
+    final Member MEMBER2 = member;
+  
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().update(MEMBER2);
+        return null;
+      }
+    });
+  
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have two records in the change log table", 2, newChangeLogCount);
+  
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='email0'")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+  
+    assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry3.getContextId()));
+
+    assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 
+        changeLogEntry3.getContextId()));
+    
+    assertEquals(member.getUuid(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+    assertEquals(member.getSubjectId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+    assertEquals(member.getSubjectSourceId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+    assertEquals(member.getSubjectTypeId(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+    assertEquals(member.getSubjectIdentifier0(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+    assertEquals(member.getSubjectIdentifier1(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1));
+    assertEquals(member.getSubjectIdentifier2(), changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2));
+    assertEquals("newEmail@sdf.sdf", changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.email0));
+    assertEquals("email0", changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+    assertEquals("test.subject.0@somewhere.someSchool.edu", changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+    assertEquals("newEmail@sdf.sdf", changeLogEntry3.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    
+    // Check PIT table
+    pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdUnique(member.getUuid(), false);
+    assertNotNull(pitMember);
+    assertEquals(member.getSubjectId(), pitMember.getSubjectId());
+    assertEquals(member.getSubjectSourceId(), pitMember.getSubjectSourceId());
+    assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
+    assertEquals(member.getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
+    
+    
+    //##################################
+    // try a delete
+    
+    HibernateSession.callbackHibernateSession(
+        GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
+  
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+  
+        hibernateHandlerBean.getHibernateSession().byObject().delete(MEMBER);
+        return null;
+      }
+    });
+  
+    newChangeLogTempCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry_temp");
+    newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
+      "select count(1) from grouper_change_log_entry");
+  
+    assertEquals("Should have one in temp table", 1, newChangeLogTempCount);
+    assertEquals("Should have three records in the change log table", 3, newChangeLogCount);
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    ChangeLogEntry changeLogEntry4 = HibernateSession.byHqlStatic()
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
+      .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_DELETE.getChangeLogType().getId())
+      .uniqueResult(ChangeLogEntry.class);
+    
+    assertEquals(member.getUuid(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.id));
+    assertEquals(member.getSubjectId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectId));
+    assertEquals(member.getSubjectSourceId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectSourceId));
+    assertEquals(member.getSubjectTypeId(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectTypeId));
+    assertEquals(member.getSubjectIdentifier0(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectIdentifier0));
+    assertEquals(member.getSubjectIdentifier1(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectIdentifier1));
+    assertEquals(member.getSubjectIdentifier2(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.subjectIdentifier2));
+    assertEquals(member.getEmail0(), changeLogEntry4.retrieveValueForLabel(ChangeLogLabels.MEMBER_DELETE.email0));
 
     assertTrue("contextId should exist", StringUtils.isNotBlank(changeLogEntry4.getContextId()));
     assertTrue("contextIds should be different", !StringUtils.equals(changeLogEntry.getContextId(), 

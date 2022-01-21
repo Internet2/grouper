@@ -298,6 +298,15 @@ public class EsbEvent {
   private String subjectIdentifier0;
   
   /** */
+  private String subjectIdentifier1;
+  
+  /** */
+  private String subjectIdentifier2;
+  
+  /** */
+  private String email0;
+  
+  /** */
   private String type;
 
   /** */
@@ -392,6 +401,50 @@ public class EsbEvent {
    */
   public void setSubjectIdentifier0(String subjectIdentifier) {
     this.subjectIdentifier0 = subjectIdentifier;
+  }
+  
+  /**
+   * @return the subjectIdentifier
+   */
+  public String getSubjectIdentifier1() {
+    return this.subjectIdentifier1;
+  }
+
+  
+  /**
+   * @param subjectIdentifier the subjectIdentifier to set
+   */
+  public void setSubjectIdentifier1(String subjectIdentifier) {
+    this.subjectIdentifier1 = subjectIdentifier;
+  }
+  
+  /**
+   * @return the subjectIdentifier
+   */
+  public String getSubjectIdentifier2() {
+    return this.subjectIdentifier2;
+  }
+
+  
+  /**
+   * @param subjectIdentifier the subjectIdentifier to set
+   */
+  public void setSubjectIdentifier2(String subjectIdentifier) {
+    this.subjectIdentifier2 = subjectIdentifier;
+  }
+
+  /**
+   * @return the email0
+   */
+  public String getEmail0() {
+    return email0;
+  }
+
+  /**
+   * @param email0
+   */
+  public void setEmail0(String email0) {
+    this.email0 = email0;
   }
 
   /**

@@ -312,7 +312,10 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBER_ADD.subjectId,
       ChangeLogLabels.MEMBER_ADD.subjectSourceId,
       ChangeLogLabels.MEMBER_ADD.subjectTypeId,
-      ChangeLogLabels.MEMBER_ADD.subjectIdentifier0)),
+      ChangeLogLabels.MEMBER_ADD.subjectIdentifier0,
+      ChangeLogLabels.MEMBER_ADD.subjectIdentifier1,
+      ChangeLogLabels.MEMBER_ADD.subjectIdentifier2,
+      ChangeLogLabels.MEMBER_ADD.email0)),
       
   /**
    * member add
@@ -323,6 +326,9 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBER_UPDATE.subjectSourceId,
       ChangeLogLabels.MEMBER_UPDATE.subjectTypeId,
       ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0,
+      ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1,
+      ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2,
+      ChangeLogLabels.MEMBER_UPDATE.email0,
       ChangeLogLabels.MEMBER_UPDATE.propertyChanged,
       ChangeLogLabels.MEMBER_UPDATE.propertyOldValue,
       ChangeLogLabels.MEMBER_UPDATE.propertyNewValue)),
@@ -335,7 +341,10 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBER_DELETE.subjectId,
       ChangeLogLabels.MEMBER_DELETE.subjectSourceId,
       ChangeLogLabels.MEMBER_DELETE.subjectTypeId,
-      ChangeLogLabels.MEMBER_DELETE.subjectIdentifier0)),
+      ChangeLogLabels.MEMBER_DELETE.subjectIdentifier0,
+      ChangeLogLabels.MEMBER_DELETE.subjectIdentifier1,
+      ChangeLogLabels.MEMBER_DELETE.subjectIdentifier2,
+      ChangeLogLabels.MEMBER_DELETE.email0)),
       
   /**
    * member change subject

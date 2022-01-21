@@ -501,7 +501,12 @@ public enum EsbEventType {
           ChangeLogLabels.MEMBER_ADD.subjectSourceId));
       event.setSubjectIdentifier0(retrieveLabelValue(changeLogEntry,
           ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
-      
+      event.setSubjectIdentifier1(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.MEMBER_ADD.subjectIdentifier1));
+      event.setSubjectIdentifier2(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.MEMBER_ADD.subjectIdentifier2));
+      event.setEmail0(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.MEMBER_ADD.email0));
     }
   },
 
@@ -525,7 +530,12 @@ public enum EsbEventType {
           ChangeLogLabels.MEMBER_ADD.subjectSourceId));
       event.setSubjectIdentifier0(retrieveLabelValue(changeLogEntry,
           ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
-      
+      event.setSubjectIdentifier1(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.MEMBER_ADD.subjectIdentifier1));
+      event.setSubjectIdentifier2(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.MEMBER_ADD.subjectIdentifier2));
+      event.setEmail0(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.MEMBER_ADD.email0));
     }
   },
 
@@ -549,7 +559,12 @@ public enum EsbEventType {
           ChangeLogLabels.MEMBER_ADD.subjectSourceId));
       event.setSubjectIdentifier0(retrieveLabelValue(changeLogEntry,
           ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
-      
+      event.setSubjectIdentifier1(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.MEMBER_ADD.subjectIdentifier1));
+      event.setSubjectIdentifier2(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.MEMBER_ADD.subjectIdentifier2));
+      event.setEmail0(retrieveLabelValue(changeLogEntry,
+          ChangeLogLabels.MEMBER_ADD.email0));
     }
   },
 

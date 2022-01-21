@@ -741,7 +741,16 @@ public class ChangeLogLabels {
     subjectTypeId,
     
     /** subjectIdentifier0 */
-    subjectIdentifier0;
+    subjectIdentifier0,
+    
+    /** subjectIdentifier1 */
+    subjectIdentifier1,
+    
+    /** subjectIdentifier2 */
+    subjectIdentifier2,
+    
+    /** email0 */
+    email0;
   };
   
   /**
@@ -762,7 +771,16 @@ public class ChangeLogLabels {
     subjectTypeId,
     
     /** subjectIdentifier0 */
-    subjectIdentifier0;
+    subjectIdentifier0,
+    
+    /** subjectIdentifier1 */
+    subjectIdentifier1,
+    
+    /** subjectIdentifier2 */
+    subjectIdentifier2,
+    
+    /** email0 */
+    email0;
   };
   
   /**
@@ -784,6 +802,15 @@ public class ChangeLogLabels {
     
     /** subjectIdentifier0 */
     subjectIdentifier0,
+    
+    /** subjectIdentifier1 */
+    subjectIdentifier1,
+    
+    /** subjectIdentifier2 */
+    subjectIdentifier2,
+    
+    /** email0 */
+    email0,
     
     /** property which changed */
     propertyChanged, 

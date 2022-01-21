@@ -25,7 +25,10 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.usdu.UsduJob;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
@@ -57,7 +60,7 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testMultipleSubjectIdentifiersDuplicatesUpdateSubject"));
+    TestRunner.run(new TestMemberAttributes("testMemberAttributesDuplicateIdentifierChangeLog"));
     //TestRunner.run(TestMemberAttributes.class);
   }
   
@@ -96,6 +99,213 @@ public class TestMemberAttributes extends GrouperTest {
   @Override
   protected void tearDown() {
     super.tearDown();
+  }
+  
+  public void testMemberAttributesDuplicateIdentifierChangeLog() {
+    BaseSourceAdapter source = (BaseSourceAdapter) SourceManager.getInstance().getSource("jdbc");
+    source.addInitParam("subjectIdentifierAttribute1", "lfname");
+    source.addInitParam("subjectIdentifierAttribute2", "description");
+    ExpirableCache.clearAll();
+    source.setSubjectIdentifierAttributesAll(null);
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject1", "person", "testSubjectName1", "testName1", "testLogin1", "testDescription1", "testEmail1@sdf.sdf");
+    Subject subj1 = SubjectFinder.findById("testSubject1", true);
+    edu.grantPriv(subj1, NamingPrivilege.CREATE);
+    Member member1 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj1, true);
+
+    deleteSubject(subj1);
+    
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    // now add a new subject that's a duplicate
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject2", "person", "testSubjectName2", "testName2", "testLogin2", "testDescription1", "testEmail2@sdf.sdf");
+    Subject subj2 = SubjectFinder.findById("testSubject2", true);
+    edu.grantPriv(subj2, NamingPrivilege.CREATE);
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals(3, (int)HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_v where action_name='updateMember'"));
+    
+    {
+      ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier0'")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+          
+      assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+      assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+      assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+      assertEquals(member1.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2));
+      assertEquals("testEmail1@sdf.sdf", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.email0));
+      assertEquals("subjectIdentifier0", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+      assertEquals("testLogin1", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier1'")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+          
+      assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+      assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+      assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+      assertEquals(member1.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2));
+      assertEquals("testEmail1@sdf.sdf", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.email0));
+      assertEquals("subjectIdentifier1", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+      assertEquals("testName1", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier2'")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+          
+      assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+      assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+      assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+      assertEquals(member1.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2));
+      assertEquals("testEmail1@sdf.sdf", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.email0));
+      assertEquals("subjectIdentifier2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+      assertEquals("testDescription1", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+      assertEquals(null, changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    }
+  }
+  
+  public void testMemberAttributesUpdateChangeLog() {
+    BaseSourceAdapter source = (BaseSourceAdapter) SourceManager.getInstance().getSource("jdbc");
+    source.addInitParam("subjectIdentifierAttribute1", "lfname");
+    source.addInitParam("subjectIdentifierAttribute2", "description");
+    ExpirableCache.clearAll();
+    source.setSubjectIdentifierAttributesAll(null);
+
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+    
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject1", "person", "testSubjectName1", "testName1", "testLogin1", "testDescription1", "testEmail1@sdf.sdf");
+    Subject subj1 = SubjectFinder.findById("testSubject1", true);
+    edu.grantPriv(subj1, NamingPrivilege.CREATE);
+    
+    ChangeLogTempToEntity.convertRecords();
+    HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
+
+    HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='testLogin2', searchvalue='testlogin2' where subjectid='testSubject1' and name='loginid'", null, null);
+    HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='testName2', searchvalue='testname2' where subjectid='testSubject1' and name='name'", null, null);
+    HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='testDescription2', searchvalue='testdescription2' where subjectid='testSubject1' and name='description'", null, null);
+    HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='testEmail2@sdf.sdf', searchvalue='testemail2@sdf.sdf' where subjectid='testSubject1' and name='email'", null, null);
+
+    SubjectFinder.flushCache();
+    subj1 = SubjectFinder.findById("testSubject1", true);
+    
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    
+    GrouperCacheUtils.clearAllCaches();
+    
+    Member member1 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj1, true);
+    assertEquals("testLogin2", member1.getSubjectIdentifier0());
+    assertEquals("testName2", member1.getSubjectIdentifier1());
+    assertEquals("testDescription2", member1.getSubjectIdentifier2());
+    assertEquals("testEmail2@sdf.sdf", member1.getEmail0());
+    
+    ChangeLogTempToEntity.convertRecords();
+
+    assertEquals(4, (int)HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry"));
+    
+    {
+      ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='email0'")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+          
+      assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+      assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+      assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+      assertEquals(member1.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+      assertEquals("testLogin2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+      assertEquals("testName2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1));
+      assertEquals("testDescription2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2));
+      assertEquals("testEmail2@sdf.sdf", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.email0));
+      assertEquals("email0", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+      assertEquals("testEmail1@sdf.sdf", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+      assertEquals("testEmail2@sdf.sdf", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier0'")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+          
+      assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+      assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+      assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+      assertEquals(member1.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+      assertEquals("testLogin2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+      assertEquals("testName2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1));
+      assertEquals("testDescription2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2));
+      assertEquals("testEmail2@sdf.sdf", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.email0));
+      assertEquals("subjectIdentifier0", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+      assertEquals("testLogin1", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+      assertEquals("testLogin2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier1'")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+          
+      assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+      assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+      assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+      assertEquals(member1.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+      assertEquals("testLogin2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+      assertEquals("testName2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1));
+      assertEquals("testDescription2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2));
+      assertEquals("testEmail2@sdf.sdf", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.email0));
+      assertEquals("subjectIdentifier1", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+      assertEquals("testName1", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+      assertEquals("testName2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    }
+    
+    {
+      ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier2'")
+        .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
+        .uniqueResult(ChangeLogEntry.class);
+          
+      assertEquals(member1.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.id));
+      assertEquals(member1.getSubjectId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectId));
+      assertEquals(member1.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectSourceId));
+      assertEquals(member1.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectTypeId));
+      assertEquals("testLogin2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0));
+      assertEquals("testName2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1));
+      assertEquals("testDescription2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2));
+      assertEquals("testEmail2@sdf.sdf", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.email0));
+      assertEquals("subjectIdentifier2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
+      assertEquals("testDescription1", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyOldValue));
+      assertEquals("testDescription2", changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyNewValue));
+    }
   }
   
   public void testSubjectIdentifierDuplicatesUsdu() {

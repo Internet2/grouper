@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -2970,7 +2971,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
         ChangeLogLabels.MEMBER_DELETE.subjectId.name(), this.getSubjectIdDb(), 
         ChangeLogLabels.MEMBER_DELETE.subjectSourceId.name(), this.getSubjectSourceIdDb(),
         ChangeLogLabels.MEMBER_DELETE.subjectTypeId.name(), this.getSubjectTypeId(),
-        ChangeLogLabels.MEMBER_DELETE.subjectIdentifier0.name(), this.getSubjectIdentifier0()).save();
+        ChangeLogLabels.MEMBER_DELETE.subjectIdentifier0.name(), this.getSubjectIdentifier0(),
+        ChangeLogLabels.MEMBER_DELETE.subjectIdentifier1.name(), this.getSubjectIdentifier1(),
+        ChangeLogLabels.MEMBER_DELETE.subjectIdentifier2.name(), this.getSubjectIdentifier2(),
+        ChangeLogLabels.MEMBER_DELETE.email0.name(), this.getEmail0()).save();
   }
 
   /**
@@ -2992,7 +2996,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
         ChangeLogLabels.MEMBER_ADD.subjectId.name(), this.getSubjectIdDb(), 
         ChangeLogLabels.MEMBER_ADD.subjectSourceId.name(), this.getSubjectSourceIdDb(),
         ChangeLogLabels.MEMBER_ADD.subjectTypeId.name(), this.getSubjectTypeId(),
-        ChangeLogLabels.MEMBER_ADD.subjectIdentifier0.name(), this.getSubjectIdentifier0()).save();
+        ChangeLogLabels.MEMBER_ADD.subjectIdentifier0.name(), this.getSubjectIdentifier0(),
+        ChangeLogLabels.MEMBER_ADD.subjectIdentifier1.name(), this.getSubjectIdentifier1(),
+        ChangeLogLabels.MEMBER_ADD.subjectIdentifier2.name(), this.getSubjectIdentifier2(),
+        ChangeLogLabels.MEMBER_ADD.email0.name(), this.getEmail0()).save();
   }
 
   /**
@@ -3016,13 +3023,19 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
             ChangeLogLabels.MEMBER_UPDATE.subjectId.name(), this.getSubjectIdDb(), 
             ChangeLogLabels.MEMBER_UPDATE.subjectSourceId.name(), this.getSubjectSourceIdDb(),
             ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name(), this.getSubjectTypeId(),
-            ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name(), this.getSubjectIdentifier0()),
-        GrouperUtil.toList("subjectId", "subjectSourceId", "subjectTypeId", "subjectIdentifier0"),
+            ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name(), this.getSubjectIdentifier0(),
+            ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1.name(), this.getSubjectIdentifier1(),
+            ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2.name(), this.getSubjectIdentifier2(),
+            ChangeLogLabels.MEMBER_UPDATE.email0.name(), this.getEmail0()),
+        GrouperUtil.toList("subjectId", "subjectSourceId", "subjectTypeId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2", "email0"),
         GrouperUtil.toList(
             ChangeLogLabels.MEMBER_UPDATE.subjectId.name(),
             ChangeLogLabels.MEMBER_UPDATE.subjectSourceId.name(),
             ChangeLogLabels.MEMBER_UPDATE.subjectTypeId.name(),
-            ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name()));    
+            ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name(),
+            ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1.name(),
+            ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2.name(),
+            ChangeLogLabels.MEMBER_UPDATE.email0.name()));    
   }
 
   /**
@@ -4633,7 +4646,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       distinctSubjectIdentifiers.add(this.subjectIdentifier2);
     }
     
-    String sql = "select id, subject_id, subject_source, subject_type, subject_identifier0 from grouper_members where "
+    String sql = "select id, subject_id, subject_source, subject_type, subject_identifier0, subject_identifier1, subject_identifier2, email0 from grouper_members where "
         + " (subject_identifier0 in (" + HibUtils.convertToInClauseForSqlStatic(distinctSubjectIdentifiers) + ") or "
         + "  subject_identifier1 in (" + HibUtils.convertToInClauseForSqlStatic(distinctSubjectIdentifiers) + ") or "
         + "  subject_identifier2 in (" + HibUtils.convertToInClauseForSqlStatic(distinctSubjectIdentifiers) + ")) and subject_source = ? and subject_id != ?";
@@ -4653,6 +4666,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       String subjectSourceId = memberData[2];
       String subjectTypeId = memberData[3];
       String subjectIdentifier0 = memberData[4];
+      String subjectIdentifier1 = memberData[5];
+      String subjectIdentifier2 = memberData[6];
+      String email0 = memberData[7];
       
       // found a duplicate, let's try to resolve it.
       Subject duplicateSubject = SubjectFinder.findByIdAndSource(subjectId, subjectSourceId, false);
@@ -4664,12 +4680,15 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
         List<Object> bindVars2 = GrouperUtil.toList(memberId);
         List<Type> types2 = HibUtils.listType(StringType.INSTANCE);
         HibernateSession.bySqlStatic().executeSql(sql2, bindVars2, types2);
+
+        ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
+        String sql3 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string06, string07, string08, string10, string11, string09) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        List<Type> types3 = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
+            StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
+            StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
+            StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
         
         if (!GrouperUtil.isEmpty(subjectIdentifier0)) {
-          String oldValue = subjectIdentifier0;
-          String newValue = null;
-          ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
-          String sql3 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
           List<Object> bindVars3 = GrouperUtil.toList(
               (Object)GrouperUuid.getUuid(), 
               changeLogType.getId(),
@@ -4678,13 +4697,54 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
               subjectId,
               subjectSourceId,
               subjectTypeId,
-              newValue,
-              oldValue,
-              newValue,
+              null,
+              null,
+              null,
+              email0,
+              subjectIdentifier0,
+              null,
               "subjectIdentifier0");
-          List<Type> types3 = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
-              StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
-              StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+
+          HibernateSession.bySqlStatic().executeSql(sql3, bindVars3, types3);
+        }
+        
+        if (!GrouperUtil.isEmpty(subjectIdentifier1)) {
+          List<Object> bindVars3 = GrouperUtil.toList(
+              (Object)GrouperUuid.getUuid(), 
+              changeLogType.getId(),
+              ChangeLogId.changeLogId(),
+              memberId,
+              subjectId,
+              subjectSourceId,
+              subjectTypeId,
+              null,
+              null,
+              null,
+              email0,
+              subjectIdentifier1,
+              null,
+              "subjectIdentifier1");
+
+          HibernateSession.bySqlStatic().executeSql(sql3, bindVars3, types3);
+        }
+        
+        if (!GrouperUtil.isEmpty(subjectIdentifier2)) {
+          List<Object> bindVars3 = GrouperUtil.toList(
+              (Object)GrouperUuid.getUuid(), 
+              changeLogType.getId(),
+              ChangeLogId.changeLogId(),
+              memberId,
+              subjectId,
+              subjectSourceId,
+              subjectTypeId,
+              null,
+              null,
+              null,
+              email0,
+              subjectIdentifier2,
+              null,
+              "subjectIdentifier2");
+
           HibernateSession.bySqlStatic().executeSql(sql3, bindVars3, types3);
         }
       } else {
@@ -4858,27 +4918,96 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                 hibernateHandlerBean.getHibernateSession().bySql().executeSql(query, bindVars, types);
                 
                 // if subject identifier is changing, we're sending that to the change log
-                if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0)) {
-                  String oldValue = Member.this.dbVersion().getSubjectIdentifier0();
-                  String newValue = Member.this.getSubjectIdentifier0();
+                if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0) ||
+                    Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER1) ||
+                    Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER2) ||
+                    Member.this.dbVersionDifferentFields().contains(Member.FIELD_EMAIL0)) {
                   ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
-                  String query2 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                  List<Object> bindVars2 = GrouperUtil.toList(
-                      (Object)GrouperUuid.getUuid(), 
-                      changeLogType.getId(),
-                      ChangeLogId.changeLogId(),
-                      Member.this.getId(),
-                      Member.this.getSubjectId(),
-                      Member.this.getSubjectSourceId(),
-                      Member.this.getSubjectTypeId(),
-                      Member.this.getSubjectIdentifier0(),
-                      oldValue,
-                      newValue,
-                      "subjectIdentifier0");
+                  String query2 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string06, string07, string08, string10, string11, string09) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                   types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
                       StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
-                      StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
-                  hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
+                      StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
+                      StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+                  
+                  if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0)) {
+                    List<Object> bindVars2 = GrouperUtil.toList(
+                        (Object)GrouperUuid.getUuid(), 
+                        changeLogType.getId(),
+                        ChangeLogId.changeLogId(),
+                        Member.this.getId(),
+                        Member.this.getSubjectId(),
+                        Member.this.getSubjectSourceId(),
+                        Member.this.getSubjectTypeId(),
+                        Member.this.getSubjectIdentifier0(),
+                        Member.this.getSubjectIdentifier1(),
+                        Member.this.getSubjectIdentifier2(),
+                        Member.this.getEmail0(),
+                        Member.this.dbVersion().getSubjectIdentifier0(),
+                        Member.this.getSubjectIdentifier0(),
+                        "subjectIdentifier0");
+
+                    hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
+                  }
+                  
+                  if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER1)) {
+                    List<Object> bindVars2 = GrouperUtil.toList(
+                        (Object)GrouperUuid.getUuid(), 
+                        changeLogType.getId(),
+                        ChangeLogId.changeLogId(),
+                        Member.this.getId(),
+                        Member.this.getSubjectId(),
+                        Member.this.getSubjectSourceId(),
+                        Member.this.getSubjectTypeId(),
+                        Member.this.getSubjectIdentifier0(),
+                        Member.this.getSubjectIdentifier1(),
+                        Member.this.getSubjectIdentifier2(),
+                        Member.this.getEmail0(),
+                        Member.this.dbVersion().getSubjectIdentifier1(),
+                        Member.this.getSubjectIdentifier1(),
+                        "subjectIdentifier1");
+
+                    hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
+                  }
+
+                  if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER2)) {
+                    List<Object> bindVars2 = GrouperUtil.toList(
+                        (Object)GrouperUuid.getUuid(), 
+                        changeLogType.getId(),
+                        ChangeLogId.changeLogId(),
+                        Member.this.getId(),
+                        Member.this.getSubjectId(),
+                        Member.this.getSubjectSourceId(),
+                        Member.this.getSubjectTypeId(),
+                        Member.this.getSubjectIdentifier0(),
+                        Member.this.getSubjectIdentifier1(),
+                        Member.this.getSubjectIdentifier2(),
+                        Member.this.getEmail0(),
+                        Member.this.dbVersion().getSubjectIdentifier2(),
+                        Member.this.getSubjectIdentifier2(),
+                        "subjectIdentifier2");
+
+                    hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
+                  }
+                  
+                  if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_EMAIL0)) {
+                    List<Object> bindVars2 = GrouperUtil.toList(
+                        (Object)GrouperUuid.getUuid(), 
+                        changeLogType.getId(),
+                        ChangeLogId.changeLogId(),
+                        Member.this.getId(),
+                        Member.this.getSubjectId(),
+                        Member.this.getSubjectSourceId(),
+                        Member.this.getSubjectTypeId(),
+                        Member.this.getSubjectIdentifier0(),
+                        Member.this.getSubjectIdentifier1(),
+                        Member.this.getSubjectIdentifier2(),
+                        Member.this.getEmail0(),
+                        Member.this.dbVersion().getEmail0(),
+                        Member.this.getEmail0(),
+                        "email0");
+
+                    hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
+                  }
                 }
                 
                 if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0) ||
