@@ -228,7 +228,7 @@ public class GrouperProvisioningCompare {
     Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = 
         provisioningAttribute.getValueToProvisioningMembershipWrapper();
 
-    if (valueToProvisioningMembershipWrapper == null) {
+    if (valueToProvisioningMembershipWrapper != null) {
       ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(value);
       if (provisioningMembershipWrapper == null) {
         return;
