@@ -181,8 +181,8 @@ public class DojoComboLogic {
             for (T t : objects) {
               
               //description could be null?
-              String id = GrouperUiUtils.escapeHtml(dojoComboQueryLogic.retrieveId(grouperSession, t), true);
-              String label = GrouperUiUtils.escapeHtml(dojoComboQueryLogic.retrieveLabel(grouperSession, t), true);
+              String id = dojoComboQueryLogic.retrieveId(grouperSession, t);
+              String label = dojoComboQueryLogic.retrieveLabel(grouperSession, t);
               String htmlLabel = dojoComboQueryLogic.retrieveHtmlLabel(grouperSession, t);
               
               DojoComboDataResponseItem item = new DojoComboDataResponseItem(id, label, htmlLabel);
