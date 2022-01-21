@@ -467,8 +467,13 @@ public class MemberFinder {
       validSearch = true;
     }
     
-    if (!StringUtils.isBlank(subjectIdentifier)) {
-      criterionList.add(Restrictions.eq("subjectIdentifier0", subjectIdentifier));      
+    if (!StringUtils.isBlank(subjectIdentifier)) {      
+      criterionList.add(Restrictions.or(
+          Restrictions.eq("subjectIdentifier0", subjectIdentifier),
+          Restrictions.eq("subjectIdentifier1", subjectIdentifier),
+          Restrictions.eq("subjectIdentifier2", subjectIdentifier)
+       ));  
+      
       validSearch = true;
     }
     
@@ -480,7 +485,9 @@ public class MemberFinder {
     if (!StringUtils.isBlank(subjectIdOrIdentifier)) {
       criterionList.add(Restrictions.or(
           Restrictions.eq("subjectIdDb", subjectIdOrIdentifier),
-          Restrictions.eq("subjectIdentifier0", subjectIdOrIdentifier)
+          Restrictions.eq("subjectIdentifier0", subjectIdOrIdentifier),
+          Restrictions.eq("subjectIdentifier1", subjectIdOrIdentifier),
+          Restrictions.eq("subjectIdentifier2", subjectIdOrIdentifier)
        ));     
       validSearch = true;
     }

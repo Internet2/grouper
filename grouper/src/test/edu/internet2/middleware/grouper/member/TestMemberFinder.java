@@ -46,6 +46,9 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.RegistrySubject;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -61,10 +64,14 @@ import edu.internet2.middleware.grouper.helper.T;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * @author  tzeller
@@ -78,7 +85,7 @@ public class TestMemberFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberFinder("testFindByAttributeDefName"));
+    TestRunner.run(new TestMemberFinder("testFindByIdOrSubjectIdOrIdentifier"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestMemberFinder.class);
@@ -278,6 +285,62 @@ public class TestMemberFinder extends GrouperTest {
     GrouperSession.stopQuietly(grouperSession);
     
     
+  }
+  
+  public void testFindByIdOrSubjectIdOrIdentifier() {
+    BaseSourceAdapter source = (BaseSourceAdapter) SourceManager.getInstance().getSource("jdbc");
+    source.addInitParam("subjectIdentifierAttribute1", "lfname");
+    source.addInitParam("subjectIdentifierAttribute2", "description");
+    ExpirableCache.clearAll();
+    source.setSubjectIdentifierAttributesAll(null);
+    
+    Stem edu = StemFinder.findRootStem(GrouperSession.staticGrouperSession()).addChildStem("edu", "edu");
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject1", "person", "testSubjectName1", "testName1", "testLogin1", "testDescription1", "testEmail1@sdf.sdf");
+    RegistrySubject.add(GrouperSession.staticGrouperSession(), "testSubject2", "person", "testSubjectName2", "testName2", "testLogin2", "testDescription2", "testEmail2@sdf.sdf");
+    Subject subj1 = SubjectFinder.findById("testSubject1", true);
+    edu.grantPriv(subj1, NamingPrivilege.CREATE);
+    
+    Member member = MemberFinder.find(null, "testSubject1", null, null, null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", "testSubject1", null, null, null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", null, null, null, member.getId());
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", null, "testLogin1", null, null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", null, "testName1", null, null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", null, "testDescription1", null, null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", null, null, "testLogin1", null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", null, null, "testName1", null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", null, null, "testDescription1", null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", null, null, "testSubject1", null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", "testSubject1", null, "testLogin1", null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", "testSubject1", null, "testName1", null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", "testSubject1", null, "testDescription1", null);
+    assertEquals("testSubject1", member.getSubjectId());
+    
+    member = MemberFinder.find("jdbc", "testSubject1x", null, "testLogin1", null);
+    assertNull(member);
   }
 
 } // public class TestMemberFinder_FindAll
