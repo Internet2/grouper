@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -326,6 +327,22 @@ public class GrouperLoaderIncrementalJob implements Job {
             LOG.warn(warnMessage);
             nonFatalWarnings.add(warnMessage);
             scheduleJobNow(loaderGroup, grouperLoaderType);
+            setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
+            continue;
+          }
+
+          if (skipIfFullSyncDisabled && !GrouperLoader.isJobEnabled(fullSyncJobName)) {
+            String warnMessage = "The full sync job for loader group " + loaderGroupName + " is not enabled.  Skipping incremental changes.";
+            LOG.warn(warnMessage);
+            nonFatalWarnings.add(warnMessage);
+            setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
+            continue;
+          }
+          
+          if (GrouperFailsafe.isFailsafeIssue(fullSyncJobName)) {
+            String warnMessage = "The full sync job for loader group " + loaderGroupName + " has a failsafe issue.  Skipping incremental changes until the full sync job is approved or the data issue is fixed and the full sync is run.";
+            LOG.warn(warnMessage);
+            nonFatalWarnings.add(warnMessage);
             setAllRowsForGroupCompleted(connection, tableName, loaderGroupName);
             continue;
           }

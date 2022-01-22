@@ -1123,7 +1123,12 @@ public class GrouperProvisioningCompare {
           continue;
         }
         
-        this.groupUuidsToDelete.add(provisioningGroupWrapper.getGrouperProvisioningGroup().getId());
+        // this could delete stuff in target that grouper doesnt track... 
+        // at some point we can add that to failsafes but right now its not there...
+        if (provisioningGroupWrapper.getGrouperProvisioningGroup() != null 
+            && !StringUtils.isBlank(provisioningGroupWrapper.getGrouperProvisioningGroup().getId())) {
+          this.groupUuidsToDelete.add(provisioningGroupWrapper.getGrouperProvisioningGroup().getId());
+        }
         
         provisioningGroupsToDelete.add(groupToDelete);
         

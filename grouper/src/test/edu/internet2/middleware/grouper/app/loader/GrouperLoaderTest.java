@@ -137,7 +137,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderShouldAbortListWithoutChangingMembershipsOverallMinMemberships2"));
+    TestRunner.run(new GrouperLoaderTest("testIncrementalLoaderSimpleSubjectIdFailsafe"));
   }
 
   /**
@@ -1662,6 +1662,7 @@ public class GrouperLoaderTest extends GrouperTest {
   
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader").executeUpdate();
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups").executeUpdate();
+      HibernateSession.byHqlStatic().createQuery("delete from TestgrouperIncrementalLoader").executeUpdate();
       
       GrouperStartup.initLoaderType();
       
@@ -4358,6 +4359,86 @@ public class GrouperLoaderTest extends GrouperTest {
     assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+  }
+  
+  /**
+   * test the loader
+   * @throws Exception 
+   */
+  public void testIncrementalLoaderSimpleSubjectIdFailsafe() throws Exception {
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.class", "edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.databaseName", "grouper");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.tableName", "testgrouper_incremental_loader");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.incrementalLoader1.skipIfFullSyncDisabled", "false");
+
+    List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+    
+    testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ0_ID, null));
+    testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ1_ID, null));
+    testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ2_ID, null));
+    testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ3_ID, null));
+    testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ4_ID, null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+
+    Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, "loader:group1", null, null, null, true);
+    loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+        "select col2 as SUBJECT_ID from testgrouper_loader");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_FAILSAFE_USE, "T");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_GROUP_PERCENT_REMOVE, "20");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_GROUPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MAX_OVERALL_PERCENT_MEMBERSHIPS_REMOVE, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_GROUP_SIZE, "2");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_MANAGED_GROUPS, "-1");
+    loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_MIN_OVERALL_NUMBER_OF_MEMBERS, "-1");
+
+    GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+    
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ4));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
+
+    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col2='test.subject.0'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col2='test.subject.1'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col2='test.subject.2'").executeUpdate();
+    HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoader where col2='test.subject.3'").executeUpdate();
+
+    try {
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+      fail("Should be failsafe");
+    } catch (Exception e) {
+      // good
+    }
+    
+    testDataList = new ArrayList<TestgrouperLoader>();
+    testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ5_ID, null));
+    testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ6_ID, null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+    
+    List<TestgrouperIncrementalLoader> testIncrementalDataList = new ArrayList<TestgrouperIncrementalLoader>();    
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(1, SubjectTestHelper.SUBJ0_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(2, null, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(3, SubjectTestHelper.SUBJ1_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(4, SubjectTestHelper.SUBJ5_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(5, SubjectTestHelper.SUBJ6_ID, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    testIncrementalDataList.add(new TestgrouperIncrementalLoader(6, null, null, null, null, "loader:group1", System.currentTimeMillis(), null));
+    HibernateSession.byObjectStatic().saveOrUpdate(testIncrementalDataList);
+    
+    GrouperLoaderIncrementalJob.runJob(this.grouperSession, "OTHER_JOB_incrementalLoader1");
+    
+    // verify nothing changed due to failsafe
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ4));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ5));
+    assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ6));
   }
   
   /**
