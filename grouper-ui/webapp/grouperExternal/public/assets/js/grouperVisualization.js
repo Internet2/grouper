@@ -445,7 +445,7 @@ function drawGraphModuleD3() {
 
         // a stem or group can have multiple rows in the label, depending on whether showing object types or counts
         var labelRows = [];
-        labelRows.push(escapeHTML(getObjectNameUsingPrefs(node)));
+        labelRows.push(getObjectNameUsingPrefs(node));
 
         if (showObjectTypesLabel) {
           if (node.objectTypes && node.objectTypes.length > 0) {
