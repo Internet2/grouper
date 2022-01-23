@@ -123,7 +123,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
     GrouperStartup.startup();
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFullWithAttributesTableFailsafeOverallPercentRemoved"));
+    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisionerFailsafe"));
     
   }
   
@@ -203,14 +203,111 @@ public class SqlProvisionerTest extends GrouperTest {
     
   }
   
-  private boolean startTomcat = false;
+  public void testIncrementalSyncSqlProvisionerFailsafe() {
+    
+    
+    setupFailsafeJob();
+    
+    // # if provisioning in ui should be enabled
+    //# {valueType: "boolean", required: true}
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
+
+    GrouperStartup.startup();
+    
+    // edu.internet2.middleware.grouper.changeLog.esb.consumer
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.class", EsbConsumer.class.getName());
+    // edu.internet2.middleware.grouper.app.provisioning
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.class", ProvisioningConsumer.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerConfigId", "mySqlProvisioner1");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.debug", "true");
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinGroupSize").value("8").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxPercentRemove").value("20").store();
+        
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    
+    assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+    
+    runJobs(true, true);
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    
+    //lets sync these over
+    String jobName = "OTHER_JOB_sqlProvisionerFull";
+    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    
+    assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
+    
+    List<Object[]> groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group order by name").selectList(Object[].class);
+    assertEquals(10, groups.size());
+    
+    List<Object[]> entities = new GcDbAccess().sql("select uuid, name, subject_id_or_identifier, description from testgrouper_prov_entity order by name").selectList(Object[].class);
+    assertEquals(10, entities.size());
+    
+    List<Object[]> memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
+    assertEquals(100, memberships.size());
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxOverallPercentMembershipsRemove").value("25").store();
+    
+    for (int i=0;i<5;i++) {
+      failsafeGroups.get(i).delete();
+    }
+    try {
+      GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+      fail();
+    } catch(Exception e) {
+    }
+    
+    assertTrue(GrouperFailsafe.isFailsafeIssue(jobName));
+
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
+
+    this.failsafeGroups.get(6).deleteMember(SubjectTestHelper.SUBJ3);
+    runJobs(true, true);
+        
+    groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group order by name").selectList(Object[].class);
+    assertEquals(10, groups.size());
+    
+    entities = new GcDbAccess().sql("select uuid, name, subject_id_or_identifier, description from testgrouper_prov_entity order by name").selectList(Object[].class);
+    assertEquals(10, entities.size());
+    
+    memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
+    assertEquals(100, memberships.size());
+    
+    GrouperUtil.sleep(1000);
+    
+    assertFalse(GrouperFailsafe.isApproved(jobName));
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxOverallPercentMembershipsRemove").value("60").store();
+  
+    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+  
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
+  
+    memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
+    
+    assertEquals(49, memberships.size());
+    
+    groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group order by name").selectList(Object[].class);
+    assertEquals(5, groups.size());
+    
+    entities = new GcDbAccess().sql("select uuid, name, subject_id_or_identifier, description from testgrouper_prov_entity order by name").selectList(Object[].class);
+    assertEquals(10, entities.size());
+    
+    memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
+    assertEquals(49, memberships.size());
+    
+  }
   
   public void testIncrementalSyncSqlProvisioner() {
     
-    if (!tomcatRunTests()) {
-      return;
-    }
-
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.class").value("edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.dbExternalSystemConfigId").value("grouper").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetEntityLink").value("true").store();
@@ -380,10 +477,6 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.debug", "true");
 
-    if (startTomcat) {
-      CommandLineExec commandLineExec = tomcatStart();
-    }
-    
     try {
      
       
@@ -452,10 +545,6 @@ public class SqlProvisionerTest extends GrouperTest {
       
       
     } finally {
-//      tomcatStop();
-//      if (commandLineExec != null) {
-//        GrouperUtil.threadJoin(commandLineExec.getThread());
-//      }
     }
     
   }
