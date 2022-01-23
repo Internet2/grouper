@@ -226,6 +226,38 @@ public abstract class BaseSourceAdapter implements Source {
     
   } 
   
+  private Map<String, String> exportLabelToAttributeName = null;
+
+  /**
+   * return export label to attribute name (if there are overrides)
+   * @return empty if no overrides, otherwise the attribute name to export label
+   */
+  public Map<String, String> exportLabelToAttributeName() {
+    
+    if (this.exportLabelToAttributeName == null) {
+      Map<String, String> tempExportLabelToAttributeName = new HashMap<String, String>();
+      
+      String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+      
+      if (this.isEditable()) {
+            
+        if (StringUtils.isNotBlank(numberOfAttributes)) {
+          
+          int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+          for (int i=0; i<numberOfAttrs; i++) {
+            
+            String exportHeader = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".exportHeader");
+            if (!StringUtils.isBlank(exportHeader)) {
+              String attributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+              tempExportLabelToAttributeName.put(exportHeader, attributeName);
+            }
+          }
+        }
+      }
+      this.exportLabelToAttributeName = tempExportLabelToAttributeName;
+    }
+    return this.exportLabelToAttributeName;
+  }
   
   public String convertSourceAttributeToSubjectAttribute(String nameOfSourceAttribute) {
     

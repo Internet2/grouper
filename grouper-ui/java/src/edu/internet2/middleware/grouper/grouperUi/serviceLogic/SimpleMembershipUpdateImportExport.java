@@ -61,7 +61,10 @@ import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.LazySource;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 
 
 /**
@@ -205,11 +208,17 @@ public class SimpleMembershipUpdateImportExport {
       }
     }
     
-    
     try {
       
       Subject subject = member.getSubject();
-      
+      Source source = subject.getSource();
+      Map<String, String> exportLabelToAttributeName = null;
+      if (source instanceof LazySource) {
+        source = ((LazySource)source).getSource();
+      }
+      if (source instanceof BaseSourceAdapter) {
+        exportLabelToAttributeName = ((BaseSourceAdapter)source).exportLabelToAttributeName();
+      }
       //lets see what we can get from the subject
       for (int i=0;i<headers.length;i++) {
         String header = headers[i];
@@ -220,6 +229,10 @@ public class SimpleMembershipUpdateImportExport {
         } else if ("screenLabel".equalsIgnoreCase(header)) {
           result[i] = GrouperUiUtils.convertSubjectToLabelConfigured(subject);
         } else if (isAttribute[i]) {
+          if (exportLabelToAttributeName != null && exportLabelToAttributeName.containsKey(header)) {
+            // translate the header to the attribute name
+            header = exportLabelToAttributeName.get(header);
+          }
           result[i] = subject.getAttributeValueOrCommaSeparated(header);
         }
       }

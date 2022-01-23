@@ -110,7 +110,7 @@ public class LazySource implements Source, Serializable {
    * 
    * @return source
    */
-  private Source getSource() {
+  public Source getSource() {
     if (this.source == null) {
       this.source = SourceManager.getInstance().getSource(this.underlyingSourceId);
     }
