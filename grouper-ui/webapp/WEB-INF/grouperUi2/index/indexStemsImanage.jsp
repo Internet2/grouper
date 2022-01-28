@@ -18,4 +18,3 @@
                     <p><strong><a href="#"
                   onclick="return guiV2link('operation=UiV2MyStems.myStems');">${textContainer.text['indexMyStemsViewAllStems'] }</a>  </strong></p>
                     <!-- end indexStemsImanage.jsp -->
-~
