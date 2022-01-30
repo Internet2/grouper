@@ -49,6 +49,16 @@ public class LoaderMemberWrapper {
   /**
    * 
    */
+  private String subjectIdentifier1;
+  
+  /**
+   * 
+   */
+  private String subjectIdentifier2;
+  
+  /**
+   * 
+   */
   private Member member;
 
 
@@ -161,10 +171,12 @@ public class LoaderMemberWrapper {
    * @param sourceId
    * @param subjectIdentifier0
    */
-  public LoaderMemberWrapper(String subjectId, String sourceId, String subjectIdentifier0) {
+  public LoaderMemberWrapper(String subjectId, String sourceId, String subjectIdentifier0, String subjectIdentifier1, String subjectIdentifier2) {
     this.subjectId = subjectId;
     this.sourceId = sourceId;
     this.subjectIdentifier0 = subjectIdentifier0;
+    this.subjectIdentifier1 = subjectIdentifier1;
+    this.subjectIdentifier2 = subjectIdentifier2;
   }
 
   /**
@@ -175,6 +187,8 @@ public class LoaderMemberWrapper {
     this.subjectId = member.getSubjectIdDb();
     this.sourceId = member.getSubjectSourceIdDb();
     this.subjectIdentifier0 = member.getSubjectIdentifier0();
+    this.subjectIdentifier1 = member.getSubjectIdentifier1();
+    this.subjectIdentifier2 = member.getSubjectIdentifier2();
   }
 
   
@@ -191,6 +205,34 @@ public class LoaderMemberWrapper {
    */
   public void setSubjectIdentifier0(String subjectIdentifier0) {
     this.subjectIdentifier0 = subjectIdentifier0;
+  }
+
+  /**
+   * @return the subjectIdentifier1
+   */
+  public String getSubjectIdentifier1() {
+    return subjectIdentifier1;
+  }
+
+  /**
+   * @param subjectIdentifier1
+   */
+  public void setSubjectIdentifier1(String subjectIdentifier1) {
+    this.subjectIdentifier1 = subjectIdentifier1;
+  }
+
+  /**
+   * @return the subjectIdentifier2
+   */
+  public String getSubjectIdentifier2() {
+    return subjectIdentifier2;
+  }
+
+  /**
+   * @param subjectIdentifier2
+   */
+  public void setSubjectIdentifier2(String subjectIdentifier2) {
+    this.subjectIdentifier2 = subjectIdentifier2;
   }
   
 }

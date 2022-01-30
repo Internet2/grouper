@@ -3256,7 +3256,7 @@ public enum GrouperLoaderType {
       Set<LoaderMemberWrapper> currentMembers = new LinkedHashSet<LoaderMemberWrapper>();
 
       //TODO put this in the DAO
-      StringBuilder sql = new StringBuilder("select m.subjectIdDb, m.subjectSourceIdDb, m.subjectIdentifier0 "
+      StringBuilder sql = new StringBuilder("select m.subjectIdDb, m.subjectSourceIdDb, m.subjectIdentifier0, m.subjectIdentifier1, m.subjectIdentifier2 "
           + " from Member m, MembershipEntry ms "
           + " where ms.ownerGroupId = :ownerGroupId and ms.memberUuid = m.uuid "
           + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
@@ -3269,7 +3269,9 @@ public enum GrouperLoaderType {
         String subjectId = (String)row[0];
         String sourceId = (String)row[1];
         String subjectIdentifier0 = (String)row[2];
-        currentMembers.add(new LoaderMemberWrapper(subjectId, sourceId, subjectIdentifier0));
+        String subjectIdentifier1 = (String)row[3];
+        String subjectIdentifier2 = (String)row[4];
+        currentMembers.add(new LoaderMemberWrapper(subjectId, sourceId, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2));
       }
 
       GrouperLoaderLogger.addLogEntry("overallOrSubjobLog", "rowsFromGrouper", currentMembers.size());
@@ -3285,7 +3287,7 @@ public enum GrouperLoaderType {
         
         LoaderMemberWrapper member = iterator.next();
         //see if it is in the current list
-        Row row = grouperLoaderResultset.find(member.getSubjectId(), member.getSourceId(), member.getSubjectIdentifier0());
+        Row row = grouperLoaderResultset.find(member.getSubjectId(), member.getSourceId(), member.getSubjectIdentifier0(), member.getSubjectIdentifier1(), member.getSubjectIdentifier2());
         
         //this means the member exists in query, and in membership, so maybe do nothing
         if (row != null) {

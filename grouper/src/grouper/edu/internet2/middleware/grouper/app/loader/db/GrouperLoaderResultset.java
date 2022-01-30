@@ -1785,6 +1785,36 @@ public class GrouperLoaderResultset {
   }
   
   /**
+   * create keys when finding based on grouper member data
+   * @param subjectId
+   * @param subjectSourceId
+   * @param subjectIdentifiers
+   * @return the multikeys
+   */
+  private List<MultiKey> indexMultiKey(String subjectId, String subjectSourceId, List<String> subjectIdentifiers) {
+    List<MultiKey> result = new ArrayList<MultiKey>();
+    
+    if ((this.subjectIdOrIdentifierIndex != null || this.subjectIdIndex != null) && !StringUtils.isBlank(subjectId)) {
+      if (this.subjectSourceIdIndex != null && !StringUtils.isBlank(subjectSourceId)) {
+        result.add(new MultiKey("id", subjectSourceId, subjectId));
+      } else {
+        result.add(new MultiKey("id", subjectId));
+      }
+    }
+    if ((this.subjectIdOrIdentifierIndex != null || this.subjectIdentifierIndex != null) && subjectIdentifiers.size() > 0) {
+      for (String subjectIdentifier : subjectIdentifiers) {
+        if (this.subjectSourceIdIndex != null && !StringUtils.isBlank(subjectSourceId)) {
+          result.add(new MultiKey("identifier", subjectSourceId, subjectIdentifier));
+        } else {
+          // the true is just there since we need two keys
+          result.add(new MultiKey("identifier", subjectIdentifier));
+        }
+      }
+    }
+    return result;
+  }
+  
+  /**
    * setup the index from the data
    */
   private synchronized void setupIndex() {
@@ -1832,13 +1862,26 @@ public class GrouperLoaderResultset {
    * @param subjectId
    * @param subjectSourceId
    * @param subjectIdentifier0
+   * @param subjectIdentifier1
+   * @param subjectIdentifier2
    * @return row if found, else null
    */
-  public Row find(String subjectId, String subjectSourceId, String subjectIdentifier0) {
+  public Row find(String subjectId, String subjectSourceId, String subjectIdentifier0, String subjectIdentifier1, String subjectIdentifier2) {
 
     this.setupIndexIfNotSetup();
 
-    List<MultiKey> keys = indexMultiKey(subjectId, subjectSourceId, subjectIdentifier0, null);
+    List<String> subjectIdentifiers = new ArrayList<String>();
+    if (!StringUtils.isBlank(subjectIdentifier0)) {
+      subjectIdentifiers.add(subjectIdentifier0);
+    }
+    if (!StringUtils.isBlank(subjectIdentifier1)) {
+      subjectIdentifiers.add(subjectIdentifier1);
+    }
+    if (!StringUtils.isBlank(subjectIdentifier2)) {
+      subjectIdentifiers.add(subjectIdentifier2);
+    }
+    
+    List<MultiKey> keys = indexMultiKey(subjectId, subjectSourceId, subjectIdentifiers);
     for (MultiKey key : GrouperUtil.nonNull(keys)) {
       Row row = dataIndex.get(key);
       if (row != null) {

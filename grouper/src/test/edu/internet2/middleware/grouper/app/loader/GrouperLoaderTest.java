@@ -76,8 +76,11 @@ import edu.internet2.middleware.grouper.session.GrouperSessionResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.morphString.Morph;
+import edu.internet2.middleware.subject.config.SubjectConfig;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.textui.TestRunner;
 
 
@@ -137,7 +140,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testIncrementalLoaderSimpleSubjectIdFailsafe"));
+    TestRunner.run(new GrouperLoaderTest("testLoaderMultipleSubjectIdentifiers"));
   }
 
   /**
@@ -1652,6 +1655,7 @@ public class GrouperLoaderTest extends GrouperTest {
    */
   @Override
   protected void setUp() {
+
     super.setUp();
     
     try {
@@ -2368,6 +2372,72 @@ public class GrouperLoaderTest extends GrouperTest {
    * test the loader
    * @throws Exception 
    */
+  public void testLoaderMultipleSubjectIdentifiers() throws Exception {
+
+    try {
+      SubjectConfig.retrieveConfig().propertiesOverrideMap().put("subjectApi.source.jdbc.search.searchSubjectByIdentifier.param.sql.value", SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source.jdbc.search.searchSubjectByIdentifier.param.sql.value").replace("a.name='loginid'", "a.name in ('loginid', 'name', 'description')"));
+      SubjectConfig.retrieveConfig().propertiesOverrideMap().put("subjectApi.source.jdbc.param.subjectIdentifierAttribute1.value", "lfname");
+      SubjectConfig.retrieveConfig().propertiesOverrideMap().put("subjectApi.source.jdbc.param.subjectIdentifierAttribute2.value", "description");
+      SubjectConfig.retrieveConfig().propertiesOverrideMap().put("subjectApi.source.jdbc.param.identifierAttributes.value", "LOGINID, LFNAME, DESCRIPTION");
+      ExpirableCache.clearAll();
+      SourceManager.getInstance().reloadSource("jdbc");
+      SourceManager.getInstance().loadSource(SubjectConfig.retrieveConfig().retrieveSourceConfigs().get("jdbc"));
+      
+      List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+      
+      TestgrouperLoader subj0 = new TestgrouperLoader("id.test.subject.0", null, null);
+      testDataList.add(subj0);
+      TestgrouperLoader subj1 = new TestgrouperLoader("name.test.subject.1", null, null);
+      testDataList.add(subj1);
+      TestgrouperLoader subj2 = new TestgrouperLoader("description.test.subject.2", null, null);
+      testDataList.add(subj2);
+    
+      HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+    
+      //lets add a group which will load these
+      Group loaderGroup = Group.saveGroup(this.grouperSession, null, null, 
+          "loader:owner",null, null, null, true);
+      loaderGroup.addType(GroupTypeFinder.find("grouperLoader", true));
+      loaderGroup.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, 
+          "select col1 as SUBJECT_IDENTIFIER from testgrouper_loader");
+      
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+      
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+          
+      HibernateSession.byObjectStatic().delete(subj2);
+      
+      TestgrouperLoader subj3 = new TestgrouperLoader("description.test.subject.3", null, null);
+      HibernateSession.byObjectStatic().save(subj3);
+      
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+      assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+    
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup);
+
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+      assertFalse(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
+      assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ3));
+    } finally {
+      SubjectConfig.retrieveConfig().propertiesOverrideMap().clear();
+      SourceManager.getInstance().internal_removeSource("jdbc");
+      SourceManager.getInstance().reloadSource("jdbc");
+      SourceManager.getInstance().loadSource(SubjectConfig.retrieveConfig().retrieveSourceConfigs().get("jdbc"));
+    }
+  }
+  
+  /**
+   * test the loader
+   * @throws Exception 
+   */
   public void testLoaderSubjectIdentifier() throws Exception {
     
     List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
@@ -2393,7 +2463,7 @@ public class GrouperLoaderTest extends GrouperTest {
     
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
-    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(loaderGroup.hasMember(SubjectTestHelper.SUBJ2));
   
   }
 
