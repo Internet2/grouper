@@ -97,7 +97,7 @@
         <mchange.commons.version>0.2.15</mchange.commons.version>
         <cglib.version>3.1</cglib.version>
         <jamon.version>2.81</jamon.version>
-        <xstream.version>1.4.9</xstream.version>
+        <xstream.version>1.4.19</xstream.version>
         <jsch.version>0.1.55</jsch.version>
         <commons.vfs2.version>2.4.1</commons.vfs2.version>
         <commons.jexl.version>2.1.1</commons.jexl.version>
