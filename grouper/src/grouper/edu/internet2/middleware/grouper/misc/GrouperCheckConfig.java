@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAffiliation;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningAttributeNames;
@@ -733,6 +734,58 @@ public class GrouperCheckConfig {
                   + ", " + groupUuidAttributeDefName.getName() + ", " + includeEligibleAttributeDefName.getName());
             }
             
+          }
+          {
+            
+            String jexlScriptRootStemName = GrouperAbac.jexlScriptStemName();
+            
+            Stem jexlScriptStem = StemFinder.findByName(grouperSession, jexlScriptRootStemName, false);
+            if (jexlScriptStem == null) {
+              jexlScriptStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+                .assignDescription("folder for jexl script objects").assignName(jexlScriptRootStemName)
+                .save();
+            }
+
+            //see if attributeDef is there
+            String jexlScriptMarkerDefName = jexlScriptRootStemName + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER_DEF;
+            AttributeDef jexlScriptMarkerDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+                jexlScriptMarkerDefName, false, new QueryOptions().secondLevelCache(false));
+            if (jexlScriptMarkerDef == null) {
+              jexlScriptMarkerDef = jexlScriptStem.addChildAttributeDef(GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER_DEF, AttributeDefType.attr);
+              jexlScriptMarkerDef.setAssignToGroup(true);
+              jexlScriptMarkerDef.setMultiAssignable(false);
+              jexlScriptMarkerDef.store();
+            }
+            
+            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(jexlScriptMarkerDef);
+
+            //add a name
+            AttributeDefName jexlScriptMarker = checkAttribute(jexlScriptStem, jexlScriptMarkerDef, GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, 
+                "jexl script attribute based access control", wasInCheckConfig);
+            
+            //lets add some rule attributes
+            String jexlScriptValueDefName = jexlScriptRootStemName + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_VALUE_DEF;
+            AttributeDef jexlScriptValueDef = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(  
+                jexlScriptValueDefName, false, new QueryOptions().secondLevelCache(false));
+            if (jexlScriptValueDef == null) {
+              jexlScriptValueDef = jexlScriptStem.addChildAttributeDef(GrouperAbac.GROUPER_JEXL_SCRIPT_VALUE_DEF, AttributeDefType.attr);
+              jexlScriptValueDef.setAssignToGroupAssn(true);
+              jexlScriptValueDef.setValueType(AttributeDefValueType.string);
+              jexlScriptValueDef.store();
+            }
+
+            Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(jexlScriptValueDef);
+
+            //the attributes can only be assigned to the type def
+            // try an attribute def dependent on an attribute def name
+            jexlScriptValueDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(jexlScriptMarker.getName());
+
+            //add some names
+            checkAttribute(jexlScriptStem, jexlScriptValueDef, GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT, 
+                "jexl script", wasInCheckConfig);
+            checkAttribute(jexlScriptStem, jexlScriptValueDef, GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES,
+                "true or false if the script should include subjects from internal sources", wasInCheckConfig);
+
           }
           return null;
         }

@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderDisplayNameSyncType;
@@ -1008,6 +1009,24 @@ public class UiV2GrouperLoader {
             GrouperUtil.booleanValue(grouperLoaderContainer.getEditLoaderRecentIncludeCurrent());
           }
 
+        } else if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
+          if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript())) {
+            
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequired")));
+            hasError = true;
+            
+          }
+          if (!hasError) {
+            String errorMessage = GrouperAbac.validScript(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript());
+            if (!StringUtils.isBlank(errorMessage)) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptInvalid")
+                  + "<br />" + StringUtils.replace(GrouperUtil.xmlEscape(errorMessage), "\n", "<br />")));
+              hasError = true;
+            }
+          }
+
         } else if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
           if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderSqlType())) {
   
@@ -1376,7 +1395,7 @@ public class UiV2GrouperLoader {
             }
           }
 
-          //if not recent memberships is picked, and used to be SQL, then remove LDAP
+          //if not recent memberships is picked, and used to be recent memberships, then remove recent memberships
           if (!StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperRecentMembershipsLoader()) {
             GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
               
@@ -1397,6 +1416,70 @@ public class UiV2GrouperLoader {
               }
             });
           }
+
+          //if not jexl script is picked, and used to be jexl script, then remove jexl script
+          if (!StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType()) && grouperLoaderContainer.isGrouperJexlScriptLoader()) {
+            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                
+                //first, get the attribute def name
+                AttributeDefName grouperJexlScript = GrouperDAOFactory.getFactory().getAttributeDefName()
+                    .findByNameSecure(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, false);
+                
+                if (grouperJexlScript != null) {
+                  group.getAttributeDelegate().removeAttribute(grouperJexlScript);
+
+                  guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                      TextContainer.retrieveFromRequest().getText().get("grouperLoaderJexlScriptEditRemoved")));
+                }
+                return null;
+              }
+            });
+          }
+
+          if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
+
+            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                
+                //first, get the attribute def name
+                AttributeDefName grouperJexlScriptMarker = GrouperDAOFactory.getFactory().getAttributeDefName()
+                    .findByNameSecure(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, false);
+                
+                if (grouperJexlScriptMarker == null) {
+                  throw new RuntimeException("Cant find jexl script attribute!");
+                }
+                AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(null, grouperJexlScriptMarker, false, false);
+
+                if (attributeAssign == null) {
+                  attributeAssign = group.getAttributeDelegate().assignAttribute(grouperJexlScriptMarker).getAttributeAssign();
+                }
+
+                attributeAssign.getAttributeValueDelegate().assignValue(
+                    GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript());
+                
+                {
+                  String jexlScriptIncludeInternalSourcesAttributeDefName = GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES;
+                  if (grouperLoaderContainer.getEditLoaderJexlScriptIncludeInternalSources() == null) {
+                    if (!StringUtils.isBlank(attributeAssign.getAttributeValueDelegate().retrieveValueString(jexlScriptIncludeInternalSourcesAttributeDefName))) {
+                      attributeAssign.getAttributeDelegate().removeAttributeByName(jexlScriptIncludeInternalSourcesAttributeDefName);
+                    }
+                  } else {
+                    attributeAssign.getAttributeValueDelegate().assignValue(
+                        jexlScriptIncludeInternalSourcesAttributeDefName, 
+                        GrouperUtil.booleanValue(grouperLoaderContainer.getEditLoaderJexlScriptIncludeInternalSources(), false) ? "T" : "F");
+                  }
+                }                
+                return null;
+              }
+            });
+
+          }
+          
 
           if (StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType())) {
 
@@ -1654,7 +1737,8 @@ public class UiV2GrouperLoader {
 
         grouperLoaderContainer.setEditLoaderType(grouperLoaderContainer.isGrouperSqlLoader() ? "SQL" 
             : (grouperLoaderContainer.isGrouperLdapLoader() ? "LDAP" 
-                : (grouperLoaderContainer.isGrouperRecentMembershipsLoader() ? "RECENT_MEMBERSHIPS" : null)));
+                : (grouperLoaderContainer.isGrouperRecentMembershipsLoader() ? "RECENT_MEMBERSHIPS" 
+                    : (grouperLoaderContainer.isGrouperJexlScriptLoader() ? "JEXL_SCRIPT" : null))));
 
         if (StringUtils.equals("RECENT_MEMBERSHIPS", grouperLoaderContainer.getEditLoaderType())) {
 
@@ -1662,6 +1746,11 @@ public class UiV2GrouperLoader {
           grouperLoaderContainer.setEditLoaderRecentDays(grouperLoaderContainer.getRecentDays());
           grouperLoaderContainer.setEditLoaderRecentIncludeCurrent(grouperLoaderContainer.getEditLoaderRecentIncludeCurrent());
           
+        } else if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
+
+            grouperLoaderContainer.setEditLoaderJexlScriptJexlScript(grouperLoaderContainer.getJexlScriptJexlScript());
+            grouperLoaderContainer.setEditLoaderJexlScriptIncludeInternalSources(grouperLoaderContainer.getJexlScriptIncludeInternalSources());
+            
         } else if (StringUtils.equals("SQL", grouperLoaderContainer.getEditLoaderType())) {
           grouperLoaderContainer.setEditLoaderSqlDatabaseName(grouperLoaderContainer.getSqlDatabaseName());
           grouperLoaderContainer.setEditLoaderPriority(grouperLoaderContainer.getSqlPriority());
@@ -1869,6 +1958,35 @@ public class UiV2GrouperLoader {
 
           if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderRecentIncludeCurrent())) {
             error = true;
+          }
+
+        }
+        
+      }
+      if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
+        grouperLoaderContainer.setEditLoaderShowJexlScript(true);
+        
+        {
+          String grouperLoaderJexlScript = request.getParameter("grouperLoaderJexlScriptName");
+          if (!error && !StringUtils.isBlank(grouperLoaderJexlScript)) {
+            grouperLoaderJexlScript = grouperLoaderJexlScript.trim();
+            grouperLoaderContainer.setEditLoaderJexlScriptJexlScript(grouperLoaderJexlScript);
+          }
+          
+          if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript())) {
+            error = true;
+          } else {
+            if (StringUtils.isNotBlank(GrouperAbac.validScript(grouperLoaderJexlScript))) {
+              error = true;
+            }
+          }
+          
+        }
+
+        {
+          final String grouperLoaderIncludeInternalSourcesNameString = request.getParameter("grouperLoaderIncludeInternalSourcesName");
+          if (!error) {
+            grouperLoaderContainer.setEditLoaderJexlScriptIncludeInternalSources(GrouperUtil.booleanObjectValue(grouperLoaderIncludeInternalSourcesNameString));
           }
 
         }

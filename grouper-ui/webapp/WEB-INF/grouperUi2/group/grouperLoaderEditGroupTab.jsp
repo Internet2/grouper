@@ -48,8 +48,9 @@
                               <select name="grouperLoaderTypeName" id="grouperLoaderTypeId" style="width: 15em"
                                 onchange="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;">
                                 <option value="" ></option>
-                                <option value="SQL" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL' ? 'selected="selected"' : '' } >${textContainer.textEscapeXml['grouperLoaderSql']}</option>
+                                <option value="JEXL_SCRIPT" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'JEXL_SCRIPT' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderJexlScript']}</option>
                                 <option value="LDAP" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'LDAP' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderLdap']}</option>
+                                <option value="SQL" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL' ? 'selected="selected"' : '' } >${textContainer.textEscapeXml['grouperLoaderSql']}</option>
                                 <option value="RECENT_MEMBERSHIPS" ${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'RECENT_MEMBERSHIPS' ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['grouperLoaderRecentMemberships']}</option>
                               </select>
                               <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
@@ -110,6 +111,39 @@
                               </span>
                               <br />
                               <span class="description">${textContainer.text["grouperLoaderRecentIncludeCurrentDescription"]}</span>
+                            </td>
+                          </tr>
+                        </c:if>
+                      </c:if>
+                      <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'JEXL_SCRIPT'}"> 
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderShowJexlScript}">
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderJexlScriptId">${textContainer.text['grouperLoaderEntityJexlScript']}</label></strong></td>
+                            <td>
+                              <span style="white-space: nowrap">
+                                <textarea cols="100" rows="12" name="grouperLoaderJexlScriptName" id="grouperLoaderJexlScriptId" style="width: 40em">${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderJexlScriptJexlScript)}</textarea>
+                                <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" style="vertical-align: top;"
+                                  data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                              </span>
+                              <br />
+                              <span class="description">${textContainer.text["grouperLoaderEntityJexlScriptDescription"]}</span>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderIncludeInternalSourcesId">${textContainer.text['grouperLoaderIncludeInternalSources']}</label></strong></td>
+                            <td>
+                              <span style="white-space: nowrap">
+                                <select name="grouperLoaderIncludeInternalSourcesName" id="grouperLoaderIncludeInternalSourcesId" style="width: 40em">
+                                  <option value="" ></option>
+                                  <option value="false" ${grouperRequestContainer.grouperLoaderContainer.editLoaderJexlScriptIncludeInternalSources == 'false' ? 'selected="selected"' : '' }
+                                    >${textContainer.textEscapeXml['grouperLoaderIncludeInternalSourcesFalse']}</option>
+                                  <option value="true" ${grouperRequestContainer.grouperLoaderContainer.editLoaderJexlScriptIncludeInternalSources == 'true' ? 'selected="selected"' : '' } 
+                                    >${textContainer.textEscapeXml['grouperLoaderIncludeInternalSourcesTrue']}</option>
+                                                                        
+                                </select>
+                              </span>
+                              <br />
+                              <span class="description">${textContainer.text["grouperLoaderIncludeInternalSourcesDescription"]}</span>
                             </td>
                           </tr>
                         </c:if>

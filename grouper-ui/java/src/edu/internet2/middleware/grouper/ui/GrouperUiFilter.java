@@ -1297,27 +1297,27 @@ public class GrouperUiFilter implements Filter {
   /**
    * thread local for servlet
    */
-  private static ThreadLocal<HttpServlet> threadLocalServlet = new ThreadLocal<HttpServlet>();
+  private static ThreadLocal<HttpServlet> threadLocalServlet = new InheritableThreadLocal<HttpServlet>();
 
   /**
    * thread local for servlet
    */
-  private static ThreadLocal<Boolean> threadLocalInInit = new ThreadLocal<Boolean>();
+  private static ThreadLocal<Boolean> threadLocalInInit = new InheritableThreadLocal<Boolean>();
 
   /**
    * thread local for request
    */
-  private static ThreadLocal<HttpServletRequest> threadLocalRequest = new ThreadLocal<HttpServletRequest>();
+  private static ThreadLocal<HttpServletRequest> threadLocalRequest = new InheritableThreadLocal<HttpServletRequest>();
 
   /**
    * thread local for request
    */
-  private static ThreadLocal<Long> threadLocalRequestStartMillis = new ThreadLocal<Long>();
+  private static ThreadLocal<Long> threadLocalRequestStartMillis = new InheritableThreadLocal<Long>();
 
   /**
    * thread local for response
    */
-  private static ThreadLocal<HttpServletResponse> threadLocalResponse = new ThreadLocal<HttpServletResponse>();
+  private static ThreadLocal<HttpServletResponse> threadLocalResponse = new InheritableThreadLocal<HttpServletResponse>();
 
   /**
    * public method to get the http servlet request

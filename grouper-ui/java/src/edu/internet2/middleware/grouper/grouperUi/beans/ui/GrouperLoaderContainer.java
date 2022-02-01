@@ -23,6 +23,7 @@ import org.quartz.Trigger;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
@@ -122,6 +123,48 @@ public class GrouperLoaderContainer {
    */
   public void setEditLoaderRecentIncludeCurrent(String editLoaderRecentIncludeCurrent1) {
     this.editLoaderRecentIncludeCurrent = editLoaderRecentIncludeCurrent1;
+  }
+
+  /**
+   * script to run
+   */
+  private String editLoaderJexlScriptJexlScript;
+
+  /**
+   * script to run
+   * @return script
+   */
+  public String getEditLoaderJexlScriptJexlScript() {
+    return this.editLoaderJexlScriptJexlScript;
+  }
+
+  /**
+   * script to run
+   * @param editLoaderJexlScriptJexlScript1
+   */
+  public void setEditLoaderJexlScriptJexlScript(String editLoaderJexlScriptJexlScript1) {
+    this.editLoaderJexlScriptJexlScript = editLoaderJexlScriptJexlScript1;
+  }
+
+  /**
+   * T or F to include internal sources
+   */
+  private Boolean editLoaderJexlScriptIncludeInternalSources;
+
+  /**
+   * T or F to include internal sources
+   * @return T or F
+   */
+  public Boolean getEditLoaderJexlScriptIncludeInternalSources() {
+    return this.editLoaderJexlScriptIncludeInternalSources;
+  }
+
+  /**
+   * T or F to include internal sources
+   * @param editLoaderJexlScriptIncludeInternalSources1
+   */
+  public void setEditLoaderJexlScriptIncludeInternalSources(Boolean editLoaderJexlScriptIncludeInternalSources1) {
+    this.editLoaderJexlScriptIncludeInternalSources = editLoaderJexlScriptIncludeInternalSources1;
   }
 
   /**
@@ -981,6 +1024,74 @@ public class GrouperLoaderContainer {
 
   /**
    * 
+   * @return jexl script
+   */
+  public String getJexlScriptJexlScript() {
+    
+    final Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    
+    String jexlScript = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                
+        AttributeDefName jexlScriptMarker = AttributeDefNameFinder.findByName(
+            GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, true);
+        Set<AttributeAssign> attributeAssigns = jobGroup.getAttributeDelegate().retrieveAssignments(jexlScriptMarker);
+        if (GrouperUtil.length(attributeAssigns) == 0) {
+          return null;
+        }
+        if (GrouperUtil.length(attributeAssigns) > 1) {
+          throw new RuntimeException("Not expecting multiple jexl script attribute assignments! " + jobGroup.getName());
+        }
+        AttributeAssign theAttributeAssign = attributeAssigns.iterator().next();
+        String theJexlScript = theAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAbac.jexlScriptStemName() + ":" 
+                + GrouperAbac.GROUPER_JEXL_SCRIPT_JEXL_SCRIPT);
+        return theJexlScript;
+      }
+    });
+    
+    return jexlScript;
+
+  }
+
+  /**
+   * 
+   * @return T if internal sources
+   */
+  public Boolean getJexlScriptIncludeInternalSources() {
+    
+    final Group jobGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
+    
+    Boolean includeInternalSources = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        AttributeDefName jexlScriptMarker = AttributeDefNameFinder.findByName(
+            GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, true);
+        Set<AttributeAssign> attributeAssigns = jobGroup.getAttributeDelegate().retrieveAssignments(jexlScriptMarker);
+        if (GrouperUtil.length(attributeAssigns) == 0) {
+          return null;
+        }
+        if (GrouperUtil.length(attributeAssigns) > 1) {
+          throw new RuntimeException("Not expecting multiple jexl script attribute assignments! " + jobGroup.getName());
+        }
+        AttributeAssign theAttributeAssign = attributeAssigns.iterator().next();
+        String theIncludeSources = theAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+            GrouperAbac.jexlScriptStemName() + ":" 
+                + GrouperAbac.GROUPER_JEXL_SCRIPT_INCLUDE_INTERNAL_SOURCES);
+        return GrouperUtil.booleanObjectValue(theIncludeSources);
+      }
+    });
+    
+    return includeInternalSources;
+
+  }
+
+  /**
+   * 
    * @return "T", "F" or null
    */
   public String getRecentIncludeCurrent() {
@@ -1260,10 +1371,18 @@ public class GrouperLoaderContainer {
   
   /**
    * 
-   * @return is SQL loader
+   * @return is recent memberships
    */
   public boolean isGrouperRecentMembershipsLoader() {
     return GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().isHasRecentMembershipsGrouperLoader();
+  }
+  
+  /**
+   * 
+   * @return is JEXL script
+   */
+  public boolean isGrouperJexlScriptLoader() {
+    return GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().isHasJexlScriptGrouperLoader();
   }
   
   /**
@@ -2292,7 +2411,8 @@ public class GrouperLoaderContainer {
 
     GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
 
-    if (guiGroup.isHasAttrDefNameGrouperLoader() || guiGroup.isHasAttrDefNameGrouperLoaderLdap() || guiGroup.isHasRecentMembershipsGrouperLoader()) {
+    if (guiGroup.isHasAttrDefNameGrouperLoader() || guiGroup.isHasAttrDefNameGrouperLoaderLdap() || guiGroup.isHasRecentMembershipsGrouperLoader()
+        || guiGroup.isHasJexlScriptGrouperLoader()) {
       return true;
     }
     
@@ -2852,6 +2972,28 @@ public class GrouperLoaderContainer {
    */
   public void setEditLoaderShowSqlDatabaseName(boolean editLoaderShowSqlDatabaseName1) {
     this.editLoaderShowSqlDatabaseName = editLoaderShowSqlDatabaseName1;
+  }
+
+  /**
+   * if the loader show jexl script should be seen
+   */
+  private boolean editLoaderShowJexlScript;
+
+  
+  /**
+   * if the loader show jexl script should be seen
+   * @return scho jexl script
+   */
+  public boolean isEditLoaderShowJexlScript() {
+    return this.editLoaderShowJexlScript;
+  }
+
+  /**
+   * if the loader show jexl script should be seen
+   * @param editLoaderShowJexlScript1
+   */
+  public void setEditLoaderShowJexlScript(boolean editLoaderShowJexlScript1) {
+    this.editLoaderShowJexlScript = editLoaderShowJexlScript1;
   }
 
   /**

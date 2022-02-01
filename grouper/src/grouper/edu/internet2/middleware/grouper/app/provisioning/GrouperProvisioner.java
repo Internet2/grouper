@@ -677,7 +677,7 @@ public abstract class GrouperProvisioner {
       this.retrieveGrouperProvisioningLogic().provision();
       
       // assign a success, and if this is a full, then remove failures from incremental if they are there
-      if (gcGrouperSyncJob != null && gcGrouperSyncLog.getStatus() != null && !gcGrouperSyncLog.getStatus().isError()) {
+      if (gcGrouperSyncLog != null && gcGrouperSyncLog.getStatus() != null && !gcGrouperSyncLog.getStatus().isError()) {
         if (!StringUtils.isBlank(this.getJobName())) {
           GrouperFailsafe.assignSuccess(this.getJobName());
           if (this.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) {
@@ -766,7 +766,7 @@ public abstract class GrouperProvisioner {
 
     // this isnt good
     if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
-      if (gcGrouperSyncJob != null && gcGrouperSyncLog.getStatus() == GcGrouperSyncLogState.ERROR_FAILSAFE) {
+      if (gcGrouperSyncLog != null && gcGrouperSyncLog.getStatus() == GcGrouperSyncLogState.ERROR_FAILSAFE) {
         throw new OtherJobException(GrouperLoaderStatus.ERROR_FAILSAFE, debugString);
       }
       throw new RuntimeException(debugString);

@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -763,6 +764,31 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
         }
         
         return hasRecentMemberships;
+      }
+    });
+  }
+  
+  /**
+   * test if a jexl script loader is assigned to this group
+   * @return true if an attribute GrouperLoader jexl script is assigned.
+   * return false if not
+   */
+  public boolean isHasJexlScriptGrouperLoader() {
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        boolean hasJexlScript = false;
+    
+        //first, get the attribute def name
+        AttributeDefName jexlScript = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
+            GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, true);
+        
+        //check if the attribute def name is assigned to this group
+        if (jexlScript != null) {
+          hasJexlScript = GuiGroup.this.group.getAttributeDelegate().hasAttribute(jexlScript);
+        }
+        
+        return hasJexlScript;
       }
     });
   }

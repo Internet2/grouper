@@ -105,6 +105,16 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * 
  */
 public class GrouperUiUtils {
+  
+  /**
+   * get the source IP address or null if cant
+   * @return IP address
+   */
+  public static String j2eeRetrieveSourceIpAddress() {
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    return httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
+  }
+
 
   /**
    * convert seconds to string

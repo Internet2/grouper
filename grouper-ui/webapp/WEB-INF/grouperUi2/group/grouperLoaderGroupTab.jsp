@@ -29,6 +29,9 @@
                       <c:when test="${grouperRequestContainer.grouperLoaderContainer.grouperRecentMembershipsLoader}">
                         <p>${textContainer.text['grouperLoaderIsGrouperLoaderRecent'] }</p>
                       </c:when>
+                      <c:when test="${grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptLoader}">
+                        <p>${textContainer.text['grouperLoaderIsGrouperLoaderJexlScript'] }</p>
+                      </c:when>
                       <c:otherwise>
                         <p>${textContainer.text['grouperLoaderIsGrouperLoader'] }</p>
                       </c:otherwise>
@@ -383,14 +386,44 @@
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderRecentIncludeCurrent']}</strong></td>
                           <td style="vertical-align: top;">
                             <c:choose>
-                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent == 'T'}">
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent ? grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent : false}">
                                 ${textContainer.text['grouperLoaderRecentIncludeCurrentTrue']}
                               </c:when>
-                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent == 'F'}">
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent ? !grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent : true}">
                                 ${textContainer.text['grouperLoaderRecentIncludeCurrentFalse']}
                               </c:when>
                             </c:choose>
-                            <br /><span class="description">${textContainer.text['grouperLoaderRecentIncludeCurrentDescription']}</span>
+                            <br /><span class="description">${textContainer.text['grouperLoaderIncludeInternalSourcesTrue']}</span>
+                          
+                          </td>
+                        </tr>
+                        
+                      </tbody>
+                    </table>
+                  </c:when>
+                  <c:when test="${grouperRequestContainer.groupContainer.guiGroup.hasJexlScriptGrouperLoader}">
+                    <table class="table table-condensed table-striped">
+                      <tbody>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderEntityJexlScript']}</strong></td>
+                          <td style="vertical-align: top;">
+<pre>${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.jexlScriptJexlScript)}</pre>
+                            <span class="description">${textContainer.text['grouperLoaderEntityJexlScriptDescription']}</span>
+                          
+                          </td>
+                        </tr>
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderIncludeInternalSources']}</strong></td>
+                          <td style="vertical-align: top;">
+                            <c:choose>
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.jexlScriptIncludeInternalSources ? grouperRequestContainer.grouperLoaderContainer.jexlScriptIncludeInternalSources : false}">
+                                ${textContainer.text['grouperLoaderIncludeInternalSourcesTrue']}
+                              </c:when>
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.jexlScriptIncludeInternalSources ? !grouperRequestContainer.grouperLoaderContainer.jexlScriptIncludeInternalSources : true}">
+                                ${textContainer.text['grouperLoaderIncludeInternalSourcesFalse']}
+                              </c:when>
+                            </c:choose>
+                            <br /><span class="description">${textContainer.text['grouperLoaderIncludeInternalSourcesDescription']}</span>
                           
                           </td>
                         </tr>

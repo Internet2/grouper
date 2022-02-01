@@ -73,7 +73,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -102,11 +101,14 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.ExpressionImpl;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.jexl2.Script;
+import org.apache.commons.jexl2.parser.ASTJexlScript;
+import org.apache.commons.jexl2.parser.JexlNode;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.jexl3.JxltEngine.Template;
@@ -117,11 +119,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.appender.FileAppender;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.appender.RollingFileAppender;
 import org.codehaus.groovy.tools.shell.ExitNotification;
 import org.hibernate.Session;
@@ -136,9 +138,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.googlecode.ipv6.IPv6Address;
-import com.googlecode.ipv6.IPv6AddressRange;
 import com.googlecode.ipv6.IPv6Network;
-import com.googlecode.ipv6.IPv6NetworkHelpers;
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.RDN;
@@ -147,9 +147,9 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.abac.GrouperAbacEntity;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
-import edu.internet2.middleware.grouper.app.loader.OtherJobScript;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -298,15 +298,59 @@ public class GrouperUtil {
 //    OtherJobScript otherJobScript = new OtherJobScript();
 //    otherJobScript.execute("OTHER_JOB_deleteNgssWsProxyCache", null);
 
-    Map<String, Object> envVars = new HashMap<String, Object>();
-
-    Map<String, Object> groupAttributes = new HashMap<String, Object>();
-    envVars.put("groupAttributes", groupAttributes);
-    String result = null;
-    //dont be lenient on undefined variables
-    result = GrouperUtil.substituteExpressionLanguage("${groupAttributes['umichdescription'] ? groupAttributes['umichdescription'] : ''}", envVars, false, false, false);
+//    Map<String, Object> envVars = new HashMap<String, Object>();
+//
+//    Map<String, Object> groupAttributes = new HashMap<String, Object>();
+//    envVars.put("groupAttributes", groupAttributes);
+//    String result = null;
+//    //dont be lenient on undefined variables
+//    result = GrouperUtil.substituteExpressionLanguage("${groupAttributes['umichdescription'] ? groupAttributes['umichdescription'] : ''}", envVars, false, false, false);
+//    
+//    System.out.println("Result: '" + result + "'");
     
-    System.out.println("Result: '" + result + "'");
+    GrouperAbacEntity grouperAbacEntity = new GrouperAbacEntity();
+    {
+      Map<String, String> singleValuedGroupExtensionInFolder = new HashMap<String, String>();
+      singleValuedGroupExtensionInFolder.put("ref:primaryAffiliation", "faculty");
+      grouperAbacEntity.setSingleValuedGroupExtensionInFolder(singleValuedGroupExtensionInFolder);
+    }    
+    {
+      Set<String> dept = toSet("math", "english");
+      Map<String, Set<String>> multiValuedGroupExtensionInFolder = new HashMap<String, Set<String>>();
+      multiValuedGroupExtensionInFolder.put("ref:dept", dept);
+      grouperAbacEntity.setMultiValuedGroupExtensionInFolder(multiValuedGroupExtensionInFolder);
+    }
+    
+    // String script = "${entity.singleValuedAttr['primaryAffiliation'] = 'faculty' && entity.multiValuedAttr['dept'].contains('math') }";
+    // String script = "${entity.singleValuedGroupExtensionInFolder['ref:primaryAffiliation'] == 'faculty' && entity.multiValuedGroupExtensionInFolder['ref:dept'].contains('math')}";
+    String script = "${entity.multiValuedGroupExtensionInFolder['ref:primaryAffiliation'].contains('faculty') && entity.multiValuedGroupExtensionInFolder['ref:dept'].containsAny('math', 'physics')"
+        + "&& entity.memberOf('ref:employee') && entity.hasPrivOnGroup('ref:something', 'read') && entity.singleValuedAttributeResolver('mySqlUserAttrs', 'address_street').toLowerCase() =~ '^.*main st$'"
+        + "&& entity.multiValuedAttributeResolver('myLdapUserAttrs', 'objectClass').contains('person') && entity.singleValuedSubjectAttribute('name').toLowerCase() =~ '^(tom|thomas)$' }";
+    
+    ExpressionImpl expression = (ExpressionImpl)jexlEngines.get(new MultiKey(false, true)).createScript(script.substring(2, script.length()-1));
+    
+    ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
+    substituteExpressionPrintNode(astJexlScript, "");
+    
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    
+    variableMap.put("entity", grouperAbacEntity);
+    
+    
+    Object result = substituteExpressionLanguageScript(script, variableMap, true, false, true);
+    System.out.println(result);
+    
+    // loader with jexl script
+    // entity.memberOf('ref:staff') && entity.memberOf('ref:payroll:fullTime') && entity.memberOf('ref:mfaEnrolled')
+    
+  }
+  
+  public static void substituteExpressionPrintNode(JexlNode jexlNode, String prefix) {
+    System.out.println(prefix + jexlNode.getClass().getSimpleName() + (StringUtils.isBlank(jexlNode.image) ? "" : (": " + jexlNode.image)));
+    String newPrefix = StringUtils.isBlank(prefix) ? "- " : ("  " + prefix);
+    for (int i=0;i<jexlNode.jjtGetNumChildren();i++) {
+      substituteExpressionPrintNode(jexlNode.jjtGetChild(i), newPrefix);
+    }
   }
   
   /**
@@ -382,6 +426,23 @@ public class GrouperUtil {
     throw new RuntimeException(tryException);
   }
 
+  /**
+   * get the source IP address or null if cant
+   * @return IP address
+   */
+  public static String j2eeRetrieveSourceIpAddress() {
+    
+    //  HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    //  return httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
+    try {
+      Class<?> grouperUiFilterClass = forName("edu.internet2.middleware.grouper.ui.GrouperUiFilter");
+      Object httpServletRequest = callMethod(grouperUiFilterClass, "retrieveHttpServletRequest");
+      return (String)callMethod(httpServletRequest, "getRemoteAddr");
+    } catch (Exception e) {
+      return null;
+    }
+
+  }
 
   /**
    * take out accented chars with
@@ -3278,6 +3339,19 @@ public class GrouperUtil {
       result.add(object);
     }
     return result;
+  }
+
+  /**
+   * return an array of objects from varargs for JEXL
+   *
+   * @param objects
+   * @return the array or null if objects is null
+   */
+  public static Object[] toArrayObject(Object... objects) {
+    if (objects == null || objects.length == 0) {
+      return null;
+    }
+    return objects;
   }
 
   /**
