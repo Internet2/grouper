@@ -100,7 +100,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testMembersAdditionalAttributes"));
+    TestRunner.run(new ChangeLogTest("testGroups"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -1628,7 +1628,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals("Should have added 10 change log entries", 10, newChangeLogCount);
 
     List<ChangeLogEntry> changeLogEntries = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity where string09 is null or string09 <> 'subjectIdentifier0' order by sequenceNumber")
+      .createQuery("from ChangeLogEntryEntity where string06 is null or string06 <> 'subjectIdentifier0' order by sequenceNumber")
       .list(ChangeLogEntry.class);
 
     {
@@ -1722,7 +1722,7 @@ public class ChangeLogTest extends GrouperTest {
     // check first subjectIdentifier0 update
     {
       ChangeLogEntry entry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where string09 = 'subjectIdentifier0' and string05 = 'oneNew:two:two-group'")
+        .createQuery("from ChangeLogEntryEntity where string06 = 'subjectIdentifier0' and string05 = 'oneNew:two:two-group'")
         .uniqueResult(ChangeLogEntry.class);
       assertEquals(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType(), entry.getChangeLogType());
       assertEquals(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name(), entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
@@ -1734,7 +1734,7 @@ public class ChangeLogTest extends GrouperTest {
     // check second subjectIdentifier0 update
     {
       ChangeLogEntry entry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where string09 = 'subjectIdentifier0' and string05 = 'oneNew:two:three:three-group'")
+        .createQuery("from ChangeLogEntryEntity where string06 = 'subjectIdentifier0' and string05 = 'oneNew:two:three:three-group'")
         .uniqueResult(ChangeLogEntry.class);
       assertEquals(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType(), entry.getChangeLogType());
       assertEquals(ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0.name(), entry.retrieveValueForLabel(ChangeLogLabels.MEMBER_UPDATE.propertyChanged));
@@ -4928,7 +4928,7 @@ public class ChangeLogTest extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier0'")
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='subjectIdentifier0'")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
       .uniqueResult(ChangeLogEntry.class);
   
@@ -5193,7 +5193,7 @@ public class ChangeLogTest extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     ChangeLogEntry changeLogEntry3 = HibernateSession.byHqlStatic()
-      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='email0'")
+      .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='email0'")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
       .uniqueResult(ChangeLogEntry.class);
   

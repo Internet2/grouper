@@ -326,12 +326,12 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBER_UPDATE.subjectSourceId,
       ChangeLogLabels.MEMBER_UPDATE.subjectTypeId,
       ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier0,
-      ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1,
-      ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2,
-      ChangeLogLabels.MEMBER_UPDATE.email0,
       ChangeLogLabels.MEMBER_UPDATE.propertyChanged,
       ChangeLogLabels.MEMBER_UPDATE.propertyOldValue,
-      ChangeLogLabels.MEMBER_UPDATE.propertyNewValue)),
+      ChangeLogLabels.MEMBER_UPDATE.propertyNewValue,
+      ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier1,
+      ChangeLogLabels.MEMBER_UPDATE.subjectIdentifier2,
+      ChangeLogLabels.MEMBER_UPDATE.email0)),
       
   /**
    * member add

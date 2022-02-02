@@ -132,7 +132,7 @@ public class TestMemberAttributes extends GrouperTest {
     
     {
       ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier0'")
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='subjectIdentifier0'")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
           
@@ -151,7 +151,7 @@ public class TestMemberAttributes extends GrouperTest {
     
     {
       ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier1'")
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='subjectIdentifier1'")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
           
@@ -170,7 +170,7 @@ public class TestMemberAttributes extends GrouperTest {
     
     {
       ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier2'")
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='subjectIdentifier2'")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
           
@@ -233,7 +233,7 @@ public class TestMemberAttributes extends GrouperTest {
     
     {
       ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='email0'")
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='email0'")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
           
@@ -252,7 +252,7 @@ public class TestMemberAttributes extends GrouperTest {
     
     {
       ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier0'")
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='subjectIdentifier0'")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
           
@@ -271,7 +271,7 @@ public class TestMemberAttributes extends GrouperTest {
     
     {
       ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier1'")
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='subjectIdentifier1'")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
           
@@ -290,7 +290,7 @@ public class TestMemberAttributes extends GrouperTest {
     
     {
       ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
-        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string09='subjectIdentifier2'")
+        .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType and string06='subjectIdentifier2'")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
           

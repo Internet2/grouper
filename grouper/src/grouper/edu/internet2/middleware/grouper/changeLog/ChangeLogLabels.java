@@ -803,15 +803,6 @@ public class ChangeLogLabels {
     /** subjectIdentifier0 */
     subjectIdentifier0,
     
-    /** subjectIdentifier1 */
-    subjectIdentifier1,
-    
-    /** subjectIdentifier2 */
-    subjectIdentifier2,
-    
-    /** email0 */
-    email0,
-    
     /** property which changed */
     propertyChanged, 
     
@@ -819,7 +810,16 @@ public class ChangeLogLabels {
     propertyOldValue,
     
     /** new value of the property */
-    propertyNewValue;
+    propertyNewValue,
+    
+    /** subjectIdentifier1 */
+    subjectIdentifier1,
+    
+    /** subjectIdentifier2 */
+    subjectIdentifier2,
+    
+    /** email0 */
+    email0;
   };
   
   /**

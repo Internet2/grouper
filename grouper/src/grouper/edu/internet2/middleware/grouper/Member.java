@@ -4682,7 +4682,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
         HibernateSession.bySqlStatic().executeSql(sql2, bindVars2, types2);
 
         ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
-        String sql3 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string06, string07, string08, string10, string11, string09) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql3 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string09, string10, string11, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         List<Type> types3 = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
             StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
             StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
@@ -4923,7 +4923,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                     Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER2) ||
                     Member.this.dbVersionDifferentFields().contains(Member.FIELD_EMAIL0)) {
                   ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
-                  String query2 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string06, string07, string08, string10, string11, string09) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                  String query2 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string09, string10, string11, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
                   types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
                       StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
                       StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
