@@ -923,6 +923,19 @@ public class UiV2GrouperLoader {
               TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditRemoved")));
 
         }
+        if (grouperLoaderContainer.isGrouperJexlScriptLoader()) {
+          
+          AttributeDefName grouperJexlScript = GrouperDAOFactory.getFactory().getAttributeDefName()
+              .findByNameSecure(GrouperAbac.jexlScriptStemName() + ":" + GrouperAbac.GROUPER_JEXL_SCRIPT_MARKER, false);
+          
+          if (grouperJexlScript != null) {
+            group.getAttributeDelegate().removeAttribute(grouperJexlScript);
+
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("grouperLoaderJexlScriptEditRemoved")));
+          }
+
+        }
         if (grouperLoaderContainer.isGrouperSqlLoader()) {
           //first, get the attribute def name
           AttributeDefName grouperLoader = GrouperDAOFactory.getFactory().getAttributeDefName()
