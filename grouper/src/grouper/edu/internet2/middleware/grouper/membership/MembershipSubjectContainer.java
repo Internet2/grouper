@@ -44,6 +44,7 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
@@ -94,6 +95,20 @@ public class MembershipSubjectContainer {
   public boolean isHasOptout() {
 
     return GrouperUtil.nonNull(this.membershipContainers).get(Field.FIELD_NAME_OPTOUTS) != null;
+      
+  }
+  
+  /**
+   * if optout exists for this row
+   * @return true if optout exists for this row
+   */
+  public boolean isCanOptout() {
+    for (Privilege privilege : AccessPrivilege.OPTOUT_PRIVILEGES) {
+      if (GrouperUtil.nonNull(this.membershipContainers).get(privilege.getField().getName()) != null) {
+        return true;
+      }
+    }
+    return false;
       
   }
   

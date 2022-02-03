@@ -1008,12 +1008,12 @@ public class GroupFinder {
   private Subject subject;
 
   /**
-   * this is a subject which is not in the group already
+   * this is a subject which is not in the group already immediate
    */
   private Subject subjectNotInGroup;
   
   /**
-   * assign a subject which does not have a membership in the group
+   * assign a subject which does not have an immediate membership in the group
    * @param theSubjectNotInGroup
    * @return this for chaining
    */

@@ -1396,22 +1396,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       memberships.add((Membership)objects[0]);
     }
     int origMembershipsSize = memberships.size();
-    Set<Membership> filteredMemberships = grouperSession.getAccessResolver().postHqlFilterMemberships(grouperSessionSubject, memberships);
-    if (origMembershipsSize != filteredMemberships.size()) {
-      
-      //we have work to do
-      Iterator<Object[]> iterator = totalResults.iterator();
-      while (iterator.hasNext()) {
-        Object[] row = iterator.next();
-        Membership currentMembership = (Membership)row[0];
-        //if not in the allowed list
-        if (!filteredMemberships.contains(currentMembership)) {
-          //remove the object row
-          iterator.remove();
+    if (checkSecurity == null || checkSecurity) {
+      Set<Membership> filteredMemberships = grouperSession.getAccessResolver().postHqlFilterMemberships(grouperSessionSubject, memberships);
+      if (origMembershipsSize != filteredMemberships.size()) {
+        
+        //we have work to do
+        Iterator<Object[]> iterator = totalResults.iterator();
+        while (iterator.hasNext()) {
+          Object[] row = iterator.next();
+          Membership currentMembership = (Membership)row[0];
+          //if not in the allowed list
+          if (!filteredMemberships.contains(currentMembership)) {
+            //remove the object row
+            iterator.remove();
+          }
         }
       }
-    }
-    
+    }    
     assignMembersOwnersToMemberships(totalResults);
     //we should be down to the cesure list
     return totalResults;

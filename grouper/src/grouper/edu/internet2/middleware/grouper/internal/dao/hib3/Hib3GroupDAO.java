@@ -3387,7 +3387,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
           //if a member does not exist, its not in any groups
           if (membershipMember != null) {
             whereClause.append(" not exists (select 1 from MembershipEntry fieldMembership where fieldMembership.ownerGroupId = theGroup.uuid " +
-                " and fieldMembership.fieldId = :fieldId2 " +
+                " and fieldMembership.fieldId = :fieldId2 and fieldMembership.type = 'immediate' " +
                 " and fieldMembership.memberUuid = :fieldMembershipMemberUuid2 and fieldMembership.enabledDb = 'T' ) ");
             byHqlStatic.setString("fieldId2", Group.getDefaultList().getUuid());
             byHqlStatic.setString("fieldMembershipMemberUuid2", membershipMember.getUuid());

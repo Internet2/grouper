@@ -15,7 +15,9 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -23,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -38,6 +41,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.MyGroupsContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.membership.MembershipContainer;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -311,6 +315,13 @@ public class UiV2MyGroups {
         groupFinder.assignScope(myGroupsFilter);
       }
     
+      //  Set<Group> results = (Set<Group>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      //    
+      //    @Override
+      //    public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+      //      return groupFinder.findGroups();
+      //    }
+      //  });
       Set<Group> results = groupFinder.findGroups();
       
       //this shouldnt be null, but make sure
@@ -507,6 +518,39 @@ public class UiV2MyGroups {
       Set<MembershipSubjectContainer> results = membershipFinder
                   .findMembershipResult().getMembershipSubjectContainers();
       
+      // we need to get user privs too for optout
+      // which groups
+      Set<String> groupIds = new HashSet<String>();
+      for (MembershipSubjectContainer membershipSubjectContainer : results) {
+        groupIds.add(membershipSubjectContainer.getGroupOwner().getId());
+      }
+      membershipFinder = new MembershipFinder()
+          .assignGroupIds(groupIds).assignCheckSecurity(false)
+          .addSubject(loggedInSubject)
+          .assignFieldType(FieldType.ACCESS)
+          .assignEnabled(true)
+          .assignHasFieldForMember(true)
+          .assignHasMembershipTypeForMember(true);
+      Set<MembershipSubjectContainer> privilegeResults = membershipFinder
+          .findMembershipResult().getMembershipSubjectContainers();
+      
+      Map<String, MembershipSubjectContainer> privilegeGroupIdToMembershipSubjectContainer = new HashMap<String, MembershipSubjectContainer>();
+      for (MembershipSubjectContainer membershipSubjectContainer : GrouperUtil.nonNull(privilegeResults)) {
+        privilegeGroupIdToMembershipSubjectContainer.put(membershipSubjectContainer.getGroupOwner().getId(), membershipSubjectContainer);
+      }
+      
+      for (MembershipSubjectContainer membershipSubjectContainer : results) {
+        Group group = membershipSubjectContainer.getGroupOwner();
+        MembershipSubjectContainer privilegeMembershipSubjectContainer = privilegeGroupIdToMembershipSubjectContainer.get(group.getId());
+        if (privilegeMembershipSubjectContainer != null) {
+          for (String fieldName : GrouperUtil.nonNull(privilegeMembershipSubjectContainer.getMembershipContainers()).keySet()) {
+            MembershipContainer membershipContainer = privilegeMembershipSubjectContainer.getMembershipContainers().get(fieldName);
+            // lets get these privs in the original membership subject container
+            membershipSubjectContainer.addMembership(fieldName, membershipContainer.getMembershipAssignType());
+          }
+        }
+      }
+            
       MembershipSubjectContainer.considerAccessPrivilegeInheritance(results);
       
       myGroupsContainer.setGuiMembershipSubjectContainers(GuiMembershipSubjectContainer.convertFromMembershipSubjectContainers(results));
