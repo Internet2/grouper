@@ -1,0 +1,2 @@
+edu.internet2.middleware.grouper.authentication.Pac4jServletContainerInitializer
+edu.internet2.middleware.grouper.j2ee.CommonServletContainerInitializer
