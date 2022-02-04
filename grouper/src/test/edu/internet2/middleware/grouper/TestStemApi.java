@@ -123,7 +123,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_copy_group_name_exists"));
+    TestRunner.run(new TestStemApi("test_copy_stem_same_parent_different_name"));
   }
 
   /** size before getting started */
@@ -865,6 +865,42 @@ public class TestStemApi extends GrouperTest {
     } catch (RuntimeException e) {
       assertTrue(true);
     }
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_stem_same_parent_different_name() {
+    
+    Subject subj0 = SubjectFinder.findById("test.subject.0", true);
+    
+    Stem parent = this.root.addChildStem("parent", "parent");
+    Stem one = parent.addChildStem("one", "One");
+    Group oneGroup = one.addChildGroup("group", "Group");
+    one.addChildStem("sub", "Sub");
+    oneGroup.addMember(subj0);
+    
+    new StemCopy(one, parent)
+        .assignStemExtension("two")
+        .assignStemDisplayExtension("Two")
+        .copyAttributes(true)
+        .copyListMembersOfGroup(true)
+        .copyPrivilegesOfGroup(true)
+        .save();
+    
+    Stem two = StemFinder.findByName(GrouperSession.staticGrouperSession(), "parent:two", true);
+    assertEquals("parent:two", two.getName());
+    assertEquals("parent:Two", two.getDisplayName());
+    
+    Stem twoSub = StemFinder.findByName(GrouperSession.staticGrouperSession(), "parent:two:sub", true);
+    assertEquals("parent:two:sub", twoSub.getName());
+    assertEquals("parent:Two:Sub", twoSub.getDisplayName());
+    
+    Group twoGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), "parent:two:group", true);
+    assertEquals("parent:two:group", twoGroup.getName());
+    assertEquals("parent:Two:Group", twoGroup.getDisplayName());
+    
+    assertTrue(twoGroup.hasMember(subj0));
   }
   
   /**
