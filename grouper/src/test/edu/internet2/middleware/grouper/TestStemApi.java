@@ -123,7 +123,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_copy_minimum_nonadmin"));
+    TestRunner.run(new TestStemApi("test_copy_group_name_exists"));
   }
 
   /** size before getting started */
@@ -844,7 +844,7 @@ public class TestStemApi extends GrouperTest {
 
     // these should not throw exceptions
     GroupFinder.findByAlternateName(s, "two:one:group", true);
-    GroupFinder.findByCurrentName(s, "two:one:group.2", true);
+    GroupFinder.findByCurrentName(s, "two:one:group_2", true);
   }
   
   /**
