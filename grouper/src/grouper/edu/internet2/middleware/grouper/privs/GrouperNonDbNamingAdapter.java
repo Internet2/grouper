@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.exception.MemberAddAlreadyExistsExceptio
 import edu.internet2.middleware.grouper.exception.MemberAddException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteAlreadyDeletedException;
 import edu.internet2.middleware.grouper.exception.MemberDeleteException;
+import edu.internet2.middleware.grouper.exception.MembershipAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeAlreadyRevokedException;
 import edu.internet2.middleware.grouper.exception.RevokePrivilegeException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -327,7 +328,12 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
       copiedMembership.setCreateTimeLong(new Date().getTime());
       copiedMembership.setImmediateMembershipId(GrouperUuid.getUuid());
       copiedMembership.setHibernateVersionNumber(-1L);
-      GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
+      
+      try {
+        GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
+      } catch (MembershipAlreadyExistsException e) {
+        // privilege exists so ok
+      }
     }
   }
 
@@ -377,7 +383,12 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
       copiedMembership.setCreateTimeLong(new Date().getTime());
       copiedMembership.setImmediateMembershipId(GrouperUuid.getUuid());
       copiedMembership.setHibernateVersionNumber(-1L);
-      GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
+      
+      try {
+        GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
+      } catch (MembershipAlreadyExistsException e) {
+        // this is okay
+      }
     }    
   }
 
