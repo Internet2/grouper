@@ -360,7 +360,12 @@ public class ConfigFormElement extends SimpleTagSupport {
     
     String displayClass = "";
     if (readOnly) {
-      field.append(GrouperUtil.escapeHtml(value, true));
+      
+      if (configItemFormElement != ConfigItemFormElement.RADIOBUTTON && 
+          configItemFormElement != ConfigItemFormElement.DROPDOWN) {
+        field.append(GrouperUtil.escapeHtml(value, true));
+      }
+      
       displayClass = " display: none; ";
     }
     
@@ -398,48 +403,76 @@ public class ConfigFormElement extends SimpleTagSupport {
     
     if (configItemFormElement == ConfigItemFormElement.DROPDOWN) {
       
-      field.append("<select style='width:30em; "+ displayClass + "' id='config_"+configId+"_id' name='config_"+configId+"' ");
-      
-      field.append("onchange=\""+ajaxCallback+"\"");
-      field.append(">");
-      
-      for (MultiKey multiKey: valuesAndLabels) {
+      if (readOnly) {
+        for (MultiKey multiKey: valuesAndLabels) {
+          
+          String key = (String) multiKey.getKey(0);
+          String optionValue = (String) multiKey.getKey(1);
+          
+          boolean selected = StringUtils.equals(key, value);
+          if (!selected) {
+            continue;
+          }
+          field.append("<span style='margin-right: 10px;'>"+optionValue+"</span>"); 
+        }
+      } else {
+        field.append("<select style='width:30em; "+ displayClass + "' id='config_"+configId+"_id' name='config_"+configId+"' ");
         
-        String key = (String) multiKey.getKey(0);
-        String optionValue = (String) multiKey.getKey(1);
+        field.append("onchange=\""+ajaxCallback+"\"");
+        field.append(">");
         
-        boolean selected = StringUtils.equals(key, value);
+        for (MultiKey multiKey: valuesAndLabels) {
+          
+          String key = (String) multiKey.getKey(0);
+          String optionValue = (String) multiKey.getKey(1);
+          
+          boolean selected = StringUtils.equals(key, value);
+          
+          field.append("<option value='"+key+"'" + (selected ? " selected='selected'" : "") + ">");
+          field.append(GrouperUtil.escapeHtml(optionValue, true));
+          field.append("</option>");
+        }
         
-        field.append("<option value='"+key+"'" + (selected ? " selected='selected'" : "") + ">");
-        field.append(GrouperUtil.escapeHtml(optionValue, true));
-        field.append("</option>");
+        field.append("</select>");
       }
       
-      field.append("</select>");
     }
     
     if (configItemFormElement == ConfigItemFormElement.RADIOBUTTON) {
       boolean firstOption = true;
-      for (MultiKey multiKey: valuesAndLabels) {
-        
-        String key = (String) multiKey.getKey(0);
-        String radioButtonValue = (String) multiKey.getKey(1);
-        boolean checked = StringUtils.equals(key, value);
-
-        field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='config_"+configId+"_id' name='config_"+configId+"' value='"+key+"' ");
-        field.append(checked ? " checked ": "");
-        field.append("onchange=\""+ajaxCallback+"\"");
-        field.append(">");
-        field.append("</input>");
-        
-        if (firstOption) {
-          firstOption = false;
-          field.append("<span style='display: inline-block; width: 120px;'>"+radioButtonValue+"</span>");
-        } else {
+      
+      if (readOnly) {
+        for (MultiKey multiKey: valuesAndLabels) {
+          
+          String key = (String) multiKey.getKey(0);
+          String radioButtonValue = (String) multiKey.getKey(1);
+          boolean checked = StringUtils.equals(key, value);
+          if (!checked) {
+            continue;
+          }
           field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
         }
+      } else {
+        for (MultiKey multiKey: valuesAndLabels) {
+          
+          String key = (String) multiKey.getKey(0);
+          String radioButtonValue = (String) multiKey.getKey(1);
+          boolean checked = StringUtils.equals(key, value);
+
+          field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='config_"+configId+"_id' name='config_"+configId+"' value='"+key+"' ");
+          field.append(checked ? " checked ": "");
+          field.append("onchange=\""+ajaxCallback+"\"");
+          field.append(">");
+          field.append("</input>");
+          
+          if (firstOption) {
+            firstOption = false;
+            field.append("<span style='display: inline-block; width: 120px;'>"+radioButtonValue+"</span>");
+          } else {
+            field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
+          }
+        }
       }
-      
     }
     
     if (configItemFormElement == ConfigItemFormElement.CHECKBOX) {

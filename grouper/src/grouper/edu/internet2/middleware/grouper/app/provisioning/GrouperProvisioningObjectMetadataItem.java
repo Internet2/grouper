@@ -37,6 +37,10 @@ public class GrouperProvisioningObjectMetadataItem {
   private boolean canChange = true;
   private boolean readOnly;
   
+  /**
+   * validate across all groups/folders that the same value is not taken already
+   */
+  private boolean validateUniqueValue;
   
   public boolean isCanUpdate() {
     return canUpdate;
@@ -224,6 +228,14 @@ public class GrouperProvisioningObjectMetadataItem {
   
   public void setShowForFolder(boolean showForFolder) {
     this.showForFolder = showForFolder;
+  }
+
+  public boolean isValidateUniqueValue() {
+    return validateUniqueValue;
+  }
+
+  public void setValidateUniqueValue(boolean validateUniqueValue) {
+    this.validateUniqueValue = validateUniqueValue;
   }
 
 }

@@ -758,7 +758,7 @@ public class GrouperProvisioningCompare {
       Iterator<ProvisioningEntityWrapper> iterator = provisioningEntityWrappers.iterator();
       while (iterator.hasNext()) {
         ProvisioningEntityWrapper provisioningEntityWrapper = iterator.next();
-        if (provisioningEntityWrapper.getErrorCode() != null) {
+        if (provisioningEntityWrapper.getErrorCode() != null && !provisioningEntityWrapper.isDelete()) {
           iterator.remove();
         }
       }
@@ -982,7 +982,7 @@ public class GrouperProvisioningCompare {
       Iterator<ProvisioningGroupWrapper> iterator = provisioningGroupWrappers.iterator();
       while (iterator.hasNext()) {
         ProvisioningGroupWrapper provisioningGroupWrapper = iterator.next();
-        if (provisioningGroupWrapper.getErrorCode() != null) {
+        if (provisioningGroupWrapper.getErrorCode() != null && !provisioningGroupWrapper.isDelete()) {
           iterator.remove();
         }
       }
@@ -1292,7 +1292,7 @@ public class GrouperProvisioningCompare {
       Iterator<ProvisioningMembershipWrapper> iterator = provisioningMembershipWrappers.iterator();
       while (iterator.hasNext()) {
         ProvisioningMembershipWrapper provisioningMembershipWrapper = iterator.next();
-        if (provisioningMembershipWrapper.getErrorCode() != null) {
+        if (provisioningMembershipWrapper.getErrorCode() != null && !provisioningMembershipWrapper.isDelete()) {
           iterator.remove();
         }
       }

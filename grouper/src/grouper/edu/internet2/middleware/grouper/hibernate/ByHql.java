@@ -519,6 +519,9 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
 
     QueryPaging queryPaging = this.queryOptions == null ? 
         null : this.queryOptions.getQueryPaging();
+    
+    boolean addedLastCursorFieldParam = false;
+    
     if (queryPaging != null && queryPaging.isCursorBasedPaging()) {
         
       // if its not null, then we arent on the first page
@@ -537,6 +540,7 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
         
         theHql += querySortField.getColumn() + " " + (queryPaging.isCursorFieldIncludesLastRetrieved() ? " >= " : " > ") + " :lastCursorField ";
         this.setScalar("lastCursorField", queryPaging.getLastCursorField());
+        addedLastCursorFieldParam = true;
       }
         
     }
@@ -577,6 +581,9 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
     //note, dont call the method bindVarNameParams() so it doesnt lazyload...
     if (this.bindVarNameParams != null) {
       HibUtils.attachBindValues(query, this.bindVarNameParams());
+    }
+    if (addedLastCursorFieldParam) {
+      this.bindVarNameParams().remove(this.bindVarNameParams().size()-1);
     }
     return query;
 

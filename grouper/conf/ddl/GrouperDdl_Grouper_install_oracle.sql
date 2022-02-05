@@ -1742,6 +1742,7 @@ CREATE TABLE grouper_sync_member
     error_message VARCHAR2(4000),
     error_timestamp DATE,
     error_code VARCHAR2(3),
+    metadata_json VARCHAR2(4000),
     PRIMARY KEY (id)
 );
 
@@ -2630,6 +2631,8 @@ COMMENT ON COLUMN grouper_sync_member.error_message IS 'if there was an error wh
 COMMENT ON COLUMN grouper_sync_member.error_timestamp IS 'timestamp of error if there was an error when syncing this object';
 
 COMMENT ON COLUMN grouper_sync_member.error_code IS 'Error code e.g. ERR error, INV invalid based on script, LEN attribute too large, REQ required attribute missing, DNE data in target does not exist';
+
+COMMENT ON COLUMN grouper_sync_member.metadata_json IS 'additional metadata for member';
 
 COMMENT ON TABLE grouper_sync_membership IS 'record of a sync_group and a sync_member represents a sync^ed membership';
 

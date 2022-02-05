@@ -23,6 +23,14 @@ public class GrouperProvisioningValidation {
    * reference back up to the provisioner
    */
   private GrouperProvisioner grouperProvisioner = null;
+  
+  private int entitiesMissingRequiredData = 0;
+  private int entitiesViolateMaxLength = 0;
+  private int entitiesViolateValidExpression = 0;
+  
+  private int groupsMissingRequiredData = 0;
+  private int groupsViolateMaxLength = 0;
+  private int groupsViolateValidExpression = 0;
 
   public GrouperProvisioningValidation() {
   }
@@ -49,10 +57,13 @@ public class GrouperProvisioningValidation {
    * @param provisioningGroups
    * @param removeInvalid
    */
-  public void validateGroups(Collection<ProvisioningGroup> provisioningGroups, boolean removeInvalid) {
-    int groupsMissingRequiredData = 0;
-    int groupsViolateMaxLength = 0;
-    int groupsViolateValidExpression = 0;
+  public void validateGroups(Collection<ProvisioningGroup> provisioningGroups, boolean removeInvalid, Boolean forMembershipAttribute) {
+    
+    String membershipAttributeName =  null;
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      membershipAttributeName =  this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupAttributeNameForMemberships();
+    }
+    
     //check for required attributes
     Iterator<ProvisioningGroup> iterator = provisioningGroups.iterator();
     GROUPS: while (iterator.hasNext()) {
@@ -70,31 +81,19 @@ public class GrouperProvisioningValidation {
         // look for required fields
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
             grouperProvisioningConfigurationAttributes) {
-          MultiKey validationError = this.validFieldOrAttributeValue(provisioningGroup, grouperProvisioningConfigurationAttribute);
-          if (validationError != null) {
-            GcGrouperSyncErrorCode errorCode = (GcGrouperSyncErrorCode)validationError.getKey(0);
-            String errorMessage = (String)validationError.getKey(1);
-            this.assignGroupError(provisioningGroupWrapper, errorCode, errorMessage);
-            switch (errorCode) {
-              case INV:
-                groupsViolateValidExpression++;
-                break;
-              case LEN:
-                groupsViolateMaxLength++;
-                break;
-              case REQ:
-                groupsMissingRequiredData++;
-                break;
-              default:
-                throw new RuntimeException("Not expecting error code: " + errorCode);
-            }
-            if (removeInvalid) {
-              iterator.remove();
-            }
-            continue GROUPS;
+          
+          boolean isMembershipAttribute = StringUtils.equals(membershipAttributeName, grouperProvisioningConfigurationAttribute.getName());
+          
+          if (forMembershipAttribute != null && isMembershipAttribute != forMembershipAttribute) {
+            continue;
           }
+          
+          boolean hasErrorCode = assignErrorCodeToGroupWrapper(provisioningGroup, grouperProvisioningConfigurationAttribute, provisioningGroupWrapper);
+          if (hasErrorCode && removeInvalid) {
+            iterator.remove();
+          }
+          continue GROUPS;
         }
-        
       }
     }
       
@@ -116,10 +115,13 @@ public class GrouperProvisioningValidation {
    * @param provisioningEntities
    * @param removeInvalid
    */
-  public void validateEntities(Collection<ProvisioningEntity> provisioningEntities, boolean removeInvalid) {
-    int entitiesMissingRequiredData = 0;
-    int entitiesViolateMaxLength = 0;
-    int entitiesViolateValidExpression = 0;
+  public void validateEntities(Collection<ProvisioningEntity> provisioningEntities, boolean removeInvalid, Boolean forMembershipAttribute) {
+    
+    String membershipAttributeName =  null;
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      membershipAttributeName =  this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityAttributeNameForMemberships();
+    }
+    
     //check for required attributes
     Iterator<ProvisioningEntity> iterator = provisioningEntities.iterator();
     ENTITIES: while (iterator.hasNext()) {
@@ -137,31 +139,19 @@ public class GrouperProvisioningValidation {
         // look for required fields
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
             grouperProvisioningConfigurationAttributes) {
-          MultiKey validationError = this.validFieldOrAttributeValue(provisioningEntity, grouperProvisioningConfigurationAttribute);
-          if (validationError != null) {
-            GcGrouperSyncErrorCode errorCode = (GcGrouperSyncErrorCode)validationError.getKey(0);
-            String errorMessage = (String)validationError.getKey(1);
-            this.assignEntityError(provisioningEntityWrapper, errorCode, errorMessage);
-            switch (errorCode) {
-              case INV:
-                entitiesViolateValidExpression++;
-                break;
-              case LEN:
-                entitiesViolateMaxLength++;
-                break;
-              case REQ:
-                entitiesMissingRequiredData++;
-                break;
-              default:
-                throw new RuntimeException("Not expecting error code: " + errorCode);
-            }
-            if (removeInvalid) {
-              iterator.remove();
-            }
-            continue ENTITIES;
+          
+          boolean isMembershipAttribute = StringUtils.equals(membershipAttributeName, grouperProvisioningConfigurationAttribute.getName());
+          
+          if (forMembershipAttribute != null && isMembershipAttribute != forMembershipAttribute) {
+            continue;
           }
+          
+          boolean hasError = assignErrorCodeToEntityWrapper(provisioningEntity, grouperProvisioningConfigurationAttribute, provisioningEntityWrapper);
+          if (hasError && removeInvalid) {
+            iterator.remove();
+          }
+          continue ENTITIES;
         }
-        
       }
     }
       
@@ -176,6 +166,79 @@ public class GrouperProvisioningValidation {
     }
 
   }
+  
+/**
+ * 
+ * @param grouperTargetEntity
+ * @param grouperProvisioningConfigurationAttribute
+ * @param provisioningEntityWrapper
+ * @return true for error and false for no error
+ */
+  public boolean assignErrorCodeToEntityWrapper(ProvisioningEntity grouperTargetEntity, 
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
+      ProvisioningEntityWrapper provisioningEntityWrapper) {
+    
+    MultiKey validationError = this.validFieldOrAttributeValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute);
+    if (validationError != null) {
+      GcGrouperSyncErrorCode errorCode = (GcGrouperSyncErrorCode)validationError.getKey(0);
+      String errorMessage = (String)validationError.getKey(1);
+      this.assignEntityError(provisioningEntityWrapper, errorCode, errorMessage);
+      switch (errorCode) {
+        case INV:
+          entitiesViolateValidExpression++;
+          break;
+        case LEN:
+          entitiesViolateMaxLength++;
+          break;
+        case REQ:
+          entitiesMissingRequiredData++;
+          break;
+        default:
+          throw new RuntimeException("Not expecting error code: " + errorCode);
+      }
+      return true;
+    }
+    
+    return false;
+    
+  }
+  
+  /**
+   * 
+   * @param grouperTargetGroup
+   * @param grouperProvisioningConfigurationAttribute
+   * @param provisioningGroupWrapper
+   * @return true for error and false for no error
+   */
+    public boolean assignErrorCodeToGroupWrapper(ProvisioningGroup grouperTargetGroup, 
+        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
+        ProvisioningGroupWrapper provisioningGroupWrapper) {
+      
+      MultiKey validationError = this.validFieldOrAttributeValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute);
+      if (validationError != null) {
+        GcGrouperSyncErrorCode errorCode = (GcGrouperSyncErrorCode)validationError.getKey(0);
+        String errorMessage = (String)validationError.getKey(1);
+        this.assignGroupError(provisioningGroupWrapper, errorCode, errorMessage);
+        switch (errorCode) {
+          case INV:
+            groupsViolateValidExpression++;
+            break;
+          case LEN:
+            groupsViolateMaxLength++;
+            break;
+          case REQ:
+            groupsMissingRequiredData++;
+            break;
+          default:
+            throw new RuntimeException("Not expecting error code: " + errorCode);
+        }
+        return true;
+      }
+      
+      return false;
+      
+    }
+  
   
   /**
    * validate memberships based on attribute constraints and set the error code in the sync
@@ -379,7 +442,7 @@ public class GrouperProvisioningValidation {
       wrapperKey = "provisioningEntityWrapper";
       wrapperValue = ((ProvisioningEntity)provisioningUpdatable).getProvisioningEntityWrapper();
     } else {
-      throw new RuntimeException("Not expecitng provisioningUpdatable type: " + (provisioningUpdatable == null ? null : provisioningUpdatable.getClass()));
+      throw new RuntimeException("Not expecting provisioningUpdatable type: " + (provisioningUpdatable == null ? null : provisioningUpdatable.getClass()));
     }
     return validFieldOrAttributeValueHelper(provisioningUpdatable, grouperProvisioningConfigurationAttribute, fieldOrAttributeValue,
           null, wrapperKey, wrapperValue);

@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.google.GoogleGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.messaging.GrouperInternalMessagingExternalSystem;
 import edu.internet2.middleware.grouper.app.oidc.OidcGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.smtp.SmtpGrouperExternalSystem;
@@ -127,7 +128,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
   static {
     externalTypeClassNames.add(AzureGrouperExternalSystem.class.getName());
     externalTypeClassNames.add(LdapGrouperExternalSystem.class.getName());
-    externalTypeClassNames.add("edu.internet2.middleware.changelogconsumer.googleapps.GoogleGrouperExternalSystem");
+    externalTypeClassNames.add(GoogleGrouperExternalSystem.class.getName());
     externalTypeClassNames.add("edu.internet2.middleware.grouper.o365.Office365GrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouperBox.BoxGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouperDuo.DuoGrouperExternalSystem");

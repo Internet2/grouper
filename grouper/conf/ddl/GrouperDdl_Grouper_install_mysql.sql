@@ -1634,6 +1634,7 @@ CREATE TABLE grouper_sync_member
     error_message text NULL,
     error_timestamp DATETIME,
     error_code VARCHAR(3) NULL,
+    metadata_json text NULL,
     PRIMARY KEY (id)
 );
 

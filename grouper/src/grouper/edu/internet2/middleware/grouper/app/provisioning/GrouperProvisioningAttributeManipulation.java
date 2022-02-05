@@ -444,7 +444,10 @@ public class GrouperProvisioningAttributeManipulation {
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : groupAttributeNameToConfig.values() ) {
         
         String attributeName = grouperProvisioningConfigurationAttribute.getName();
-        if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect())
+        //TODO maybe change this to not filter the membership attributes
+        //If we are storing something to the grouper side for example in entity attribute the membership label
+        // We are not selecting, inserting, or updating but we do want this attribute to exist
+        if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect() && (grouperProvisioningConfigurationAttribute.isInsert() || grouperProvisioningConfigurationAttribute.isUpdate()) )
             || (filterInsert && !grouperProvisioningConfigurationAttribute.isInsert())
             || (filterUpdate && !grouperProvisioningConfigurationAttribute.isUpdate())){
           provisioningGroup.removeAttribute(attributeName);
@@ -483,7 +486,10 @@ public class GrouperProvisioningAttributeManipulation {
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : entityAttributeNameToConfig.values() ) {
         
         String attributeName = grouperProvisioningConfigurationAttribute.getName();
-        if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect())
+        //TODO maybe change this to not filter the membership attributes
+        //If we are storing something to the grouper side for example in entity attribute the membership label
+        // We are not selecting, inserting, or updating but we do want this attribute to exist
+        if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect() && (grouperProvisioningConfigurationAttribute.isInsert() || grouperProvisioningConfigurationAttribute.isUpdate()) )
             || (filterInsert && !grouperProvisioningConfigurationAttribute.isInsert())
             || (filterUpdate && !grouperProvisioningConfigurationAttribute.isUpdate())){
           filterEntityFieldsAndAttributesCount[0]++;

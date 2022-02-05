@@ -20,6 +20,8 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
  *
  */
 public class GrouperProvisioningBehavior {
+  
+  private boolean createGroupsAndEntitiesBeforeTranslatingMemberships = true;
 
   /**
    * if set then only provision users who are in this group
@@ -1668,5 +1670,17 @@ public class GrouperProvisioningBehavior {
     }
     throw new RuntimeException("Not expecting object type: " + (grouperTargetUpdatable == null ? "null" : grouperTargetUpdatable.getClass().getName()));
   }
+
+
+  
+  public boolean isCreateGroupsAndEntitiesBeforeTranslatingMemberships() {
+    return createGroupsAndEntitiesBeforeTranslatingMemberships;
+  }
+
+  
+  public void setCreateGroupsAndEntitiesBeforeTranslatingMemberships(boolean createGroupsAndEntitiesBeforeTranslatingMemberships) {
+    this.createGroupsAndEntitiesBeforeTranslatingMemberships = createGroupsAndEntitiesBeforeTranslatingMemberships;
+  }
+  
 
 }

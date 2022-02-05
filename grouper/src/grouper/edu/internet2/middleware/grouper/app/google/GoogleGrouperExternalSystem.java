@@ -1,4 +1,4 @@
-package edu.internet2.middleware.changelogconsumer.googleapps;
+package edu.internet2.middleware.grouper.app.google;
 
 import java.util.List;
 import java.util.Map;

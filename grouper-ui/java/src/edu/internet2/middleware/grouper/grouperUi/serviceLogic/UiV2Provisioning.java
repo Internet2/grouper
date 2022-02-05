@@ -14,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -22,12 +23,14 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningJob;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectAttributes;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
@@ -1789,7 +1792,9 @@ public class UiV2Provisioning {
   }
   
   private boolean setMetadataValues(final HttpServletRequest request, 
-      final Map<String, Object> metadataNameValuesToPopulate, List<GrouperProvisioningObjectMetadataItem> metadataItems) {
+      final Map<String, Object> metadataNameValuesToPopulate, 
+      List<GrouperProvisioningObjectMetadataItem> metadataItems,
+      GrouperProvisioner grouperProvisioner, String groupOrFolderOrSubjectNameToSkip) {
     
     boolean errors = false;
     final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -1810,7 +1815,43 @@ public class UiV2Provisioning {
         errors = true;
       }
       
-      if (StringUtils.isNotBlank(value)) {
+      if (metadataItem.isValidateUniqueValue()) {
+        
+        //TODO optimize
+        //TODO refactor and move to grouper core
+        if (metadataItem.isShowForGroup()) {
+          Map<String, GrouperProvisioningObjectAttributes> groupNameToAttributes = grouperProvisioner.retrieveGrouperDao().retrieveAllProvisioningGroupAttributes();
+          
+          for (String groupName: groupNameToAttributes.keySet()) {
+            if (!StringUtils.equals(groupName, groupOrFolderOrSubjectNameToSkip)) {
+              GrouperProvisioningObjectAttributes groupAttributes = groupNameToAttributes.get(groupName);
+              Map<String, Object> metadataNamesAndValues = groupAttributes.getMetadataNameValues();
+              if (metadataNamesAndValues.containsKey(name)) {
+                Object valueFromDatabase = metadataNamesAndValues.get(name);
+                
+                if (GrouperUtil.equals(valueFromDatabase, value)) {
+                  String labelKey = metadataItem.getLabelKey();
+                  String label = GrouperTextContainer.textOrNull(labelKey);
+                  if (StringUtils.isBlank(label)) {
+                    label = labelKey;
+                  }
+                  String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataItemNotUnique");
+                  errorMessage = errorMessage.replace("$$metadataLabel$$", label);
+                  guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
+                  errors = true;
+                }
+              }
+            }
+          }
+        } else if (metadataItem.isShowForMember()) {
+          //TODO add a method in grouperProvisioner.retrieveGrouperDao() 
+          // to get all the members that already have the same email address
+          
+        }
+        
+      }
+      
+      if (!errors && StringUtils.isNotBlank(value)) {
         try {          
           Object convertedValue = metadataItem.getValueType().convert(value);
           if (!GrouperUtil.equals(value, metadataItem.getDefaultValue())) {
@@ -1928,7 +1969,7 @@ public class UiV2Provisioning {
       
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
       
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForFolder);
+      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForFolder, grouperProvisioner, stem.getName());
       if (errors) {
         return;
       }
@@ -2104,7 +2145,7 @@ public class UiV2Provisioning {
       
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
       
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForSubject);
+      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForSubject, provisioner, subject.getName());
       if (errors) return;
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
@@ -2235,8 +2276,8 @@ public class UiV2Provisioning {
           .collect(Collectors.toList());
       
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
-      
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForMembership);
+      //TODO should it be subject or group?
+      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForMembership, provisioner, group.getName());
       if (errors) return;
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
@@ -2368,8 +2409,8 @@ public class UiV2Provisioning {
           .collect(Collectors.toList());
       
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
-      
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForMembership);
+      //TODO should the last param be group or subject?
+      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForMembership, provisioner, group.getName());
       if (errors) return;
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
@@ -2510,7 +2551,7 @@ public class UiV2Provisioning {
       
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
       
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForGroup);
+      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForGroup, provisioner, group.getName());
       if (errors) return;
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);

@@ -98,6 +98,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     gcGrouperSyncMember.sourceId = this.sourceId;
     gcGrouperSyncMember.subjectId = this.subjectId;
     gcGrouperSyncMember.subjectIdentifier = this.subjectIdentifier;
+    gcGrouperSyncMember.metadataJson = this.metadataJson;
 
     return gcGrouperSyncMember;
   }
@@ -1103,6 +1104,29 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    */
   public void setInTarget(boolean inTarget) {
     this.inTargetDb = inTarget ? "T" : "F";
+  }
+  
+  /**
+   * additional metadata for group
+   */
+  private String metadataJson;
+  
+
+  /**
+   * additional metadata for group
+   * @return metadataJson
+   */
+  public String getMetadataJson() {
+    return metadataJson;
+  }
+
+  
+  /**
+   * additional metadata for group
+   * @param metadataJson
+   */
+  public void setMetadataJson(String metadataJson) {
+    this.metadataJson = metadataJson;
   }
 
   /**

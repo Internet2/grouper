@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvis
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -1105,7 +1104,13 @@ public abstract class GrouperProvisioner {
     ProvisioningSyncIntegration.fullSyncGroups(provisioningSyncResult, this.getGcGrouperSync(),
         this.retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups(),
         calculatedProvisioningAttributes);
-
+    
+    //Get the attributes from the attributes framework and store those in grouper sync member table
+    Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningMemberAttributes = this.retrieveGrouperDao().retrieveProvisioningMemberAttributes(true, null);
+    
+    ProvisioningSyncIntegration.fullSyncMembers(provisioningSyncResult, gcGrouperSync, 
+        this.retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers(), grouperProvisioningMemberAttributes);
+    
     this.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
 
   }

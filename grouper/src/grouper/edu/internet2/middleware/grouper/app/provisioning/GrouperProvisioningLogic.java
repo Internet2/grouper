@@ -12,6 +12,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -224,15 +226,14 @@ public class GrouperProvisioningLogic {
 
     // validate
     debugMap.put("state", "validateGroupsAndEntities");
-    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false);
-    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false);
-
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, false);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, false);
     
     try {
   
       debugMap.put("state", "translateGrouperMembershipsToTarget");
       {
-        List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships();
+        List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships(false);
         List<ProvisioningMembership> grouperTargetMemberships = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetMemberships(
             grouperProvisioningMemberships, false);
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningMemberships(grouperTargetMemberships);
@@ -244,7 +245,7 @@ public class GrouperProvisioningLogic {
 
     try {
       debugMap.put("state", "manipulateGrouperMembershipTargetAttributes");
-      List<ProvisioningMembership> grouperTargetMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships();
+      List<ProvisioningMembership> grouperTargetMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false);
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForMemberships(grouperTargetMemberships);
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterMembershipFieldsAndAttributes(grouperTargetMemberships, true, false, false);
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesMemberships(grouperTargetMemberships);
@@ -255,7 +256,7 @@ public class GrouperProvisioningLogic {
 
     try {
       debugMap.put("state", "matchingIdGrouperMemberships");
-      this.grouperProvisioner.retrieveGrouperTranslator().idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships());
+      this.grouperProvisioner.retrieveGrouperTranslator().idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false));
     } finally {
       this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
     }
@@ -271,8 +272,9 @@ public class GrouperProvisioningLogic {
         this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
     
     // validate memberships
-    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), false);
-
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false), false);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, true);
+    
     try {
       debugMap.put("state", "compareTargetObjects");
       this.grouperProvisioner.retrieveGrouperProvisioningCompare().compareTargetObjects();
@@ -665,9 +667,9 @@ public class GrouperProvisioningLogic {
           
           // ######### STEP 26: take all the matching ids of grouper groups/entities and index those for quick lookups
           // validate
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false);
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false);
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), false);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, false);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, false);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false), false);
           
           // ######### STEP 27: recalc retrieve data from target
           try {
@@ -756,7 +758,7 @@ public class GrouperProvisioningLogic {
             debugMap.put("state", "translateGrouperMembershipsToTarget");
   
             {
-              List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships();
+              List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships(false);
               List<ProvisioningMembership> grouperTargetMemberships = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetMemberships(
                   grouperProvisioningMemberships, true);
               this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningMemberships(grouperTargetMemberships);
@@ -770,7 +772,7 @@ public class GrouperProvisioningLogic {
           try {
             debugMap.put("state", "manipulateGrouperTargetMembershipAttributes");
 
-            List<ProvisioningMembership> grouperTargetMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships();
+            List<ProvisioningMembership> grouperTargetMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false);
             this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForMemberships(grouperTargetMemberships);
             this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterMembershipFieldsAndAttributes(grouperTargetMemberships, true, false, false);
             this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesMemberships(grouperTargetMemberships);
@@ -783,7 +785,7 @@ public class GrouperProvisioningLogic {
           try {
             debugMap.put("state", "matchingIdGrouperMemberships");
             this.grouperProvisioner.retrieveGrouperTranslator().idTargetMemberships(
-                this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships());
+                this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false));
             
           } finally {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
@@ -838,6 +840,7 @@ public class GrouperProvisioningLogic {
             // validate memberships
 //            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(), false);
 
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, true);
           }
           
           // ######### STEP 36: compare target objects
@@ -1013,6 +1016,8 @@ public class GrouperProvisioningLogic {
       return;
     }
     
+    translateAndManipulateMembershipsForGroupsEntitiesCreate();
+    
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForGroups(grouperTargetGroupsToInsert, null);
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(grouperTargetGroupsToInsert, false, true, false);
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroupsToInsert);
@@ -1023,7 +1028,7 @@ public class GrouperProvisioningLogic {
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().setProvisioningGroups(grouperTargetGroupsToInsert);
     
     // validate
-    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroupsToInsert, true);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroupsToInsert, true, false);
     
     // add object change entries
     this.grouperProvisioner.retrieveGrouperProvisioningCompare().addInternalObjectChangeForGroupsToInsert(grouperTargetGroupsToInsert);
@@ -1086,6 +1091,51 @@ public class GrouperProvisioningLogic {
       }
     }
     
+  }
+
+  //TODO duplicate method in the translator. Try to merge to have only one copy.
+  public void translateAndManipulateMembershipsForGroupsEntitiesCreate() {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isCreateGroupsAndEntitiesBeforeTranslatingMemberships()) {
+      
+      Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+      
+      try {
+        debugMap.put("state", "translateGrouperMembershipsToTarget");
+        {
+          List<ProvisioningMembership> grouperProvisioningMemberships = new ArrayList<ProvisioningMembership>(this.getGrouperProvisioner().
+              retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships(true));
+          
+          List<ProvisioningMembership> grouperTargetMemberships = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetMemberships(
+              grouperProvisioningMemberships, false);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningMemberships(grouperTargetMemberships);
+        }    
+
+      } finally {
+        this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.translateGrouperMembershipsToTarget);
+      }
+
+      try {
+        debugMap.put("state", "manipulateGrouperMembershipTargetAttributes");
+        List<ProvisioningMembership> grouperTargetMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(true);
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForMemberships(grouperTargetMemberships);
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterMembershipFieldsAndAttributes(grouperTargetMemberships, true, false, false);
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesMemberships(grouperTargetMemberships);
+    
+      } finally {
+        this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.manipulateGrouperTargetMembershipsAttributes);
+      }
+
+      try {
+        debugMap.put("state", "matchingIdGrouperMemberships");
+        this.grouperProvisioner.retrieveGrouperTranslator().idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(true));
+      } finally {
+        this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
+      }
+
+      // index the memberships
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
+
+    }
   }
 
   /**
@@ -1262,6 +1312,11 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.getDebugMap().put("groupTranslationEndedInNoEntitiesOnInsert", true);
       return;
     }
+    
+    
+    translateAndManipulateMembershipsForGroupsEntitiesCreate();
+    
+    
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForEntities(grouperTargetEntitiesToInsert, null);
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterEntityFieldsAndAttributes(grouperTargetEntitiesToInsert, false, true, false);
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesEntities(grouperTargetEntitiesToInsert);
@@ -1269,7 +1324,7 @@ public class GrouperProvisioningLogic {
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().setProvisioningEntities(grouperTargetEntitiesToInsert);
     // validate
-    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(grouperTargetEntitiesToInsert, true);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(grouperTargetEntitiesToInsert, true, null);
     // add object change entries
     this.grouperProvisioner.retrieveGrouperProvisioningCompare().addInternalObjectChangeForEntitiesToInsert(grouperTargetEntitiesToInsert);
         
@@ -2181,6 +2236,9 @@ public class GrouperProvisioningLogic {
     Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningMemberWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper();
   
     int provisioningEntitiesToDelete = 0;
+    
+    List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = 
+        this.grouperProvisioner.retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
   
     // loop through sync groups
     for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
@@ -2200,13 +2258,42 @@ public class GrouperProvisioningLogic {
         Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), gcGrouperSyncMember.getMemberId(), false);
         if (member != null) {
           grouperProvisioningEntity.setName(member.getName());
-          //TODO do something with email?
+          grouperProvisioningEntity.setEmail(member.getEmail0());
+          
           grouperProvisioningEntity.assignAttributeValue("description", member.getDescription());
         }
         grouperProvisioningEntity.setSubjectId(gcGrouperSyncMember.getSubjectId());
         grouperProvisioningEntity.assignAttributeValue("subjectSourceId", gcGrouperSyncMember.getSourceId());
         grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
+
+        //TODO decide if we should put more subject identifiers to grouper_sync_member table
+        // TODO maybe map the right subject identifier column in the member table to the sync (grouper_sync_member) subject identifier
+//        grouperProvisioningEntity.assignAttributeValue("subjectIdentifier1", gcGrouperSyncMember.getSubjectIdentifier());
+//        grouperProvisioningEntity.assignAttributeValue("subjectIdentifier2", gcGrouperSyncMember.getSubjectIdentifier());
   
+        if (GrouperUtil.length(grouperProvisioningObjectMetadataItems) > 0) {
+          
+          String jsonMetadata = gcGrouperSyncMember.getMetadataJson();
+          
+          if (!StringUtils.isBlank(jsonMetadata) && !StringUtils.equals("{}", jsonMetadata)) {
+            JsonNode jsonNode = GrouperUtil.jsonJacksonNode(jsonMetadata);
+            for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : grouperProvisioningObjectMetadataItems) {
+              if (grouperProvisioningObjectMetadataItem.isShowForMember()) {
+                
+                String metadataItemName = grouperProvisioningObjectMetadataItem.getName();
+                if (metadataItemName.startsWith("md_")) {
+                  if (jsonNode.has(metadataItemName)) {
+                    GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
+                        GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
+                    String value = GrouperUtil.jsonJacksonGetString(jsonNode, metadataItemName);
+                    grouperProvisioningEntity.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(value));
+                  }
+                }
+              }
+            }
+          }
+        }
+        
         provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
         provisioningEntityWrapper.setDelete(true);
         
@@ -2232,6 +2319,9 @@ public class GrouperProvisioningLogic {
     
     int provisioningGroupsToDeleteCount = 0;
   
+    List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = 
+        this.grouperProvisioner.retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
+    
     Set<ProvisioningGroupWrapper> provisioningGroupWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers();
   
     // loop through sync groups
@@ -2250,6 +2340,29 @@ public class GrouperProvisioningLogic {
         grouperProvisioningGroup.setId(gcGrouperSyncGroup.getGroupId());
         grouperProvisioningGroup.setName(gcGrouperSyncGroup.getGroupName());
         grouperProvisioningGroup.setIdIndex(gcGrouperSyncGroup.getGroupIdIndex());
+        
+        if (GrouperUtil.length(grouperProvisioningObjectMetadataItems) > 0) {
+          
+          String jsonMetadata = gcGrouperSyncGroup.getMetadataJson();
+          
+          if (!StringUtils.isBlank(jsonMetadata) && !StringUtils.equals("{}", jsonMetadata)) {
+            JsonNode jsonNode = GrouperUtil.jsonJacksonNode(jsonMetadata);
+            for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : grouperProvisioningObjectMetadataItems) {
+              if (grouperProvisioningObjectMetadataItem.isShowForMember()) {
+                
+                String metadataItemName = grouperProvisioningObjectMetadataItem.getName();
+                if (metadataItemName.startsWith("md_")) {
+                  if (jsonNode.has(metadataItemName)) {
+                    GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
+                        GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
+                    String value = GrouperUtil.jsonJacksonGetString(jsonNode, metadataItemName);
+                    grouperProvisioningGroup.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(value));
+                  }
+                }
+              }
+            }
+          }
+        }
         
         provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
         provisioningGroupWrapper.setDelete(true);

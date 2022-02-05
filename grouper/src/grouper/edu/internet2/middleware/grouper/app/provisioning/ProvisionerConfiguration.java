@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.app.duo.DuoProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.duo.role.DuoRoleProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
@@ -42,6 +43,7 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
   static {
     provisionerConfigClassNames.add(AzureProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(DuoProvisionerConfiguration.class.getName());
+    provisionerConfigClassNames.add(DuoRoleProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(GoogleProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(LdapProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(GrouperScim2Configuration.class.getName());

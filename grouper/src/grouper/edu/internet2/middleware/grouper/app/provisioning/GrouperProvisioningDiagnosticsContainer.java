@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -339,7 +340,7 @@ public class GrouperProvisioningDiagnosticsContainer {
             }
             
             // validate
-            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroups, false);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroups, false, false);
             
             if (this.provisioningGroupWrapper.getErrorCode() != null) {
               this.report.append("<font color='red'><b>Error:</b></font> Group is not valid! " + this.provisioningGroupWrapper.getErrorCode() + "\n");
@@ -407,11 +408,13 @@ public class GrouperProvisioningDiagnosticsContainer {
             this.provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
             
             this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().put(provisioningEntityWrapper.getMemberId(), provisioningEntityWrapper);
-            ProvisioningSyncIntegration.fullSyncMembers(
+            
+            ProvisioningSyncIntegration.fullSyncMembersForInitialize(
                 this.getGrouperProvisioner().getProvisioningSyncResult(),
                 this.getGrouperProvisioner().getGcGrouperSync(),
                 this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers(),
-                this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper());
+                this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper()
+                );
             this.grouperProvisioner.retrieveGrouperProvisioningLogic().assignSyncObjectsToWrappers();
             
             List<ProvisioningEntity> grouperTargetEntities = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetEntities(GrouperUtil.toList(grouperProvisioningEntity), false, false);
@@ -455,7 +458,7 @@ public class GrouperProvisioningDiagnosticsContainer {
               }
               
               // validate
-              this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(grouperTargetEntities, false);
+              this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(grouperTargetEntities, false, false);
               
               if (this.provisioningEntityWrapper.getErrorCode() != null) {
                 this.report.append("<font color='red'><b>Error:</b></font> Entity is not valid! " + this.provisioningEntityWrapper.getErrorCode() + "\n");

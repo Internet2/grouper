@@ -277,6 +277,8 @@ public class GrouperProvisioningLinkLogic {
       
       if (GrouperUtil.length(grouperTargetGroups) > 0) {
         
+        translateAndManipulateMembershipsForGroupsEntitiesCreate();
+        
         this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsChangedInLink().setProvisioningGroups(grouperTargetGroups);
         
         this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForGroups(grouperTargetGroups, null);
@@ -319,6 +321,54 @@ public class GrouperProvisioningLinkLogic {
   public void updateEntityLinkFull() {
     updateEntityLink(GrouperUtil.nonNull(
         this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
+  }
+  
+  
+  
+  private void translateAndManipulateMembershipsForGroupsEntitiesCreate() {
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isCreateGroupsAndEntitiesBeforeTranslatingMemberships()) {
+      
+      Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+      
+      try {
+        debugMap.put("state", "translateGrouperMembershipsToTarget");
+        {
+          List<ProvisioningMembership> grouperProvisioningMemberships = new ArrayList<ProvisioningMembership>(this.getGrouperProvisioner().
+              retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships(true));
+          
+          List<ProvisioningMembership> grouperTargetMemberships = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetMemberships(
+              grouperProvisioningMemberships, false);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningMemberships(grouperTargetMemberships);
+        }    
+
+      } finally {
+        this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.translateGrouperMembershipsToTarget);
+      }
+
+      try {
+        debugMap.put("state", "manipulateGrouperMembershipTargetAttributes");
+        List<ProvisioningMembership> grouperTargetMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(true);
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForMemberships(grouperTargetMemberships);
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterMembershipFieldsAndAttributes(grouperTargetMemberships, true, false, false);
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesMemberships(grouperTargetMemberships);
+    
+      } finally {
+        this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.manipulateGrouperTargetMembershipsAttributes);
+      }
+
+      try {
+        debugMap.put("state", "matchingIdGrouperMemberships");
+        this.grouperProvisioner.retrieveGrouperTranslator().idTargetMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(true));
+      } finally {
+        this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
+      }
+
+      // index the memberships
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
+
+    }
+    
   }
 
   /**
@@ -446,6 +496,8 @@ public class GrouperProvisioningLinkLogic {
       List<ProvisioningEntity> grouperTargetEntities = this.grouperProvisioner.retrieveGrouperTranslator().translateGrouperToTargetEntities(changedEntities, false, false);
       
       if (GrouperUtil.length(grouperTargetEntities) > 0) {
+        
+        translateAndManipulateMembershipsForGroupsEntitiesCreate();
         
         this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsChangedInLink().setProvisioningEntities(grouperTargetEntities);
         

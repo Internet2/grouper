@@ -161,37 +161,41 @@ public class GrouperProvisionerGrouperDao {
           "    gm.subject_id, " + 
           "    gm.subject_identifier0, " + 
           "    gm.name, " + 
-          "    gm.description " + 
+          "    gm.description, " + 
+          "    gsm.metadata_json, " +
+          "    gm.email0, " +
+          "    gm.subject_identifier1, " +
+          "    gm.subject_identifier2 " +
           "from " + 
-          "    grouper_members gm, " + 
-          "    grouper_memberships ms, " +
-          "    grouper_group_set gs " + 
+          "    grouper_members gm  join grouper_memberships ms on ms.member_id = gm.id " +
+          "    join grouper_group_set gs on ms.owner_id = gs.member_id " + 
+          "    left join grouper_sync_member gsm on  gsm.member_id = gm.id " + 
           "where " +
-          "    ms.owner_id = gs.member_id " +
-          "    and ms.field_id = gs.member_field_id " +
-          "    and ms.member_id = gm.id " +
+          "    ms.field_id = gs.member_field_id " +
           "    and ms.enabled='T' " +
           "    and gs.field_id = ? " +
           "    and gs.owner_group_id = ? ");
     } else {
+      
       sqlInitial = new StringBuilder("select " + 
           "    gm.id, " +
           "    gm.subject_source, " + 
           "    gm.subject_id, " + 
           "    gm.subject_identifier0, " + 
           "    gm.name, " + 
-          "    gm.description " + 
+          "    gm.description, " + 
+          "    gsm.metadata_json, " +
+          "    gm.email0, " +
+          "    gm.subject_identifier1, " +
+          "    gm.subject_identifier2 " +
           "from " + 
-          "    grouper_members gm, " + 
-          "    grouper_memberships ms, " +
-          "    grouper_group_set gs, " + 
-          "    grouper_sync_group gsg " +
+          "    grouper_members gm  join grouper_memberships ms on ms.member_id = gm.id " +
+          "    join grouper_group_set gs on ms.owner_id = gs.member_id " + 
+          "    join grouper_sync_group gsg on gs.owner_group_id = gsg.group_id " +
+          "    left join grouper_sync_member gsm on  gsm.member_id = gm.id " + 
           "where " +
           "    gsg.grouper_sync_id = ? " +
-          "    and ms.owner_id = gs.member_id " +
           "    and ms.field_id = gs.member_field_id " +
-          "    and ms.member_id = gm.id " +
-          "    and gs.owner_group_id = gsg.group_id " + 
           "    and gsg.provisionable = 'T' " +
           "    and ms.enabled='T' ");
       paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
@@ -663,6 +667,9 @@ public class GrouperProvisionerGrouperDao {
   
   private List<ProvisioningEntity> getProvisioningEntityMapFromQueryResults(List<String[]> queryResults) {
     
+    List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = 
+        this.grouperProvisioner.retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
+    
     List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
 
     for (String[] queryResult : queryResults) {
@@ -672,15 +679,41 @@ public class GrouperProvisionerGrouperDao {
       String subjectIdentifier0 = queryResult[3];
       String name = queryResult[4];
       String description = queryResult[5];
+      String jsonMetadata = queryResult[6];
+      String email = queryResult[7];
+      String subjectIdentifier1 = queryResult[8];
+      String subjectIdentifier2 = queryResult[9];
       
       ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity();
       grouperProvisioningEntity.setId(id);
       grouperProvisioningEntity.setName(name);
       grouperProvisioningEntity.setSubjectId(subjectId);
-      //TODO do something with email?
+      grouperProvisioningEntity.setEmail(email);
       grouperProvisioningEntity.assignAttributeValue("subjectSourceId", subjectSource);
       grouperProvisioningEntity.assignAttributeValue("description", description);
       grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
+      grouperProvisioningEntity.assignAttributeValue("subjectIdentifier1", subjectIdentifier1);
+      grouperProvisioningEntity.assignAttributeValue("subjectIdentifier2", subjectIdentifier2);
+      
+      if (GrouperUtil.length(grouperProvisioningObjectMetadataItems) > 0) {
+        if (!StringUtils.isBlank(jsonMetadata) && !StringUtils.equals("{}", jsonMetadata)) {
+          JsonNode jsonNode = GrouperUtil.jsonJacksonNode(jsonMetadata);
+          for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : grouperProvisioningObjectMetadataItems) {
+            if (grouperProvisioningObjectMetadataItem.isShowForMember()) {
+              
+              String metadataItemName = grouperProvisioningObjectMetadataItem.getName();
+              if (metadataItemName.startsWith("md_")) {
+                if (jsonNode.has(metadataItemName)) {
+                  GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
+                      GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
+                  String value = GrouperUtil.jsonJacksonGetString(jsonNode, metadataItemName);
+                  grouperProvisioningEntity.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(value));
+                }
+              }
+            }
+          }
+        }
+      }
       
       results.add(grouperProvisioningEntity);
     }
@@ -1146,6 +1179,129 @@ public class GrouperProvisionerGrouperDao {
         if (results.get(groupName) == null) {
           results.put(groupName, new GrouperProvisioningObjectAttributes(groupId, groupName, idIndex, null));
           results.get(groupName).setOwnedByGroup(true);
+        }
+      }
+    }
+    
+    return results;
+  }
+  
+  
+  
+  /**
+   * get provisioning attributes for given member ids
+   * @return the attributes
+   */
+  public Map<String, GrouperProvisioningObjectAttributes> retrieveProvisioningMemberAttributes(boolean retrieveAll, List<String> memberIds) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+      
+    Map<String, GrouperProvisioningObjectAttributes> results = new HashMap<String, GrouperProvisioningObjectAttributes>();
+
+    {
+      String sqlInitial = "SELECT " + 
+          "    gaa_marker.id, " +
+          "    gm.id, " +
+          "    gadn_config.name, " + 
+          "    gaav_config.value_string, " + 
+          "    gm.subject_id, " + 
+          "    gm.subject_source, " + 
+          "    gm.subject_identifier0 " + 
+          "FROM " + 
+          "    grouper_members gm, " + 
+          "    grouper_attribute_assign gaa_marker, " + 
+          "    grouper_attribute_assign gaa_target, " + 
+          "    grouper_attribute_assign gaa_config, " + 
+          "    grouper_attribute_assign_value gaav_target, " + 
+          "    grouper_attribute_assign_value gaav_config, " + 
+          "    grouper_attribute_def_name gadn_marker, " + 
+          "    grouper_attribute_def_name gadn_target, " + 
+          "    grouper_attribute_def_name gadn_config " + 
+          "WHERE " + 
+          "    gm.id = gaa_marker.owner_member_id " + 
+          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+          "    AND gadn_marker.name = ? " + 
+          "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+          "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
+          "    AND gadn_target.name = ? " + 
+          "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
+          "    AND gaav_target.value_string = ? " + 
+          "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
+          "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
+          "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
+          "    AND gaa_marker.enabled = 'T' " + 
+          "    AND gaa_target.enabled = 'T' " + 
+          "    AND gaa_config.enabled = 'T' ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+      paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+      paramsInitial.add(this.grouperProvisioner.getConfigId());
+  
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+      
+      
+      List<String[]> queryResults = null;
+      if (retrieveAll) {
+        queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sqlInitial, paramsInitial, typesInitial);
+      } else {
+        if (GrouperUtil.length(memberIds) == 0) {
+          return results;
+        }
+
+        List<String> idsList = GrouperUtil.listFromCollection(memberIds);
+        queryResults = new ArrayList<String[]>();
+        int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsList.size(), 900);
+        for (int i = 0; i < numberOfBatches; i++) {
+          List<String> currentBatchIds = GrouperUtil.batchList(idsList, 900, i);
+          
+          List<Object> params = new ArrayList<Object>(paramsInitial);
+          params.addAll(currentBatchIds);
+
+          List<Type> types = new ArrayList<Type>(typesInitial);
+
+          for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
+            types.add(StringType.INSTANCE);
+          }
+          
+          StringBuilder sql = new StringBuilder(sqlInitial);
+          sql.append(" and gm.id in (");
+          sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchIds));
+          sql.append(") ");
+          
+          queryResults.addAll(GrouperUtil.nonNull(HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types)));
+          
+        }      
+      }
+      
+      for (String[] queryResult : queryResults) {
+        String markerAttributeAssignId = queryResult[0];
+        String memberId = queryResult[1];
+        String configName = queryResult[2];
+        String configValue = queryResult[3];
+        
+        String subjectId = queryResult[4]; 
+        String sourceId = queryResult[5]; 
+        String subjectIdentifier0 = queryResult[6]; 
+        
+        GrouperProvisioningObjectAttributes provisioningObjectAttributes = new GrouperProvisioningObjectAttributes(memberId, null, null, markerAttributeAssignId);
+        provisioningObjectAttributes.setSubjectId(subjectId);
+        provisioningObjectAttributes.setSourceId(sourceId);
+        provisioningObjectAttributes.setSubjectIdentifier0(subjectIdentifier0);
+        
+        if (results.get(memberId) == null) {
+          results.put(memberId, provisioningObjectAttributes);
+        }
+        
+        if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_METADATA_JSON)) {
+          results.get(memberId).setProvisioningMetadataJson(configValue);
+        } else if (configName.equals(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET)) {
+          results.get(memberId).setProvisioningTarget(configValue);
         }
       }
     }

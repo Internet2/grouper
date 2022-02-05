@@ -135,16 +135,54 @@ public class GrouperProvisioningData {
 
   /**
    * extract list of non null grouper target memberships
+   * @param forCreate - null means all, true means only if we're in the create and we're creating memberships while we create groups and entities, 
+   * false means we're just doing updates and deletes
    * @return groups
    */
-  public List<ProvisioningMembership> retrieveGrouperTargetMemberships() {
+  public List<ProvisioningMembership> retrieveGrouperTargetMemberships(Boolean forCreate) {
     List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
+    
+    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
+    
+    boolean createGroupsAndEntitiesBeforeTranslatingMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isCreateGroupsAndEntitiesBeforeTranslatingMemberships();
+    
+    if (forCreate != null && forCreate && createGroupsAndEntitiesBeforeTranslatingMemberships) {
+      return grouperTargetMemberships;
+    }
+    
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.provisioningMembershipWrappers) {
       ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
       if (grouperTargetMembership != null) {
-        grouperTargetMemberships.add(grouperTargetMembership);
+        
+        if (forCreate == null || membershipType == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+          grouperTargetMemberships.add(grouperTargetMembership);
+        } else if (!forCreate && createGroupsAndEntitiesBeforeTranslatingMemberships) {
+          grouperTargetMemberships.add(grouperTargetMembership);
+        } else {
+          
+          if (membershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+            if (provisioningMembershipWrapper.getGrouperProvisioningMembership().getProvisioningEntity() != null) {
+              ProvisioningEntityWrapper entityWrapper = provisioningMembershipWrapper.getGrouperProvisioningMembership().getProvisioningEntity().getProvisioningEntityWrapper();
+              if (entityWrapper.isCreate() == forCreate) {
+                grouperTargetMemberships.add(grouperTargetMembership);
+              }
+            } 
+          }
+          
+          if (membershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+            if (provisioningMembershipWrapper.getGrouperProvisioningMembership().getProvisioningGroup() != null) {
+              ProvisioningGroupWrapper groupWrapper = provisioningMembershipWrapper.getGrouperProvisioningMembership().getProvisioningGroup().getProvisioningGroupWrapper();
+              if (groupWrapper.isCreate() == forCreate) {
+                grouperTargetMemberships.add(grouperTargetMembership);
+              }
+            } 
+            
+          }
+        }
       }
+      
     }
+    
     return grouperTargetMemberships;
   }
 
@@ -165,15 +203,52 @@ public class GrouperProvisioningData {
 
   /**
    * extract list of non null grouper provisioning membership
+   * @param forCreate - null means all, true means only if we're in the create and we're creating memberships while we create groups and entities, 
+   * false means we're just doing updates and deletes
    * @return memberships
    */
-  public List<ProvisioningMembership> retrieveGrouperProvisioningMemberships() {
+  public List<ProvisioningMembership> retrieveGrouperProvisioningMemberships(Boolean forCreate) {
     List<ProvisioningMembership> grouperProvisioningMemberships = new ArrayList<ProvisioningMembership>();
+    
+    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
+    
+    boolean createGroupsAndEntitiesBeforeTranslatingMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isCreateGroupsAndEntitiesBeforeTranslatingMemberships();
+    
+    if (forCreate != null && forCreate && createGroupsAndEntitiesBeforeTranslatingMemberships) {
+      return grouperProvisioningMemberships;
+    }
+    
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.provisioningMembershipWrappers) {
       ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
       if (grouperProvisioningMembership != null) {
-        grouperProvisioningMemberships.add(grouperProvisioningMembership);
+        
+        if (forCreate == null || membershipType == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+          grouperProvisioningMemberships.add(grouperProvisioningMembership);
+        } else if (!forCreate && createGroupsAndEntitiesBeforeTranslatingMemberships) {
+          grouperProvisioningMemberships.add(grouperProvisioningMembership);
+        } else {
+          
+          if (membershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+            if (provisioningMembershipWrapper.getGrouperProvisioningMembership().getProvisioningEntity() != null) {
+              ProvisioningEntityWrapper entityWrapper = provisioningMembershipWrapper.getGrouperProvisioningMembership().getProvisioningEntity().getProvisioningEntityWrapper();
+              if (entityWrapper.isCreate() == forCreate) {
+                grouperProvisioningMemberships.add(grouperProvisioningMembership);
+              }
+            } 
+          }
+          
+          if (membershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+            if (provisioningMembershipWrapper.getGrouperProvisioningMembership().getProvisioningGroup() != null) {
+              ProvisioningGroupWrapper groupWrapper = provisioningMembershipWrapper.getGrouperProvisioningMembership().getProvisioningGroup().getProvisioningGroupWrapper();
+              if (groupWrapper.isCreate() == forCreate) {
+                grouperProvisioningMemberships.add(grouperProvisioningMembership);
+              }
+            } 
+            
+          }
+        }
       }
+      
     }
     return grouperProvisioningMemberships;
   }
