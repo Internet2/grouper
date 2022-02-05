@@ -355,6 +355,15 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
         
       }
       
+      // if the subject identifier 0/1/2 drop downs aren't populated, we'll look at the attribute configs for backwards compatibility
+      boolean subjectIdentifiersForMemberTableFound = false;
+      String subjectIdentifierAttribute0 = propertyValueString("subjectApi.source." + sourceConfigId + ".param.subjectIdentifierAttribute0.value");
+      String subjectIdentifierAttribute1 = propertyValueString("subjectApi.source." + sourceConfigId + ".param.subjectIdentifierAttribute1.value");
+      String subjectIdentifierAttribute2 = propertyValueString("subjectApi.source." + sourceConfigId + ".param.subjectIdentifierAttribute2.value");
+      if (StringUtils.isNotBlank(subjectIdentifierAttribute0) || StringUtils.isNotBlank(subjectIdentifierAttribute1) || StringUtils.isNotBlank(subjectIdentifierAttribute2)) {
+        subjectIdentifiersForMemberTableFound = true;
+      }
+      
       if (StringUtils.isNotBlank(numberOfAttributes)) {
         
         int numberOfAttrs = Integer.parseInt(numberOfAttributes);
@@ -373,11 +382,17 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
               String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
               subjectIdentifiers.add(subjectAttributeName);
               source.addInitParam("subjectIdentifierCol"+(subjectIdentifiers.size()-1), sourceAttributeName);
-              source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
+              
+              if (!subjectIdentifiersForMemberTableFound) {
+                source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
+              }
             } else if (isSourceAttributeSameAsSubjectAttribute) {
               subjectIdentifiers.add(subjectAttributeName);
               source.addInitParam("subjectIdentifierCol"+(subjectIdentifiers.size()-1), subjectAttributeName);
-              source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
+              
+              if (!subjectIdentifiersForMemberTableFound) {
+                source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
+              }
             }
           }
         

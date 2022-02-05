@@ -889,22 +889,25 @@ public abstract class BaseSourceAdapter implements Source {
             }        
           }
           
-          String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
-          if (StringUtils.isNotBlank(numberOfAttributes)) {
-            
-            int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-            for (int i=0; i<numberOfAttrs; i++) {
+          if (temp.size() == 0) {
+            String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+            if (StringUtils.isNotBlank(numberOfAttributes)) {
               
-              boolean subjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
-              if (subjectIdentifier) {
-                String name = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-                if (StringUtils.isNotBlank(name)) {
-                  temp.put(temp.size()-1, name.toLowerCase());
+              int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+              for (int i=0; i<numberOfAttrs; i++) {
+                
+                boolean subjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
+                if (subjectIdentifier) {
+                  String name = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+                  if (StringUtils.isNotBlank(name)) {
+                    int attributeNumber = temp.size();
+                    temp.put(attributeNumber, name.toLowerCase());
+                  }
                 }
+              
               }
-            
+              
             }
-            
           }
           
           this.subjectIdentifierAttributes = temp;
@@ -935,23 +938,26 @@ public abstract class BaseSourceAdapter implements Source {
               break;
             }
           }
-          
-          String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
-          if (StringUtils.isNotBlank(numberOfAttributes)) {
-            
-            int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-            for (int i=0; i<numberOfAttrs; i++) {
+
+          if (temp.size() == 0) {
+            String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+            if (StringUtils.isNotBlank(numberOfAttributes)) {
               
-              boolean subjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
-              if (subjectIdentifier) {
-                String name = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-                if (StringUtils.isNotBlank(name)) {
-                  temp.put(temp.size()-1, name.toLowerCase());
+              int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+              for (int i=0; i<numberOfAttrs; i++) {
+                
+                boolean subjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
+                if (subjectIdentifier) {
+                  String name = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+                  if (StringUtils.isNotBlank(name)) {
+                    int attributeNumber = temp.size();
+                    temp.put(attributeNumber, name.toLowerCase());
+                  }
                 }
+              
               }
-            
+              
             }
-            
           }
           
           this.subjectIdentifierAttributesAll = temp;

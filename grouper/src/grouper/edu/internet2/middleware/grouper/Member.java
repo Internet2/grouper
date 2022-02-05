@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper;
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -4746,19 +4745,6 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
               "subjectIdentifier2");
 
           HibernateSession.bySqlStatic().executeSql(sql3, bindVars3, types3);
-        }
-      } else {
-        String duplicateSubjectSubjectIdentifier0 = duplicateSubject.getSource().getSubjectIdentifierAttributes().size() > 0 ? duplicateSubject.getAttributeValue(duplicateSubject.getSource().getSubjectIdentifierAttributes().get(0), false) : null;
-        String duplicateSubjectSubjectIdentifier1 = duplicateSubject.getSource().getSubjectIdentifierAttributes().size() > 1 ? duplicateSubject.getAttributeValue(duplicateSubject.getSource().getSubjectIdentifierAttributes().get(1), false) : null;
-        String duplicateSubjectSubjectIdentifier2 = duplicateSubject.getSource().getSubjectIdentifierAttributes().size() > 2 ? duplicateSubject.getAttributeValue(duplicateSubject.getSource().getSubjectIdentifierAttributes().get(2), false) : null;
-        if (!GrouperUtil.isEmpty(duplicateSubjectSubjectIdentifier0) && distinctSubjectIdentifiers.contains(duplicateSubjectSubjectIdentifier0)) {
-          LOG.error("There are subjects with the same subject identifier=" + duplicateSubjectSubjectIdentifier0 + ", subjectIds=" + this.getSubjectId() + "," + duplicateSubject.getId());
-        } else if (!GrouperUtil.isEmpty(duplicateSubjectSubjectIdentifier1) && distinctSubjectIdentifiers.contains(duplicateSubjectSubjectIdentifier1)) {
-          LOG.error("There are subjects with the same subject identifier=" + duplicateSubjectSubjectIdentifier1 + ", subjectIds=" + this.getSubjectId() + "," + duplicateSubject.getId());
-        } else if (!GrouperUtil.isEmpty(duplicateSubjectSubjectIdentifier2) && distinctSubjectIdentifiers.contains(duplicateSubjectSubjectIdentifier2)) {
-          LOG.error("There are subjects with the same subject identifier=" + duplicateSubjectSubjectIdentifier2 + ", subjectIds=" + this.getSubjectId() + "," + duplicateSubject.getId());
-        } else {
-          // nothing - the member data should have been updated to no longer be a duplicate
         }
       }
     }
