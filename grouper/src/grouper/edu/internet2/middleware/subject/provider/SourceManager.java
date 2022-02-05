@@ -413,6 +413,7 @@ public class SourceManager {
     source.getSearchAttributes();
     source.getSortAttributes();
     source.getSubjectIdentifierAttributes();
+    source.getSubjectIdentifierAttributesAll();
   }
 
   /**

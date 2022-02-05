@@ -530,11 +530,11 @@ public class UiV2Stem {
       
       try {
 
-        stem.setExtension(extension, false);
-        stem.setDisplayExtension(displayExtension);
-        
         //get the new folder that was created
-        newStem = new StemCopy(stem, parentFolder).copyAttributes(copyGroupAttributes)
+        newStem = new StemCopy(stem, parentFolder)
+            .assignStemExtension(extension)
+            .assignStemDisplayExtension(displayExtension)
+            .copyAttributes(copyGroupAttributes)
             .copyListGroupAsMember(copyListMembershipsInOtherGroups)
             .copyListMembersOfGroup(copyListMemberships)
             .copyPrivilegesOfGroup(copyGroupPrivileges)

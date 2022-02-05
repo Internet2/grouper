@@ -53,6 +53,10 @@ public class StemCopy {
   private boolean listGroupAsMember = true;
 
   private boolean attributes = true;
+  
+  private String stemExtension = null;
+  
+  private String stemDisplayExtension = null;
 
   /**
    * Create a new instance of this class if you would like to specify
@@ -125,6 +129,26 @@ public class StemCopy {
     this.attributes = value;
     return this;
   }
+  
+  /**
+   * New stem extension.  Null defaults to the same extension.
+   * @param stemExtension
+   * @return StemCopy
+   */
+  public StemCopy assignStemExtension(String stemExtension) {
+    this.stemExtension = stemExtension;
+    return this;
+  }
+  
+  /**
+   * New stem display extension.  Null defaults to the same display extension.
+   * @param stemExtension
+   * @return StemCopy
+   */
+  public StemCopy assignStemDisplayExtension(String stemDisplayExtension) {
+    this.stemDisplayExtension = stemDisplayExtension;
+    return this;
+  }
 
   /**
    * Copy the stem using the options set in this class.
@@ -137,6 +161,6 @@ public class StemCopy {
     GrouperSession.validate(GrouperSession.staticGrouperSession());
 
     return stemToCopy.internal_copy(destinationStem, privilegesOfStem, privilegesOfGroup,
-        groupAsPrivilege, listMembersOfGroup, listGroupAsMember, attributes);
+        groupAsPrivilege, listMembersOfGroup, listGroupAsMember, attributes, stemExtension, stemDisplayExtension);
   }
 }

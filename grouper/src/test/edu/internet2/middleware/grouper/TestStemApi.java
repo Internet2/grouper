@@ -123,7 +123,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_copy_minimum_nonadmin"));
+    TestRunner.run(new TestStemApi("test_copy_stem_inherit_privileges"));
   }
 
   /** size before getting started */
@@ -844,7 +844,7 @@ public class TestStemApi extends GrouperTest {
 
     // these should not throw exceptions
     GroupFinder.findByAlternateName(s, "two:one:group", true);
-    GroupFinder.findByCurrentName(s, "two:one:group.2", true);
+    GroupFinder.findByCurrentName(s, "two:one:group_2", true);
   }
   
   /**
@@ -865,6 +865,89 @@ public class TestStemApi extends GrouperTest {
     } catch (RuntimeException e) {
       assertTrue(true);
     }
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_stem_inherit_privileges() {
+    
+    Subject subj0 = SubjectFinder.findById("test.subject.0", true);
+    Subject subj1 = SubjectFinder.findById("test.subject.1", true);
+    Subject subj2 = SubjectFinder.findById("test.subject.2", true);
+    
+    Stem parent = this.root.addChildStem("parent", "parent");
+    
+    RuleApi.inheritGroupPrivileges(parent, Scope.SUB, subj1, Privilege.getInstances("admin"));
+    RuleApi.inheritFolderPrivileges(parent, Scope.SUB, subj1, Privilege.getInstances("stemAdmin"));
+
+    Stem one = parent.addChildStem("one", "One");
+    Group oneGroup = one.addChildGroup("group", "Group");
+    Stem oneSub = one.addChildStem("sub", "Sub");
+    oneGroup.addMember(subj0);
+    
+    oneSub.grantPriv(subj2, NamingPrivilege.STEM_ATTR_READ);
+    oneGroup.grantPriv(subj2, AccessPrivilege.GROUP_ATTR_READ);
+    
+    new StemCopy(one, parent)
+        .assignStemExtension("two")
+        .assignStemDisplayExtension("Two")
+        .save();
+    
+    Stem two = StemFinder.findByName(GrouperSession.staticGrouperSession(), "parent:two", true);
+    assertEquals("parent:two", two.getName());
+    assertEquals("parent:Two", two.getDisplayName());
+    assertTrue(two.hasPrivilege(subj1, "stemAdmin"));
+    
+    Stem twoSub = StemFinder.findByName(GrouperSession.staticGrouperSession(), "parent:two:sub", true);
+    assertEquals("parent:two:sub", twoSub.getName());
+    assertEquals("parent:Two:Sub", twoSub.getDisplayName());
+    assertTrue(twoSub.hasPrivilege(subj1, "stemAdmin"));
+    assertTrue(twoSub.hasPrivilege(subj2, "stemAttrRead"));
+
+    Group twoGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), "parent:two:group", true);
+    assertEquals("parent:two:group", twoGroup.getName());
+    assertEquals("parent:Two:Group", twoGroup.getDisplayName());
+    assertTrue(twoGroup.hasPrivilege(subj1, "admin"));
+    assertTrue(twoGroup.hasPrivilege(subj2, "groupAttrRead"));
+
+    assertTrue(twoGroup.hasMember(subj0));
+  }
+  
+  /**
+   * 
+   */
+  public void test_copy_stem_same_parent_different_name() {
+    
+    Subject subj0 = SubjectFinder.findById("test.subject.0", true);
+    
+    Stem parent = this.root.addChildStem("parent", "parent");
+    Stem one = parent.addChildStem("one", "One");
+    Group oneGroup = one.addChildGroup("group", "Group");
+    one.addChildStem("sub", "Sub");
+    oneGroup.addMember(subj0);
+    
+    new StemCopy(one, parent)
+        .assignStemExtension("two")
+        .assignStemDisplayExtension("Two")
+        .copyAttributes(true)
+        .copyListMembersOfGroup(true)
+        .copyPrivilegesOfGroup(true)
+        .save();
+    
+    Stem two = StemFinder.findByName(GrouperSession.staticGrouperSession(), "parent:two", true);
+    assertEquals("parent:two", two.getName());
+    assertEquals("parent:Two", two.getDisplayName());
+    
+    Stem twoSub = StemFinder.findByName(GrouperSession.staticGrouperSession(), "parent:two:sub", true);
+    assertEquals("parent:two:sub", twoSub.getName());
+    assertEquals("parent:Two:Sub", twoSub.getDisplayName());
+    
+    Group twoGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), "parent:two:group", true);
+    assertEquals("parent:two:group", twoGroup.getName());
+    assertEquals("parent:Two:Group", twoGroup.getDisplayName());
+    
+    assertTrue(twoGroup.hasMember(subj0));
   }
   
   /**

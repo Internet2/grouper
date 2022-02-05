@@ -4232,6 +4232,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @param listMembersOfGroup Whether to copy the list memberships of groups
    * @param listGroupAsMember Whether to copy list memberships where groups are a member
    * @param attributes Whether to copy attributes
+   * @param stemExtension
+   * @param stemDisplayExtension
    * @return the new stem
    * @throws StemAddException 
    * @throws InsufficientPrivilegeException 
@@ -4240,8 +4242,12 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   protected Stem internal_copy(final Stem stem, final boolean privilegesOfStem,
       final boolean privilegesOfGroup, final boolean groupAsPrivilege,
       final boolean listMembersOfGroup, final boolean listGroupAsMember,
-      final boolean attributes) throws StemAddException, InsufficientPrivilegeException {
+      final boolean attributes,
+      String stemExtension, String stemDisplayExtension) throws StemAddException, InsufficientPrivilegeException {
 
+    final String theStemExtension = GrouperUtil.isBlank(stemExtension) ? Stem.this.getExtension() : stemExtension;
+    final String theStemDisplayExtension = GrouperUtil.isBlank(stemDisplayExtension) ? Stem.this.getDisplayExtension() : stemDisplayExtension;
+    
     return (Stem) HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
@@ -4279,8 +4285,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             
             // now lets copy over the stems
             Stem newStem = stem.internal_addChildStem(GrouperSession
-                .staticGrouperSession(), Stem.this.getExtension(),
-                Stem.this.getDisplayExtension(), null, false, true);
+                .staticGrouperSession(), theStemExtension,
+                theStemDisplayExtension, null, false, true);
             
             if (privilegesOfStem) {
               newStem.internal_copyPrivilegesOfStem(GrouperSession
