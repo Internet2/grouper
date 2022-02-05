@@ -934,9 +934,7 @@ public abstract class BaseSourceAdapter implements Source {
             String value = getInitParam("subjectIdentifierAttribute" + i);
             if (value != null) {
               temp.put(i, value.toLowerCase());
-            }  else {
-              break;
-            }
+            }        
           }
 
           if (temp.size() == 0) {
