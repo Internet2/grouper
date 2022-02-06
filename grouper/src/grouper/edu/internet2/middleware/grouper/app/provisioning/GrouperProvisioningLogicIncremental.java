@@ -164,9 +164,21 @@ public class GrouperProvisioningLogicIncremental {
       }
       
       if (gcGrouperSyncGroup.isProvisionable() || gcGrouperSyncGroup.isInTarget()) {
+        
         validGroupIds.add(gcGrouperSyncGroup.getGroupId());
-      }
+        continue; 
+      } 
       
+      int count = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().
+          internal_membershipRetrieveFromDbCountInTargetByGroupSyncId(gcGrouperSyncGroup.getId());
+        
+      // if we're doing entity attributes and a group is deleted, it's not provisionable but if there are still memberships for this group
+      // we need to address them
+      if (count > 0) {
+        validGroupIds.add(gcGrouperSyncGroup.getGroupId());
+        continue;
+      }
+        
     }
     
     Iterator<GrouperIncrementalDataItem> iterator = grouperIncrementalDataToProcessWithoutRecalc.getGroupUuidsForGroupOnly().iterator();
@@ -919,6 +931,9 @@ public class GrouperProvisioningLogicIncremental {
     
     List<String> memberIdsToFetchProvisioningAttributesFor = new ArrayList<String>();
     
+    boolean shouldCheckForMemberSyncsToDelete = false;
+    
+    
     for (EsbEventContainer esbEventContainer : esbEventContainers) {
       EsbEvent esbEvent = esbEventContainer.getEsbEvent();
       EsbEventType esbEventType = esbEventContainer.getEsbEventType();
@@ -927,6 +942,8 @@ public class GrouperProvisioningLogicIncremental {
         
         memberIdsToFetchProvisioningAttributesFor.add(esbEvent.getMemberId());
         
+      } else if (esbEventType == EsbEventType.MEMBERSHIP_DELETE) {
+        shouldCheckForMemberSyncsToDelete = true;
       } else if (esbEventType == EsbEventType.GROUP_ADD) {
         
         GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(esbEvent.getGroupId());
@@ -966,9 +983,14 @@ public class GrouperProvisioningLogicIncremental {
         grouperProvisioningObjectAttributes.setOwnedByGroup(true);
         grouperProvisioningObjectAttributes.setDeleted(true);
         grouperProvisioningGroupAttributesToProcess.put(esbEvent.getGroupId(), grouperProvisioningObjectAttributes);
+        shouldCheckForMemberSyncsToDelete = true;
       } else if ((esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) &&
           esbEvent.getAttributeDefNameName().startsWith(GrouperProvisioningSettings.provisioningConfigStemName())) {
 
+        if (esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) {
+          shouldCheckForMemberSyncsToDelete = true;
+        }
+        
         PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(esbEvent.getAttributeAssignId(), false);
 
         if (pitAttributeAssign != null) {
@@ -1056,6 +1078,14 @@ public class GrouperProvisioningLogicIncremental {
         grouperProvisioningObjectAttributesForMembers);
     
     this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
+    
+//    if (shouldCheckForMemberSyncsToDelete) {
+//      List<GcGrouperSyncMember> memberRetrieveFromDbDeletables = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMemberDao()
+//          .internal_memberRetrieveFromDbDeletables();
+//      if (GrouperUtil.length(memberRetrieveFromDbDeletables) > 0) {
+//        this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMemberDao().memberDelete(memberRetrieveFromDbDeletables, true, false);
+//      }
+//    }
     
     Set<GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesToProcess = new HashSet<GrouperProvisioningObjectAttributes>();
     grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningGroupAttributesToProcess.values());

@@ -390,6 +390,19 @@ public class GcGrouperSyncMemberDao {
     }
     return gcGrouperSyncMemberList;
   }
+  
+  public List<GcGrouperSyncMember> internal_memberRetrieveFromDbDeletables() {
+    
+    List<GcGrouperSyncMember> gcGrouperSyncMemberList = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select * from grouper_sync_member gsm where grouper_sync_id = ? and provisionable = 'F' and in_target = 'F' and not exists "
+            + "( select  1 from grouper_sync_membership gsmem where gsmem.grouper_sync_member_id = gsm.id and (gsmem.in_target is null or gsmem.in_target = 'F') ) ").addBindVar(this.getGcGrouperSync().getId()).selectList(GcGrouperSyncMember.class);
+    
+    for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMemberList) {
+      gcGrouperSyncMember.setGrouperSync(this.getGcGrouperSync());
+    }
+    return gcGrouperSyncMemberList;
+    
+  }
 
   /**
    * select grouper sync member by member id
@@ -597,8 +610,10 @@ public class GcGrouperSyncMemberDao {
    * @return member ids
    */
   public List<String> retrieveMemberIdsWithErrorsAfterMillis(Timestamp errorTimestampCheckFrom) {
+    // don't pull errors unless the entity is in the target or the entity is provisionable or entity has at least one membership in a provsionable group 
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
-        .sql("select member_id from grouper_sync_member where grouper_sync_id = ?" + (errorTimestampCheckFrom == null ? " and error_timestamp is not null" : " and error_timestamp >= ?"))
+        .sql("select member_id from grouper_sync_member gsm where grouper_sync_id = ?" + (errorTimestampCheckFrom == null ? " and error_timestamp is not null" : " and error_timestamp >= ? and"
+            + " (in_target = 'T' or provisionable = 'T' or exists (select 1 from grouper_sync_membership gsmem where gsmem.grouper_sync_member_id = gsm.id and gsmem.error_code is null ) )"))
         .addBindVar(this.getGcGrouperSync().getId());
     if (errorTimestampCheckFrom != null) {
       gcDbAccess.addBindVar(errorTimestampCheckFrom);
