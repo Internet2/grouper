@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.felix.framework.Felix;
@@ -47,6 +47,16 @@ public class GrouperPluginManager {
    */
   private static Felix felix = null;
 
+  /**
+   * clear this on stop (for dev purposes)
+   */
+  private static String felixCacheDir = null;
+  
+  /**
+   * if this dir was created then delete it
+   */
+  private static boolean felixCacheDirCreated = false;
+  
   /**
    * init plugins if not initted
    */
@@ -113,7 +123,18 @@ public class GrouperPluginManager {
       
         // declare which packages to send to modules
         configMap.put("org.osgi.framework.system.packages.extra", GrouperUtil.join(packagesForPlugins.iterator(), ","));
+
+        String grouperFelixCacheDirDefault = "/opt/grouper/grouperWebapp/WEB-INF/grouperFelixCache";
+        felixCacheDir = GrouperConfig.retrieveConfig().propertyValueString("grouper.felix.cache.rootdir", grouperFelixCacheDirDefault);
         
+        if (StringUtils.equals(felixCacheDir, grouperFelixCacheDirDefault) && new File("/opt/grouper/grouperWebapp/WEB-INF").exists()
+            && !new File(grouperFelixCacheDirDefault).exists()) {
+          new File(grouperFelixCacheDirDefault).mkdir();
+          felixCacheDirCreated = true;
+        }
+
+        configMap.put("felix.cache.rootdir", felixCacheDir);
+            
         felix = new Felix(configMap);
         // Now start Felix instance.
         try {
@@ -134,6 +155,7 @@ public class GrouperPluginManager {
           try {
             Bundle bundle = context.installBundle("file:" + bundleDirWithLastSlash + pluginJarName);
             bundle.start();
+            pluginJarNameToBundleMap.put(pluginJarName, bundle);
           } catch (Exception e) {
             LOG.error("Problem installing plugin: " + pluginJarName, e);
           }
@@ -168,7 +190,10 @@ public class GrouperPluginManager {
     
     String moduleFullName = moduleJarNameInput;
     Bundle bundle = pluginJarNameToBundleMap.get(moduleJarNameInput);
+    
+    // find one that starts with the module jar input (no version)
     if (bundle == null) {
+      moduleFullName = null;
       for (String currentJarName : pluginJarNameToBundleMap.keySet()) {
         if (currentJarName.startsWith(moduleJarNameInput)) {
           if (moduleFullName != null) {
@@ -183,18 +208,22 @@ public class GrouperPluginManager {
       bundle = pluginJarNameToBundleMap.get(moduleFullName); 
     }
 
+    Map<Class<?>, Set<String>> interfaceToImplementationClass = pluginJarNameToInterfaceToImplementationClasses.get(moduleFullName);
+
+    // lets validate
+    if (interfaceToImplementationClass == null) {
+      throw new RuntimeException("Plugin '" + moduleFullName + "' is not configured");
+    }
+
     // default classname to the only implementation
     if (StringUtils.isBlank(pluginClassName)) {
       
-      Map<Class<?>, Set<String>> interfaceToImplementationClass = pluginJarNameToInterfaceToImplementationClasses.get(pluginClassName);
       Set<String> implementationClasses = interfaceToImplementationClass.get(theInterface);
       if (GrouperUtil.length(implementationClasses) == 1) {
         pluginClassName = implementationClasses.iterator().next();
       }
     }
     
-    // lets validate
-    Map<Class<?>, Set<String>> interfaceToImplementationClass = pluginJarNameToInterfaceToImplementationClasses.get(moduleFullName);
     Set<String> implementationClasses = interfaceToImplementationClass.get(theInterface);
     if (!GrouperUtil.nonNull(implementationClasses).contains(pluginClassName)) {
       throw new RuntimeException("Plugin '" + moduleFullName + "' is not configured to implement '" + pluginClassName + "' for interface '" + theInterface + "'");
@@ -204,7 +233,7 @@ public class GrouperPluginManager {
     try {
       clazz = bundle.loadClass(pluginClassName);
     } catch (Exception e) {
-      throw new RuntimeException("Cannot load class '" + pluginClassName +  "' from bundle: " + bundle.getSymbolicName() + ", " + moduleJarNameInput);
+      throw new RuntimeException("Cannot load class '" + pluginClassName +  "' from bundle: " + (bundle == null ? null : bundle.getSymbolicName()) + ", " + moduleJarNameInput);
     }
     
     // this is an instance from the module, though from a different classloader
@@ -213,7 +242,7 @@ public class GrouperPluginManager {
     try {
       providerImpl = clazz.newInstance();
     } catch (Exception e) {
-      throw new RuntimeException("Cannot instantiate class '" + pluginClassName +  "' from bundle: " + bundle.getSymbolicName() + ", " + moduleJarNameInput);
+      throw new RuntimeException("Cannot instantiate class '" + pluginClassName +  "' from bundle: " + (bundle == null ? null : bundle.getSymbolicName()) + ", " + moduleJarNameInput);
     }
 
     // this converts that instance to the interface which is implements (but cant be typecast since different classloader)
@@ -231,7 +260,7 @@ public class GrouperPluginManager {
   /**
    * not sure where this would be called from, but heres the method
    */
-  public synchronized static void shutdown() {
+  public synchronized static void shutdownIfStarted() {
     if (!initted) {
       return;
     }
@@ -239,7 +268,7 @@ public class GrouperPluginManager {
       try {
         bundle.stop();
       } catch (Exception e) {
-        LOG.error("Problem stopping plugin: " + bundle.getSymbolicName(), e);
+        LOG.error("Problem stopping plugin: " + (bundle == null ? null : bundle.getSymbolicName()), e);
       }
     }
     try {
@@ -247,6 +276,15 @@ public class GrouperPluginManager {
     } catch (Exception e) {
       LOG.error("Problem stopping felix", e);
     }
+    // delete felix cache dir
+    try {
+      if (felixCacheDirCreated && !StringUtils.isBlank(felixCacheDir)) {
+        FileUtils.deleteDirectory(new File(felixCacheDir));
+      }
+    } catch (Exception e) {
+      LOG.error("Problem deleting felix cache dir", e);
+    }
+    
     initted = false;
   }
 }

@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.messaging.AllMessagingTests;
 import edu.internet2.middleware.grouper.misc.AllMiscTests;
 import edu.internet2.middleware.grouper.permissions.AllPermissionsTests;
 import edu.internet2.middleware.grouper.pit.AllPITTests;
+import edu.internet2.middleware.grouper.plugins.AllPluginsTests;
 import edu.internet2.middleware.grouper.privs.AllPrivsTests;
 import edu.internet2.middleware.grouper.rules.AllRulesTests;
 import edu.internet2.middleware.grouper.service.AllServiceTests;
@@ -241,6 +242,7 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllMessagingTests.suite());
     suite.addTest(AllMiscTests.suite());
     suite.addTest(AllPermissionsTests.suite());
+    suite.addTest(AllPluginsTests.suite());
     suite.addTest(AllPITTests.suite());
     suite.addTest(AllPrivsTests.suite());
     suite.addTest(AllRulesTests.suite());
