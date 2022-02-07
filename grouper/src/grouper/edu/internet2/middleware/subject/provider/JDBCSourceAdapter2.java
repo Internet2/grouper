@@ -1276,7 +1276,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
       String result = resultSet.getString(name);
       
       
-      if (this.getSourceAttributesToLowerCase().containsKey(name) && result != null) {
+      if (this.getSourceAttributesToLowerCase().contains(name) && result != null) {
         result = result.toLowerCase();
       }
       

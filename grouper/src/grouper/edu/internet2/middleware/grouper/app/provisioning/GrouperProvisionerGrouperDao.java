@@ -90,6 +90,11 @@ public class GrouperProvisionerGrouperDao {
     List<Type> typesInitial = new ArrayList<Type>();
     typesInitial.add(StringType.INSTANCE);
     
+    // TODO
+    // if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupRequireMembers()) {
+    //   sqlInitial += "";
+    // }
+    
     List<String[]> queryResults = null;
     if (retrieveAll) {
       queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sqlInitial.toString(),

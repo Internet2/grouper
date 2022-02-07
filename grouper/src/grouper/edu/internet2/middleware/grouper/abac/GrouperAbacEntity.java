@@ -11,13 +11,28 @@ public class GrouperAbacEntity {
     return singleValuedGroupExtensionInFolder;
   }
 
+  
+  
+  
+  // ${ entity.singleValuedEntityAttribute('personLdap', 'activeFlag') == 'T' }
+  
+  
+  
+  
+  
   public void setSingleValuedGroupExtensionInFolder(Map<String, String> singleValuedGroupExtensionInFolder) {
     this.singleValuedGroupExtensionInFolder = singleValuedGroupExtensionInFolder;
   }
 
+  
+  // basis:affiliation:staff
+  // basis:affiliation:student
+  
+  // ${ entity.multiValuedGroupExtensionInFolder('basis:affiliation').containsRegex('^(stu)|(fac).*$') }
+  
   private Map<String, Set<String>> multiValuedGroupExtensionInFolder = null;
 
-  public Map<String, Set<String>> getMultiValuedGroupExtensionInFolder() {
+  public Map<String, Set<String>> multiValuedGroupExtensionInFolder(String folderName) {
     return multiValuedGroupExtensionInFolder;
   }
 

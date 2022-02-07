@@ -181,8 +181,6 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
     
     Map<String, Set<String>> sourceAttributes = loadAttributes(resultSet, query, resultSetMetaData);
     
-    Map<String, Object> translationMap = new CaseInsensitiveMap();
-    
     for (String sourceAttributeName: sourceAttributes.keySet()) {
       
       Set<String> attributeValues = sourceAttributes.get(sourceAttributeName);
@@ -192,14 +190,12 @@ public class GrouperJdbcSourceAdapter2_5 extends JDBCSourceAdapter2 {
       if (GrouperUtil.length(attributeValues) > 0) {
         String singleValue = attributeValues.iterator().next();
         
-        if (this.getSourceAttributesToLowerCase().containsKey(sourceAttributeName) && singleValue != null) {
+        if (this.getSourceAttributesToLowerCase().contains(sourceAttributeName) && singleValue != null) {
           singleValue = singleValue.toLowerCase();
         }
         
         sourceAttributesToValues.put(sourceAttributeName, singleValue);
       }
-      
-      translationMap.put("source_attribute__"+sourceAttributeName, sourceAttributesToValues.get(sourceAttributeName));
       
     }
     

@@ -242,12 +242,7 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   @Override
   public void configureSpecificSettings() {
     
-    this.dbExternalSystemConfigId = this.retrieveConfigString("dbExternalSystemConfigId", true);
-    
-    String sqlProvisioningTypeString = this.retrieveConfigString("provisioningType", true);
-    // TODO
-    //this.sqlProvisioningType = SqlProvisioningType.valueOfIgnoreCase(sqlProvisioningTypeString, true);
-    
+    this.dbExternalSystemConfigId = this.retrieveConfigString("dbExternalSystemConfigId", true);    
     
     //TODO validate sql config id
     

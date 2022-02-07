@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -57,6 +58,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheck;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
@@ -75,7 +77,9 @@ import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -83,6 +87,10 @@ import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
+import edu.internet2.middleware.subject.config.SubjectConfig;
+import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
+import edu.internet2.middleware.subject.provider.SourceManager;
+import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 
 /**
@@ -1990,6 +1998,112 @@ public class SubjectFinder implements CheckboxValueDriver {
     }    
   }
 
+  /**
+   * based on config: requireGroupNameForView, filter subjects
+   * @param subjects
+   */
+  public static void filterSubjectAttributesBasedOnGroup(Collection<Subject> subjects) {
+    Subject grouperSessionSubject = GrouperSession.staticGrouperSession().getSubject();
+    if (GrouperUtil.length(grouperSessionSubject) == 0 || PrivilegeHelper.isWheelOrRootOrViewonlyRoot(grouperSessionSubject)) {
+      return;
+    }
+    
+    Set<String> sourceIds = new HashSet<String>();
+    
+    //lets go through and see what we need to do
+    for (Subject subject : subjects) {
+      sourceIds.add(subject.getSourceId());
+    }
+    
+    Set<String> groupNamesToQuery = new HashSet<String>();
+    for (String sourceId : sourceIds) {
+      Source source = SourceManager.getInstance().getSource(sourceId);
+      if (source instanceof BaseSourceAdapter) {
+        Map<String, String> attributeNameToGroupName = ((BaseSourceAdapter)source).attributeNameToViewerGroupName();
+        groupNamesToQuery.addAll(GrouperUtil.nonNull(attributeNameToGroupName).values());
+      }
+    }
+    
+    if (groupNamesToQuery.size() == 0) {
+      return;
+    }
+    
+    Map<String, Boolean> userInGroupName = new HashMap<String, Boolean>();
+
+    Iterator<String> iterator = groupNamesToQuery.iterator();
+    while (iterator.hasNext()) {
+      String groupName = iterator.next();
+      MultiKey groupNameSubjectIdSubjectSourceId = new MultiKey(groupName, grouperSessionSubject.getId(), grouperSessionSubject.getSourceId());
+      Boolean hasMember = groupNameSubjectIdSubjectSourceIdToMembership().get(groupNameSubjectIdSubjectSourceId);
+      if (hasMember != null) {
+        userInGroupName.put(groupName, hasMember);
+        iterator.remove();
+      }
+    }
+
+    // do we need to compute any?
+    if (groupNamesToQuery.size() > 0) {
+      List<String> groupNamesToQueryList = new ArrayList<String>(groupNamesToQuery);
+      int batchSize = 900;
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNamesToQuery, 900);
+      for (int i=0;i<numberOfBatches;i++) {
+        List<String> currentBatch = GrouperUtil.batchList(groupNamesToQueryList, batchSize, i);
+        String sql = "select group_name from grouper_memberships_lw_v where list_name = 'members' and subject_id = ? and subject_source = ? and group_name in (" + GrouperClientUtils.appendQuestions(currentBatch.size()) + ")";
+        List<String> groupNames = new GcDbAccess().sql(sql).addBindVar(grouperSessionSubject.getId()).addBindVar(grouperSessionSubject.getSourceId()).addBindVars(currentBatch).selectList(String.class);
+        
+        // store back in cache
+        for (String groupName : currentBatch) {
+          boolean hasMember = groupNames.contains(groupName);
+          userInGroupName.put(groupName, hasMember);
+
+          MultiKey groupNameSubjectIdSubjectSourceId = new MultiKey(groupName, grouperSessionSubject.getId(), grouperSessionSubject.getSourceId());
+          groupNameSubjectIdSubjectSourceIdToMembership().put(groupNameSubjectIdSubjectSourceId, hasMember);
+        }
+      }
+    }
+    
+    // now filter the attributes
+    for (Subject subject : subjects) {
+      Source source = subject.getSource();
+      if (source instanceof BaseSourceAdapter && subject instanceof SubjectImpl) {
+        Map<String, String> attributeNameToGroupName = ((BaseSourceAdapter)source).attributeNameToViewerGroupName();
+        if (GrouperUtil.length(attributeNameToGroupName) == 0) {
+          continue;
+        }
+        
+        boolean clearedAnAttribute = false;
+        for (String attributeName : attributeNameToGroupName.keySet()) {
+          
+          String groupName = attributeNameToGroupName.get(attributeName);
+          // user is in group, leave it alone
+          if (userInGroupName.containsKey(groupName) && userInGroupName.get(groupName)) {
+            continue;
+          }
+          
+          //user is not in group, clear out the value
+          subject.getAttributes(false).remove(attributeName);
+          subject.getTranslationMap().remove("subject_attribute__" + attributeName.toLowerCase());
+          clearedAnAttribute = true;
+        }
+        
+        if (clearedAnAttribute) {
+          // we need to recalc all attributes
+          ((SubjectImpl)subject).attributesInittedClear();
+        }
+      }      
+    }
+    
+  }
+  
+  private static ExpirableCache<MultiKey, Boolean> groupNameSubjectIdSubjectSourceIdToMembership = null;
+  
+  private static ExpirableCache<MultiKey, Boolean> groupNameSubjectIdSubjectSourceIdToMembership() {
+    if (groupNameSubjectIdSubjectSourceIdToMembership == null) {
+      int expireInSeconds = SubjectConfig.retrieveConfig().propertyValueInt("subject.cache.requireGroupNameForView.cacheMembershipsSeconds", 300); 
+      groupNameSubjectIdSubjectSourceIdToMembership = new ExpirableCache<MultiKey, Boolean>(expireInSeconds);
+    }
+    return groupNameSubjectIdSubjectSourceIdToMembership;
+  }
   
   /**
    * filter subjects based on subject customizer in grouper.properties
@@ -2037,6 +2151,8 @@ public class SubjectFinder implements CheckboxValueDriver {
       return subjects;
     }
     
+    filterSubjectAttributesBasedOnGroup(subjects);
+    
     SubjectCustomizer subjectCustomizer = subjectCustomizer();
     if (subjectCustomizer != null) {
       return subjectCustomizer.filterSubjects(grouperSession, subjects, filterSubjectsInStemName);
@@ -2056,17 +2172,12 @@ public class SubjectFinder implements CheckboxValueDriver {
     if (subject == null) {
       return null;
     }
-    
-    SubjectCustomizer subjectCustomizer = subjectCustomizer();
-    if (subjectCustomizer == null) {
-      return subject;
-    }
-    
+
     Set<Subject> subjects = new HashSet<Subject>();
     subjects.add(subject);
-     
-    subjects = subjectCustomizer.filterSubjects(grouperSession, subjects, filterSubjectsInStemName);
-    
+
+    subjects = filterSubjects(grouperSession, subjects, filterSubjectsInStemName);
+        
     int subjectsLength = GrouperUtil.length(subjects);
     if (subjectsLength == 0) {
       return null;

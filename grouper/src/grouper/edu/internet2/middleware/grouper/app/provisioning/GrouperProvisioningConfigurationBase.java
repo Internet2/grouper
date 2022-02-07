@@ -32,6 +32,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public abstract class GrouperProvisioningConfigurationBase {
   
+  private boolean groupRequireMembers;
   
   private boolean hasEntityAttributes;
   
@@ -2462,6 +2463,9 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.resolveAttributesWithSql = GrouperUtil.booleanValue(this.retrieveConfigBoolean("resolveAttributesWithSQL", false), false);
     this.resolveAttributesWithLdap = GrouperUtil.booleanValue(this.retrieveConfigBoolean("resolveAttributesWithLDAP", false), false);
     this.useGlobalSqlResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useGlobalSQLResolver", false), false);
+
+    this.groupRequireMembers = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupRequireMembers", false), false);
+    
     this.useGlobalLdapResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useGlobalLDAPResolver", false), false);
     this.globalSqlResolver = this.retrieveConfigString("globalSQLResolver", false);
     this.globalLdapResolver = this.retrieveConfigString("globalLDAPResolver", false);
@@ -2635,6 +2639,15 @@ public abstract class GrouperProvisioningConfigurationBase {
     
   }
   
+  public boolean isGroupRequireMembers() {
+    return groupRequireMembers;
+  }
+
+
+
+
+
+
   private void assignAutoTranslatedGroupsConfiguration() {
     
     if (this.getGrouperProvisioner().retrieveGrouperTranslator().isTranslateGrouperToTargetAutomatically()) {
