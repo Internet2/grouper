@@ -1600,6 +1600,22 @@ public abstract class ConfigPropertiesCascadeBase {
   }
   
   /**
+   * find all config ids that match a pattern and return the configId (first match)
+   * @param pattern e.g. "^grouperOsgiPlugin\\.([^.]+)\\.jarName$
+   * @return the config ids.  if none, will return the empty set, not null set
+   */
+  public Set<String> propertyConfigIds(Pattern pattern) {
+    Set<String> result = new LinkedHashSet<String>();
+    for (String key: propertyNames()) {
+      Matcher matcher = pattern.matcher(key);
+      if (matcher.matches()) {
+        result.add(matcher.group(1));
+      }
+    }
+    return result;
+  }
+  
+  /**
    * pattern to find where the variables are in the textm, e.g. $$something$$
    */
   private static Pattern substitutePattern = Pattern.compile("\\$\\$([^\\s\\$]+?)\\$\\$");
