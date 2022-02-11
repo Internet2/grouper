@@ -325,7 +325,9 @@ public class GrouperProvisionerGrouperDao {
         "    gg.name, " + 
         "    gg.display_name, " +
         "    gg.description, " + 
-        "    gg.id_index " + 
+        "    gg.id_index, " + 
+        "    gm.subject_identifier1, " + 
+        "    gm.subject_identifier2 " + 
         "from " + 
         "    grouper_groups gg, " +
         "    grouper_members gm, " + 
@@ -743,7 +745,9 @@ public class GrouperProvisionerGrouperDao {
       String groupDisplayName = queryResult[9];
       String groupDescription = queryResult[10];
       Long groupIdIndex = GrouperUtil.longObjectValue(queryResult[11], false);
-      
+      String subjectIdentifier1 = queryResult[12];
+      String subjectIdentifier2 = queryResult[13];
+
       ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership();
       grouperProvisioningMembership.setId(membershipId);
       
@@ -755,6 +759,8 @@ public class GrouperProvisionerGrouperDao {
         targetEntity.setSubjectId(subjectId);
         targetEntity.assignAttributeValue("subjectSourceId", subjectSourceId);
         targetEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
+        targetEntity.assignAttributeValue("subjectIdentifier1", subjectIdentifier1);
+        targetEntity.assignAttributeValue("subjectIdentifier2", subjectIdentifier2);
         
         
         grouperProvisioningMembership.setProvisioningEntity(targetEntity);
@@ -1213,7 +1219,9 @@ public class GrouperProvisionerGrouperDao {
           "    gaav_config.value_string, " + 
           "    gm.subject_id, " + 
           "    gm.subject_source, " + 
-          "    gm.subject_identifier0 " + 
+          "    gm.subject_identifier0, " + 
+          "    gm.subject_identifier1, " + 
+          "    gm.subject_identifier2 " + 
           "FROM " + 
           "    grouper_members gm, " + 
           "    grouper_attribute_assign gaa_marker, " + 
@@ -1293,11 +1301,15 @@ public class GrouperProvisionerGrouperDao {
         String subjectId = queryResult[4]; 
         String sourceId = queryResult[5]; 
         String subjectIdentifier0 = queryResult[6]; 
+        String subjectIdentifier1 = queryResult[7]; 
+        String subjectIdentifier2 = queryResult[8]; 
         
         GrouperProvisioningObjectAttributes provisioningObjectAttributes = new GrouperProvisioningObjectAttributes(memberId, null, null, markerAttributeAssignId);
         provisioningObjectAttributes.setSubjectId(subjectId);
         provisioningObjectAttributes.setSourceId(sourceId);
         provisioningObjectAttributes.setSubjectIdentifier0(subjectIdentifier0);
+        provisioningObjectAttributes.setSubjectIdentifier1(subjectIdentifier1);
+        provisioningObjectAttributes.setSubjectIdentifier2(subjectIdentifier2);
         
         if (results.get(memberId) == null) {
           results.put(memberId, provisioningObjectAttributes);

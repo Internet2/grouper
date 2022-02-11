@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.lang.reflect.Array;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -1682,5 +1683,50 @@ public class GrouperProvisioningBehavior {
     this.createGroupsAndEntitiesBeforeTranslatingMemberships = createGroupsAndEntitiesBeforeTranslatingMemberships;
   }
   
+  private String subjectIdentifierForMemberSyncTable;
+  
+  public String getSubjectIdentifierForMemberSyncTable() {
+    
+    if (this.subjectIdentifierForMemberSyncTable != null) {
+      return this.subjectIdentifierForMemberSyncTable;
+    }
+    
+    String currSubjectIdentifierForMemberSyncTable = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigString("subjectIdentifierForMemberSyncTable", false);
 
+    // no override, try to compute it
+    if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable)) {
+      List<GrouperProvisioningConfigurationAttribute> searchAttributes = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes();
+      for (GrouperProvisioningConfigurationAttribute searchAttribute : searchAttributes) {
+        String value = searchAttribute.getTranslateFromGrouperProvisioningEntityField();
+        if (value != null && value.startsWith("attribute__subjectIdentifier")) {
+          currSubjectIdentifierForMemberSyncTable = value.substring(11);
+        }
+      }
+    }
+    
+    if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable)) {
+      GrouperProvisioningConfigurationAttribute matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveEntityAttributeMatching();
+      if (matchingAttribute != null) {
+        String value = matchingAttribute.getTranslateFromGrouperProvisioningEntityField();
+        if (value != null && value.startsWith("attribute__subjectIdentifier")) {
+          currSubjectIdentifierForMemberSyncTable = value.substring(11);
+        }
+      }
+    }
+    
+    if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable)) {
+      // default
+      currSubjectIdentifierForMemberSyncTable = "subjectIdentifier0";
+    }
+    
+    if (!currSubjectIdentifierForMemberSyncTable.equals("subjectIdentifier0") && 
+        !currSubjectIdentifierForMemberSyncTable.equals("subjectIdentifier1") &&
+        !currSubjectIdentifierForMemberSyncTable.equals("subjectIdentifier2")) {
+      throw new RuntimeException("Not expecting subject identifier for member sync: " + currSubjectIdentifierForMemberSyncTable);
+    }
+
+    this.subjectIdentifierForMemberSyncTable = currSubjectIdentifierForMemberSyncTable;
+
+    return this.subjectIdentifierForMemberSyncTable;
+  }
 }

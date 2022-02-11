@@ -2776,6 +2776,27 @@ public abstract class GrouperProvisioningConfigurationBase {
         subjectIdetifier0ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("attribute__subjectIdentifier0");
         this.targetEntityAttributeNameToConfig.put("subjectIdentifier0", subjectIdetifier0ConfigurationAttribute);
         
+        GrouperProvisioningConfigurationAttribute subjectIdetifier1ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectIdetifier1ConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        subjectIdetifier1ConfigurationAttribute.setAttribute(true);
+        subjectIdetifier1ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        subjectIdetifier1ConfigurationAttribute.setInsert(this.isInsertEntities());
+        subjectIdetifier1ConfigurationAttribute.setName("subjectIdentifier1");
+        subjectIdetifier1ConfigurationAttribute.setSelect(this.isSelectEntities());
+        subjectIdetifier1ConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        subjectIdetifier1ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("attribute__subjectIdentifier1");
+        this.targetEntityAttributeNameToConfig.put("subjectIdentifier1", subjectIdetifier1ConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute subjectIdetifier2ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectIdetifier2ConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        subjectIdetifier2ConfigurationAttribute.setAttribute(true);
+        subjectIdetifier2ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        subjectIdetifier2ConfigurationAttribute.setInsert(this.isInsertEntities());
+        subjectIdetifier2ConfigurationAttribute.setName("subjectIdentifier2");
+        subjectIdetifier2ConfigurationAttribute.setSelect(this.isSelectEntities());
+        subjectIdetifier2ConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        subjectIdetifier2ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("attribute__subjectIdentifier2");
+        this.targetEntityAttributeNameToConfig.put("subjectIdentifier2", subjectIdetifier2ConfigurationAttribute);
       }
       
     }

@@ -704,6 +704,12 @@ public class GrouperProvisioningTranslatorBase {
     if (StringUtils.equals("attribute__subjectIdentifier0", field)) {
       return GrouperUtil.stringValue(provisioningEntity.retrieveAttributeValueString("subjectIdentifier0"));
     }
+    if (StringUtils.equals("attribute__subjectIdentifier1", field)) {
+      return GrouperUtil.stringValue(provisioningEntity.retrieveAttributeValueString("subjectIdentifier1"));
+    }
+    if (StringUtils.equals("attribute__subjectIdentifier2", field)) {
+      return GrouperUtil.stringValue(provisioningEntity.retrieveAttributeValueString("subjectIdentifier2"));
+    }
     throw new RuntimeException("Not expecting grouperProvisioningEntityField: '" + field + "'");
   }
   

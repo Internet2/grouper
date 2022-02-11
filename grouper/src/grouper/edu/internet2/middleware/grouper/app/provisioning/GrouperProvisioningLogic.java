@@ -2264,13 +2264,15 @@ public class GrouperProvisioningLogic {
         }
         grouperProvisioningEntity.setSubjectId(gcGrouperSyncMember.getSubjectId());
         grouperProvisioningEntity.assignAttributeValue("subjectSourceId", gcGrouperSyncMember.getSourceId());
-        grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
 
-        //TODO decide if we should put more subject identifiers to grouper_sync_member table
-        // TODO maybe map the right subject identifier column in the member table to the sync (grouper_sync_member) subject identifier
-//        grouperProvisioningEntity.assignAttributeValue("subjectIdentifier1", gcGrouperSyncMember.getSubjectIdentifier());
-//        grouperProvisioningEntity.assignAttributeValue("subjectIdentifier2", gcGrouperSyncMember.getSubjectIdentifier());
-  
+        if ("subjectIdentifier1".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
+          grouperProvisioningEntity.assignAttributeValue("subjectIdentifier1", gcGrouperSyncMember.getSubjectIdentifier());
+        } else if ("subjectIdentifier2".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
+          grouperProvisioningEntity.assignAttributeValue("subjectIdentifier2", gcGrouperSyncMember.getSubjectIdentifier());
+        } else {
+          grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", gcGrouperSyncMember.getSubjectIdentifier());
+        }
+        
         if (GrouperUtil.length(grouperProvisioningObjectMetadataItems) > 0) {
           
           String jsonMetadata = gcGrouperSyncMember.getMetadataJson();

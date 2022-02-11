@@ -42,7 +42,7 @@ public class GrouperProvisionerGrouperSyncDao {
     ProvisioningSyncResult provisioningSyncResult = this.grouperProvisioner
         .getProvisioningSyncResult();
     
-    ProvisioningSyncIntegration.fullSyncMembersForInitialize(provisioningSyncResult,
+    ProvisioningSyncIntegration.fullSyncMembersForInitialize(this.getGrouperProvisioner(), provisioningSyncResult,
         this.getGrouperProvisioner().getGcGrouperSync(),
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync()
             .getGcGrouperSyncMembers(),

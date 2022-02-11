@@ -1073,7 +1073,7 @@ public class GrouperProvisioningLogicIncremental {
     ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
     this.getGrouperProvisioner().setProvisioningSyncResult(provisioningSyncResult);
     
-    ProvisioningSyncIntegration.fullSyncMembers(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(), 
+    ProvisioningSyncIntegration.fullSyncMembers(this.grouperProvisioner, provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(), 
         new ArrayList<GcGrouperSyncMember>(grouperSyncMemberIdToSyncMember.values()),
         grouperProvisioningObjectAttributesForMembers);
     

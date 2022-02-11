@@ -410,6 +410,7 @@ public class GrouperProvisioningDiagnosticsContainer {
             this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().put(provisioningEntityWrapper.getMemberId(), provisioningEntityWrapper);
             
             ProvisioningSyncIntegration.fullSyncMembersForInitialize(
+                this.getGrouperProvisioner(),
                 this.getGrouperProvisioner().getProvisioningSyncResult(),
                 this.getGrouperProvisioner().getGcGrouperSync(),
                 this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers(),

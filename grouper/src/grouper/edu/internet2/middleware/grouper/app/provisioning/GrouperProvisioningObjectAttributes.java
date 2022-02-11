@@ -17,6 +17,8 @@ public class GrouperProvisioningObjectAttributes {
   private String subjectId;
   private String sourceId;
   private String subjectIdentifier0;
+  private String subjectIdentifier1;
+  private String subjectIdentifier2;
   
   private String provisioningTarget;
   private String provisioningDirectAssign;
@@ -207,5 +209,22 @@ public class GrouperProvisioningObjectAttributes {
     this.subjectIdentifier0 = subjectIdentifier0;
   }
   
+  public String getSubjectIdentifier1() {
+    return subjectIdentifier1;
+  }
+
+  
+  public void setSubjectIdentifier1(String subjectIdentifier1) {
+    this.subjectIdentifier1 = subjectIdentifier1;
+  }
+  
+  public String getSubjectIdentifier2() {
+    return subjectIdentifier2;
+  }
+
+  
+  public void setSubjectIdentifier2(String subjectIdentifier2) {
+    this.subjectIdentifier2 = subjectIdentifier2;
+  }
   
 }

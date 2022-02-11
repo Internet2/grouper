@@ -12,6 +12,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectAttributes;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
@@ -313,7 +314,7 @@ public class ProvisioningSyncIntegration {
     }
   }
   
-  public static void fullSyncMembers(ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
+  public static void fullSyncMembers(GrouperProvisioner grouperProvisioner, ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
       List<GcGrouperSyncMember> initialGcGrouperSyncMembers, 
       Map<String, GrouperProvisioningObjectAttributes> memberUuidToProvisioningObjectAttributes) {
 
@@ -424,6 +425,11 @@ public class ProvisioningSyncIntegration {
         String sourceId = grouperProvisioningObjectAttributes.getSourceId();
         String subjectId = grouperProvisioningObjectAttributes.getSubjectId();
         String subjectIdentifier = grouperProvisioningObjectAttributes.getSubjectIdentifier0();
+        if ("subjectIdentifier1".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
+          subjectIdentifier = grouperProvisioningObjectAttributes.getSubjectIdentifier1();
+        } else if ("subjectIdentifier2".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
+          subjectIdentifier = grouperProvisioningObjectAttributes.getSubjectIdentifier2();
+        }
         String metadataJson = grouperProvisioningObjectAttributes.getProvisioningMetadataJson();
 
         if (gcGrouperSyncMember == null) {
@@ -452,7 +458,7 @@ public class ProvisioningSyncIntegration {
     
   }
 
-  public static void fullSyncMembersForInitialize(ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
+  public static void fullSyncMembersForInitialize(GrouperProvisioner grouperProvisioner, ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
       List<GcGrouperSyncMember> initialGcGrouperSyncMembers, 
       Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper) {
   
@@ -516,6 +522,12 @@ public class ProvisioningSyncIntegration {
           
           {
             String newSubjectIdentifier = grouperProvisioningEntity == null ? null : grouperProvisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+            if ("subjectIdentifier1".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
+              newSubjectIdentifier = grouperProvisioningEntity == null ? null : grouperProvisioningEntity.retrieveAttributeValueString("subjectIdentifier1");
+            } else if ("subjectIdentifier2".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
+              newSubjectIdentifier = grouperProvisioningEntity == null ? null : grouperProvisioningEntity.retrieveAttributeValueString("subjectIdentifier2");
+            }
+            
             if (!StringUtils.equals(newSubjectIdentifier, gcGrouperSyncMember.getSubjectIdentifier())) {
               gcGrouperSyncMember.setSubjectIdentifier(newSubjectIdentifier);
             }
@@ -581,7 +593,15 @@ public class ProvisioningSyncIntegration {
         
         gcGrouperSyncMember.setSourceId(grouperProvisioningEntity.retrieveAttributeValueString("subjectSourceId"));
         gcGrouperSyncMember.setSubjectId(grouperProvisioningEntity.getSubjectId());
-        gcGrouperSyncMember.setSubjectIdentifier(grouperProvisioningEntity.retrieveAttributeValueString("subjectIdentifier0"));
+        
+        String subjectIdentifier = grouperProvisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+        if ("subjectIdentifier1".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
+          subjectIdentifier = grouperProvisioningEntity.retrieveAttributeValueString("subjectIdentifier1");
+        } else if ("subjectIdentifier2".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
+          subjectIdentifier = grouperProvisioningEntity.retrieveAttributeValueString("subjectIdentifier2");
+        }
+        
+        gcGrouperSyncMember.setSubjectIdentifier(subjectIdentifier);
         gcGrouperSyncMember.setProvisionable(true);
         gcGrouperSyncMember.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
         memberUuidToSyncMember.put(memberIdToInsert, gcGrouperSyncMember);
