@@ -214,21 +214,21 @@ public class GrouperProvisioningTranslatorBase {
 
                     continue;
                   }
-                  
-                  GrouperProvisioningConfigurationAttributeValueType valueType = grouperProvisioningConfigurationAttribute.getValueType();
-                  if (valueType != null) {
-                    if (!valueType.correctTypeNonSet(result)) {
-                      result = valueType.convert(result);
-                    }
-                  }
-                  
-                  grouperTargetEntity.addAttributeValueForMembership(userMembershipAttribute, result);
                 }
+                  
+                GrouperProvisioningConfigurationAttributeValueType valueType = grouperProvisioningConfigurationAttribute.getValueType();
+                if (valueType != null) {
+                  if (!valueType.correctTypeNonSet(result)) {
+                    result = valueType.convert(result);
+                  }
+                }
+                
+                grouperTargetEntity.addAttributeValueForMembership(userMembershipAttribute, result);
+              }
 
               }
             }
           }
-        }
         
         // field configurations
         grouperTargetMembership.setId(GrouperUtil.stringValue(fieldTranslation( 
