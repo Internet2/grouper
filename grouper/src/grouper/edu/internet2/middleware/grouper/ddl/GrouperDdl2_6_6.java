@@ -125,4 +125,39 @@ public class GrouperDdl2_6_6 {
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_members", Member.COLUMN_SUBJECT_IDENTIFIER2, "subject identifier of the subject");
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_members", Member.COLUMN_EMAIL0, "email of the subject");
   }
+  
+  static void addGrouperSyncMemberMetadataJsonColumn(Database database, DdlVersionBean ddlVersionBean) {
+
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v2_6_7_addGrouperSyncMemberMetadataJsonColumn", true)) {
+      return;
+    }
+
+    {
+      Table syncMemberTable = GrouperDdlUtils.ddlutilsFindTable(database, "grouper_sync_member", true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(syncMemberTable, "metadata_json", Types.VARCHAR, "4000", false, false, null);
+    }
+    
+  }
+
+  /**
+   * 
+   */
+  static void addGrouperSyncMemberMetadataJsonComment(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+
+    if (ddlVersionBean.didWeDoThis("v2_6_7_addGrouperSyncMemberMetadataJsonComment", true)) {
+      return;
+    }
+
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, "grouper_sync_member", "metadata_json", "additional metadata for grouper sync member");
+
+  }
 }

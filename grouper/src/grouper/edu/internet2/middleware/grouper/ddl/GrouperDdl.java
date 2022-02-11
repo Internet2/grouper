@@ -2690,6 +2690,9 @@ public enum GrouperDdl implements DdlVersionable {
       
       GrouperDdl2_6_6.addGrouperMembersColumns(database, ddlVersionBean);
       GrouperDdl2_6_6.addGrouperMembersComments(database, ddlVersionBean);
+      
+      GrouperDdl2_6_6.addGrouperSyncMemberMetadataJsonColumn(database, ddlVersionBean);
+      GrouperDdl2_6_6.addGrouperSyncMemberMetadataJsonComment(database, ddlVersionBean);
     }
   },
   V41 {
@@ -2702,6 +2705,7 @@ public enum GrouperDdl implements DdlVersionable {
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      
     }
   },
   V42 {
