@@ -63,6 +63,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       
       debugMap.put("jexlScriptGroups", GrouperUtil.length(attributeAssigns));
 
+      if (GrouperUtil.length(attributeAssigns) == 0) {
+        return null;
+      }
+      
       this.grouperLoaderJexlScriptGroups = new ArrayList<GrouperLoaderJexlScriptGroup>();
       
       int groupsWithInvalidScripts = 0;
@@ -255,8 +259,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       runtimeException = re;
       debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
 
+    } finally {
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage(GrouperUtil.mapToString(debugMap));
     }
-    otherJobInput.getHib3GrouperLoaderLog().setJobMessage(GrouperUtil.mapToString(debugMap));
     
     if (runtimeException != null) {
       throw runtimeException;
