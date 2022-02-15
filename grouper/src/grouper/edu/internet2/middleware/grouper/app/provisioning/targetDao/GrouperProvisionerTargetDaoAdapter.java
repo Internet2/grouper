@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -331,6 +332,16 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       }
 
     }
+    
+    {
+      TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
+          new ArrayList<>(), 
+          new ArrayList<>(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+          new HashMap<>());
+      sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
+    }
+    
     {
       TargetDaoSendGroupChangesToTargetRequest targetDaoSendGroupChangesToTargetRequest = new TargetDaoSendGroupChangesToTargetRequest(
           targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningGroups(), 
@@ -349,7 +360,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
           targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
           targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
-          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+          new ArrayList<>(),
           targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships());
       sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
     }

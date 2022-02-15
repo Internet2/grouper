@@ -2326,10 +2326,13 @@ public class GrouperProvisioningLogicIncremental {
       List<ProvisioningGroup> grouperTargetGroupsRecalcForMembershipSync = new ArrayList<ProvisioningGroup>();
       List<ProvisioningGroup> grouperTargetGroupsRecalcForGroupOnly = new ArrayList<ProvisioningGroup>();
 
+      boolean canRetrieveMembershipsByGroup = this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningBehavior().canSelectMembershipsForGroup(); 
+      
       for (ProvisioningGroupWrapper provisioningGroupWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
         if (provisioningGroupWrapper.getGrouperTargetGroup() != null) {
           if (provisioningGroupWrapper.isRecalc()) {
-            if (provisioningGroupWrapper.isIncrementalSyncMemberships()) {
+            if (provisioningGroupWrapper.isIncrementalSyncMemberships() && canRetrieveMembershipsByGroup) {
               grouperTargetGroupsRecalcForMembershipSync.add(provisioningGroupWrapper.getGrouperTargetGroup());
             } else {
               grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
@@ -2367,10 +2370,13 @@ public class GrouperProvisioningLogicIncremental {
       List<ProvisioningEntity> grouperTargetEntitiesRecalcForMembershipSync = new ArrayList<ProvisioningEntity>();
       List<ProvisioningEntity> grouperTargetEntitiesRecalcForEntityOnly = new ArrayList<ProvisioningEntity>();
 
+      boolean canRetrieveMembershipsByEntity = this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningBehavior().canSelectMembershipsForEntity();
+      
       for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
         if (provisioningEntityWrapper.getGrouperTargetEntity() != null) {
           if (provisioningEntityWrapper.isRecalc()) {
-            if (provisioningEntityWrapper.isIncrementalSyncMemberships()) {
+            if (provisioningEntityWrapper.isIncrementalSyncMemberships() && canRetrieveMembershipsByEntity) {
               grouperTargetEntitiesRecalcForMembershipSync.add(provisioningEntityWrapper.getGrouperTargetEntity());
             } else {
               grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());

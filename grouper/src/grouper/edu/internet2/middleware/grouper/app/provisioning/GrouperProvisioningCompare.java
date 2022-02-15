@@ -1311,7 +1311,9 @@ public class GrouperProvisioningCompare {
         if (provisioningMembershipWrapper.isRecalc()) {
           
           ProvisioningGroup provisioningGroup = provisioningMembershipWrapper.getGrouperTargetMembership().getProvisioningGroup();
-          
+          if (provisioningGroup.getProvisioningGroupWrapper().isDelete()) {
+            continue;
+          }
           List<ProvisioningMembership> provisioningMemberships = provisioningMembershipsToReplace.get(provisioningGroup);
           if (provisioningMemberships == null) {
             provisioningMemberships = new ArrayList<ProvisioningMembership>();

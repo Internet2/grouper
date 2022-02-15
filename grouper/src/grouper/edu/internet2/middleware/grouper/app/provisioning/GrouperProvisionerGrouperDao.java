@@ -137,6 +137,12 @@ public class GrouperProvisionerGrouperDao {
 
   }
   
+  /**
+   * 
+   * @param retrieveAll
+   * @param ids - list of member uuids
+   * @return
+   */
   public List<ProvisioningEntity> retrieveMembers(boolean retrieveAll, Collection<String> ids) {
 
     if (this.grouperProvisioner == null) {
@@ -289,6 +295,77 @@ public class GrouperProvisionerGrouperDao {
       }
 
     }
+    return results;
+  }
+  
+  
+  /**
+   * retrieve member objects and it doesn't need to be in a provisionable group. It's for either entities or memberships to delete.
+   * @param ids - list of member uuids
+   * @return
+   */
+  public List<ProvisioningEntity> retrieveMembersNonProvisionable(Collection<String> ids) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+    
+    if (GrouperUtil.length(ids) == 0) {
+      throw new RuntimeException("Must pass in member ids");
+    }
+
+    List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
+    
+    StringBuilder sqlInitial = null;
+    List<Object> paramsInitial = new ArrayList<Object>();
+    List<Type> typesInitial = new ArrayList<Type>();
+    
+    sqlInitial = new StringBuilder("select " + 
+        "    gm.id, " +
+        "    gm.subject_source, " + 
+        "    gm.subject_id, " + 
+        "    gm.subject_identifier0, " + 
+        "    gm.name, " + 
+        "    gm.description, " + 
+        "    gsm.metadata_json, " +
+        "    gm.email0, " +
+        "    gm.subject_identifier1, " +
+        "    gm.subject_identifier2 " +
+        "from " + 
+        "    grouper_members gm  " +      
+        "    left join grouper_sync_member gsm on  gsm.member_id = gm.id " + 
+        "where " +
+        "    gsm.grouper_sync_id = ? ");
+    paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
+    typesInitial.add(StringType.INSTANCE);
+    
+    List<String[]> queryResults = null;
+  
+    List<String> idsList = GrouperUtil.listFromCollection(ids);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsList.size(), 900);
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> currentBatchIds = GrouperUtil.batchList(idsList, 900, i);
+      
+      List<Object> paramsCurrent = new ArrayList<Object>(paramsInitial);
+      paramsCurrent.addAll(currentBatchIds);
+
+      List<Type> typesCurrent = new ArrayList<Type>(typesInitial);
+      for (int j = 0; j < GrouperUtil.length(currentBatchIds); j++) {
+        typesCurrent.add(StringType.INSTANCE);
+      }
+      
+      StringBuilder sql = new StringBuilder(sqlInitial);
+      sql.append(" and gm.id in (");
+      sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchIds));
+      sql.append(") ");
+      
+      queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), paramsCurrent, typesCurrent);
+      
+      List<ProvisioningEntity> provisioningEntityMapFromQueryResults = getProvisioningEntityMapFromQueryResults(queryResults);
+      results.addAll(provisioningEntityMapFromQueryResults);
+    }
+
     return results;
   }
   

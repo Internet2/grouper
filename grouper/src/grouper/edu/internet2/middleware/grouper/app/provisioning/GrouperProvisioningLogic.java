@@ -14,9 +14,6 @@ import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
@@ -293,8 +290,8 @@ public class GrouperProvisioningLogic {
       TargetDaoSendChangesToTargetRequest targetDaoSendChangesToTargetRequest = new TargetDaoSendChangesToTargetRequest();
       targetDaoSendChangesToTargetRequest.setTargetObjectInserts(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts());
       targetDaoSendChangesToTargetRequest.setTargetObjectUpdates(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates());
-      targetDaoSendChangesToTargetRequest.setTargetObjectDeletes(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
       targetDaoSendChangesToTargetRequest.setTargetObjectReplaces(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces());
+      targetDaoSendChangesToTargetRequest.setTargetObjectDeletes(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
       this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().sendChangesToTarget(targetDaoSendChangesToTargetRequest);
     } catch (RuntimeException e) {
       runtimeException = e;
@@ -302,8 +299,8 @@ public class GrouperProvisioningLogic {
       try {
         this.grouperProvisioner.retrieveGrouperSyncDao().processResultsInserts(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts());
         this.grouperProvisioner.retrieveGrouperSyncDao().processResultsUpdatesFull(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates());
-        this.grouperProvisioner.retrieveGrouperSyncDao().processResultsDeletes(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
         this.grouperProvisioner.retrieveGrouperSyncDao().processResultsReplaces(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces());
+        this.grouperProvisioner.retrieveGrouperSyncDao().processResultsDeletes(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
       } catch (RuntimeException e) {
         GrouperUtil.exceptionFinallyInjectOrThrow(runtimeException, e);
       }
@@ -862,8 +859,8 @@ public class GrouperProvisioningLogic {
             TargetDaoSendChangesToTargetRequest targetDaoSendChangesToTargetRequest = new TargetDaoSendChangesToTargetRequest();
             targetDaoSendChangesToTargetRequest.setTargetObjectInserts(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts());
             targetDaoSendChangesToTargetRequest.setTargetObjectUpdates(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates());
-            targetDaoSendChangesToTargetRequest.setTargetObjectDeletes(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
             targetDaoSendChangesToTargetRequest.setTargetObjectReplaces(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces());
+            targetDaoSendChangesToTargetRequest.setTargetObjectDeletes(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
             this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().sendChangesToTarget(targetDaoSendChangesToTargetRequest);
           } catch (RuntimeException e) {
             runtimeException = e;
@@ -871,8 +868,8 @@ public class GrouperProvisioningLogic {
             try {
               this.grouperProvisioner.retrieveGrouperSyncDao().processResultsInserts(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts());
               this.grouperProvisioner.retrieveGrouperSyncDao().processResultsUpdatesFull(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates());
-              this.grouperProvisioner.retrieveGrouperSyncDao().processResultsDeletes(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
               this.grouperProvisioner.retrieveGrouperSyncDao().processResultsReplaces(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces());
+              this.grouperProvisioner.retrieveGrouperSyncDao().processResultsDeletes(this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
             } catch (RuntimeException e) {
               GrouperUtil.exceptionFinallyInjectOrThrow(runtimeException, e);
             }
@@ -2239,6 +2236,8 @@ public class GrouperProvisioningLogic {
     
     List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = 
         this.grouperProvisioner.retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
+    
+    Map<String, ProvisioningEntityWrapper> memberIdToEntityWrapperToDelete = new HashMap<>();
   
     // loop through sync groups
     for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
@@ -2250,21 +2249,37 @@ public class GrouperProvisioningLogic {
       // we are sending the copy over to the target so that target can also delete
       if (grouperProvisioningEntity == null && gcGrouperSyncMember != null) {
         
+        memberIdToEntityWrapperToDelete.put(gcGrouperSyncMember.getMemberId(), provisioningEntityWrapper);
         provisioningEntitiesToDelete++;
         
+      }
+    }
+    
+    if (memberIdToEntityWrapperToDelete.size() == 0) {
+      return;
+    }
+    
+    List<ProvisioningEntity> membersNonProvisionable = this.getGrouperProvisioner().retrieveGrouperDao().retrieveMembersNonProvisionable(memberIdToEntityWrapperToDelete.keySet());
+    
+    Map<String, ProvisioningEntity> memberIdToProvisioningEntityToDelete = new HashMap<>();
+    
+    for (ProvisioningEntity provisioningEntityNotProvisionable: GrouperUtil.nonNull(membersNonProvisionable)) {
+      memberIdToProvisioningEntityToDelete.put(provisioningEntityNotProvisionable.getId(), provisioningEntityNotProvisionable);
+    }
+    
+    for (String memberIdToDelete: memberIdToEntityWrapperToDelete.keySet()) {
+      
+      ProvisioningEntity grouperProvisioningEntity = memberIdToProvisioningEntityToDelete.get(memberIdToDelete);
+      
+      ProvisioningEntityWrapper provisioningEntityWrapper = memberIdToEntityWrapperToDelete.get(memberIdToDelete);
+      
+      if (grouperProvisioningEntity == null) {
+        
+        GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
         grouperProvisioningEntity = new ProvisioningEntity();
         grouperProvisioningEntity.setId(gcGrouperSyncMember.getMemberId());
-        //TODO select in bulk from grouper members
-        Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), gcGrouperSyncMember.getMemberId(), false);
-        if (member != null) {
-          grouperProvisioningEntity.setName(member.getName());
-          grouperProvisioningEntity.setEmail(member.getEmail0());
-          
-          grouperProvisioningEntity.assignAttributeValue("description", member.getDescription());
-        }
         grouperProvisioningEntity.setSubjectId(gcGrouperSyncMember.getSubjectId());
         grouperProvisioningEntity.assignAttributeValue("subjectSourceId", gcGrouperSyncMember.getSourceId());
-
         if ("subjectIdentifier1".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
           grouperProvisioningEntity.assignAttributeValue("subjectIdentifier1", gcGrouperSyncMember.getSubjectIdentifier());
         } else if ("subjectIdentifier2".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
@@ -2296,15 +2311,24 @@ public class GrouperProvisioningLogic {
           }
         }
         
-        provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
-        provisioningEntityWrapper.setDelete(true);
-        
-        memberUuidToProvisioningMemberWrapper.put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
+//        //TODO select in bulk from grouper members
+//        Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), gcGrouperSyncMember.getMemberId(), false);
+//        if (member != null) {
+//          grouperProvisioningEntity.setName(member.getName());
+//          grouperProvisioningEntity.setEmail(member.getEmail0());
+//          
+//          grouperProvisioningEntity.assignAttributeValue("description", member.getDescription());
+//        }
+
       }
-        
+      
+      provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
+      provisioningEntityWrapper.setDelete(true);
+      
+      memberUuidToProvisioningMemberWrapper.put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
       
     }
-    
+        
     if (provisioningEntitiesToDelete > 0) {
       this.getGrouperProvisioner().getDebugMap().put("provisioningEntitiesToDelete", provisioningEntitiesToDelete);
     }
@@ -2329,6 +2353,9 @@ public class GrouperProvisioningLogic {
     // loop through sync groups
     for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappers) {
   
+      //TODO Perhaps look at grouper_groups information for unprovisionable groups that aren't deleted from grouper just like 
+      // we did for entities.
+      
       // if a group has been deleted in grouper_groups table but copy still exists in grouper_sync_group
       // we are sending the copy over to the target so that target can also delete
       ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();

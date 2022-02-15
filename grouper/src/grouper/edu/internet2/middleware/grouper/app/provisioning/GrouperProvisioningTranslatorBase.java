@@ -384,7 +384,7 @@ public class GrouperProvisioningTranslatorBase {
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().convertNullsEmpties(grouperTargetEntity, grouperProvisioningConfigurationAttribute, null);
 
-              if (required && GrouperUtil.isBlank(result)) {
+              if (required && GrouperUtil.isBlank(result) && gcGrouperSyncMember.isProvisionable()) {
                 // short circuit this since other fields might need this field and its not there and invalid anyways
                 this.getGrouperProvisioner().retrieveGrouperProvisioningValidation()
                 .assignErrorCodeToEntityWrapper(grouperTargetEntity, grouperProvisioningConfigurationAttribute, 
@@ -403,7 +403,7 @@ public class GrouperProvisioningTranslatorBase {
             grouperTargetEntity.setId(GrouperUtil.stringValue(fieldTranslation( 
                 grouperTargetEntity.getId(), elVariableMap, forCreate, 
                 grouperProvisioningConfigurationAttributeId, null, grouperProvisioningEntity.getProvisioningEntityWrapper())));
-            if (required && StringUtils.isBlank(grouperTargetEntity.getId())) {
+            if (required && StringUtils.isBlank(grouperTargetEntity.getId()) && gcGrouperSyncMember.isProvisionable()) {
               this.getGrouperProvisioner().retrieveGrouperProvisioningValidation()
               .assignErrorCodeToEntityWrapper(grouperTargetEntity, grouperProvisioningConfigurationAttributeId, 
                   grouperProvisioningEntity.getProvisioningEntityWrapper());
@@ -418,7 +418,7 @@ public class GrouperProvisioningTranslatorBase {
             grouperTargetEntity.setName(GrouperUtil.stringValue(fieldTranslation( 
                 grouperTargetEntity.getName(), elVariableMap, forCreate, 
                 grouperProvisioningConfigurationAttributeName, null, grouperProvisioningEntity.getProvisioningEntityWrapper())));
-            if (required && StringUtils.isBlank(grouperTargetEntity.getName())) {
+            if (required && StringUtils.isBlank(grouperTargetEntity.getName()) && gcGrouperSyncMember.isProvisionable()) {
               this.getGrouperProvisioner().retrieveGrouperProvisioningValidation()
               .assignErrorCodeToEntityWrapper(grouperTargetEntity, grouperProvisioningConfigurationAttributeName, 
                   grouperProvisioningEntity.getProvisioningEntityWrapper());
@@ -433,7 +433,7 @@ public class GrouperProvisioningTranslatorBase {
             grouperTargetEntity.setEmail(GrouperUtil.stringValue(fieldTranslation( 
                 grouperTargetEntity.getEmail(), elVariableMap, forCreate, 
                 grouperProvisioningConfigurationAttributeEmail, null, grouperProvisioningEntity.getProvisioningEntityWrapper())));
-            if (required && StringUtils.isBlank(grouperTargetEntity.getEmail())) {
+            if (required && StringUtils.isBlank(grouperTargetEntity.getEmail()) && gcGrouperSyncMember.isProvisionable()) {
               this.getGrouperProvisioner().retrieveGrouperProvisioningValidation()
                 .assignErrorCodeToEntityWrapper(grouperTargetEntity, grouperProvisioningConfigurationAttributeEmail, 
                     grouperProvisioningEntity.getProvisioningEntityWrapper());
@@ -450,7 +450,7 @@ public class GrouperProvisioningTranslatorBase {
             grouperTargetEntity.setLoginId(GrouperUtil.stringValue(fieldTranslation( 
                 grouperTargetEntity.getLoginId(), elVariableMap, forCreate, 
                 grouperProvisioningConfigurationAttributeLoginId, null, grouperProvisioningEntity.getProvisioningEntityWrapper())));
-            if (required && StringUtils.isBlank(grouperTargetEntity.getLoginId())) {
+            if (required && StringUtils.isBlank(grouperTargetEntity.getLoginId()) && gcGrouperSyncMember.isProvisionable()) {
               this.getGrouperProvisioner().retrieveGrouperProvisioningValidation()
               .assignErrorCodeToEntityWrapper(grouperTargetEntity, grouperProvisioningConfigurationAttributeLoginId, 
                   grouperProvisioningEntity.getProvisioningEntityWrapper());
@@ -545,7 +545,7 @@ public class GrouperProvisioningTranslatorBase {
               grouperTargetGroup.assignAttributeValue(attributeOrFieldName, result);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().convertNullsEmpties(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);
-              if (required && GrouperUtil.isBlank(result)) {
+              if (required && GrouperUtil.isBlank(result) && gcGrouperSyncGroup.isProvisionable()) {
                 // short circuit this since other fields might need this field and its not there and invalid anyways
                 this.getGrouperProvisioner().retrieveGrouperProvisioningValidation()
                 .assignErrorCodeToGroupWrapper(grouperTargetGroup, grouperProvisioningConfigurationAttribute, 
@@ -562,7 +562,7 @@ public class GrouperProvisioningTranslatorBase {
             grouperTargetGroup.setId(GrouperUtil.stringValue(fieldTranslation( 
                 grouperTargetGroup.getId(), elVariableMap, forCreate, 
                 grouperProvisioningConfigurationAttributeId, grouperProvisioningGroup.getProvisioningGroupWrapper(), null)));
-            if (required && StringUtils.isBlank(grouperTargetGroup.getId())) {
+            if (required && StringUtils.isBlank(grouperTargetGroup.getId()) && gcGrouperSyncGroup.isProvisionable()) {
               this.getGrouperProvisioner().retrieveGrouperProvisioningValidation()
               .assignErrorCodeToGroupWrapper(grouperTargetGroup, grouperProvisioningConfigurationAttributeId, 
                   grouperTargetGroup.getProvisioningGroupWrapper());
@@ -576,7 +576,7 @@ public class GrouperProvisioningTranslatorBase {
             grouperTargetGroup.setName(GrouperUtil.stringValue(fieldTranslation( 
                 grouperTargetGroup.getName(), elVariableMap, forCreate, 
                 grouperProvisioningConfigurationAttributeName, grouperProvisioningGroup.getProvisioningGroupWrapper(), null)));
-            if (required && StringUtils.isBlank(grouperTargetGroup.getName())) {
+            if (required && StringUtils.isBlank(grouperTargetGroup.getName()) && gcGrouperSyncGroup.isProvisionable()) {
               this.getGrouperProvisioner().retrieveGrouperProvisioningValidation()
               .assignErrorCodeToGroupWrapper(grouperTargetGroup, grouperProvisioningConfigurationAttributeName, 
                   grouperTargetGroup.getProvisioningGroupWrapper());
@@ -590,7 +590,7 @@ public class GrouperProvisioningTranslatorBase {
             grouperTargetGroup.setIdIndex(GrouperUtil.longObjectValue(fieldTranslation( 
                 grouperTargetGroup.getIdIndex(), elVariableMap, forCreate, 
                 grouperProvisioningConfigurationAttributeIdIndex, grouperProvisioningGroup.getProvisioningGroupWrapper(), null), true));
-            if (required && null == grouperTargetGroup.getIdIndex()) {
+            if (required && null == grouperTargetGroup.getIdIndex() && gcGrouperSyncGroup.isProvisionable()) {
               this.getGrouperProvisioner().retrieveGrouperProvisioningValidation()
               .assignErrorCodeToGroupWrapper(grouperTargetGroup, grouperProvisioningConfigurationAttributeIdIndex, 
                   grouperTargetGroup.getProvisioningGroupWrapper());
@@ -604,7 +604,7 @@ public class GrouperProvisioningTranslatorBase {
             grouperTargetGroup.setDisplayName(GrouperUtil.stringValue(fieldTranslation( 
                 grouperTargetGroup.getDisplayName(), elVariableMap, forCreate, 
                 grouperProvisioningConfigurationAttributeDisplayName, grouperProvisioningGroup.getProvisioningGroupWrapper(), null)));
-            if (required && StringUtils.isBlank(grouperTargetGroup.getDisplayName())) {
+            if (required && StringUtils.isBlank(grouperTargetGroup.getDisplayName()) && gcGrouperSyncGroup.isProvisionable()) {
               this.getGrouperProvisioner().retrieveGrouperProvisioningValidation()
               .assignErrorCodeToGroupWrapper(grouperTargetGroup, grouperProvisioningConfigurationAttributeDisplayName, 
                   grouperTargetGroup.getProvisioningGroupWrapper());

@@ -74,6 +74,11 @@ public class GrouperProvisioningValidation {
       }
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGcGrouperSyncGroup();
       
+      //if we're not provisioning this group, maybe this is used in membership that needs to be removed so we shouldn't validate.
+      if (gcGrouperSyncGroup != null && !gcGrouperSyncGroup.isProvisionable()) {
+        continue;
+      }
+      
       for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
         new Collection[] {
           this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().values(),
@@ -131,6 +136,11 @@ public class GrouperProvisioningValidation {
         continue;
       }
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGcGrouperSyncMember();
+
+      //if we're not provisioning this entity, maybe this is used in membership that needs to be removed so we shouldn't validate.  
+      if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable()) {
+        continue;
+      }
       
       for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
         new Collection[] {
