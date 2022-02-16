@@ -167,7 +167,7 @@
         <p6spy.version>3.6.0</p6spy.version>
         <!-- hsqldb verion must match the version in tomee -->
         <hsqldb.version>2.3.5</hsqldb.version>
-        <postgresql.version>42.2.19</postgresql.version>
+        <postgresql.version>42.3.2</postgresql.version>
         <mysql.connector.java.version>8.0.23</mysql.connector.java.version>
         <ldaptive.version>1.1.2</ldaptive.version>
         <xml.apis.version>1.4.01</xml.apis.version>
