@@ -664,11 +664,13 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
                 this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], ldapEntry.getDn()});
               } else {
                 values = ldapEntry.getAttribute(this.ldapAttributeNames[i]).getStringValues();
-                if (GrouperUtil.length(values) == 0) {
-                  this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], null});
-                } else {
+                if (GrouperUtil.length(values) > 0) {
+                  // this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], null});
                   for (String value : values) {
-                    this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], value});
+                    // cant have empty values since it is assumed to be a key in the database with bind vars
+                    if (!StringUtils.isEmpty(value)) {
+                      this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], value});
+                    }
                   }
                 }
               }
