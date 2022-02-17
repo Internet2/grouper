@@ -643,6 +643,10 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       
       // now run the full sync again and the member should be deleted from mock_scim_membership also
       started = System.currentTimeMillis();
+//      HibernateSession.bySqlStatic().executeSql("delete from grouper_sync_membership");
+//      HibernateSession.bySqlStatic().executeSql("delete from grouper_sync_member");
+//      HibernateSession.bySqlStatic().executeSql("delete from grouper_sync_group");
+      
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
@@ -907,8 +911,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       return;
     }
 
-//    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
-    int port = 8081;
+    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
     boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
     String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
     

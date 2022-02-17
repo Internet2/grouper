@@ -1,17 +1,21 @@
 package edu.internet2.middleware.grouper.app.remedy;
 
+import java.sql.Types;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyCommands;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyMembership;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyUser;
+import org.apache.ddlutils.model.Database;
+import org.apache.ddlutils.model.Table;
+
+import com.fasterxml.jackson.databind.JsonNode;
+
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyCommands;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyMembership;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyUser;
 
 /**
  * grouper box group
@@ -174,6 +178,49 @@ public class GrouperRemedyGroup {
     }
     
     return results;
+  }
+  
+  
+  /**
+   * @param ddlVersionBean
+   * @param database
+   */
+  public static void createTableRemedyGroup(DdlVersionBean ddlVersionBean, Database database) {
+
+    final String tableName = "mock_remedy_group";
+
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+    
+      
+      Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "name", Types.VARCHAR, "256", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id", Types.VARCHAR, "40", true, true);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_remedy_group_name_idx", true, "name");
+    }
+            
+  }
+  
+  public static GrouperRemedyGroup fromJson(JsonNode groupNode) {
+    GrouperRemedyGroup grouperRemedyGroup = new GrouperRemedyGroup();
+//    grouperDuoGroup.desc = GrouperUtil.jsonJacksonGetString(groupNode, "desc");
+//    grouperDuoGroup.name = GrouperUtil.jsonJacksonGetString(groupNode, "name");
+//    
+//    grouperDuoGroup.group_id = GrouperUtil.jsonJacksonGetString(groupNode, "group_id");
+    
+    return grouperRemedyGroup;
+  }
+  
+  public ProvisioningGroup toProvisioningGroup() {
+    ProvisioningGroup targetGroup = new ProvisioningGroup();
+//    targetGroup.assignAttributeValue("description", this.desc);
+    targetGroup.setName(this.permissionGroup);
+    targetGroup.setId(String.valueOf(this.permissionGroupId));
+    return targetGroup;
   }
   
 }

@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.app.duo.DuoProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.remedy.RemedyProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -48,6 +49,7 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
     provisionerConfigClassNames.add(LdapProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(GrouperScim2Configuration.class.getName());
     provisionerConfigClassNames.add(MessagingProvisionerConfiguration.class.getName());
+    provisionerConfigClassNames.add(RemedyProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(SqlProvisionerConfiguration.class.getName());
 //    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
   }

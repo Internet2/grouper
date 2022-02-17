@@ -117,7 +117,7 @@ public class GrouperDigitalMarketplaceFullRefresh {
   /**
    * change log temp to change log
    */
-  public static final String GROUPER_DUO_FULL_REFRESH = "CHANGE_LOG_grouperDigitalMarketplaceFullRefresh";
+  public static final String GROUPER_REMEDY_FULL_REFRESH = "CHANGE_LOG_grouperDigitalMarketplaceFullRefresh";
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperDigitalMarketplaceFullRefresh.class);

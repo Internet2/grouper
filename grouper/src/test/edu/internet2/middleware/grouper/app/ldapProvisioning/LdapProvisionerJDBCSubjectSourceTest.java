@@ -53,7 +53,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullCreateUsersSubjectIdentifier2"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalCreateUsers"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
