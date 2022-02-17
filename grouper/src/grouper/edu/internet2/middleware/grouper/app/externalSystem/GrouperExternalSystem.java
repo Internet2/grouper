@@ -170,8 +170,11 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     
     for (GrouperExternalSystem externalSystem: externalSystems) {
       
-      String configId = externalSystem.getConfigId();
-      keysAndLabels.add(new MultiKey(configId, configId));
+      if (externalSystem.isEnabled()) {
+        String configId = externalSystem.getConfigId();
+        keysAndLabels.add(new MultiKey(configId, configId));
+      }
+      
     }
     
     Collections.sort(keysAndLabels, new Comparator<MultiKey>() {
