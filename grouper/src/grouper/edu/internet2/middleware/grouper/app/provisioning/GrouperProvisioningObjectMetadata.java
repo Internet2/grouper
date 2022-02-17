@@ -130,7 +130,16 @@ public class GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowPolicyGroupOverride");
       grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
-      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.TEXT);
+      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
+      
+      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+      
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel") ));
+      valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
+      valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
+      
+      grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
+      
       this.grouperProvisioningObjectMetadataItems.add(grouperProvisioningObjectMetadataItem);
     }
     
