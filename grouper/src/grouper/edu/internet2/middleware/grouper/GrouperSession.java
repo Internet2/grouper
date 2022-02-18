@@ -1061,8 +1061,8 @@ public class GrouperSession implements Serializable {
     if (grouperSession == null) {
       grouperSession = GrouperSession.startRootSession(false);
       startedGrouperSession = true;
-    }
-    if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
+    } else {
+      // dont check if wheel or root since can be cached
       grouperSession = grouperSession.internal_getRootSession();
     }
     try {

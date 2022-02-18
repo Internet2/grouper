@@ -11,7 +11,10 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -91,6 +94,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         
       }
 
+      addFlagForPrecompute();
       deleteUnneededEntries();
       retrieveMemberIdsToRecalc();
       recalcStemPrivileges();
@@ -98,14 +102,14 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
       runtimeException = re;
     } finally {
       GcGrouperSyncHeartbeat.endAndWaitForThread(gcGrouperSyncHeartbeat);
-      debugMap.put("finalLog", true);
+      this.debugMap.put("finalLog", true);
       synchronized (StemViewPrivilegeFullDaemonLogic.class) {
         try {
           if (gcGrouperSyncJob != null) {
             gcGrouperSyncJob.assignHeartbeatAndEndJob();
           }
         } catch (RuntimeException re2) {
-          debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
+          this.debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
           if (runtimeException == null) {
             throw re2;
           }
@@ -114,10 +118,42 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
       }
       
       if (LOG.isDebugEnabled() && GrouperConfig.retrieveConfig().propertyValueBoolean("security.folder.view.privileges.fullDaemon.log", false)) {
-        LOG.debug(GrouperUtil.mapToString(debugMap));
+        LOG.debug(GrouperUtil.mapToString(this.debugMap));
+      }
+      
+      if (runtimeException != null) {
+        throw runtimeException;
       }
 
     }
+    
+  }
+
+  /**
+   * add stem view need for people in group
+   */
+  private void addFlagForPrecompute() {
+    String groupName = GrouperConfig.retrieveConfig().propertyValueStringRequired("security.folder.view.privileges.precompute.group");
+    
+    int recalcChangeLogIfNeededInLastSeconds = StemViewPrivilege.recalcChangeLogIfNeededInLastSeconds();
+    long recalcChangeLogIfNeededInLastMillis = System.currentTimeMillis() - (recalcChangeLogIfNeededInLastSeconds*1000);
+
+      
+    // get people to update
+    List<String> memberIds = new GcDbAccess().sql("select member_uuid from grouper_memberships_lw_v gmlv, grouper_last_login gll "
+        + "where gmlv.member_id = gll.member_uuid and gmlv.group_name = ? and gmlv.list_name = 'members' "
+        + "and gmlv.subject_source != 'g:gsa' and (gll.last_stem_view_need is null or gll.last_stem_view_need < ?)")
+      .addBindVar(groupName).addBindVar(recalcChangeLogIfNeededInLastMillis).selectList(String.class);
+    
+    StemViewPrivilege.recalculateStemViewPrivilegesLastStemViewNeedUpdate(this.debugMap, memberIds, "preCompute_");
+    
+    // get people to insert
+    memberIds = new GcDbAccess().sql("select gmlv.member_id from grouper_memberships_lw_v gmlv where gmlv.group_name = ? "
+        + " and gmlv.list_name = 'members' and gmlv.subject_source != 'g:gsa' "
+        + " and not exists (select 1 from grouper_last_login gll where gmlv.member_id = gll.member_uuid)")
+      .addBindVar(groupName).selectList(String.class);
+    
+    StemViewPrivilege.recalculateStemViewPrivilegesLastStemViewNeedInsert(this.debugMap, memberIds, "preCompute_");
     
   }
 
