@@ -53,6 +53,9 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.Job;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -142,6 +145,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDA
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.stem.StemViewPrivilege;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
@@ -947,6 +951,21 @@ public class GrouperCheckConfig {
         grouperSession = GrouperSession.startRootSession();
         startedGrouperSession = true;
       }
+
+      //make sure stemViewers is there
+      try {
+        Field field = FieldFinder.find(Field.FIELD_NAME_STEM_VIEWERS, false);
+        if (field == null) {
+          // this will clear cache
+          Field.internal_addField( grouperSession, Field.FIELD_NAME_STEM_VIEWERS, FieldType.NAMING, 
+              NamingPrivilege.STEM_ADMIN, NamingPrivilege.STEM_ADMIN, false, false, null , null);
+        }
+      } catch (Exception e) {
+        // there could be an exception if another container is also adding this field
+        FieldFinder.clearCache();
+      }
+      
+
       
       while(true) {
         String groupName = null;
