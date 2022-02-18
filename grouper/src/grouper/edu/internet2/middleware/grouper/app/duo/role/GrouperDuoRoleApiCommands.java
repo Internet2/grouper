@@ -270,7 +270,7 @@ public class GrouperDuoRoleApiCommands {
    * @return the value
    */
   public static String escapeUrlEncode(String param) {
-    return GrouperUtil.escapeUrlEncode(param).replace("+", "%20");
+    return GrouperUtil.escapeUrlEncode(param).replace("+", "%20").replace(":", "%3A");
   }
 
   /**
