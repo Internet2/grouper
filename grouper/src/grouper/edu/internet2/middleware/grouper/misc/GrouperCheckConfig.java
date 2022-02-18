@@ -965,7 +965,26 @@ public class GrouperCheckConfig {
         FieldFinder.clearCache();
       }
       
+      // stem view pre-compute
+      {
+        String groupNameKey = "security.folder.view.privileges.precompute.group";
+        String groupName = GrouperConfig.retrieveConfig().propertyValueStringRequired(groupNameKey);
 
+        //create stem
+        String privilegeParentStemName = GrouperUtil.parentStemNameFromName(groupName);
+        Stem privilegeParentStem = StemFinder.findByName(grouperSession, privilegeParentStemName, false);
+        if (privilegeParentStem == null) {
+          privilegeParentStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for objects related to Grouper privileges").assignName(privilegeParentStemName)
+            .save();
+        }
+
+        String groupDescription = "If you are having performance issues with UI users and stem privileges, put users in group who should be precomputed in the stem view full sync daemon";
+
+        Group[] theGroup = new Group[1];
+        checkGroup(grouperSession, groupName, wasInCheckConfig, true, wasInCheckConfig, null, groupDescription, "grouper.properties key " + groupNameKey, theGroup);
+        
+      }
       
       while(true) {
         String groupName = null;
