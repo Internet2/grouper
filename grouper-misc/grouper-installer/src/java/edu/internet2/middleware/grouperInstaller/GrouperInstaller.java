@@ -11186,20 +11186,20 @@ public class GrouperInstaller {
     // put logging related jars in tomee/bin directory
     File tomeeBinDir = new File(containerTomeeDir + File.separator + "bin");
     
-    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.13.1/log4j-core-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-core-2.13.1.jar", "");
-    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul/2.13.1/log4j-jul-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-jul-2.13.1.jar", "");
-    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.13.1/log4j-api-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-api-2.13.1.jar", "");
-    
-    // put slf4j in lib dir
-    downloadFile("https://repo1.maven.org/maven2/org/slf4j/slf4j-log4j12/1.7.21/slf4j-log4j12-1.7.21.jar", libDir + File.separator + "slf4j-log4j12-1.7.21.jar", "");
+//    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.13.1/log4j-core-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-core-2.13.1.jar", "");
+//    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul/2.13.1/log4j-jul-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-jul-2.13.1.jar", "");
+//    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-api/2.13.1/log4j-api-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-api-2.13.1.jar", "");
+//    
+//    // put slf4j in lib dir
+//    downloadFile("https://repo1.maven.org/maven2/org/slf4j/slf4j-log4j12/1.7.21/slf4j-log4j12-1.7.21.jar", libDir + File.separator + "slf4j-log4j12-1.7.21.jar", "");
     
     // point tomee to downloaded webpp
     configureTomeeGrouperUberWebapp(containerTomeeDir, webAppDir);
     
     // copy slf4j from tomee/lib to web-inf/lib
-    File tomeeLibDir = new File(containerTomeeDir + File.separator + "lib");
-    GrouperInstallerUtils.copyFile(new File(tomeeLibDir.getAbsolutePath() + File.separator + "slf4j-jdk14-1.7.21.jar"), new File(libDir.getAbsolutePath() + File.separator + "slf4j-jdk14-1.7.21.jar"));
-    GrouperInstallerUtils.copyFile(new File(tomeeLibDir.getAbsolutePath() + File.separator + "slf4j-api-1.7.21.jar"), new File(libDir.getAbsolutePath() + File.separator + "slf4j-api-1.7.21.jar"));
+//    File tomeeLibDir = new File(containerTomeeDir + File.separator + "lib");
+//    GrouperInstallerUtils.copyFile(new File(tomeeLibDir.getAbsolutePath() + File.separator + "slf4j-jdk14-1.7.21.jar"), new File(libDir.getAbsolutePath() + File.separator + "slf4j-jdk14-1.7.21.jar"));
+//    GrouperInstallerUtils.copyFile(new File(tomeeLibDir.getAbsolutePath() + File.separator + "slf4j-api-1.7.21.jar"), new File(libDir.getAbsolutePath() + File.separator + "slf4j-api-1.7.21.jar"));
     
   }
   
@@ -13593,28 +13593,28 @@ public class GrouperInstaller {
     libDirs.add(new File(webInfDir+File.separator+"libWs"));
     libDirs.add(new File(webInfDir+File.separator+"libScim"));
     
-    for (File libDir: libDirs) {
-      File[] filesFromLibToBeDeleted = libDir.listFiles(new FilenameFilter() {
-        
-        @Override
-        public boolean accept(File dir, String name) {
-          if (name.startsWith("slf4j-api") && name.endsWith("jar")) {
-            return true;
-          }
-          
-          if (name.startsWith("slf4j-log4j12") && name.endsWith("jar")) {
-            return true;
-          }
-                    
-          return false;
-        }
-      });
-      allJarsToBeDeleted.addAll(Arrays.asList(filesFromLibToBeDeleted));
-    }
-    
-    for (File jarToBeDeleted: allJarsToBeDeleted) {
-      GrouperInstallerUtils.fileDelete(jarToBeDeleted);
-    }
+//    for (File libDir: libDirs) {
+//      File[] filesFromLibToBeDeleted = libDir.listFiles(new FilenameFilter() {
+//        
+//        @Override
+//        public boolean accept(File dir, String name) {
+//          if (name.startsWith("slf4j-api") && name.endsWith("jar")) {
+//            return true;
+//          }
+//          
+//          if (name.startsWith("slf4j-log4j12") && name.endsWith("jar")) {
+//            return true;
+//          }
+//                    
+//          return false;
+//        }
+//      });
+//      allJarsToBeDeleted.addAll(Arrays.asList(filesFromLibToBeDeleted));
+//    }
+//    
+//    for (File jarToBeDeleted: allJarsToBeDeleted) {
+//      GrouperInstallerUtils.fileDelete(jarToBeDeleted);
+//    }
     
   }
   
