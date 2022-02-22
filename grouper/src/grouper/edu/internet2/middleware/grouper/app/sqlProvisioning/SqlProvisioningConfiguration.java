@@ -173,19 +173,9 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   }
 
 
-//  private String entityAttributeTableForeignKeyToEntity;
-  
   private String entityTableName;
   
-//  private String entityAttributeTableAttributeNameColumn;
-  
-//  private String entityAttributeNames;
-//  
-//  private String entityAttributeTableName;
-  
   private String entityTableIdColumn;
-  
-//  private String entityAttributeTableAttributeValueColumn;
   
   
   
@@ -249,19 +239,9 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
 //    this.membershipCreationColumnTemplate_attr_1 = this.retrieveConfigString("membershipCreationColumnTemplate_attr_1", true);
 //    this.membershipCreationColumnTemplate_val_1 = this.retrieveConfigString("membershipCreationColumnTemplate_val_1", true);
 
-    //this.entityAttributeTableForeignKeyToEntity = this.retrieveConfigString("entityAttributeTableForeignKeyToEntity", false);
     this.entityTableName = this.retrieveConfigString("userTableName", false);
-    //this.entityAttributeTableAttributeNameColumn = this.retrieveConfigString("entityAttributeTableAttributeNameColumn", false);
-//    this.entityAttributeNames = this.retrieveConfigString("entityAttributeNames", false);
-//    this.entityAttributeTableName = this.retrieveConfigString("entityAttributeTableName", false);
     this.entityTableIdColumn = this.retrieveConfigString("userPrimaryKey", false);
-//    this.entityAttributeTableAttributeValueColumn = this.retrieveConfigString("entityAttributeTableAttributeValueColumn", false);
-    
-//    this.groupAttributeTableAttributeNameIsGroupMatchingId = this.retrieveConfigString("groupAttributeTableAttributeNameIsGroupMatchingId", false);
     this.groupTableName = this.retrieveConfigString("groupTableName", false);
-//    this.groupAttributeNames = this.retrieveConfigString("groupAttributeNames", false);
-//    this.groupAttributeTableName = this.retrieveConfigString("groupAttributeTableName", false);
-    this.groupTableIdColumn = this.retrieveConfigString("groupPrimaryKey", false);
 
     this.groupAttributesTableName = this.retrieveConfigString("groupAttributesTableName", false);
     this.groupAttributesGroupForeignKeyColumn = this.retrieveConfigString("groupAttributesGroupForeignKeyColumn", false);
@@ -269,6 +249,7 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     this.groupAttributesAttributeValueColumn = this.retrieveConfigString("groupAttributesAttributeValueColumn", false);
     this.groupAttributesLastModifiedColumn = this.retrieveConfigString("groupAttributesLastModifiedColumn", false);
     this.groupAttributesLastModifiedColumnType = this.retrieveConfigString("groupAttributesLastModifiedColumnType", false);
+    this.groupTableIdColumn = this.retrieveConfigString("groupTableIdColumn", false);
     
     this.entityAttributesTableName = this.retrieveConfigString("entityAttributesTableName", false);
     this.entityAttributesEntityForeignKeyColumn = this.retrieveConfigString("entityAttributesEntityForeignKeyColumn", false);

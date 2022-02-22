@@ -220,6 +220,50 @@ public class GrouperProvisioningConfigurationAttribute {
   }
 
   /**
+   * grouper provisioning group field create only
+   */
+  private String translateFromGrouperProvisioningGroupFieldCreateOnly;
+  
+  /**
+   * grouper provisioning group field create only
+   * @return value
+   */
+  public String getTranslateFromGrouperProvisioningGroupFieldCreateOnly() {
+    return this.translateFromGrouperProvisioningGroupFieldCreateOnly;
+  }
+
+  /**
+   * grouper provisioning group field create only
+   * @param translateFromGrouperProvisioningGroupFieldCreateOnly1
+   */
+  public void setTranslateFromGrouperProvisioningGroupFieldCreateOnly(
+      String translateFromGrouperProvisioningGroupFieldCreateOnly1) {
+    this.translateFromGrouperProvisioningGroupFieldCreateOnly = translateFromGrouperProvisioningGroupFieldCreateOnly1;
+  }
+
+  /**
+   * grouper provisioning entity field create only
+   */
+  private String translateFromGrouperProvisioningEntityFieldCreateOnly;
+  
+  /**
+   * grouper provisioning entity field create only
+   * @return grouper provisioning entity field create only
+   */
+  public String getTranslateFromGrouperProvisioningEntityFieldCreateOnly() {
+    return this.translateFromGrouperProvisioningEntityFieldCreateOnly;
+  }
+
+  /**
+   * grouper provisioning entity field create only
+   * @param translateFromGrouperProvisioningEntityFieldCreateOnly1
+   */
+  public void setTranslateFromGrouperProvisioningEntityFieldCreateOnly(
+      String translateFromGrouperProvisioningEntityFieldCreateOnly1) {
+    this.translateFromGrouperProvisioningEntityFieldCreateOnly = translateFromGrouperProvisioningEntityFieldCreateOnly1;
+  }
+
+  /**
    * grouper provisioning group field
    */
   private String translateFromGrouperProvisioningGroupField;

@@ -144,6 +144,7 @@ public class SqlProvisionerCommands {
             if (j>0) {
               sql.append(" and ");
             }
+            GrouperUtil.assertion(!StringUtils.isBlank(filterColumns0small.get(j)), "Column is missing! " + j);
             sql.append(filterColumns0small.get(j));
             if (GrouperUtil.isBlank(filterValues[j])) {
               sql.append(" is null");
@@ -181,6 +182,7 @@ public class SqlProvisionerCommands {
             if (j>0) {
               sql.append(" and ");
             }
+            GrouperUtil.assertion(!StringUtils.isBlank(filterColumns1large.get(j)), "Column is missing! " + j);
             sql.append(filterColumns1large.get(j));
             if (GrouperUtil.isBlank(filterValues[j])) {
               sql.append(" is null");

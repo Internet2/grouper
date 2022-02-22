@@ -369,8 +369,9 @@ public class GrouperProvisioningTranslatorBase {
             
             String expressionToUse = getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
             String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
+            String grouperProvisioningEntityField = getTranslateFromGrouperProvisioningEntityField(forCreate, grouperProvisioningConfigurationAttribute);
 
-            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())
+            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningEntityField)
                 || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
 
               Object result = attributeTranslation( 
@@ -530,8 +531,9 @@ public class GrouperProvisioningTranslatorBase {
             
             String expressionToUse = getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
             String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
+            String grouperProvisioningGroupField = getTranslateFromGrouperProvisioningGroupField(forCreate, grouperProvisioningConfigurationAttribute);
 
-            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
+            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningGroupField)
                 || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
               Object result = attributeTranslation( 
                   grouperTargetGroup.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
@@ -752,6 +754,8 @@ public class GrouperProvisioningTranslatorBase {
     
     String expressionToUse = getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
     String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
+    String grouperProvisioningGroupField = getTranslateFromGrouperProvisioningGroupField(forCreate, grouperProvisioningConfigurationAttribute);
+    String grouperProvisioningEntityField = getTranslateFromGrouperProvisioningEntityField(forCreate, grouperProvisioningConfigurationAttribute);
 
     Object result = null;
     if (!StringUtils.isBlank(expressionToUse)) {
@@ -762,15 +766,15 @@ public class GrouperProvisioningTranslatorBase {
       } else {
         result = staticValuesToUse;
       }
-    } else if (provisioningGroupWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
-      result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper.getGrouperProvisioningGroup(), grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField());
+    } else if (provisioningGroupWrapper != null && !StringUtils.isBlank(grouperProvisioningGroupField)) {
+      result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper.getGrouperProvisioningGroup(), grouperProvisioningGroupField);
     } else if (provisioningGroupWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
       result = translateFromGroupSyncField(provisioningGroupWrapper.getGcGrouperSyncGroup(), grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField());
-    } else if (provisioningEntityWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
+    } else if (provisioningEntityWrapper != null && !StringUtils.isBlank(grouperProvisioningEntityField)) {
       result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper.getGrouperProvisioningEntity(), 
-          grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField());
+          grouperProvisioningEntityField);
     } else if (provisioningEntityWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-      result = translateFromMemberSyncField(provisioningEntityWrapper.getGcGrouperSyncMember(), grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField());
+      result = translateFromMemberSyncField(provisioningEntityWrapper.getGcGrouperSyncMember(), grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField());
     } else if (provisioningGroupWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())) {
       result = translateFromGroupSyncField(provisioningGroupWrapper.getGcGrouperSyncGroup(), grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField());
     } else if (provisioningEntityWrapper != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
@@ -789,6 +793,8 @@ public class GrouperProvisioningTranslatorBase {
 
     String expressionToUse = getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
     String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
+    String grouperProvisioningGroupField = getTranslateFromGrouperProvisioningGroupField(forCreate, grouperProvisioningConfigurationAttribute);
+    String grouperProvisioningEntityField = getTranslateFromGrouperProvisioningEntityField(forCreate, grouperProvisioningConfigurationAttribute);
 
     Object result = null;
     boolean translate = false;
@@ -803,13 +809,13 @@ public class GrouperProvisioningTranslatorBase {
       }
       
       translate = true;
-    } else if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGrouperProvisioningGroup() != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
+    } else if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGrouperProvisioningGroup() != null && !StringUtils.isBlank(grouperProvisioningGroupField)) {
       result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper.getGrouperProvisioningGroup(), 
-          grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField());
+          grouperProvisioningGroupField);
       translate = true;
-    } else if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGrouperProvisioningEntity() != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
+    } else if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGrouperProvisioningEntity() != null && !StringUtils.isBlank(grouperProvisioningEntityField)) {
       result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper.getGrouperProvisioningEntity(), 
-          grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField());
+          grouperProvisioningEntityField);
       translate = true;
     } else if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())) {
       result = translateFromGroupSyncField(provisioningGroupWrapper.getGcGrouperSyncGroup(), 
@@ -1198,6 +1204,37 @@ public class GrouperProvisioningTranslatorBase {
   public boolean isTranslateGrouperToTargetAutomatically() {
     return translateGrouperToTargetAutomatically;
   }
+
+  private String getTranslateFromGrouperProvisioningGroupField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    String expression = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField();
+    boolean hasExpression = !StringUtils.isBlank(expression);
+    String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupFieldCreateOnly();
+    boolean hasExpressionCreateOnly = !StringUtils.isBlank(expressionCreateOnly);
+    String expressionToUse = null;
+    if (forCreate && hasExpressionCreateOnly) {
+      expressionToUse = expressionCreateOnly;
+    } else if (hasExpression) {
+      expressionToUse = expression;
+    }
+
+    return expressionToUse;
+  }
+
+  private String getTranslateFromGrouperProvisioningEntityField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    String expression = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField();
+    boolean hasExpression = !StringUtils.isBlank(expression);
+    String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityFieldCreateOnly();
+    boolean hasExpressionCreateOnly = !StringUtils.isBlank(expressionCreateOnly);
+    String expressionToUse = null;
+    if (forCreate && hasExpressionCreateOnly) {
+      expressionToUse = expressionCreateOnly;
+    } else if (hasExpression) {
+      expressionToUse = expression;
+    }
+
+    return expressionToUse;
+  }
+  
 
   private String getTargetExpressionToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();

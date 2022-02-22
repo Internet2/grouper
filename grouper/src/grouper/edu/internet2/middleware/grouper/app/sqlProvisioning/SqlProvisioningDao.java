@@ -71,7 +71,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
 
-    Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetMembershipAttributeNameToConfig();
     
     for (String attributeName: membershipAttributeNameToConfigAttribute.keySet()) {
       GrouperProvisioningConfigurationAttribute configurationAttribute = membershipAttributeNameToConfigAttribute.get(attributeName);
@@ -395,7 +395,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     for (ProvisioningGroup targetGroup: targetGroups) {
       
       targetGroup.setProvisioned(true);
-      
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
     }
 
     
@@ -584,7 +587,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     for (ProvisioningEntity targetEntity: targetEntities) {
       
       targetEntity.setProvisioned(true);
-      
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+ 
     }
 
     
@@ -622,6 +628,11 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     for (ProvisioningGroup targetGroup: targetGroups) {
       
       targetGroup.setProvisioned(true);
+      
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
     }
   
     return new TargetDaoDeleteGroupsResponse();
@@ -658,6 +669,11 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     for (ProvisioningEntity targetEntity: targetEntities) {
       
       targetEntity.setProvisioned(true);
+      
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
     }
     
     return new TargetDaoDeleteEntitiesResponse();
@@ -697,6 +713,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     for (ProvisioningMembership targetMembership: targetMemberships) {
       
       targetMembership.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
     }
 
     return new TargetDaoDeleteMembershipsResponse();
@@ -750,7 +770,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     for (ProvisioningMembership targetMembership : targetMemberships) {
       targetMembership.setProvisioned(true);
-      
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
     }
     
     return new TargetDaoInsertMembershipsResponse();
@@ -817,12 +840,12 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
           
           SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
           if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
-            
+            GrouperUtil.assertion(!StringUtils.isBlank(attributeTableName), "Attribute table name is blank!");
             if (GrouperUtil.isEmpty(provisioningObjectChange.getNewValue())) {
               continue;
             }
             Object[] groupIdAttributeNameAttributeValue = new Object[columnsToInsertInAttributeTable.size()];
-            groupIdAttributeNameAttributeValue[0] = targetGroup.getAttributes().get(objectIdColumnName).getValue();
+            groupIdAttributeNameAttributeValue[0] = targetGroup.retrieveAttributeValue(objectIdColumnName);
             groupIdAttributeNameAttributeValue[1] = attributeName;
             groupIdAttributeNameAttributeValue[2] = provisioningObjectChange.getNewValue();
             if (StringUtils.isNotBlank(attributesLastModifiedColumn)) {
@@ -850,6 +873,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
  
     for (ProvisioningGroup targetGroup : targetGroups) {
       targetGroup.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
       
     }
     
@@ -923,7 +949,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
               continue;
             }
             Object[] entityIdAttributeNameAttributeValue = new Object[columnsToInsertInAttributeTable.size()];
-            entityIdAttributeNameAttributeValue[0] = targetEntity.getAttributes().get(objectIdColumnName).getValue();
+            entityIdAttributeNameAttributeValue[0] = targetEntity.retrieveAttributeValue(objectIdColumnName);
             entityIdAttributeNameAttributeValue[1] = attributeName;
             entityIdAttributeNameAttributeValue[2] = provisioningObjectChange.getNewValue();
             if (StringUtils.isNotBlank(attributesLastModifiedColumn)) {
@@ -953,6 +979,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     for (ProvisioningEntity targetEntity : targetEntities) {
       
       targetEntity.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
     }
     
     return new TargetDaoInsertEntitiesResponse();
@@ -1024,6 +1053,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     }
         
     if (attributeTableAttributesNamesList.size() > 0 ) {
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesEntityForeignKeyColumn), "entity attributes foreign key column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeNameColumn), "entity attributes attribute name column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeValueColumn), "entity attributes attribute value column must be configured");
       groupTableAttributesColNamesList = GrouperUtil.toList(groupAttributesEntityForeignKeyColumn, groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
     }
      
@@ -1195,7 +1227,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             Object attributeValue = namesValues[2];
             
             GrouperProvisioningConfigurationAttribute configurationAttributeForSeparateTable = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
-                .getTargetGroupAttributeNameToConfig().get(attributeName);
+                .getTargetEntityAttributeNameToConfig().get(attributeName);
             
             if(configurationAttributeForSeparateTable.isMultiValued()) {
               provisioningEntity.addAttributeValue(attributeName, attributeValue);
@@ -1291,6 +1323,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     GrouperUtil.assertion(filterByAttribute || filterByColumn, "Must filter by attribute or column");
 
     if (attributeTableAttributesNamesList.size() > 0 ) {
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesGroupForeignKeyColumn), "entity attributes foreign key column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeNameColumn), "entity attributes attribute name column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeValueColumn), "entity attributes attribute value column must be configured");
       groupTableAttributesColNamesList = GrouperUtil.toList(groupAttributesGroupForeignKeyColumn, groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
     }
      
@@ -1374,8 +1409,12 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     String entityTableName = sqlProvisioningConfiguration.getEntityTableName();
     
-    String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
+    GrouperUtil.assertion(!StringUtils.isBlank(entityTableName), "Entity table name is required!");
     
+    String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
+
+    GrouperUtil.assertion(!StringUtils.isBlank(entityTableIdColumn), "Entity table ID column is required!");
+
     String entityAttributesTableName  = sqlProvisioningConfiguration.getEntityAttributesTableName();
 
     String entityAttributesEntityForeignKeyColumn = sqlProvisioningConfiguration.getEntityAttributesEntityForeignKeyColumn();
@@ -1422,7 +1461,11 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     }
         
     if (attributeTableAttributesNamesList.size() > 0 ) {
-      entityTableAttributesColNamesList = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesEntityForeignKeyColumn), "entity attributes foreign key column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesAttributeNameColumn), "entity attributes attribute name column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesAttributeValueColumn), "entity attributes attribute value column must be configured");
+      entityTableAttributesColNamesList = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, 
+          entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
     }
      
      
@@ -1494,7 +1537,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
 
-    List<GrouperProvisioningConfigurationAttribute> searchAttributes = sqlProvisioningConfiguration.getGroupSearchAttributes();
+    List<GrouperProvisioningConfigurationAttribute> searchAttributes = sqlProvisioningConfiguration.getEntitySearchAttributes();
     if (searchAttributes.size() != 1) {
       throw new RuntimeException("Can currently only have one searchAttribute! " + GrouperUtil.toStringForLog(searchAttributes));
     }
@@ -1532,6 +1575,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     GrouperUtil.assertion(filterByAttribute || filterByColumn, "Must filter by attribute or column");
 
     if (attributeTableAttributesNamesList.size() > 0 ) {
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesEntityForeignKeyColumn), "entity attributes foreign key column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesAttributeNameColumn), "entity attributes attribute name column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesAttributeValueColumn), "entity attributes attribute value column must be configured");
       entityTableAttributesColNamesList = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
     }
      

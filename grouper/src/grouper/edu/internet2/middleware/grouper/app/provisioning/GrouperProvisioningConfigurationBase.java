@@ -2245,6 +2245,16 @@ public abstract class GrouperProvisioningConfigurationBase {
         }
         
         {
+          String translateFromGrouperProvisioningGroupFieldCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperProvisioningGroupFieldCreateOnly" , false);
+          attributeConfig.setTranslateFromGrouperProvisioningGroupFieldCreateOnly(translateFromGrouperProvisioningGroupFieldCreateOnly);
+        }
+        
+        {
+          String translateFromGrouperProvisioningEntityFieldCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperProvisioningEntityFieldCreateOnly" , false);
+          attributeConfig.setTranslateFromGrouperProvisioningEntityFieldCreateOnly(translateFromGrouperProvisioningEntityFieldCreateOnly);
+        }
+        
+        {
           String translateFromMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromMemberSyncField" , false);
           attributeConfig.setTranslateFromMemberSyncField(translateFromMemberSyncField);
         }
