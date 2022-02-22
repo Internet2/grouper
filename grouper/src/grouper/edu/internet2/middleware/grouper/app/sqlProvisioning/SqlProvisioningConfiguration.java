@@ -16,19 +16,6 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
 //  private String groupAttributeTableAttributeNameIsGroupMatchingId;
   
   
-  private SqlProvisioningType sqlProvisioningType;
-
-  
-  
-  public SqlProvisioningType getSqlProvisioningType() {
-    return sqlProvisioningType;
-  }
-
-  public void setSqlProvisioningType(SqlProvisioningType sqlProvisioningType) {
-    this.sqlProvisioningType = sqlProvisioningType;
-  }
-
-
   private String dbExternalSystemConfigId;
   
   private String membershipTableName;
