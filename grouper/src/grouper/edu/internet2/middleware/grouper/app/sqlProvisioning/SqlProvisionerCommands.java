@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -230,7 +229,7 @@ public class SqlProvisionerCommands {
    * @param ownerAttributesTableName
    * @param attributesOwnerForeignKeyColumn
    */
-  public static void deleteObjects(Set<Object[]> dataToDelete, 
+  public static void deleteObjects(List<Object[]> dataToDelete, 
       String dbExternalSystemConfigId, String ownerTableName, List<String> columnNames, String ownerAttributesTableName,
       String attributesOwnerForeignKeyColumn) {
 

@@ -388,7 +388,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     if (attributeTableDeletes.size() > 0 ) {
       
-      SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, groupAttributesTableName, attributeColumnsToDelete, attributeTableDeletes); 
+      SqlProvisionerCommands.deleteObjects(attributeTableDeletes, dbExternalSystemConfigId, groupAttributesTableName, attributeColumnsToDelete, null, null); 
       
     }
     
@@ -580,8 +580,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     if (attributeTableDeletes.size() > 0 ) {
       
-      SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, entityAttributesTableName, attributeColumnsToDelete, attributeTableDeletes); 
-      
+      SqlProvisionerCommands.deleteObjects(attributeTableDeletes, dbExternalSystemConfigId, entityAttributesTableName, attributeColumnsToDelete, null, null); 
+
     }
     
     for (ProvisioningEntity targetEntity: targetEntities) {
@@ -616,7 +616,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String objectAttributesTableName = sqlProvisioningConfiguration.getGroupAttributesTableName();
     String objectAttributesGroupForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
 
-    Set<Object[]> ownerIds = new HashSet<Object[]>();
+    List<Object[]> ownerIds = new ArrayList<Object[]>();
     
     for (ProvisioningGroup targetGroup: targetGroups) {
       String groupIdValue = targetGroup.retrieveAttributeValueString(objectTableIdColumn);
@@ -656,7 +656,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String entityAttributesTableName = sqlProvisioningConfiguration.getEntityAttributesTableName();
     String entityAttributesGroupForeignKeyColumn = sqlProvisioningConfiguration.getEntityAttributesEntityForeignKeyColumn();
 
-    Set<Object[]> ownerIds = new HashSet<Object[]>();
+    List<Object[]> ownerIds = new ArrayList<Object[]>();
 
     for (ProvisioningEntity targetEntity: targetEntities) {
       String entityIdValue = targetEntity.retrieveAttributeValueString(entityTableIdColumn);
@@ -699,7 +699,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String entityIdForeignKeyColumn = sqlProvisioningConfiguration.getMembershipEntityForeignKeyColumn();
     String groupIdForeignKeyColumn = sqlProvisioningConfiguration.getMembershipGroupForeignKeyColumn();
 
-    Set<Object[]> ownerIds = new HashSet<Object[]>();
+    List<Object[]> ownerIds = new ArrayList<Object[]>();
     
     for (ProvisioningMembership targetMembership: targetMemberships) {
       String groupIdValue = targetMembership.retrieveAttributeValueString(groupIdForeignKeyColumn);
