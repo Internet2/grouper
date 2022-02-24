@@ -103,14 +103,16 @@ public class GrouperClientCommonUtils  {
    * add a value to a log entry
    * @param debugMap
    * @param key
-   * @param incrementBy
+   * @param incrementBy any number
    */
-  public static void debugMapIncrementLogEntry(Map<String, Object> debugMap, String key, long incrementBy) {
+  public static void debugMapIncrementLogEntry(Map<String, Object> debugMap, String key, Object incrementBy) {
+    long incrementByLong = GrouperClientUtils.longValue(incrementBy, 0);
+    
     Long currentValue = GrouperClientUtils.longObjectValue(debugMap.get(key), true);
     if (currentValue == null) {
       currentValue = 0L;
     }
-    currentValue += incrementBy;
+    currentValue += incrementByLong;
     debugMap.put(key, currentValue);
   }
 
