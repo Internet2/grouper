@@ -470,15 +470,6 @@ public class GrouperHttpClient {
   }
 
   
-  /**
-   * The response code of the call.
-   * @param _responseCode the responseCode to set
-   */
-  public GrouperHttpClient assignResponseCode(int _responseCode) {
-    this.responseCode = _responseCode;
-    return this;
-  }
-
   
   /**
    * Truststore (.jks) to add dynamically to list of truststores.
@@ -899,16 +890,13 @@ public class GrouperHttpClient {
 
       // Execute the method.
       CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpRequestBase);
-      int responseCode = closeableHttpResponse.getStatusLine().getStatusCode();
+      this.responseCode = closeableHttpResponse.getStatusLine().getStatusCode();
       
       if (this.debugMapForCaller != null) {
         GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "httpCode_" + responseCode, 1);
         GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "wsCalls", 1);
         GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "wsMillis" + responseCode, System.nanoTime() - start);
       }
-
-      
-      this.assignResponseCode(responseCode);
 
       if (closeableHttpResponse.getAllHeaders() != null){
         for (Header header : closeableHttpResponse.getAllHeaders()){
@@ -954,6 +942,22 @@ public class GrouperHttpClient {
           closeableHttpResponse.close();
         }
       }
+      
+      if (this.assertResponseCode != null) {
+        if (this.assertResponseCode != this.responseCode) {
+          StringBuilder responseBody = new StringBuilder();
+          if (this.responseBodyHolder != null && this.responseBodyHolder.length() > 0 && !this.doNotLogResponseBody) {
+            responseBody.append("\n").append(GrouperUtil.abbreviate(this.responseBodyHolder.toString(), 10000));
+          }
+          if (this.responseFile != null) {
+            responseBody.append("\nResponse file: ").append(this.responseFileName).append(", size: ")
+              .append(this.responseFile == null ? "null" : this.responseFile.length()).append("\n");
+          }
+
+          throw new RuntimeException("Expected response code: " + this.assertResponseCode + " but received response code: " + this.responseCode + responseBody);
+        }
+      }
+      
     } catch (Exception e){
       throw new RuntimeException(e);
     } finally{
@@ -1061,6 +1065,21 @@ public class GrouperHttpClient {
    */
   public GrouperHttpClient assignDebugMap(Map<String, Object> debugMap) {
     this.debugMapForCaller = debugMap;
+    return this;
+  }
+
+  /**
+   * make sure there is a certain response code
+   */
+  private Integer assertResponseCode = null;
+  
+  /**
+   * if the response code is not this, then exception and log response
+   * @param expectedCode
+   * @return this for chaining
+   */
+  public GrouperHttpClient assignAssertResponseCode(int expectedCode) {
+    this.assertResponseCode = expectedCode;
     return this;
   }
 
