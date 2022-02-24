@@ -15,8 +15,8 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  * <pre>
  * import edu.internet2.middleware.grouperClient.jdbc.tableSync.*;
  * 
- * new GcTableSyncFromData().assignDebugMap(debugMap).assignConnectionName(connectionName).assignTableName(tableName)
- *       .assignColumnNames(columnNames).assignColumnNamesPrimaryKey(columnNamesPrimaryKey).assignData(wsRows).sync();
+ * new GcTableSyncFromData().assignDebugMap(debugMap).assignConnectionName(connectionName).assignTableName(tableName).
+ *       assignColumnNames(columnNames).assignColumnNamesPrimaryKey(columnNamesPrimaryKey).assignData(wsRows).sync();
  * </pre>
  * </blockquote>
  * 
