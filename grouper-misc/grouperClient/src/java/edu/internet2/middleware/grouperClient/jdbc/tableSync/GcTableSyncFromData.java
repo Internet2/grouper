@@ -170,8 +170,9 @@ public class GcTableSyncFromData {
     
     List<Object[]> sqlResults = new GcDbAccess().connectionName(this.connectionName).sql(sql).selectList(Object[].class);
 
-    this.debugMap.put(this.debugMapPrefix+"dbRows", GrouperClientUtils.length(sqlResults));
-    this.debugMap.put(this.debugMapPrefix+"sqlSelectMillis", (System.nanoTime() - nowNanos)/1000000);
+    GrouperClientUtils.debugMapIncrementLogEntry(this.debugMap, this.debugMapPrefix+"calls", 1);
+    GrouperClientUtils.debugMapIncrementLogEntry(this.debugMap, this.debugMapPrefix+"dbRows", GrouperClientUtils.length(sqlResults));
+    GrouperClientUtils.debugMapIncrementLogEntry(this.debugMap, this.debugMapPrefix+"sqlSelectMillis", (System.nanoTime() - nowNanos)/1000000);
 
     GcTableSyncTableData gcTableSyncTableDataSql = new GcTableSyncTableData();
     gcTableSyncTableDataSql.init(gcTableSyncTableBeanSql, gcTableSyncTableMetadata.lookupColumns(columnsCommaSeparated), sqlResults);
@@ -199,6 +200,5 @@ public class GcTableSyncFromData {
     GcTableSyncSubtype.fullSyncFull.syncData(this.debugMap, gcTableSync);
 
   }
-  
-
+ 
 }
