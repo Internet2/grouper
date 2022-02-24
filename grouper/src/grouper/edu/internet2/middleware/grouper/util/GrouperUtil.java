@@ -353,29 +353,30 @@ public class GrouperUtil {
   }
   
   /**
-   * 
-   * @param jsonNode
+   * start the sub field with JSON_NODE_ROOT if you want the pointer from root node instead of array node
+   * @param rootJsonNode
    * @param jsonPointerOfArrayNode json path that returns a list e.g. /a/b
    * @param jsonPointersOfSubFields from the perspective of the array node, e.g. /c/d
    * @return the list of object arrays not null
    */
-  public static List<Object[]> jsonJacksonListObjectArrayFromJsonPointers(JsonNode jsonNode, String jsonPointerOfArrayNode,
+  public static List<Object[]> jsonJacksonListObjectArrayFromJsonPointers(JsonNode rootJsonNode, String jsonPointerOfArrayNode,
       List<String> jsonPointersOfSubFields) {
     
     List<Object[]> results = new ArrayList<Object[]>();
     
-    if (jsonNode != null) {
+    if (rootJsonNode != null) {
       
+      JsonNode arrayNodeJsonNode = null;
       // traverse down a tad
       if (!StringUtils.isBlank(jsonPointerOfArrayNode)) {
-        jsonNode = jsonNode.at(jsonPointerOfArrayNode);
+        arrayNodeJsonNode = rootJsonNode.at(jsonPointerOfArrayNode);
       }
       
-      if (jsonNode != null) {
-        if (!(jsonNode instanceof ArrayNode)) {
+      if (arrayNodeJsonNode != null) {
+        if (!(arrayNodeJsonNode instanceof ArrayNode)) {
           throw new RuntimeException("ArrayNode not found at '" + jsonPointerOfArrayNode + "'");
         }
-        ArrayNode arrayNode = (ArrayNode)jsonNode;
+        ArrayNode arrayNode = (ArrayNode)arrayNodeJsonNode;
         
         for (int i=0;i<arrayNode.size();i++) {
           JsonNode objectIterated = arrayNode.get(i);
@@ -383,7 +384,14 @@ public class GrouperUtil {
           results.add(row);
           int j=0;
           for (String jsonPointerOfSubField : nonNull(jsonPointersOfSubFields)) {
-            JsonNode dataValueNode = objectIterated.at(jsonPointerOfSubField);
+            JsonNode dataValueNode = null;
+            if (jsonPointerOfSubField.startsWith("JSON_NODE_ROOT")) {
+              jsonPointerOfSubField = prefixOrSuffix(jsonPointerOfSubField, "JSON_NODE_ROOT", false);
+              dataValueNode = rootJsonNode.at(jsonPointerOfSubField);
+            } else {
+              dataValueNode = objectIterated.at(jsonPointerOfSubField);
+            }
+            
             if (dataValueNode != null && !(dataValueNode instanceof NullNode)) {
 
               if (dataValueNode.isInt() || dataValueNode.isLong()) {
@@ -458,6 +466,9 @@ public class GrouperUtil {
    */
   public static String gshRunScript(String script, boolean lightWeight) {
     GrouperGroovysh.GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(script, lightWeight);
+    if (grouperGroovyResult.getException() != null) {
+      throw grouperGroovyResult.getException();
+    }
     String output = grouperGroovyResult.fullOutput();
     return output;
   }

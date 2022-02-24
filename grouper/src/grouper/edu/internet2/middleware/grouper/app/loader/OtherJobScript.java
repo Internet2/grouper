@@ -74,6 +74,10 @@ public class OtherJobScript extends OtherJobBase {
    */
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInputParam) {
+    
+    
+    OtherJobScript originalOtherJobScript = threadLocalOtherJobScript.get();
+    
     threadLocalOtherJobScript.set(this);
     try {
       this.otherJobInput = otherJobInputParam;
@@ -164,6 +168,9 @@ public class OtherJobScript extends OtherJobBase {
       otherJobInputParam.getHib3GrouperLoaderLog().setJobMessage(message);
     } finally {
       threadLocalOtherJobScript.remove();
+      if (originalOtherJobScript != null) {
+        threadLocalOtherJobScript.set(originalOtherJobScript);
+      }
     }
     return this.otherJobOutput;
   }

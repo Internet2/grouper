@@ -895,9 +895,9 @@ public class GrouperHttpClient {
       this.responseCode = closeableHttpResponse.getStatusLine().getStatusCode();
       
       if (this.debugMapForCaller != null) {
-        GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "httpCode_" + responseCode, 1);
+        GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "httpCode_" + this.responseCode, 1);
         GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "wsCalls", 1);
-        GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "wsMillis" + responseCode, System.nanoTime() - start);
+        GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "wsMillis", System.currentTimeMillis() - start);
       }
 
       if (closeableHttpResponse.getAllHeaders() != null){
