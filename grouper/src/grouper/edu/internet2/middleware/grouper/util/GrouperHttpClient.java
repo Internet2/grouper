@@ -52,6 +52,8 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -724,7 +726,7 @@ public class GrouperHttpClient {
    * @param grouperHttpCall is the configuration object.
    */
   @SuppressWarnings("deprecation")
-  public void executeRequest(){
+  public GrouperHttpClient executeRequest(){
 
     long start = System.currentTimeMillis();
     // We default to post.
@@ -958,6 +960,26 @@ public class GrouperHttpClient {
         }
       }
       
+      if (!StringUtils.isBlank(this.assertJsonPointer) || !StringUtils.isBlank(this.assertJsonPointerExpectedValueString)) {
+
+        GrouperUtil.assertion(!StringUtils.isBlank(this.assertJsonPointer), "json pointer is required");
+        GrouperUtil.assertion(!StringUtils.isBlank(this.assertJsonPointerExpectedValueString), "json pointer expected value is required");
+        
+        retrieveJsonNode();
+        String value = GrouperUtil.jsonJacksonGetStringFromJsonPointer(this.jsonNode, this.assertJsonPointer);
+        if (!StringUtils.equals(value, this.assertJsonPointerExpectedValueString)) {
+          StringBuilder responseBody = new StringBuilder();
+          if (this.responseBodyHolder != null && this.responseBodyHolder.length() > 0 && !this.doNotLogResponseBody) {
+            responseBody.append("\n").append(GrouperUtil.abbreviate(this.responseBodyHolder.toString(), 10000));
+          }
+
+          throw new RuntimeException("Expected json pointer value: '" + this.assertJsonPointerExpectedValueString + "' at path '" 
+              + this.assertJsonPointer + "' but received value: '" + value + "'" + responseBody);
+          
+        }
+        
+      }
+      return this;
     } catch (Exception e){
       throw new RuntimeException(e);
     } finally{
@@ -1069,6 +1091,23 @@ public class GrouperHttpClient {
   }
 
   /**
+   * json node of response
+   */
+  private JsonNode jsonNode;
+  
+  /**
+   * get the json node of the response (generate if not there already)
+   * @return the json node
+   */
+  public JsonNode retrieveJsonNode() {
+    if (this.jsonNode != null) {
+      return this.jsonNode;
+    }
+    this.jsonNode = GrouperUtil.jsonJacksonNode(this.getResponseBody());
+    return this.jsonNode;
+  }
+  
+  /**
    * make sure there is a certain response code
    */
   private Integer assertResponseCode = null;
@@ -1080,6 +1119,39 @@ public class GrouperHttpClient {
    */
   public GrouperHttpClient assignAssertResponseCode(int expectedCode) {
     this.assertResponseCode = expectedCode;
+    return this;
+  }
+
+  /**
+   * check a json pointer for a value to see if request is success.
+   * note that the parsed JsonNode is available too
+   */
+  private String assertJsonPointer = null;
+  
+  /**
+   * check a json pointer for a value to see if request is success.
+   * note that the parsed JsonNode is available too.
+   * json pointer e.g. /a/b/c
+   * @param assertJsonPointer1
+   * @return this for chaining
+   */
+  public GrouperHttpClient assignAssertJsonPointer(String assertJsonPointer1) {
+    this.assertJsonPointer = assertJsonPointer1;
+    return this;
+  }
+
+  /**
+   * check a json pointer e.g. /a/b/c and see if it equals this value, if not, exception
+   */
+  private String assertJsonPointerExpectedValueString = null;
+  
+  /**
+   * if the response code is not this, then exception and log response
+   * @param assertJsonPointerExpectedValueString1
+   * @return this for chaining
+   */
+  public GrouperHttpClient assignAssertJsonPointerExpectedValueString(String assertJsonPointerExpectedValueString1) {
+    this.assertJsonPointerExpectedValueString = assertJsonPointerExpectedValueString1;
     return this;
   }
 
