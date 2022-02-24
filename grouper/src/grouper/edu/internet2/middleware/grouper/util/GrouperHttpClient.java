@@ -52,6 +52,8 @@ import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
 import org.apache.http.util.EntityUtils;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+
 
 /**
  * <p>HTTP call.  Use this for all HTTP calls as a client
@@ -898,6 +900,14 @@ public class GrouperHttpClient {
       // Execute the method.
       CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpRequestBase);
       int responseCode = closeableHttpResponse.getStatusLine().getStatusCode();
+      
+      if (this.debugMapForCaller != null) {
+        GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "httpCode_" + responseCode, 1);
+        GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "wsCalls", 1);
+        GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "wsMillis" + responseCode, System.nanoTime() - start);
+      }
+
+      
       this.assignResponseCode(responseCode);
 
       if (closeableHttpResponse.getAllHeaders() != null){
@@ -1037,6 +1047,21 @@ public class GrouperHttpClient {
     threadLocalLog.set(grouperHttpCallLog);
     return true;
 
+  }
+
+  /**
+   * debug map for caller
+   */
+  private Map<String, Object> debugMapForCaller;
+
+  /**
+   * debug map for timing and result code
+   * @param debugMap
+   * @return this for chaining
+   */
+  public GrouperHttpClient assignDebugMap(Map<String, Object> debugMap) {
+    this.debugMapForCaller = debugMap;
+    return this;
   }
 
 }
