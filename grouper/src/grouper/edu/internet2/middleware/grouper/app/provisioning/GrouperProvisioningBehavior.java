@@ -1766,4 +1766,9 @@ public class GrouperProvisioningBehavior {
     return false;
     
   }
+  
+  public boolean isLoadEntitiesToGrouperTable() {
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadEntitiesToGrouperTable();
+  }
+  
 }

@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLoader;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
 public class GrouperDuoProvisioner extends GrouperProvisioner {
@@ -33,5 +34,12 @@ public class GrouperDuoProvisioner extends GrouperProvisioner {
   protected Class<? extends GrouperProvisioningConfigurationValidation> grouperProvisioningConfigurationValidationClass() {
     return DuoProvisoningConfigurationValidation.class;
   }
+
+  @Override
+  protected Class<? extends GrouperProvisioningLoader> grouperProvisioningLoaderClass() {
+    return DuoProvisioningLoader.class;
+  }
+  
+  
 
 }

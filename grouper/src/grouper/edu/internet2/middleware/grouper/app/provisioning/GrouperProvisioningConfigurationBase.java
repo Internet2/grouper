@@ -50,6 +50,8 @@ public abstract class GrouperProvisioningConfigurationBase {
   private boolean selectAllSqlOnFull = true;
   private boolean filterAllLDAPOnFull = true;
   
+  private boolean loadEntitiesToGrouperTable;
+  
   private String entityAttributesSqlExternalSystem;
   private String entityAttributesTableViewName;
   private String entityAttributesColumnNames;
@@ -311,6 +313,12 @@ public abstract class GrouperProvisioningConfigurationBase {
   public boolean isSelectAllSqlOnFull() {
     return selectAllSqlOnFull;
   }
+  
+  
+  public boolean isLoadEntitiesToGrouperTable() {
+    return loadEntitiesToGrouperTable;
+  }
+
 
   /**
    * if set then only provision users who are in this group
@@ -2481,6 +2489,8 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.globalLdapResolver = this.retrieveConfigString("globalLDAPResolver", false);
     this.selectAllSqlOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllSQLOnFull", false), true);
     this.filterAllLDAPOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("filterAllLDAPOnFull", false), true);
+    
+    this.loadEntitiesToGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGrouperTable", false), true);
 
     this.entityAttributesSqlExternalSystem = this.retrieveConfigString("sqlConfigId", false);
     this.entityAttributesTableViewName = this.retrieveConfigString("tableOrViewName", false);

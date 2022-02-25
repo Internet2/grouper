@@ -2699,12 +2699,16 @@ public enum GrouperDdl implements DdlVersionable {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "2.6.8";
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      
+      GrouperDdl2_6_8.addGrouperProvDuoUserTable(database, ddlVersionBean);
+      GrouperDdl2_6_8.addGrouperProvDuoUserIndex(ddlVersionBean, database);
+      GrouperDdl2_6_8.addGrouperProvDuoUserComments(database, ddlVersionBean);
       
     }
   },

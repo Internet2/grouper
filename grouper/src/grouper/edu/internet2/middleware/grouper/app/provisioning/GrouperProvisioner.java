@@ -1132,4 +1132,19 @@ public abstract class GrouperProvisioner {
     return this.grouperProvisioningFailsafe;
     
   }
+  
+  private GrouperProvisioningLoader grouperProvisioningLoader;
+  
+  protected Class<? extends GrouperProvisioningLoader> grouperProvisioningLoaderClass() {
+    return GrouperProvisioningLoader.class;
+  }
+  
+  public GrouperProvisioningLoader retrieveGrouperProvisioningLoader() {
+    if (this.grouperProvisioningLoader == null) {
+      Class<? extends GrouperProvisioningLoader> grouperProvisioningLoaderClass = this.grouperProvisioningLoaderClass();
+      this.grouperProvisioningLoader = GrouperUtil.newInstance(grouperProvisioningLoaderClass);
+      this.grouperProvisioningLoader.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningLoader;
+  }
 }

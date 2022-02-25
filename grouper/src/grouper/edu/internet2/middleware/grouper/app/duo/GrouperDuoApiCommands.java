@@ -33,7 +33,7 @@ public class GrouperDuoApiCommands {
     List<GrouperDuoGroup> duoGroups = retrieveDuoGroups(configId);
     System.out.println("duo groups size = "+duoGroups.size());
     
-    List<GrouperDuoUser> duoUsers = retrieveDuoUsers(configId);
+    List<GrouperDuoUser> duoUsers = retrieveDuoUsers(configId, true);
     System.out.println("duo users size = "+duoUsers.size());
     
     for (GrouperDuoUser grouperDuoUser: duoUsers) {
@@ -191,7 +191,7 @@ public class GrouperDuoApiCommands {
     
     updateDuoUser("duo1", grouperDuoUserToUpdate, fieldsToUpdateOnUser);
     
-    List<GrouperDuoUser> duoUsers = retrieveDuoUsers("duo1");
+    List<GrouperDuoUser> duoUsers = retrieveDuoUsers("duo1", true);
     boolean userFound = false;
     for (GrouperDuoUser duoUser : duoUsers) {
       System.out.println(duoUser.getId());
@@ -555,7 +555,7 @@ public class GrouperDuoApiCommands {
       if (userNode == null) {
         return new ArrayList<GrouperDuoGroup>();
       }
-      GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
+      GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, false);
 
       return new ArrayList<GrouperDuoGroup>(grouperDuoUser.getGroups());
     } catch (RuntimeException re) {
@@ -593,7 +593,7 @@ public class GrouperDuoApiCommands {
 
         for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
           JsonNode userNode = usersArray.get(i);
-          GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
+          GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, false);
           results.add(grouperDuoUser);
         }
         
@@ -682,7 +682,7 @@ public class GrouperDuoApiCommands {
       
       JsonNode userNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
 
-      GrouperDuoUser grouperDuoUserResult = GrouperDuoUser.fromJson(userNode);
+      GrouperDuoUser grouperDuoUserResult = GrouperDuoUser.fromJson(userNode, false);
 
       return grouperDuoUserResult;
     } catch (RuntimeException re) {
@@ -749,7 +749,7 @@ public class GrouperDuoApiCommands {
 
       JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
       
-      GrouperDuoUser grouperDuoUserResult = GrouperDuoUser.fromJson(groupNode);
+      GrouperDuoUser grouperDuoUserResult = GrouperDuoUser.fromJson(groupNode, false);
 
       return grouperDuoUserResult;
     } catch (RuntimeException re) {
@@ -761,7 +761,7 @@ public class GrouperDuoApiCommands {
 
   }
   
-  public static List<GrouperDuoUser> retrieveDuoUsers(String configId) {
+  public static List<GrouperDuoUser> retrieveDuoUsers(String configId, boolean includeLoadedFields) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -787,7 +787,7 @@ public class GrouperDuoApiCommands {
 
         for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
           JsonNode userNode = usersArray.get(i);
-          GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
+          GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, includeLoadedFields);
           results.add(grouperDuoUser);
         }
         
@@ -831,7 +831,7 @@ public class GrouperDuoApiCommands {
       if (userNode == null) {
         return null;
       }
-      GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
+      GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, false);
 
       return grouperDuoUser;
     } catch (RuntimeException re) {
@@ -873,7 +873,7 @@ public class GrouperDuoApiCommands {
         throw new RuntimeException("How can there be more than one user with the same username in duo??");
       } else {
         JsonNode userNode = usersArray.get(0);
-        GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode);
+        GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, false);
         return grouperDuoUser;
       }
       
