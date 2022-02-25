@@ -210,12 +210,6 @@ public class GrouperStartup {
     }
     
     resultString.append("Grouper current directory is: " + new File("").getAbsolutePath() + "\n");
-    //get log4j file
-    String log4jFileLocation = GrouperUtil.getLocationFromResourceName("log4j.properties");
-    if (log4jFileLocation == null) {
-      log4jFileLocation = " [cant find log4j.properties]";
-    }
-    resultString.append("log4j.properties read from:   " + log4jFileLocation + "\n");
     
     resultString.append(GrouperUtil.logDirPrint());
     String hibPropertiesFileLocation = GrouperUtil.getLocationFromResourceName("grouper.hibernate.properties");

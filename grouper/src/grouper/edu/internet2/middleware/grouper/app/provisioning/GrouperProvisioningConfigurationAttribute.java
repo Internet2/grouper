@@ -11,6 +11,18 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperProvisioningConfigurationAttribute {
 
+  private GrouperProvisioner grouperProvisioner;
+  
+  
+  
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
+  }
+
+  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    this.grouperProvisioner = grouperProvisioner;
+  }
+
   /**
    * for validation messages
    */
@@ -572,6 +584,25 @@ public class GrouperProvisioningConfigurationAttribute {
    */
   public boolean isUpdate() {
     return update;
+  }
+
+
+  /**
+   * update this attribute in normal updates
+   * @return true if update this attribute
+   */
+  public boolean isUpdateConsiderMemberships() {
+    if (this.update) {
+      return true;
+    }
+    GrouperProvisioningBehavior grouperProvisioningBehavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
+    if ((grouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        || grouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes)
+        && this.isMembershipAttribute() && (grouperProvisioningBehavior.isInsertMemberships() 
+            || grouperProvisioningBehavior.isDeleteMemberships() || grouperProvisioningBehavior.isUpdateMemberships())) {
+      return true;
+    }
+    return false;
   }
 
   /**

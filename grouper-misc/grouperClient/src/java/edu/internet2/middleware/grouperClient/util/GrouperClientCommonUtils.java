@@ -99,6 +99,23 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
 @SuppressWarnings({ "serial", "unchecked" })
 public class GrouperClientCommonUtils  {
 
+  /**
+   * add a value to a log entry
+   * @param debugMap
+   * @param key
+   * @param incrementBy any number
+   */
+  public static void debugMapIncrementLogEntry(Map<String, Object> debugMap, String key, Object incrementBy) {
+    long incrementByLong = GrouperClientUtils.longValue(incrementBy, 0);
+    
+    Long currentValue = GrouperClientUtils.longObjectValue(debugMap.get(key), true);
+    if (currentValue == null) {
+      currentValue = 0L;
+    }
+    currentValue += incrementByLong;
+    debugMap.put(key, currentValue);
+  }
+
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new InheritableThreadLocal<Map<String, Map<String, String>>>();
 

@@ -79,6 +79,16 @@ public class GrouperProvisioningValidation {
         continue;
       }
       
+      // matching ID must be there
+      if (GrouperUtil.isBlank(provisioningGroupWrapper.getMatchingId())) {
+        // TODO see if the matching ID field is stored in a bucket, if so, maybe its not required?
+        this.assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
+        if (removeInvalid) {
+          iterator.remove();
+          continue;
+        }
+      }
+      
       for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
         new Collection[] {
           this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().values(),
@@ -140,6 +150,15 @@ public class GrouperProvisioningValidation {
       //if we're not provisioning this entity, maybe this is used in membership that needs to be removed so we shouldn't validate.  
       if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable()) {
         continue;
+      }
+      
+      // matching ID must be there
+      if (GrouperUtil.isBlank(provisioningEntityWrapper.getMatchingId())) {
+        this.assignEntityError(provisioningEntityWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
+        if (removeInvalid) {
+          iterator.remove();
+          continue;
+        }
       }
       
       for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 

@@ -473,10 +473,10 @@ public class SqlProvisionerCommands {
       for (int j=0;j<GrouperUtil.length(whereClauseRow);j++) {
         Object whereClauseValue = whereClauseRow[j];
         
-        // last one is null
-        if (j != whereClauseRow.length-1) {
-          bindUpdateVars.add(whereClauseValue);
-        } else {
+        bindUpdateVars.add(whereClauseValue);
+
+        // last one is not null
+        if (j == whereClauseRow.length-1) {
           GrouperUtil.assertion(whereClauseValue != null, "last where clause value should not be null");
         }
       }
@@ -500,13 +500,12 @@ public class SqlProvisionerCommands {
       if (i!=0) {
         sql.append(" and ");
       }
+      sql.append(whereClauseColumns.get(i));
       
-      gcDbAccess.addBindVar(whereClauseColumns.get(i));
       if (i == whereClauseColumns.size()-1) {
-        GrouperUtil.assertion(whereClauseValues.get(i) != null, "Last param should be null");
+        GrouperUtil.assertion(whereClauseValues.get(i) != null, "Last param should not be null");
       }
       sql.append(" = ? ");
-      gcDbAccess.addBindVar(whereClauseValues.get(i));
       
     }
     
@@ -579,14 +578,14 @@ public class SqlProvisionerCommands {
         sql.append(" and ");
       }
       
-      gcDbAccess.addBindVar(whereClauseColumns.get(i));
+      sql.append(whereClauseColumns.get(i));
+
       if (i == whereClauseColumns.size()-1) {
         GrouperUtil.assertion(whereClauseValues.get(i) == null, "Last param should be null");
         sql.append(" is null ");
       } else {
         GrouperUtil.assertion(whereClauseValues.get(i) != null, "Last param should not be null");
         sql.append(" = ? ");
-        gcDbAccess.addBindVar(whereClauseValues.get(i));
       }
       
     }
