@@ -2118,6 +2118,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         
         GrouperProvisioningConfigurationAttribute attributeConfig = GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
         
+        attributeConfig.setGrouperProvisioner(grouperProvisioner);
         attributeConfig.setConfigIndex(i);
         
         if (StringUtils.equals("targetGroupAttribute", objectType)) {
@@ -2665,6 +2666,7 @@ public abstract class GrouperProvisioningConfigurationBase {
       if (this.targetGroupFieldNameToConfig.size() == 0 && this.targetGroupAttributeNameToConfig.size() == 0) {
         
         GrouperProvisioningConfigurationAttribute nameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        nameConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         nameConfigurationAttribute.setUpdate(this.isUpdateGroups());
         nameConfigurationAttribute.setAttribute(false);
         nameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
@@ -2676,6 +2678,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         this.targetGroupFieldNameToConfig.put("name", nameConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute displayNameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        displayNameConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         displayNameConfigurationAttribute.setUpdate(this.isUpdateGroups());
         displayNameConfigurationAttribute.setAttribute(false);
         displayNameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
@@ -2687,6 +2690,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         this.targetGroupFieldNameToConfig.put("displayName", displayNameConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute idIndexConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        idIndexConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         idIndexConfigurationAttribute.setUpdate(this.isUpdateGroups());
         idIndexConfigurationAttribute.setAttribute(false);
         idIndexConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
@@ -2699,6 +2703,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         
         
         GrouperProvisioningConfigurationAttribute descriptionConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        descriptionConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         descriptionConfigurationAttribute.setUpdate(this.isUpdateGroups());
         descriptionConfigurationAttribute.setAttribute(true);
         descriptionConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
@@ -2721,6 +2726,7 @@ public abstract class GrouperProvisioningConfigurationBase {
       if (this.targetEntityFieldNameToConfig.size() == 0 && this.targetEntityAttributeNameToConfig.size() == 0) {
         
         GrouperProvisioningConfigurationAttribute idConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        idConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         idConfigurationAttribute.setUpdate(this.isUpdateEntities());
         idConfigurationAttribute.setAttribute(false);
         idConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
@@ -2732,6 +2738,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         this.targetEntityFieldNameToConfig.put("id", idConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute nameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        nameConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         nameConfigurationAttribute.setUpdate(this.isUpdateEntities());
         nameConfigurationAttribute.setAttribute(false);
         nameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
@@ -2743,6 +2750,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         this.targetEntityFieldNameToConfig.put("name", nameConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute subjectIdConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectIdConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         subjectIdConfigurationAttribute.setUpdate(this.isUpdateEntities());
         subjectIdConfigurationAttribute.setAttribute(false);
         subjectIdConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
@@ -2754,6 +2762,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         this.targetEntityFieldNameToConfig.put("subjectId", subjectIdConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute descriptionConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        descriptionConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         descriptionConfigurationAttribute.setUpdate(this.isUpdateEntities());
         descriptionConfigurationAttribute.setAttribute(true);
         descriptionConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
@@ -2765,6 +2774,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         this.targetEntityAttributeNameToConfig.put("description", descriptionConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute subjectSourceIdConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectSourceIdConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         subjectSourceIdConfigurationAttribute.setUpdate(this.isUpdateEntities());
         subjectSourceIdConfigurationAttribute.setAttribute(true);
         subjectSourceIdConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
@@ -2776,6 +2786,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         this.targetEntityAttributeNameToConfig.put("subjectSourceId", subjectSourceIdConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute subjectIdetifier0ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectIdetifier0ConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         subjectIdetifier0ConfigurationAttribute.setUpdate(this.isUpdateEntities());
         subjectIdetifier0ConfigurationAttribute.setAttribute(true);
         subjectIdetifier0ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
@@ -2787,6 +2798,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         this.targetEntityAttributeNameToConfig.put("subjectIdentifier0", subjectIdetifier0ConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute subjectIdetifier1ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectIdetifier1ConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         subjectIdetifier1ConfigurationAttribute.setUpdate(this.isUpdateEntities());
         subjectIdetifier1ConfigurationAttribute.setAttribute(true);
         subjectIdetifier1ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
@@ -2798,6 +2810,7 @@ public abstract class GrouperProvisioningConfigurationBase {
         this.targetEntityAttributeNameToConfig.put("subjectIdentifier1", subjectIdetifier1ConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute subjectIdetifier2ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectIdetifier2ConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         subjectIdetifier2ConfigurationAttribute.setUpdate(this.isUpdateEntities());
         subjectIdetifier2ConfigurationAttribute.setAttribute(true);
         subjectIdetifier2ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
