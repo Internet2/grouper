@@ -1164,47 +1164,60 @@ public class GrouperUtil {
     }
     logDirsCreated = true;
 
-    String location = "log4j.properties";
+    String location = "log4j2.xml";
     
-    fileCopyExampleResourceIfNotExist("log4j.example.properties", location);
-    Properties properties = propertiesFromResourceName(location);
-    Set<String> keySet = (Set<String>)(Object)properties.keySet();
-    for (String key : keySet) {
-      //if its a file property
-      if (key.endsWith(".File")) {
-        try {
-          String fileName = properties.getProperty(key);
-          if(fileName.startsWith("${grouper.home}")) {
-            if(grouperHome==null) {
-            throw new IllegalStateException("The System property grouper.home is referenced in log4j configuration " +
-                "however, it is not set.");
-            }
-            if (!grouperHome.endsWith("/") && !grouperHome.endsWith("\\")) {
-              fileName = grouperHome + File.separator + fileName.substring(15);
-            } else {
-              fileName = grouperHome + fileName.substring(15);
-            }
-          }
-          File file = new File(fileName);
-          File parent = file.getParentFile();
-
-          if (parent != null && !parent.exists()) {
-            //dont have a logger yet, so just print to stdout
-            System.out.println("Grouper warning: parent dir of log file doesnt exist: " + fileCanonicalPath(parent));
-            //create the parent
-            mkdirs(parent);
-            System.out.println("Grouper note: auto-created parent dir of log file: " + fileCanonicalPath(parent));
-
-          }
-
-        } catch (RuntimeException re) {
-          //this is bad, print to stderr rightaway (though might dupe)
-          System.err.println(LOG_ERROR);
-          re.printStackTrace();
-          throw new RuntimeException(LOG_ERROR, re);
-        }
-      }
-    }
+    fileCopyExampleResourceIfNotExist("log4j2.example.xml", location);
+    
+//    URL url = computeUrl(location, false);
+//    
+//    // Instantiate the Factory
+//    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+//
+//    try {
+//
+//        // parse XML file
+//        DocumentBuilder db = dbf.newDocumentBuilder();
+//
+//        Document doc = db.parse(url.openStream());
+//    
+//    Properties properties = propertiesFromResourceName(location);
+//    Set<String> keySet = (Set<String>)(Object)properties.keySet();
+//    for (String key : keySet) {
+//      //if its a file property
+//      if (key.endsWith(".File")) {
+//        try {
+//          String fileName = properties.getProperty(key);
+//          if(fileName.startsWith("${grouper.home}")) {
+//            if(grouperHome==null) {
+//            throw new IllegalStateException("The System property grouper.home is referenced in log4j configuration " +
+//                "however, it is not set.");
+//            }
+//            if (!grouperHome.endsWith("/") && !grouperHome.endsWith("\\")) {
+//              fileName = grouperHome + File.separator + fileName.substring(15);
+//            } else {
+//              fileName = grouperHome + fileName.substring(15);
+//            }
+//          }
+//          File file = new File(fileName);
+//          File parent = file.getParentFile();
+//
+//          if (parent != null && !parent.exists()) {
+//            //dont have a logger yet, so just print to stdout
+//            System.out.println("Grouper warning: parent dir of log file doesnt exist: " + fileCanonicalPath(parent));
+//            //create the parent
+//            mkdirs(parent);
+//            System.out.println("Grouper note: auto-created parent dir of log file: " + fileCanonicalPath(parent));
+//
+//          }
+//
+//        } catch (RuntimeException re) {
+//          //this is bad, print to stderr rightaway (though might dupe)
+//          System.err.println(LOG_ERROR);
+//          re.printStackTrace();
+//          throw new RuntimeException(LOG_ERROR, re);
+//        }
+//      }
+//    }
   }
 
   /**
@@ -1314,7 +1327,7 @@ public class GrouperUtil {
       log4jPropertiesFrom =
               ((org.apache.logging.log4j.core.Logger) rootLogger).getContext().getConfiguration().getConfigurationSource().getLocation();
     } catch (Exception e) {
-      log4jPropertiesFrom = "log4j.properties (failed to to determine exact location)";
+      log4jPropertiesFrom = "log4j2.xml (failed to to determine exact location)";
     }
 
     while (rootLogger != null && !writesLogs) {
