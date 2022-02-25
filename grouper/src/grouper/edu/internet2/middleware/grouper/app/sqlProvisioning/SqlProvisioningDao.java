@@ -759,7 +759,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     for (ProvisioningMembership targetMembership: targetMemberships) {
       
       Object[] attributeValuePrimaryTable = new Object[columnsToInsertInPrimaryTable.size()];
-          
+      attributeValuesPrimaryTable.add(attributeValuePrimaryTable);
       for (ProvisioningObjectChange provisioningObjectChange: GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
         if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
           String attributeName = provisioningObjectChange.getAttributeName();
@@ -1353,7 +1353,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
       if (filterByColumn) {
         groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
-            dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName, null, null, GrouperUtil.toList(groupTableIdColumn), idsToRetrieve);
+            dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName, null, null, GrouperUtil.toList(searchAttribute.getName()), idsToRetrieve);
         
       } else if (filterByAttribute) {
         groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsAttributeFilter(dbExternalSystemConfigId, 
@@ -1605,7 +1605,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
       if (filterByColumn) {
         entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
-            dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName, null, null, GrouperUtil.toList(entityTableIdColumn), idsToRetrieve);
+            dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName, null, null, GrouperUtil.toList(searchAttribute.getName()), idsToRetrieve);
         
       } else if (filterByAttribute) {
         entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsAttributeFilter(dbExternalSystemConfigId, 

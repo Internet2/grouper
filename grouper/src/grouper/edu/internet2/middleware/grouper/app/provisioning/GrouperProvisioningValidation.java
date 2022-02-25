@@ -81,6 +81,7 @@ public class GrouperProvisioningValidation {
       
       // matching ID must be there
       if (GrouperUtil.isBlank(provisioningGroupWrapper.getMatchingId())) {
+        // TODO see if the matching ID field is stored in a bucket, if so, maybe its not required?
         this.assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
         if (removeInvalid) {
           iterator.remove();
