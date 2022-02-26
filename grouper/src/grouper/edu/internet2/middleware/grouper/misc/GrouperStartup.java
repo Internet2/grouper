@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcl
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.log.GrouperLoggingDynamicConfig;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
@@ -313,6 +314,9 @@ public class GrouperStartup {
             
             //dont print big classname, dont print nulls
             ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());
+
+            GrouperLoggingDynamicConfig.checkForUpdates();
+            GrouperLoggingDynamicConfig.startThreadIfNotStarted();
 
             //first check databases
             

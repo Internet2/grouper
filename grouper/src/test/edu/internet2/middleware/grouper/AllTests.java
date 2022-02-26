@@ -35,7 +35,6 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouperClient.AllClientConfigTests;
 import edu.internet2.middleware.grouper.app.AllAppTests;
 import edu.internet2.middleware.grouper.attr.AllAttributeTests;
 import edu.internet2.middleware.grouper.audit.AllAuditTests;
@@ -55,6 +54,7 @@ import edu.internet2.middleware.grouper.hibernate.AllHibernateTests;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hooks.AllHooksTests;
 import edu.internet2.middleware.grouper.internal.dao.AllInternalDaoTests;
+import edu.internet2.middleware.grouper.log.AllLogTests;
 import edu.internet2.middleware.grouper.member.AllMemberTests;
 import edu.internet2.middleware.grouper.membership.AllMembershipTests;
 import edu.internet2.middleware.grouper.messaging.AllMessagingTests;
@@ -76,6 +76,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AllValidatorTests;
 import edu.internet2.middleware.grouper.xml.AllXmlTests;
 import edu.internet2.middleware.grouper.xmpp.AllXmppTests;
+import edu.internet2.middleware.grouperClient.AllClientConfigTests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
@@ -237,6 +238,7 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllHibernateTests.suite());
     suite.addTest(AllHooksTests.suite());
     suite.addTest(AllInternalDaoTests.suite());
+    suite.addTest(AllLogTests.suite());
     suite.addTest(AllMemberTests.suite());
     suite.addTest(AllMembershipTests.suite());
     suite.addTest(AllMessagingTests.suite());
