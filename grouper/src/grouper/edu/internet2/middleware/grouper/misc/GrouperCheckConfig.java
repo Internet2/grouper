@@ -452,7 +452,7 @@ public class GrouperCheckConfig {
     checkGrouperConfig();
     checkResource("grouper.cache.properties");
     checkResource("grouper.hibernate.properties");
-    checkResource("log4j.properties");
+    checkResource("log4j2.xml");
     checkResource("morphString.properties");
     checkResource("subject.properties");
     
