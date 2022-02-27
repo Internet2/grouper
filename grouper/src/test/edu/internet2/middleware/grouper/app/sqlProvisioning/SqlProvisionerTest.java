@@ -125,7 +125,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
     GrouperStartup.startup();
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFullWithAttributesTableFailsafe"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFull_1_GlobalResolvers"));
     
   }
   
@@ -558,7 +558,10 @@ public class SqlProvisionerTest extends GrouperTest {
    * just do a simple full sync of groups and memberships
    */
   public void testSimpleGroupMembershipProvisioningFull_1_GlobalResolvers() {
-    
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.ldap.dinkel", false)) {
+      System.out.println("Not running testSimpleGroupMembershipProvisioningFull_1_GlobalResolvers since grouper.properties junit.test.ldap.dinkel = false");
+      return;
+    }
     stopAndStartLdapContainer();
     
     new GcDbAccess().sql("delete from testgrouper_prov_entity1").executeSql();
