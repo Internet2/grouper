@@ -16,7 +16,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,11 +24,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfig;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigService;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
@@ -54,19 +63,63 @@ import edu.internet2.middleware.subject.Subject;
  * @author mchyzer
  */
 public class GroupContainer {
+  
+  /** logger */
+  protected static final Log LOG = LogFactory.getLog(GroupContainer.class);
+
 
   private List<GroupTypeForEdit> groupTypesForEdit;
   
   private static Pattern groupTypeForEditPattern = Pattern.compile("^groupScreenType\\.([^.]+)\\.[a-zA-Z0-9]+$");
   
+  /**
+   * get list of group types for view only
+   * @return
+   */
+  public List<GroupTypeForEdit> getGroupTypesForView() {
+    return getGroupTypes(true);
+  }
+  
+  
+  /**
+   * get list of group attributes for edit
+   * @return
+   */
   public List<GroupTypeForEdit> getGroupTypesForEdit() {
+    return getGroupTypes(false);
+  }
+  
+  /**
+   * @param checkOnlyReadPrivileges
+   * @return list of group types
+   */
+  private List<GroupTypeForEdit> getGroupTypes(boolean checkOnlyReadPrivileges) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    Boolean canAttributeReadUpdateOnGroup = (Boolean)GrouperSession.callbackGrouperSession(
+        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            
+            if (checkOnlyReadPrivileges) {
+              return GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.GROUP_ATTR_READ.getName(), false);
+            }
+            
+            return GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.GROUP_ATTR_UPDATE.getName(), false) &&
+                GroupContainer.this.getGuiGroup().getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.GROUP_ATTR_READ.getName(), false);
+          }
+        });
+    
+    if (!canAttributeReadUpdateOnGroup) {
+      return new ArrayList<>();
+    }
+    
     if (this.groupTypesForEdit == null) {
-      List<GroupTypeForEdit> result = new ArrayList<GroupTypeForEdit>();
       Map<String, String> properties = GrouperConfig.retrieveConfig().propertiesMap(groupTypeForEditPattern);
       
       if (GrouperUtil.length(properties) > 0) {
       
-        // convert the properties to beans
         List<GroupTypeForEdit> groupTypeForEdits = new ArrayList<GroupTypeForEdit>();
         
         for (String key : properties.keySet()) {
@@ -81,8 +134,72 @@ public class GroupContainer {
               String description = properties.get("groupScreenType." + configId + ".description");
               int index = GrouperUtil.intValue(properties.get("groupScreenType." + configId + ".index"), 100);
               
+              
+              AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeName, false);
+              if (attributeDefName == null) {
+                LOG.warn(attributeName + " is configured for groupScreenType but it couldn't be found.");
+                continue;
+              }
+              AttributeDef attributeDef = attributeDefName.getAttributeDef();
+              
+              if (attributeDef.isMultiAssignable() || attributeDef.isMultiValued()) {
+                LOG.warn(attributeDef.getName() + " is multiAssignable or multiValued and it's not supported for group types.");
+                continue;
+              }
+              
+              Boolean canAttributeReadUpdate = (Boolean)GrouperSession.callbackGrouperSession(
+                  GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+                    
+                    @Override
+                    public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                      
+                      if (checkOnlyReadPrivileges) {
+                        return attributeDef.getPrivilegeDelegate().canAttrRead(loggedInSubject);
+                      }
+                      
+                      return attributeDef.getPrivilegeDelegate().canAttrRead(loggedInSubject) && 
+                          attributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject);
+                    }
+                  });
+              
+              if (!canAttributeReadUpdate) {
+                continue;
+              }
+
               GroupTypeForEdit groupTypeForEdit = new GroupTypeForEdit();
-              //groupTypeForEdit.se
+              groupTypeForEdit.setAttributeDefName(attributeDefName);
+              
+              Set<AttributeAssign> attributeAssignments = GroupContainer.this.getGuiGroup().getGroup().getAttributeDelegate().retrieveAssignments(attributeDefName);
+              if (attributeAssignments.size() > 1) {
+                LOG.warn(GroupContainer.this.getGuiGroup().getGroup().getName() + " has more than 1 assignment for " + attributeDefName.getName());
+                continue;
+              }
+              //TODO convert form element type to enum
+              if (attributeDef.isAssignToGroup() && attributeDef.getValueType() == AttributeDefValueType.marker) {
+                groupTypeForEdit.setFormElementType("CHECKBOX");
+                if (attributeAssignments.size() > 0) {
+                  groupTypeForEdit.setValue("true");
+                }
+              } else if (attributeDef.isAssignToGroup() && attributeDef.getValueType() == AttributeDefValueType.string) {
+                groupTypeForEdit.setFormElementType("TEXTFIELD");
+                
+                if (attributeAssignments.size() > 0) {
+                  String valueString = attributeAssignments.iterator().next().getValueDelegate().retrieveValueString();
+                  groupTypeForEdit.setValue(valueString);
+                }
+                
+              }
+              
+              if (StringUtils.isBlank(groupTypeForEdit.getFormElementType())) {
+                continue;
+              }
+              
+              groupTypeForEdit.setAttributeName(attributeName);
+              groupTypeForEdit.setIndex(index);
+              groupTypeForEdit.setDescription(description);
+              groupTypeForEdit.setLabel(label);
+              
+              groupTypeForEdits.add(groupTypeForEdit);
               
             }
             
@@ -90,13 +207,22 @@ public class GroupContainer {
           
         }
         
-        Map<Integer, Set<GroupTypeForEdit>> indexToMapNameToEdits = new HashMap<Integer, Set<GroupTypeForEdit>>();
+        this.groupTypesForEdit = groupTypeForEdits;
+        if (this.groupTypesForEdit != null) {
+          Collections.sort(this.groupTypesForEdit, new Comparator<GroupTypeForEdit>() {
 
+            @Override
+            public int compare(GroupTypeForEdit arg0, GroupTypeForEdit arg1) {
+              return arg0.getIndex() - arg1.getIndex();
+            }
+          });
+        }
+        
       }
       
     }
-    // TODO
-    return null;
+    
+    return groupTypesForEdit;
   }
   
   /**

@@ -89,6 +89,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupTypeForEdit;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
@@ -2195,7 +2196,7 @@ public class UiV2Group {
             TextContainer.retrieveFromRequest().getText().get("groupCreateErrorDisabledDateInvalid")));
         return;
       }
-  
+      
       try {
   
         //create the group
@@ -2224,6 +2225,42 @@ public class UiV2Group {
             MembershipCannotAddSelfToGroupHook.cannotAddSelfRevoke(group);
             madeChange = true;
           }
+        }
+        
+        //set group types to edit
+        List<GroupTypeForEdit> typesForEdit = groupContainer.getGroupTypesForEdit();
+        
+        for (GroupTypeForEdit typeForEdit: typesForEdit) {
+          
+          String oldValue = typeForEdit.getValue();
+          oldValue = StringUtils.trim(oldValue);
+          
+          String newValue = request.getParameter(typeForEdit.getAttributeName());
+          newValue = StringUtils.trim(newValue);
+          
+          if (StringUtils.equals(oldValue, newValue)) {
+            continue;
+          }
+          
+          madeChange = true;
+          if (typeForEdit.getFormElementType().equals("CHECKBOX")) {
+            
+            if (StringUtils.isNotBlank(newValue) && GrouperUtil.booleanValue(newValue)) {
+              group.getAttributeDelegate().assignAttribute(typeForEdit.getAttributeDefName());
+            } else {
+              group.getAttributeDelegate().removeAttribute(typeForEdit.getAttributeDefName());
+            }
+            
+          } else if (typeForEdit.getFormElementType().equals("TEXTFIELD")) {
+            
+            if (StringUtils.isNotBlank(newValue)) {
+              group.getAttributeValueDelegate().assignValue(typeForEdit.getAttributeDefName().getName(), newValue);
+            } else {
+              group.getAttributeDelegate().removeAttribute(typeForEdit.getAttributeDefName());
+            }
+            
+          }
+          
         }
         
         //go to the view group screen

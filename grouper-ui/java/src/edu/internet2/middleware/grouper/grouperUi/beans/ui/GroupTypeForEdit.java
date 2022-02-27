@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.ui.tags.ConfigFormElement;
 
 public class GroupTypeForEdit {
 
@@ -11,6 +13,46 @@ public class GroupTypeForEdit {
 
   private String description;
   
+  private String formElementType;
+  
+  private String value;
+  
+  private AttributeDefName attributeDefName;
+  
+  
+  public AttributeDefName getAttributeDefName() {
+    return attributeDefName;
+  }
+
+
+
+  
+  public void setAttributeDefName(AttributeDefName attributeDefName) {
+    this.attributeDefName = attributeDefName;
+  }
+
+
+
+  public String getValue() {
+    return value;
+  }
+
+
+  
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+
+  public String getFormElementType() {
+    return formElementType;
+  }
+
+  
+  public void setFormElementType(String formElementType) {
+    this.formElementType = formElementType;
+  }
+
   public String getAttributeName() {
     return attributeName;
   }

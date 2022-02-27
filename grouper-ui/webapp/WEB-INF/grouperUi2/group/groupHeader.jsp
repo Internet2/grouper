@@ -245,6 +245,14 @@
                               <td>${grouperRequestContainer.groupContainer.cannotAddSelfAssignedToGroup ? textContainer.textEscapeXml['groupCreateCannotAddSelfTrue'] : textContainer.textEscapeXml['groupCreateCannotAddSelfFalse'] }</td>
                             </tr>
                           </c:if>
+                          
+                          
+                          <c:forEach items="${grouperRequestContainer.groupContainer.groupTypesForView}" var="groupTypeForEdit">
+                             <tr>
+                              <td><strong>${grouper:escapeHtml(groupTypeForEdit.label)}</strong></td>
+                              <td>${grouper:escapeHtml(groupTypeForEdit.value)}</td>
+                            </tr>
+                          </c:forEach>
 
                         </tbody>
                       </table>
