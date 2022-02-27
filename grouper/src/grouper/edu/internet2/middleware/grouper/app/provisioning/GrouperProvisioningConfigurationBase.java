@@ -2491,7 +2491,7 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.selectAllSqlOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllSQLOnFull", false), true);
     this.filterAllLDAPOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("filterAllLDAPOnFull", false), true);
     
-    this.loadEntitiesToGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGrouperTable", false), true);
+    this.loadEntitiesToGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGrouperTable", false), false);
 
     this.entityAttributesSqlExternalSystem = this.retrieveConfigString("sqlConfigId", false);
     this.entityAttributesTableViewName = this.retrieveConfigString("tableOrViewName", false);
