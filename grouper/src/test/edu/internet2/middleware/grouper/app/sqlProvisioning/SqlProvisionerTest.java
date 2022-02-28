@@ -125,7 +125,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
     GrouperStartup.startup();
-    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisioner"));
+    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisionerFailsafe"));
     
   }
   
@@ -227,7 +227,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.debug", "true");
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinGroupSize").value("8").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxPercentRemove").value("20").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxOverallPercentMembershipsRemove").value("20").store();
         
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
     
@@ -4444,7 +4444,7 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
 
   }
 
-  public void testSimpleGroupMembershipProvisioningFullWithAttributesTableRequiredMatching() {
+  public void testSimpleGroupMembershipProvisioningFullWithAttributesTableRequiredMembers() {
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.class").value("edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.dbExternalSystemConfigId").value("grouper").store();
