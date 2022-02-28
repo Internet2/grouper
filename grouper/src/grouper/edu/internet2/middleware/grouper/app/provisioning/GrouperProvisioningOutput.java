@@ -4,11 +4,13 @@
  */
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
@@ -463,7 +465,7 @@ public class GrouperProvisioningOutput {
    * @param replacesToAdd
    */
   public void addReplace(int replacesToAdd) {
-    this.replace += replacesToAdd;
+    this.replace+=replacesToAdd;
   }
 
   /**
@@ -517,10 +519,34 @@ public class GrouperProvisioningOutput {
     this.message = message1;
   }
 
-  public void copyToHib3LoaderLog(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  /**
+   * start with one so if not run from job, will not null out
+   * loader log
+   */
+  private Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+  
+  
+  /**
+   * loader log
+   * @return log
+   */
+  public Hib3GrouperLoaderLog getHib3GrouperLoaderLog() {
+    return this.hib3GrouperLoaderLog;
+  }
+
+  /**
+   * loader log
+   * @param hib3GrouperLoaderLog1
+   */
+  public void setHib3GrouperLoaderLog(Hib3GrouperLoaderLog hib3GrouperLoaderLog1) {
+    this.hib3GrouperLoaderLog = hib3GrouperLoaderLog1;
+  }
+
+
+  public void copyToHib3LoaderLog() {
     hib3GrouperLoaderLog.setDeleteCount(this.delete);
     hib3GrouperLoaderLog.setInsertCount(this.insert);
-    hib3GrouperLoaderLog.setInsertCount(this.update);
+    hib3GrouperLoaderLog.setUpdateCount(this.update);
     hib3GrouperLoaderLog.setTotalCount(this.totalCount);
   }
 

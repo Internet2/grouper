@@ -46,17 +46,16 @@ public class GrouperProvisioningFullSyncJob extends OtherJobBase {
       public void run() {
         
         GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.getGrouperProvisioningOutput();
-        if (grouperProvisioningOutput != null) {
-          grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
-          hib3GrouperLoaderLog.store();
-        }
+        grouperProvisioningOutput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+        grouperProvisioningOutput.copyToHib3LoaderLog();
+        hib3GrouperLoaderLog.store();
       }
       
     });
 
     grouperProvisioner.setJobName(hib3GrouperLoaderLog.getJobName());
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
-    grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
+    grouperProvisioningOutput.copyToHib3LoaderLog();
     hib3GrouperLoaderLog.store();
   }
 

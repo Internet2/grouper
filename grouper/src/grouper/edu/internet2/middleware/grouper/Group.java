@@ -55,6 +55,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -68,11 +69,13 @@ import org.apache.commons.logging.Log;
 import org.hibernate.CallbackException;
 import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
+import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -127,6 +130,7 @@ import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibUtilsMapping;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
@@ -6173,6 +6177,71 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
     }
   }
+  
+  private void handleGroupRename() {
+
+    // if this is an entity, need to potentially update the subject identifier.
+    if (Group.this.getTypeOfGroup() == TypeOfGroup.entity) {
+      String oldPrefix = GrouperUtil.parentStemNameFromName(Group.this.dbVersion().getName()) + ":";
+      String newPrefix = GrouperUtil.parentStemNameFromName(Group.this.getName()) + ":";
+      
+      if (!oldPrefix.equals(newPrefix)) {
+        String subjectIdentifier = Group.this.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName());
+        if (subjectIdentifier != null && subjectIdentifier.startsWith(oldPrefix)) {
+          subjectIdentifier = newPrefix + subjectIdentifier.substring(oldPrefix.length());
+          Group.this.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), subjectIdentifier);
+        }
+      }
+    }
+    
+    // need to potentially update group name in rules
+    Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
+    for (RuleDefinition definition : definitions) {
+      if (definition.getCheck() != null && definition.getCheck().checkTypeEnum() != null && 
+          definition.getCheck().checkTypeEnum().isCheckOwnerTypeGroup(definition) && Group.this.dbVersion().getName().equals(definition.getCheck().getCheckOwnerName())) {
+        definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleCheckOwnerNameName(), Group.this.getName());
+      }
+      
+      if (definition.getIfCondition() != null && definition.getIfCondition().ifConditionEnum() != null &&
+          definition.getIfCondition().ifConditionEnum().isIfOwnerTypeGroup(definition) && Group.this.dbVersion().getName().equals(definition.getIfCondition().getIfOwnerName())) {
+        definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleIfOwnerNameName(), Group.this.getName());
+      }
+      
+      // thenEnumArg0 can be a packed subject string so it may need to be updated...
+      RuleThenEnum ruleThenEnum = definition.getThen().thenEnum();
+      if ((ruleThenEnum == RuleThenEnum.assignGroupPrivilegeToGroupId ||
+          ruleThenEnum == RuleThenEnum.assignStemPrivilegeToStemId ||
+          ruleThenEnum == RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId) &&
+          definition.getThen().getThenEnumArg0().endsWith(Group.this.dbVersion().getName())) {
+        
+        String prefix = definition.getThen().getThenEnumArg0().substring(0, definition.getThen().getThenEnumArg0().length() - Group.this.dbVersion().getName().length());
+        if (prefix.trim().isEmpty() || prefix.trim().endsWith("::")) {
+          definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumArg0Name(), prefix + Group.this.getName());
+        }
+      }
+    }
+    
+    // check if it's a loader job that needs to be updated in quartz
+    try {
+      String jobDetailsTableName = GrouperLoaderConfig.retrieveConfig().propertyValueString("org.quartz.jobStore.tablePrefix", "grouper_QZ_") + "JOB_DETAILS";
+      String jobDetailsSqlQuery = "select job_name from " + jobDetailsTableName + " where job_name like ?";
+      List<String> jobNames = HibernateSession.bySqlStatic().listSelect(String.class, jobDetailsSqlQuery, 
+          GrouperUtil.toListObject("%" + Group.this.dbVersion().getName() + "%"), 
+          HibUtils.listType(StringType.INSTANCE));
+
+      if (jobNames.size() > 0) {
+        for (String jobName : jobNames) {
+          if (jobName.contains("__" + Group.this.dbVersion().getName() + "__")) {
+            GrouperLoader.renameJobAndTriggerSubstring(jobName, "__" + Group.this.dbVersion().getName() + "__", "__" + Group.this.getName() + "__");
+          }
+        }
+      }
+    } catch (Exception e) {
+      // this can be ignored since it'll fix itself later (e.g. when the daemon restarts)
+      LOG.error("Failed to check/update quartz jobs", e);
+    }
+
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.hibernate.HibGrouperLifecycle#onPostUpdate(HibernateSession)
@@ -6186,47 +6255,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
          * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
          */
         public Object callback(GrouperSession rootSession) throws GrouperSessionException {
-
-          // if this is an entity, need to potentially update the subject identifier.
-          if (Group.this.getTypeOfGroup() == TypeOfGroup.entity) {
-            String oldPrefix = GrouperUtil.parentStemNameFromName(Group.this.dbVersion().getName()) + ":";
-            String newPrefix = GrouperUtil.parentStemNameFromName(Group.this.getName()) + ":";
-            
-            if (!oldPrefix.equals(newPrefix)) {
-              String subjectIdentifier = Group.this.getAttributeValueDelegate().retrieveValueString(EntityUtils.entitySubjectIdentifierName());
-              if (subjectIdentifier != null && subjectIdentifier.startsWith(oldPrefix)) {
-                subjectIdentifier = newPrefix + subjectIdentifier.substring(oldPrefix.length());
-                Group.this.getAttributeValueDelegate().assignValue(EntityUtils.entitySubjectIdentifierName(), subjectIdentifier);
-              }
-            }
-          }
-          
-          // need to potentially update group name in rules
-          Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
-          for (RuleDefinition definition : definitions) {
-            if (definition.getCheck() != null && definition.getCheck().checkTypeEnum() != null && 
-                definition.getCheck().checkTypeEnum().isCheckOwnerTypeGroup(definition) && Group.this.dbVersion().getName().equals(definition.getCheck().getCheckOwnerName())) {
-              definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleCheckOwnerNameName(), Group.this.getName());
-            }
-            
-            if (definition.getIfCondition() != null && definition.getIfCondition().ifConditionEnum() != null &&
-                definition.getIfCondition().ifConditionEnum().isIfOwnerTypeGroup(definition) && Group.this.dbVersion().getName().equals(definition.getIfCondition().getIfOwnerName())) {
-              definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleIfOwnerNameName(), Group.this.getName());
-            }
-            
-            // thenEnumArg0 can be a packed subject string so it may need to be updated...
-            RuleThenEnum ruleThenEnum = definition.getThen().thenEnum();
-            if ((ruleThenEnum == RuleThenEnum.assignGroupPrivilegeToGroupId ||
-                ruleThenEnum == RuleThenEnum.assignStemPrivilegeToStemId ||
-                ruleThenEnum == RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId) &&
-                definition.getThen().getThenEnumArg0().endsWith(Group.this.dbVersion().getName())) {
-              
-              String prefix = definition.getThen().getThenEnumArg0().substring(0, definition.getThen().getThenEnumArg0().length() - Group.this.dbVersion().getName().length());
-              if (prefix.trim().isEmpty() || prefix.trim().endsWith("::")) {
-                definition.getAttributeAssignType().getAttributeValueDelegate().assignValue(RuleUtils.ruleThenEnumArg0Name(), prefix + Group.this.getName());
-              }
-            }
-          }
+          handleGroupRename();
           
           return null;
         }

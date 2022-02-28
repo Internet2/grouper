@@ -30,8 +30,11 @@ import java.util.Set;
 
 import org.apache.ddlutils.model.Database;
 import org.apache.ddlutils.model.Table;
+import org.quartz.CronTrigger;
+import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
+import org.quartz.Trigger;
 import org.quartz.impl.matchers.GroupMatcher;
 
 import edu.internet2.middleware.grouper.Group;
@@ -140,7 +143,7 @@ public class GrouperLoaderTest extends GrouperTest {
 //    performanceRunSetupLoaderTables();
 //    performanceRun();
     
-    TestRunner.run(new GrouperLoaderTest("testLoaderMultipleSubjectIdentifiers"));
+    TestRunner.run(new GrouperLoaderTest("testGroupRename"));
   }
 
   /**
@@ -5169,6 +5172,73 @@ public class GrouperLoaderTest extends GrouperTest {
     assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ2));
     assertTrue(groupOther.hasMember(SubjectTestHelper.SUBJ3));
+  }
+  
+  public void testGroupRename() throws Exception {
+    Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+    try {
+      List<TestgrouperLoader> testDataList = new ArrayList<TestgrouperLoader>();
+      
+      testDataList.add(new TestgrouperLoader("loader:group1", SubjectTestHelper.SUBJ0_ID, null));
+      HibernateSession.byObjectStatic().saveOrUpdate(testDataList);
+  
+      Group loaderGroup1 = Group.saveGroup(this.grouperSession, null, null, "loader:group1", null, null, null, true);
+      loaderGroup1.addType(GroupTypeFinder.find("grouperLoader", true));
+      loaderGroup1.setAttribute(GrouperLoader.GROUPER_LOADER_TYPE, "SQL_SIMPLE");
+      loaderGroup1.setAttribute(GrouperLoader.GROUPER_LOADER_DB_NAME, "grouper");
+      loaderGroup1.setAttribute(GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE, "CRON");
+      loaderGroup1.setAttribute(GrouperLoader.GROUPER_LOADER_QUARTZ_CRON, "0 41 3 * * ?");
+      loaderGroup1.setAttribute(GrouperLoader.GROUPER_LOADER_QUERY, "select col2 as SUBJECT_ID from testgrouper_loader where col1='loader:group1'");
+      
+      GrouperLoader.runJobOnceForGroup(this.grouperSession, loaderGroup1);
+      GrouperLoaderType.validateAndScheduleSqlLoad(loaderGroup1, null, false);
+      
+      JobKey jobKey = new JobKey("SQL_SIMPLE__loader:group1__" + loaderGroup1.getUuid());
+      JobDetail jobDetails = scheduler.getJobDetail(jobKey);
+      assertNotNull(jobDetails);
+      scheduler.pauseJob(jobKey);
+      
+      assertEquals(1, scheduler.getTriggersOfJob(jobKey).size());
+      Trigger trigger = scheduler.getTriggersOfJob(jobKey).get(0);
+      Trigger.TriggerState triggerState = scheduler.getTriggerState(trigger.getKey());
+      assertEquals("triggerFor_SQL_SIMPLE__loader:group1__" + loaderGroup1.getUuid(), trigger.getKey().getName());
+      assertEquals("0 41 3 * * ?", ((CronTrigger)trigger).getCronExpression());
+      assertEquals(Trigger.TriggerState.PAUSED, triggerState);
+      
+      assertEquals(1, (int)HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_loader_log where job_name = 'SQL_SIMPLE__loader:group1__" + loaderGroup1.getUuid() + "'"));
+      
+      loaderGroup1.setExtension("group1x");
+      loaderGroup1.store();
+
+      jobDetails = scheduler.getJobDetail(jobKey);
+      assertNull(jobDetails);
+      
+      jobKey = new JobKey("SQL_SIMPLE__loader:group1x__" + loaderGroup1.getUuid());
+      jobDetails = scheduler.getJobDetail(jobKey);
+      assertNotNull(jobDetails);
+      
+      assertEquals(1, scheduler.getTriggersOfJob(jobKey).size());
+      trigger = scheduler.getTriggersOfJob(jobKey).get(0);
+      triggerState = scheduler.getTriggerState(trigger.getKey());
+      assertEquals("triggerFor_SQL_SIMPLE__loader:group1x__" + loaderGroup1.getUuid(), trigger.getKey().getName());
+      assertEquals("0 41 3 * * ?", ((CronTrigger)trigger).getCronExpression());
+      assertEquals(Trigger.TriggerState.PAUSED, triggerState);
+      
+      assertEquals(1, (int)HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_loader_log where job_name = 'SQL_SIMPLE__loader:group1x__" + loaderGroup1.getUuid() + "'"));
+    } finally {      
+      for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals("DEFAULT"))) {
+        
+        String jobName = jobKey.getName();
+        
+        if ((jobName.startsWith(GrouperLoaderType.SQL_SIMPLE.name() + "__") ||
+            jobName.startsWith(GrouperLoaderType.SQL_GROUP_LIST.name() + "__"))) {
+          scheduler.deleteJob(new JobKey(jobName));
+        }
+      }
+
+      GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
+    }
   }
   
   /**

@@ -191,7 +191,7 @@ public class GrouperProvisioningCompare {
             }
             provisioningUpdatableToDelete.addInternal_objectChange(
                 new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                    ProvisioningObjectChangeAction.delete, null, value)
+                    ProvisioningObjectChangeAction.delete, value, null)
                 );
           }
         } else {
@@ -204,14 +204,14 @@ public class GrouperProvisioningCompare {
             }
             provisioningUpdatableToDelete.addInternal_objectChange(
                 new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                    ProvisioningObjectChangeAction.delete, null, value)
+                    ProvisioningObjectChangeAction.delete, value, null)
                 );
           }
         }
       } else {
         // just a scalar
         ProvisioningObjectChange provisioningObjectChange = new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-            ProvisioningObjectChangeAction.delete, null, grouperValue);
+            ProvisioningObjectChangeAction.delete, grouperValue, null);
         provisioningUpdatableToDelete.addInternal_objectChange(provisioningObjectChange);
         
       }
@@ -1135,22 +1135,22 @@ public class GrouperProvisioningCompare {
         if (groupToDelete.getId() != null) {
           groupToDelete.addInternal_objectChange(
               new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null,
-                  ProvisioningObjectChangeAction.delete, groupToDelete.getId(), null));
+                  ProvisioningObjectChangeAction.delete, groupToDelete.getId(), groupToDelete.getId()));
         }
         if (groupToDelete.getIdIndex() != null) {
           groupToDelete.addInternal_objectChange(
               new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "idIndex", null,
-                  ProvisioningObjectChangeAction.delete, groupToDelete.getIdIndex(), null));
+                  ProvisioningObjectChangeAction.delete, groupToDelete.getIdIndex(), groupToDelete.getIdIndex()));
         }
         if (groupToDelete.getDisplayName() != null) {
           groupToDelete.addInternal_objectChange(
               new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "displayName", null,
-                  ProvisioningObjectChangeAction.delete, groupToDelete.getDisplayName(), null));
+                  ProvisioningObjectChangeAction.delete, groupToDelete.getDisplayName(), groupToDelete.getDisplayName()));
         }
         if (groupToDelete.getName() != null) {
           groupToDelete.addInternal_objectChange(
               new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "name", null,
-                  ProvisioningObjectChangeAction.delete, groupToDelete.getName(), null));
+                  ProvisioningObjectChangeAction.delete, groupToDelete.getName(), groupToDelete.getName()));
         }
 
         compareAttributesForDelete(groupToDelete);

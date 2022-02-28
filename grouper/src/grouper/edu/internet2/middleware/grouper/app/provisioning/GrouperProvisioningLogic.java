@@ -295,8 +295,6 @@ public class GrouperProvisioningLogic {
       this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.compareTargetObjects);
     }
     
-    this.countInsertsUpdatesDeletes();
-
     this.getGrouperProvisioner().retrieveGrouperProvisioningFailsafe().processFailsafesAtStart();
     this.getGrouperProvisioner().retrieveGrouperProvisioningFailsafe().processFailsafes();
     
@@ -324,6 +322,31 @@ public class GrouperProvisioningLogic {
 
     }
   
+    { 
+      // counts for sync
+      this.countInsertsUpdatesDeletes();
+
+      // count total for full sync
+      int totalCount = 0;
+      for (GcGrouperSyncGroup gcGrouperSyncGroup : GrouperUtil.nonNull(this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveAll())) {
+        if (gcGrouperSyncGroup.isInTarget()) {
+          totalCount++;
+        }
+      }
+      for (GcGrouperSyncMember gcGrouperSyncMember : GrouperUtil.nonNull(this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMemberDao().memberRetrieveAll())) {
+        if (gcGrouperSyncMember.isInTarget()) {
+          totalCount++;
+        }
+      }
+      for (GcGrouperSyncMembership gcGrouperSyncMembership : GrouperUtil.nonNull(this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipRetrieveAll())) {
+        if (gcGrouperSyncMembership.isInTarget()) {
+          totalCount++;
+        }
+      }
+      GrouperProvisioningLogic.this.grouperProvisioner.getGrouperProvisioningOutput().setTotalCount(totalCount);
+      GrouperProvisioningLogic.this.grouperProvisioner.getGrouperProvisioningOutput().copyToHib3LoaderLog();
+    }
+    
     {
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
 
@@ -969,9 +992,7 @@ public class GrouperProvisioningLogic {
           } finally {
             this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.compareTargetObjects);
           }
-          
-          this.countInsertsUpdatesDeletes();
-      
+                
           this.getGrouperProvisioner().retrieveGrouperProvisioningFailsafe().processFailsafes();
 
           // ######### STEP 37: send changes to target
@@ -998,6 +1019,9 @@ public class GrouperProvisioningLogic {
             //TODO this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.sendChangesToTarget);
   
           }
+          
+          this.countInsertsUpdatesDeletes();
+
         }
         
         {
@@ -1528,8 +1552,46 @@ public class GrouperProvisioningLogic {
             = GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter()
               .retrieveAllData(new TargetDaoRetrieveAllDataRequest());
           // retrieve all the target data and put in GrouperProvisioningDataTarget
+          GrouperProvisioningLists targetData = targetDaoRetrieveAllDataResponse.getTargetData();
           GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningDataTarget()
-            .setTargetProvisioningObjects(targetDaoRetrieveAllDataResponse.getTargetData());
+            .setTargetProvisioningObjects(targetData);
+
+          // get the total count of what is in the target
+          int totalTargetCount = 0;
+          if (targetData != null) {
+            
+            GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetGroupCount", GrouperUtil.length(targetData.getProvisioningGroups()));
+            GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetEntityCount", GrouperUtil.length(targetData.getProvisioningEntities()));
+
+            totalTargetCount += GrouperUtil.length(targetData.getProvisioningEntities())
+                + GrouperUtil.length(targetData.getProvisioningGroups());
+
+            int originalTargetMembershipCount = GrouperUtil.length(targetData.getProvisioningMemberships());
+            
+            String membershipAttribute = GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+            if (!StringUtils.isBlank(membershipAttribute)) {
+              if (GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+                  == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+  
+                for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetData.getProvisioningGroups())) {
+                  originalTargetMembershipCount += GrouperUtil.length(provisioningGroup.retrieveAttributeValueSet(membershipAttribute));
+                }
+              }
+              if (GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+                  == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+  
+                for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(targetData.getProvisioningEntities())) {
+                  originalTargetMembershipCount += GrouperUtil.length(provisioningEntity.retrieveAttributeValueSet(membershipAttribute));
+                }
+              }
+            }
+            totalTargetCount += originalTargetMembershipCount;
+            GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetMembershipCount", originalTargetMembershipCount);
+          }
+          
+          GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetTotalCount", totalTargetCount);
+
+
         } catch (RuntimeException re) {
           LOG.error("error querying target: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId(), re);
           RUNTIME_EXCEPTION[0] = re;
@@ -2284,42 +2346,122 @@ public class GrouperProvisioningLogic {
     countAttributesFieldsInsertsUpdatesDeletes(ProvisioningObjectChangeAction.delete, this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningMemberships());
     
   }
-  
+
+  /**
+   * make sure we dont doublecount actions
+   */
+  private Set<MultiKey> alreadyCounted = new HashSet<MultiKey>();
+
   protected void countAttributesFieldsInsertsUpdatesDeletes(ProvisioningObjectChangeAction provisioningObjectChangeAction, List<? extends ProvisioningUpdatable> provisioningUpdatables) {
     // maybe not count fields?
     if (provisioningUpdatables == null) {
       return;
     }
-    switch(provisioningObjectChangeAction) {
-      case insert:
-        this.grouperProvisioner.getGrouperProvisioningOutput().addInsert(GrouperUtil.length(provisioningUpdatables));  
-        break;
-      case update:
-        this.grouperProvisioner.getGrouperProvisioningOutput().addUpdate(GrouperUtil.length(provisioningUpdatables));  
-        break;
-      case replace:
-        this.grouperProvisioner.getGrouperProvisioningOutput().addReplace(GrouperUtil.length(provisioningUpdatables));  
-        break;
-      case delete:
-        this.grouperProvisioner.getGrouperProvisioningOutput().addDelete(GrouperUtil.length(provisioningUpdatables));  
-        break;
-    }
-    for (ProvisioningUpdatable provisioningUpdatable : provisioningUpdatables) {
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(provisioningUpdatable.getInternal_objectChanges())) {
-        switch (provisioningObjectChange.getProvisioningObjectChangeAction()) {
+
+    String membershipAttribute = GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    boolean groupAttributes = GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+        == GrouperProvisioningBehaviorMembershipType.groupAttributes;
+    boolean entityAttributes = GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+        == GrouperProvisioningBehaviorMembershipType.entityAttributes;
+
+    
+    for (ProvisioningUpdatable provisioningUpdatable : GrouperUtil.nonNull(provisioningUpdatables)) {
+
+      MultiKey multiKey = new MultiKey(provisioningObjectChangeAction, provisioningUpdatable.provisioningUpdatableTypeShort(), provisioningUpdatable.getMatchingId());
+      
+      // if this is an update, dont doublecount the inserts if we are only updating the membership objects
+      MultiKey insertMultiKey = provisioningObjectChangeAction == ProvisioningObjectChangeAction.update ? new MultiKey(ProvisioningObjectChangeAction.insert, provisioningUpdatable.provisioningUpdatableTypeShort(), provisioningUpdatable.getMatchingId()) : null;
+      
+      if (!alreadyCounted.contains(multiKey) && provisioningUpdatable.getProvisioned() != null && provisioningUpdatable.getProvisioned()) {
+        switch(provisioningObjectChangeAction) {
           case insert:
             this.grouperProvisioner.getGrouperProvisioningOutput().addInsert(1);  
+            alreadyCounted.add(multiKey);
             break;
           case update:
-            this.grouperProvisioner.getGrouperProvisioningOutput().addUpdate(1);  
+            // its an update if we are doing something other than membership stuff and it is also an insert 
+            if (!alreadyCounted.contains(insertMultiKey) || StringUtils.isBlank(membershipAttribute) || (!groupAttributes && !entityAttributes)
+              || (groupAttributes && (!(provisioningUpdatable instanceof ProvisioningGroup)))
+                  || (entityAttributes && (!(provisioningUpdatable instanceof ProvisioningEntity)))) {
+              this.grouperProvisioner.getGrouperProvisioningOutput().addUpdate(1);  
+              alreadyCounted.add(multiKey);
+            } else {
+                  
+              for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(provisioningUpdatable.getInternal_objectChanges())) {
+                if (!StringUtils.equals(provisioningObjectChange.getAttributeName(), membershipAttribute)
+                    && provisioningObjectChange.getProvisioned() != null && provisioningObjectChange.getProvisioned()) {
+                  this.grouperProvisioner.getGrouperProvisioningOutput().addUpdate(1);  
+                  alreadyCounted.add(multiKey);
+                  break;
+                }
+              }
+            }
+            break;
+          case replace:
+            this.grouperProvisioner.getGrouperProvisioningOutput().addReplace(1);  
+            alreadyCounted.add(multiKey);
             break;
           case delete:
-            this.grouperProvisioner.getGrouperProvisioningOutput().addDelete(1);  
+            this.grouperProvisioner.getGrouperProvisioningOutput().addDelete(1);
+            alreadyCounted.add(multiKey);
             break;
-          
+        }
+        
+      }
+      
+      // go through the membership attributes and count as memberships
+      if (!StringUtils.isBlank(membershipAttribute) && (groupAttributes || entityAttributes)) {
+        if ((groupAttributes && provisioningUpdatable instanceof ProvisioningGroup)
+            || entityAttributes && provisioningUpdatable instanceof ProvisioningEntity) {
+
+          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(provisioningUpdatable.getInternal_objectChanges())) {
+            
+            if (!StringUtils.equals(provisioningObjectChange.getAttributeName(), membershipAttribute)) {
+              
+            }
+            
+            if (StringUtils.equals(provisioningObjectChange.getAttributeName(), membershipAttribute)
+                && provisioningObjectChange.getProvisioned() != null && provisioningObjectChange.getProvisioned()) {
+
+              ProvisioningObjectChangeAction attributeProvisioningObjectChangeAction = provisioningObjectChange.getProvisioningObjectChangeAction();
+              Object value = null;
+              switch (attributeProvisioningObjectChangeAction) {
+              case insert:
+              case update:
+                value = provisioningObjectChange.getNewValue();
+                break;
+              case delete:
+                value = provisioningObjectChange.getOldValue();
+                break;
+              }
+
+              multiKey = new MultiKey(attributeProvisioningObjectChangeAction, provisioningUpdatable.provisioningUpdatableTypeShort(), provisioningUpdatable.getMatchingId(), value);
+
+              if (alreadyCounted.contains(multiKey)) {
+                continue;
+              }
+              alreadyCounted.add(multiKey);
+
+              switch (attributeProvisioningObjectChangeAction) {
+              case insert:
+                this.grouperProvisioner.getGrouperProvisioningOutput().addInsert(1);  
+                break;
+              case update:
+                this.grouperProvisioner.getGrouperProvisioningOutput().addUpdate(1);  
+                break;
+              case delete:
+                this.grouperProvisioner.getGrouperProvisioningOutput().addDelete(1);  
+                break;
+
+              }
+            }
+          }
         }
       }
+
+      
     }
+    
   }
   
   /**
