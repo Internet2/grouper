@@ -1164,9 +1164,10 @@ public class GrouperProvisioningLogicIncremental {
     
     int changeLogCount = 0;
     
-    if (changeLogCount > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("changeLogRawCount", GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
-    }
+    this.getGrouperProvisioner().getDebugMap().put("changeLogRawCount", GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
+
+    this.grouperProvisioner.getGrouperProvisioningOutput().setTotalCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
+    
     Set<String> sourceIdsToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision();
     
     // these events are already filtered

@@ -69,10 +69,9 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
       public void run() {
         
         GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.getGrouperProvisioningOutput();
-        if (grouperProvisioningOutput != null) {
-          grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
-          hib3GrouperLoaderLog.store();
-        }
+        grouperProvisioningOutput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+        grouperProvisioningOutput.copyToHib3LoaderLog();
+        hib3GrouperLoaderLog.store();
       }
       
     });
@@ -90,7 +89,8 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     }
 
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(grouperProvisioningType);
-    grouperProvisioningOutput.copyToHib3LoaderLog(hib3GrouperLoaderLog);
+    grouperProvisioningOutput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+    grouperProvisioningOutput.copyToHib3LoaderLog();
     hib3GrouperLoaderLog.store();
 
     provisioningSyncConsumerResult.setLastProcessedSequenceNumber(lastSequenceNumber);

@@ -16,6 +16,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public abstract class ProvisioningUpdatable {
 
+  public String provisioningUpdatableTypeShort() {
+    
+    if (this instanceof ProvisioningGroup) {
+      return "G";
+    }
+    if (this instanceof ProvisioningEntity) {
+      return "E";
+    }
+    if (this instanceof ProvisioningMembership) {
+      return "M";
+    }
+    throw new RuntimeException("Not expecting provisioning updatable: " + this.getClass());
+  }
+
   public boolean isRecalc() {
     if (this instanceof ProvisioningGroup) {
       return ((ProvisioningGroup)this).getProvisioningGroupWrapper().isRecalc();
