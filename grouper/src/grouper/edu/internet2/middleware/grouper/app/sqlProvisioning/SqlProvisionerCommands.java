@@ -331,7 +331,7 @@ public class SqlProvisionerCommands {
       return;
     }
 
-    StringBuilder sql = new StringBuilder("delete from  " + ownerTableName + " where ");
+    StringBuilder sql = new StringBuilder("delete from " + ownerTableName + " where ");
 
     // loop through columns
     for (int i=0;i<columnNames.size();i++) {
