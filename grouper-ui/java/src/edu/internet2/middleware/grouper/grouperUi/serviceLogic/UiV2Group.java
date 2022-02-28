@@ -2230,7 +2230,7 @@ public class UiV2Group {
         //set group types to edit
         List<GroupTypeForEdit> typesForEdit = groupContainer.getGroupTypesForEdit();
         
-        for (GroupTypeForEdit typeForEdit: typesForEdit) {
+        for (GroupTypeForEdit typeForEdit: GrouperUtil.nonNull(typesForEdit)) {
           
           String oldValue = typeForEdit.getValue();
           oldValue = StringUtils.trim(oldValue);

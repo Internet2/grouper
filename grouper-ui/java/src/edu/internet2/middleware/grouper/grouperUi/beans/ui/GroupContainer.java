@@ -77,7 +77,7 @@ public class GroupContainer {
    * @return
    */
   public List<GroupTypeForEdit> getGroupTypesForView() {
-    return getGroupTypes(true);
+    return GrouperUtil.nonNull(getGroupTypes(true));
   }
   
   
@@ -86,7 +86,7 @@ public class GroupContainer {
    * @return
    */
   public List<GroupTypeForEdit> getGroupTypesForEdit() {
-    return getGroupTypes(false);
+    return GrouperUtil.nonNull(getGroupTypes(false));
   }
   
   /**
