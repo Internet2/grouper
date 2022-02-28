@@ -125,7 +125,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
     GrouperStartup.startup();
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFullWithAttributesTable"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaRealTimeAddMember"));
     
   }
   
@@ -3849,13 +3849,6 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
 
     configureLdapPaTestCase();
 
-//    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.class", "edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer");
-//    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.class", "edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer");
-//    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.quartzCron", "0 * * * * ?");
-//    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerConfigId", "pspng_oneprod");
-//    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerJobSyncType", "incrementalProvisionChangeLog");
-//    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.debug", "true");
-    
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
     Stem stem3 = new StemSave(this.grouperSession).assignName("test3").save();
@@ -3995,12 +3988,12 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
 
     configureLdapPaTestCase();
 
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.class", "edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.class", "edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.quartzCron", "0 * * * * ?");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerConfigId", "pspng_oneprod");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerJobSyncType", "incrementalProvisionChangeLog");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.debug", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.class", "edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.class", "edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.quartzCron", "0 * * * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerConfigId", "pspng_oneprod");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerJobSyncType", "incrementalProvisionChangeLog");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.debug", "true");
     
     // # if provisioning in ui should be enabled
     //# {valueType: "boolean", required: true}
@@ -4086,27 +4079,6 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
     
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
-        EsbConsumer.class.getName());
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.class", 
-        ProvisioningConsumer.class.getName());
-    
-    //something that will never fire
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
-        "0 0 5 * * 2000");
-
-    // we dont need an EL filter
-    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
-    //        "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerConfigId", "pspng_oneprod");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
-        GrouperProvisioningType.incrementalProvisionChangeLog.name());
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.debug", "true");
-
     //clear out changelog
     // run the provisioner, it will init
     hib3GrouperLoaderLog = runJobs(true, true);
@@ -4126,7 +4098,7 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
 
     grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
     
-    assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
     
     assertFalse((Boolean)grouperProvisioner.getDebugMap().get("hasIncrementalDataToProcess"));
     
