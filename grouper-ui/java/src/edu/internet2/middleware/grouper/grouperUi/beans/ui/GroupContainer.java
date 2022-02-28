@@ -94,6 +94,12 @@ public class GroupContainer {
    * @return list of group types
    */
   private List<GroupTypeForEdit> getGroupTypes(boolean checkOnlyReadPrivileges) {
+    
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("groupScreenType.enabled", true)) {
+      return new ArrayList<>();
+    }
+    
+    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     Boolean canAttributeReadUpdateOnGroup = (Boolean)GrouperSession.callbackGrouperSession(
