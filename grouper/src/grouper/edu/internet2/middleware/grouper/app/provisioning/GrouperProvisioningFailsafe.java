@@ -133,7 +133,7 @@ public class GrouperProvisioningFailsafe {
   /**
    * 
    */
-  private Map<String, Integer> groupUuidToGroupMembershipCount = new HashMap<String, Integer>();
+  private Map<String, Integer> groupUuidToGroupMembershipCount = null;
 
   /**
    * @return group to membership count

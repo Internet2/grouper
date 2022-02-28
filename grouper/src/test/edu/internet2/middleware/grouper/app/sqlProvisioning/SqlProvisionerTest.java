@@ -125,7 +125,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
     GrouperStartup.startup();
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaRealTimeAddMember"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFullWithAttributesTableFailsafeMinGroupSize"));
     
   }
   
