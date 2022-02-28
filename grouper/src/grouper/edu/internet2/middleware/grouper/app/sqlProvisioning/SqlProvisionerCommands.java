@@ -270,7 +270,7 @@ public class SqlProvisionerCommands {
    * @param ownerTableName
    * @param columnNames
    */
-  public static void deleteObjectsLastValueNull(List<Object[]> dataToDelete, 
+  private static void deleteObjectsLastValueNull(List<Object[]> dataToDelete, 
       String dbExternalSystemConfigId, String ownerTableName, List<String> columnNames) {
     
     if (GrouperUtil.length(dataToDelete) == 0) { 
@@ -502,9 +502,6 @@ public class SqlProvisionerCommands {
       }
       sql.append(whereClauseColumns.get(i));
       
-      if (i == whereClauseColumns.size()-1) {
-        GrouperUtil.assertion(whereClauseValues.get(i) != null, "Last param should not be null");
-      }
       sql.append(" = ? ");
       
     }
@@ -581,10 +578,8 @@ public class SqlProvisionerCommands {
       sql.append(whereClauseColumns.get(i));
 
       if (i == whereClauseColumns.size()-1) {
-        GrouperUtil.assertion(whereClauseValues.get(i) == null, "Last param should be null");
         sql.append(" is null ");
       } else {
-        GrouperUtil.assertion(whereClauseValues.get(i) != null, "Last param should not be null");
         sql.append(" = ? ");
       }
       
