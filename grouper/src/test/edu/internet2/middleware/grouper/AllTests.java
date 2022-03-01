@@ -36,6 +36,9 @@ import java.lang.reflect.Method;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.AllAppTests;
+import edu.internet2.middleware.grouper.app.duo.AllDuoProvisionerTests;
+import edu.internet2.middleware.grouper.app.duo.role.AllDuoRoleProvisionerTests;
+import edu.internet2.middleware.grouper.app.google.AllGoogleProvisionerTests;
 import edu.internet2.middleware.grouper.attr.AllAttributeTests;
 import edu.internet2.middleware.grouper.audit.AllAuditTests;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
@@ -226,12 +229,15 @@ public class AllTests extends GrouperTest {
       suite.addTest(AllDdlTests.suite());
     }
 
+    suite.addTest(AllDuoProvisionerTests.suite());
+    suite.addTest(AllDuoRoleProvisionerTests.suite());
     
     if (GrouperConfig.getPropertyBoolean("junit.test.externalSubjects", true)) {
       suite.addTest(AllExternalSubjectTests.suite());
     }
     
     suite.addTest(AllFilterTests.suite());
+    suite.addTest(AllGoogleProvisionerTests.suite());
     suite.addTest(AllGroupTests.suite());
     suite.addTest(AllGrouperCacheTests.suite());
     suite.addTest(AllGrouperUiTests.suite());
