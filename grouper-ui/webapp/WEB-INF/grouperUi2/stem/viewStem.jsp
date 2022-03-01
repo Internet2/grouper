@@ -53,3 +53,4 @@
                 </div>
               </div>
             </div>
+            <grouper:performanceTimingGate label="StemUiView" key="post_viewStemInJsp" />

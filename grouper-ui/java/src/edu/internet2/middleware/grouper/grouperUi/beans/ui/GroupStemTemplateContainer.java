@@ -22,8 +22,10 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguratio
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateValidationService;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -266,8 +268,12 @@ public class GroupStemTemplateContainer {
    * @return
    */
   public Map<String, String> getTemplatesToShowInMoreActions() {
-    
-    this.templatesToShowHelper();
+    long startNanos = System.nanoTime();
+    try {
+      this.templatesToShowHelper();
+    } finally {
+      PerformanceLogger.performanceTimingDuration(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "getTemplatesToShowInMoreActions", System.nanoTime()-startNanos);
+    }
     return this.templatesToShowInMoreActions;
 
   }

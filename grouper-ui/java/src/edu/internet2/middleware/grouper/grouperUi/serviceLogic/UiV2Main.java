@@ -93,6 +93,7 @@ import edu.internet2.middleware.grouper.userData.GrouperFavoriteFinder;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectTooManyResults;
 
@@ -250,6 +251,9 @@ public class UiV2Main extends UiServiceLogicBase {
   public void folderMenu(HttpServletRequest httpServletRequest, HttpServletResponse response) {
     //the query string has the folder to print out.  starting with root.  undefined means there is a problem
     
+    
+    PerformanceLogger.performanceTimingStart(PERFORMANCE_LOG_LABEL_TREE_MENU, false);
+
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
@@ -286,8 +290,13 @@ public class UiV2Main extends UiServiceLogicBase {
         int numberOfAttrDefsInTree = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.treeAttributeDefsOnIndexPage", 10);
         int numberOfAttrDefNamesInTree = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.treeAttributeDefNamesOnIndexPage", 10);
         Set<Stem> childrenStems = stem.getChildStems(Scope.ONE, QueryOptions.create("displayExtension", true, 1, numberOfStemsInTree + 1));
+        
+        PerformanceLogger.performanceTimingGate(PERFORMANCE_LOG_LABEL_TREE_MENU, "postGetStems_" + GrouperUtil.length(childrenStems));
+        
         Set<Group> childrenGroups = stem.getChildGroups(Scope.ONE, AccessPrivilege.VIEW_PRIVILEGES, 
             QueryOptions.create("displayExtension", true, 1, numberOfGroupsInTree + 1));
+
+        PerformanceLogger.performanceTimingGate(PERFORMANCE_LOG_LABEL_TREE_MENU, "postGetGroups_" + GrouperUtil.length(childrenGroups));
 
         Set<AttributeDef> childrenAttributeDefs = new AttributeDefFinder()
           .assignQueryOptions(QueryOptions.create("extension", true, 1, numberOfAttrDefsInTree + 1))
@@ -295,12 +304,16 @@ public class UiV2Main extends UiServiceLogicBase {
           .assignSubject(GrouperSession.staticGrouperSession().getSubject())
           .assignParentStemId(stem.getId()).assignStemScope(Scope.ONE).findAttributes();
   
+        PerformanceLogger.performanceTimingGate(PERFORMANCE_LOG_LABEL_TREE_MENU, "postGetAttributeDefs_" + GrouperUtil.length(childrenAttributeDefs));
+
         Set<AttributeDefName> childrenAttributeDefNames = new AttributeDefNameFinder()
           .assignQueryOptions(QueryOptions.create("displayExtension", true, 1, numberOfAttrDefNamesInTree + 1))
           .assignPrivileges(AttributeDefPrivilege.ATTR_VIEW_PRIVILEGES)
           .assignSubject(GrouperSession.staticGrouperSession().getSubject())
           .assignParentStemId(stem.getId()).assignStemScope(Scope.ONE).findAttributeNames();
         
+        PerformanceLogger.performanceTimingGate(PERFORMANCE_LOG_LABEL_TREE_MENU, "postGetAttributeDefNames_" + GrouperUtil.length(childrenStems));
+
         String displayExtension = stem.isRootStem() ? 
             TextContainer.retrieveFromRequest().getText().get("stem.root.display-name") 
             : stem.getDisplayExtension();
@@ -389,6 +402,9 @@ public class UiV2Main extends UiServiceLogicBase {
 
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
+      if (PerformanceLogger.performanceTimingEnabled(PERFORMANCE_LOG_LABEL_TREE_MENU)) {
+        PerformanceLogger.performanceLog().info(PerformanceLogger.performanceTimingDataResult(PERFORMANCE_LOG_LABEL_TREE_MENU));
+      }
     }
   
     //dont print the regular JSON
@@ -396,6 +412,11 @@ public class UiV2Main extends UiServiceLogicBase {
 
     
   }
+
+  /**
+   * use this for performance log label
+   */
+  public static final String PERFORMANCE_LOG_LABEL_TREE_MENU = "UiTreeMenu";
 
   /**
    * Retrive a JSON array of the path from root to the object
