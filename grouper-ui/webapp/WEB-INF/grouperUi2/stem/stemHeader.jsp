@@ -256,9 +256,7 @@
                      
                   </div>
                   <div class="span2" id="stemMoreActionsButtonContentsDivId">
-                    <grouper:performanceTimingGate label="StemUiView" key="pre_moreActionsButton" />
                     <%@ include file="stemMoreActionsButtonContents.jsp"%>
-                    <grouper:performanceTimingGate label="StemUiView" key="post_moreActionsButton" />
                   </div>
                 </div>
               </div>

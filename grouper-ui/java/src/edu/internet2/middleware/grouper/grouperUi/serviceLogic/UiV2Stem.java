@@ -135,6 +135,11 @@ public class UiV2Stem {
    */
   public static final String PERFORMANCE_LOG_LABEL_STEM_UI_VIEW = "StemUiView";
 
+  /**
+   * use this for performance log label
+   */
+  public static final String PERFORMANCE_LOG_LABEL_STEM_MORE_ACTIONS = "StemUiMoreActions";
+
   /** logger */
   protected static final Log LOG = LogFactory.getLog(UiV2Stem.class);
   
@@ -3605,6 +3610,47 @@ public class UiV2Stem {
    */
   public void createAttributeDefParentFolderFilter(final HttpServletRequest request, HttpServletResponse response) {
     createGroupParentFolderFilter(request, response);
+  }
+
+  /**
+   * view stem
+   * @param request
+   * @param response
+   */
+  public void populateMoreActionsButton(HttpServletRequest request, HttpServletResponse response) {
+    
+    PerformanceLogger.performanceTimingStart(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_MORE_ACTIONS, false);
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = retrieveStemHelper(request, false).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stem-more-options", 
+          "/WEB-INF/grouperUi2/stem/stemMoreActionsButtonContents2.jsp"));
+  
+      guiResponseJs.addAction(GuiScreenAction.newScript("$(this).attr('aria-expanded',function(index, currentValue) { $('#stem-more-options li').first().focus();return true;})"));
+      
+    } finally {
+      if (PerformanceLogger.performanceTimingEnabled(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_MORE_ACTIONS)) {
+        PerformanceLogger.performanceLog().info(PerformanceLogger.performanceTimingDataResult(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_MORE_ACTIONS));
+      }
+
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
   
 }

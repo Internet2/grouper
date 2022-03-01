@@ -54,10 +54,14 @@ public abstract class GrouperConfigurationModuleBase {
   
   /**
    * is the config enabled or not
-   * @return
+   * @return if enabled
    */
   public boolean isEnabled() {
-    return true;
+    try {
+      return this.getConfigFileName().getConfig().propertyValueBoolean(this.getConfigItemPrefix() + "enabled", false);
+    } catch (Exception e) {
+      return false;
+    }
   }
   
   /**
@@ -520,9 +524,28 @@ public abstract class GrouperConfigurationModuleBase {
     this.attributeCache = null;
   }
 
+  /**
+   * retrieve attribute and values from config (lightweight and fast).  Key is the config suffix
+   * @return key / value pairs
+   */
+  public Map<String, String> retrieveAttributesFromConfig() {
+    
+    String prefix = this.getConfigItemPrefix();
+    Map<String, String> result = new LinkedHashMap<String, String>();
+    ConfigPropertiesCascadeBase config = this.getConfigFileName().getConfig();
+    for (String key : config.propertyNames()) {
+      if (key.startsWith(prefix)) {
+        String suffix = GrouperUtil.prefixOrSuffix(key, prefix, false);
+        result.put(suffix, config.propertyValueString(key));
+      }
+    }
+    return result;
+  }
   
   /**
-   * retrieve attributes based on the instance.  Key is the config suffix
+   * retrieve attributes based on the instance.  Key is the config suffix.
+   * This is a heavyweight method that takes a while and should only be used on edit screens or submitting from edit screens
+   * Normally just retrieve config or you can call retrieveAttributesFromConfig
    * @return
    */
   public Map<String, GrouperConfigurationModuleAttribute> retrieveAttributes() {
