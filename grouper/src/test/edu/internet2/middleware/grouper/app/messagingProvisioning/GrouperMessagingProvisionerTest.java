@@ -5,6 +5,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerJDBCSubjectSourceTest;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -26,10 +27,19 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import junit.textui.TestRunner;
 
 public class GrouperMessagingProvisionerTest extends GrouperTest {
   
   public static boolean startTomcat = false;
+  
+  public GrouperMessagingProvisionerTest(String name) {
+    super(name);
+  }
+
+  public static void main(String[] args) {
+    TestRunner.run(new GrouperMessagingProvisionerTest("testIncrementalSyncMessagingWithBuiltinMessaging"));
+  }
   
   public void testIncrementalSyncMessagingWithBuiltinMessaging() {
     
