@@ -126,7 +126,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
     GrouperStartup.startup();
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFullWithAttributesTableRequiredMembers"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaMatchingIdMissingValidation"));
     
   }
   
@@ -4790,11 +4790,10 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.2.translateExpression")
       .value("${grouperProvisioningGroup.name == 'test:testGroup' ? null : grouperProvisioningGroup.idIndex}").store();
 
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetEntityAttribute.1.translateExpressionType").value("translationScript").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetEntityAttribute.1.translateExpression")
+    .value("${grouperProvisioningEntity.subjectId == 'test.subject.4' ? null : grouperProvisioningEntity.subjectId}").store();
 
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
-  
         
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     
@@ -4807,6 +4806,13 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
     
     testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
     testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ4, false);
+    
+    Member member0 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ4, true);
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
@@ -4895,8 +4901,10 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
     //get the grouper_sync and check cols
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "pspng_oneprod");
     assertEquals(2, gcGrouperSync.getGroupCount().intValue());
-    assertEquals(4, gcGrouperSync.getUserCount().intValue());
-    assertEquals(2+4+4, gcGrouperSync.getRecordsCount().intValue());
+    
+    // 2 valid, 1 invalid, 2 in invalid group
+    assertEquals(5, gcGrouperSync.getUserCount().intValue());
+    assertEquals(2+5+5, gcGrouperSync.getRecordsCount().intValue());
     assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
     assertTrue(new Timestamp(System.currentTimeMillis()) + " > " + new Timestamp(gcGrouperSync.getLastFullSyncRun().getTime()), System.currentTimeMillis() >  gcGrouperSync.getLastFullSyncRun().getTime());
     assertTrue(started < gcGrouperSync.getLastUpdated().getTime());
@@ -4916,15 +4924,113 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
     assertNull(gcGrouperSyncJob.getErrorMessage());
     assertNull(gcGrouperSyncJob.getErrorTimestamp());
     
-    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
-    assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
-    assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
-    assertEquals(testGroup.getIdIndex(), gcGrouperSyncGroup.getGroupIdIndex());
-    assertEquals("T", gcGrouperSyncGroup.getProvisionableDb());
-    assertFalse("T".equals(gcGrouperSyncGroup.getInTargetDb()));
-    assertFalse("T".equals(gcGrouperSyncGroup.getInTargetInsertOrExistsDb()));
-    assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncGroup.getErrorCode());
-  
+    {
+      GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
+      assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
+      assertEquals(testGroup.getIdIndex(), gcGrouperSyncGroup.getGroupIdIndex());
+      assertEquals("T", gcGrouperSyncGroup.getProvisionableDb());
+      assertFalse("T".equals(gcGrouperSyncGroup.getInTargetDb()));
+      assertFalse("T".equals(gcGrouperSyncGroup.getInTargetInsertOrExistsDb()));
+      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncGroup.getErrorCode());
+    }
+    
+    {
+      GcGrouperSyncGroup gcGrouperSyncGroup2 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      assertEquals(testGroup2.getId(), gcGrouperSyncGroup2.getGroupId());
+      assertEquals(testGroup2.getName(), gcGrouperSyncGroup2.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), gcGrouperSyncGroup2.getGroupIdIndex());
+      assertEquals("T", gcGrouperSyncGroup2.getProvisionableDb());
+      assertTrue("T".equals(gcGrouperSyncGroup2.getInTargetDb()));
+      assertTrue("T".equals(gcGrouperSyncGroup2.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncGroup2.getErrorCode());
+    }
+    
+    {
+      GcGrouperSyncMember gcGrouperSyncMember0 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId());
+      assertEquals(member0.getSubjectId(), gcGrouperSyncMember0.getSubjectId());
+      assertEquals(member0.getSubjectSourceId(), gcGrouperSyncMember0.getSourceId());
+      assertEquals("T", gcGrouperSyncMember0.getProvisionableDb());
+      assertTrue("T".equals(gcGrouperSyncMember0.getInTargetDb()));
+      assertTrue("F".equals(gcGrouperSyncMember0.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMember0.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMember gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId());
+      assertEquals(member1.getSubjectId(), gcGrouperSyncMember1.getSubjectId());
+      assertEquals(member1.getSubjectSourceId(), gcGrouperSyncMember1.getSourceId());
+      assertEquals("T", gcGrouperSyncMember1.getProvisionableDb());
+      assertTrue("T".equals(gcGrouperSyncMember1.getInTargetDb()));
+      assertTrue("F".equals(gcGrouperSyncMember1.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMember1.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMember gcGrouperSyncMember2 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId());
+      assertEquals(member2.getSubjectId(), gcGrouperSyncMember2.getSubjectId());
+      assertEquals(member2.getSubjectSourceId(), gcGrouperSyncMember2.getSourceId());
+      assertEquals("T", gcGrouperSyncMember2.getProvisionableDb());
+      assertTrue("T".equals(gcGrouperSyncMember2.getInTargetDb()));
+      assertTrue("F".equals(gcGrouperSyncMember2.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMember2.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMember gcGrouperSyncMember3 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId());
+      assertEquals(member3.getSubjectId(), gcGrouperSyncMember3.getSubjectId());
+      assertEquals(member3.getSubjectSourceId(), gcGrouperSyncMember3.getSourceId());
+      assertEquals("T", gcGrouperSyncMember3.getProvisionableDb());
+      assertTrue("T".equals(gcGrouperSyncMember3.getInTargetDb()));
+      assertTrue("F".equals(gcGrouperSyncMember3.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMember3.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMember gcGrouperSyncMember4 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member4.getId());
+      assertEquals(member4.getSubjectId(), gcGrouperSyncMember4.getSubjectId());
+      assertEquals(member4.getSubjectSourceId(), gcGrouperSyncMember4.getSourceId());
+      assertEquals("T", gcGrouperSyncMember4.getProvisionableDb());
+      assertFalse("T".equals(gcGrouperSyncMember4.getInTargetDb()));
+      assertFalse("F".equals(gcGrouperSyncMember4.getInTargetInsertOrExistsDb()));
+      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMember4.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMembership gcGrouperSyncMembership0 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member0.getId());
+      assertFalse("T".equals(gcGrouperSyncMembership0.getInTargetDb()));
+      assertFalse("T".equals(gcGrouperSyncMembership0.getInTargetInsertOrExistsDb()));
+      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMembership0.getErrorCode());
+    }  
+    {
+      GcGrouperSyncMembership gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member1.getId());
+      assertFalse("T".equals(gcGrouperSyncMembership1.getInTargetDb()));
+      assertFalse("T".equals(gcGrouperSyncMembership1.getInTargetInsertOrExistsDb()));
+      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMembership1.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMembership gcGrouperSyncMembership2 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member2.getId());
+      assertTrue("T".equals(gcGrouperSyncMembership2.getInTargetDb()));
+      assertTrue("T".equals(gcGrouperSyncMembership2.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMembership2.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMembership gcGrouperSyncMembership3 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member3.getId());
+      assertTrue("T".equals(gcGrouperSyncMembership3.getInTargetDb()));
+      assertTrue("T".equals(gcGrouperSyncMembership3.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMembership3.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMembership gcGrouperSyncMembership4 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member4.getId());
+      assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetDb()));
+      assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetInsertOrExistsDb()));
+      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMembership4.getErrorCode());
+    }  
+    
+    
     
   }
 

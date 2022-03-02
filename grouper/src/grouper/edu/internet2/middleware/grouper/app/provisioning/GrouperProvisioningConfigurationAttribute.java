@@ -130,6 +130,8 @@ public class GrouperProvisioningConfigurationAttribute {
     
     Set<String> fieldNames = GrouperUtil.fieldNames(GrouperProvisioningConfigurationAttribute.class, null, false);
         
+    fieldNames.remove("grouperProvisioner");
+    
     fieldNames = new TreeSet<String>(fieldNames);
     boolean firstField = true;
     for (String fieldName : fieldNames) {
