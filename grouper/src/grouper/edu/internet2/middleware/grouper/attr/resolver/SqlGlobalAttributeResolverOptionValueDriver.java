@@ -20,11 +20,9 @@ public class SqlGlobalAttributeResolverOptionValueDriver implements OptionValueD
     
     for (GlobalAttributeResolverConfiguration resolverConfig: resolverConfigs) {
       
-      
-      
-      if (StringUtils.equals(resolverConfig.retrieveAttributes().get("resolverType").getValueOrExpressionEvaluation(), "sql") &&
-          (StringUtils.isBlank(resolverConfig.retrieveAttributes().get("enabled").getValueOrExpressionEvaluation()) || 
-              resolverConfig.retrieveAttributes().get("enabled").getValueOrExpressionEvaluation().equalsIgnoreCase("true"))) {
+      if (StringUtils.equals(resolverConfig.retrieveAttributeValueFromConfig("resolverType", false), "sql") &&
+          resolverConfig.isEnabled()) {
+
         String configId = resolverConfig.getConfigId();
         keysAndLabels.add(new MultiKey(configId, configId));
       }

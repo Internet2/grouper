@@ -62,32 +62,9 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
    return (List<CustomUiConfiguration>) (Object) retrieveAllConfigurations(classNames);
   }
   
-  /**
-   * is the config enabled or not
-   * @return
-   */
-  @Override
-  public boolean isEnabled() {
-   try {
-     GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
-     String enabledString = enabledAttribute.getValue();
-     if (StringUtils.isBlank(enabledString)) {
-       enabledString = enabledAttribute.getDefaultValue();
-     }
-     return GrouperUtil.booleanValue(enabledString, true);
-   } catch (Exception e) {
-     return false;
-   }
-    
-  }
-  
   public String getGroupId() {
     try {
-      GrouperConfigurationModuleAttribute groupUUIDOrNameAttribute = this.retrieveAttributes().get("groupUUIDOrName");
-      String groupUuidOrNameString = groupUUIDOrNameAttribute.getValue();
-      if (StringUtils.isBlank(groupUuidOrNameString)) {
-        throw new RuntimeException("groupUUIDOrName cannot be blank!!");
-      }
+      String groupUuidOrNameString = this.retrieveAttributeValueFromConfig("groupUUIDOrName", true);
       
       Group group = GroupFinder.findByUuid(groupUuidOrNameString, false);
       if (group == null) {

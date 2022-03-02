@@ -58,7 +58,8 @@ public abstract class GrouperConfigurationModuleBase {
    */
   public boolean isEnabled() {
     try {
-      return this.getConfigFileName().getConfig().propertyValueBoolean(this.getConfigItemPrefix() + "enabled", false);
+      String currentValue = this.retrieveAttributeValueFromConfig("enabled", false);
+      return GrouperUtil.booleanValue(currentValue, true);
     } catch (Exception e) {
       return false;
     }
@@ -543,10 +544,26 @@ public abstract class GrouperConfigurationModuleBase {
   }
   
   /**
+   * retrieve value from config (lightweight and fast).  Key is the config suffix
+   * @param suffix suffix on the config key
+   * @param required true if an exception should be thrown if not configured
+   * @return value or null or empty if not there
+   */
+  public String retrieveAttributeValueFromConfig(String suffix, boolean required) {
+    
+    ConfigPropertiesCascadeBase config = this.getConfigFileName().getConfig();
+    String key = this.getConfigItemPrefix() + suffix;
+    if (required) {
+      return config.propertyValueStringRequired(key);
+    }
+    return config.propertyValueString(key);
+  }
+  
+  /**
    * retrieve attributes based on the instance.  Key is the config suffix.
    * This is a heavyweight method that takes a while and should only be used on edit screens or submitting from edit screens
    * Normally just retrieve config or you can call retrieveAttributesFromConfig
-   * @return
+   * @return the map
    */
   public Map<String, GrouperConfigurationModuleAttribute> retrieveAttributes() {
     
@@ -815,8 +832,8 @@ public abstract class GrouperConfigurationModuleBase {
   public abstract ConfigFileName getConfigFileName();
   
   /**
-   * prefix for the properties eg: provisioner.
-   * @return
+   * prefix for the properties eg: provisioner.someConfigId.
+   * @return the prefix
    */
   public abstract String getConfigItemPrefix();
   

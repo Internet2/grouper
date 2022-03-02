@@ -245,34 +245,22 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
           break;
         }
       }
-      
+
       if (subjectSourceConfiguration != null) {
-        Map<String, GrouperConfigurationModuleAttribute> attributes = subjectSourceConfiguration.retrieveAttributes();
-        GrouperConfigurationModuleAttribute sqlAttribute = attributes.get("param.jdbcConfigId.value");
+        String sqlAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".param.jdbcConfigId.value");
         if (sqlAttribute != null) {
           
 //          source.addInitParam("jdbcConnectionProvider", GrouperJdbcConnectionProvider.class.getName());
           
-          GrouperConfigurationModuleAttribute subjectIdAttribute = attributes.get("param.SubjectID_AttributeType.value");
-          String subjectIdAttributeName = subjectIdAttribute.getValueOrExpressionEvaluation();
+          String subjectIdAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.SubjectID_AttributeType.value");
           
-          GrouperConfigurationModuleAttribute subjectNameAttribute = attributes.get("param.Name_AttributeType.value");
-          String subjectNameAttributeName = subjectNameAttribute.getValueOrExpressionEvaluation();
+          String subjectNameAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.Name_AttributeType.value");
           
-          GrouperConfigurationModuleAttribute subjectDescriptionAttribute = attributes.get("param.Description_AttributeType.value");
-          String subjectDescriptionAttributeName = subjectDescriptionAttribute.getValueOrExpressionEvaluation();
+          String subjectDescriptionAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.Description_AttributeType.value");
           
-          GrouperConfigurationModuleAttribute subjectEmailAttribute = attributes.get("param.emailAttributeName.value");
-          String subjectEmailAttributeName = null;
-          if (subjectEmailAttribute != null) {            
-            subjectEmailAttributeName = subjectEmailAttribute.getValueOrExpressionEvaluation();
-          }
+          String subjectEmailAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.emailAttributeName.value");
           
-          GrouperConfigurationModuleAttribute subjectNetIdAttribute = attributes.get("param.netId.value");
-          String subjectNetIdAttributeName = null;
-          if (subjectNetIdAttribute != null) {            
-            subjectNetIdAttributeName = subjectNetIdAttribute.getValueOrExpressionEvaluation();
-          }
+          String subjectNetIdAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.netId.value");
           
           String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
                 
