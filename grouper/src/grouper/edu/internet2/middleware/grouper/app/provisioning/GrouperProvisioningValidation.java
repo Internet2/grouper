@@ -75,7 +75,10 @@ public class GrouperProvisioningValidation {
       ProvisioningGroup provisioningGroup = iterator.next();
       ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroup.getProvisioningGroupWrapper();
       if (provisioningGroupWrapper.getErrorCode() != null) {
-        continue;
+      if (removeInvalid) {
+        iterator.remove();
+          continue;
+      	}
       }
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGcGrouperSyncGroup();
       

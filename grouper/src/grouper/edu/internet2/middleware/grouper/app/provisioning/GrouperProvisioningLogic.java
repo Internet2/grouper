@@ -1176,6 +1176,11 @@ public class GrouperProvisioningLogic {
     // validate
     this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroupsToInsert, true, false);
     
+    if (GrouperUtil.length(grouperTargetGroupsToInsert) == 0) {
+      this.grouperProvisioner.getDebugMap().put("groupTranslationEndedInNoGroupsOnInsert", true);
+      return;
+    }
+
     // add object change entries
     this.grouperProvisioner.retrieveGrouperProvisioningCompare().addInternalObjectChangeForGroupsToInsert(grouperTargetGroupsToInsert);
     
