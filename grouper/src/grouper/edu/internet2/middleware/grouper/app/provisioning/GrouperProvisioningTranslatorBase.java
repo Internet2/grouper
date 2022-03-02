@@ -869,6 +869,22 @@ public class GrouperProvisioningTranslatorBase {
     return currentValue;
   }
 
+  private boolean hasMatchingIdStrategyForGroups = false;
+  
+  
+  
+  public boolean isHasMatchingIdStrategyForGroups() {
+    return hasMatchingIdStrategyForGroups;
+  }
+
+  private boolean hasMatchingIdStrategyForEntities = false;
+  
+  
+  
+  public boolean isHasMatchingIdStrategyForEntities() {
+    return hasMatchingIdStrategyForEntities;
+  }
+
   public void idTargetGroups(List<ProvisioningGroup> targetGroups) {
 
     if (GrouperUtil.isBlank(targetGroups)) {
@@ -900,7 +916,7 @@ public class GrouperProvisioningTranslatorBase {
     if (StringUtils.isBlank(groupIdScript) && StringUtils.isBlank(groupIdAttribute) && StringUtils.isBlank(groupIdField)) {
       return;
     }
-    
+    hasMatchingIdStrategyForGroups = true;
     for (ProvisioningGroup targetGroup: GrouperUtil.nonNull(targetGroups)) {
       
       Object id = null;
@@ -979,6 +995,8 @@ public class GrouperProvisioningTranslatorBase {
       return;
     }
     
+    hasMatchingIdStrategyForEntities = true;
+
     for (ProvisioningEntity targetEntity: GrouperUtil.nonNull(targetEntities)) {
       
       Object id = null;

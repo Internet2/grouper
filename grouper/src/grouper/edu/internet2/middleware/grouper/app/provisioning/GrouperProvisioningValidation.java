@@ -88,9 +88,13 @@ public class GrouperProvisioningValidation {
       }
       
       // matching ID must be there
-      // if we are automatically changing, no matching id is needed
-      if (!this.getGrouperProvisioner().retrieveGrouperTranslator().isTranslateGrouperToTargetAutomatically()) {
+      // if a matching id is configured on groups even
+      if (this.getGrouperProvisioner().retrieveGrouperTranslator().isHasMatchingIdStrategyForGroups()) {
         if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isAllowBlankMatchingIds()) {
+          
+          // lets see which attribute is the matching id
+          
+          
           if (GrouperUtil.isBlank(provisioningGroupWrapper.getMatchingId())) {
             // TODO see if the matching ID field is stored in a bucket, if so, maybe its not required?
             this.assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
@@ -165,8 +169,8 @@ public class GrouperProvisioningValidation {
         continue;
       }
       
-      // if we are automatically changing, no matching id is needed
-      if (!this.getGrouperProvisioner().retrieveGrouperTranslator().isTranslateGrouperToTargetAutomatically()) {
+      // if a matching id is configured on groups even
+      if (this.getGrouperProvisioner().retrieveGrouperTranslator().isHasMatchingIdStrategyForEntities()) {
         if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isAllowBlankMatchingIds()) {
           // matching ID must be there
           if (GrouperUtil.isBlank(provisioningEntityWrapper.getMatchingId())) {
