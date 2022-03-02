@@ -16,9 +16,12 @@
 
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -28,12 +31,15 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SyncPITTables;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -156,9 +162,41 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
 
     }
     
-  }
+  },
+  V7 {
+    
+    @Override
+    public void updateVersionFromPrevious() {
 
-  ;
+      Pattern gshTemplateFolderUuidsToShowPattern = Pattern.compile("^grouperGshTemplate\\.([^.]+)\\.folderUuidsToShow$");
+      
+      Map<String, String> properties = GrouperConfig.retrieveConfig().propertiesMap(gshTemplateFolderUuidsToShowPattern);
+      
+      if (GrouperUtil.length(properties) > 0) {
+        
+        for (String key : properties.keySet()) {
+          
+          Matcher matcher = gshTemplateFolderUuidsToShowPattern.matcher(key);
+          if (matcher.matches()) {
+            String configId = matcher.group(1);
+            String folderUuidsToShow = properties.get("grouperGshTemplate." + configId + ".folderUuidsToShow");
+            folderUuidsToShow = StringUtils.trim(folderUuidsToShow);
+            
+            String singularFolderUuidToShow = GrouperConfig.retrieveConfig().propertyValueString("grouperGshTemplate." + configId + ".folderUuidToShow");
+            singularFolderUuidToShow = StringUtils.trim(singularFolderUuidToShow);
+            
+            if (!StringUtils.equals(folderUuidsToShow, singularFolderUuidToShow)) {
+              new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperGshTemplate." + configId + ".folderUuidToShow")
+              .value(folderUuidsToShow).store();
+            }
+            
+          }
+        }
+        
+      }
+
+    }
+  };
   
   private static int currentVersion = -1;
   

@@ -354,10 +354,11 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
     String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
     
-    String token = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword");
+    //String token = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword");
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/awsScim/v2/").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.accessTokenPassword").value(token).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.accessTokenPassword").value("abcdef").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword").value("abcdef").store();
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.bearerTokenExternalSystemConfigId").value("awsConfigId").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.class").value("edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Provisioner").store();

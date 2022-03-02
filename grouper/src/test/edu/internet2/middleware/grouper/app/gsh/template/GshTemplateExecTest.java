@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -599,6 +600,12 @@ public class GshTemplateExecTest extends GrouperTest {
         GrouperConfig.retrieveConfig().propertiesOverrideMap().put(keyValueArr[0].trim(), keyValueArr[1].trim());
       }
     }
+    
+    UpgradeTasks.V7.updateVersionFromPrevious();
+    
+    String folderUuidToShow = GrouperConfig.retrieveConfig().propertyValueString("grouperGshTemplate.testGshTemplateConfig.folderUuidToShow");
+    assertEquals("abc,def", folderUuidToShow);
+    // verify that in db, we have singular property 
     
     String gshScript = GrouperUtil.readResourceIntoString("edu/internet2/middleware/grouper/app/gsh/template/test-gsh-script2.gsh", false);
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.gshTemplate", gshScript);
