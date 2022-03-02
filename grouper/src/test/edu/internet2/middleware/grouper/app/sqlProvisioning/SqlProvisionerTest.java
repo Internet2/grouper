@@ -126,7 +126,7 @@ public class SqlProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
     GrouperStartup.startup();
-    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisionerFailsafe"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFullWithAttributesTableRequiredMembers"));
     
   }
   
@@ -4411,7 +4411,7 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroups").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroupsIfNotExistInGrouper").value("true").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupRequireMembers").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupsRequireMembers").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupTableIdColumn").value("uuid").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupTableName").value("testgrouper_prov_group").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.logAllObjectsVerbose").value("true").store();
@@ -4459,6 +4459,9 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
       failsafeGroups.get(i).addMember(SubjectTestHelper.SUBJ0, false);
 
     }
+
+    // group with no members
+    failsafeGroups.add(new GroupSave(this.grouperSession).assignName("test:testGroup" + 10).assignDescription("testDescription" + 10).save());
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);

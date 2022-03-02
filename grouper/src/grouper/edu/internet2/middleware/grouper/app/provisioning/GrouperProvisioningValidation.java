@@ -1,20 +1,25 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperProvisioningValidation {
 
@@ -518,5 +523,85 @@ public class GrouperProvisioningValidation {
     }
     return null;
   }
+
+  /**
+   * validate groups have members if required
+   * object and the wrapper object
+   * @param provisioningGroups
+   * @param removeInvalid
+   */
+  public void validateGroupsHaveMembers(Collection<ProvisioningGroup> provisioningGroups, boolean removeInvalid) {
+
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupsRequireMembers()) {
+      return;
+    }
+     
+
+    Map<String, ProvisioningGroupWrapper> groupIdToGroupWrapperToCheck = new HashMap<String, ProvisioningGroupWrapper>();
+    
+    //check for required attributes
+    Iterator<ProvisioningGroup> iterator = provisioningGroups.iterator();
+    while (iterator.hasNext()) {
+      ProvisioningGroup provisioningGroup = iterator.next();
+      ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroup.getProvisioningGroupWrapper();
+
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGcGrouperSyncGroup();
+      
+      //if we're not provisioning this group, maybe this is used in membership that needs to be removed so we shouldn't validate.
+      if (gcGrouperSyncGroup != null && !gcGrouperSyncGroup.isProvisionable()) {
+        continue;
+      }
+      
+      ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
+      
+      groupIdToGroupWrapperToCheck.put(grouperProvisioningGroup.getId(), provisioningGroupWrapper);
+      
+    }      
+
+    if (GrouperUtil.length(groupIdToGroupWrapperToCheck) == 0) {
+      return;
+    }
+
+    List<String> groupIdsList = new ArrayList<String>(groupIdToGroupWrapperToCheck.keySet());
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupIdsList, 900);
+    
+    Map<String, Integer> groupIdToCount = new HashMap<String, Integer>();
+    
+    
+    for (int i=0;i<numberOfBatches;i++) { 
+      
+      List<String> groupIdsBatch = GrouperUtil.batchList(groupIdsList, 900, i);
+      List<Object[]> groupIdCounts = new GcDbAccess().sql("select gmlv.group_id, count(*) from grouper_memberships_lw_v gmlv where gmlv.list_name = 'members' " 
+          + " and gmlv.group_id in (" + GrouperClientUtils.appendQuestions(groupIdsBatch.size()) + ") group by group_id").addBindVars(groupIdsBatch).selectList(Object[].class);
+
+      for (Object[] groupIdCount : groupIdCounts) {
+        String groupId = (String)groupIdCount[0];
+        int count = GrouperUtil.intValue(groupIdCount[1]);
+        groupIdToCount.put(groupId, count);
+      }
+    }
+    
+    iterator = provisioningGroups.iterator();
+    while (iterator.hasNext()) {
+      ProvisioningGroup provisioningGroup = iterator.next();
+      ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroup.getProvisioningGroupWrapper();
+      ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
+      Integer count = groupIdToCount.get(grouperProvisioningGroup.getId());
+      if (count != null && count == 0) {
+        assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.MEM, "Group has no members and members are required");
+        if (removeInvalid) {
+          iterator.remove();
+          
+        }
+      }
+    }    
+
+    if (groupsMissingMembers > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "groupsMissingMembers", groupsMissingMembers);
+    }
   
+  }
+
+  private int groupsMissingMembers = 0;
+
 }

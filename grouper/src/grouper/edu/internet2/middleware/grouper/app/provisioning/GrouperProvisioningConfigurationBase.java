@@ -32,7 +32,14 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public abstract class GrouperProvisioningConfigurationBase {
   
-  private boolean groupRequireMembers;
+
+// grouper-loader.base.properties 3090
+//  # If the group requires members then if there are no members it is not valid and could be deleted
+//  # {valueType: "boolean", subSection: "advanced", defaultValue: "false", order: 113000, showEl: "${showAdvanced}"}
+//  # provisioner.genericProvisioner.groupsRequireMembers =
+
+
+  private boolean groupsRequireMembers;
   
   private boolean hasEntityAttributes;
   
@@ -2483,7 +2490,7 @@ public abstract class GrouperProvisioningConfigurationBase {
     this.resolveAttributesWithLdap = GrouperUtil.booleanValue(this.retrieveConfigBoolean("resolveAttributesWithLDAP", false), false);
     this.useGlobalSqlResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useGlobalSQLResolver", false), false);
 
-    this.groupRequireMembers = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupRequireMembers", false), false);
+    this.groupsRequireMembers = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupsRequireMembers", false), false);
     
     this.useGlobalLdapResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useGlobalLDAPResolver", false), false);
     this.globalSqlResolver = this.retrieveConfigString("globalSQLResolver", false);
@@ -2660,8 +2667,8 @@ public abstract class GrouperProvisioningConfigurationBase {
     
   }
   
-  public boolean isGroupRequireMembers() {
-    return groupRequireMembers;
+  public boolean isGroupsRequireMembers() {
+    return groupsRequireMembers;
   }
 
 

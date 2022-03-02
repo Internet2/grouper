@@ -1170,6 +1170,9 @@ public class GrouperProvisioningLogic {
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().setProvisioningGroups(grouperTargetGroupsToInsert);
     
+    // validate that groups have members
+    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroupsHaveMembers(grouperTargetGroupsToInsert, true);
+    
     // validate
     this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroupsToInsert, true, false);
     
