@@ -2040,6 +2040,7 @@ public class UiV2GrouperLoader {
         {
           String grouperLoaderSqlQuery = request.getParameter("grouperLoaderSqlQueryName");
           if (!error && !StringUtils.isBlank(grouperLoaderSqlQuery)) {
+            grouperLoaderSqlQuery = GrouperUtil.whitespaceNormalizeNewLines(grouperLoaderSqlQuery);
             grouperLoaderContainer.setEditLoaderSqlQuery(grouperLoaderSqlQuery);
           }
           if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderSqlQuery())) {
@@ -2092,7 +2093,7 @@ public class UiV2GrouperLoader {
         {
           String grouperLoaderSqlGroupQuery = StringUtils.trimToNull(request.getParameter("grouperLoaderSqlGroupQueryName"));
           if (!error && !StringUtils.isBlank(grouperLoaderSqlGroupQuery)) {
-            
+            grouperLoaderSqlGroupQuery = GrouperUtil.whitespaceNormalizeNewLines(grouperLoaderSqlGroupQuery);
             grouperLoaderContainer.setEditLoaderSqlGroupQuery(grouperLoaderSqlGroupQuery);
             
           }
@@ -2188,6 +2189,7 @@ public class UiV2GrouperLoader {
       {
         String grouperLoaderLdapFilterName = request.getParameter("grouperLoaderLdapFilterName");
         if (!error && !StringUtils.isBlank(grouperLoaderLdapFilterName)) {
+          grouperLoaderLdapFilterName = GrouperUtil.whitespaceNormalizeNewLines(grouperLoaderLdapFilterName);
           grouperLoaderContainer.setEditLoaderLdapFilter(grouperLoaderLdapFilterName);
         }
         if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderLdapFilter())) {

@@ -198,8 +198,9 @@
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlQueryId">${textContainer.text['grouperLoaderSqlQuery']}</label></strong></td>
                               <td>
                                 <span style="white-space: nowrap">
-                                  <input type="text" style="width: 60em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderSqlQuery)}"
-                                     name="grouperLoaderSqlQueryName" id="grouperLoaderSqlQueryId" />
+                                     
+                                 <textarea id="grouperLoaderSqlQueryId" name="grouperLoaderSqlQueryName" rows="4" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderSqlQuery)}</textarea>    
+                                     
                                   <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                     data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                                 </span>
@@ -310,8 +311,9 @@
                               <tr>
                                 <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderSqlGroupQueryId">${textContainer.text['grouperLoaderSqlGroupQuery']}</label></strong></td>
                                 <td>
-                                  <input type="text" style="width: 60em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderSqlGroupQuery)}"
-                                     name="grouperLoaderSqlGroupQueryName" id="grouperLoaderSqlGroupQueryId" />
+                                     
+                                  <textarea id="grouperLoaderSqlGroupQueryId" name="grouperLoaderSqlGroupQueryName" rows="4" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderSqlGroupQuery)}</textarea>
+                                     
                                   <br />
                                   <span class="description">
                                   ${textContainer.text['grouperLoaderSqlGroupQueryDescription']}</span>
@@ -448,8 +450,9 @@
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderLdapFilterId">${textContainer.text['grouperLoaderLdapFilter']}</label></strong></td>
                               <td>
                                 <span style="white-space: nowrap">
-                                  <input type="text" style="width: 60em" value="${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapFilter)}"
-                                     name="grouperLoaderLdapFilterName" id="grouperLoaderLdapFilterId" />
+                                     
+                                  <textarea id="grouperLoaderLdapFilterId" name="grouperLoaderLdapFilterName" rows="4" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.grouperLoaderContainer.editLoaderLdapFilter)}</textarea>
+                                  
                                   <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                                     data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                                 </span>
