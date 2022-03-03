@@ -21,7 +21,7 @@ CREATE TABLE grouper_prov_duo_user
 
 CREATE INDEX grouper_duo_user_config_id_idx ON grouper_prov_duo_user (config_id);
 
-CREATE UNIQUE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (user_name, config_id);
+CREATE UNIQUE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (user_name(100), config_id);
 
 CREATE UNIQUE INDEX grouper_duo_user_id_idx ON grouper_prov_duo_user (user_id, config_id);
 

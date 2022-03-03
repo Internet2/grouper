@@ -3718,6 +3718,15 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.entityAttributesAttributeNameColumn").value("entity_attribute_name").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.entityAttributesAttributeValueColumn").value("entity_attribute_value").store();
 
+    // edu.internet2.middleware.grouper.changeLog.esb.consumer
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvTestCLC.class").value(EsbConsumer.class.getName()).store();
+    // edu.internet2.middleware.grouper.app.provisioning
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvTestCLC.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvTestCLC.quartzCron").value("0 0 5 * * 2000").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvTestCLC.provisionerConfigId").value("pspng_oneprod").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvTestCLC.provisionerJobSyncType").value(GrouperProvisioningType.incrementalProvisionChangeLog.name()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvTestCLC.publisher.debug").value("true").store();
+
   }
   
 
@@ -4794,7 +4803,14 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetEntityAttribute.1.translateExpression")
     .value("${grouperProvisioningEntity.subjectId == 'test.subject.4' ? null : grouperProvisioningEntity.subjectId}").store();
 
-        
+    //lets sync these over
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+
+    runJobs(true, true);
+
+    
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     
     // mark some folders to provision
@@ -4838,9 +4854,9 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
     
-    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     
     // make sure some time has passed
     GrouperUtil.sleep(1000);
@@ -5029,9 +5045,26 @@ provisioner.sqlProvTest.useSeparateTableForGroupAttributes = true
       assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetInsertOrExistsDb()));
       assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMembership4.getErrorCode());
     }  
+
+    // this should not retry
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = runJobs(true, true);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("addErrorsToQueue"), 0));
+    assertTrue(GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("skippedEventsDueToFullSync"), 0) > 0);
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
     
     
+    hib3GrouperLoaderLog = runJobs(true, true);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
     
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("addErrorsToQueue"), 0));
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("skippedEventsDueToFullSync"), 0));
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
+    
+  
   }
 
 }

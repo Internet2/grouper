@@ -222,7 +222,7 @@ public class GrouperProvisioningLogicIncremental {
 
 
   /**
-     * filter events that happened after the last full sync
+     * filter events that happened before the last full sync
      * @param esbEventContainers
      * @param gcGrouperSync
      */
@@ -301,10 +301,12 @@ public class GrouperProvisioningLogicIncremental {
     while (iterator.hasNext()) {
       
       GrouperIncrementalDataItem grouperIncrementalDataItem = iterator.next();
-      
       if (grouperIncrementalDataItem.getMillisSince1970() != null && grouperIncrementalDataItem.getMillisSince1970() < lastFullSyncMillis) {
         skippedEventsDueToFullSync[0]++;
         iterator.remove();
+        //System.out.println(new Timestamp(GrouperUtil.longValue(grouperIncrementalDataItem.getMillisSince1970(), -1)) + " < " + new Timestamp(lastFullSyncMillis) + " ? true");
+      } else {
+        //System.out.println(new Timestamp(GrouperUtil.longValue(grouperIncrementalDataItem.getMillisSince1970(), -1)) + " < " + new Timestamp(lastFullSyncMillis) + " ? false");
       }
       
     }

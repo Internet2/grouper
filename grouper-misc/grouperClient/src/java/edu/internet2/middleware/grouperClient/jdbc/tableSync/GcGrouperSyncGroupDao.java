@@ -611,8 +611,9 @@ public class GcGrouperSyncGroupDao {
    * @return group ids
    */
   public List<String> retrieveGroupIdsWithErrorsAfterMillis(Timestamp errorTimestampCheckFrom) {
+    // dont check invalids, just errors
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
-        .sql("select group_id from grouper_sync_group where grouper_sync_id = ?" + (errorTimestampCheckFrom == null ? " and error_timestamp is not null" : " and error_timestamp >= ?"))
+        .sql("select group_id from grouper_sync_group where grouper_sync_id = ? and error_code = 'ERR' " + (errorTimestampCheckFrom == null ? " and error_timestamp is not null" : " and error_timestamp >= ?"))
         .addBindVar(this.getGcGrouperSync().getId());
     if (errorTimestampCheckFrom != null) {
       gcDbAccess.addBindVar(errorTimestampCheckFrom);
