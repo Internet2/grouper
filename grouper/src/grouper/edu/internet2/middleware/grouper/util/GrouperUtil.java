@@ -10404,6 +10404,15 @@ public class GrouperUtil {
   }
 
   /**
+   * contains newline since JSP cant have a quoted newlines
+   * @param string
+   * @return newline
+   */
+  public static boolean containsNewline(String string) {
+    return string != null && string.contains("\n");
+  }
+  
+  /**
    * <p>Checks if String contains a search character, handling <code>null</code>.
    * This method uses {@link String#indexOf(int)}.</p>
    *

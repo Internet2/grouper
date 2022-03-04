@@ -169,8 +169,16 @@
 		                          <td style="vertical-align: top">
 		                            <%-- keep whitespace out of the equation to make copy/paste on screen easier --%>
 		                            <b>
-		                            <grouper:abbreviateTextarea text="${guiConfigProperty.propertyValue}" 
-							 		  showCharCount="50" cols="20" rows="3"/></b>
+                                <c:choose>
+                                  <%-- newlines means code so pre-format --%>
+                                  <c:when test="${grouperUtil.containsNewline(guiConfigProperty.propertyValue)}">
+                                     <pre><grouper:abbreviateTextarea text="${guiConfigProperty.propertyValue}"  showCharCount="50" cols="20" rows="3"/></pre>
+                                  </c:when>
+                                  <c:otherwise>
+                                     <grouper:abbreviateTextarea text="${guiConfigProperty.propertyValue}"  showCharCount="50" cols="20" rows="3"/>
+                                  </c:otherwise>
+                                </c:choose>
+		                            </b>
 		                            
 		                            <c:if test="${guiConfigProperty.scriptlet}"><br />
 		                              <span style="font-size: 90%">${textContainer.text['configurationElScriptletLabel']} ${grouper:escapeHtml(guiConfigProperty.scriptletForUi) }</span>
