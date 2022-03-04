@@ -52,11 +52,12 @@
                    style="display: ${!grouperRequestContainer.configurationContainer.currentGuiConfigProperty.encryptedInDatabase ? 'block' : 'none'}">
                  <label class="control-label">${textContainer.text['configurationFilesAddEntryValue'] }</label>
                  <div class="controls">
-                   <input type="text" id="valueId" class="span6" name="valueName" 
-                     value="${grouper:escapeHtml(grouperRequestContainer.configurationContainer.currentGuiConfigProperty.configItemMetadata.sampleProperty ? '' : 
+                 
+                   <textarea rows="8" cols="50" id="valueId" class="span6" name="valueName">${grouper:escapeHtml(grouperRequestContainer.configurationContainer.currentGuiConfigProperty.configItemMetadata.sampleProperty ? '' : 
                          (grouperRequestContainer.configurationContainer.currentGuiConfigProperty.scriptlet ?
                          grouperRequestContainer.configurationContainer.currentGuiConfigProperty.scriptletForUi : 
-                         grouperRequestContainer.configurationContainer.currentGuiConfigProperty.propertyValue))}" />
+                         grouperRequestContainer.configurationContainer.currentGuiConfigProperty.propertyValue))}</textarea>
+                 
                    <span class="help-block">${textContainer.text['configurationFilesAddEntryValueDescription'] }</span>
                  </div>
                </div>
