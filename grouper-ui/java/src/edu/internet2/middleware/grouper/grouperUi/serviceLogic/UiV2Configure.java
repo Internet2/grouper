@@ -282,6 +282,12 @@ public class UiV2Configure {
 
           if (isPassword) {
             valueString = request.getParameter("passwordValueName");
+          } else {
+            if (valueString != null) {
+              // convert newlines
+              valueString = GrouperUtil.whitespaceNormalizeNewLines(valueString);
+              valueString = GrouperUtil.trim(valueString);
+            }
           }
 
           StringBuilder message = new StringBuilder();

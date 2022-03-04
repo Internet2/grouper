@@ -110,7 +110,7 @@
                  <div class="control-group" id="valueDivId">
                    <label class="control-label">${textContainer.text['configurationFilesAddEntryValue'] }</label>
                    <div class="controls">
-                     <input type="text" id="valueId" class="span10" name="valueName" />
+                     <textarea rows="8" cols="50" id="valueId" class="span10" name="valueName"></textarea>
                      
                      <span class="help-block">${textContainer.text['configurationFilesAddEntryValueDescription'] }</span>
                    
