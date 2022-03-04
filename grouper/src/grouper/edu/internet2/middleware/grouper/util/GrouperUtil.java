@@ -14614,4 +14614,36 @@ public class GrouperUtil {
     }
     return result;
   }
+
+  /**
+   * assertEquals("c.b.a", GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", -1));
+   * assertEquals("c.b.", GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", 4));
+   * @param string
+   * @param string2
+   * @param i
+   * @return the new string
+   */
+  public static String stringFormatNameReverseReplaceTruncate(String name, String newSeparator, int maxLength) {
+    
+    if (name == null) {
+      return null;
+    }
+    String newName = name;
+    if (name.contains(":")) {
+      String[] extensions = splitTrim(name, ":");
+      StringBuilder newNameBuilder = new StringBuilder();
+      
+      for (int i=0;i<extensions.length;i++) {
+        if (i>0) {
+          newNameBuilder.append(newSeparator);
+        }
+        newNameBuilder.append(extensions[extensions.length - 1 - i]);
+      }
+      newName = newNameBuilder.toString();
+    }
+    if (maxLength >= 0 && newName.length() > maxLength) {
+      newName = newName.substring(0, maxLength);
+    }
+    return newName;
+  }
 }
