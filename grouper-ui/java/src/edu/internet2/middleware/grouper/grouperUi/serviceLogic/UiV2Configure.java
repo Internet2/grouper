@@ -432,9 +432,9 @@ public class UiV2Configure {
             grouperConfigHibernateMap.get(property) != null && grouperConfigHibernateMap.get(property).isConfigEncrypted()) {
           value = "*******";
         }
-        value = GrouperUtil.replace(value, "\r\n", "\n");
-        value = GrouperUtil.replace(value, "\r", "\n");
-        value = GrouperUtil.replace(value, "\n", "\\\n");
+        value = GrouperUtil.whitespaceNormalizeNewLines(value);
+        // the end of a newline must be literally: \n\{newline}
+        value = GrouperUtil.replace(value, "\n", "\\n\\\n");
         
         contents.append(property + " = " + value);
         contents.append("\n");
@@ -1058,6 +1058,8 @@ public class UiV2Configure {
           return;
           
         }
+        configFileContents = GrouperUtil.whitespaceNormalizeNewLines(configFileContents);
+        configFileContents = StringUtils.replace(configFileContents, "\\n\\\n ", "\\n\\\n\u0020");
         
         // create a new reader
         StringReader reader = new StringReader(configFileContents);
