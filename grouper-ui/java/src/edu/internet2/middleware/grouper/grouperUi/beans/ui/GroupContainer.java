@@ -17,6 +17,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -34,10 +36,11 @@ import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfig;
 import edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigService;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.AttributeDefScope;
+import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
@@ -67,9 +70,14 @@ public class GroupContainer {
   /** logger */
   protected static final Log LOG = LogFactory.getLog(GroupContainer.class);
 
-
+ /**
+  * group types for edit to show on details and group edit screen
+  */
   private List<GroupTypeForEdit> groupTypesForEdit;
   
+  /**
+   * regex pattern for group types for edit. group types are configured in grouper.properties
+   */
   private static Pattern groupTypeForEditPattern = Pattern.compile("^groupScreenType\\.([^.]+)\\.[a-zA-Z0-9]+$");
   
   /**
@@ -128,6 +136,10 @@ public class GroupContainer {
       
         List<GroupTypeForEdit> groupTypeForEdits = new ArrayList<GroupTypeForEdit>();
         
+        Map<String, String> attributeDefNameToConfigId = new HashMap<>();
+        
+        Set<String> topLevelMarkersSelected = new HashSet<>();
+        
         for (String key : properties.keySet()) {
           
           if (key.endsWith(".attributeName")) {
@@ -146,6 +158,9 @@ public class GroupContainer {
                 LOG.warn(attributeName + " is configured for groupScreenType but it couldn't be found.");
                 continue;
               }
+              
+              attributeDefNameToConfigId.put(attributeDefName.getName(), configId);
+              
               AttributeDef attributeDef = attributeDefName.getAttributeDef();
               
               if (attributeDef.isMultiAssignable() || attributeDef.isMultiValued()) {
@@ -174,24 +189,97 @@ public class GroupContainer {
 
               GroupTypeForEdit groupTypeForEdit = new GroupTypeForEdit();
               groupTypeForEdit.setAttributeDefName(attributeDefName);
+              groupTypeForEdit.setConfigId(configId);
               
-              Set<AttributeAssign> attributeAssignments = GroupContainer.this.getGuiGroup().getGroup().getAttributeDelegate().retrieveAssignments(attributeDefName);
-              if (attributeAssignments.size() > 1) {
-                LOG.warn(GroupContainer.this.getGuiGroup().getGroup().getName() + " has more than 1 assignment for " + attributeDefName.getName());
-                continue;
-              }
+              Set<AttributeAssign> attributeAssignments = null;
               //TODO convert form element type to enum
               if (attributeDef.isAssignToGroup() && attributeDef.getValueType() == AttributeDefValueType.marker) {
+                
+                attributeAssignments = GroupContainer.this.getGuiGroup().getGroup().getAttributeDelegate().retrieveAssignments(attributeDefName);
+                if (attributeAssignments.size() > 1) {
+                  LOG.warn(GroupContainer.this.getGuiGroup().getGroup().getName() + " has more than 1 assignment for " + attributeDefName.getName());
+                  continue;
+                }
+                
                 groupTypeForEdit.setFormElementType("CHECKBOX");
                 if (attributeAssignments.size() > 0) {
                   groupTypeForEdit.setValue("true");
+                  topLevelMarkersSelected.add(attributeDefName.getName());
                 }
               } else if (attributeDef.isAssignToGroup() && attributeDef.getValueType() == AttributeDefValueType.string) {
+                
+                attributeAssignments = GroupContainer.this.getGuiGroup().getGroup().getAttributeDelegate().retrieveAssignments(attributeDefName);
+                if (attributeAssignments.size() > 1) {
+                  LOG.warn(GroupContainer.this.getGuiGroup().getGroup().getName() + " has more than 1 assignment for " + attributeDefName.getName());
+                  continue;
+                }
+                
                 groupTypeForEdit.setFormElementType("TEXTFIELD");
                 
                 if (attributeAssignments.size() > 0) {
                   String valueString = attributeAssignments.iterator().next().getValueDelegate().retrieveValueString();
                   groupTypeForEdit.setValue(valueString);
+                }
+                
+              } else if (attributeDef.isAssignToGroupAssn()) {
+                
+                AttributeDefScope attributeDefScopeForAttributeDef = null;
+                Set<AttributeDefScope> attributeDefScopes = attributeDef.getAttributeDefScopeDelegate().retrieveAttributeDefScopes();
+                for (AttributeDefScope attributeDefScope: GrouperUtil.nonNull(attributeDefScopes)) {
+                  if (attributeDefScope.getAttributeDefScopeType() == AttributeDefScopeType.nameEquals
+                      && attributeDef.getValueType() == AttributeDefValueType.string
+                      && StringUtils.isNotBlank(attributeDefScope.getScopeString()) ) {
+                    attributeDefScopeForAttributeDef = attributeDefScope;
+                    break;
+                  }
+                }
+                
+                if (attributeDefScopeForAttributeDef == null) {
+                  LOG.warn(GroupContainer.this.getGuiGroup().getGroup().getName() + " cannot find a valid nameEquals scope for attribute " + attributeDefName.getName() 
+                  + ", attributeDef: "+attributeDefName.getAttributeDef().getName());
+                  continue;
+                }
+                  
+                AttributeDefName markerAttributeDefName = AttributeDefNameFinder.findByName(attributeDefScopeForAttributeDef.getScopeString(), false);
+                if (markerAttributeDefName == null) {
+                  LOG.warn(GroupContainer.this.getGuiGroup().getGroup().getName() + " has an invalid scope string " + attributeDefName.getName() 
+                    + ", attributeDef: "+attributeDefName.getAttributeDef().getName());
+                  continue;
+                }
+                
+                attributeAssignments = GroupContainer.this.getGuiGroup().getGroup().getAttributeDelegate()
+                    .retrieveAssignments(markerAttributeDefName);
+                if (attributeAssignments.size() > 1) {
+                  LOG.warn(GroupContainer.this.getGuiGroup().getGroup().getName() + " has more than 1 assignment for " + attributeDefName.getName());
+                  continue;
+                }
+                
+                if (!topLevelMarkersSelected.contains(markerAttributeDefName.getName())) {
+                  groupTypeForEdit.setInitiallyVisible(false);
+                }
+                
+                groupTypeForEdit.setMarkerAttributeDefName(markerAttributeDefName);
+                
+                if (attributeDefNameToConfigId.containsKey(markerAttributeDefName.getName())) {
+                  groupTypeForEdit.setMarkerConfigId(attributeDefNameToConfigId.get(markerAttributeDefName.getName()));
+                }
+                
+                groupTypeForEdit.setFormElementType("TEXTFIELD");
+                groupTypeForEdit.setScopeString(attributeDefScopeForAttributeDef.getScopeString());
+                if (attributeAssignments.size() > 0) {
+                  // get the assignment on the assignment which is the name value pair
+//                  AttributeAssign attributeAssign = attributeAssignments.iterator().next();
+//                  attributeAssignments = attributeAssign.getAttributeDelegate()
+//                      .retrieveAssignments(attributeDefName);
+//                  String valueString = attributeAssign.getValueDelegate().retrieveValueString();
+                  
+                  attributeAssignments = attributeAssignments.iterator().next().getAttributeDelegate()
+                      .retrieveAssignments(attributeDefName);
+                  if (attributeAssignments.size() > 0) {
+                    String valueString = attributeAssignments.iterator().next().getValueDelegate().retrieveValueString();
+                    groupTypeForEdit.setValue(valueString);
+                  }
+                  
                 }
                 
               }
@@ -200,9 +288,16 @@ public class GroupContainer {
                 continue;
               }
               
+              if (StringUtils.isBlank(groupTypeForEdit.getValue()) && checkOnlyReadPrivileges) {
+                continue; // no need to show on screen when value is blank and it's for group details page
+              }
+              
               groupTypeForEdit.setAttributeName(attributeName);
               groupTypeForEdit.setIndex(index);
               groupTypeForEdit.setDescription(description);
+              if (!label.endsWith(":")) {
+                label = label + ":";
+              }
               groupTypeForEdit.setLabel(label);
               
               groupTypeForEdits.add(groupTypeForEdit);
@@ -219,7 +314,7 @@ public class GroupContainer {
 
             @Override
             public int compare(GroupTypeForEdit arg0, GroupTypeForEdit arg1) {
-              return arg0.getIndex() - arg1.getIndex();
+              return Integer.compare(arg0.getIndex(), arg1.getIndex());
             }
           });
         }
@@ -228,7 +323,7 @@ public class GroupContainer {
       
     }
     
-    return groupTypesForEdit;
+    return this.groupTypesForEdit;
   }
   
   /**

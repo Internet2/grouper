@@ -84,20 +84,24 @@
                   
                   <c:forEach items="${grouperRequestContainer.groupContainer.groupTypesForEdit}" var="groupTypeForEdit">
                   
-                    <div class="control-group">
+                    <div class="control-group ${groupTypeForEdit.markerAttributeDefName.id}__class" 
+                      style="display: ${groupTypeForEdit.initiallyVisible ? 'block' : 'none'}">
                       <label for="${groupTypeForEdit.attributeName}Id" class="control-label">
                         ${grouper:escapeHtml(groupTypeForEdit.label)}</label>
                       <div class="controls">
                         <c:if test="${groupTypeForEdit.formElementType == 'TEXTFIELD'}">
-                          <input type="text" name="${groupTypeForEdit.attributeName}"
+                          <input type="text" name="${groupTypeForEdit.configId}__name"
                               value="${grouper:escapeHtml(groupTypeForEdit.value)}"
-                              id="${groupTypeForEdit.attributeName}Id">
+                              id="${groupTypeForEdit.configId}__id">
                         </c:if>
                         
                         <c:if test="${groupTypeForEdit.formElementType == 'CHECKBOX'}">
-                          <input type="checkbox" id="${groupTypeForEdit.attributeName}Id" name="${groupTypeForEdit.attributeName}"
+                         
+                          <input type="checkbox" id="${groupTypeForEdit.configId}__id" name="${groupTypeForEdit.configId}__name"
                            ${groupTypeForEdit.value == 'true' ? 'checked="checked"' : ''}
-                           value="true" />
+                           value="true"
+                           onclick="if($(this).is(':checked')) {$('.${groupTypeForEdit.attributeDefName.id}__class').show(300);} else { $('.${groupTypeForEdit.attributeDefName.id}__class').hide(200); }"
+                          />
                         </c:if>
                         <span class="help-block">${grouper:escapeHtml(groupTypeForEdit.description)}</span>
                       </div>
