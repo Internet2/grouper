@@ -46,8 +46,8 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
     provisionerConfigClassNames.add(DuoRoleProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(GoogleProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(LdapProvisionerConfiguration.class.getName());
-    provisionerConfigClassNames.add(GrouperScim2Configuration.class.getName());
     provisionerConfigClassNames.add(MessagingProvisionerConfiguration.class.getName());
+    provisionerConfigClassNames.add(GrouperScim2Configuration.class.getName());
     provisionerConfigClassNames.add(SqlProvisionerConfiguration.class.getName());
 //    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
   }

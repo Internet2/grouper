@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSource;
 import edu.internet2.middleware.grouper.grouperUi.beans.permissionUpdate.PermissionUpdateRequestContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
@@ -396,6 +397,7 @@ public class GrouperRequestContainer {
     if (grouperRequestContainer == null) {
       grouperRequestContainer = new GrouperRequestContainer();
       httpServletRequest.setAttribute(attributeName, grouperRequestContainer);
+      httpServletRequest.setAttribute("grouperUtil", new GrouperUtil());
     }
     return grouperRequestContainer;
   }
