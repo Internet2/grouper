@@ -22,9 +22,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -196,8 +198,42 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       }
 
     }
+  }, 
+  V8 { 
+    
+    @Override
+    public void updateVersionFromPrevious() {
+  
+      {
+        // GRP-3911: subject sources to provision should not be in top config section
+        Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.subjectSourcesToProvision$"));
+        boolean didSomething = false;
+        for (String configId : GrouperUtil.nonNull(configIds)) {
+          String subjectSourcesToProvision = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configId + ".subjectSourcesToProvision");
+          String operateOnGrouperEntitiesKey = "provisioner." + configId + ".operateOnGrouperEntities";
+          String operateOnGrouperEntities = GrouperLoaderConfig.retrieveConfig().propertyValueString(operateOnGrouperEntitiesKey);
+          boolean operateOnGrouperEntitiesBoolean = GrouperUtil.booleanValue(operateOnGrouperEntities, false);
+          if (!StringUtils.isBlank(subjectSourcesToProvision) && !operateOnGrouperEntitiesBoolean) {
+            String action = "Provisioning upgrade: setting grouper-loader.properties " + operateOnGrouperEntitiesKey + " = true";
+            LOG.warn(action);
+            System.out.println(action);
+            didSomething = true;
+            new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(operateOnGrouperEntitiesKey).value("true").store();
+          }
+        }
+        if (!didSomething) {
+          String action = "Provisioning upgrade: no change for subjectSourcesToProvision requiring operateOnGrouperEntities";
+          LOG.warn(action);
+          System.out.println(action);
+        }
+      }      
+      
+    }
   };
   
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(UpgradeTasks.class);
+
   private static int currentVersion = -1;
   
   /**
