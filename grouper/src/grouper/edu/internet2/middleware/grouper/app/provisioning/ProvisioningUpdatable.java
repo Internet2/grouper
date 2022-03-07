@@ -290,14 +290,14 @@ public abstract class ProvisioningUpdatable {
     
     ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
     
-    Set<Object> values = null;
+    Collection<Object> values = null;
     
     if (provisioningAttribute == null) {
       provisioningAttribute = new ProvisioningAttribute();
       this.attributes.put(name, provisioningAttribute);
       provisioningAttribute.setName(name);
     } else {
-      values = (Set<Object>)provisioningAttribute.getValue();
+      values = (Collection<Object>)provisioningAttribute.getValue();
     }
     
     if (values == null) {
@@ -570,8 +570,6 @@ public abstract class ProvisioningUpdatable {
         }
         index++;
       }
-    } else if (fieldValue.getClass().isArray() || fieldValue instanceof Map) {
-      result.append(GrouperUtil.toStringForLog(fieldValue, 1000));
     } else {
       result.append(stringValueWithType(fieldValue));
     }

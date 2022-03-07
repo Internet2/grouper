@@ -2267,21 +2267,6 @@ public class GrouperProvisioningLogicIncremental {
             }
            
           }
-        } else if (attributeValue != null && attributeValue.getClass().isArray()){
-          // array
-          
-          List<Object> recalcMemberships = new ArrayList<Object>();
-          
-          for (int i=0;i<GrouperUtil.length(attributeValue);i++) {
-            Object value = Array.get(attributeValue, i);
-            ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
-            if (provisioningMembershipWrapper.isRecalc()) {
-              recalcMemberships.add(value);
-            }
-            
-          }
-          
-          grouperAttribute.setValue(GrouperUtil.toArray(recalcMemberships, Object.class));
         }
         
         requestGrouperTargetGroups.add(clonedGrouperTargetGroup);

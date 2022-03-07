@@ -108,7 +108,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       throw new RuntimeException("Why is groupSearchAllFilter empty?");
     }
 
-    Set<String> objectClasses = null;
+    Collection<String> objectClasses = null;
     // see if there are object classes
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(ldapSyncConfiguration.getTargetGroupAttributeNameToConfig()).values()) {
       if (StringUtils.equalsIgnoreCase("objectclass", grouperProvisioningConfigurationAttribute.getName())) {
@@ -116,11 +116,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpression())) {
           Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperTranslator()
               .runScript(grouperProvisioningConfigurationAttribute.getTranslateExpression(), null);
-          if (objectClassResult != null && objectClassResult.getClass().isArray()) {
-            objectClasses = (Set<String>)(Object)GrouperUtil.toSet(objectClassResult);
-          } else {
-            objectClasses = (Set<String>)objectClassResult;
-          }
+          objectClasses = (Collection<String>)objectClassResult;
           break;
         } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues())) {
           objectClasses = GrouperUtil.splitTrimToSet(grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues(), ",");
@@ -1302,7 +1298,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       throw new RuntimeException("Why is entitySearchAllFilter empty?");
     }
   
-    Set<String> objectClasses = null;
+    Collection<String> objectClasses = null;
     // see if there are object classes
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(ldapSyncConfiguration.getTargetEntityAttributeNameToConfig()).values()) {
       if (StringUtils.equalsIgnoreCase("objectclass", grouperProvisioningConfigurationAttribute.getName())) {
@@ -1310,11 +1306,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpression())) {
           Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperTranslator()
               .runScript(grouperProvisioningConfigurationAttribute.getTranslateExpression(), null);
-          if (objectClassResult != null && objectClassResult.getClass().isArray()) {
-            objectClasses = (Set<String>)(Object)GrouperUtil.toSet(objectClassResult);
-          } else {
-            objectClasses = (Set<String>)objectClassResult;
-          }
+          objectClasses = (Collection<String>)objectClassResult;
           break;
         } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues())) {
           objectClasses = GrouperUtil.splitTrimToSet(grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues(), ",");
