@@ -1222,7 +1222,8 @@ public abstract class GrouperConfigurationModuleBase {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributes.get(suffix);
       
-      if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()) {
+      if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()
+          && grouperConfigModuleAttribute.isShow()) {
         
         StringBuilder localMessage = new StringBuilder();
         
@@ -1313,14 +1314,15 @@ public abstract class GrouperConfigurationModuleBase {
       }
     }
     
-    Map<String, GrouperConfigurationModuleAttribute> attributesToSave = new HashMap<String, GrouperConfigurationModuleAttribute>();
+    Map<String, GrouperConfigurationModuleAttribute> attributesToSave = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
     
     // remove the edited ones
     for (String suffix : attributes.keySet()) {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributes.get(suffix);
       
-      if (grouperConfigModuleAttribute.isHasValue()) {
+      if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()
+          && grouperConfigModuleAttribute.isShow()) {
         propertyNamesToDelete.remove(grouperConfigModuleAttribute.getFullPropertyName());
         attributesToSave.put(suffix, grouperConfigModuleAttribute);
       }
@@ -1340,28 +1342,28 @@ public abstract class GrouperConfigurationModuleBase {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributesToSave.get(suffix);
       
-      if (!grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()) {
-        continue;
-      }
+      if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()
+          && grouperConfigModuleAttribute.isShow()) {
       
-      StringBuilder localMessage = new StringBuilder();
-      
-      DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
-          grouperConfigModuleAttribute.getFullPropertyName(), 
-          grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false", 
-          grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue(),
-          grouperConfigModuleAttribute.isPassword(), localMessage, new Boolean[] {false},
-          new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);
-      
-      if (localMessage.length() > 0) {
-        if(message.length() > 0) {
-          
-          if (fromUi && !endOfStringNewlinePattern.matcher(message).matches()) {
-            message.append("<br />\n");
-          } else if (!fromUi && message.charAt(message.length()-1) != '\n') {
-            message.append("\n");
+        StringBuilder localMessage = new StringBuilder();
+        
+        DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
+            grouperConfigModuleAttribute.getFullPropertyName(), 
+            grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false", 
+            grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue(),
+            grouperConfigModuleAttribute.isPassword(), localMessage, new Boolean[] {false},
+            new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);
+        
+        if (localMessage.length() > 0) {
+          if(message.length() > 0) {
+            
+            if (fromUi && !endOfStringNewlinePattern.matcher(message).matches()) {
+              message.append("<br />\n");
+            } else if (!fromUi && message.charAt(message.length()-1) != '\n') {
+              message.append("\n");
+            }
+            message.append(localMessage);
           }
-          message.append(localMessage);
         }
       }
     }
