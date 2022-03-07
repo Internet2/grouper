@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.cfg.dbConfig;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -132,10 +133,11 @@ public class GrouperDbConfig {
     message = new StringBuilder();
     ConfigFileName configFileNameObject = ConfigFileName.valueOfIgnoreCase(this.configFileName, true);
     ConfigFileMetadata configFileMetadata = configFileNameObject.configFileMetadata();
+    List<String> actionsPerformed = new ArrayList<String>();
 
     DbConfigEngine.configurationFileAddEditHelper2(configFileNameObject, this.configFileName, configFileMetadata, this.propertyName,
         Boolean.toString(this.propertyName.endsWith(".elConfig")), this.value, null, message, added, error, false, 
-        this.comment, new ArrayList<String>(), new HashMap<String, String>(), true);
+        this.comment, new ArrayList<String>(), new HashMap<String, String>(), true, actionsPerformed);
     if (error[0] != null && error[0]) {
       throw new RuntimeException("Has error.  Message: " + message);
     }
@@ -163,7 +165,7 @@ public class GrouperDbConfig {
       throw new RuntimeException("Cant set comment on delete");
     }
     // this clears the cache if necessary
-    DbConfigEngine.configurationFileItemDeleteHelper(this.configFileName, this.propertyName, false, true);
+    DbConfigEngine.configurationFileItemDeleteHelper(this.configFileName, this.propertyName, false, true, new ArrayList<String>());
 
     return message == null ? null : message.toString();
 

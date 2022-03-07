@@ -939,13 +939,14 @@ public class UiV2ProvisionerConfiguration {
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
-      
-      provisionerConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      List<String> actionsPerformed = new ArrayList<String>();
+
+      provisionerConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -959,9 +960,23 @@ public class UiV2ProvisionerConfiguration {
       GrouperProvisioningSettings.clearTargetsCache();
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
+      StringBuilder messageBuilder = new StringBuilder();
+
+      if (actionsPerformed.size() > 0) {
+        for (String actionPerformed: actionsPerformed) {
+          if (messageBuilder.length() > 0) {
+            messageBuilder.append("<br />");
+          }
+          messageBuilder.append(actionPerformed);
+        }
+      }
+      if (messageBuilder.length() > 0) {
+        messageBuilder.append("<br />");
+      }
+      messageBuilder.append(TextContainer.retrieveFromRequest().getText().get("provisionerConfigAddEditSuccess"));
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, messageBuilder.toString()));
+
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("provisionerConfigAddEditSuccess")));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1085,14 +1100,15 @@ public class UiV2ProvisionerConfiguration {
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
+      List<String> actionsPerformed = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      provisionerConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      provisionerConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
 
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -1106,9 +1122,21 @@ public class UiV2ProvisionerConfiguration {
       GrouperProvisioningSettings.clearTargetsCache();
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
+      StringBuilder messageBuilder = new StringBuilder();
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("provisionerConfigAddEditSuccess")));
+      if (actionsPerformed.size() > 0) {
+        for (String actionPerformed: actionsPerformed) {
+          if (messageBuilder.length() > 0) {
+            messageBuilder.append("<br />");
+          }
+          messageBuilder.append(actionPerformed);
+        }
+      }
+      if (messageBuilder.length() > 0) {
+        messageBuilder.append("<br />");
+      }
+      messageBuilder.append(TextContainer.retrieveFromRequest().getText().get("provisionerConfigAddEditSuccess"));
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, messageBuilder.toString()));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

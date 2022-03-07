@@ -44,16 +44,16 @@ public class DuoRoleProvisionerConfiguration extends ProvisionerConfiguration {
   
   @Override
   public void insertConfig(boolean fromUi, StringBuilder message,
-      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
     assignCacheConfig();
-    super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
+    super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
   }
 
   @Override
   public void editConfig(boolean fromUi, StringBuilder message,
-      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
     assignCacheConfig();
-    super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
+    super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
   }
   
   

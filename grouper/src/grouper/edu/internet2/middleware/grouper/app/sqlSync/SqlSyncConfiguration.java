@@ -78,12 +78,15 @@ public class SqlSyncConfiguration extends GrouperConfigurationModuleBase impleme
     ConfigFileName configFileName = this.getConfigFileName();
     ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
 
+    List<String> actionsPerformed = new ArrayList<String>();
+
+
     DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
         enabledAttribute.getFullPropertyName(), 
         enabledAttribute.isExpressionLanguage() ? "true" : "false", 
         enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
         enabledAttribute.isPassword(), message, new Boolean[] {false},
-        new Boolean[] {false}, true, "Sql sync config status changed", errorsToDisplay, validationErrorsToDisplay, false);    
+        new Boolean[] {false}, true, "Sql sync config status changed", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);    
     ConfigPropertiesCascadeBase.clearCache();
   }
   

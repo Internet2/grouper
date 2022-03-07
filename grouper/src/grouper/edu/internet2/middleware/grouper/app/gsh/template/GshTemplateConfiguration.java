@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -79,12 +80,14 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     ConfigFileName configFileName = this.getConfigFileName();
     ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
 
+    List<String> actionsPerformed = new ArrayList<String>();
+
     DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
         enabledAttribute.getFullPropertyName(), 
         enabledAttribute.isExpressionLanguage() ? "true" : "false", 
         enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
         enabledAttribute.isPassword(), message, new Boolean[] {false},
-        new Boolean[] {false}, true, "GSH template status changed", errorsToDisplay, validationErrorsToDisplay, false);    
+        new Boolean[] {false}, true, "GSH template status changed", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);    
     ConfigPropertiesCascadeBase.clearCache();
   }
 
@@ -136,7 +139,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
   
   @Override
   public void insertConfig(boolean fromUi, StringBuilder message,
-      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, final List<String> actionsPerformed) {
     
     final String configId = this.getConfigId();
     HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
@@ -145,7 +148,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       public Object callback(HibernateHandlerBean hibernateHandlerBean)
           throws GrouperDAOException {
         
-        GshTemplateConfiguration.super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
+        GshTemplateConfiguration.super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
         if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) { 
           AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_ADD,
               "gshTemplateConfigId", configId);
@@ -164,7 +167,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
   
   @Override
   public void editConfig(boolean fromUi, StringBuilder message,
-      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
     
       final String configId = this.getConfigId();
       HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT,
@@ -173,7 +176,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
         public Object callback(HibernateHandlerBean hibernateHandlerBean)
             throws GrouperDAOException {
           
-          GshTemplateConfiguration.super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
+          GshTemplateConfiguration.super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
           if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) { 
             AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_UPDATE,
                 "gshTemplateConfigId", configId);

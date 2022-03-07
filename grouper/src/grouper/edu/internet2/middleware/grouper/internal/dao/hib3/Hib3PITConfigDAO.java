@@ -380,18 +380,19 @@ public class Hib3PITConfigDAO extends Hib3DAO implements PITConfigDAO {
       if (StringUtils.isBlank(oldPitConfig.getPreviousValue())) {
         DbConfigEngine.configurationFileItemDeleteHelper(oldPitConfig.getConfigFileName(),
             oldPitConfig.getConfigKey(), true, 
-            count == oldPitConfigs.size() );
+            count == oldPitConfigs.size(), new ArrayList<String>() );
       } else {
         boolean el = oldPitConfig.getConfigKey().endsWith(".elConfig");
         StringBuilder localMessage = new StringBuilder();
         
         ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(oldPitConfig.getConfigFileName(), false);
         ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+        List<String> actionsPerformed = new ArrayList<String>();
         DbConfigEngine.configurationFileAddEditHelper2(configFileName, configFileName.getConfigFileName(),configFileMetadata,
             oldPitConfig.getConfigKey(), 
             el ? "true": "false", oldPitConfig.getPreviousValue(), oldPitConfig.isConfigEncrypted(), message, 
                 new Boolean[] {false},
-                new Boolean[] {false}, true, "Edited from config history screen", errorsToDisplay, validationErrorsToDisplay, count == oldPitConfigs.size());
+                new Boolean[] {false}, true, "Edited from config history screen", errorsToDisplay, validationErrorsToDisplay, count == oldPitConfigs.size(), actionsPerformed);
         
         if (localMessage.length() > 0) {
           if(message.length() > 0) {

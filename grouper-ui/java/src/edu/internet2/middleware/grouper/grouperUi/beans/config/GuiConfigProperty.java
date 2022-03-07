@@ -213,7 +213,7 @@ public class GuiConfigProperty {
     try {
       return CronExpressionDescriptor.getDescription(propertyValue);
     } catch (Exception e) {
-      LOG.error("Cant parse cron string:" + propertyValue, e);
+      LOG.error("Cant parse cron string, configFile: " + this.guiConfigSection.getGuiConfigFile().getConfigFileName() + ", key: " + key + ", " + propertyValue, e);
       
       return TextContainer.retrieveFromRequest().getText().get("grouperLoaderSqlCronDescriptionError");
     }
