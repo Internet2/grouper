@@ -29,13 +29,13 @@ public class ProvisioningAttribute {
   }
   
   public String toString() {
-    if (value instanceof Set) {
+    if (value instanceof Collection) {
       
       StringBuilder result = new StringBuilder();
       
       result.append("[");
       
-      Set valueSet = (Set)value;
+      Collection valueSet = (Collection)value;
       
       if (GrouperUtil.length(valueSet) > 0) {
         int attrCount = 0;
@@ -100,7 +100,7 @@ public class ProvisioningAttribute {
   private String name;
   
   /**
-   * value could be multi valued
+   * value could be multi valued as collection
    */
   private Object value;
 
@@ -154,7 +154,7 @@ public class ProvisioningAttribute {
       if (this.value instanceof Set) {
         newValue = new HashSet((Set)this.value);
       } else if (this.value instanceof List) {
-          newValue = new ArrayList((Set)this.value);
+          newValue = new ArrayList((List)this.value);
       } else if (this.value instanceof Collection || this.value instanceof Map || this.value.getClass().isArray()) {
         throw new RuntimeException("Not expecting type of attribute: " + this.value.getClass().getName());
       } else {

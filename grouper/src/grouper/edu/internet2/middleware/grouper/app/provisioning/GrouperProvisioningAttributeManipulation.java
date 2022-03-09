@@ -296,13 +296,6 @@ public class GrouperProvisioningAttributeManipulation {
       }
       return;
     }
-    if (currentValue != null && currentValue.getClass().isArray()) {
-      if (Array.getLength(currentValue) == 0) {
-        provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), new Object[] {defaultValue});
-        count[0]++;
-      }
-      return;
-    }
     throw new RuntimeException("Not expecting attribute type: " + currentValue.getClass());
   }
 
@@ -330,12 +323,6 @@ public class GrouperProvisioningAttributeManipulation {
       } else if (currentValue instanceof Collection) {
         currentValue = new HashSet((Collection)currentValue);
         
-      } else if (currentValue.getClass().isArray()) {
-        Set newValue = new HashSet();
-        for (int i=0;i<Array.getLength(currentValue); i++) {
-          newValue.add(Array.get(currentValue, i));
-        }
-        currentValue = newValue;
       } else {
         currentValue = GrouperUtil.toSet(currentValue);
       }
@@ -361,14 +348,6 @@ public class GrouperProvisioningAttributeManipulation {
         return;
       } else {
         throw new RuntimeException("Attribute should not be a collection: " + grouperProvisioningConfigurationAttribute.getName());
-      }
-    } else if (currentValue.getClass().isArray()) {
-      if (Array.getLength(currentValue) == 1) {
-        currentValue = Array.get(currentValue, 0);
-      } else if (Array.getLength(currentValue) == 0) {
-        return;
-      } else {
-        throw new RuntimeException("Attribute should not be an array: " + grouperProvisioningConfigurationAttribute.getName());
       }
     }
     Object newValue = valueType.convert(currentValue);

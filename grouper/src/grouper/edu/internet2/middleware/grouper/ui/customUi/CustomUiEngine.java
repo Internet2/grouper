@@ -875,7 +875,7 @@ public class CustomUiEngine {
     List<String> errorsToDisplay = new ArrayList<String>();
     Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
     
-    customUiConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+    customUiConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
     
     if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 

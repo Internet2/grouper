@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.authentication;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,6 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBas
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 public class WsTrustedJwtConfiguration extends GrouperConfigurationModuleBase {
@@ -69,13 +69,14 @@ public class WsTrustedJwtConfiguration extends GrouperConfigurationModuleBase {
     
     ConfigFileName configFileName = this.getConfigFileName();
     ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+    List<String> actionsPerformed = new ArrayList<String>();
 
     DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
         enabledAttribute.getFullPropertyName(), 
         enabledAttribute.isExpressionLanguage() ? "true" : "false", 
         enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
         enabledAttribute.isPassword(), message, new Boolean[] {false},
-        new Boolean[] {false}, true, "Ws trusted JWT config status changed", errorsToDisplay, validationErrorsToDisplay, false);    
+        new Boolean[] {false}, true, "Ws trusted JWT config status changed", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);    
     ConfigPropertiesCascadeBase.clearCache();
   }
 

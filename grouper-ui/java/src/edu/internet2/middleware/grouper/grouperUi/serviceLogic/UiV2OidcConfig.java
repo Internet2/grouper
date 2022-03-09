@@ -191,12 +191,12 @@ public class UiV2OidcConfig {
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      oidcConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      oidcConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -312,13 +312,14 @@ public class UiV2OidcConfig {
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
-      
-      oidcConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      List<String> actionsPerformed = new ArrayList<String>();
+
+      oidcConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -331,10 +332,15 @@ public class UiV2OidcConfig {
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2OidcConfig.viewOidcConfigs')"));
       
+      if (actionsPerformed.size() > 0) {
+
+        for (String actionPerformed: actionsPerformed) {
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, actionPerformed));
+        }
+      }
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("wsTrustedJwtConfigAddEditSuccess")));
    
-      
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -426,7 +432,7 @@ public class UiV2OidcConfig {
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -487,7 +493,7 @@ public class UiV2OidcConfig {
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 

@@ -85,13 +85,15 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     
     ConfigFileName configFileName = this.getConfigFileName();
     ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+    List<String> actionsPerformed = new ArrayList<String>();
+
 
     DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
         enabledAttribute.getFullPropertyName(), 
         enabledAttribute.isExpressionLanguage() ? "true" : "false", 
         enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
         enabledAttribute.isPassword(), message, new Boolean[] {false},
-        new Boolean[] {false}, true, "Added from external system editor", errorsToDisplay, validationErrorsToDisplay, false);    
+        new Boolean[] {false}, true, "Added from external system editor", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);    
     ConfigPropertiesCascadeBase.clearCache();
   }
   

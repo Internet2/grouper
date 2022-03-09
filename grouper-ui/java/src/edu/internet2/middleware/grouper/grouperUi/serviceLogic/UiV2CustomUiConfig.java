@@ -157,12 +157,12 @@ public class UiV2CustomUiConfig {
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      customUiConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      customUiConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -280,13 +280,14 @@ public class UiV2CustomUiConfig {
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
-      
-      customUiConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      List<String> actionsPerformed = new ArrayList<String>();
+
+      customUiConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -299,7 +300,7 @@ public class UiV2CustomUiConfig {
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2CustomUiConfig.viewCustomUiConfigs')"));
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("customUiConfigAddEditSuccess")));
    
       
@@ -395,7 +396,7 @@ public class UiV2CustomUiConfig {
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -408,7 +409,7 @@ public class UiV2CustomUiConfig {
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2CustomUiConfig.viewCustomUiConfigs')"));
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("customUiConfigChangeStatusSuccess")));
       
     } finally {
@@ -458,7 +459,7 @@ public class UiV2CustomUiConfig {
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -471,7 +472,7 @@ public class UiV2CustomUiConfig {
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2CustomUiConfig.viewCustomUiConfigs')"));
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("customUiConfigChangeStatusSuccess")));
       
     } finally {

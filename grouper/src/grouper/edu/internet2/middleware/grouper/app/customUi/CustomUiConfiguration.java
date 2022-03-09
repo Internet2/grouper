@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.customUi;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -91,13 +92,14 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
     
     ConfigFileName configFileName = this.getConfigFileName();
     ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+    List<String> actionsPerformed = new ArrayList<String>();
 
     DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
         enabledAttribute.getFullPropertyName(), 
         enabledAttribute.isExpressionLanguage() ? "true" : "false", 
         enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
         enabledAttribute.isPassword(), message, new Boolean[] {false},
-        new Boolean[] {false}, true, "Custom UI status changed", errorsToDisplay, validationErrorsToDisplay, false);    
+        new Boolean[] {false}, true, "Custom UI status changed", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);    
     ConfigPropertiesCascadeBase.clearCache();
   }
   

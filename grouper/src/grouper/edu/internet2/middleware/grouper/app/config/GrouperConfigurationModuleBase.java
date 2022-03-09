@@ -1202,7 +1202,7 @@ public abstract class GrouperConfigurationModuleBase {
    *      validationErrorsToDisplay.get(validationKey)));
    */
   public void insertConfig(boolean fromUi, 
-      StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+      StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
     
     validatePreSave(true, errorsToDisplay, validationErrorsToDisplay);
 
@@ -1222,16 +1222,19 @@ public abstract class GrouperConfigurationModuleBase {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributes.get(suffix);
       
-      if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()) {
+      if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()
+          && grouperConfigModuleAttribute.isShow()) {
         
         StringBuilder localMessage = new StringBuilder();
+        
+        String valueString = grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue();
         
         DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
             grouperConfigModuleAttribute.getFullPropertyName(),
             grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false",
-            grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue(),
+            valueString,
             grouperConfigModuleAttribute.isPassword(), localMessage, new Boolean[] {false},
-            new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false);
+            new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);
         
         if (localMessage.length() > 0) {
           if(message.length() > 0) {
@@ -1261,7 +1264,7 @@ public abstract class GrouperConfigurationModuleBase {
     
     for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
       String fullPropertyName = attribute.getFullPropertyName();
-      DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().name(), fullPropertyName, fromUi, true);
+      DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().name(), fullPropertyName, fromUi, true, new ArrayList<String>());
     }
     
     ConfigPropertiesCascadeBase.clearCache();
@@ -1270,13 +1273,17 @@ public abstract class GrouperConfigurationModuleBase {
   
   /**
    * save the attribute in an edit.  Note, if theres a failure, you should see if any made it
+   * @param fromUi 
+   * @param message 
    * @param attributesFromUser are the attributes from "retrieveAttributes" with values in there
    * if a value is blank, then dont save that one (delete)
    * @param errorsToDisplay call from ui: guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, message.toString()));
    * @param validationErrorsToDisplay call from ui: guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
    *      validationErrorsToDisplay.get(validationKey)));
+   * @param actionsPerformed add to screen so user knows what is going on
    */
-  public void editConfig(boolean fromUi, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+  public void editConfig(boolean fromUi, StringBuilder message, List<String> errorsToDisplay, Map<String, 
+      String> validationErrorsToDisplay, List<String> actionsPerformed) {
     
     validatePreSave(false, errorsToDisplay, validationErrorsToDisplay);
 
@@ -1307,21 +1314,22 @@ public abstract class GrouperConfigurationModuleBase {
       }
     }
     
-    Map<String, GrouperConfigurationModuleAttribute> attributesToSave = new HashMap<String, GrouperConfigurationModuleAttribute>();
+    Map<String, GrouperConfigurationModuleAttribute> attributesToSave = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
     
     // remove the edited ones
     for (String suffix : attributes.keySet()) {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributes.get(suffix);
       
-      if (grouperConfigModuleAttribute.isHasValue()) {
+      if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()
+          && grouperConfigModuleAttribute.isShow()) {
         propertyNamesToDelete.remove(grouperConfigModuleAttribute.getFullPropertyName());
         attributesToSave.put(suffix, grouperConfigModuleAttribute);
       }
     }
     // delete some
     for (String key : propertyNamesToDelete) {
-      DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().getConfigFileName(), key , fromUi, false);
+      DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().getConfigFileName(), key , fromUi, false, actionsPerformed);
     }
 
     Pattern endOfStringNewlinePattern = Pattern.compile(".*<br[ ]*\\/?>$");
@@ -1334,28 +1342,28 @@ public abstract class GrouperConfigurationModuleBase {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributesToSave.get(suffix);
       
-      if (!grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()) {
-        continue;
-      }
+      if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()
+          && grouperConfigModuleAttribute.isShow()) {
       
-      StringBuilder localMessage = new StringBuilder();
-      
-      DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
-          grouperConfigModuleAttribute.getFullPropertyName(), 
-          grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false", 
-          grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue(),
-          grouperConfigModuleAttribute.isPassword(), localMessage, new Boolean[] {false},
-          new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false);
-      
-      if (localMessage.length() > 0) {
-        if(message.length() > 0) {
-          
-          if (fromUi && !endOfStringNewlinePattern.matcher(message).matches()) {
-            message.append("<br />\n");
-          } else if (!fromUi && message.charAt(message.length()-1) != '\n') {
-            message.append("\n");
+        StringBuilder localMessage = new StringBuilder();
+        
+        DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
+            grouperConfigModuleAttribute.getFullPropertyName(), 
+            grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false", 
+            grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue(),
+            grouperConfigModuleAttribute.isPassword(), localMessage, new Boolean[] {false},
+            new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);
+        
+        if (localMessage.length() > 0) {
+          if(message.length() > 0) {
+            
+            if (fromUi && !endOfStringNewlinePattern.matcher(message).matches()) {
+              message.append("<br />\n");
+            } else if (!fromUi && message.charAt(message.length()-1) != '\n') {
+              message.append("\n");
+            }
+            message.append(localMessage);
           }
-          message.append(localMessage);
         }
       }
     }

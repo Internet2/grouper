@@ -261,6 +261,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateGroupIdToProvisionExists();
     validateMetadata();
     validateFailsafes();
+    validateOperateOnEntitiesIfSubjectSourcesToProvision();
 
 
     // if there are problems with the basics, then other things could throw exceptions
@@ -270,6 +271,23 @@ public class GrouperProvisioningConfigurationValidation {
 
     validateProvisionerConfig();
   }
+
+  /**
+   * GRP-3911: subject sources to provision should not be in top config section
+   */
+  public void validateOperateOnEntitiesIfSubjectSourcesToProvision() {
+    
+    boolean operateOnGrouperEntities = GrouperUtil.booleanValue(this.suffixToConfigValue.get("operateOnGrouperEntities"), false);
+
+    String subjectSourcesToProvision = this.suffixToConfigValue.get("subjectSourcesToProvision");
+    
+    if (!StringUtils.isBlank(subjectSourcesToProvision) && !operateOnGrouperEntities) {
+      
+      this.addErrorMessage(GrouperTextContainer.textOrNull("grouperProvisioningSubjectSourcesToProvisionRequiresEntitiesInvalid"));
+    }
+    
+  }
+  
 
   /**
    * 

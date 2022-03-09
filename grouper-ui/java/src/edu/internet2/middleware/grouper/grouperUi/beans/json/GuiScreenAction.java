@@ -48,7 +48,7 @@ public class GuiScreenAction implements Serializable {
   }
  
   /**
-   * add a new message to the top of a v2 screen
+   * remove any current messages and print a new message to the top of a v2 screen
    * @param guiMessageType
    * @param message
    * @return the action
@@ -63,7 +63,7 @@ public class GuiScreenAction implements Serializable {
   }
   
   /**
-   * add a new message to the top of a v2 screen
+   * add a new message to the top of a v2 screen but leave the existing messages there
    * @param guiMessageType
    * @param message
    * @return the action

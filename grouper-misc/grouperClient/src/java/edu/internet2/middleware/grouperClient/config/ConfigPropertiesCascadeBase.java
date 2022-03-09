@@ -1780,4 +1780,51 @@ public abstract class ConfigPropertiesCascadeBase {
     return null;
   }
 
+  /**
+   * see if property name exists not in base or database (config file or db or override)
+   * @param propertyName
+   * @return if configured other than base
+   */
+  public boolean configExistsNotInBaseOrDatabase(String propertyName) {
+
+    // might already be el config
+    if (propertyName.endsWith(".elConfig")) {
+      propertyName = GrouperClientUtils.prefixOrSuffix(propertyName, ".elConfig", true);
+    }
+    
+    List<ConfigFile> theConfigFiles = new ArrayList<ConfigFile>(this.internalRetrieveConfigFiles());
+     
+    // take out base
+    theConfigFiles.remove(0);
+    
+    String elKey = propertyName + ".elConfig";
+    
+    //first check threadlocal map
+    Map<String, String> overrideMap = propertiesThreadLocalOverrideMap();
+    
+    if (overrideMap.containsKey(propertyName) || overrideMap.containsKey(elKey)) {
+      return true;
+    }
+      
+    overrideMap = propertiesOverrideMap();
+      
+    if (overrideMap.containsKey(propertyName) || overrideMap.containsKey(elKey)) {
+      return true;
+    }
+    
+    for (ConfigFile configFile : configFiles) {
+      if (configFile.getConfigFileType() == ConfigFileType.DATABASE) {
+        continue;
+      }
+      Properties theProperties = configFile.getProperties();
+
+      if (theProperties.containsKey(elKey) || theProperties.containsKey(propertyName)) {
+        return true;
+      }
+      
+    }
+    return false;
+    
+  }
+
 }

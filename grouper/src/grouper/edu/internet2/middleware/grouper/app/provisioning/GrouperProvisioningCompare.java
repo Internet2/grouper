@@ -96,22 +96,12 @@ public class GrouperProvisioningCompare {
     if (first != null) {
       if (first instanceof Collection) {
         firstCollection = (Collection)first;
-      } else if (first.getClass().isArray()) {
-        firstCollection = new HashSet<Object>();
-        for (int i=0;i<GrouperUtil.length(first);i++) {
-          firstCollection.add(Array.get(first, i));
-        }
       }
     }
     Collection<Object> secondCollection = null;
     if (second != null) {
       if (second instanceof Collection) {
         secondCollection = (Collection)second;
-      } else if (second.getClass().isArray()) {
-        secondCollection = new HashSet<Object>();
-        for (int i=0;i<GrouperUtil.length(second);i++) {
-          secondCollection.add(Array.get(second, i));
-        }
       }
     }
   
@@ -195,18 +185,7 @@ public class GrouperProvisioningCompare {
                 );
           }
         } else {
-          // array
-          for (int i=0;i<GrouperUtil.length(grouperValue);i++) {
-            Object value = Array.get(grouperValue, i);
-            if (membershipAttribute && StringUtils.equals(attributeNameForMemberships, attributeName)) {
-              this.membershipDeleteCount++;
-              countDeleteMembershipObjectCount(provisioningAttribute, value);
-            }
-            provisioningUpdatableToDelete.addInternal_objectChange(
-                new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                    ProvisioningObjectChangeAction.delete, value, null)
-                );
-          }
+          throw new RuntimeException("Arrays not supported");
         }
       } else {
         // just a scalar
@@ -282,18 +261,7 @@ public class GrouperProvisioningCompare {
             }
           }
         } else {
-          // array
-          for (int i=0;i<GrouperUtil.length(grouperValue);i++) {
-            Object value = Array.get(grouperValue, i);
-            provisioningUpdatableToInsert.addInternal_objectChange(
-                new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                    ProvisioningObjectChangeAction.insert, null, value)
-                );
-            if (membershipAttribute && StringUtils.equals(attributeNameForMemberships, attributeName)) {
-              this.membershipAddCount++;
-              countAddMembershipObjectCount(provisioningAttribute, value);
-            }
-          }
+          throw new RuntimeException("Arrays not supported");
         }
       } else {
         // just a scalar
@@ -452,20 +420,7 @@ public class GrouperProvisioningCompare {
                     );
               }
             } else {
-              // array
-              for (int i=0;i<GrouperUtil.length(grouperValue);i++) {
-                Object value = Array.get(grouperValue, i);
-                value = filterDeletedMemberships(grouperAttribute, value);
-                
-                if (filterNonRecalcMemberships(grouperAttribute, value, recalc)) {
-                  continue;
-                }
-                
-                grouperProvisioningUpdatable.addInternal_objectChange(
-                    new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                        ProvisioningObjectChangeAction.insert, null, value)
-                    );
-              }
+              throw new RuntimeException("Arrays not supported");
             }
           } else {
             // just a scalar
@@ -483,22 +438,12 @@ public class GrouperProvisioningCompare {
         if (targetValue != null) {
           if (targetValue instanceof Collection) {
             targetCollection = (Collection)targetValue;
-          } else if (targetValue.getClass().isArray()) {
-            targetCollection = new HashSet<Object>();
-            for (int i=0;i<GrouperUtil.length(targetValue);i++) {
-              targetCollection.add(Array.get(targetValue, i));
-            }
           }
         }
         Collection<Object> grouperCollection = null;
         if (grouperValue != null) {
           if (grouperValue instanceof Collection) {
             grouperCollection = new HashSet<Object>((Collection)grouperValue);
-          } else if (grouperValue.getClass().isArray()) {
-            grouperCollection = new HashSet<Object>();
-            for (int i=0;i<GrouperUtil.length(grouperValue);i++) {
-              grouperCollection.add(Array.get(grouperValue, i));
-            }
           }
         }
         
@@ -591,17 +536,7 @@ public class GrouperProvisioningCompare {
                 }
               }
             } else {
-              // array
-              for (int i=0;i<GrouperUtil.length(targetValue);i++) {
-                Object value = Array.get(targetValue, i);
-                
-                if (grouperProvisioningUpdatable.canDeleteAttributeValue(attributeName, value)) {
-                  grouperProvisioningUpdatable.addInternal_objectChange(
-                      new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, attributeName, 
-                          ProvisioningObjectChangeAction.delete, value, null)
-                      );
-                }
-              }
+              throw new RuntimeException("Arrays not supported");
             }
             
             // note for ldap I think we want this as false

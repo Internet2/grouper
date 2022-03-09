@@ -489,7 +489,7 @@ public class UiV2Configure {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      String result = DbConfigEngine.configurationFileItemDeleteHelper(configFileString, propertyNameString, true, true);
+      String result = DbConfigEngine.configurationFileItemDeleteHelper(configFileString, propertyNameString, true, true, new ArrayList<String>());
       
       if (!StringUtils.isBlank(result)) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
@@ -517,7 +517,7 @@ public class UiV2Configure {
     
     configurationContainer.setConfigFileName(configFileName);
 
-    String message = DbConfigEngine.configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi);
+    String message = DbConfigEngine.configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi, new ArrayList<String>());
     if (!StringUtils.isBlank(message) && fromUi) {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -921,7 +921,7 @@ public class UiV2Configure {
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -934,7 +934,7 @@ public class UiV2Configure {
       
       historyHelper(request);
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("configurationHistoryRevertSuccess")));
       
     } finally {
@@ -1221,14 +1221,15 @@ public class UiV2Configure {
 
     List<String> errorsToDisplay = new ArrayList<String>();
     Map<String, String> validationErrorsToDisplay = new LinkedHashMap<String, String>();
-    
+    List<String> actionsPerformed = new ArrayList<String>();
+
     boolean result = DbConfigEngine.configurationFileAddEditHelper2(configFileName, configFileString, configFileMetadata, propertyNameString, 
         expressionLanguageString, valueString, userSelectedPassword, message, added, error, 
-        fromUi, comment, errorsToDisplay, validationErrorsToDisplay, true);
+        fromUi, comment, errorsToDisplay, validationErrorsToDisplay, true, actionsPerformed);
     
     if (fromUi) {
       for (String errorToDisplay: errorsToDisplay) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
       }
       for (String validationKey: validationErrorsToDisplay.keySet()) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 

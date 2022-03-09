@@ -114,7 +114,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
     
     // insert config into db
-    provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
     
     assertEquals(0, validationErrorsToDisplay.size());
     assertEquals(0, errorsToDisplay.size());
@@ -145,7 +145,9 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute = provisionerConfiguration.retrieveAttributes().get("groupDnType");
     attribute.setValue("flat");
      
-    provisionerConfiguration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    List<String> actionsPerformed = new ArrayList<String>();
+
+    provisionerConfiguration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
     assertEquals(0, validationErrorsToDisplay.size());
     
     // retrieve values and confirm the updated values are coming back from the db
@@ -295,7 +297,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
     
     // insert config into db
-    provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
     
     assertEquals(0, validationErrorsToDisplay.size());
     assertEquals(0, errorsToDisplay.size());
@@ -327,7 +329,9 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute = provisionerConfiguration.retrieveAttributes().get("membershipTableName");
     attribute.setValue("membership_table_updated");
     
-    provisionerConfiguration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    List<String> actionsPerformed = new ArrayList<String>();
+
+    provisionerConfiguration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
     assertEquals(0, validationErrorsToDisplay.size());
     
     // retrieve values and confirm the updated values are coming back from the db

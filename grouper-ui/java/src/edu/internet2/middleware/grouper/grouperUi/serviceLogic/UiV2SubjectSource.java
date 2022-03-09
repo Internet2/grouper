@@ -220,12 +220,12 @@ public class UiV2SubjectSource {
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      subjectSourceConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      subjectSourceConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -372,13 +372,14 @@ public class UiV2SubjectSource {
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      List<String> actionsPerformed = new ArrayList<String>();
 
-     subjectSourceConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+     subjectSourceConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -394,6 +395,13 @@ public class UiV2SubjectSource {
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("subjectSourceConfigAddEditSuccess")));
+      
+      if (actionsPerformed.size() > 0) {
+
+        for (String actionPerformed: actionsPerformed) {
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, actionPerformed));
+        }
+      }
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
