@@ -85,6 +85,7 @@
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToAttributeDefAssign" id="attributeDefToEditAssignToAttributeDefAssignId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
+                               onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToAttributeDefAssnDb == 'T' ? 'checked="checked"' : '' } />
                              <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
                              ${textContainer.text['attributeDefAssignTo.attributeDefAssign']}
@@ -103,6 +104,7 @@
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToStemAssign" id="attributeDefToEditAssignToStemAssignId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
+                               onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToStemAssnDb == 'T' ? 'checked="checked"' : '' } />
                              <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
                              ${textContainer.text['attributeDefAssignTo.stemAssign']}
@@ -121,6 +123,7 @@
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToGroupAssign" id="attributeDefToEditAssignToGroupAssignId" 
                                class="assignToCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
+                               onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToGroupAssnDb == 'T' ? 'checked="checked"' : '' } />
                              <span class="assignToCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
                              ${textContainer.text['attributeDefAssignTo.groupAssign']}
@@ -139,6 +142,7 @@
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToMemberAssign" id="attributeDefToEditAssignToMemberAssignId"
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
+                               onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToMemberAssnDb == 'T' ? 'checked="checked"' : '' } />
                              <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
                              ${textContainer.text['attributeDefAssignTo.memberAssign']}
@@ -157,6 +161,7 @@
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToMembershipAssign" id="attributeDefToEditAssignToMembershipAssignId"
                                class="assignToCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
+                               onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToEffMembershipAssnDb == 'T' ? 'checked="checked"' : '' } />
                              <span class="assignToCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
                              ${textContainer.text['attributeDefAssignTo.membershipAssign']}
@@ -175,6 +180,7 @@
                            <td class="attributeAssignAssignToTd attributeAssignAssignToRight">
                              <input type="checkbox" name="attributeDefToEditAssignToImmediateMembershipAssign" id="attributeDefToEditAssignToImmediateMembershipAssignId" 
                                class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox"
+                               onclick="showHideMarkerSection()"
                                value="true" ${attributeUpdateRequestContainer.attributeDefToEdit.assignToImmMembershipAssnDb == 'T' ? 'checked="checked"' : '' } />
                              <span class="assignToCheckbox assignToLimitHideCheckbox assignToPermHideCheckbox assignToServiceHideCheckbox assignToTypeHideCheckbox">
                              ${textContainer.text['attributeDefAssignTo.immediateMembershipAssign']}
@@ -222,6 +228,30 @@
                       <input type="checkbox" name="attributeDefMultiValued" value="true" />
                       <span class="help-block">${textContainer.text['attributeDefMultiValuedDescription'] }</span>
                     </div>
+                  </div>
+                  
+                  <div class="markerScopeSection" style="display:none">
+                    <div class="control-group manageMarkerScopeFieldClass">
+                      <label for="manageMarkerScopeId" class="control-label">${textContainer.text['attributeDefManageMarkerScope'] }</label>
+                      <div class="controls">
+                        <input type="checkbox" id="manageMarkerScopeId" name="attributeDefManageMarkerScope"
+                          onclick="if($(this).is(':checked')) {$('.markerAttributeDefNameClass').show(300);} else { $('.markerAttributeDefNameClass').hide(200); }"
+                          ${grouperRequestContainer.attributeDefContainer.attributeDefScope != null ? 'checked="checked"' : '' }
+                          value="true" />
+                        <span class="help-block">${textContainer.text['attributeDefManageMarkerScopeDescription'] }</span>
+                      </div>
+                    </div>
+                    
+                     <div class="control-group markerAttributeDefNameClass"
+                      style="display: ${grouperRequestContainer.attributeDefContainer.attributeDefScope != null ? 'block' : 'none'}">
+                      <label for="markerAttributeDefNameId" id="markerAttributeDefNameLabelId" class="control-label">${textContainer.text['markerAttributeDefName'] }</label>
+                      <div class="controls">
+                        <input type="text" id="markerAttributeDefNameId" name="markerAttributeDefName" 
+                          value="${grouper:escapeHtml(grouperRequestContainer.attributeDefContainer.attributeDefScope.scopeString)}" /> 
+                        <span class="help-block">${textContainer.text['markerAttributeDefNameDescription'] }</span>
+                      </div>
+                    </div>
+                    
                   </div>
                   
                   <p class="shownAdvancedProperties"><a href="#" 
@@ -296,6 +326,24 @@
                 </form>
               </div>
             </div>
-            
+     
+     <script type="text/javascript">
+      function showHideMarkerSection() {
+        var attributeDefAssignIdChecked = $("#attributeDefToEditAssignToAttributeDefAssignId").is(":checked")
+        var stemAssignIdChecked = $("#attributeDefToEditAssignToStemAssignId").is(":checked")
+        var groupAssignIdChecked = $("#attributeDefToEditAssignToGroupAssignId").is(":checked")
+        var memberAssignIdChecked = $("#attributeDefToEditAssignToMemberAssignId").is(":checked")
+        var membershipAssignIdChecked = $("#attributeDefToEditAssignToMembershipAssignId").is(":checked")
+        var immediateMembershipAssignIdChecked = $("#attributeDefToEditAssignToImmediateMembershipAssignId").is(":checked")
+        
+        if (attributeDefAssignIdChecked || stemAssignIdChecked || groupAssignIdChecked || memberAssignIdChecked
+         || membershipAssignIdChecked || immediateMembershipAssignIdChecked) {
+          $('.markerScopeSection').show(300);
+        } else {
+          $('.markerScopeSection').hide(200);
+        }
+        
+      }
+</script>       
             
             
