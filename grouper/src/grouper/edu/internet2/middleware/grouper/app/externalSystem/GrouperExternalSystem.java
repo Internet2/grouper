@@ -68,36 +68,6 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
   }
 
   /**
-   * change status of config to disable/enable
-   * @param enable
-   * @param message
-   * @param errorsToDisplay
-   * @param validationErrorsToDisplay
-   */
-  public void changeStatus(boolean enable, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
-    
-    GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
-    if (enabledAttribute == null) {
-      errorsToDisplay.add(GrouperTextContainer.textOrNull("grouperExternalSystemCannotEnableDisable"));
-      return;
-    }
-    enabledAttribute.setValue(enable? "true": "false");
-    
-    ConfigFileName configFileName = this.getConfigFileName();
-    ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
-    List<String> actionsPerformed = new ArrayList<String>();
-
-
-    DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
-        enabledAttribute.getFullPropertyName(), 
-        enabledAttribute.isExpressionLanguage() ? "true" : "false", 
-        enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
-        enabledAttribute.isPassword(), message, new Boolean[] {false},
-        new Boolean[] {false}, true, "Added from external system editor", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);    
-    ConfigPropertiesCascadeBase.clearCache();
-  }
-  
-  /**
    * get value for one property
    * @param attributeName
    * @return

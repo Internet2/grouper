@@ -43,7 +43,8 @@ public class DbConfigEngine {
   public static boolean configurationFileAddEditHelper2(ConfigFileName configFileName, String configFileString, ConfigFileMetadata configFileMetadata, String propertyNameString,
       String expressionLanguageString, String valueString, Boolean userSelectedPassword,
       StringBuilder message, Boolean[] added, Boolean[] error, boolean fromUi, String comment, 
-      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, final boolean clearCache, List<String> actionsPerformed) {
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, final boolean clearCache, List<String> actionsPerformed,
+      final Set<GrouperConfigHibernate> grouperConfigHibernates, Set<GrouperConfigHibernate> grouperConfigHibernatesEl) {
     
     try {
       
@@ -103,7 +104,8 @@ public class DbConfigEngine {
   
       // standard validation
       if (!validateConfigEdit(configFileName, propertyNameString, 
-          valueString, isExpressionLanguage, message, grouperConfigHibernateToReturn, textReplaceMap)) {
+          valueString, isExpressionLanguage, message, grouperConfigHibernateToReturn, textReplaceMap,
+          grouperConfigHibernates, grouperConfigHibernatesEl)) {
         
         if (fromUi) {
           errorsToDisplay.add(message.toString());
@@ -215,9 +217,12 @@ public class DbConfigEngine {
    * @param configFileString
    * @param propertyNameStringInput 
    * @param clearCache should be true unless doing multiple, in which case clear at end
+   * @param grouperConfigHibernates are the configs from the database
+   * @param grouperConfigHibernatesEl are the EL configs from the database
    */
   public static String configurationFileItemDeleteHelper(final String configFileString, 
-      final String propertyNameStringInput, final boolean fromUi, final boolean clearCache, final List<String> actionsPerformed) {
+      final String propertyNameStringInput, final boolean fromUi, final boolean clearCache, final List<String> actionsPerformed, 
+      final Set<GrouperConfigHibernate> grouperConfigHibernates, Set<GrouperConfigHibernate> grouperConfigHibernatesEl) {
     
     try {
     
@@ -246,15 +251,14 @@ public class DbConfigEngine {
           }
           
           String propertyNameString = GrouperUtil.stripSuffix(propertyNameStringInput, ".elConfig");
-          
-          Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(configFileName, null, propertyNameString);
-          Set<GrouperConfigHibernate> grouperConfigHibernatesEl = GrouperDAOFactory.getFactory().getConfig().findAll(null, null, propertyNameString + ".elConfig");
-          
+          String propertyNameStringEl = propertyNameString + ".elConfig";
+                    
           GrouperConfigHibernate grouperConfigHibernate = null;
           GrouperConfigHibernate grouperConfigHibernateEl = null;
           
           for (GrouperConfigHibernate current : GrouperUtil.nonNull(grouperConfigHibernates)) {
-            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())) {
+            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())
+                && StringUtils.equals(propertyNameString, current.getConfigKey())) {
               if (grouperConfigHibernate != null) {
                 // why are there two???
                 LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
@@ -267,7 +271,8 @@ public class DbConfigEngine {
           }
           
           for (GrouperConfigHibernate current : GrouperUtil.nonNull(grouperConfigHibernatesEl)) {
-            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())) {
+            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())
+                && StringUtils.equals(propertyNameStringEl, current.getConfigKey())) {
               if (grouperConfigHibernate != null) {
                 // why are there two???
                 LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
@@ -353,11 +358,9 @@ public class DbConfigEngine {
    */
   public static boolean validateConfigEdit(ConfigFileName configFileName, 
       String propertyNameString, String valueString, boolean isExpressionLanguage, 
-      StringBuilder message, GrouperConfigHibernate[] grouperConfigHibernateToReturn, Map<String, Object> textReplaceMap) {
+      StringBuilder message, GrouperConfigHibernate[] grouperConfigHibernateToReturn, Map<String, Object> textReplaceMap,
+      final Set<GrouperConfigHibernate> grouperConfigHibernates, Set<GrouperConfigHibernate> grouperConfigHibernatesEl) {
   
-    Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(null, null, propertyNameString);
-    Set<GrouperConfigHibernate> grouperConfigHibernatesEl = GrouperDAOFactory.getFactory().getConfig().findAll(null, null, propertyNameString + ".elConfig");
-    
     GrouperConfigHibernate grouperConfigHibernate = null;
     GrouperConfigHibernate grouperConfigHibernateEl = null;
     

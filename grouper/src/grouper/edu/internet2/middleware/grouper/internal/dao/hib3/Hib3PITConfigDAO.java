@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
@@ -38,8 +39,10 @@ import edu.internet2.middleware.grouper.internal.dao.PITConfigDAO;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 
@@ -374,13 +377,34 @@ public class Hib3PITConfigDAO extends Hib3DAO implements PITConfigDAO {
     int count = 1;
     Pattern endOfStringNewlinePattern = Pattern.compile(".*<br[ ]*\\/?>$");
     
-
+    Set<MultiKey> configFileNameAndKeys = new HashSet<MultiKey>();
+    
+    
     for (PITGrouperConfigHibernate oldPitConfig: oldPitConfigs) {
       
+      MultiKey configFileNameAndKey = new MultiKey(oldPitConfig.getConfigFileName(), oldPitConfig.getConfigKey());
+      configFileNameAndKeys.add(configFileNameAndKey);
+      
+    }    
+    
+    Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate = GrouperDAOFactory.getFactory().getConfig().findByFileAndKey(configFileNameAndKeys);
+    
+
+    for (PITGrouperConfigHibernate oldPitConfig: oldPitConfigs) {
+
+      String fullPropertyName = oldPitConfig.getConfigKey();
+      
+      String propertyNameString = GrouperUtil.stripSuffix(fullPropertyName, ".elConfig");
+      Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(propertyNameString);
+      
+      String propertyNameStringEl = propertyNameString + ".elConfig";
+      Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+
       if (StringUtils.isBlank(oldPitConfig.getPreviousValue())) {
+
         DbConfigEngine.configurationFileItemDeleteHelper(oldPitConfig.getConfigFileName(),
             oldPitConfig.getConfigKey(), true, 
-            count == oldPitConfigs.size(), new ArrayList<String>() );
+            count == oldPitConfigs.size(), new ArrayList<String>(), grouperConfigHibernates, grouperConfigHibernatesEl );
       } else {
         boolean el = oldPitConfig.getConfigKey().endsWith(".elConfig");
         StringBuilder localMessage = new StringBuilder();
@@ -392,7 +416,8 @@ public class Hib3PITConfigDAO extends Hib3DAO implements PITConfigDAO {
             oldPitConfig.getConfigKey(), 
             el ? "true": "false", oldPitConfig.getPreviousValue(), oldPitConfig.isConfigEncrypted(), message, 
                 new Boolean[] {false},
-                new Boolean[] {false}, true, "Edited from config history screen", errorsToDisplay, validationErrorsToDisplay, count == oldPitConfigs.size(), actionsPerformed);
+                new Boolean[] {false}, true, "Edited from config history screen", errorsToDisplay, validationErrorsToDisplay, count == oldPitConfigs.size(), actionsPerformed, 
+                grouperConfigHibernates, grouperConfigHibernatesEl );
         
         if (localMessage.length() > 0) {
           if(message.length() > 0) {

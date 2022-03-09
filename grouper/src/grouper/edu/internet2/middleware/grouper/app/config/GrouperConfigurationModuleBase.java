@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -47,6 +48,43 @@ public abstract class GrouperConfigurationModuleBase {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperConfigurationModuleBase.class);
   
+  /**
+   * change status of config to disable/enable
+   * @param enable
+   * @param message
+   * @param errorsToDisplay
+   * @param validationErrorsToDisplay
+   */
+  public void changeStatus(boolean enable, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
+    enabledAttribute.setValue(enable? "true": "false");
+    
+    ConfigFileName configFileName = this.getConfigFileName();
+    ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
+
+    List<String> actionsPerformed = new ArrayList<String>();
+
+    Set<MultiKey> configFileNameAndKeys = GrouperUtil.toSet(new MultiKey(this.getConfigFileName().getConfigFileName(), enabledAttribute.getFullPropertyName()));
+
+    Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate = GrouperDAOFactory.getFactory().getConfig().findByFileAndKey(configFileNameAndKeys);
+
+    String propertyNameString = GrouperUtil.stripSuffix(enabledAttribute.getFullPropertyName(), ".elConfig");
+    Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(propertyNameString);
+    
+    String propertyNameStringEl = propertyNameString + ".elConfig";
+    Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+
+    DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
+        enabledAttribute.getFullPropertyName(), 
+        enabledAttribute.isExpressionLanguage() ? "true" : "false", 
+        enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
+        enabledAttribute.isPassword(), message, new Boolean[] {false},
+        new Boolean[] {false}, true, this.getClass().getSimpleName() + " config status changed", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed,
+        grouperConfigHibernates, grouperConfigHibernatesEl);    
+    ConfigPropertiesCascadeBase.clearCache();
+  }
+
   /**
    * config id of the daemon
    */
@@ -1218,6 +1256,20 @@ public abstract class GrouperConfigurationModuleBase {
     ConfigFileName configFileName = this.getConfigFileName();
     ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
 
+    Set<MultiKey> configFileNameAndKeys = new HashSet<MultiKey>();
+
+    // add all the possible ones
+    for (String suffix : attributes.keySet()) {
+    
+      GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributes.get(suffix);
+
+      MultiKey configFileNameAndKey = new MultiKey(this.getConfigFileName().getConfigFileName(), grouperConfigModuleAttribute.getFullPropertyName());
+      configFileNameAndKeys.add(configFileNameAndKey);
+
+    }
+    
+    Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate = GrouperDAOFactory.getFactory().getConfig().findByFileAndKey(configFileNameAndKeys);
+    
     for (String suffix : attributes.keySet()) {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributes.get(suffix);
@@ -1225,6 +1277,12 @@ public abstract class GrouperConfigurationModuleBase {
       if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()
           && grouperConfigModuleAttribute.isShow()) {
         
+        String propertyNameString = GrouperUtil.stripSuffix(grouperConfigModuleAttribute.getFullPropertyName(), ".elConfig");
+        Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(propertyNameString);
+        
+        String propertyNameStringEl = propertyNameString + ".elConfig";
+        Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+
         StringBuilder localMessage = new StringBuilder();
         
         String valueString = grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue();
@@ -1234,7 +1292,8 @@ public abstract class GrouperConfigurationModuleBase {
             grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false",
             valueString,
             grouperConfigModuleAttribute.isPassword(), localMessage, new Boolean[] {false},
-            new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);
+            new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed,
+            grouperConfigHibernates, grouperConfigHibernatesEl);
         
         if (localMessage.length() > 0) {
           if(message.length() > 0) {
@@ -1262,9 +1321,27 @@ public abstract class GrouperConfigurationModuleBase {
     
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
     
+    Set<MultiKey> configFileNameAndKeys = new HashSet<MultiKey>();
+    for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
+      
+      MultiKey configFileNameAndKey = new MultiKey(this.getConfigFileName().getConfigFileName(), attribute.getFullPropertyName());
+      configFileNameAndKeys.add(configFileNameAndKey);
+      
+    }    
+    
+    Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate = GrouperDAOFactory.getFactory().getConfig().findByFileAndKey(configFileNameAndKeys);
+    
     for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
       String fullPropertyName = attribute.getFullPropertyName();
-      DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().name(), fullPropertyName, fromUi, true, new ArrayList<String>());
+      
+      String propertyNameString = GrouperUtil.stripSuffix(fullPropertyName, ".elConfig");
+      Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(propertyNameString);
+      
+      String propertyNameStringEl = propertyNameString + ".elConfig";
+      Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+
+      
+      DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().name(), fullPropertyName, fromUi, true, new ArrayList<String>(), grouperConfigHibernates, grouperConfigHibernatesEl);
     }
     
     ConfigPropertiesCascadeBase.clearCache();
@@ -1295,13 +1372,18 @@ public abstract class GrouperConfigurationModuleBase {
     
     Set<String> propertyNamesToDelete = new HashSet<String>();
 
+    Set<MultiKey> configFileNameAndKeys = new HashSet<MultiKey>();
+
     // add all the possible ones
     for (String suffix : attributes.keySet()) {
     
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute = attributes.get(suffix);
 
       propertyNamesToDelete.add(grouperConfigModuleAttribute.getFullPropertyName());
-      
+
+      MultiKey configFileNameAndKey = new MultiKey(this.getConfigFileName().getConfigFileName(), grouperConfigModuleAttribute.getFullPropertyName());
+      configFileNameAndKeys.add(configFileNameAndKey);
+
     }
 
     // and all the ones we detect
@@ -1327,9 +1409,19 @@ public abstract class GrouperConfigurationModuleBase {
         attributesToSave.put(suffix, grouperConfigModuleAttribute);
       }
     }
+    
+    Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate = GrouperDAOFactory.getFactory().getConfig().findByFileAndKey(configFileNameAndKeys);
+    
     // delete some
     for (String key : propertyNamesToDelete) {
-      DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().getConfigFileName(), key , fromUi, false, actionsPerformed);
+      
+      String propertyNameString = GrouperUtil.stripSuffix(key, ".elConfig");
+      Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(propertyNameString);
+      
+      String propertyNameStringEl = propertyNameString + ".elConfig";
+      Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+
+      DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().getConfigFileName(), key , fromUi, false, actionsPerformed, grouperConfigHibernates, grouperConfigHibernatesEl);
     }
 
     Pattern endOfStringNewlinePattern = Pattern.compile(".*<br[ ]*\\/?>$");
@@ -1344,7 +1436,14 @@ public abstract class GrouperConfigurationModuleBase {
       
       if (grouperConfigModuleAttribute.isHasValue() && grouperConfigModuleAttribute.getConfigItemMetadata().isSaveToDb()
           && grouperConfigModuleAttribute.isShow()) {
-      
+        
+        String propertyNameString = GrouperUtil.stripSuffix(grouperConfigModuleAttribute.getFullPropertyName(), ".elConfig");
+        Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(propertyNameString);
+        
+        String propertyNameStringEl = propertyNameString + ".elConfig";
+        Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+
+
         StringBuilder localMessage = new StringBuilder();
         
         DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
@@ -1352,7 +1451,7 @@ public abstract class GrouperConfigurationModuleBase {
             grouperConfigModuleAttribute.isExpressionLanguage() ? "true" : "false", 
             grouperConfigModuleAttribute.isExpressionLanguage() ? grouperConfigModuleAttribute.getExpressionLanguageScript() : grouperConfigModuleAttribute.getValue(),
             grouperConfigModuleAttribute.isPassword(), localMessage, new Boolean[] {false},
-            new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed);
+            new Boolean[] {false}, fromUi, "Added from config editor", errorsToDisplay, validationErrorsToDisplay, false, actionsPerformed, grouperConfigHibernates, grouperConfigHibernatesEl);
         
         if (localMessage.length() > 0) {
           if(message.length() > 0) {

@@ -16,6 +16,12 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -28,6 +34,7 @@ import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.ConfigDAO;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  * Data Access Object for config
@@ -89,12 +96,12 @@ public class Hib3ConfigDAO extends Hib3DAO implements ConfigDAO {
   @SuppressWarnings("unused")
   private static final Log LOG = GrouperUtil.getLog(Hib3ConfigDAO.class);
 
+  private static long countFindAll = 0;
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.ConfigDAO#findAll(ConfigFileName, java.sql.Timestamp, java.lang.String)
    */
   public Set<GrouperConfigHibernate> findAll(ConfigFileName configFileName,
       Timestamp changedAfterDate, String configKey) {
-    
     StringBuilder query = new StringBuilder();
     query.append("from GrouperConfigHibernate gch");
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
@@ -133,6 +140,74 @@ public class Hib3ConfigDAO extends Hib3DAO implements ConfigDAO {
         .createQuery(query.toString())
         .listSet(GrouperConfigHibernate.class);
     return new TreeSet<GrouperConfigHibernate>(configs);
+  }
+
+
+  @Override
+  public Map<String, Set<GrouperConfigHibernate>> findByFileAndKey(Collection<MultiKey> configFileNameAndKeys) {
+    Map<String, Set<GrouperConfigHibernate>> result = new HashMap<String, Set<GrouperConfigHibernate>>();
+    
+    if (GrouperUtil.length(configFileNameAndKeys) > 0) {
+    
+      List<MultiKey> fullList = new ArrayList<MultiKey>(configFileNameAndKeys);
+      
+      for (MultiKey entry : configFileNameAndKeys) {
+        // get el and normal
+        String fullPropertyName = (String)entry.getKey(1);
+        String propertyNameString = GrouperUtil.stripSuffix(fullPropertyName, ".elConfig");
+        String propertyNameStringEl = propertyNameString + ".elConfig";
+        // add in the other one
+        if (!StringUtils.equals(fullPropertyName, propertyNameString)) {
+          fullList.add(new MultiKey(entry.getKey(0), propertyNameString));
+        } else {
+          fullList.add(new MultiKey(entry.getKey(0), propertyNameStringEl));
+        }
+      }
+      
+      
+      int batchSize = 450;
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(fullList, batchSize);
+      for (int i=0; i<numberOfBatches; i++) {
+        
+        List<MultiKey> currentBatch = GrouperUtil.batchList(fullList, batchSize, i);
+        
+        StringBuilder query = new StringBuilder();
+        query.append(" from GrouperConfigHibernate gch where ");
+        ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+        StringBuilder whereClause = new StringBuilder();
+        
+        for (int j=0;j<currentBatch.size();j++) {
+          if (j > 0) {
+            whereClause.append(" or ");
+          }
+          whereClause.append(" ( ").append(" configFileNameDb = :theConfigFileName").append(j).append(" and configKey = :configKey").append(j).append(" ) ");
+          byHqlStatic.setString("theConfigFileName" + j, (String)currentBatch.get(j).getKey(0));
+          byHqlStatic.setString("configKey" + j, (String)currentBatch.get(j).getKey(1));
+          
+        }
+        
+        if (whereClause.length() > 0) {
+          query.append(whereClause);
+        }
+        
+        Set<GrouperConfigHibernate> configs = byHqlStatic
+            .createQuery(query.toString())
+            .listSet(GrouperConfigHibernate.class);
+
+        for (GrouperConfigHibernate grouperConfigHibernate : GrouperUtil.nonNull(configs)) {
+          Set<GrouperConfigHibernate> localSet = result.get(grouperConfigHibernate.getConfigKey());
+          if (localSet == null) {
+            localSet = new HashSet<GrouperConfigHibernate>();
+            result.put(grouperConfigHibernate.getConfigKey(), localSet);
+          }
+          localSet.add(grouperConfigHibernate);
+        }
+      }
+    }
+    
+    return result;
+
   }
 
 

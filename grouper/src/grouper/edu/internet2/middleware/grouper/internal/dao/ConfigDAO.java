@@ -17,10 +17,13 @@
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /** 
  * Basic <code>Config</code> DAO interface.
@@ -56,6 +59,13 @@ public interface ConfigDAO extends GrouperDAO {
    * @return the configs
    */
   public Set<GrouperConfigHibernate> findAll(ConfigFileName configFileName, Timestamp changedAfterDate, String configKey);
+
+  /**
+   * find all config
+   * @param configFileNameAndKeys to look up
+   * @return the configs
+   */
+  public Map<String, Set<GrouperConfigHibernate>> findByFileAndKey(Collection<MultiKey> configFileNameAndKeys);
 
 } 
 

@@ -130,6 +130,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.ldaptive.io.Hex;
 
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -2367,6 +2368,21 @@ public class GrouperUtil {
     return "{\"" + object.getClass().getSimpleName() + "\":" + json + "}";
   }
 
+  /**
+   * get field names from json node, assume field names are unique
+   * @param jsonNode
+   * @return
+   */
+  public static Set<String> jsonJacksonFieldNames(JsonNode jsonNode) {
+    Set<String> fieldNames = new LinkedHashSet<String>();
+    if (jsonNode != null) {
+      Iterator<String> iterator = jsonNode.fieldNames();
+      while (iterator.hasNext()) {
+        fieldNames.add(iterator.next());
+      }
+    }
+    return fieldNames;
+  }
 
   /**
    * get a field as string and handle null
@@ -2628,6 +2644,10 @@ public class GrouperUtil {
   public static JsonNode jsonJacksonNode(String json) {
     try {
       ObjectMapper objectMapper = new ObjectMapper();
+      
+      objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+      objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
+      
       //read JSON like DOM Parser
       JsonNode rootNode = objectMapper.readTree(json);
       return rootNode;
