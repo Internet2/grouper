@@ -227,26 +227,29 @@ public class SqlProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.selectMemberships").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.showAdvanced").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.tableStructures").value("defaultTableStructure").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.insert").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.name").value("group_name").store();
-//    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.translateExpressionType").value("grouperProvisioningGroupField").store();
-//    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField").value("name").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.translateExpressionType").value("grouperProvisioningGroupField").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField").value("name").store();
 
 //  new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.translateExpressionType").value("groupSyncField").store();
 //  new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.translateFromGroupSyncField").value("groupName").store();
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.translateExpression").value("${grouperProvisioningGroup.name}").store();
+//    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.translateExpressionType").value("translationScript").store();
+//    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.0.translateExpression").value("${grouperProvisioningGroup.name}").store();
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.insert").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.name").value("subject_id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.translateExpressionType").value("memberSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.translateFromMemberSyncField").value("subjectId").store();
+//    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.translateExpressionType").value("memberSyncField").store();
+//    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.translateFromMemberSyncField").value("subjectId").store();
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField").value("subjectId").store();
+    
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetMembershipAttribute.1.valueType").value("string").store();
 
     

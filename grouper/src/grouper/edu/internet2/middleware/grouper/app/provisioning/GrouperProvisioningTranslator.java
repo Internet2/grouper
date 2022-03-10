@@ -136,8 +136,11 @@ public class GrouperProvisioningTranslator {
         // attribute translations
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()) {
           String expressionToUse = getTargetExpressionToUse(false, grouperProvisioningConfigurationAttribute);
-          if (StringUtils.isNotBlank(expressionToUse) || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField()) 
-              || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
+          if (StringUtils.isNotBlank(expressionToUse) 
+              || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField()) 
+              || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())
+              || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
+              || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
             Object result = attributeTranslation( 
                 grouperTargetMembership.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, false, 
                 grouperProvisioningConfigurationAttribute, provisioningGroupWrapper, provisioningEntityWrapper);
