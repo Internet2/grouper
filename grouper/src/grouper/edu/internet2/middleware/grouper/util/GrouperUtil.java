@@ -3609,7 +3609,27 @@ public class GrouperUtil {
   static {
     timestampIsoUtcSeconds.setTimeZone(TimeZone.getTimeZone("UTC"));
   }
-  
+
+  /**
+   * 
+   */
+  public static final DateFormat timestampIsoHoursMinutesTZ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");
+
+  /**
+   * 
+   */
+  public static final DateFormat timestampHoursMinutes = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+
+  /**
+   * 
+   */
+  public static final DateFormat timestampHoursMinutesAMPM = new SimpleDateFormat("yyyy/MM/dd h:mm a");
+
+  static {
+    // prevent 2011/07/18 13:24 PM
+    timestampHoursMinutesAMPM.setLenient(false);
+  }
+
   /**
    * string format of dates
    */
@@ -7531,6 +7551,56 @@ public class GrouperUtil {
       return timestampNoSlashFormat.parse(input);
     } catch (ParseException pe) {
       throw new RuntimeException(errorStart + input);
+    }
+  }
+
+  /**
+   * <pre>convert a string to timestamp based on the following formats:
+   * 2011-07-18T15:24+02:00
+   * 2011/07/18 15:24
+   * 2011/07/18 3:24 PM
+   * </pre>
+   * @param input
+   * @return the timestamp object
+   */
+  public static Timestamp stringToTimestampTimeRequiredWithoutSeconds(String input) {
+    Date date = stringToTimestampTimeRequiredWithoutSecondsHelper(input);
+    if (date == null) {
+      return null;
+    }
+    //maybe already a timestamp
+    if (date instanceof Timestamp) {
+      return (Timestamp)date;
+    }
+    return new Timestamp(date.getTime());
+  }
+
+  /**
+   * <pre>convert a string to timestamp based on the following formats:
+   * 2011-07-18T15:24+02:00
+   * 2011/07/18 15:24
+   * 2011/07/18 3:24 PM
+   * </pre>
+   * @param input
+   * @return the date object
+   */
+  synchronized static Date stringToTimestampTimeRequiredWithoutSecondsHelper(String input) {
+    //trim and handle null and empty
+    if (isBlank(input)) {
+      return null;
+    }
+    input = input.trim();
+    try {
+      if (input.toUpperCase().endsWith("AM") || input.toUpperCase().endsWith("PM")) {
+        return timestampHoursMinutesAMPM.parse(input);
+      }
+      if (contains(input, 'T')) {
+        return timestampIsoHoursMinutesTZ.parse(input);
+      }
+
+      return timestampHoursMinutes.parse(input);
+    } catch (ParseException pe) {
+      throw new RuntimeException("Invalid timestamp, please use any of the formats: 2011-07-18T15:24+02:00, 2011/07/18 15:24, 2011/07/18 3:24 PM" + input);
     }
   }
 

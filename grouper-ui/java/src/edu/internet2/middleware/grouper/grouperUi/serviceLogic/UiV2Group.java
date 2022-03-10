@@ -984,7 +984,29 @@ public class UiV2Group {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("groupAddMemberCantFindSubject")));
         return;
-      }      
+      }    
+      
+      final Timestamp startDate;
+      try {
+        String startDateString = request.getParameter("startDate");
+        startDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(startDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-start-date",
+            TextContainer.retrieveFromRequest().getText().get("groupViewFromDateInvalid")));
+        return;
+      }
+
+      final Timestamp endDate;
+      try {
+        String endDateString = request.getParameter("endDate");
+        endDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(endDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-end-date",
+            TextContainer.retrieveFromRequest().getText().get("groupViewToDateInvalid")));
+        return;
+      }
 
       Boolean defaultPrivs = null;
       
@@ -1019,10 +1041,19 @@ public class UiV2Group {
         return;
         
       }
+      
+      if (startDate != null || endDate != null) {
+        if (adminChecked || updateChecked || readChecked || viewChecked || optinChecked || optoutChecked || attrReadChecked || attrUpdateChecked) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#groupPrivsErrorId",
+              TextContainer.retrieveFromRequest().getText().get("groupAddMemberPrivStartEndDateError")));
+          return;
+        }
+      }
 
       boolean madeChanges = group.addOrEditMember(subject, defaultPrivs, memberChecked, adminChecked, 
           updateChecked, readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, 
-          attrUpdateChecked, null, null, false);
+          attrUpdateChecked, startDate, endDate, false);
       
       if (madeChanges) {
 
@@ -2178,7 +2209,7 @@ public class UiV2Group {
       Timestamp enabledDate = null;
       try {
         String enabledDateString = request.getParameter("enabledDate");
-        enabledDate = GrouperUtil.stringToTimestamp(enabledDateString);
+        enabledDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(enabledDateString);
       } catch (Exception e) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#groupEnabledDate",
@@ -2189,7 +2220,7 @@ public class UiV2Group {
       Timestamp disabledDate = null;
       try {
         String disabledDateString = request.getParameter("disabledDate");
-        disabledDate = GrouperUtil.stringToTimestamp(disabledDateString);
+        disabledDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(disabledDateString);
       } catch (Exception e) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#groupDisabledDate",

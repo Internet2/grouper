@@ -15,6 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -1039,7 +1040,29 @@ public class UiV2Subject {
             "#groupAddMemberComboErrorId",
             TextContainer.retrieveFromRequest().getText().get("subjectAddMemberCantFindGroup")));
         return;
-      }      
+      }    
+      
+      final Timestamp startDate;
+      try {
+        String startDateString = request.getParameter("startDate");
+        startDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(startDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-start-date",
+            TextContainer.retrieveFromRequest().getText().get("subjectViewFromDateInvalid")));
+        return;
+      }
+
+      final Timestamp endDate;
+      try {
+        String endDateString = request.getParameter("endDate");
+        endDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(endDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-end-date",
+            TextContainer.retrieveFromRequest().getText().get("subjectViewToDateInvalid")));
+        return;
+      }
   
       Boolean defaultPrivs = null;
       
@@ -1073,6 +1096,15 @@ public class UiV2Subject {
         return;
         
       }
+      
+      if (startDate != null || endDate != null) {
+        if (adminChecked || updateChecked || readChecked || viewChecked || optinChecked || optoutChecked || attrReadChecked || attrUpdateChecked) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+              "#groupPrivsErrorId",
+              TextContainer.retrieveFromRequest().getText().get("subjectAddMemberPrivStartEndDateError")));
+          return;
+        }
+      }
 
       //if any privs are checked, then the user must have ADMIN on the group
       if (!userHasAdmin[0] && (adminChecked || updateChecked || readChecked || viewChecked || optinChecked || optoutChecked || attrReadChecked || attrUpdateChecked)) {
@@ -1085,7 +1117,7 @@ public class UiV2Subject {
       
       boolean madeChanges = group.addOrEditMember(subject, defaultPrivs, memberChecked, adminChecked, 
           updateChecked, readChecked, viewChecked, optinChecked, optoutChecked, attrReadChecked, 
-          attrUpdateChecked, null, null, false);
+          attrUpdateChecked, startDate, endDate, false);
       
       if (madeChanges) {
   

@@ -187,6 +187,23 @@
                               </label>
                             </div>
                           </div>
+
+                          <c:if test="${!defaultMemberUnchecked}">
+                            <div class="control-group">
+                              <label for="member-start-date"
+                                class="control-label">${textContainer.text['subjectViewStartDate'] }</label>
+                              <div class="controls">
+                                <input type="text" name="startDate"  placeholder="${textContainer.text['membershipEditDatePlaceholder'] }" id="member-start-date"><span class="help-block">${textContainer.text['subjectViewStartDateSubtext'] }</span>
+                              </div>
+                            </div>
+                            <div class="control-group">
+                              <label for="member-end-date" class="control-label">${textContainer.text['subjectViewEndDate'] }</label>
+                              <div class="controls">
+                                <input type="text" name="endDate" placeholder="${textContainer.text['membershipEditDatePlaceholder'] }" id="member-end-date"><span class="help-block">${textContainer.text['subjectViewEndDateSubtext'] }</span>
+                              </div>
+                            </div>
+                          </c:if>
+
                           <div class="control-group">
                             <div class="controls">
                               <button onclick="ajax('../app/UiV2Subject.addGroupSubmit?subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&sourceId=${grouperRequestContainer.subjectContainer.guiSubject.subject.sourceId}', {formIds: 'add-groups-form', formIdsOptional: 'groupFilterFormId,groupPagingFormId,groupPrivilegeFormId,groupPagingPrivilegesFormId,subjectRefreshPartFormId'}); return false;" 

@@ -655,7 +655,7 @@ public class UiV2LocalEntity {
       Timestamp enabledDate = null;
       try {
         String enabledDateString = request.getParameter("enabledDate");
-        enabledDate = GrouperUtil.stringToTimestamp(enabledDateString);
+        enabledDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(enabledDateString);
       } catch (Exception e) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#groupEnabledDate",
@@ -666,7 +666,7 @@ public class UiV2LocalEntity {
       Timestamp disabledDate = null;
       try {
         String disabledDateString = request.getParameter("disabledDate");
-        disabledDate = GrouperUtil.stringToTimestamp(disabledDateString);
+        disabledDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(disabledDateString);
       } catch (Exception e) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#groupDisabledDate",
