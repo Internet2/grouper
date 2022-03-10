@@ -12,7 +12,21 @@
                 <div class="row-fluid">
                   <div class="lead span9 pull-left"><h1>${textContainer.text['miscellaneousProvisionerConfigurationsMainDescription'] }</h1></div>
                   <div class="span2 pull-right">
-                    <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
+                  
+                    <div class="btn-group btn-block">
+                    
+                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreProvisionerConfigsActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
+                        aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#provisioner-configs-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#provisioner-configs-more-options li').first().focus();return true;});">
+                          ${textContainer.text['provisionerConfigsMoreActionsButton'] } <span class="caret"></span></a>
+
+                      <ul class="dropdown-menu dropdown-menu-right" id="provisioner-configs-more-options">
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.addProvisionerConfiguration'); return false;"
+                              >${textContainer.text['provisionerConfigMoreActionsAddButton'] }</a></li>
+                      </ul>
+
+                    </div>
+                  
+                  
                   </div>
                 </div>
               </div>
@@ -43,7 +57,7 @@
 			                <tr>
 			                   <td style="white-space: nowrap;">
 			                   
-			                   <a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigDetails&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">
+			                   <a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigDetails&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">
                     			${grouper:escapeHtml(guiProvisionerConfiguration.provisionerConfiguration.configId)}</a>
 			                   </td>
 			                   
@@ -72,23 +86,11 @@
 			                   </td>
 			                   
 			                   <td>
-			                     <div class="btn-group">
-			                           <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-			                             aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
-			                             ${textContainer.text['provisionerConfigRowActionsButton'] }
-			                             <span class="caret"></span>
-			                           </a>
-			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                                   <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.diagnostics&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableDiagnosticsActionOption'] }</a></li>
-                                   <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.editProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableEditDetailsActionOption'] }</a></li>
-                                   <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerActivity&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableViewActivityActionOption'] }</a></li>
-			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerJobs&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableViewJobsActionOption'] }</a></li>
-			                             <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerLogs&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableViewLogsActionOption'] }</a></li>
-			                             <%-- <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.runFullSync&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');">${textContainer.text['provisionerConfigsTableRunFullSyncActionOption'] }</a></li> --%>
-			                             <li>&nbsp;</li>
-                                   <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['provisionerConfigConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2ProvisionerConfiguration.deleteProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}');}">${textContainer.text['provisionerConfigsTableDeleteDetailsActionOption'] }</a></li>
-			                           </ul>
-			                         </div>
+
+                             <c:set var="buttonSize" value="btn-mini" />
+                             <c:set var="buttonBlock" value="" />
+                             <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
+
 			                   </td>
 			              </c:forEach>
 			             

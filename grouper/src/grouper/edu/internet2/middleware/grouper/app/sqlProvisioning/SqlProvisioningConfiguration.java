@@ -3,10 +3,10 @@ package edu.internet2.middleware.grouper.app.sqlProvisioning;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 
 
-public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurationBase {
+public class SqlProvisioningConfiguration extends GrouperProvisioningConfiguration {
   
   @Override
   protected Class<? extends GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributeClass() {

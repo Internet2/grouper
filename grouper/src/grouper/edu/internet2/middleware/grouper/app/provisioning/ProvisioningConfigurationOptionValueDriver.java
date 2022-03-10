@@ -11,16 +11,16 @@ import java.util.List;
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
-public class ProvisionerConfigurationOptionValueDriver implements OptionValueDriver {
+public class ProvisioningConfigurationOptionValueDriver implements OptionValueDriver {
 
   @Override
   public List<MultiKey> retrieveKeysAndLabels() {
     
     List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
     
-    List<ProvisionerConfiguration> configuredProvisioners = ProvisionerConfiguration.retrieveAllProvisionerConfigurations();
+    List<ProvisioningConfiguration> configuredProvisioners = ProvisioningConfiguration.retrieveAllProvisioningConfigurations();
     
-    for (ProvisionerConfiguration provisionerConfiguration: configuredProvisioners) {
+    for (ProvisioningConfiguration provisionerConfiguration: configuredProvisioners) {
       
       String configId = provisionerConfiguration.getConfigId();
       keysAndLabels.add(new MultiKey(configId, configId));

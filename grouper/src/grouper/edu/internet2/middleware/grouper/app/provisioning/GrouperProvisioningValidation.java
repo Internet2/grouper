@@ -89,7 +89,7 @@ public class GrouperProvisioningValidation {
       
       // matching ID must be there
       // if a matching id is configured on groups even
-      if (this.getGrouperProvisioner().retrieveGrouperTranslator().isHasMatchingIdStrategyForGroups()) {
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isHasMatchingIdStrategyForGroups()) {
         if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isAllowBlankMatchingIds()) {
           
           // lets see which attribute is the matching id
@@ -170,7 +170,7 @@ public class GrouperProvisioningValidation {
       }
       
       // if a matching id is configured on groups even
-      if (this.getGrouperProvisioner().retrieveGrouperTranslator().isHasMatchingIdStrategyForEntities()) {
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isHasMatchingIdStrategyForEntities()) {
         if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isAllowBlankMatchingIds()) {
           // matching ID must be there
           if (GrouperUtil.isBlank(provisioningEntityWrapper.getMatchingId())) {
@@ -530,7 +530,7 @@ public class GrouperProvisioningValidation {
         variableMap.put("valueMultiple", fieldOrAttributeValueCollection);
       }
       variableMap.put(wrapperKey, wrapperValue);
-      Object result = this.getGrouperProvisioner().retrieveGrouperTranslator().runScript(grouperProvisioningConfigurationAttribute.getValidExpression(), variableMap);
+      Object result = this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().runScript(grouperProvisioningConfigurationAttribute.getValidExpression(), variableMap);
       boolean valid = GrouperUtil.booleanValue(result, false);
       
       if (!valid) {

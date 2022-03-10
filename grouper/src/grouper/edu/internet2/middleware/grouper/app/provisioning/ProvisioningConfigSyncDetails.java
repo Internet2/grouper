@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * sync details for a provisioner config
  */
-public class ProvisionerConfigSyncDetails {
+public class ProvisioningConfigSyncDetails {
   
   /**
    * last full sync timestamp

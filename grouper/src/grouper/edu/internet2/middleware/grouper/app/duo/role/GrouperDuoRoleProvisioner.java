@@ -4,11 +4,11 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeManipulation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase; 
 
 public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
   
@@ -23,7 +23,7 @@ public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
   }
 
   @Override
-  protected Class<? extends GrouperProvisioningConfigurationBase> grouperProvisioningConfigurationClass() {
+  protected Class<? extends GrouperProvisioningConfiguration> grouperProvisioningConfigurationClass() {
     return GrouperDuoRoleConfiguration.class;
   }
 
@@ -48,7 +48,7 @@ public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
   }
 
   @Override
-  protected Class<? extends GrouperProvisioningTranslatorBase> grouperTranslatorClass() {
+  protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
     return DuoRoleTranslator.class;
   }
   

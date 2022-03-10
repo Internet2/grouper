@@ -1,16 +1,15 @@
 package edu.internet2.middleware.grouper.app.duo.role;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
-public class DuoRoleTranslator extends GrouperProvisioningTranslatorBase {
-
+public class DuoRoleTranslator extends GrouperProvisioningTranslator{
+  
   @Override
   public List<ProvisioningEntity> translateGrouperToTargetEntities(
       List<ProvisioningEntity> grouperProvisioningEntities, boolean includeDelete,

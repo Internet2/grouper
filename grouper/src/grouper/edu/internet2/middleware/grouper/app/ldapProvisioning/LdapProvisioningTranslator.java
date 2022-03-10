@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
@@ -15,7 +15,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * @author shilen
  */
-public class LdapProvisioningTranslator extends GrouperProvisioningTranslatorBase {
+public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
 
   @Override
   public Object fieldTranslation(Object currentValue, Map<String, Object> elVariableMap,

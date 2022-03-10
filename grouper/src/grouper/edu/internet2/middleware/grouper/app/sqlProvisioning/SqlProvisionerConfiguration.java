@@ -1,14 +1,14 @@
-package edu.internet2.middleware.grouper.app.provisioning;
+package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
-public class SqlProvisionerConfiguration extends ProvisionerConfiguration {
+public class SqlProvisionerConfiguration extends ProvisioningConfiguration {
 
   @Override
   public ConfigFileName getConfigFileName() {

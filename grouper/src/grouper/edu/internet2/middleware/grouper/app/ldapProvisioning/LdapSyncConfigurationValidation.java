@@ -4,7 +4,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -45,7 +45,7 @@ public class LdapSyncConfigurationValidation
   public void validateDnSelect() {
     
     GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
-    GrouperProvisioningConfigurationBase grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
 
     if (grouperProvisioningConfiguration.isOperateOnGrouperGroups()) {
       if (grouperProvisioningConfiguration.isSelectGroups() || grouperProvisioningConfiguration.isUpdateGroups() || grouperProvisioningConfiguration.isDeleteGroups() || grouperProvisioningConfiguration.isInsertGroups()) {
@@ -82,7 +82,7 @@ public class LdapSyncConfigurationValidation
   public void validateDnInsertIfInsertObject() {
     
     GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
-    GrouperProvisioningConfigurationBase grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
 
     if (grouperProvisioningConfiguration.isOperateOnGrouperGroups() && grouperProvisioningConfiguration.isInsertGroups()) {
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupFieldNameToConfig().get("name");

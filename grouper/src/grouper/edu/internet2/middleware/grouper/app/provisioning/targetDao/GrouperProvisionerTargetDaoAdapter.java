@@ -144,7 +144,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsAlways()
         || (hasError && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsOnError())) {
-      String debugInfo = this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().loggingStop();
+      String debugInfo = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
       debugInfo = StringUtils.defaultString(debugInfo, "None implemented for this DAO");
       String theLog = "Command log for provisioner '" + this.getGrouperProvisioner().getConfigId() 
           + "' - '" + this.getGrouperProvisioner().getInstanceId() + "', " + method + ": " + debugInfo;
@@ -185,7 +185,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   private boolean commandLogStartLoggingIfConfigured() {
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsAlways()
         || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsOnError()) {
-      return this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().loggingStart();
+      return this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().loggingStart();
     }
     return false;
   }

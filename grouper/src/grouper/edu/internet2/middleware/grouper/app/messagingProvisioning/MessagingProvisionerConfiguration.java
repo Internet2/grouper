@@ -2,10 +2,10 @@ package edu.internet2.middleware.grouper.app.messagingProvisioning;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
-public class MessagingProvisionerConfiguration extends ProvisionerConfiguration {
+public class MessagingProvisionerConfiguration extends ProvisioningConfiguration {
 
   @Override
   public ConfigFileName getConfigFileName() {

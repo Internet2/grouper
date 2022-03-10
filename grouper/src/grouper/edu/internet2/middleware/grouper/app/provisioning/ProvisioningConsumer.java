@@ -68,7 +68,7 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
       @Override
       public void run() {
         
-        GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.getGrouperProvisioningOutput();
+        GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
         grouperProvisioningOutput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
         grouperProvisioningOutput.copyToHib3LoaderLog();
         hib3GrouperLoaderLog.store();

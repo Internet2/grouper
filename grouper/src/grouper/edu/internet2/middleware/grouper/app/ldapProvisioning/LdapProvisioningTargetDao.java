@@ -114,7 +114,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       if (StringUtils.equalsIgnoreCase("objectclass", grouperProvisioningConfigurationAttribute.getName())) {
         // lets try to evaluate the scriptlet and static values to get the object classes
         if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpression())) {
-          Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperTranslator()
+          Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator()
               .runScript(grouperProvisioningConfigurationAttribute.getTranslateExpression(), null);
           objectClasses = (Collection<String>)objectClassResult;
           break;
@@ -1304,7 +1304,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       if (StringUtils.equalsIgnoreCase("objectclass", grouperProvisioningConfigurationAttribute.getName())) {
         // lets try to evaluate the scriptlet and static values to get the object classes
         if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpression())) {
-          Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperTranslator()
+          Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator()
               .runScript(grouperProvisioningConfigurationAttribute.getTranslateExpression(), null);
           objectClasses = (Collection<String>)objectClassResult;
           break;

@@ -12,9 +12,12 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAtt
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.app.duo.DuoProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.google.GoogleProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
+import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -26,10 +29,10 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
-public abstract class ProvisionerConfiguration extends GrouperConfigurationModuleBase {
+public abstract class ProvisioningConfiguration extends GrouperConfigurationModuleBase {
   
-  public static ProvisionerConfiguration retrieveConfigurationByConfigSuffix(String propertyValueThatIdentifiesThisDaemon) {
-    for (ProvisionerConfiguration provisionerConfiguration : GrouperUtil.nonNull(retrieveAllProvisionerConfigurationTypes())) {
+  public static ProvisioningConfiguration retrieveConfigurationByConfigSuffix(String propertyValueThatIdentifiesThisDaemon) {
+    for (ProvisioningConfiguration provisionerConfiguration : GrouperUtil.nonNull(retrieveAllProvisioningConfigurationTypes())) {
       if (StringUtils.equals(propertyValueThatIdentifiesThisDaemon, 
           provisionerConfiguration.getPropertyValueThatIdentifiesThisConfig())) {
         return provisionerConfiguration;
@@ -56,16 +59,16 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
    * list of systems that can be configured
    * @return
    */
-  public static List<ProvisionerConfiguration> retrieveAllProvisionerConfigurationTypes() {
-    return (List<ProvisionerConfiguration>) (Object) retrieveAllConfigurationTypesHelper(provisionerConfigClassNames);
+  public static List<ProvisioningConfiguration> retrieveAllProvisioningConfigurationTypes() {
+    return (List<ProvisioningConfiguration>) (Object) retrieveAllConfigurationTypesHelper(provisionerConfigClassNames);
   }
   
   /**
    * list of configured provisioner systems
    * @return
    */
-  public static List<ProvisionerConfiguration> retrieveAllProvisionerConfigurations() {
-   return (List<ProvisionerConfiguration>) (Object) retrieveAllConfigurations(provisionerConfigClassNames);
+  public static List<ProvisioningConfiguration> retrieveAllProvisioningConfigurations() {
+   return (List<ProvisioningConfiguration>) (Object) retrieveAllConfigurations(provisionerConfigClassNames);
   }
   
   @Override
@@ -112,13 +115,13 @@ public abstract class ProvisionerConfiguration extends GrouperConfigurationModul
    * get sync details for a provisioner config
    * @return
    */
-  public ProvisionerConfigSyncDetails getSyncDetails() {
+  public ProvisioningConfigSyncDetails getSyncDetails() {
     
     GcGrouperSync grouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, this.getConfigId());    
-    ProvisionerConfigSyncDetails provisionerConfigSyncDetails = null;
+    ProvisioningConfigSyncDetails provisionerConfigSyncDetails = null;
     
     if (grouperSync != null) {
-      provisionerConfigSyncDetails = new ProvisionerConfigSyncDetails();
+      provisionerConfigSyncDetails = new ProvisioningConfigSyncDetails();
       if (grouperSync.getLastFullSyncRun() != null) {
         provisionerConfigSyncDetails.setLastFullSyncTimestamp(GrouperUtil.dateStringValue(grouperSync.getLastFullSyncRun()));
       }

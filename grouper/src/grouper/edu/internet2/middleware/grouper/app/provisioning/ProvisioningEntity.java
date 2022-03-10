@@ -248,7 +248,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     if (!StringUtils.isBlank(userSearchFilter)) {
       Map<String, Object> variableMap = new HashMap<String, Object>();
       variableMap.put("targetEntity", this);
-      String result = GrouperUtil.stringValue(this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperTranslator().runExpression(userSearchFilter, variableMap));
+      String result = GrouperUtil.stringValue(this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperProvisioningTranslator().runExpression(userSearchFilter, variableMap));
       this.setSearchFilter(result);
     }
   }

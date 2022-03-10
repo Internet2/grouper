@@ -13,6 +13,8 @@
          <div class="row-fluid">
            <div class="lead span9 pull-left"><h1>${textContainer.text['miscellaneousProvisionerConfigurationsMainDescription'] }</h1></div>
            <div class="span2 pull-right">
+             <c:set var="buttonSize" value="btn-medium" />
+             <c:set var="buttonBlock" value="btn-block" />
              <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
            </div>
          </div>

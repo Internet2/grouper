@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -46,7 +46,7 @@ public class ProvisionerConfigurationContainer {
   /**
    * provisioner config object type (group, entity or membership)
    */
-  private String provisionerConfigObjectType;
+  private String provisionerConfigObjectType; 
   
   /**
    * activity for group for one provisioner
@@ -158,8 +158,8 @@ public class ProvisionerConfigurationContainer {
     return false;
   }
   
-  public List<ProvisionerConfiguration> getAllProvisionerConfigurationTypes() {
-    return ProvisionerConfiguration.retrieveAllProvisionerConfigurationTypes();
+  public List<ProvisioningConfiguration> getAllProvisionerConfigurationTypes() {
+    return ProvisioningConfiguration.retrieveAllProvisioningConfigurationTypes();
   }
   
   /**

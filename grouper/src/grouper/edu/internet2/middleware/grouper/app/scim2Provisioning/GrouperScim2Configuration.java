@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
-public class GrouperScim2Configuration extends ProvisionerConfiguration {
+public class GrouperScim2Configuration extends ProvisioningConfiguration {
 
   @Override
   public ConfigFileName getConfigFileName() {

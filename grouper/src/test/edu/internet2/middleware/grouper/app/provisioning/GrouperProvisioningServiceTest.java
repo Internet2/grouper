@@ -905,7 +905,7 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     //When
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem0);
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest");
-    grouperProvisioner.getGrouperProvisioningOutput(); // make sure its initialized
+    grouperProvisioner.retrieveGrouperProvisioningOutput(); // make sure its initialized
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     

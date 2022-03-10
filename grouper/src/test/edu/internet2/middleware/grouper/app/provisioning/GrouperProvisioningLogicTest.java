@@ -459,7 +459,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 //    
 //    grouperProvisioner.retrieveGrouperProvisioningConfiguration().configureProvisioner();
 //    
-//    GrouperProvisioningTranslatorBase translator = new GrouperProvisioningTranslatorBase();
+//    GrouperProvisioningTranslator translator = new GrouperProvisioningTranslator();
 //    translator.setGrouperProvisioner(grouperProvisioner);
 //    GrouperProvisioningDataGrouper grouperProvisioningDataGrouper = grouperProvisioner.retrieveGrouperProvisioningDataGrouper();
 //    GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget = grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget();
@@ -541,7 +541,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 //    
 //    grouperProvisioner.retrieveGrouperProvisioningConfiguration().configureProvisioner();
 //    
-//    GrouperProvisioningTranslatorBase translator = new GrouperProvisioningTranslatorBase();
+//    GrouperProvisioningTranslator translator = new GrouperProvisioningTranslator();
 //    translator.setGrouperProvisioner(grouperProvisioner);
 //    GrouperProvisioningDataGrouper grouperProvisioningDataGrouper = grouperProvisioner.retrieveGrouperProvisioningDataGrouper();
 //    GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget = grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget();

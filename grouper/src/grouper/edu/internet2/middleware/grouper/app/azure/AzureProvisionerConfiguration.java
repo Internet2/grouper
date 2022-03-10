@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
-public class AzureProvisionerConfiguration extends ProvisionerConfiguration {
+public class AzureProvisionerConfiguration extends ProvisioningConfiguration {
 
   @Override
   public ConfigFileName getConfigFileName() {

@@ -1168,7 +1168,7 @@ public class GrouperProvisioningLogicIncremental {
     
     this.getGrouperProvisioner().getDebugMap().put("changeLogRawCount", GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
 
-    this.grouperProvisioner.getGrouperProvisioningOutput().setTotalCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
+    this.grouperProvisioner.retrieveGrouperProvisioningOutput().setTotalCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
     
     Set<String> sourceIdsToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision();
     
@@ -1724,8 +1724,8 @@ public class GrouperProvisioningLogicIncremental {
     //    return;
     //  }
     
-    boolean convertAllMembershipChangesToGroupSync = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
-        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
+    boolean convertAllMembershipChangesToGroupSync = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
     
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithoutRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc();
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc();
@@ -2275,11 +2275,11 @@ public class GrouperProvisioningLogicIncremental {
       
       targetDaoRetrieveMembershipsRequest.setTargetMemberships(requestGrouperTargetGroups);
       
-      TargetDaoRetrieveMembershipsResponse membershipsResponse = this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().retrieveMemberships(targetDaoRetrieveMembershipsRequest);
+      TargetDaoRetrieveMembershipsResponse membershipsResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(targetDaoRetrieveMembershipsRequest);
 
       List<Object> targetGroupsWithMemberships = membershipsResponse.getTargetMemberships();
       
-      this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups((List<ProvisioningGroup>)(Object)targetGroupsWithMemberships);
+      this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups((List<ProvisioningGroup>)(Object)targetGroupsWithMemberships);
       
       for (Object provisioningGroupObject: GrouperUtil.nonNull(targetGroupsWithMemberships)) { // because memberships are stored in group attributes, so we receive groups for memberships call
         
@@ -2556,7 +2556,7 @@ public class GrouperProvisioningLogicIncremental {
     targetDaoRetrieveIncrementalDataRequest.ensureAllMembershipRequestsAreInTheOnlyRequestsAlso();
     
     TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
-      = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveIncrementalData(targetDaoRetrieveIncrementalDataRequest);
+      = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveIncrementalData(targetDaoRetrieveIncrementalDataRequest);
     
     GrouperProvisioningLists result = this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects();
 

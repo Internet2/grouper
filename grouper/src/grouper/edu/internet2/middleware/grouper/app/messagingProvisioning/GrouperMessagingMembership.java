@@ -2,7 +2,7 @@ package edu.internet2.middleware.grouper.app.messagingProvisioning;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningMembershipFieldType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 
@@ -145,7 +145,7 @@ public class GrouperMessagingMembership {
   
   public static GrouperMessagingMembership fromProvisioningMembership(ProvisioningMembership targetMembership) {
     
-    GrouperProvisioningConfigurationBase messagingConfiguration = targetMembership.getProvisioningMembershipWrapper()
+    GrouperProvisioningConfiguration messagingConfiguration = targetMembership.getProvisioningMembershipWrapper()
         .getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     
     GrouperProvisioningMembershipFieldType grouperProvisioningMembershipFieldType = messagingConfiguration.getGrouperProvisioningMembershipFieldType();

@@ -1,14 +1,14 @@
-package edu.internet2.middleware.grouper.app.provisioning;
+package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
-public class LdapProvisionerConfiguration extends ProvisionerConfiguration {
+public class LdapProvisionerConfiguration extends ProvisioningConfiguration {
 
   @Override
   public ConfigFileName getConfigFileName() {

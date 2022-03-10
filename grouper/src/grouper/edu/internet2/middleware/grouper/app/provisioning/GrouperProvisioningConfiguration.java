@@ -30,7 +30,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * @author mchyzer
  *
  */
-public abstract class GrouperProvisioningConfigurationBase {
+public abstract class GrouperProvisioningConfiguration {
   
 
 // grouper-loader.base.properties 3090
@@ -1659,9 +1659,9 @@ public abstract class GrouperProvisioningConfigurationBase {
     
     StringBuilder result = new StringBuilder();
     
-    GrouperProvisioningConfigurationBase provisionerConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    GrouperProvisioningConfiguration provisionerConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
     Set<String> fieldNames = GrouperUtil.fieldNames(provisionerConfiguration.getClass(), 
-        GrouperProvisioningConfigurationBase.class, null, true, false, false);
+        GrouperProvisioningConfiguration.class, null, true, false, false);
     
     // assume configurations cache stuff in fields.  We can make this more flexible / customizable at some point
     fieldNames.remove("configId");
@@ -2686,7 +2686,7 @@ public abstract class GrouperProvisioningConfigurationBase {
 
   private void assignAutoTranslatedGroupsConfiguration() {
     
-    if (this.getGrouperProvisioner().retrieveGrouperTranslator().isTranslateGrouperToTargetAutomatically()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
       
       if (this.targetGroupFieldNameToConfig.size() == 0 && this.targetGroupAttributeNameToConfig.size() == 0) {
         
@@ -2746,7 +2746,7 @@ public abstract class GrouperProvisioningConfigurationBase {
   
   private void assignAutoTranslatedEntitiesConfiguration() {
     
-    if (this.getGrouperProvisioner().retrieveGrouperTranslator().isTranslateGrouperToTargetAutomatically()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
       
       if (this.targetEntityFieldNameToConfig.size() == 0 && this.targetEntityAttributeNameToConfig.size() == 0) {
         

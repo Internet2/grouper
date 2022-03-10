@@ -18,7 +18,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 /**
  * @author shilen
  */
-public class GrouperProvisioningTranslatorBase {
+public class GrouperProvisioningTranslator {
 
   /**
    * reference back up to the provisioner

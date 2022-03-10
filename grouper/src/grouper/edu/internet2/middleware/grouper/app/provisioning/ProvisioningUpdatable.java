@@ -241,7 +241,7 @@ public abstract class ProvisioningUpdatable {
    */
   public void addAttributeValueForMembership(String name, Object value) {
     
-    ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslatorBase.retrieveProvisioningMembershipWrapper();
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslator.retrieveProvisioningMembershipWrapper();
     
     if (provisioningMembershipWrapper == null) {
       throw new NullPointerException("Cant find membership wrapper! " + name + ", " + value + ", " + this);

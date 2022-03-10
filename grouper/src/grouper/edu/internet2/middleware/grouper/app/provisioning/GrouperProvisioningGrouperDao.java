@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
-public class GrouperProvisionerGrouperDao {
+public class GrouperProvisioningGrouperDao {
 
   /**
    * reference back up to the provisioner

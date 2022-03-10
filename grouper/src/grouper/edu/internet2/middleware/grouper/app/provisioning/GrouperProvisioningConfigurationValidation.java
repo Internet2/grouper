@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
  */
 public class GrouperProvisioningConfigurationValidation {
 
-  private ProvisionerConfiguration provisionerConfiguration = null;
+  private ProvisioningConfiguration provisionerConfiguration = null;
   
   private GrouperProvisioner grouperProvisioner = null;
   
@@ -201,7 +201,7 @@ public class GrouperProvisioningConfigurationValidation {
   public void validateOperateImpliesSelectOrInsert() {
     
     GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
-    GrouperProvisioningConfigurationBase grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
 
     // you might be using groups or entities as translations only
 //    if (grouperProvisioningConfiguration.isOperateOnGrouperGroups()) {
@@ -347,7 +347,7 @@ public class GrouperProvisioningConfigurationValidation {
   public void validateMatchingAttributes() {
     
     GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
-    GrouperProvisioningConfigurationBase grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
 
     Set<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = new HashSet<GrouperProvisioningConfigurationAttribute>();
     grouperProvisioningConfigurationAttributes.addAll(GrouperUtil.nonNull(grouperProvisioningConfiguration.getTargetGroupFieldNameToConfig()).values());
@@ -703,12 +703,12 @@ public class GrouperProvisioningConfigurationValidation {
    * 
    * @return
    */
-  public ProvisionerConfiguration retrieveProvisionerConfiguration() {
+  public ProvisioningConfiguration retrieveProvisionerConfiguration() {
     if (this.provisionerConfiguration == null) {
       String configSuffixThatIdentifiesThisProvisioner = suffixToConfigValue.get("class");
 
       provisionerConfiguration = StringUtils.isBlank(configSuffixThatIdentifiesThisProvisioner) ? null 
-          : ProvisionerConfiguration.retrieveConfigurationByConfigSuffix(configSuffixThatIdentifiesThisProvisioner);
+          : ProvisioningConfiguration.retrieveConfigurationByConfigSuffix(configSuffixThatIdentifiesThisProvisioner);
       if (this.provisionerConfiguration != null) {
         String configId = this.getGrouperProvisioner().getConfigId();
         if (StringUtils.isBlank(configId)) {
@@ -743,8 +743,8 @@ public class GrouperProvisioningConfigurationValidation {
     // dont use the real config since it adds non-example configs
     String configSuffixThatIdentifiesThisProvisioner = suffixToConfigValue.get("class");
 
-    ProvisionerConfiguration theProvisionerConfiguration = StringUtils.isBlank(configSuffixThatIdentifiesThisProvisioner) ? null 
-        : ProvisionerConfiguration.retrieveConfigurationByConfigSuffix(configSuffixThatIdentifiesThisProvisioner);
+    ProvisioningConfiguration theProvisionerConfiguration = StringUtils.isBlank(configSuffixThatIdentifiesThisProvisioner) ? null 
+        : ProvisioningConfiguration.retrieveConfigurationByConfigSuffix(configSuffixThatIdentifiesThisProvisioner);
     if (theProvisionerConfiguration != null) {
       String configId = "someConfigIdThatWontConflict";
       

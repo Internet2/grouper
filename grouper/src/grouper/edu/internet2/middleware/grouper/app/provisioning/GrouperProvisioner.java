@@ -112,19 +112,19 @@ public abstract class GrouperProvisioner {
   
   /**
    */
-  private ProvisionerConfiguration provisionerConfiguration = null;
+  private ProvisioningConfiguration provisioningConfiguration = null;
 
   /**
    * this is the controller that makes the editing screen work, this is not the provisioning configuration class: retrieveGrouperProvisioningConfiguration()
    * @return provisioner configuration
    */
-  public ProvisionerConfiguration getProvisionerConfiguration() {
-    if (this.provisionerConfiguration == null) {
-      this.provisionerConfiguration = ProvisionerConfiguration.retrieveConfigurationByConfigSuffix(this.getClass().getName());
+  public ProvisioningConfiguration getControllerForProvisioningConfiguration() {
+    if (this.provisioningConfiguration == null) {
+      this.provisioningConfiguration = ProvisioningConfiguration.retrieveConfigurationByConfigSuffix(this.getClass().getName());
     
-      this.provisionerConfiguration.setConfigId(this.getConfigId());
+      this.provisioningConfiguration.setConfigId(this.getConfigId());
     }
-    return this.provisionerConfiguration;
+    return this.provisioningConfiguration;
   }
   
   private String instanceId = GrouperUtil.uniqueId().toLowerCase();
@@ -183,10 +183,10 @@ public abstract class GrouperProvisioner {
     if (!(this.retrieveGrouperProvisioningFailsafe().getClass().equals(GrouperProvisioningFailsafe.class))) {
       result.append(", Failsafe: ").append(this.retrieveGrouperProvisioningFailsafe().getClass().getName());
     }
-    if (!GrouperProvisionerGrouperDao.class.equals(this.grouperDaoClass())) {
+    if (!GrouperProvisioningGrouperDao.class.equals(this.grouperDaoClass())) {
       result.append(", GrouperDao: ").append(this.grouperDaoClass().getName());
     }
-    if (!GrouperProvisionerGrouperSyncDao.class.equals(this.grouperSyncDaoClass())) {
+    if (!GrouperProvisioningGrouperSyncDao.class.equals(this.grouperSyncDaoClass())) {
       result.append(", GrouperSyncDao: ").append(this.grouperSyncDaoClass().getName());
     }
     if (!GrouperProvisioningLinkLogic.class.equals(this.grouperProvisioningLinkLogicClass())) {
@@ -204,7 +204,7 @@ public abstract class GrouperProvisioner {
     if (!GrouperProvisioningMatchingIdIndex.class.equals(this.grouperProvisioningObjectMetadataClass())) {
       result.append(", ObjectMetadata: ").append(this.grouperProvisioningObjectMetadataClass().getName());
     }
-    if (!GrouperProvisioningTranslatorBase.class.equals(this.grouperTranslatorClass())) {
+    if (!GrouperProvisioningTranslator.class.equals(this.grouperTranslatorClass())) {
       result.append(", Translator: ").append(this.grouperTranslatorClass().getName());
     }
     if (!GrouperProvisioningValidation.class.equals(this.grouperProvisioningValidationClass())) {
@@ -214,11 +214,11 @@ public abstract class GrouperProvisioner {
     return result.toString();
   }
   
-  private GrouperProvisionerTargetDaoAdapter grouperProvisionerTargetDaoAdapter = null;
+  private GrouperProvisionerTargetDaoAdapter grouperProvisioningTargetDaoAdapter = null;
   
-  private GrouperProvisionerGrouperDao grouperProvisionerGrouperDao = null;
+  private GrouperProvisioningGrouperDao grouperProvisioningGrouperDao = null;
 
-  private GrouperProvisionerGrouperSyncDao grouperProvisionerGrouperSyncDao = null;
+  private GrouperProvisioningGrouperSyncDao grouperProvisioningGrouperSyncDao = null;
 
   private GrouperProvisioningObjectLog grouperProvisioningObjectLog = null;
   
@@ -251,7 +251,7 @@ public abstract class GrouperProvisioner {
     this.debugMap = debugMap;
   }
 
-  public GrouperProvisioningObjectLog getGrouperProvisioningObjectLog() {
+  public GrouperProvisioningObjectLog retrieveGrouperProvisioningObjectLog() {
     if (this.grouperProvisioningObjectLog == null) {
       this.grouperProvisioningObjectLog = new GrouperProvisioningObjectLog(this);
     }
@@ -289,14 +289,14 @@ public abstract class GrouperProvisioner {
    * returns the subclass of Data Access Object for this provisioner
    * @return the DAO
    */
-  public GrouperProvisionerTargetDaoAdapter retrieveGrouperTargetDaoAdapter() {
-    if (this.grouperProvisionerTargetDaoAdapter == null) {
+  public GrouperProvisionerTargetDaoAdapter retrieveGrouperProvisioningTargetDaoAdapter() {
+    if (this.grouperProvisioningTargetDaoAdapter == null) {
       Class<? extends GrouperProvisionerTargetDaoBase> grouperProvisionerTargetDaoBaseClass = this.grouperTargetDaoClass();
       GrouperProvisionerTargetDaoBase grouperProvisionerTargetDaoBase = GrouperUtil.newInstance(grouperProvisionerTargetDaoBaseClass);
       grouperProvisionerTargetDaoBase.setGrouperProvisioner(this);
-      this.grouperProvisionerTargetDaoAdapter = new GrouperProvisionerTargetDaoAdapter(this, grouperProvisionerTargetDaoBase);
+      this.grouperProvisioningTargetDaoAdapter = new GrouperProvisionerTargetDaoAdapter(this, grouperProvisionerTargetDaoBase);
     }
-    return this.grouperProvisionerTargetDaoAdapter;
+    return this.grouperProvisioningTargetDaoAdapter;
     
   }
   
@@ -304,28 +304,28 @@ public abstract class GrouperProvisioner {
    * returns the Grouper Data access Object
    * @return the DAO
    */
-  public GrouperProvisionerGrouperDao retrieveGrouperDao() {
-    if (this.grouperProvisionerGrouperDao == null) {
-      Class<? extends GrouperProvisionerGrouperDao> grouperProvisionerGrouperDaoClass = this.grouperDaoClass();
-      this.grouperProvisionerGrouperDao = GrouperUtil.newInstance(grouperProvisionerGrouperDaoClass);
-      this.grouperProvisionerGrouperDao.setGrouperProvisioner(this);
+  public GrouperProvisioningGrouperDao retrieveGrouperDao() {
+    if (this.grouperProvisioningGrouperDao == null) {
+      Class<? extends GrouperProvisioningGrouperDao> grouperProvisionerGrouperDaoClass = this.grouperDaoClass();
+      this.grouperProvisioningGrouperDao = GrouperUtil.newInstance(grouperProvisionerGrouperDaoClass);
+      this.grouperProvisioningGrouperDao.setGrouperProvisioner(this);
     }
-    return this.grouperProvisionerGrouperDao;
+    return this.grouperProvisioningGrouperDao;
     
   }
   
-  protected Class<? extends GrouperProvisionerGrouperDao> grouperDaoClass() {
-    return GrouperProvisionerGrouperDao.class;
+  protected Class<? extends GrouperProvisioningGrouperDao> grouperDaoClass() {
+    return GrouperProvisioningGrouperDao.class;
   }
   
-  private GrouperProvisioningConfigurationBase grouperProvisioningConfigurationBase = null;
+  private GrouperProvisioningConfiguration grouperProvisioningConfiguration = null;
 
   private GrouperProvisioningLinkLogic grouperProvisioningLinkLogic = null;
 
   /**
    * return the class of the DAO for this provisioner
    */
-  protected abstract Class<? extends GrouperProvisioningConfigurationBase> grouperProvisioningConfigurationClass();
+  protected abstract Class<? extends GrouperProvisioningConfiguration> grouperProvisioningConfigurationClass();
   
   /**
    * 
@@ -357,13 +357,13 @@ public abstract class GrouperProvisioner {
    * returns the subclass of Data Access Object for this provisioner
    * @return the DAO
    */
-  public GrouperProvisioningConfigurationBase retrieveGrouperProvisioningConfiguration() {
-    if (this.grouperProvisioningConfigurationBase == null) {
-      Class<? extends GrouperProvisioningConfigurationBase> grouperProvisioningConfigurationBaseClass = this.grouperProvisioningConfigurationClass();
-      this.grouperProvisioningConfigurationBase = GrouperUtil.newInstance(grouperProvisioningConfigurationBaseClass);
-      this.grouperProvisioningConfigurationBase.setGrouperProvisioner(this);
+  public GrouperProvisioningConfiguration retrieveGrouperProvisioningConfiguration() {
+    if (this.grouperProvisioningConfiguration == null) {
+      Class<? extends GrouperProvisioningConfiguration> grouperProvisioningConfigurationClass = this.grouperProvisioningConfigurationClass();
+      this.grouperProvisioningConfiguration = GrouperUtil.newInstance(grouperProvisioningConfigurationClass);
+      this.grouperProvisioningConfiguration.setGrouperProvisioner(this);
     }
-    return this.grouperProvisioningConfigurationBase;
+    return this.grouperProvisioningConfiguration;
     
   }
   
@@ -470,27 +470,27 @@ public abstract class GrouperProvisioner {
     
   }
   
-  private GrouperProvisioningTranslatorBase grouperProvisioningTranslatorBase = null;
+  private GrouperProvisioningTranslator grouperProvisioningTranslator = null;
 
   /**
    * returns the instance of the translator
    * @return the translator
    */
-  public GrouperProvisioningTranslatorBase retrieveGrouperTranslator() {
-    if (this.grouperProvisioningTranslatorBase == null) {
-      Class<? extends GrouperProvisioningTranslatorBase> grouperProvisioningTranslatorBaseClass = this.grouperTranslatorClass();
-      this.grouperProvisioningTranslatorBase = GrouperUtil.newInstance(grouperProvisioningTranslatorBaseClass);
-      this.grouperProvisioningTranslatorBase.setGrouperProvisioner(this);
+  public GrouperProvisioningTranslator retrieveGrouperProvisioningTranslator() {
+    if (this.grouperProvisioningTranslator == null) {
+      Class<? extends GrouperProvisioningTranslator> grouperProvisioningTranslatorBaseClass = this.grouperTranslatorClass();
+      this.grouperProvisioningTranslator = GrouperUtil.newInstance(grouperProvisioningTranslatorBaseClass);
+      this.grouperProvisioningTranslator.setGrouperProvisioner(this);
     }
-    return this.grouperProvisioningTranslatorBase;
+    return this.grouperProvisioningTranslator;
     
   }
   
   /**
    * @return the class of the translator for this provisioner (optional)
    */
-  protected Class<? extends GrouperProvisioningTranslatorBase> grouperTranslatorClass() {
-    return GrouperProvisioningTranslatorBase.class;
+  protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
+    return GrouperProvisioningTranslator.class;
   }
   
   /**
@@ -557,7 +557,7 @@ public abstract class GrouperProvisioner {
    * provisioning output
    * @return output
    */
-  public GrouperProvisioningOutput getGrouperProvisioningOutput() {
+  public GrouperProvisioningOutput retrieveGrouperProvisioningOutput() {
     if (this.grouperProvisioningOutput == null) {
       this.grouperProvisioningOutput = new GrouperProvisioningOutput();
       this.grouperProvisioningOutput.setGrouperProvisioner(this);
@@ -611,8 +611,8 @@ public abstract class GrouperProvisioner {
       this.retrieveGrouperProvisioningConfiguration().configureProvisioner();
 
       // let the target dao tell the framework what it can do
-      this.retrieveGrouperTargetDaoAdapter().getWrappedDao().registerGrouperProvisionerDaoCapabilities(
-          this.retrieveGrouperTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities()
+      this.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao().registerGrouperProvisionerDaoCapabilities(
+          this.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities()
           );
 
       this.retrieveGrouperProvisioningObjectMetadata().initBuiltInMetadata();
@@ -662,7 +662,7 @@ public abstract class GrouperProvisioner {
         @Override
         public void run() {
 
-          logPeriodically(debugMap, GrouperProvisioner.this.getGrouperProvisioningOutput());
+          logPeriodically(debugMap, GrouperProvisioner.this.retrieveGrouperProvisioningOutput());
           
         }
         
@@ -692,7 +692,7 @@ public abstract class GrouperProvisioner {
         }
       }
           
-      return this.getGrouperProvisioningOutput();
+      return this.retrieveGrouperProvisioningOutput();
     } catch (RuntimeException re) {
       if (gcGrouperSyncLog != null) {
         if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
@@ -735,8 +735,8 @@ public abstract class GrouperProvisioner {
     }
 
     // TODO sum with dao, hibernate, and client
-    this.getGrouperProvisioningOutput().setQueryCount(GcDbAccess.threadLocalQueryCountRetrieve());
-    debugMap.put("queryCount", this.getGrouperProvisioningOutput().getQueryCount());
+    this.retrieveGrouperProvisioningOutput().setQueryCount(GcDbAccess.threadLocalQueryCountRetrieve());
+    debugMap.put("queryCount", this.retrieveGrouperProvisioningOutput().getQueryCount());
     
     int durationMillis = (int)((System.nanoTime()-this.startedNanos)/1000000);
     debugMap.put("tookMillis", durationMillis);
@@ -761,9 +761,9 @@ public abstract class GrouperProvisioner {
     
     // already set total
     //gcTableSyncOutput.setTotal();
-    this.getGrouperProvisioningOutput().setMessage(debugString);
+    this.retrieveGrouperProvisioningOutput().setMessage(debugString);
 
-    this.getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.end);
+    this.retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.end);
 
     // this isnt good
     if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
@@ -961,6 +961,10 @@ public abstract class GrouperProvisioner {
     return GrouperProvisioningCompare.class;
   }
   
+  protected Class<? extends GrouperProvisioningBehavior> grouperProvisioningBehaviorClass() {
+    return GrouperProvisioningBehavior.class;
+  }
+  
   /**
    * return the instance of the indexing logic
    * @return the logic
@@ -1005,18 +1009,18 @@ public abstract class GrouperProvisioner {
    * returns the Grouper Sync Data access Object
    * @return the DAO
    */
-  public GrouperProvisionerGrouperSyncDao retrieveGrouperSyncDao() {
-    if (this.grouperProvisionerGrouperSyncDao == null) {
-      Class<? extends GrouperProvisionerGrouperSyncDao> grouperProvisionerGrouperSyncDaoClass = this.grouperSyncDaoClass();
-      this.grouperProvisionerGrouperSyncDao = GrouperUtil.newInstance(grouperProvisionerGrouperSyncDaoClass);
-      this.grouperProvisionerGrouperSyncDao.setGrouperProvisioner(this);
+  public GrouperProvisioningGrouperSyncDao retrieveGrouperProvisioningSyncDao() {
+    if (this.grouperProvisioningGrouperSyncDao == null) {
+      Class<? extends GrouperProvisioningGrouperSyncDao> grouperProvisionerGrouperSyncDaoClass = this.grouperSyncDaoClass();
+      this.grouperProvisioningGrouperSyncDao = GrouperUtil.newInstance(grouperProvisionerGrouperSyncDaoClass);
+      this.grouperProvisioningGrouperSyncDao.setGrouperProvisioner(this);
     }
-    return this.grouperProvisionerGrouperSyncDao;
+    return this.grouperProvisioningGrouperSyncDao;
     
   }
 
-  protected Class<? extends GrouperProvisionerGrouperSyncDao> grouperSyncDaoClass() {
-    return GrouperProvisionerGrouperSyncDao.class;
+  protected Class<? extends GrouperProvisioningGrouperSyncDao> grouperSyncDaoClass() {
+    return GrouperProvisioningGrouperSyncDao.class;
   }
 
   private GrouperProvisioningBehavior grouperProvisioningBehavior = new GrouperProvisioningBehavior(this);
@@ -1027,15 +1031,15 @@ public abstract class GrouperProvisioner {
 
   
   public GrouperProvisioningBehavior retrieveGrouperProvisioningBehavior() {
-    return grouperProvisioningBehavior;
+    if (this.grouperProvisioningBehavior == null) {
+      Class<? extends GrouperProvisioningBehavior> grouperProvisioningLogicClass = this.grouperProvisioningBehaviorClass();
+      this.grouperProvisioningBehavior = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningBehavior.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningBehavior;
+
   }
 
-  
-  public void setGrouperProvisioningBehavior(
-      GrouperProvisioningBehavior grouperProvisioningBehavior) {
-    this.grouperProvisioningBehavior = grouperProvisioningBehavior;
-  }
-  
   /**
    * let the provisioner tell the framework how the provisioner should behave with respect to the target
    * @param grouperProvisioningBehavior
@@ -1091,7 +1095,7 @@ public abstract class GrouperProvisioner {
    */
   public void propagateProvisioningAttributes() {
     // retrieve all grouper sync data and put in GrouperProvisioningDataSync
-    this.retrieveGrouperSyncDao().retrieveSyncDataFull();
+    this.retrieveGrouperProvisioningSyncDao().retrieveSyncDataFull();
 
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningFolderAttributes = this.retrieveGrouperDao().retrieveAllProvisioningFolderAttributes();
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningGroupAttributes = this.retrieveGrouperDao().retrieveAllProvisioningGroupAttributes();

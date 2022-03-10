@@ -633,7 +633,7 @@ public enum GrouperProvisioningObjectLogType {
       logMessage.append("\n");
     }
     logMessage.append(label).append(" (");
-    logMessage.append(grouperProvisioner.retrieveGrouperTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities().toString());
+    logMessage.append(grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities().toString());
     logMessage.append(")\n");
   }
 

@@ -10,7 +10,9 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleSubSection;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -195,7 +197,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     provisionerConfiguration.setConfigId("myLdapProvisioner");
     
     // verify first that values were actually stored in the database
-    ProvisionerConfigSyncDetails syncDetails = provisionerConfiguration.getSyncDetails();
+    ProvisioningConfigSyncDetails syncDetails = provisionerConfiguration.getSyncDetails();
     
     assertEquals(20, syncDetails.getGroupCount());
     assertEquals(10, syncDetails.getUserCount());
@@ -378,7 +380,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     provisionerConfiguration.setConfigId("mySqlProvisioner");
     
     // verify first that values were actually stored in the database
-    ProvisionerConfigSyncDetails syncDetails = provisionerConfiguration.getSyncDetails();
+    ProvisioningConfigSyncDetails syncDetails = provisionerConfiguration.getSyncDetails();
     
     assertEquals(10, syncDetails.getUserCount());
     assertEquals(15, syncDetails.getGroupCount());

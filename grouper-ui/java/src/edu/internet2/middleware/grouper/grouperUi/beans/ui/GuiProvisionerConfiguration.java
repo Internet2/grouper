@@ -3,14 +3,14 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 
 public class GuiProvisionerConfiguration {
   
   /**
    * provisioner configuration this instance is wrapping
    */
-  private ProvisionerConfiguration provisionerConfiguration;
+  private ProvisioningConfiguration provisionerConfiguration;
   
   private String lastFullSyncTimestamp;
   private String lastIncrementalSyncTimestamp;
@@ -20,7 +20,7 @@ public class GuiProvisionerConfiguration {
   
   private GuiProvisionerConfiguration() {}
   
-  public ProvisionerConfiguration getProvisionerConfiguration() {
+  public ProvisioningConfiguration getProvisionerConfiguration() {
     return this.provisionerConfiguration;
   }
   
@@ -54,27 +54,27 @@ public class GuiProvisionerConfiguration {
    * @param provisionerConfiguration
    * @return
    */
-  public static GuiProvisionerConfiguration convertFromProvisionerConfiguration(ProvisionerConfiguration provisionerConfiguration) {
+  public static GuiProvisionerConfiguration convertFromProvisioningConfiguration(ProvisioningConfiguration provisioningConfiguration) {
     
-    GuiProvisionerConfiguration guiProvisionerConfig = new GuiProvisionerConfiguration();
-    guiProvisionerConfig.provisionerConfiguration = provisionerConfiguration;
-    return guiProvisionerConfig;
+    GuiProvisionerConfiguration guiProvisioningConfig = new GuiProvisionerConfiguration();
+    guiProvisioningConfig.provisionerConfiguration = provisioningConfiguration;
+    return guiProvisioningConfig;
   }
   
   /**
    * convert from list of provisioner configurations to gui provisioner configurations
-   * @param provisionerConfigurations
+   * @param provisioningConfigurations
    * @return
    */
-  public static List<GuiProvisionerConfiguration> convertFromProvisionerConfiguration(List<ProvisionerConfiguration> provisionerConfigurations) {
+  public static List<GuiProvisionerConfiguration> convertFromProvisioningConfiguration(List<ProvisioningConfiguration> provisioningConfigurations) {
     
-    List<GuiProvisionerConfiguration> guiProvisionerConfigurations = new ArrayList<GuiProvisionerConfiguration>();
+    List<GuiProvisionerConfiguration> guiProvisioningConfigurations = new ArrayList<GuiProvisionerConfiguration>();
     
-    for (ProvisionerConfiguration provisionerConfiguration: provisionerConfigurations) {
-      guiProvisionerConfigurations.add(convertFromProvisionerConfiguration(provisionerConfiguration));
+    for (ProvisioningConfiguration provisioningConfiguration: provisioningConfigurations) {
+      guiProvisioningConfigurations.add(convertFromProvisioningConfiguration(provisioningConfiguration));
     }
     
-    return guiProvisionerConfigurations;
+    return guiProvisioningConfigurations;
     
   }
 

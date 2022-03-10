@@ -1,8 +1,8 @@
 package edu.internet2.middleware.grouper.app.duo.role;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 
-public class GrouperDuoRoleConfiguration extends GrouperProvisioningConfigurationBase {
+public class GrouperDuoRoleConfiguration extends GrouperProvisioningConfiguration {
 
   private String duoExternalSystemConfigId;
   

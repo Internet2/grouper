@@ -82,6 +82,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       membershipTablePrimaryColNamesList.add(attributeName);
     }
 
+    GrouperUtil.assertion(GrouperUtil.length(membershipTablePrimaryColNamesList) > 0, "Cannot find any membership columns to select from");
+    
     List<Object[]> membershipPrimaryAttributeValues = null;
 
     membershipPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, membershipTablePrimaryColNamesList, membershipTableName);

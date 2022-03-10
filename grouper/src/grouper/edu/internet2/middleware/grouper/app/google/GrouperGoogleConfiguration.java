@@ -1,10 +1,10 @@
 package edu.internet2.middleware.grouper.app.google;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
-public class GrouperGoogleConfiguration extends GrouperProvisioningConfigurationBase {
+public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration {
   
   private String googleExternalSystemConfigId;
   

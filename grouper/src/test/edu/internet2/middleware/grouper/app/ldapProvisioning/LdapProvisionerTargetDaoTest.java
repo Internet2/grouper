@@ -279,7 +279,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperTest {
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
-      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
+      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
       assertNotNull(targetDaoRetrieveMembershipResponse.getTargetMembership());
     }
     
@@ -292,7 +292,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperTest {
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
-      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
+      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
       assertNotNull(targetDaoRetrieveMembershipResponse.getTargetMembership());
     }
     
@@ -305,7 +305,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperTest {
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
-      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
+      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
       assertNull(targetDaoRetrieveMembershipResponse.getTargetMembership());
     }
     
@@ -318,7 +318,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperTest {
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
-      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
+      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
       assertNull(targetDaoRetrieveMembershipResponse.getTargetMembership());
     }
   }

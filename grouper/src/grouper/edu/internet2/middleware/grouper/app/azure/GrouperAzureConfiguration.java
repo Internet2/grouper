@@ -1,9 +1,9 @@
 package edu.internet2.middleware.grouper.app.azure;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-public class GrouperAzureConfiguration extends GrouperProvisioningConfigurationBase {
+public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration {
 
   private String azureExternalSystemConfigId;
   

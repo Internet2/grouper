@@ -6,12 +6,12 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningCompare;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslatorBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
@@ -39,12 +39,12 @@ public class LdapSync extends GrouperProvisioner {
   }
 
   @Override
-  protected Class<? extends GrouperProvisioningConfigurationBase> grouperProvisioningConfigurationClass() {
+  protected Class<? extends GrouperProvisioningConfiguration> grouperProvisioningConfigurationClass() {
     return LdapSyncConfiguration.class;
   }
 
   @Override
-  protected Class<? extends GrouperProvisioningTranslatorBase> grouperTranslatorClass() {
+  protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
     return LdapProvisioningTranslator.class;
   }
 
