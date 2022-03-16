@@ -542,11 +542,6 @@ public abstract class GrouperProvisioningConfiguration {
   private Map<String, GrouperProvisioningConfigurationAttribute> targetGroupAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
   
   /**
-   * field name to config
-   */
-  private Map<String, GrouperProvisioningConfigurationAttribute> targetGroupFieldNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
-
-  /**
    * metadata name to metadata item
    */
   private Map<String, GrouperProvisioningObjectMetadataItem> metadataNameToMetadataItem = new TreeMap<String, GrouperProvisioningObjectMetadataItem>();
@@ -569,25 +564,12 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
-   * field name to config
-   * @return
-   */
-  public Map<String, GrouperProvisioningConfigurationAttribute> getTargetGroupFieldNameToConfig() {
-    return targetGroupFieldNameToConfig;
-  }
-
-  /**
    * get the group matching attribute object (could be field or attribute)
    * @return the attribute
    */
   public GrouperProvisioningConfigurationAttribute retrieveGroupAttributeMatching() {
 
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetGroupAttributeNameToConfig().values()) {
-      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetGroupFieldNameToConfig().values()) {
       if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
         return grouperProvisioningConfigurationAttribute;
       }
@@ -603,11 +585,6 @@ public abstract class GrouperProvisioningConfiguration {
   public GrouperProvisioningConfigurationAttribute retrieveEntityAttributeMatching() {
 
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetEntityAttributeNameToConfig().values()) {
-      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetEntityFieldNameToConfig().values()) {
       if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
         return grouperProvisioningConfigurationAttribute;
       }
@@ -666,76 +643,6 @@ public abstract class GrouperProvisioningConfiguration {
    */
   public void setGroupMatchingIdAttribute(String groupMatchingIdAttribute) {
     this.groupMatchingIdAttribute = groupMatchingIdAttribute;
-  }
-
-  /**
-   * id or "provisioningGroupId,provisioningEntityId"
-   */
-  private String membershipMatchingIdField;
-
-  
-  /**
-   * id or "provisioningGroupId,provisioningEntityId"
-   * @return
-   */
-  public String getMembershipMatchingIdField() {
-    return membershipMatchingIdField;
-  }
-
-
-
-  /**
-   * id or "provisioningGroupId,provisioningEntityId"
-   * @param membershipMatchingIdField
-   */
-  public void setMembershipMatchingIdField(String membershipMatchingIdField) {
-    this.membershipMatchingIdField = membershipMatchingIdField;
-  }
-
-  /**
-   * id, subjectId, loginId
-   */
-  private String entityMatchingIdField;
-  
-  /**
-   * id, subjectId, loginId
-   * @return
-   */
-  public String getEntityMatchingIdField() {
-    return entityMatchingIdField;
-  }
-
-  /**
-   * id, subjectId, loginId
-   * @param entityMatchingIdField
-   */
-  public void setEntityMatchingIdField(String entityMatchingIdField) {
-    this.entityMatchingIdField = entityMatchingIdField;
-  }
-
-  /**
-   * id, idIndex, or name
-   */
-  private String groupMatchingIdField;
-
-  
-
-  /**
-   * id, idIndex, or name
-   * @return
-   */
-  public String getGroupMatchingIdField() {
-    return groupMatchingIdField;
-  }
-
-
-
-  /**
-   * id, idIndex, or name
-   * @param groupMatchingIdField
-   */
-  public void setGroupMatchingIdField(String groupMatchingIdField) {
-    this.groupMatchingIdField = groupMatchingIdField;
   }
 
   /**
@@ -1717,13 +1624,6 @@ public abstract class GrouperProvisioningConfiguration {
         result.append(" - grouperProvisioningToTargetTranslation").append(key).append(".").append(i).append(".script = '").append(translations.get(i)).append("'");
       }
     }
-    for (String key : new TreeSet<String>(this.targetGroupFieldNameToConfig.keySet())) {
-      if (result.charAt(result.length()-1) != '\n') {
-        result.append("\n");
-      }
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.targetGroupFieldNameToConfig.get(key);
-      result.append(" - target group field config: " + key + ": " + grouperProvisioningConfigurationAttribute.toString());
-    }
     for (String key : new TreeSet<String>(this.targetGroupAttributeNameToConfig.keySet())) {
       if (result.charAt(result.length()-1) != '\n') {
         result.append("\n");
@@ -1731,26 +1631,12 @@ public abstract class GrouperProvisioningConfiguration {
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.targetGroupAttributeNameToConfig.get(key);
       result.append(" - target group attribute config: " + key + ": " + grouperProvisioningConfigurationAttribute.toString());
     }
-    for (String key : new TreeSet<String>(this.targetEntityFieldNameToConfig.keySet())) {
-      if (result.charAt(result.length()-1) != '\n') {
-        result.append("\n");
-      }
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.targetEntityFieldNameToConfig.get(key);
-      result.append(" - target entity field config: " + key + ": " + grouperProvisioningConfigurationAttribute.toString());
-    }
     for (String key : new TreeSet<String>(this.targetEntityAttributeNameToConfig.keySet())) {
       if (result.charAt(result.length()-1) != '\n') {
         result.append("\n");
       }
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.targetEntityAttributeNameToConfig.get(key);
       result.append(" - target entity attribute config: " + key + ": " + grouperProvisioningConfigurationAttribute.toString());
-    }
-    for (String key : new TreeSet<String>(this.targetMembershipFieldNameToConfig.keySet())) {
-      if (result.charAt(result.length()-1) != '\n') {
-        result.append("\n");
-      }
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.targetMembershipFieldNameToConfig.get(key);
-      result.append(" - target membership field config: " + key + ": " + grouperProvisioningConfigurationAttribute.toString());
     }
     for (String key : new TreeSet<String>(this.targetMembershipAttributeNameToConfig.keySet())) {
       if (result.charAt(result.length()-1) != '\n') {
@@ -2152,13 +2038,7 @@ public abstract class GrouperProvisioningConfiguration {
           throw new RuntimeException("Cant find object type: " + objectType);
         }
 
-        Boolean isField = this.retrieveConfigBoolean(objectType + "."+i+".isFieldElseAttribute" , false);
-        if (isField == null) {
-          break;
-        }
-        attributeConfig.setAttribute(!isField);
-
-        String name = this.retrieveConfigString(objectType + "."+i+(isField ? ".fieldName" : ".name") , false);
+        String name = this.retrieveConfigString(objectType + "."+i+ ".name" , false);
         if (StringUtils.isBlank(name)) {
           break;
         }
@@ -2331,44 +2211,23 @@ public abstract class GrouperProvisioningConfiguration {
         }
 
         if ("targetGroupAttribute".equals(objectType)) {
-          if (!isField) {
-            if (targetGroupAttributeNameToConfig.containsKey(name)) {
-              throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
-            }
-          
-            targetGroupAttributeNameToConfig.put(name, attributeConfig);
-          } else {
-            if (targetGroupFieldNameToConfig.containsKey(name)) {
-              throw new RuntimeException("Multiple configurations for " + objectType + " field: " + name);
-            }
-            targetGroupFieldNameToConfig.put(name, attributeConfig);
+          if (targetGroupAttributeNameToConfig.containsKey(name)) {
+            throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
           }
+        
+          targetGroupAttributeNameToConfig.put(name, attributeConfig);
           
         } else if ("targetEntityAttribute".equals(objectType)) {
-          if (!isField) {
-            if (targetEntityAttributeNameToConfig.containsKey(name)) {
-              throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
-            }
-            targetEntityAttributeNameToConfig.put(name, attributeConfig);
-          } else {
-            if (targetEntityFieldNameToConfig.containsKey(name)) {
-              throw new RuntimeException("Multiple configurations for " + objectType + " field: " + name);
-            }
-            targetEntityFieldNameToConfig.put(name, attributeConfig);
+          if (targetEntityAttributeNameToConfig.containsKey(name)) {
+            throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
           }
+          targetEntityAttributeNameToConfig.put(name, attributeConfig);
           
         } else if ("targetMembershipAttribute".equals(objectType)) {
-          if (!isField) {
-            if (targetMembershipAttributeNameToConfig.containsKey(name)) {
-              throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
-            }
-            targetMembershipAttributeNameToConfig.put(name, attributeConfig);
-          } else {
-            if (targetMembershipFieldNameToConfig.containsKey(name)) {
-              throw new RuntimeException("Multiple configurations for " + objectType + " field: " + name);
-            }
-            targetMembershipFieldNameToConfig.put(name, attributeConfig);
+          if (targetMembershipAttributeNameToConfig.containsKey(name)) {
+            throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
           }
+          targetMembershipAttributeNameToConfig.put(name, attributeConfig);
           
         } else {
           throw new RuntimeException("Invalid object type: '" + objectType + "'");
@@ -2688,55 +2547,51 @@ public abstract class GrouperProvisioningConfiguration {
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
       
-      if (this.targetGroupFieldNameToConfig.size() == 0 && this.targetGroupAttributeNameToConfig.size() == 0) {
+      if (this.targetGroupAttributeNameToConfig.size() == 0) {
         
         GrouperProvisioningConfigurationAttribute nameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         nameConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         nameConfigurationAttribute.setUpdate(this.isUpdateGroups());
-        nameConfigurationAttribute.setAttribute(false);
         nameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
         nameConfigurationAttribute.setInsert(this.isInsertGroups());
         nameConfigurationAttribute.setName("name");
         nameConfigurationAttribute.setSelect(this.isSelectGroups());
         nameConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
         nameConfigurationAttribute.setTranslateFromGrouperProvisioningGroupField("name");
-        this.targetGroupFieldNameToConfig.put("name", nameConfigurationAttribute);
+        this.targetGroupAttributeNameToConfig.put("name", nameConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute displayNameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         displayNameConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         displayNameConfigurationAttribute.setUpdate(this.isUpdateGroups());
-        displayNameConfigurationAttribute.setAttribute(false);
         displayNameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
         displayNameConfigurationAttribute.setInsert(this.isInsertGroups());
         displayNameConfigurationAttribute.setName("displayName");
         displayNameConfigurationAttribute.setSelect(this.isSelectGroups());
         displayNameConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
         displayNameConfigurationAttribute.setTranslateFromGrouperProvisioningGroupField("displayName");
-        this.targetGroupFieldNameToConfig.put("displayName", displayNameConfigurationAttribute);
+        this.targetGroupAttributeNameToConfig.put("displayName", displayNameConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute idIndexConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         idIndexConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         idIndexConfigurationAttribute.setUpdate(this.isUpdateGroups());
-        idIndexConfigurationAttribute.setAttribute(false);
         idIndexConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
         idIndexConfigurationAttribute.setInsert(this.isInsertGroups());
         idIndexConfigurationAttribute.setName("idIndex");
         idIndexConfigurationAttribute.setSelect(this.isSelectGroups());
         idIndexConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
         idIndexConfigurationAttribute.setTranslateFromGrouperProvisioningGroupField("idIndex");
-        this.targetGroupFieldNameToConfig.put("idIndex", idIndexConfigurationAttribute);
+        this.targetGroupAttributeNameToConfig.put("idIndex", idIndexConfigurationAttribute);
         
         
         GrouperProvisioningConfigurationAttribute descriptionConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         descriptionConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         descriptionConfigurationAttribute.setUpdate(this.isUpdateGroups());
-        descriptionConfigurationAttribute.setAttribute(true);
         descriptionConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
         descriptionConfigurationAttribute.setInsert(this.isInsertGroups());
         descriptionConfigurationAttribute.setName("description");
         descriptionConfigurationAttribute.setSelect(this.isSelectGroups());
         descriptionConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
-        descriptionConfigurationAttribute.setTranslateFromGrouperProvisioningGroupField("attribute__description");
+        descriptionConfigurationAttribute.setTranslateFromGrouperProvisioningGroupField("description");
         this.targetGroupAttributeNameToConfig.put("description", descriptionConfigurationAttribute);
         
       }
@@ -2748,102 +2603,94 @@ public abstract class GrouperProvisioningConfiguration {
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
       
-      if (this.targetEntityFieldNameToConfig.size() == 0 && this.targetEntityAttributeNameToConfig.size() == 0) {
+      if (this.targetEntityAttributeNameToConfig.size() == 0) {
         
         GrouperProvisioningConfigurationAttribute idConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         idConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         idConfigurationAttribute.setUpdate(this.isUpdateEntities());
-        idConfigurationAttribute.setAttribute(false);
         idConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
         idConfigurationAttribute.setInsert(this.isInsertEntities());
         idConfigurationAttribute.setName("id");
         idConfigurationAttribute.setSelect(this.isSelectEntities());
         idConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
         idConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("id");
-        this.targetEntityFieldNameToConfig.put("id", idConfigurationAttribute);
+        this.targetEntityAttributeNameToConfig.put("id", idConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute nameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         nameConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         nameConfigurationAttribute.setUpdate(this.isUpdateEntities());
-        nameConfigurationAttribute.setAttribute(false);
         nameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
         nameConfigurationAttribute.setInsert(this.isInsertEntities());
         nameConfigurationAttribute.setName("name");
         nameConfigurationAttribute.setSelect(this.isSelectEntities());
         nameConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
         nameConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("name");
-        this.targetEntityFieldNameToConfig.put("name", nameConfigurationAttribute);
+        this.targetEntityAttributeNameToConfig.put("name", nameConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute subjectIdConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         subjectIdConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         subjectIdConfigurationAttribute.setUpdate(this.isUpdateEntities());
-        subjectIdConfigurationAttribute.setAttribute(false);
         subjectIdConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
         subjectIdConfigurationAttribute.setInsert(this.isInsertEntities());
         subjectIdConfigurationAttribute.setName("subjectId");
         subjectIdConfigurationAttribute.setSelect(this.isSelectEntities());
         subjectIdConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
         subjectIdConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectId");
-        this.targetEntityFieldNameToConfig.put("subjectId", subjectIdConfigurationAttribute);
+        this.targetEntityAttributeNameToConfig.put("subjectId", subjectIdConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute descriptionConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         descriptionConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         descriptionConfigurationAttribute.setUpdate(this.isUpdateEntities());
-        descriptionConfigurationAttribute.setAttribute(true);
         descriptionConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
         descriptionConfigurationAttribute.setInsert(this.isInsertEntities());
         descriptionConfigurationAttribute.setName("description");
         descriptionConfigurationAttribute.setSelect(this.isSelectEntities());
         descriptionConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
-        descriptionConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("attribute__description");
+        descriptionConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("description");
         this.targetEntityAttributeNameToConfig.put("description", descriptionConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute subjectSourceIdConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         subjectSourceIdConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         subjectSourceIdConfigurationAttribute.setUpdate(this.isUpdateEntities());
-        subjectSourceIdConfigurationAttribute.setAttribute(true);
         subjectSourceIdConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
         subjectSourceIdConfigurationAttribute.setInsert(this.isInsertEntities());
         subjectSourceIdConfigurationAttribute.setName("subjectSourceId");
         subjectSourceIdConfigurationAttribute.setSelect(this.isSelectEntities());
         subjectSourceIdConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
-        subjectSourceIdConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("attribute__subjectSourceId");
+        subjectSourceIdConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectSourceId");
         this.targetEntityAttributeNameToConfig.put("subjectSourceId", subjectSourceIdConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute subjectIdetifier0ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         subjectIdetifier0ConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         subjectIdetifier0ConfigurationAttribute.setUpdate(this.isUpdateEntities());
-        subjectIdetifier0ConfigurationAttribute.setAttribute(true);
         subjectIdetifier0ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
         subjectIdetifier0ConfigurationAttribute.setInsert(this.isInsertEntities());
         subjectIdetifier0ConfigurationAttribute.setName("subjectIdentifier0");
         subjectIdetifier0ConfigurationAttribute.setSelect(this.isSelectEntities());
         subjectIdetifier0ConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
-        subjectIdetifier0ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("attribute__subjectIdentifier0");
+        subjectIdetifier0ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectIdentifier0");
         this.targetEntityAttributeNameToConfig.put("subjectIdentifier0", subjectIdetifier0ConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute subjectIdetifier1ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         subjectIdetifier1ConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         subjectIdetifier1ConfigurationAttribute.setUpdate(this.isUpdateEntities());
-        subjectIdetifier1ConfigurationAttribute.setAttribute(true);
         subjectIdetifier1ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
         subjectIdetifier1ConfigurationAttribute.setInsert(this.isInsertEntities());
         subjectIdetifier1ConfigurationAttribute.setName("subjectIdentifier1");
         subjectIdetifier1ConfigurationAttribute.setSelect(this.isSelectEntities());
         subjectIdetifier1ConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
-        subjectIdetifier1ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("attribute__subjectIdentifier1");
+        subjectIdetifier1ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectIdentifier1");
         this.targetEntityAttributeNameToConfig.put("subjectIdentifier1", subjectIdetifier1ConfigurationAttribute);
         
         GrouperProvisioningConfigurationAttribute subjectIdetifier2ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
         subjectIdetifier2ConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
         subjectIdetifier2ConfigurationAttribute.setUpdate(this.isUpdateEntities());
-        subjectIdetifier2ConfigurationAttribute.setAttribute(true);
         subjectIdetifier2ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
         subjectIdetifier2ConfigurationAttribute.setInsert(this.isInsertEntities());
         subjectIdetifier2ConfigurationAttribute.setName("subjectIdentifier2");
         subjectIdetifier2ConfigurationAttribute.setSelect(this.isSelectEntities());
         subjectIdetifier2ConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
-        subjectIdetifier2ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("attribute__subjectIdentifier2");
+        subjectIdetifier2ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectIdentifier2");
         this.targetEntityAttributeNameToConfig.put("subjectIdentifier2", subjectIdetifier2ConfigurationAttribute);
       }
       
@@ -2977,40 +2824,20 @@ public abstract class GrouperProvisioningConfiguration {
   private Map<String, GrouperProvisioningConfigurationAttribute> targetEntityAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
 
   /**
-   * field name to config
-   */
-  private Map<String, GrouperProvisioningConfigurationAttribute> targetEntityFieldNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
-
-  /**
    * attribute name to config
    */
   private Map<String, GrouperProvisioningConfigurationAttribute> targetMembershipAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
 
-  /**
-   * field name to config
-   */
-  private Map<String, GrouperProvisioningConfigurationAttribute> targetMembershipFieldNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
-  
-  
-  
   public Map<String, GrouperProvisioningConfigurationAttribute> getTargetMembershipAttributeNameToConfig() {
     return targetMembershipAttributeNameToConfig;
   }
 
   
-  public Map<String, GrouperProvisioningConfigurationAttribute> getTargetMembershipFieldNameToConfig() {
-    return targetMembershipFieldNameToConfig;
-  }
-
   public Map<String, GrouperProvisioningConfigurationAttribute> getTargetEntityAttributeNameToConfig() {
     return targetEntityAttributeNameToConfig;
   }
 
   
-  public Map<String, GrouperProvisioningConfigurationAttribute> getTargetEntityFieldNameToConfig() {
-    return targetEntityFieldNameToConfig;
-  }
-
   public String getGroupLinkGroupFromId2() {
     return groupLinkGroupFromId2;
   }

@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvi
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
@@ -252,15 +251,13 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
         GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(this.getConfigId());
         grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
         
-        List<MultiKey> errors = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
+        List<ProvisioningValidationIssue> errors = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
         if (errors.size() > 0) {
-          for (MultiKey errorMultikey : errors) {
-            String error = (String)errorMultikey.getKey(0);
-            if (errorMultikey.size() > 1 && !StringUtils.isBlank((String)errorMultikey.getKey(1))) {
-              String validationKeyError = (String)errorMultikey.getKey(1);
-              validationErrorsToDisplay.put(validationKeyError, error);
+          for (ProvisioningValidationIssue provisioningValidationIssue : errors) {
+            if (!StringUtils.isBlank(provisioningValidationIssue.getJqueryHandle())) {
+              validationErrorsToDisplay.put(provisioningValidationIssue.getJqueryHandle(), provisioningValidationIssue.getMessage());
             } else {
-              errorsToDisplay.add(error);
+              errorsToDisplay.add(provisioningValidationIssue.getMessage());
             }
           }
         }

@@ -2,8 +2,6 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -11,7 +9,6 @@ import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import junit.textui.TestRunner;
 
 public class GrouperProvisioningLogicTest extends GrouperTest {
@@ -71,27 +68,28 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 
 
     //GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("", "");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.fieldName", "name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "string");
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     
-    List<MultiKey> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
+    List<ProvisioningValidationIssue> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMatchingId"), null)));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), 
+        errorsAndSuffixes.contains(new ProvisioningValidationIssue()
+            .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMatchingId"))));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.matchingId", "true");
 
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMatchingId"), null)));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMatchingId"))));
 
   }
   
@@ -109,27 +107,27 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 
 
     //GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("", "");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.fieldName", "name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.isFieldElseAttribute", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateToMemberSyncField", "memberToId2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.valueType", "string");
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     
-    List<MultiKey> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
+    List<ProvisioningValidationIssue> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMatchingId"), null)));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMatchingId"))));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.matchingId", "true");
 
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMatchingId"), null)));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMatchingId"))));
 
   }
 
@@ -148,33 +146,32 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 
 
     //GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("", "");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.fieldName", "name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "string");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.defaultValue", "cn=admin,dc=example,dc=edu");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.isFieldElseAttribute", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.multiValued", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.name", "member");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.translateFromMemberSyncField", "memberToId2");
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     
-    List<MultiKey> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
+    List<ProvisioningValidationIssue> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMembershipAttribute"), null)));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMembershipAttribute"))));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.membershipAttribute", "true");
 
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMembershipAttribute"), null)));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMembershipAttribute"))));
 
   }
   
@@ -192,33 +189,32 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 
 
     //GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("", "");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.fieldName", "name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.isFieldElseAttribute", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateToMemberSyncField", "memberToId2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.valueType", "string");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.1.defaultValue", "cn=admin,dc=example,dc=edu");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.1.isFieldElseAttribute", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.1.multiValued", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.1.name", "member");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.1.translateFromGroupSyncField", "groupToId2");
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     
-    List<MultiKey> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
+    List<ProvisioningValidationIssue> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMembershipAttribute"), null)));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMembershipAttribute"))));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.1.membershipAttribute", "true");
 
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMembershipAttribute"), null)));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMembershipAttribute"))));
 
   }
   
@@ -238,9 +234,8 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 
 
     //GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("", "");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.fieldName", "name");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
@@ -248,7 +243,6 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "string");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.defaultValue", "cn=admin,dc=example,dc=edu");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.isFieldElseAttribute", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.multiValued", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.name", "member");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.translateFromMemberSyncField", "memberToId2");
@@ -257,9 +251,10 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     
-    List<MultiKey> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
+    List<ProvisioningValidationIssue> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataNotValidFormat"), "#config_metadata.0.name_spanid")));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataNotValidFormat")).assignJqueryHandle("#config_metadata.0.name_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.metadata.0.name", "md_abc");
 
@@ -267,7 +262,8 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataNotValidFormat"), "#config_metadata.0.name_spanid")));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataNotValidFormat")).assignJqueryHandle("#config_metadata.0.name_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.metadata.0.valueType", "INTEGER");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.metadata.0.defaultValue", "abc");
@@ -279,7 +275,8 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     String error = GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataDefaultValueNotCorrectType");
     error = GrouperUtil.replace(error, "$$defaultValue$$", GrouperUtil.xmlEscape("abc"));
     error = GrouperUtil.replace(error, "$$selectedType$$", "integer");
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(error, "#config_metadata.0.defaultValue_spanid")));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(error).assignJqueryHandle("#config_metadata.0.defaultValue_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.metadata.0.defaultValue", "123");
 
@@ -290,7 +287,8 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     error = GrouperTextContainer.textOrNull("provisionerConfigurationSaveErrorMetadataDefaultValueNotCorrectType");
     error = GrouperUtil.replace(error, "$$defaultValue$$", GrouperUtil.xmlEscape("123"));
     error = GrouperUtil.replace(error, "$$selectedType$$", "integer");
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(error, "#config_metadata.0.defaultValue_spanid")));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(error).assignJqueryHandle("#config_metadata.0.defaultValue_spanid")));
 
   }
 
@@ -304,35 +302,40 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     
-    List<MultiKey> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
+    List<ProvisioningValidationIssue> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertTrue(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"), null)));
+    assertTrue(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"))));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.operateOnGrouperEntities", "true");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"), null)));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"))));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.ldapProvTest.operateOnGrouperEntities");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.operateOnGrouperGroups", "true");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"), null)));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"))));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.ldapProvTest.operateOnGrouperGroups");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.operateOnGrouperMemberships", "true");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"), null)));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"))));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.ldapProvTest.operateOnGrouperMemberships");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
-    assertTrue(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"), null)));
+    assertTrue(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"))));
 
     //  provisioner.ldapProvTest.class = edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync
     //  provisioner.ldapProvTest.deleteGroups = true
@@ -358,30 +361,23 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     //  provisioner.ldapProvTest.selectMemberships = true
     //  provisioner.ldapProvTest.subjectSourcesToProvision = personLdapSource
     //  provisioner.ldapProvTest.targetEntityAttribute.0.fieldName = name
-    //  provisioner.ldapProvTest.targetEntityAttribute.0.isFieldElseAttribute = true
     //  provisioner.ldapProvTest.targetEntityAttribute.0.select = true
     //  provisioner.ldapProvTest.targetEntityAttribute.0.translateToMemberSyncField = memberToId2
-    //  provisioner.ldapProvTest.targetEntityAttribute.0.valueType = string
-    //  provisioner.ldapProvTest.targetEntityAttribute.1.isFieldElseAttribute = false
     //  provisioner.ldapProvTest.targetEntityAttribute.1.matchingId = true
     //  provisioner.ldapProvTest.targetEntityAttribute.1.name = uid
     //  provisioner.ldapProvTest.targetEntityAttribute.1.searchAttribute = true
     //  provisioner.ldapProvTest.targetEntityAttribute.1.select = true
     //  provisioner.ldapProvTest.targetEntityAttribute.1.translateExpressionType = grouperProvisioningEntityField
     //  provisioner.ldapProvTest.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField = subjectId
-    //  provisioner.ldapProvTest.targetEntityAttribute.1.valueType = string
     //  provisioner.ldapProvTest.targetEntityAttributeCount = 2
     //  provisioner.ldapProvTest.targetGroupAttribute.0.fieldName = name
     //  provisioner.ldapProvTest.targetGroupAttribute.0.insert = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute = true
     //  provisioner.ldapProvTest.targetGroupAttribute.0.select = true
     //  provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType = grouperProvisioningGroupField
     //  provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField = name
     //  provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField = groupToId2
     //  provisioner.ldapProvTest.targetGroupAttribute.0.update = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.0.valueType = string
     //  provisioner.ldapProvTest.targetGroupAttribute.1.insert = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.1.isFieldElseAttribute = false
     //  provisioner.ldapProvTest.targetGroupAttribute.1.matchingId = true
     //  provisioner.ldapProvTest.targetGroupAttribute.1.name = businessCategory
     //  provisioner.ldapProvTest.targetGroupAttribute.1.searchAttribute = true
@@ -390,36 +386,29 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     //  provisioner.ldapProvTest.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField = idIndex
     //  provisioner.ldapProvTest.targetGroupAttribute.1.valueType = long
     //  provisioner.ldapProvTest.targetGroupAttribute.2.insert = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.2.isFieldElseAttribute = false
     //  provisioner.ldapProvTest.targetGroupAttribute.2.name = cn
     //  provisioner.ldapProvTest.targetGroupAttribute.2.select = true
     //  provisioner.ldapProvTest.targetGroupAttribute.2.translateExpressionType = grouperProvisioningGroupField
     //  provisioner.ldapProvTest.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField = extension
     //  provisioner.ldapProvTest.targetGroupAttribute.2.valueType = string
     //  provisioner.ldapProvTest.targetGroupAttribute.3.insert = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.3.isFieldElseAttribute = false
     //  provisioner.ldapProvTest.targetGroupAttribute.3.multiValued = true
     //  provisioner.ldapProvTest.targetGroupAttribute.3.name = objectClass
     //  provisioner.ldapProvTest.targetGroupAttribute.3.select = true
     //  provisioner.ldapProvTest.targetGroupAttribute.3.translateExpression = ${grouperUtil.toSet('top', 'groupOfNames')}
     //  provisioner.ldapProvTest.targetGroupAttribute.3.translateExpressionType = translationScript
-    //  provisioner.ldapProvTest.targetGroupAttribute.3.valueType = string
     //  provisioner.ldapProvTest.targetGroupAttribute.4.defaultValue = cn=admin,dc=example,dc=edu
-    //  provisioner.ldapProvTest.targetGroupAttribute.4.isFieldElseAttribute = false
     //  provisioner.ldapProvTest.targetGroupAttribute.4.membershipAttribute = true
     //  provisioner.ldapProvTest.targetGroupAttribute.4.multiValued = true
     //  provisioner.ldapProvTest.targetGroupAttribute.4.name = member
     //  provisioner.ldapProvTest.targetGroupAttribute.4.translateFromMemberSyncField = memberToId2
-    //  provisioner.ldapProvTest.targetGroupAttribute.4.valueType = string
     //  provisioner.ldapProvTest.targetGroupAttribute.5.delete = true
     //  provisioner.ldapProvTest.targetGroupAttribute.5.insert = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.5.isFieldElseAttribute = false
     //  provisioner.ldapProvTest.targetGroupAttribute.5.name = description
     //  provisioner.ldapProvTest.targetGroupAttribute.5.select = true
     //  provisioner.ldapProvTest.targetGroupAttribute.5.translateExpressionType = grouperProvisioningGroupField
-    //  provisioner.ldapProvTest.targetGroupAttribute.5.translateFromGrouperProvisioningGroupField = attribute__description
+    //  provisioner.ldapProvTest.targetGroupAttribute.5.translateFromGrouperProvisioningGroupField = description
     //  provisioner.ldapProvTest.targetGroupAttribute.5.update = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.5.valueType = string
     //  provisioner.ldapProvTest.updateGroups = true
     //  provisioner.ldapProvTest.userSearchAllFilter = (&(objectClass=person)(uid=*))
     //  provisioner.ldapProvTest.userSearchBaseDn = ou=People,dc=example,dc=edu
@@ -605,9 +594,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.numberOfGroupAttributes", "2");
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.fieldName", "name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.valueType", "string");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.update", "false");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.select", "true");
@@ -617,8 +604,6 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "idIndex");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.name", "description");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.isFieldElseAttribute", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.update", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.select", "true");
@@ -635,60 +620,69 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     // deleteGroupsIfGrouperCreated
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
-    List<MultiKey> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneGroupDeleteType"), "#config_deleteGroups_spanid")));
+    List<ProvisioningValidationIssue> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneGroupDeleteType")).assignJqueryHandle("#config_deleteGroups_spanid")));
       
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.deleteGroupsIfNotExistInGrouper", "true");
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneGroupDeleteType"), "#config_deleteGroups_spanid")));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneGroupDeleteType")).assignJqueryHandle("#config_deleteGroups_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.deleteGroupsIfGrouperCreated", "true");
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertTrue(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneGroupDeleteType"), "#config_deleteGroups_spanid")));
+    assertTrue(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneGroupDeleteType")).assignJqueryHandle("#config_deleteGroups_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.deleteGroupsIfGrouperCreated");
     
     // if there is entity link something else must be set
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.hasTargetEntityLink", "true");
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertTrue(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), "#config_hasTargetEntityLink_spanid")));
+    assertTrue(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetEntityAttribute.0.fieldName", "name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetEntityAttribute.0.isFieldElseAttribute", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetEntityAttribute.0.valueType", "string");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetEntityAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetEntityAttribute.0.translateToMemberSyncField", "memberFromId2");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), "#config_hasTargetEntityLink_spanid")));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.targetEntityAttribute.0.translateToMemberSyncField");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertTrue(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), "#config_hasTargetEntityLink_spanid")));
+    assertTrue(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.common.entityLink.memberFromId2", "${targetEntity.name}");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), "#config_hasTargetEntityLink_spanid")));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetEntityAttribute.0.translateToMemberSyncField", "memberFromId2");
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), "#config_hasTargetGroupLink_spanid")));
-    assertTrue(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket"), "#config_targetEntityAttribute.0.translateToMemberSyncField_spanid")));
-    assertTrue(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket"), "#config_common.entityLink.memberFromId2_spanid")));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
+    assertTrue(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_targetEntityAttribute.0.translateToMemberSyncField_spanid")));
+    assertTrue(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_common.entityLink.memberFromId2_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.common.entityLink.memberFromId2");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.hasTargetEntityLink");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig"), "#config_hasTargetEntityLink_spanid")));
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket"), "#config_targetEntityAttribute.0.translateToMemberSyncField_spanid")));
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket"), "#config_common.entityLink.memberFromId2_spanid")));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_targetEntityAttribute.0.translateToMemberSyncField_spanid")));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_common.entityLink.memberFromId2_spanid")));
 
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.numberOfGroupAttributes", "3");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.2.isFieldElseAttribute", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.2.valueType", "string");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.2.name", "someAttr");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
@@ -697,8 +691,8 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperTextContainer.assignThreadLocalVariable("type", "group");
     GrouperTextContainer.assignThreadLocalVariable("fieldType", "attribute");
     GrouperTextContainer.assignThreadLocalVariable("attributeName", "description");
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), "#config_targetGroupAttribute.2.name_spanid"})));
-    //assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), "#config_targetGroupAttribute.2.isFieldElseAttribute_spanid"})));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName")).assignJqueryHandle("#config_targetGroupAttribute.2.name_spanid")));
     GrouperTextContainer.resetThreadLocalVariableMap();
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.2.name", "description");
@@ -708,21 +702,19 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperTextContainer.assignThreadLocalVariable("fieldType", "attribute");
     GrouperTextContainer.assignThreadLocalVariable("attributeName", "description");
     // provisioning.configuration.validation.attributeNameRequired = Error: ${type} ${fieldType} name is required
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), "#config_targetGroupAttribute.2.name_spanid"})));
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), "#config_targetGroupAttribute.2.isFieldElseAttribute_spanid"})));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName")).assignJqueryHandle("#config_targetGroupAttribute.2.name_spanid")));
     GrouperTextContainer.resetThreadLocalVariableMap();
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.targetGroupAttribute.2.isFieldElseAttribute");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.targetGroupAttribute.2.name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.targetGroupAttribute.2.valueType");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
     GrouperTextContainer.assignThreadLocalVariable("type", "group");
     GrouperTextContainer.assignThreadLocalVariable("fieldType", "attribute");
     GrouperTextContainer.assignThreadLocalVariable("attributeName", "description");
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName"), "#config_targetGroupAttribute.2.name_spanid"})));
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.attributeNameRequired"), "#config_targetGroupAttribute.2.isFieldElseAttribute_spanid"})));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.multipleAttributesSameName")).assignJqueryHandle("#config_targetGroupAttribute.2.name_spanid")));
     GrouperTextContainer.resetThreadLocalVariableMap();
 
   }
@@ -745,16 +737,19 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     // deleteGroupsIfGrouperCreated
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
-    List<MultiKey> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertTrue(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType"), "#config_deleteMemberships_spanid")));
+    List<ProvisioningValidationIssue> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
+    assertTrue(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType")).assignJqueryHandle("#config_deleteMemberships_spanid")));
       
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.deleteMembershipsIfNotExistInGrouper", "true");
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType"), "#config_deleteMemberships_spanid")));
+    assertFalse(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType")).assignJqueryHandle("#config_deleteMemberships_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.deleteMembershipsIfGrouperCreated", "true");
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertTrue(errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType"), "#config_deleteMemberships_spanid")));
+    assertTrue(errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneMembershipDeleteType")).assignJqueryHandle("#config_deleteMemberships_spanid")));
 
   }
 
@@ -777,70 +772,84 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     // deleteGroupsIfGrouperDeleted
     // deleteGroupsIfGrouperCreated
     
-    List<MultiKey> errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType"), "#config_deleteEntities_spanid")));
+    List<ProvisioningValidationIssue> errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType")).assignJqueryHandle("#config_deleteEntities_spanid")));
       
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.deleteEntitiesIfNotExistInGrouper", "true");
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType"), "#config_deleteEntities_spanid")));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType")).assignJqueryHandle("#config_deleteEntities_spanid")));
   
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.deleteEntitiesIfGrouperCreated", "true");
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType"), "#config_deleteEntities_spanid")));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType")).assignJqueryHandle("#config_deleteEntities_spanid")));
   
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.deleteEntitiesIfGrouperCreated");
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType"), "#config_deleteEntities_spanid")));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.oneEntityDeleteType")).assignJqueryHandle("#config_deleteEntities_spanid")));
     
     // if there is group link something else must be set
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.hasTargetGroupLink", "true");
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig"), "#config_hasTargetGroupLink_spanid")));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.fieldName", "name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.valueType", "string");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupFromId2");
 
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig"), "#config_hasTargetGroupLink_spanid")));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.targetGroupAttribute.0.translateToGroupSyncField");
 
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig"), "#config_hasTargetGroupLink_spanid")));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.common.groupLink.groupFromId2", "${targetGroup.name}");
 
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig"), "#config_hasTargetGroupLink_spanid")));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
 
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupFromId2");
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig"), "#config_hasTargetGroupLink_spanid")));
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket"), "#config_targetGroupAttribute.0.translateToGroupSyncField_spanid")));
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket"), "#config_common.groupLink.groupFromId2_spanid")));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket")).assignJqueryHandle("#config_targetGroupAttribute.0.translateToGroupSyncField_spanid")));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket")).assignJqueryHandle("#config_common.groupLink.groupFromId2_spanid")));
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.common.groupLink.groupFromId2");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.hasTargetGroupLink");
 
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig"), "#config_hasTargetGroupLink_spanid")));
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket"), "#config_targetGroupAttribute.0.translateToGroupSyncField_spanid")));
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket"), "#config_common.groupLink.groupFromId2_spanid")));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket")).assignJqueryHandle("#config_targetGroupAttribute.0.translateToGroupSyncField_spanid")));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket")).assignJqueryHandle("#config_common.groupLink.groupFromId2_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.abc123", "def456");
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
     GrouperTextContainer.assignThreadLocalVariable("extraneousConfig", "abc123");
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.extraneousConfigs"), null)));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.extraneousConfigs"))));
     GrouperTextContainer.resetThreadLocalVariableMap();
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.abc123");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.hasTargetGroupLink", "true1");
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
     GrouperTextContainer.assignThreadLocalVariable("configFieldLabel", "Has target group link");
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("grouperConfigurationValidationInvalidBoolean"), "#config_hasTargetGroupLink_spanid")));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("grouperConfigurationValidationInvalidBoolean")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
     GrouperTextContainer.resetThreadLocalVariableMap();
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.hasTargetGroupLink");
     

@@ -108,7 +108,7 @@ public class GrouperProvisioningValidation {
       
       for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
         new Collection[] {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().values(),
+          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values(),
           this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()}) {
         // look for required fields
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
@@ -185,7 +185,7 @@ public class GrouperProvisioningValidation {
       
       for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
         new Collection[] {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().values(),
+          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values(),
           this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()}) {
         // look for required fields
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
@@ -313,7 +313,7 @@ public class GrouperProvisioningValidation {
       
       for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
         new Collection[] {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig().values(),
+          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values(),
           this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()}) {
         // look for required fields
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
@@ -433,15 +433,15 @@ public class GrouperProvisioningValidation {
     String wrapperKey = null;
     Object wrapperValue = null;
     if (provisioningUpdatable instanceof ProvisioningGroup) {
-      fieldOrAttributeValueOrig = ((ProvisioningGroup)provisioningUpdatable).retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute);
+      fieldOrAttributeValueOrig = ((ProvisioningGroup)provisioningUpdatable).retrieveAttributeValue(grouperProvisioningConfigurationAttribute);
       wrapperKey = "provisioningGroupWrapper";
       wrapperValue = ((ProvisioningGroup)provisioningUpdatable).getProvisioningGroupWrapper();
     } else if (provisioningUpdatable instanceof ProvisioningMembership) {
-      fieldOrAttributeValueOrig = ((ProvisioningMembership)provisioningUpdatable).retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute);
+      fieldOrAttributeValueOrig = ((ProvisioningMembership)provisioningUpdatable).retrieveAttributeValue(grouperProvisioningConfigurationAttribute);
       wrapperKey = "provisioningMembershipWrapper";
       wrapperValue = ((ProvisioningMembership)provisioningUpdatable).getProvisioningMembershipWrapper();
     } else if (provisioningUpdatable instanceof ProvisioningEntity) {
-      fieldOrAttributeValueOrig = ((ProvisioningEntity)provisioningUpdatable).retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute);
+      fieldOrAttributeValueOrig = ((ProvisioningEntity)provisioningUpdatable).retrieveAttributeValue(grouperProvisioningConfigurationAttribute);
       wrapperKey = "provisioningEntityWrapper";
       wrapperValue = ((ProvisioningEntity)provisioningUpdatable).getProvisioningEntityWrapper();
     } else {

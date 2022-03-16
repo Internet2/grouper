@@ -3,9 +3,10 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningValidationIssue;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -49,23 +50,28 @@ public class LdapSyncConfigurationValidation
 
     if (grouperProvisioningConfiguration.isOperateOnGrouperGroups()) {
       if (grouperProvisioningConfiguration.isSelectGroups() || grouperProvisioningConfiguration.isUpdateGroups() || grouperProvisioningConfiguration.isDeleteGroups() || grouperProvisioningConfiguration.isInsertGroups()) {
-        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupFieldNameToConfig().get("name");
+        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().get(LdapProvisioningTargetDao.ldap_dn);
         if (grouperProvisioningConfigurationAttribute == null) {
-          this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupDn"));
+          this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupDn")));
         }
         if (grouperProvisioningConfiguration.isSelectGroups() && grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isSelect()) {
-          this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectDn"), grouperProvisioningConfigurationAttribute.configKey("select"));
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectDn"))
+              .assignJqueryHandle(grouperProvisioningConfigurationAttribute.configKey("select")));
         }
       }
     }
     if (grouperProvisioningConfiguration.isOperateOnGrouperEntities()) {
       if (grouperProvisioningConfiguration.isSelectEntities() || grouperProvisioningConfiguration.isUpdateEntities() || grouperProvisioningConfiguration.isDeleteEntities() || grouperProvisioningConfiguration.isInsertEntities()) {
-        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetEntityFieldNameToConfig().get("name");
+        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetEntityAttributeNameToConfig().get(LdapProvisioningTargetDao.ldap_dn);
         if (grouperProvisioningConfigurationAttribute == null) {
-          this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityDn"));
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityDn")));
         }
         if (grouperProvisioningConfiguration.isSelectEntities() && grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isSelect()) {
-          this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectDn"), grouperProvisioningConfigurationAttribute.configKey("select"));
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectDn"))
+              .assignJqueryHandle(grouperProvisioningConfigurationAttribute.configKey("select")));
         }
       }
     }
@@ -85,15 +91,19 @@ public class LdapSyncConfigurationValidation
     GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
 
     if (grouperProvisioningConfiguration.isOperateOnGrouperGroups() && grouperProvisioningConfiguration.isInsertGroups()) {
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupFieldNameToConfig().get("name");
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().get(LdapProvisioningTargetDao.ldap_dn);
       if (grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isInsert()) {
-        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustInsertDnIfInsertingGroups"), grouperProvisioningConfigurationAttribute.configKey("insert"));
+        this.addErrorMessage(new ProvisioningValidationIssue()
+            .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustInsertDnIfInsertingGroups"))
+            .assignJqueryHandle(grouperProvisioningConfigurationAttribute.configKey("insert")));
       }
     }
     if (grouperProvisioningConfiguration.isOperateOnGrouperEntities() && grouperProvisioningConfiguration.isInsertEntities()) {
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetEntityFieldNameToConfig().get("name");
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetEntityAttributeNameToConfig().get(LdapProvisioningTargetDao.ldap_dn);
       if (grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isInsert()) {
-        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustInsertDnIfInsertingEntities"), grouperProvisioningConfigurationAttribute.configKey("insert"));
+        this.addErrorMessage(new ProvisioningValidationIssue()
+            .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustInsertDnIfInsertingEntities"))
+            .assignJqueryHandle(grouperProvisioningConfigurationAttribute.configKey("insert")));
       }
     }
 
@@ -127,30 +137,22 @@ public class LdapSyncConfigurationValidation
       GrouperTextContainer.assignThreadLocalVariable("type", objectTypeLabel);
 
       for (int i=0; i< 20; i++) {
-
-        Boolean isField = GrouperUtil.booleanObjectValue(this.getSuffixToConfigValue().get(objectType + "."+i+".isFieldElseAttribute"));
-        if (isField == null) {
-          if (i>0) {
-            this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnRequired"));
-          }
-          continue OBJECT_TYPE;
+        // TODO validate DN
+        //        if (i>0) {
+        //          this.addErrorMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnRequired"));
+        //        }
+        //        continue OBJECT_TYPE;
           
-        }
-        if (!isField) {
-          continue;
-        }
-
-        String nameConfigKey = objectType + "."+i+".fieldName";
-        String name = this.getSuffixToConfigValue().get(nameConfigKey);
-        String type = this.getSuffixToConfigValue().get(objectType + "."+i+".valueType");
-        
-        // all good, field with name "name" and type string
-        if (StringUtils.equals(name, "name")) {
-          if (!StringUtils.isBlank(type) && !StringUtils.equalsIgnoreCase(type, "string")) {
-            this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString"), nameConfigKey);
-          }
-          continue OBJECT_TYPE;
-        }
+//        String name = this.getSuffixToConfigValue().get(nameConfigKey);
+//        String type = this.getSuffixToConfigValue().get(objectType + "."+i+".valueType");
+//        
+//        // all good, field with name LdapProvisioningTargetDao.ldap_dn and type string
+//        if (StringUtils.equals(name, LdapProvisioningTargetDao.ldap_dn)) {
+//          if (!StringUtils.isBlank(type) && !StringUtils.equalsIgnoreCase(type, "string")) {
+//            this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString"), nameConfigKey);
+//          }
+//          continue OBJECT_TYPE;
+//        }
         
       }      
     }

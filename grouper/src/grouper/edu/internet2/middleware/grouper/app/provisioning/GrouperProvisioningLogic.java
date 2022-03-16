@@ -91,6 +91,9 @@ public class GrouperProvisioningLogic {
       }
     }
         
+    // validate the perhaps throw exception
+    this.validateAndThrowExceptionIfInvalid();
+    
     try {
       debugMap.put("state", "retrieveAllDataFromGrouperAndTarget");
       long start = System.currentTimeMillis();
@@ -398,6 +401,36 @@ public class GrouperProvisioningLogic {
 
   }
   
+  public void validateAndThrowExceptionIfInvalid() {
+    int fatalValidationProblems = 0;
+    int nonfatalValidationProblems = 0;
+    
+    List<ProvisioningValidationIssue> validationIssues = this.grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
+    
+    ProvisioningValidationIssue fatalError = null;
+    for (ProvisioningValidationIssue provisioningValidationIssue : GrouperUtil.nonNull(validationIssues)) {
+      if (provisioningValidationIssue.isRuntimeError()) {
+        if (fatalError == null) {
+          fatalError = provisioningValidationIssue;
+        }
+        fatalValidationProblems++;
+      } else {
+        nonfatalValidationProblems++;
+      }
+    }
+
+    if (fatalValidationProblems > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("fatalValidationProblems", fatalValidationProblems);
+    }
+    if (nonfatalValidationProblems > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("nonfatalValidationProblems", nonfatalValidationProblems);
+    }
+    
+    if (fatalError != null) {
+      throw new RuntimeException("Fatal validation problem: " + fatalError.getMessage());
+    }
+  }
+
   public void loadDataToGrouper() {
     
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGrouperTable()) {
@@ -585,6 +618,9 @@ public class GrouperProvisioningLogic {
       debugMap.put("state", "propagateProvisioningAttributes");
       grouperProvisioningLogicIncremental.propagateProvisioningAttributes();
       
+      // validate the perhaps throw exception
+      this.validateAndThrowExceptionIfInvalid();
+
       // ######### STEP 2: check messages
       debugMap.put("state", "incrementalCheckMessages");
       grouperProvisioningLogicIncremental.incrementalCheckMessages();
@@ -1307,7 +1343,7 @@ public class GrouperProvisioningLogic {
     
     for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
       new Collection[] {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig().values(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values(),
         this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()}) {
     
       // look for required fields
@@ -1320,7 +1356,7 @@ public class GrouperProvisioningLogic {
         }
         
         //default is id I guess
-        if (!grouperProvisioningConfigurationAttribute.isAttribute() && "id".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
           searchAttribute = grouperProvisioningConfigurationAttribute;
         }
       }
@@ -1334,14 +1370,14 @@ public class GrouperProvisioningLogic {
 
     // index by search attribute
     for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(grouperTargetGroups)) {
-      Object searchAttributeValue = grouperTargetGroup.retrieveFieldOrAttributeValue(searchAttribute);
+      Object searchAttributeValue = grouperTargetGroup.retrieveAttributeValue(searchAttribute);
       if (searchAttributeValue != null) {
         searchAttributeValueToGrouperTargetGroup.put(searchAttributeValue, grouperTargetGroup);
       }
     }
 
     for (ProvisioningGroup targetProvisioningGroup : GrouperUtil.nonNull(targetProvisioningGroups)) {
-      Object searchAttributeValue = targetProvisioningGroup.retrieveFieldOrAttributeValue(searchAttribute);
+      Object searchAttributeValue = targetProvisioningGroup.retrieveAttributeValue(searchAttribute);
       if (searchAttributeValue != null) {
         ProvisioningGroup grouperTargetGroup = searchAttributeValueToGrouperTargetGroup.get(searchAttributeValue);
         if (grouperTargetGroup != null) {
@@ -1368,7 +1404,7 @@ public class GrouperProvisioningLogic {
     
     for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
       new Collection[] {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig().values(),
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values(),
         this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()}) {
     
       // look for required fields
@@ -1381,7 +1417,7 @@ public class GrouperProvisioningLogic {
         }
         
         //default is id I guess
-        if (!grouperProvisioningConfigurationAttribute.isAttribute() && "id".equals(grouperProvisioningConfigurationAttribute.getName())) {
+        if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
           searchAttribute = grouperProvisioningConfigurationAttribute;
         }
       }
@@ -1395,14 +1431,14 @@ public class GrouperProvisioningLogic {
 
     // index by search attribute
     for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(grouperTargetEntities)) {
-      Object searchAttributeValue = grouperTargetEntity.retrieveFieldOrAttributeValue(searchAttribute);
+      Object searchAttributeValue = grouperTargetEntity.retrieveAttributeValue(searchAttribute);
       if (searchAttributeValue != null) {
         searchAttributeValueToGrouperTargetEntity.put(searchAttributeValue, grouperTargetEntity);
       }
     }
 
     for (ProvisioningEntity targetProvisioningEntity : GrouperUtil.nonNull(targetProvisioningEntities)) {
-      Object searchAttributeValue = targetProvisioningEntity.retrieveFieldOrAttributeValue(searchAttribute);
+      Object searchAttributeValue = targetProvisioningEntity.retrieveAttributeValue(searchAttribute);
       if (searchAttributeValue != null) {
         ProvisioningEntity grouperTargetEntity = searchAttributeValueToGrouperTargetEntity.get(searchAttributeValue);
         if (grouperTargetEntity != null) {

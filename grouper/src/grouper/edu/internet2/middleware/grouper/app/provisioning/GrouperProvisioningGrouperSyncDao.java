@@ -972,14 +972,10 @@ public class GrouperProvisioningGrouperSyncDao {
     // see if all attributes were processed
     for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil
         .nonNull(provisioningUpdatable.getInternal_objectChanges())) {
-      if (provisioningObjectChange
-          .getProvisioningObjectChangeDataType() == ProvisioningObjectChangeDataType.attribute) {
-        if (provisioningObjectChange.getException() != null || !GrouperUtil
-            .booleanValue(provisioningObjectChange.getProvisioned(), false)) {
-          fullSyncSuccess = false;
-          break;
-        }
-
+      if (provisioningObjectChange.getException() != null || !GrouperUtil
+          .booleanValue(provisioningObjectChange.getProvisioned(), false)) {
+        fullSyncSuccess = false;
+        break;
       }
     }
     if (fullSyncSuccess) {
@@ -995,9 +991,7 @@ public class GrouperProvisioningGrouperSyncDao {
           .booleanValue(provisioningObjectChange.getProvisioned(), false)) {
         continue;
       }
-      if (provisioningObjectChange
-          .getProvisioningObjectChangeDataType() == ProvisioningObjectChangeDataType.attribute && 
-          StringUtils.equals(membershipAttributeName, provisioningObjectChange.getAttributeName())) {
+      if (StringUtils.equals(membershipAttributeName, provisioningObjectChange.getAttributeName())) {
         
         ProvisioningAttribute provisioningAttribute = provisioningUpdatable
             .getAttributes().get(provisioningObjectChange.getAttributeName());

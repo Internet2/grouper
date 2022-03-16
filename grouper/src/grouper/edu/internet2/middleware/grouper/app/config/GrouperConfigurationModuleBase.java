@@ -190,44 +190,30 @@ public abstract class GrouperConfigurationModuleBase {
         name = (String)this.retrieveObjectValueSubstituteMap().get("input." + index + ".name");
       } else if (StringUtils.equals(preIndex, "targetGroupAttribute")) {
         // Group field name
-        boolean isFieldElseAttribute = GrouperUtil.booleanValue(this.retrieveObjectValueSubstituteMap().get("targetGroupAttribute." + index + ".isFieldElseAttribute"), false);
-        String theName = isFieldElseAttribute ? 
-          (String)this.retrieveObjectValueSubstituteMap().get("targetGroupAttribute." + index + ".fieldName")
-          : (String)this.retrieveObjectValueSubstituteMap().get("targetGroupAttribute." + index + ".name");
+        String theName = (String)this.retrieveObjectValueSubstituteMap().get("targetGroupAttribute." + index + ".name");
          
         if (StringUtils.isBlank(theName)) {
           theName = Integer.toString(index+1);
         }
-        name = this.getCacheGroupAttributePrefix() + " " + (isFieldElseAttribute ? this.getCacheFieldPrefix()
-            : this.getCacheAttributePrefix()) + " " + theName;
+        name = this.getCacheGroupAttributePrefix() + " " + this.getCacheAttributePrefix() + " " + theName;
         
       } else if (StringUtils.equals(preIndex, "targetEntityAttribute")) {
-        // Entity field name
-        boolean isFieldElseAttribute = GrouperUtil.booleanValue(this.retrieveObjectValueSubstituteMap().get("targetEntityAttribute." + index + ".isFieldElseAttribute"), false);
-        String theName = isFieldElseAttribute ? 
-            (String)this.retrieveObjectValueSubstituteMap().get("targetEntityAttribute." + index + ".fieldName")
-            : (String)this.retrieveObjectValueSubstituteMap().get("targetEntityAttribute." + index + ".name");
+        String theName = (String)this.retrieveObjectValueSubstituteMap().get("targetEntityAttribute." + index + ".name");
 
         if (StringUtils.isBlank(theName)) {
           theName = Integer.toString(index+1);
         }
           
-        name = this.getCacheEntityAttributePrefix() + " " + (isFieldElseAttribute ? this.getCacheFieldPrefix()
-             : this.getCacheAttributePrefix()) + " " + theName;
+        name = this.getCacheEntityAttributePrefix() + " " + this.getCacheAttributePrefix() + " " + theName;
 
       } else if (StringUtils.equals(preIndex, "targetMembershipAttribute")) {
-        // Entity field name
-        boolean isFieldElseAttribute = GrouperUtil.booleanValue(this.retrieveObjectValueSubstituteMap().get("targetMembershipAttribute." + index + ".isFieldElseAttribute"), false);
-        String theName = isFieldElseAttribute ? 
-            (String)this.retrieveObjectValueSubstituteMap().get("targetMembershipAttribute." + index + ".fieldName")
-            : (String)this.retrieveObjectValueSubstituteMap().get("targetMembershipAttribute." + index + ".name");
+        String theName = (String)this.retrieveObjectValueSubstituteMap().get("targetMembershipAttribute." + index + ".name");
 
         if (StringUtils.isBlank(theName)) {
           theName = Integer.toString(index+1);
         }
           
-        name = this.getCacheMembershipAttributePrefix() + " " + (isFieldElseAttribute ? this.getCacheFieldPrefix()
-             : this.getCacheAttributePrefix()) + " " + theName;
+        name = this.getCacheMembershipAttributePrefix() + " " + this.getCacheAttributePrefix() + " " + theName;
 
       } else if (StringUtils.equals(preIndex, "metadata")) {
         name = (String)this.retrieveObjectValueSubstituteMap().get("metadata." + index + ".name");
@@ -1615,13 +1601,6 @@ public abstract class GrouperConfigurationModuleBase {
       this.cacheMembershipAttributePrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetMembershipAttribute.i.membershipAttributePrefix");
     }
     return cacheMembershipAttributePrefix;
-  }
-
-  public String getCacheFieldPrefix() {
-    if (this.cacheFieldPrefix == null) {
-      this.cacheFieldPrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.fieldPrefix");
-    }
-    return cacheFieldPrefix;
   }
 
   public String getCacheGroupAttributePrefix() {

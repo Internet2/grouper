@@ -84,11 +84,8 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.user", "cn=admin,dc=example,dc=edu");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.pass", "secret");
     
-    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.fieldName");
+    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.name");
     attribute.setValue("name");
-    
-    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.isFieldElseAttribute");
-    attribute.setValue("true");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.insert");
     attribute.setValue("true");
@@ -99,11 +96,8 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
     
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
     
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.fieldName", "name");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "string");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.name", "name");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.insert", "true");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.update", "true");

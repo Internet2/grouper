@@ -123,13 +123,11 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.showProvisioningDiagnostics").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.subjectSourcesToProvision").value("jdbc").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.0.isFieldElseAttribute").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.0.name").value("id").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.0.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.name").value("givenName").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
@@ -137,7 +135,6 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.update").value("true").store();
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.name").value("familyName").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
@@ -145,22 +142,19 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.isFieldElseAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.fieldName").value("email").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.name").value("email").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.matchingId").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.translateExpression").value("${grouperProvisioningEntity.getId() + '@viveksachdeva.com'}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.translateExpressionType").value("translationScript").store(); 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.update").value("true").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.0.isFieldElseAttribute").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.0.name").value("id").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.0.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.0.translateToGroupSyncField").value("groupToId2").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.fieldName").value("name").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.name").value("name").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.isFieldElseAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.matchingId").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.searchAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.select").value("true").store();
@@ -169,15 +163,13 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.name").value("description").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField").value("attribute__description").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField").value("description").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.translateExpressionType").value("grouperProvisioningGroupField").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.name").value("email").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.translateExpression").value("${grouperProvisioningGroup.getId() + '@viveksachdeva.com'}").store();
@@ -185,7 +177,6 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.name").value("allowWebPosting").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.translateExpression").value("${'true'}").store();
@@ -193,7 +184,6 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.5.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.5.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.5.name").value("whoCanViewGroup").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.5.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.5.translateExpression").value("${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_whoCanViewGroup'), 'ALL_IN_DOMAIN_CAN_VIEW')}").store();
@@ -403,13 +393,11 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.showProvisioningDiagnostics").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.subjectSourcesToProvision").value("jdbc").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.0.isFieldElseAttribute").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.0.name").value("id").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.0.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.name").value("givenName").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
@@ -417,7 +405,6 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.1.update").value("true").store();
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.name").value("familyName").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
@@ -425,22 +412,19 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.2.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.isFieldElseAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.fieldName").value("email").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.name").value("email").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.matchingId").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.translateExpression").value("${grouperProvisioningEntity.getId() + '@viveksachdeva.com'}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.translateExpressionType").value("translationScript").store(); 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetEntityAttribute.3.update").value("true").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.0.isFieldElseAttribute").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.0.name").value("id").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.0.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.0.translateToGroupSyncField").value("groupToId2").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.fieldName").value("name").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.name").value("name").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.isFieldElseAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.matchingId").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.searchAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.select").value("true").store();
@@ -449,15 +433,13 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.1.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.name").value("description").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField").value("attribute__description").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField").value("description").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.translateExpressionType").value("grouperProvisioningGroupField").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.2.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.name").value("email").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.translateExpression").value("${grouperProvisioningGroup.getId() + '@viveksachdeva.com'}").store();
@@ -465,7 +447,6 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.3.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.name").value("allowWebPosting").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.translateExpression").value("${'true'}").store();
@@ -473,7 +454,6 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.4.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.5.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.5.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.5.name").value("whoCanViewGroup").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.5.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myGoogleProvisioner.targetGroupAttribute.5.translateExpression").value("${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_whoCanViewGroup'), 'ALL_IN_DOMAIN_CAN_VIEW')}").store();

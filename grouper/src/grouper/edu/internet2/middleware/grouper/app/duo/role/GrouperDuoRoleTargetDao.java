@@ -108,8 +108,8 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
       // lets make sure we are doing the right thing
       Set<String> fieldNamesToUpdate = new HashSet<String>();
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
-        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
-        fieldNamesToUpdate.add(fieldName);
+        String attributeName = provisioningObjectChange.getAttributeName(); 
+        fieldNamesToUpdate.add(attributeName);
       }
       
       GrouperDuoRoleUser grouperDuoUser = GrouperDuoRoleUser.fromProvisioningEntity(targetEntity, null);

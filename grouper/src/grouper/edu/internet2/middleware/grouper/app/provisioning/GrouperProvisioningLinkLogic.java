@@ -214,7 +214,7 @@ public class GrouperProvisioningLinkLogic {
       if (hasGroupLinkGroupFromId2) {
         String groupFromId2Value = null;
         if (groupLinkGroupFromId2Attribute != null) {
-          groupFromId2Value = targetGroup.retrieveFieldOrAttributeValueString(groupLinkGroupFromId2Attribute);
+          groupFromId2Value = targetGroup.retrieveAttributeValueString(groupLinkGroupFromId2Attribute);
         } else {
           groupFromId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId2, variableMap, true, false, true));
         }
@@ -227,7 +227,7 @@ public class GrouperProvisioningLinkLogic {
       if (hasGroupLinkGroupFromId3) {
         String groupFromId3Value = null;
         if (groupLinkGroupFromId3Attribute != null) {
-          groupFromId3Value = targetGroup.retrieveFieldOrAttributeValueString(groupLinkGroupFromId3Attribute);
+          groupFromId3Value = targetGroup.retrieveAttributeValueString(groupLinkGroupFromId3Attribute);
         } else {
           groupFromId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupFromId3, variableMap, true, false, true));
         }
@@ -240,7 +240,7 @@ public class GrouperProvisioningLinkLogic {
       if (hasGroupLinkGroupToId2) {
         String groupToId2Value = null;
         if (groupLinkGroupToId2Attribute != null) {
-          groupToId2Value = targetGroup.retrieveFieldOrAttributeValueString(groupLinkGroupToId2Attribute);
+          groupToId2Value = targetGroup.retrieveAttributeValueString(groupLinkGroupToId2Attribute);
         } else {
           groupToId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId2, variableMap, true, false, true));
         }
@@ -253,7 +253,7 @@ public class GrouperProvisioningLinkLogic {
       if (hasGroupLinkGroupFromId3) {
         String groupToId3Value = null;
         if (groupLinkGroupToId3Attribute != null) {
-          groupToId3Value = targetGroup.retrieveFieldOrAttributeValueString(groupLinkGroupToId3Attribute);
+          groupToId3Value = targetGroup.retrieveAttributeValueString(groupLinkGroupToId3Attribute);
         } else {
           groupToId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(groupLinkGroupToId3, variableMap, true, false, true));
         }
@@ -435,7 +435,7 @@ public class GrouperProvisioningLinkLogic {
       if (hasEntityLinkMemberFromId2) {
         String entityFromId2Value = null;
         if (entityLinkMemberFromId2Attribute != null) {
-          entityFromId2Value = targetEntity.retrieveFieldOrAttributeValueString(entityLinkMemberFromId2Attribute);
+          entityFromId2Value = targetEntity.retrieveAttributeValueString(entityLinkMemberFromId2Attribute);
         } else {
           entityFromId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId2, variableMap, true, false, true));
         }
@@ -448,7 +448,7 @@ public class GrouperProvisioningLinkLogic {
       if (hasEntityLinkMemberFromId3) {
         String entityFromId3Value = null;
         if (entityLinkMemberFromId3Attribute != null) {
-          entityFromId3Value = targetEntity.retrieveFieldOrAttributeValueString(entityLinkMemberFromId3Attribute);
+          entityFromId3Value = targetEntity.retrieveAttributeValueString(entityLinkMemberFromId3Attribute);
         } else {
           entityFromId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberFromId3, variableMap, true, false, true));
         }
@@ -461,7 +461,7 @@ public class GrouperProvisioningLinkLogic {
       if (hasEntityLinkMemberToId2) {
         String entityToId2Value = null;
         if (entityLinkMemberToId2Attribute != null) {
-          entityToId2Value = targetEntity.retrieveFieldOrAttributeValueString(entityLinkMemberToId2Attribute);
+          entityToId2Value = targetEntity.retrieveAttributeValueString(entityLinkMemberToId2Attribute);
         } else {
           entityToId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId2, variableMap, true, false, true));
         }
@@ -474,7 +474,7 @@ public class GrouperProvisioningLinkLogic {
       if (hasEntityLinkMemberToId3) {
         String entityToId3Value = null;
         if (entityLinkMemberToId3Attribute != null) {
-          entityToId3Value = targetEntity.retrieveFieldOrAttributeValueString(entityLinkMemberToId3Attribute);
+          entityToId3Value = targetEntity.retrieveAttributeValueString(entityLinkMemberToId3Attribute);
         } else {
           entityToId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(entityLinkMemberToId3, variableMap, true, false, true));
         }

@@ -330,11 +330,6 @@ public class GrouperProvisioningConfigurationAttribute {
   private String name;
   
   /**
-   * true for attribute, false for field
-   */
-  private boolean attribute;
-  
-  /**
    * value type
    */
   private GrouperProvisioningConfigurationAttributeValueType valueType;
@@ -514,22 +509,6 @@ public class GrouperProvisioningConfigurationAttribute {
    */
   public void setName(String name) {
     this.name = name;
-  }
-
-  /**
-   * true for attribute, false for field
-   * @return
-   */
-  public boolean isAttribute() {
-    return attribute;
-  }
-
-  /**
-   * true for attribute, false for field
-   * @param attribute
-   */
-  public void setAttribute(boolean attribute) {
-    this.attribute = attribute;
   }
 
   /**

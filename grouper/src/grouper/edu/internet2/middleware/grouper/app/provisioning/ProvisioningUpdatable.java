@@ -56,10 +56,10 @@ public abstract class ProvisioningUpdatable {
   /**
    * see if this object is empty e.g. after translating if empty then dont keep track of group
    * since the translation might have affected another object
-   * @return
+   * @return true if empty
    */
-  protected final boolean isEmptyUpdatable() {
-    if (matchingId == null && GrouperUtil.length(this.attributes) == 0) {
+  public boolean isEmpty() {
+    if (this.matchingId == null && GrouperUtil.length(this.attributes) == 0) {
       return true;
     }
     return false;
@@ -500,10 +500,6 @@ public abstract class ProvisioningUpdatable {
         }
 
         result.append(provisioningObjectChange.getProvisioningObjectChangeAction()).append(" ");
-        result.append(provisioningObjectChange.getProvisioningObjectChangeDataType()).append(" ");
-        result.append(
-            provisioningObjectChange.getProvisioningObjectChangeDataType() == ProvisioningObjectChangeDataType.field ? 
-                provisioningObjectChange.getFieldName() : provisioningObjectChange.getAttributeName()).append(" ");
         switch(provisioningObjectChange.getProvisioningObjectChangeAction()) {
           case insert:
             result.append(stringValueWithType(provisioningObjectChange.getNewValue()));

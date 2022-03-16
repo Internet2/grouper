@@ -107,20 +107,17 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.showProvisioningDiagnostics").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.subjectSourcesToProvision").value("jdbc").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.0.isFieldElseAttribute").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.0.name").value("id").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.0.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.name").value("accountEnabled").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.translateExpression").value("${'true'}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.translateExpressionType").value("translationScript").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.update").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.matchingId").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.name").value("displayName").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.searchAttribute").value("true").store();
@@ -130,7 +127,6 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.name").value("mailNickname").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
@@ -138,7 +134,6 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.update").value("true").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.name").value("userPrincipalName").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.update").value("true").store();
@@ -146,14 +141,12 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.translateExpressionType").value("translationScript").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.translateExpression").value("${gcGrouperSyncMember.memberFromId2}").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.isFieldElseAttribute").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.name").value("id").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.translateToGroupSyncField").value("groupToId2").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.valueType").value("string").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.fieldName").value("displayName").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.name").value("displayName").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.isFieldElseAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.matchingId").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.searchAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.select").value("true").store();
@@ -161,21 +154,18 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField").value("name").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.valueType").value("string").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.name").value("mailEnabled").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.translateExpression").value("${'false'}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.translateExpressionType").value("translationScript").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.update").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.name").value("mailNickname").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.translateExpressionType").value("grouperProvisioningGroupField").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.translateFromGrouperProvisioningGroupField").value("extension").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.update").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.name").value("securityEnabled").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.translateExpression").value("${'true'}").store();
@@ -184,7 +174,6 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.name").value("allowOnlyMembersToPost").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.translateExpression").value("${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_allowOnlyMembersToPost'), 'false')}").store();
@@ -192,7 +181,6 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.5.update").value("false").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.name").value("welcomeEmailDisabled").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.translateExpression").value("${'true'}").store();
@@ -200,7 +188,6 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.6.update").value("false").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.name").value("resourceProvisioningOptionsTeams").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.7.translateExpression").value("${'true'}").store();
@@ -389,20 +376,17 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.showProvisioningDiagnostics").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.subjectSourcesToProvision").value("jdbc").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.0.isFieldElseAttribute").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.0.name").value("id").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.0.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.name").value("accountEnabled").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.translateExpression").value("${'true'}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.translateExpressionType").value("translationScript").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.1.update").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.matchingId").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.name").value("displayName").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.searchAttribute").value("true").store();
@@ -411,14 +395,12 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.translateFromGrouperProvisioningEntityField").value("name").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.2.update").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.name").value("mailNickname").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("name").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.3.update").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.name").value("userPrincipalName").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.update").value("true").store();
@@ -426,14 +408,12 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.translateExpressionType").value("translationScript").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetEntityAttribute.4.translateExpression").value("${gcGrouperSyncMember.memberFromId2}").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.isFieldElseAttribute").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.name").value("id").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.translateToGroupSyncField").value("groupToId2").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.0.valueType").value("string").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.fieldName").value("displayName").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.name").value("displayName").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.isFieldElseAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.matchingId").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.searchAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.select").value("true").store();
@@ -441,21 +421,18 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField").value("name").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.1.valueType").value("string").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.name").value("mailEnabled").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.translateExpression").value("${'true'}").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.translateExpressionType").value("translationScript").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.2.update").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.name").value("mailNickname").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.translateExpressionType").value("grouperProvisioningGroupField").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.translateFromGrouperProvisioningGroupField").value("name").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.3.update").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.isFieldElseAttribute").value("false").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.name").value("securityEnabled").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.targetGroupAttribute.4.translateExpression").value("${'true'}").store();

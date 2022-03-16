@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDao;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -40,7 +41,7 @@ public class LdapSyncLogic extends GrouperProvisioningLogic {
         List<ProvisioningGroup> targetProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningGroups();
         Set<String> targetDns = new HashSet<String>();
         for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetProvisioningGroups)) {
-          String dn = provisioningGroup.getName();
+          String dn = provisioningGroup.retrieveAttributeValueString(LdapProvisioningTargetDao.ldap_dn);
           if (!StringUtils.isBlank(dn)) {
             targetDns.add(dn);
           }

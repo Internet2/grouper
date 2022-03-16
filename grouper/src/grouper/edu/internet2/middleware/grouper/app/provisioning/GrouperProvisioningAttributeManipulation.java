@@ -126,7 +126,7 @@ public class GrouperProvisioningAttributeManipulation {
   public void assignDefaultsForGroups(List<ProvisioningGroup> provisioningGroups, GrouperProvisioningConfigurationAttribute attribute) {
     
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
 
     GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeId = groupFieldNameToConfig.get("id");
     GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeDisplayName = groupFieldNameToConfig.get("displayName");
@@ -172,7 +172,7 @@ public class GrouperProvisioningAttributeManipulation {
   public void assignDefaultsForEntities(List<ProvisioningEntity> provisioningEntities, GrouperProvisioningConfigurationAttribute attribute) {
     
     Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
     
     int[] assignDefaultFieldsAndAttributesCount = new int[] {0};
     
@@ -214,7 +214,7 @@ public class GrouperProvisioningAttributeManipulation {
   public void assignDefaultsForMemberships(List<ProvisioningMembership> provisioningMemberships) {
     
     Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
     
     int[] assignDefaultFieldsAndAttributesCount = new int[] {0};
     
@@ -409,7 +409,7 @@ public class GrouperProvisioningAttributeManipulation {
     }
     
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
     
     int[] filterGroupFieldsAndAttributesCount = new int[] {0};
     
@@ -451,7 +451,7 @@ public class GrouperProvisioningAttributeManipulation {
     }
     
     Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
     
     int[] filterEntityFieldsAndAttributesCount = new int[] {0};
 
@@ -494,7 +494,7 @@ public class GrouperProvisioningAttributeManipulation {
     }
     
     Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
     if (GrouperUtil.length(membershipAttributeNameToConfig) == 0 && GrouperUtil.length(membershipFieldNameToConfig) == 0) {
       return;
     }

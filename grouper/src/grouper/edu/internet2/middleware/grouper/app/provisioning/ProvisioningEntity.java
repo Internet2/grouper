@@ -16,53 +16,11 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class ProvisioningEntity extends ProvisioningUpdatable {
 
   /**
-   * see if this object is empty e.g. after translating if empty then dont keep track of group
-   * since the translation might have affected another object
-   * @return
-   */
-  public boolean isEmpty() {
-    if (StringUtils.isBlank(this.email)
-        && StringUtils.isBlank(this.id)
-        && StringUtils.isBlank(this.name)
-        && StringUtils.isBlank(this.loginId)
-        && StringUtils.isBlank(this.subjectId)
-        && this.isEmptyUpdatable()) {
-      return true;
-    }
-    return false;
-  }
-
-  /**
-   * id uniquely identifies this record, might be a target uuid, or subject id
-   */
-  private String id;
-  
-  /**
-   * login id could be a subject identifier or subject id (optional)
-   */
-  private String loginId;
-
-  /**
-   * name field in the entity (optional)
-   */
-  private String name;
-  
-  /**
-   * email of entity (optional)
-   */
-  private String email;
-  
-  /**
-   * subject id (optional)
-   */
-  private String subjectId;
-  
-  /**
    * 
    * @return
    */
   public String getSubjectId() {
-    return subjectId;
+    return this.retrieveAttributeValueString("subjectId");
   }
 
   /**
@@ -70,7 +28,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @param subjectId
    */
   public void setSubjectId(String subjectId) {
-    this.subjectId = subjectId;
+    this.assignAttributeValue("subjectId", subjectId);
   }
 
   private ProvisioningEntityWrapper provisioningEntityWrapper;
@@ -80,7 +38,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @return id
    */
   public String getId() {
-    return this.id;
+    return this.retrieveAttributeValueString("id");
   }
 
   /**
@@ -88,7 +46,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @param id1
    */
   public void setId(String id1) {
-    this.id = id1;
+    this.assignAttributeValue("id", id1);
   }
 
   /**
@@ -96,7 +54,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @return login id
    */
   public String getLoginId() {
-    return this.loginId;
+    return this.retrieveAttributeValueString("loginId");
   }
 
   /**
@@ -104,7 +62,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @param login1
    */
   public void setLoginId(String login1) {
-    this.loginId = login1;
+    this.assignAttributeValue("login", login1);
   }
 
   /**
@@ -112,7 +70,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @return name
    */
   public String getName() {
-    return this.name;
+    return this.retrieveAttributeValueString("name");
   }
 
   /**
@@ -120,7 +78,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @param name1
    */
   public void setName(String name1) {
-    this.name = name1;
+    this.assignAttributeValue("name", name1);
   }
 
   /**
@@ -128,7 +86,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @return email
    */
   public String getEmail() {
-    return this.email;
+    return this.retrieveAttributeValueString("email");
   }
 
   /**
@@ -136,7 +94,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @param email1
    */
   public void setEmail(String email1) {
-    this.email = email1;
+    this.assignAttributeValue("email", email1);
   }
 
   public ProvisioningEntityWrapper getProvisioningEntityWrapper() {
@@ -154,9 +112,9 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @param name
    * @param value
    */
-  public String retrieveFieldOrAttributeValueString(GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String retrieveAttributeValueString(GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     
-    return GrouperUtil.stringValue(this.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute));
+    return GrouperUtil.stringValue(this.retrieveAttributeValue(grouperProvisioningConfigurationAttribute));
     
   }
 
@@ -166,41 +124,17 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @param grouperProvisioningConfigurationAttribute
    * @return the value
    */
-  public Object retrieveFieldOrAttributeValue(
+  public Object retrieveAttributeValue(
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     if (grouperProvisioningConfigurationAttribute == null) {
       throw new NullPointerException("attribute is null: " + this);
     }
-    if (grouperProvisioningConfigurationAttribute.isAttribute()) {
-      return this.retrieveAttributeValueString(grouperProvisioningConfigurationAttribute.getName());
-    } else {
-      if ("email".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getEmail();
-      }
-      if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getId();
-      }
-      if ("loginId".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getLoginId();
-      }
-      if ("name".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getName();
-      }
-      if ("subjectId".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getSubjectId();
-      }
-      throw new RuntimeException("Invalid field name '" + grouperProvisioningConfigurationAttribute.getName() + "': " + this);
-    }
+    return this.retrieveAttributeValueString(grouperProvisioningConfigurationAttribute.getName());
   }
 
   public String toString() {
     StringBuilder result = new StringBuilder("Entity(");
     boolean firstField = true;
-    firstField = toStringAppendField(result, firstField, "id", this.id);
-    firstField = toStringAppendField(result, firstField, "email", this.email);
-    firstField = toStringAppendField(result, firstField, "name", this.name);
-    firstField = toStringAppendField(result, firstField, "loginId", this.loginId);
-    firstField = toStringAppendField(result, firstField, "subjectId", this.subjectId);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     
     if (this.provisioningEntityWrapper != null) {
@@ -233,11 +167,6 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     ProvisioningEntity provisioningEntity = new ProvisioningEntity();
 
     this.cloneUpdatable(provisioningEntity);
-    provisioningEntity.email = this.email;
-    provisioningEntity.id = this.id;
-    provisioningEntity.loginId = this.loginId;
-    provisioningEntity.name = this.name;
-    provisioningEntity.subjectId = this.subjectId;
     provisioningEntity.provisioningEntityWrapper = this.provisioningEntityWrapper;
 
     return provisioningEntity;

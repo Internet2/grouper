@@ -16,6 +16,7 @@
 
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -26,6 +27,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
@@ -204,30 +206,11 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     @Override
     public void updateVersionFromPrevious() {
   
-      {
-        // GRP-3911: subject sources to provision should not be in top config section
-        Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.subjectSourcesToProvision$"));
-        boolean didSomething = false;
-        for (String configId : GrouperUtil.nonNull(configIds)) {
-          String subjectSourcesToProvision = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configId + ".subjectSourcesToProvision");
-          String operateOnGrouperEntitiesKey = "provisioner." + configId + ".operateOnGrouperEntities";
-          String operateOnGrouperEntities = GrouperLoaderConfig.retrieveConfig().propertyValueString(operateOnGrouperEntitiesKey);
-          boolean operateOnGrouperEntitiesBoolean = GrouperUtil.booleanValue(operateOnGrouperEntities, false);
-          if (!StringUtils.isBlank(subjectSourcesToProvision) && !operateOnGrouperEntitiesBoolean) {
-            String action = "Provisioning upgrade: setting grouper-loader.properties " + operateOnGrouperEntitiesKey + " = true";
-            LOG.warn(action);
-            System.out.println(action);
-            didSomething = true;
-            new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(operateOnGrouperEntitiesKey).value("true").store();
-          }
-        }
-        if (!didSomething) {
-          String action = "Provisioning upgrade: no change for subjectSourcesToProvision requiring operateOnGrouperEntities";
-          LOG.warn(action);
-          System.out.println(action);
-        }
-      }      
+      v8_provisioningSubjectSourcesInEntity();
       
+      v8_provisioningLdapDnAttributeChange();
+     
+      v8_provisioningFieldNameToAttributeChange();
     }
   };
   
@@ -251,5 +234,142 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       currentVersion = max;
     }
     return currentVersion;
+  }
+
+  public static void v8_provisioningLdapDnAttributeChange() {
+    // GRP-3931: change ldap DN from field name to attribute ldap_dn
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      String className = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configId + ".className");
+      if (!StringUtils.equals(className, LdapSync.class.getName())) {
+        continue;
+      }
+      for (String objectType : new String[] {"Entity", "Group" }) {
+        // lets look at group and entity attributes
+        for (int i=0;i<20;i++) {
+          String fieldNameKey = "provisioner." + configId + ".target" + objectType + "Attribute." + i + ".fieldName";
+          String fieldName = GrouperLoaderConfig.retrieveConfig().propertyValueString(fieldNameKey);
+          if (!StringUtils.isBlank(fieldName) && StringUtils.equals(fieldName, "name")) {
+            didSomething = true;
+
+            {
+              String nameKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".name";
+              new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(nameKey).value("ldap_dn").store();
+              String action = "Provisioning upgrade: setting grouper-loader.properties " + nameKey + " = ldap_dn";
+              LOG.warn(action);
+              System.out.println(action);
+            }
+            
+            {
+              String isFieldElseAttributeKey = "provisioner." + configId + ".target" + objectType + "Attribute." + i + ".isFieldElseAttribute";
+              boolean isFieldElseAttribute =GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(isFieldElseAttributeKey, false);
+              if (isFieldElseAttribute) {
+                new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(isFieldElseAttributeKey).value("false").store();
+                String action = "Provisioning upgrade: setting grouper-loader.properties " + isFieldElseAttributeKey + " = false";
+                LOG.warn(action);
+                System.out.println(action);
+              }
+            }
+            
+            new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(fieldNameKey).delete();
+            String action = "Provisioning upgrade: deleting grouper-loader.properties " + fieldNameKey;
+            LOG.warn(action);
+            System.out.println(action);
+          }
+        }
+      }
+    }
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for LDAP DN field name change to ldap_dn attribute";
+      LOG.warn(action);
+      System.out.println(action);
+    }
+  }
+
+  public static void v8_provisioningSubjectSourcesInEntity() {
+    // GRP-3911: subject sources to provision should not be in top config section
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.subjectSourcesToProvision$"));
+    boolean didSomething = false;
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      String subjectSourcesToProvision = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configId + ".subjectSourcesToProvision");
+      String operateOnGrouperEntitiesKey = "provisioner." + configId + ".operateOnGrouperEntities";
+      String operateOnGrouperEntities = GrouperLoaderConfig.retrieveConfig().propertyValueString(operateOnGrouperEntitiesKey);
+      boolean operateOnGrouperEntitiesBoolean = GrouperUtil.booleanValue(operateOnGrouperEntities, false);
+      if (!StringUtils.isBlank(subjectSourcesToProvision) && !operateOnGrouperEntitiesBoolean) {
+        String action = "Provisioning upgrade: setting grouper-loader.properties " + operateOnGrouperEntitiesKey + " = true";
+        LOG.warn(action);
+        System.out.println(action);
+        didSomething = true;
+        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(operateOnGrouperEntitiesKey).value("true").store();
+      }
+    }
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for subjectSourcesToProvision requiring operateOnGrouperEntities";
+      LOG.warn(action);
+      System.out.println(action);
+    }
+  }
+
+  public static void v8_provisioningFieldNameToAttributeChange() {
+    // GRP-3931: change ldap DN from field name to attribute ldap_dn
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      for (String objectType : new String[] {"Entity", "Group", "Membership" }) {
+
+        // lets look at group and entity and membership attributes
+        Set<String> existingAttributeNames = new HashSet<String>();
+        for (int i=0;i<20;i++) {
+          String attributeNameKey = "provisioner." + configId + ".target" + objectType + "Attribute." + i + ".name";
+          String attributeName = GrouperLoaderConfig.retrieveConfig().propertyValueString(attributeNameKey);
+          if (!StringUtils.isBlank(attributeName)) {
+            existingAttributeNames.add(attributeName);
+          }
+        }
+        
+        for (int i=0;i<20;i++) {
+          String fieldNameKey = "provisioner." + configId + ".target" + objectType + "Attribute." + i + ".fieldName";
+          String fieldName = GrouperLoaderConfig.retrieveConfig().propertyValueString(fieldNameKey);
+          if (!StringUtils.isBlank(fieldName)) {
+            didSomething = true;
+            
+            if (existingAttributeNames.contains(fieldName)) {
+              throw new RuntimeException("Cannot continue since provisioning configId '" + configId + "' has a field with name '" + fieldName + "' and an attribute with the same name.  Either rename the attribute or contact the grouper team.");
+            }
+            
+            
+            {
+              String nameKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".name";
+              new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(nameKey).value(fieldName).store();
+              String action = "Provisioning upgrade: setting grouper-loader.properties " + nameKey + " = " + fieldName;
+              LOG.warn(action);
+              System.out.println(action);
+            }
+            
+            {
+              String isFieldElseAttributeKey = "provisioner." + configId + ".target" + objectType + "Attribute." + i + ".isFieldElseAttribute";
+              String isFieldElseAttribute =GrouperLoaderConfig.retrieveConfig().propertyValueString(isFieldElseAttributeKey);
+              if (!StringUtils.isBlank(isFieldElseAttribute)) {
+                new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(isFieldElseAttributeKey).delete();
+                String action = "Provisioning upgrade: deleting grouper-loader.properties " + isFieldElseAttributeKey;
+                LOG.warn(action);
+                System.out.println(action);
+              }
+            }
+            
+            new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(fieldNameKey).delete();
+            String action = "Provisioning upgrade: deleting grouper-loader.properties " + fieldNameKey;
+            LOG.warn(action);
+            System.out.println(action);
+          }
+        }
+      }
+    }
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for migrating provisioning fields to attributes";
+      LOG.warn(action);
+      System.out.println(action);
+    }
   }
 }

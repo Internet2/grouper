@@ -584,7 +584,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           this.report.append("<font color='orange'><b>Warning:</b></font> Target already contains value: " + value + "\n");
         } else {
           grouperTargetGroupsToUpdate.get(0).addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
+              new ProvisioningObjectChange(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
                   ProvisioningObjectChangeAction.insert, null, value)
               );
   
@@ -761,7 +761,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           this.report.append("<font color='orange'><b>Warning:</b></font> Target does not contain value: " + value + "\n");
         } else {
           grouperTargetGroupsToUpdate.get(0).addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
+              new ProvisioningObjectChange(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
                   ProvisioningObjectChangeAction.delete, value, null)
               );
   
@@ -1400,17 +1400,21 @@ public class GrouperProvisioningDiagnosticsContainer {
     }
 
     {
-      List<MultiKey> errors = this.getGrouperProvisioner().retrieveGrouperProvisioningConfigurationValidation().validate();
+      List<ProvisioningValidationIssue> errors = this.getGrouperProvisioner().retrieveGrouperProvisioningConfigurationValidation().validate();
       if (errors.size() > 0) {
         this.report.append("<font color='red'><b>Error:</b></font> Provisioner config validation rule violations: ")
           .append(errors.size()).append("\n");
-        for (MultiKey errorMultikey : errors) {
-          String error = (String)errorMultikey.getKey(0);
-          if (errorMultikey.size() > 1 && !StringUtils.isBlank((String)errorMultikey.getKey(1))) {
-            String validationKeyError = (String)errorMultikey.getKey(1);
-            this.report.append("<font color='red'><b>Error:</b></font> in config item '" + validationKeyError + "': " + GrouperUtil.xmlEscape(error)).append("\n");
+        for (ProvisioningValidationIssue provisioningValidationIssue : errors) {
+          String error = provisioningValidationIssue.getMessage();
+          if (provisioningValidationIssue.isRuntimeError()) {
+            this.report.append("<font color='red'><b>Fatal error:</b></font>");
           } else {
-            this.report.append("<font color='red'><b>Error:</b></font> " + GrouperUtil.xmlEscape(error)).append("\n");
+            this.report.append("<font color='red'><b>Error:</b></font>");
+          }
+          if (!StringUtils.isBlank(provisioningValidationIssue.getJqueryHandle())) {
+            this.report.append(" in config item '" + provisioningValidationIssue.getJqueryHandle() + "': " + GrouperUtil.xmlEscape(error)).append("\n");
+          } else {
+            this.report.append(GrouperUtil.xmlEscape(error)).append("\n");
           }
         }
       } else {
@@ -1825,7 +1829,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           this.report.append("<font color='orange'><b>Warning:</b></font> Target already contains value: " + value + "\n");
         } else {
           grouperTargetEntitiesToUpdate.get(0).addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
+              new ProvisioningObjectChange(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
                   ProvisioningObjectChangeAction.insert, null, value)
               );
     
@@ -2000,7 +2004,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           this.report.append("<font color='orange'><b>Warning:</b></font> Target does not contain value: " + value + "\n");
         } else {
           grouperTargetEntitiesToUpdate.get(0).addInternal_objectChange(
-              new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
+              new ProvisioningObjectChange(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), 
                   ProvisioningObjectChangeAction.delete, value, null)
               );
     
