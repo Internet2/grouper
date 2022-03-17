@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -267,7 +268,15 @@ public class ProvisionerConfigurationContainer {
   private String cacheFieldPrefix;
   
   private String currentConfigSuffix;
+
+  private List<ProvisionerStartWithBase> startWithConfigClasses;
+
+  private ProvisionerStartWithBase provisionerStartWith;
   
+  private boolean showStartWithSection;
+
+  private ProvisionerStartWithBase previousProvisionerStartWith;
+
   public String getCurrentConfigSuffix() {
     return currentConfigSuffix;
   }
@@ -285,6 +294,47 @@ public class ProvisionerConfigurationContainer {
   public void setIndex(int index) {
     this.index = index;
   }
+
+  public void setStartWithConfigClasses(List<ProvisionerStartWithBase> startWithConfigClasses) {
+    this.startWithConfigClasses = startWithConfigClasses;
+  }
+
+  
+  public List<ProvisionerStartWithBase> getStartWithConfigClasses() {
+    return startWithConfigClasses;
+  }
+
+  
+  public void setProvisionerStartWith(ProvisionerStartWithBase provisionerStartWith) {
+    this.provisionerStartWith = provisionerStartWith;
+  }
+
+  
+  public ProvisionerStartWithBase getProvisionerStartWith() {
+    return provisionerStartWith;
+  }
+
+  
+  public boolean isShowStartWithSection() {
+    return showStartWithSection;
+  }
+
+  
+  public void setShowStartWithSection(boolean showStartWithSection) {
+    this.showStartWithSection = showStartWithSection;
+  }
+
+  public void setPreviousProvisionerStartWith(ProvisionerStartWithBase previousProvisionerStartWith) {
+    this.previousProvisionerStartWith = previousProvisionerStartWith;
+  }
+
+  
+  public ProvisionerStartWithBase getPreviousProvisionerStartWith() {
+    return previousProvisionerStartWith;
+  }
+  
+  
+  
   
   
   

@@ -1497,15 +1497,61 @@ public abstract class GrouperConfigurationModuleBase {
   }
   
   /**
-   * get description of the external system
+   * get description of the config system
    * @return
    */
   public String getDescription() {
-    String title = GrouperTextContainer.textOrNull("config." + this.getClass().getSimpleName() + ".description");
-    if (StringUtils.isBlank(title)) {
-      return this.getClass().getSimpleName();
+    String description = GrouperTextContainer.textOrNull("config." + this.getClass().getSimpleName() + ".description");
+    if (StringUtils.isBlank(description)) {
+      return "";
     }
-    return title;
+    return description;
+  }
+  
+  /**
+   * get documentation of the config system
+   * @return
+   */
+  public String getDocumentation() {
+   
+    String documentation = GrouperTextContainer.textOrNull("config." + this.getClass().getSimpleName() + ".documentation");
+    
+    if (StringUtils.isNotBlank(documentation)) {
+      String id = GrouperUtil.uniqueId();
+      String documentationLink = GrouperTextContainer.textOrNull("provisioning.documentationLink");
+      return "<div><a href='#' onclick=$('#"+id+"').toggle('slow'); return false;>"+documentationLink+"</a> <div id='"+id+"' style='display:none;font-weight:normal;'>"+documentation+"</div></div>"; 
+    }
+    
+    return "";
+  }
+  
+  /**
+   * get description of the start with system
+   * @return
+   */
+  public String getStartWithDescription() {
+    String description = GrouperTextContainer.textOrNull("config." + this.getClass().getSimpleName() + ".startWithDescription");
+    if (StringUtils.isBlank(description)) {
+      return "";
+    }
+    return description;
+  }
+  
+  /**
+   * get documentation of the config system
+   * @return
+   */
+  public String getStartWithDocumentation() {
+   
+    String documentation = GrouperTextContainer.textOrNull("config." + this.getClass().getSimpleName() + ".startWithDocumentation");
+    
+    if (StringUtils.isNotBlank(documentation)) {
+      String id = GrouperUtil.uniqueId();
+      String documentationLink = GrouperTextContainer.textOrNull("provisioning.documentationLink");
+      return "<div><a href='#' onclick=$('#"+id+"').toggle('slow'); return false;>"+documentationLink+"</a> <div id='"+id+"' style='display:none;font-weight:normal;'>"+documentation+"</div></div>"; 
+    }
+    
+    return "";
   }
   
   /**

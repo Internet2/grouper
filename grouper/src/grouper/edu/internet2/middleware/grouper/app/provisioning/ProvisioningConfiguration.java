@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,15 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
       }
     }
     return null;
+  }
+  
+  /**
+   * Classes that are configured to give a starting point for setting up provisioners. These are spefici to provisioner type
+   * e.g. Sql provisioner have SqlProvisioningGroupTableStartWith, SqlProvisioningEntityTableStartWith, SqlProvisioningGroupAndMembershipTableStartWith
+   * @return list of start with classes
+   */
+  public List<ProvisionerStartWithBase> getStartWithConfigClasses() {
+    return new ArrayList<>();
   }
   
   public final static Set<String> provisionerConfigClassNames = new LinkedHashSet<String>();

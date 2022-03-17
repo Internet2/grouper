@@ -78,7 +78,7 @@ public class GroupContainer {
   /**
    * regex pattern for group types for edit. group types are configured in grouper.properties
    */
-  private static Pattern groupTypeForEditPattern = Pattern.compile("^groupScreenType\\.([^.]+)\\.[a-zA-Z0-9]+$");
+  private static Pattern groupTypeForEditPattern = Pattern.compile("^groupScreen\\.attribute\\.([^.]+)\\.[a-zA-Z0-9]+$");
   
   /**
    * get list of group types for view only
@@ -103,7 +103,7 @@ public class GroupContainer {
    */
   private List<GroupTypeForEdit> getGroupTypes(boolean checkOnlyReadPrivileges) {
     
-    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("groupScreenType.enabled", true)) {
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("groupScreen.attribute.enabled", true)) {
       return new ArrayList<>();
     }
     
@@ -146,16 +146,16 @@ public class GroupContainer {
             Matcher matcher = groupTypeForEditPattern.matcher(key);
             matcher.matches();
             String configId = matcher.group(1);
-            String attributeName = properties.get("groupScreenType." + configId + ".attributeName");
+            String attributeName = properties.get("groupScreen.attribute." + configId + ".attributeName");
             if (!StringUtils.isBlank(attributeName)) {
-              String label = StringUtils.defaultIfBlank(properties.get("groupScreenType." + configId + ".label"), attributeName);
-              String description = properties.get("groupScreenType." + configId + ".description");
-              int index = GrouperUtil.intValue(properties.get("groupScreenType." + configId + ".index"), 100);
+              String label = StringUtils.defaultIfBlank(properties.get("groupScreen.attribute." + configId + ".label"), attributeName);
+              String description = properties.get("groupScreen.attribute." + configId + ".description");
+              int index = GrouperUtil.intValue(properties.get("groupScreen.attribute." + configId + ".index"), 100);
               
               
               AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeName, false);
               if (attributeDefName == null) {
-                LOG.warn(attributeName + " is configured for groupScreenType but it couldn't be found.");
+                LOG.warn(attributeName + " is configured for groupScreen.attribute but it couldn't be found.");
                 continue;
               }
               

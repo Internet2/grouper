@@ -15,6 +15,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
@@ -22,10 +23,10 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningServ
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperSyncLogWithOwner;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -764,6 +765,8 @@ public class UiV2ProvisionerConfiguration {
       String provisionerConfigId = request.getParameter("provisionerConfigId");
       
       String provisionerConfigType = request.getParameter("provisionerConfigType");
+
+      String provisionerStartWithClass = request.getParameter("provisionerStartWithClass");
       
       if (StringUtils.isNotBlank(provisionerConfigType)) {
         
@@ -790,20 +793,82 @@ public class UiV2ProvisionerConfiguration {
           return;
         }
         
+        List<ProvisionerStartWithBase> startWithConfigClasses = provisionerConfiguration.getStartWithConfigClasses();
+        
+        if(startWithConfigClasses.size() > 0 && StringUtils.equals("empty", provisionerStartWithClass)) {
+          GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+          provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+          
+          provisionerConfigurationContainer.setShowStartWithSection(true);
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigAdd.jsp"));
+          return;
+        }
+        
+        String previousProvisionerStartWithClass = request.getParameter("previousProvisionerStartWithClass");
+        
+        boolean skipStartWith = false;
+        if (StringUtils.isNotBlank(provisionerStartWithClass) && StringUtils.equals(provisionerStartWithClass, "blank")) {
+          skipStartWith = true;
+        }
+        
+        if (!skipStartWith && StringUtils.isNotBlank(provisionerStartWithClass)) {
+          Class<ProvisionerStartWithBase> startWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(provisionerStartWithClass);
+          ProvisionerStartWithBase provisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(startWithKlass);
+          provisionerStartWith.setConfigId(provisionerConfigId);
+          
+          provisionerStartWith.populateConfigurationValuesFromUi(request);
+          
+          provisionerConfigurationContainer.setProvisionerStartWith(provisionerStartWith);
+          provisionerConfigurationContainer.setShowStartWithSection(true);
+        }
+        
+        if (!skipStartWith && StringUtils.isNotBlank(previousProvisionerStartWithClass) && StringUtils.isBlank(provisionerStartWithClass)) {
+          
+          Class<ProvisionerStartWithBase> previousStartWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(previousProvisionerStartWithClass);
+          ProvisionerStartWithBase previousProvisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(previousStartWithKlass);
+          
+          provisionerConfigurationContainer.setProvisionerStartWith(previousProvisionerStartWith);
+        }
+        
+        if (!skipStartWith && ((GrouperUtil.nonNull(startWithConfigClasses).size() > 0
+            && StringUtils.isBlank(provisionerStartWithClass)
+            && StringUtils.isBlank(previousProvisionerStartWithClass))
+            || (StringUtils.isNotBlank(provisionerStartWithClass)
+                && StringUtils.isNotBlank(previousProvisionerStartWithClass)
+                && !StringUtils.equals(provisionerStartWithClass, previousProvisionerStartWithClass)))) {
+          GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+          provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+          provisionerConfigurationContainer.setShowStartWithSection(true);
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+              "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigAdd.jsp"));
+          
+          String focusOnElementName = request.getParameter("focusOnElementName");
+          if (!StringUtils.isBlank(focusOnElementName)) {
+            guiResponseJs.addAction(GuiScreenAction.newScript("$(\"[name='" + focusOnElementName + "']\").focus()"));
+          }
+          
+          return;
+        }
+        
         String previousProvisionerConfigId = request.getParameter("previousProvisionerConfigId");
         String previousProvisionerConfigType = request.getParameter("previousProvisionerConfigType");
-        if (StringUtils.isBlank(previousProvisionerConfigId) 
+        
+        if (StringUtils.isBlank(previousProvisionerConfigId)
             || !StringUtils.equals(provisionerConfigType, previousProvisionerConfigType)) {
           // first time loading the screen or
           // provisioner config type changed
           // let's get values from config files/database
+          // let's also clear start with
+          provisionerConfigurationContainer.setProvisionerStartWith(null);
         } else {
+          
+          
           provisionerConfiguration.populateConfigurationValuesFromUi(request);
         }
         
         GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
         provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
-        
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -860,6 +925,73 @@ public class UiV2ProvisionerConfiguration {
       Class<ProvisioningConfiguration> klass = (Class<ProvisioningConfiguration>) GrouperUtil.forName(provisionerConfigType);
       ProvisioningConfiguration provisionerConfiguration = (ProvisioningConfiguration) GrouperUtil.newInstance(klass);
       provisionerConfiguration.setConfigId(provisionerConfigId);
+      
+      List<ProvisionerStartWithBase> startWithConfigClasses = provisionerConfiguration.getStartWithConfigClasses();
+      
+      String provisionerStartWithClass = request.getParameter("provisionerStartWithClass");
+      
+      if (StringUtils.isNotBlank(provisionerStartWithClass)) {
+        Class<ProvisionerStartWithBase> startWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(provisionerStartWithClass);
+        ProvisionerStartWithBase provisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(startWithKlass);
+        provisionerStartWith.setConfigId(provisionerConfigId);
+        
+        provisionerStartWith.populateConfigurationValuesFromUi(request);
+        provisionerConfigurationContainer.setProvisionerStartWith(provisionerStartWith);
+        
+        List<String> errorsToDisplay = new ArrayList<String>();
+        Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+        
+        provisionerStartWith.validatePreSave(false, errorsToDisplay, validationErrorsToDisplay);
+        
+        if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+          provisionerConfigurationContainer.setShowStartWithSection(true);
+          for (String errorToDisplay: errorsToDisplay) {
+            guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
+          }
+          for (String validationKey: validationErrorsToDisplay.keySet()) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+                validationErrorsToDisplay.get(validationKey)));
+          }
+        } else {
+          
+          provisionerStartWith.populateConfigurationValuesFromUi(request);
+          Map<String, GrouperConfigurationModuleAttribute> startWithAttributes = provisionerStartWith.retrieveAttributes();
+          
+          Map<String, String> configSuffixToValues = new HashMap<>();
+          Map<String, Object> provisionerSuffixToValue = new HashMap<>();
+          Map<String, GrouperConfigurationModuleAttribute> attributes = provisionerConfiguration.retrieveAttributes();
+          for (String key: startWithAttributes.keySet()) {
+            String startWithValue = startWithAttributes.get(key).getValue();
+            configSuffixToValues.put(key, startWithValue);
+            
+            if (attributes.containsKey(key)) {
+              provisionerSuffixToValue.put(key, startWithValue);
+            }
+          }
+          
+          
+          provisionerStartWith.populateProvisionerConfigurationValuesFromStartWith(configSuffixToValues, provisionerSuffixToValue);
+          
+          for (String key: provisionerSuffixToValue.keySet()) {
+            Object valueToSet = provisionerSuffixToValue.get(key);
+            
+            if (attributes.containsKey(key)) {
+              attributes.get(key).setValue(GrouperUtil.stringValue(valueToSet));
+            }
+          }
+          
+          provisionerConfigurationContainer.setShowStartWithSection(false);
+        }
+        
+        GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+        provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+      
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigAdd.jsp"));
+        
+        return;
+        
+      }
       
       provisionerConfiguration.populateConfigurationValuesFromUi(request);
       
