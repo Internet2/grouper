@@ -2351,47 +2351,45 @@ public abstract class GrouperProvisioningConfiguration {
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
     
-    
-    this.hasEntityAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityAttributesNotInSubjectSource", false), false);
-    this.resolveAttributesWithSql = GrouperUtil.booleanValue(this.retrieveConfigBoolean("resolveAttributesWithSQL", false), false);
-    this.resolveAttributesWithLdap = GrouperUtil.booleanValue(this.retrieveConfigBoolean("resolveAttributesWithLDAP", false), false);
-    this.useGlobalSqlResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useGlobalSQLResolver", false), false);
-
     this.groupsRequireMembers = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupsRequireMembers", false), false);
-    
-    this.useGlobalLdapResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useGlobalLDAPResolver", false), false);
-    this.globalSqlResolver = this.retrieveConfigString("globalSQLResolver", false);
-    this.globalLdapResolver = this.retrieveConfigString("globalLDAPResolver", false);
-    this.selectAllSqlOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllSQLOnFull", false), true);
-    this.filterAllLDAPOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("filterAllLDAPOnFull", false), true);
-    
     this.loadEntitiesToGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGrouperTable", false), false);
     this.allowBlankMatchingIds = GrouperUtil.booleanValue(this.retrieveConfigBoolean("allowBlankMatchingIds", false), false);
     
-    this.entityAttributesSqlExternalSystem = this.retrieveConfigString("sqlConfigId", false);
-    this.entityAttributesTableViewName = this.retrieveConfigString("tableOrViewName", false);
-    this.entityAttributesColumnNames = this.retrieveConfigString("columnNames", false);
-    this.entityAttributesSubjectSourceIdColumn = this.retrieveConfigString("subjectSourceIdColumn", false);
-    this.entityAttributesSubjectSearchMatchingColumn = this.retrieveConfigString("subjectSearchMatchingColumn", false);
-    this.entityAttributesSqlMappingType = this.retrieveConfigString("sqlMappingType", false);
-    this.entityAttributesSqlMappingEntityAttribute = this.retrieveConfigString("sqlMappingEntityAttribute", false);
-    this.entityAttributesSqlMappingExpression = this.retrieveConfigString("sqlMappingExpression", false);
-    this.entityAttributesLastUpdatedColumn = this.retrieveConfigString("lastUpdatedColumn", false);
-    this.entityAttributesLastUpdatedType = this.retrieveConfigString("lastUpdatedType", false);
+    this.hasEntityAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.entityAttributesNotInSubjectSource", false), false);
+    this.resolveAttributesWithSql = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.resolveAttributesWithSQL", false), false);
+    this.resolveAttributesWithLdap = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.resolveAttributesWithLDAP", false), false);
+    this.useGlobalSqlResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.useGlobalSQLResolver", false), false);
+
+    this.useGlobalLdapResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.useGlobalLDAPResolver", false), false);
+    this.globalSqlResolver = this.retrieveConfigString("entityResolver.globalSQLResolver", false);
+    this.globalLdapResolver = this.retrieveConfigString("entityResolver.globalLDAPResolver", false);
+    this.selectAllSqlOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.selectAllSQLOnFull", false), true);
+    this.filterAllLDAPOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.filterAllLDAPOnFull", false), true);
     
-    this.entityAttributesLdapExternalSystem = this.retrieveConfigString("ldapConfigId", false);
-    this.entityAttributesLdapBaseDn = this.retrieveConfigString("baseDN", false);
-    this.entityAttributesLdapSubjectSource = this.retrieveConfigString("subjectSourceId", false);
-    this.entityAttributesLdapSearchScope = this.retrieveConfigString("searchScope", false);
-    this.entityAttributesLdapFilterPart = this.retrieveConfigString("filterPart", false);
-    this.entityAttributesLdapAttributes = this.retrieveConfigString("attributes", false);
-    this.entityAttributesLdapMutliValuedAttributes = this.retrieveConfigString("multiValuedLdapAttributes", false);
-    this.entityAttributesLdapMatchingSearchAttribute = this.retrieveConfigString("ldapMatchingSearchAttribute", false);
-    this.entityAttributesLdapMappingType = this.retrieveConfigString("ldapMappingType", false);
-    this.entityAttributesLdapMappingEntityAttribute = this.retrieveConfigString("ldapMappingEntityAttribute", false);
-    this.entityAttributesLdapMatchingExpression = this.retrieveConfigString("ldapMatchingExpression", false);
-    this.entityAttributesLdapLastUpdatedAttribute = this.retrieveConfigString("lastUpdatedAttribute", false);
-    this.entityAttributesLdapLastUpdatedAttributeFormat = this.retrieveConfigString("lastUpdatedFormat", false);
+    this.entityAttributesSqlExternalSystem = this.retrieveConfigString("entityResolver.sqlConfigId", false);
+    this.entityAttributesTableViewName = this.retrieveConfigString("entityResolver.tableOrViewName", false);
+    this.entityAttributesColumnNames = this.retrieveConfigString("entityResolver.columnNames", false);
+    this.entityAttributesSubjectSourceIdColumn = this.retrieveConfigString("entityResolver.subjectSourceIdColumn", false);
+    this.entityAttributesSubjectSearchMatchingColumn = this.retrieveConfigString("entityResolver.subjectSearchMatchingColumn", false);
+    this.entityAttributesSqlMappingType = this.retrieveConfigString("entityResolver.sqlMappingType", false);
+    this.entityAttributesSqlMappingEntityAttribute = this.retrieveConfigString("entityResolver.sqlMappingEntityAttribute", false);
+    this.entityAttributesSqlMappingExpression = this.retrieveConfigString("entityResolver.sqlMappingExpression", false);
+    this.entityAttributesLastUpdatedColumn = this.retrieveConfigString("entityResolver.lastUpdatedColumn", false);
+    this.entityAttributesLastUpdatedType = this.retrieveConfigString("entityResolver.lastUpdatedType", false);
+    
+    this.entityAttributesLdapExternalSystem = this.retrieveConfigString("entityResolver.ldapConfigId", false);
+    this.entityAttributesLdapBaseDn = this.retrieveConfigString("entityResolver.baseDN", false);
+    this.entityAttributesLdapSubjectSource = this.retrieveConfigString("entityResolver.subjectSourceId", false);
+    this.entityAttributesLdapSearchScope = this.retrieveConfigString("entityResolver.searchScope", false);
+    this.entityAttributesLdapFilterPart = this.retrieveConfigString("entityResolver.filterPart", false);
+    this.entityAttributesLdapAttributes = this.retrieveConfigString("entityResolver.attributes", false);
+    this.entityAttributesLdapMutliValuedAttributes = this.retrieveConfigString("entityResolver.multiValuedLdapAttributes", false);
+    this.entityAttributesLdapMatchingSearchAttribute = this.retrieveConfigString("entityResolver.ldapMatchingSearchAttribute", false);
+    this.entityAttributesLdapMappingType = this.retrieveConfigString("entityResolver.ldapMappingType", false);
+    this.entityAttributesLdapMappingEntityAttribute = this.retrieveConfigString("entityResolver.ldapMappingEntityAttribute", false);
+    this.entityAttributesLdapMatchingExpression = this.retrieveConfigString("entityResolver.ldapMatchingExpression", false);
+    this.entityAttributesLdapLastUpdatedAttribute = this.retrieveConfigString("entityResolver.lastUpdatedAttribute", false);
+    this.entityAttributesLdapLastUpdatedAttributeFormat = this.retrieveConfigString("entityResolver.lastUpdatedFormat", false);
 
     // init this in the behavior
     this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().setGroupIdOfUsersToProvision(this.groupIdOfUsersToProvision);

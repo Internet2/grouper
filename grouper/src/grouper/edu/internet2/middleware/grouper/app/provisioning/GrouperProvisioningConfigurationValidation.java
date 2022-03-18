@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1178,6 +1179,18 @@ public class GrouperProvisioningConfigurationValidation {
 
   /**
    */
+  public void validateSelectAllEntities() {
+    //TODO
+    // GRP-3938: provisioning selectAllEntities should not have a default
+    if (StringUtils.isBlank(suffixToConfigValue.get("selectAllEntities"))) {
+      this.addErrorMessage(new ProvisioningValidationIssue()
+          .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.selectAllEntitiesRequired"))
+          .assignRuntimeError(true));
+    }
+  }
+  
+  /**
+   */
   public void validateSubjectSourceInEntityConfig() {
 
     // GRP-3911: subject sources to provision should not be in top config section
@@ -1188,6 +1201,31 @@ public class GrouperProvisioningConfigurationValidation {
             .assignRuntimeError(true));
       }
     }
-  }      
+  }
+  
+  
+  public void provisioningEntityResolverRefactorDontUseOldValues() {
+    
+    // FROM provisioner.genericProvisioner.entityAttributesNotInSubjectSource
+    // TO provisioner.genericProvisioner.entityResolver.entityAttributesNotInSubjectSource
+    
+    // GRP-3939: Refactor entity attribute resolver config
+    for (String suffixToRefactor : UpgradeTasks.v8_entityResolverSuffixesToRefactor) {
+      
+      String resolverValue = GrouperLoaderConfig.retrieveConfig().propertyValueString(suffixToRefactor);
+      if (StringUtils.isBlank(resolverValue)) {
+        continue;
+      }
+      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.cannotHaveSubjectSourcesIfNotShowingEntities");
+      errorMessage = errorMessage.replaceAll("$$attributeName$$", suffixToRefactor);
+
+      this.addErrorMessage(new ProvisioningValidationIssue()
+          .assignMessage(errorMessage)
+          .assignRuntimeError(true));
+      
+    }
+    
+  }
+  
 }
  
