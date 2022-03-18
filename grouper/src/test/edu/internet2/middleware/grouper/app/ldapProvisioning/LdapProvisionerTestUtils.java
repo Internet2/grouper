@@ -545,9 +545,26 @@ public class LdapProvisionerTestUtils {
    * @param explicitFilters specify the filters and dont let Grouper pick them
    * @param translateFromGrouperProvisioningGroupField is name or extension
    * @param updateGroupsAndDn if update group and dn
+   * @param businessCategoryTranslateFromGrouperProvisioningGroupField idIndex or id
+   * @param membershipAttribute member or description
+   * @param entityUidTranslateFromGrouperProvisioningEntityField subjectId or subjectIdentifier0
+   * @param subjectSourcesToProvision personLdapSource or jdbc
+   * @param insertEntityAttributes 
+   * @param entityAttributeCount 2 or 6
    */
-  public static void configureGroupAttributesWithEntityDn(String groupDnType, String groupDeleteType, boolean explicitFilters, String translateFromGrouperProvisioningGroupField, boolean updateGroupsAndDn) {
+  public static void configureGroupAttributesWithEntityDn(String groupDnType, String groupDeleteType, 
+      boolean explicitFilters, String translateFromGrouperProvisioningGroupField, boolean updateGroupsAndDn,
+      String businessCategoryTranslateFromGrouperProvisioningGroupField, String membershipAttribute, 
+      String entityUidTranslateFromGrouperProvisioningEntityField, String subjectSourcesToProvision,
+      boolean insertEntityAttributes, int entityAttributeCount) {
   
+    if (!StringUtils.equals("member", membershipAttribute) && !StringUtils.equals("description", membershipAttribute)) {
+      throw new RuntimeException("Expecting member or description but was '" + membershipAttribute + "'");
+    }
+    if (2 != entityAttributeCount && 6 != entityAttributeCount) {
+      throw new RuntimeException("Expecting 2 or 6 for entityAttributeCount but was '" + entityAttributeCount + "'");
+    }
+    
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.numberOfGroupAttributes", "6");
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.0.name").value("ldap_dn").store();
@@ -564,11 +581,14 @@ public class LdapProvisionerTestUtils {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.1.name").value("businessCategory").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.1.valueType").value("long").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.1.insert").value("true").store();
+    if (StringUtils.equals(businessCategoryTranslateFromGrouperProvisioningGroupField, "idIndex")) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.1.valueType").value("long").store();
+    }
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.1.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.1.matchingId").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.1.searchAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.1.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField").value("idIndex").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField").value(businessCategoryTranslateFromGrouperProvisioningGroupField).store();
   
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.2.name").value("cn").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.2.valueType").value("string").store();
@@ -587,34 +607,91 @@ public class LdapProvisionerTestUtils {
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.name").value("member").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.valueType").value("string").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.defaultValue").value("cn=admin,dc=example,dc=edu").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.multiValued").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.membershipAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.translateFromMemberSyncField").value("memberToId2").store();
-  
+    if (StringUtils.equals(membershipAttribute, "member")) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.defaultValue").value("cn=admin,dc=example,dc=edu").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.multiValued").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.membershipAttribute").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.translateFromMemberSyncField").value("memberToId2").store();
+    } else {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.translateExpressionType").value("translationScript").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.translateExpression").value("'cn' + '=' + 'somethingbogussincethisisrequired'").store();
+    }
+    
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.name").value("description").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.valueType").value("string").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.translateFromGrouperProvisioningGroupField").value("description").store();
+    if (StringUtils.equals(membershipAttribute, "description")) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.multiValued").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.membershipAttribute").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.translateFromMemberSyncField").value("memberToId2").store();
+    } else {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.insert").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.update").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.select").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.translateExpressionType").value("grouperProvisioningGroupField").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.5.translateFromGrouperProvisioningGroupField").value("description").store();
+    }    
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttributeCount").value("2").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttributeCount").value(entityAttributeCount + "").store();
   
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.0.name").value("ldap_dn").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.0.valueType").value("string").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.0.select").value("true").store();
+    if (insertEntityAttributes) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.0.insert").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.0.translateExpressionTypeCreateOnly").value("translationScript").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.0.translateExpressionCreateOnly").value("${'uid=' + grouperProvisioningEntity.retrieveAttributeValueString('" + entityUidTranslateFromGrouperProvisioningEntityField + "') + ',ou=People,dc=example,dc=edu'}").store();
+    }
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
   
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.1.name").value("uid").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.1.valueType").value("string").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.1.select").value("true").store();
+    if (insertEntityAttributes) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.1.required").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.1.insert").value("true").store();
+    }
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.1.matchingId").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.1.searchAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value(entityUidTranslateFromGrouperProvisioningEntityField).store();
+    
+    if (entityAttributeCount == 6) {
+      
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.2.name").value("sn").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.2.valueType").value("string").store();
+      if (insertEntityAttributes) {
+        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.2.insert").value("true").store();
+      }        
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.2.translateExpressionCreateOnly").value("'something'").store();
+      
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.3.name").value("cn").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.3.valueType").value("string").store();
+      if (insertEntityAttributes) {
+        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.3.insert").value("true").store();
+      }
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.3.translateExpressionCreateOnly").value("'something'").store();
+      
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.4.name").value("givenName").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.4.valueType").value("string").store();
+      if (insertEntityAttributes) {
+        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.4.insert").value("true").store();
+      }
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.4.translateExpressionCreateOnly").value("'something'").store();
+
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.5.name").value("objectClass").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.5.valueType").value("string").store();
+      if (insertEntityAttributes) {
+        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.5.insert").value("true").store();
+      }
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.5.multiValued").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetEntityAttribute.5.translateFromStaticValuesCreateOnly").value("top, organizationalPerson, person, inetOrgPerson, eduPerson").store();
+
+
+    }
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.class").value(LdapSync.class.getName()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.ldapExternalSystemConfigId").value("personLdap").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.subjectSourcesToProvision").value("personLdapSource").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.subjectSourcesToProvision").value(subjectSourcesToProvision).store();
   
     if (!StringUtils.isBlank(groupDeleteType)) {
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroups").value("true").store();
@@ -633,6 +710,9 @@ public class LdapProvisionerTestUtils {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.groupDnType").value(groupDnType).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.groupSearchBaseDn").value("ou=Groups,dc=example,dc=edu").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.insertGroups").value("true").store();
+    if (insertEntityAttributes) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.insertEntities").value("true").store();
+    }
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.insertMemberships").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteMemberships").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteMembershipsIfNotExistInGrouper").value("true").store();

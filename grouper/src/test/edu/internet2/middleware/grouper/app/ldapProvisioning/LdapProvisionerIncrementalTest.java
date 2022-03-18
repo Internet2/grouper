@@ -116,7 +116,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
     long millisStart = System.currentTimeMillis();
     GrouperUtil.sleep(100);
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("flat", "deleteGroupsIfNotExistInGrouper", true, "name", false);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("flat", "deleteGroupsIfNotExistInGrouper", true, "name", false, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
     
 
     // init stuff
@@ -241,7 +241,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   public void testIncremental2() {
   
   
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("flat", "deleteGroupsIfNotExistInGrouper", true, "name", true);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("flat", "deleteGroupsIfNotExistInGrouper", true, "name", true, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
 
     // init stuff
     runJobs(true, true);
@@ -367,7 +367,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   
   public void testIncrementalPolicyGroups() {
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("flat", "deleteGroupsIfNotExistInGrouper", true, "name", false);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("flat", "deleteGroupsIfNotExistInGrouper", true, "name", false, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.onlyProvisionPolicyGroups").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.allowPolicyGroupOverride").value("true").store();
@@ -451,7 +451,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   public void testIncrementalPolicyGroupsUsingFolder() {
 
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("flat", "deleteGroupsIfNotExistInGrouper", true, "name", false);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("flat", "deleteGroupsIfNotExistInGrouper", true, "name", false, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.onlyProvisionPolicyGroups").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.allowPolicyGroupOverride").value("true").store();
@@ -535,7 +535,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   
   public void testIncrementalRegexRestriction() {
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("flat", "deleteGroupsIfNotExistInGrouper", true, "name", false);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("flat", "deleteGroupsIfNotExistInGrouper", true, "name", false, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.provisionableRegex").value("groupExtension not matches ^.*_includes$|^.*_excludes$").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.allowProvisionableRegexOverride").value("true").store();

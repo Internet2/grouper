@@ -124,7 +124,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testFullLdapBushy() {
     
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, false, "name", true);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, false, "name", true, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     Stem test4Stem = new StemSave(this.grouperSession).assignName("test:test2:test3:test4").assignCreateParentStemsIfNotExist(true).save();
@@ -363,7 +363,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testIncrementalLdapBushy() {
     
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, true, "name", true);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, true, "name", true, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
     
     ConfigPropertiesCascadeBase.clearCache();
 
@@ -607,7 +607,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testFullLdapBushyWithCNName() {
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, true, "name", true);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, true, "name", true, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
     
     ConfigPropertiesCascadeBase.clearCache();
 
@@ -848,7 +848,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testIncrementalLdapBushyWithCNName() {
     
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, true, "name", true);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, true, "name", true, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
     
     ConfigPropertiesCascadeBase.clearCache();
 
