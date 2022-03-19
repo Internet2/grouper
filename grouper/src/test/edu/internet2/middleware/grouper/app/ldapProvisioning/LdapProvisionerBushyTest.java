@@ -9,7 +9,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
@@ -17,8 +16,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
@@ -123,8 +120,9 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   }
   
   public void testFullLdapBushy() {
-    
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, false, "name", true, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
+      
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+        new LdapProvisioningTestConfigInput().assignGroupDnType("bushy").assignUpdateGroupsAndDn(true));
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     Stem test4Stem = new StemSave(this.grouperSession).assignName("test:test2:test3:test4").assignCreateParentStemsIfNotExist(true).save();
@@ -363,7 +361,9 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testIncrementalLdapBushy() {
     
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, true, "name", true, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(new LdapProvisioningTestConfigInput()
+        .assignGroupDnType("bushy").assignExplicitFilters(true)
+        .assignUpdateGroupsAndDn(true));
     
     ConfigPropertiesCascadeBase.clearCache();
 
@@ -607,8 +607,12 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testFullLdapBushyWithCNName() {
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, true, "name", true, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
-    
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+        new LdapProvisioningTestConfigInput()
+        .assignGroupDnType("bushy")
+        .assignExplicitFilters(true)
+        .assignUpdateGroupsAndDn(true));
+
     ConfigPropertiesCascadeBase.clearCache();
 
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
@@ -848,7 +852,11 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testIncrementalLdapBushyWithCNName() {
     
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn("bushy", null, true, "name", true, "idIndex", "member", "subjectId", "personLdapSource", false, 2);
+    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+        new LdapProvisioningTestConfigInput()
+        .assignGroupDnType("bushy")
+        .assignExplicitFilters(true)
+        .assignUpdateGroupsAndDn(true));
     
     ConfigPropertiesCascadeBase.clearCache();
 
