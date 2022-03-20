@@ -131,7 +131,7 @@ public class LdapProvisionerUpdateBatchTest extends GrouperTest {
   
   public void testFullLdapUpdateBatch() {
     
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+    LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisioningTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
@@ -218,7 +218,7 @@ public class LdapProvisionerUpdateBatchTest extends GrouperTest {
 
   public void testIncrementalLdapUpdateBatch() {
     
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+    LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisioningTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")

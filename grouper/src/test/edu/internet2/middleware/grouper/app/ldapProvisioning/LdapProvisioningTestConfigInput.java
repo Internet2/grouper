@@ -1,18 +1,138 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
+import static org.junit.Assume.assumeFalse;
+
+import java.util.HashMap;
+import java.util.Map;
+
 public class LdapProvisioningTestConfigInput {
+
+  /**
+   * if allow dn override with config (default false)
+   */
+  private boolean dnOverrideConfig;
+  
+  
+  /**
+   * if allow dn override with config (default false)
+   * @return
+   */
+  public boolean isDnOverrideConfig() {
+    return dnOverrideConfig;
+  }
+
+  /**
+   * 
+   * @param dnOverrideConfig
+   */
+  public LdapProvisioningTestConfigInput assignDnOverrideConfig(boolean dnOverrideConfig) {
+    this.dnOverrideConfig = dnOverrideConfig;
+    return this;
+  }
+
+  /**
+   * if allow dn override with translation (default false)
+   */
+  private boolean dnOverrideScript;
+  
+  
+  /**
+   * if allow dn override with translation (default false)
+   */
+  public boolean isDnOverrideScript() {
+    return dnOverrideScript;
+  }
+
+  /**
+   * if allow dn override with translation (default false)
+   * @param dnOverrideScript
+   */
+  public LdapProvisioningTestConfigInput assignDnOverrideScript(boolean dnOverride) {
+    this.dnOverrideScript = dnOverride;
+    return this;
+  }
+
+  /**
+   * extra config by suffix and value
+   */
+  private Map<String, String> extraConfig = new HashMap<String, String>();
+
+  /**
+   * extra config by suffix and value
+   * @param suffix
+   * @param value
+   * @return this for chaining
+   */
+  public LdapProvisioningTestConfigInput addExtraConfig(String suffix, String value) {
+    this.extraConfig.put(suffix, value);
+    return this;
+  }
+
+  
+  /**
+   * extra config by suffix and value
+   * @return map
+   */
+  public Map<String, String> getExtraConfig() {
+    return this.extraConfig;
+  }
+
+  /**
+   * if posix and gidnumber, default to false
+   */
+  private boolean posixGroup;
+  
+  /**
+   * if posix and gidnumber, default to false
+   * @return
+   */
+  public boolean isPosixGroup() {
+    return posixGroup;
+  }
+
+  /**
+   * if posix and gidnumber, default to false
+   * @param posixGroup
+   */
+  public LdapProvisioningTestConfigInput assignPosixGroup(boolean posixGroup) {
+    this.posixGroup = posixGroup;
+    return this;
+  }
+
+  /**
+   * if entity attributes instead of group attributes (default)
+   */
+  private boolean membershipStructureEntityAttributes;
+
+  /**
+   * if entity attributes instead of group attributes (default)
+   * @return if entity attributes
+   */
+  public boolean isMembershipStructureEntityAttributes() {
+    return this.membershipStructureEntityAttributes;
+  }
+
+  /**
+   * if entity attributes instead of group attributes (default)
+   * @param membershipStructureEntityAttributes1
+   * @return this for chaining
+   */
+  public LdapProvisioningTestConfigInput assignMembershipStructureEntityAttributes(boolean membershipStructureEntityAttributes1) {
+    this.membershipStructureEntityAttributes = membershipStructureEntityAttributes1;
+    return this;
+  }
 
   /**
    * groupDnType flat (default) or bushy
    */
-  private String groupDnType = "flat";
+  private boolean groupDnTypeBushy = false;
 
   /**
    * groupDnType flat (default) or bushy
    * @return
    */
-  public String getGroupDnType() {
-    return groupDnType;
+  public boolean isGroupDnTypeBushy() {
+    return groupDnTypeBushy;
   }
 
   /**
@@ -20,8 +140,8 @@ public class LdapProvisioningTestConfigInput {
    * @param groupDnType
    * @return this for chaining
    */
-  public LdapProvisioningTestConfigInput assignGroupDnType(String groupDnType) {
-    this.groupDnType = groupDnType;
+  public LdapProvisioningTestConfigInput assignGroupDnTypeBushy(boolean groupDnType) {
+    this.groupDnTypeBushy = groupDnType;
     return this;
   }
 
@@ -38,7 +158,31 @@ public class LdapProvisioningTestConfigInput {
   /**
    * name (default) or extension
    */
-  private String translateFromGrouperProvisioningGroupField;
+  private String translateFromGrouperProvisioningGroupField = "name";
+
+  /**
+   * if crud for entity and dn update should be true (default false)
+   */
+  private boolean updateEntitiesAndDn = false;
+
+  
+  /**
+   * if crud for entity and dn update should be true (default false)
+   * @return if update entities and dn
+   */
+  public boolean isUpdateEntitiesAndDn() {
+    return this.updateEntitiesAndDn;
+  }
+
+  /**
+   * if crud for entity and dn update should be true (default false)
+   * @param updateEntitiesAndDn1
+   * @return this for chaining
+   */
+  public LdapProvisioningTestConfigInput assignUpdateEntitiesAndDn(boolean updateEntitiesAndDn1) {
+    this.updateEntitiesAndDn = updateEntitiesAndDn1;
+    return this;
+  }
 
   /**
    * if crud for group and dn update should be true (default false)
@@ -203,17 +347,32 @@ public class LdapProvisioningTestConfigInput {
   }
 
   /**
-   * 2 (default) or 6 (if has extended entity attributes
+   * 0, 2 (default), 3 or 6 (if has extended entity attributes
    */
   public int getEntityAttributeCount() {
     return entityAttributeCount;
   }
 
   /**
-   * 2 (default) or 6 (if has extended entity attributes
+   * 0, 2 (default), 3 or 6 (if has extended entity attributes
    */
   public LdapProvisioningTestConfigInput assignEntityAttributeCount(int entityAttributeCount) {
     this.entityAttributeCount = entityAttributeCount;
+    return this;
+  }
+
+  /**
+   * 0, 1, or 6 (default)
+   */
+  public int getGroupAttributeCount() {
+    return groupAttributeCount;
+  }
+
+  /**
+   * 0, 1, or 6 (default)
+   */
+  public LdapProvisioningTestConfigInput assignGroupAttributeCount(int groupAttributeCount) {
+    this.groupAttributeCount = groupAttributeCount;
     return this;
   }
 
@@ -238,7 +397,31 @@ public class LdapProvisioningTestConfigInput {
   private boolean insertEntityAndAttributes = false;
 
   /**
-   * 2 (default) or 6 (if has extended entity attributes
+   * if there should be an entitlement metadata
+   */
+  private boolean entitlementMetadata = false;
+  
+  
+  /**
+   * if there should be an entitlement metadata
+   * @return true if so
+   */
+  public boolean isEntitlementMetadata() {
+    return this.entitlementMetadata;
+  }
+
+  /**
+   * if there should be an entitlement metadata
+   * @param entitlementMetadata1
+   * @return this for chaining
+   */
+  public LdapProvisioningTestConfigInput assignEntitlementMetadata(boolean entitlementMetadata1) {
+    this.entitlementMetadata = entitlementMetadata1;
+    return this;
+  }
+
+  /**
+   * 0, 2 (default), 3 or 6 (if has extended entity attributes
    */
   private int entityAttributeCount = 2;
 
@@ -246,6 +429,11 @@ public class LdapProvisioningTestConfigInput {
    * default to ldapProvTest
    */
   private String configId = "ldapProvTest";
+
+  /**
+   * 0, 1, or 6 (default)
+   */
+  private int groupAttributeCount = 6;
   
   /**
    * default to ldapProvTest

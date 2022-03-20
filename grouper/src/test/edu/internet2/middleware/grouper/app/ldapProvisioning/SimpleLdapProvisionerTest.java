@@ -122,7 +122,13 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    */
   public void testSimpleLdapProvisionerFullLatestConfig_1() {
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc"));
+    
     long started = System.currentTimeMillis();
     
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
@@ -231,7 +237,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncGroup.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncGroup.getGroupToId2());
+    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", gcGrouperSyncGroup.getGroupToId2());
     assertNull(gcGrouperSyncGroup.getGroupFromId2());
     assertNull(gcGrouperSyncGroup.getGroupFromId3());
     assertNull(gcGrouperSyncGroup.getGroupToId3());
@@ -311,7 +317,12 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     ExpirableCache.clearAll();
     source.setSubjectIdentifierAttributesAll(null);
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc"));
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.subjectIdentifierForMemberSyncTable").value("subjectIdentifier2").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.translateFromMemberSyncField").value("subjectIdentifier").store();
@@ -498,7 +509,12 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   
   public void testDeletingAGroupOnGrouperSideShouldRemoveFromLdapAsWell() {
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc"));
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroups").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroupsIfNotExistInGrouper").value("true").store();
@@ -573,7 +589,12 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   
   public void testDeletingAGroupOnGrouperSideVariousDeleteTypesFullProvisioning() {
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc"));
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroups").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroupsIfGrouperCreated").value("true").store();
@@ -689,7 +710,12 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   
   public void testDeletingAGroupOnGrouperSideVariousDeleteTypesIncrementalProvisioning() {
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc"));
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroups").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroupsIfGrouperCreated").value("true").store();
@@ -806,7 +832,12 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   
   public void testAddSingleGroupToLdapWithoutAnyMembers() {
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc"));
         
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     
@@ -844,7 +875,12 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   
   public void testAddSingleGroupToLdapWithoutParentFolderProvisioning() {
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc"));
     
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     
@@ -889,7 +925,12 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   
   public void testAddGroupThenRemoveManuallyThenAddAgainUsingProvisioning() {
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc"));
 
     // note, targetGroupLink was false for some reason in original test
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.delete").delete();
@@ -1008,8 +1049,14 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    */
   public void testSimpleLdapEntityProvisionerFull() {
     
-    LdapProvisionerTestUtils.configureUserAttributeGroupExtension();
-    
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+          .assignConfigId("eduPersonEntitlement")
+          .assignGroupAttributeCount(0)
+          .assignEntityAttributeCount(3)
+          .assignExplicitFilters(true)
+          );
+          
     long started = System.currentTimeMillis();
 
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
@@ -1132,11 +1179,17 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
 
     new LdapSyncDaoForLdap().modify("personLdap", "uid=banderson,ou=People,dc=example,dc=edu", ldapModificationItems);
 
-    LdapProvisionerTestUtils.configureUserAttributesGroupExtensionOrMetadata();
-    
-    long started = System.currentTimeMillis();
-
-    // ldap specific properties
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+          .assignConfigId("eduPersonEntitlement")
+          .assignTranslateFromGrouperProvisioningGroupField("extension")
+          .assignGroupAttributeCount(1)
+          .assignEntityAttributeCount(3)
+          .assignExplicitFilters(true)
+          .assignEntitlementMetadata(true)
+          );
+     
+     // ldap specific properties
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.eduPersonEntitlement.logAllObjectsVerbose", "true");
 
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
@@ -1272,7 +1325,12 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    */
   public void testSimpleLdapProvisionerRestrictGroup() {
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc"));
     
     long started = System.currentTimeMillis();
 
@@ -1473,7 +1531,12 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    */
   public void testSimpleLdapProvisionerFullOverrideDn() {
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc"));
     
     long started = System.currentTimeMillis();
         

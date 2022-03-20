@@ -121,8 +121,10 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testFullLdapBushy() {
       
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
-        new LdapProvisioningTestConfigInput().assignGroupDnType("bushy").assignUpdateGroupsAndDn(true));
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()        
+        .assignGroupDnTypeBushy(true)
+        .assignUpdateGroupsAndDn(true));
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     Stem test4Stem = new StemSave(this.grouperSession).assignName("test:test2:test3:test4").assignCreateParentStemsIfNotExist(true).save();
@@ -361,8 +363,9 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testIncrementalLdapBushy() {
     
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(new LdapProvisioningTestConfigInput()
-        .assignGroupDnType("bushy").assignExplicitFilters(true)
+    LdapProvisionerTestUtils.configureLdapProvisioner(new LdapProvisioningTestConfigInput()
+        .assignGroupDnTypeBushy(true)
+        .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true));
     
     ConfigPropertiesCascadeBase.clearCache();
@@ -607,9 +610,9 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testFullLdapBushyWithCNName() {
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+    LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisioningTestConfigInput()
-        .assignGroupDnType("bushy")
+        .assignGroupDnTypeBushy(true)
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true));
 
@@ -852,9 +855,9 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testIncrementalLdapBushyWithCNName() {
     
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+    LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisioningTestConfigInput()
-        .assignGroupDnType("bushy")
+        .assignGroupDnTypeBushy(true)
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true));
     

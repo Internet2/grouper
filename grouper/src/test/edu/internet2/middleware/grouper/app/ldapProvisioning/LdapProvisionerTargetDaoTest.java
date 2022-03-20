@@ -83,7 +83,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperTest {
   
   public void testRetrieveMembership() {
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+    LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisioningTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")

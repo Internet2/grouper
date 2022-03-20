@@ -95,8 +95,16 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
   
   public void testGroupAndMembershipInsertAndDelete() {
     
-    LdapProvisionerTestUtils.configureBushyEntityDnManyAttributes();
-    
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignUpdateGroupsAndDn(true)
+        .assignTranslateFromGrouperProvisioningGroupField("extension")
+        .assignGroupDnTypeBushy(true)
+        .assignEntityAttributeCount(6)
+        .assignInsertEntityAndAttributes(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignSubjectSourcesToProvision("jdbc"));
+
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
@@ -328,21 +336,18 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
   
   public void testGroupAndMembershipWithoutEntitiesInsertAndDelete() {
     
-    LdapProvisionerTestUtils.configureGroupFlatSubjectId();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.0.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField").value("groupToId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField").value("extension").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroupsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.groupDnType").value("bushy").store();
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisioningTestConfigInput()
+        .assignUpdateGroupsAndDn(true)
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
+        .assignEntityAttributeCount(0)
+        .assignSubjectSourcesToProvision("jdbc")
+        .assignGroupDnTypeBushy(true)
+        .assignTranslateFromGrouperProvisioningGroupField("extension")
+        );
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.operateOnGrouperEntities").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.updateGroups").value("true").store();
-    ConfigPropertiesCascadeBase.clearCache();
-
-
-    
+        
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
@@ -559,7 +564,15 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
   
  public void testEntityAndMembershipInsertAndDelete() {
     
-   LdapProvisionerTestUtils.configureUserAttributesManyGroupNameFormatted();  
+   LdapProvisionerTestUtils.configureLdapProvisioner(
+       new LdapProvisioningTestConfigInput()
+         .assignMembershipStructureEntityAttributes(true)
+         .assignGroupAttributeCount(1)
+         .assignUpdateEntitiesAndDn(true)
+         .assignInsertEntityAndAttributes(true)
+         .assignEntityAttributeCount(6)
+         .addExtraConfig("targetGroupAttribute.0.translateExpression", "${'someprefix:' + grouperProvisioningGroup.name}")
+       );          
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     

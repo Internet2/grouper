@@ -116,7 +116,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
     long millisStart = System.currentTimeMillis();
     GrouperUtil.sleep(100);
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+    LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisioningTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true));
@@ -244,7 +244,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   public void testIncremental2() {
   
   
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+    LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisioningTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true)
@@ -374,7 +374,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   
   public void testIncrementalPolicyGroups() {
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+    LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisioningTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true));
@@ -460,7 +460,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   
   public void testIncrementalPolicyGroupsUsingFolder() {
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+    LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisioningTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true));
@@ -547,7 +547,7 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   
   public void testIncrementalRegexRestriction() {
 
-    LdapProvisionerTestUtils.configureGroupAttributesWithEntityDn(
+    LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisioningTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true));
