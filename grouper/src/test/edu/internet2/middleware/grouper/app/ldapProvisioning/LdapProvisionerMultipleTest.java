@@ -97,7 +97,7 @@ public class LdapProvisionerMultipleTest extends GrouperTest {
   public void testMultipleProvisionersFull() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true));
@@ -105,7 +105,7 @@ public class LdapProvisionerMultipleTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.groupSearchBaseDn").value("ou=ldapProvTest,ou=Groups,dc=example,dc=edu").store();
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput().assignConfigId("ldapProvTest2")
+        new LdapProvisionerTestConfigInput().assignConfigId("ldapProvTest2")
         .assignUpdateGroupsAndDn(true)
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true));

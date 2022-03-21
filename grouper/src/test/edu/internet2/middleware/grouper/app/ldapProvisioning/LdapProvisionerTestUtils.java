@@ -23,9 +23,6 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class LdapProvisionerTestUtils {
   
   public static void main(String args[]) throws Exception {
-    GrouperStartup.startup();
-    stopAndRemoveLdapContainer();
-    startLdapContainer();
   }
   
   private static String dockerPath = null;
@@ -179,7 +176,7 @@ public class LdapProvisionerTestUtils {
    * @param suffix
    * @param value
    */
-  private static void configureProvisionerSuffix(LdapProvisioningTestConfigInput ldapProvisioningTestConfigInput, String suffix, String value) {
+  private static void configureProvisionerSuffix(LdapProvisionerTestConfigInput ldapProvisioningTestConfigInput, String suffix, String value) {
     // if its overridden then dont set
     if (!ldapProvisioningTestConfigInput.getExtraConfig().containsKey(suffix)) {
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner." + ldapProvisioningTestConfigInput.getConfigId() + "." + suffix).value(value).store();
@@ -212,7 +209,7 @@ public class LdapProvisionerTestUtils {
    *    .addExtraConfig("allowProvisionableRegexOverride", "true")
    *
    */
-  public static void configureLdapProvisioner(LdapProvisioningTestConfigInput ldapProvisioningTestConfigInput) {
+  public static void configureLdapProvisioner(LdapProvisionerTestConfigInput ldapProvisioningTestConfigInput) {
 
     if (!StringUtils.equals("member", ldapProvisioningTestConfigInput.getMembershipAttribute()) 
         && !StringUtils.equals("description", ldapProvisioningTestConfigInput.getMembershipAttribute())) {

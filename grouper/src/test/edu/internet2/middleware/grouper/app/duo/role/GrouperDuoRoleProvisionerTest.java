@@ -10,7 +10,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.duo.DuoProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
@@ -18,7 +18,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
@@ -30,7 +29,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -45,25 +43,16 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
   public GrouperDuoRoleProvisionerTest() {
 
   }
-  
+
   public static void main(String[] args) {
     GrouperStartup.startup();
     TestRunner.run(new GrouperDuoRoleProvisionerTest("testFullProvisionInsertUpdateDeleteAdministrator"));
   }
-  
+
   public void setUp() {
     super.setUp();
-    
-    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
-    boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
-    //ssl = true;
-    String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
-    
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.duoConnector.duo1.adminDomainName").value("api-8b39645d.duosecurity.com").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.duoConnector.duo1.adminIntegrationKey").value("DI3GFYRTLYKA0J3E3U1H").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.duoConnector.duo1.adminSecretKey").value("PxtwEr5XxxpGHYxj39vQnmjtPKEq1G1rurdwH7N5").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.duoConnector.duo1.useSsl").value(ssl ? "true":"false").store();
-//    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.duo.mock.configId").value("duo1").store();
+
+    DuoProvisionerTestUtils.setupDuoExternalSystem();
     
     try {
       GrouperDuoRoleApiCommands.retrieveDuoAdministrators("duo1");
@@ -85,7 +74,7 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
       return;
     }
 
-    configure();
+    DuoRoleProvisionerTestUtils.configureDuoRoleProvisioner(new DuoRoleProvisionerTestConfigInput());
 
     GrouperStartup.startup();
     
@@ -117,8 +106,8 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
       
       GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);
-      attributeValue.setDoProvision("myDuoProvisioner");
-      attributeValue.setTargetName("myDuoProvisioner");
+      attributeValue.setDoProvision("myDuoRoleProvisioner");
+      attributeValue.setTargetName("myDuoRoleProvisioner");
       
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
       metadataNameValues.put("md_grouper_duoRoles", "Help Desk");
@@ -127,8 +116,8 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
       
       attributeValue = new GrouperProvisioningAttributeValue();
-      attributeValue.setDoProvision("myDuoProvisioner");
-      attributeValue.setTargetName("myDuoProvisioner");
+      attributeValue.setDoProvision("myDuoRoleProvisioner");
+      attributeValue.setTargetName("myDuoRoleProvisioner");
       
       metadataNameValues = new HashMap<String, Object>();
       metadataNameValues.put("md_grouper_duoEmail", "test.subject.0@grouper.com");
@@ -146,7 +135,7 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
           MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true));
   
       //lets sync these over
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoProvisioner");
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoRoleProvisioner");
       
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_duo_role_user").select(int.class));
       
@@ -154,20 +143,20 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperDuoRoleUser").list(GrouperDuoRoleUser.class).size());
       
-      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myDuoProvisioner");
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myDuoRoleProvisioner");
       assertEquals(3, gcGrouperSync.getUserCount().intValue());
       
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
-      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoProvisioner");
+      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoRoleProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoRoleUser").list(GrouperDuoRoleUser.class).size());
 //      
       //now delete the group and sync again
       testGroup.delete();
       
-      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoProvisioner");
+      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoRoleProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoRoleUser").list(GrouperDuoRoleUser.class).size());
@@ -181,99 +170,15 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
     
   }
   
-  private static void configure() {
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.class").value("edu.internet2.middleware.grouper.app.duo.role.GrouperDuoRoleProvisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.deleteMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.deleteMembershipsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.duoExternalSystemConfigId").value("duo1").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.hasTargetEntityLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.hasTargetGroupLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.deleteEntitiesIfGrouperDeleted").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.insertMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.numberOfEntityAttributes").value("4").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.numberOfGroupAttributes").value("1").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.operateOnGrouperGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.operateOnGrouperMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.provisioningType").value("entityAttributes").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.selectEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.selectAllEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.selectMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.showAdvanced").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.subjectSourcesToProvision").value("jdbc").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.name").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.required").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.translateExpression").value("grouperProvisioningEntity.retrieveAttributeValueString('md_grouper_duoEmail')").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.translateExpressionType").value("translationScript").store(); 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.valueType").value("string").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.0.translateGrouperToMemberSyncField").value("memberFromId2").store();
-
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.1.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.1.required").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.1.valueType").value("string").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.2.name").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.2.translateToMemberSyncField").value("memberToId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.2.valueType").value("string").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.name").value("role").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.required").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.select").value("true").store();
-//    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
-//    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("role").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.valueType").value("string").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.multiValued").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.membershipAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetEntityAttribute.3.translateFromGroupSyncField").value("groupFromId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetGroupAttribute.0.name").value("role").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetGroupAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetGroupAttribute.0.translateExpression").value("grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_duoRoles')").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetGroupAttribute.0.valueType").value("string").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetGroupAttribute.0.required").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.targetGroupAttribute.0.translateGrouperToGroupSyncField").value("groupFromId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myDuoProvisioner.updateEntities").value("true").store();
-    ConfigPropertiesCascadeBase.clearCache();
-
-  }
-  
   public void testIncrementalProvisionInsertUpdateDeleteAdministrator() {
     
     if (!tomcatRunTests()) {
       return;
     }
 
-    configure();
+    DuoRoleProvisionerTestUtils.configureDuoRoleProvisioner(new DuoRoleProvisionerTestConfigInput());
     GrouperStartup.startup();
     
-    // edu.internet2.middleware.grouper.changeLog.esb.consumer
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.class", EsbConsumer.class.getName());
-    // edu.internet2.middleware.grouper.app.provisioning
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.quartzCron",  "0 0 5 * * 2000");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.provisionerConfigId", "myDuoProvisioner");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.publisher.debug", "true");
-
     if (startTomcat) {
       CommandLineExec commandLineExec = tomcatStart();
     }
@@ -284,7 +189,7 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
 //  
       new GcDbAccess().connectionName("grouper").sql("delete from mock_duo_role_user").executeSql();
       
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoProvisioner");
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoRoleProvisioner");
       
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_duo_role_user").select(int.class));
       
@@ -310,8 +215,8 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
       
       GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);
-      attributeValue.setDoProvision("myDuoProvisioner");
-      attributeValue.setTargetName("myDuoProvisioner");
+      attributeValue.setDoProvision("myDuoRoleProvisioner");
+      attributeValue.setTargetName("myDuoRoleProvisioner");
       
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
       metadataNameValues.put("md_grouper_duoRoles", "Help Desk");
@@ -320,8 +225,8 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
       
       attributeValue = new GrouperProvisioningAttributeValue();
-      attributeValue.setDoProvision("myDuoProvisioner");
-      attributeValue.setTargetName("myDuoProvisioner");
+      attributeValue.setDoProvision("myDuoRoleProvisioner");
+      attributeValue.setTargetName("myDuoRoleProvisioner");
       
       metadataNameValues = new HashMap<String, Object>();
       metadataNameValues.put("md_grouper_duoEmail", "test.subject.0@grouper.com");

@@ -96,7 +96,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
   public void testGroupAndMembershipInsertAndDelete() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .assignTranslateFromGrouperProvisioningGroupField("extension")
         .assignGroupDnTypeBushy(true)
@@ -337,7 +337,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
   public void testGroupAndMembershipWithoutEntitiesInsertAndDelete() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
@@ -565,7 +565,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
  public void testEntityAndMembershipInsertAndDelete() {
     
    LdapProvisionerTestUtils.configureLdapProvisioner(
-       new LdapProvisioningTestConfigInput()
+       new LdapProvisionerTestConfigInput()
          .assignMembershipStructureEntityAttributes(true)
          .assignGroupAttributeCount(1)
          .assignUpdateEntitiesAndDn(true)

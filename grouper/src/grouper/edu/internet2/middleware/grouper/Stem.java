@@ -2378,8 +2378,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       final boolean checkSecurity)
       throws GroupAddException, InsufficientPrivilegeException {
     
-    final String errorMessageSuffix = ", stem name: " + this.name + ", group extension: " + extn
-      + ", group dExtension: " + dExtn + ", uuid: " + uuid + ", typeOfGroup: " + typeOfGroup;
+    final String errorMessageSuffix = ", stem name: '" + this.name + "', group extension: '" + extn
+      + "', group dExtension: '" + dExtn + "', uuid: " + uuid + ", typeOfGroup: " + typeOfGroup;
     
     Group group = (Group)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,

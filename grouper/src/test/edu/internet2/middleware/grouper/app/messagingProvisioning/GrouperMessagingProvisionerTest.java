@@ -51,32 +51,32 @@ public class GrouperMessagingProvisionerTest extends GrouperTest {
     boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
     String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.messagingExternalSystemConfigId").value("grouperBuiltinMessaging").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.class").value("edu.internet2.middleware.grouper.app.messagingProvisioning.GrouperMessagingProvisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.deleteEntitiesIfGrouperDeleted").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.deleteGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.deleteGroupsIfGrouperDeleted").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.deleteMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.deleteMembershipsIfGrouperDeleted").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.insertGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.insertMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.messagingFormatType").value("EsbEventJson").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.operateOnGrouperGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.operateOnGrouperMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.provisioningType").value("membershipObjects").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.messagingExternalSystemConfigId").value("grouperBuiltinMessaging").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.class").value("edu.internet2.middleware.grouper.app.messagingProvisioning.GrouperMessagingProvisioner").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.debugLog").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.deleteEntities").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.deleteEntitiesIfGrouperDeleted").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.deleteGroups").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.deleteGroupsIfGrouperDeleted").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.deleteMemberships").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.deleteMembershipsIfGrouperDeleted").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.insertEntities").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.insertGroups").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.insertMemberships").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.logAllObjectsVerbose").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.messagingFormatType").value("EsbEventJson").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.operateOnGrouperEntities").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.operateOnGrouperGroups").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.operateOnGrouperMemberships").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.provisioningType").value("membershipObjects").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.queueOrTopicName").value("testSqsQueue").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.queueType").value("queue").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.queueOrTopicName").value("testSqsQueue").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.queueType").value("queue").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.showAdvanced").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.updateEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.test.updateGroups").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.showAdvanced").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.subjectSourcesToProvision").value("jdbc").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.updateEntities").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myMessagingProvisioner.updateGroups").value("true").store();
 
     GrouperStartup.startup();
     
@@ -85,7 +85,7 @@ public class GrouperMessagingProvisionerTest extends GrouperTest {
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.messagingProvTestCLC.publisher.class", ProvisioningConsumer.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.messagingProvTestCLC.quartzCron",  "0 0 5 * * 2000");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.messagingProvTestCLC.provisionerConfigId", "test");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.messagingProvTestCLC.provisionerConfigId", "myMessagingProvisioner");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.messagingProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.messagingProvTestCLC.publisher.debug", "true");
 
@@ -101,7 +101,7 @@ public class GrouperMessagingProvisionerTest extends GrouperTest {
         // TODO: handle exception
       }
 
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("test");
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myMessagingProvisioner");
       
       GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
       
@@ -124,8 +124,8 @@ public class GrouperMessagingProvisionerTest extends GrouperTest {
       
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);
-      attributeValue.setDoProvision("test");
-      attributeValue.setTargetName("test");
+      attributeValue.setDoProvision("myMessagingProvisioner");
+      attributeValue.setTargetName("myMessagingProvisioner");
       attributeValue.setStemScopeString("sub");
   
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);

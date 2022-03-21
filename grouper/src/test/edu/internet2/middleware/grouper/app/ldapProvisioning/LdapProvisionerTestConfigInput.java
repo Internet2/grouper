@@ -5,7 +5,7 @@ import static org.junit.Assume.assumeFalse;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LdapProvisioningTestConfigInput {
+public class LdapProvisionerTestConfigInput {
 
   /**
    * if allow dn override with config (default false)
@@ -25,7 +25,7 @@ public class LdapProvisioningTestConfigInput {
    * 
    * @param dnOverrideConfig
    */
-  public LdapProvisioningTestConfigInput assignDnOverrideConfig(boolean dnOverrideConfig) {
+  public LdapProvisionerTestConfigInput assignDnOverrideConfig(boolean dnOverrideConfig) {
     this.dnOverrideConfig = dnOverrideConfig;
     return this;
   }
@@ -47,7 +47,7 @@ public class LdapProvisioningTestConfigInput {
    * if allow dn override with translation (default false)
    * @param dnOverrideScript
    */
-  public LdapProvisioningTestConfigInput assignDnOverrideScript(boolean dnOverride) {
+  public LdapProvisionerTestConfigInput assignDnOverrideScript(boolean dnOverride) {
     this.dnOverrideScript = dnOverride;
     return this;
   }
@@ -63,7 +63,7 @@ public class LdapProvisioningTestConfigInput {
    * @param value
    * @return this for chaining
    */
-  public LdapProvisioningTestConfigInput addExtraConfig(String suffix, String value) {
+  public LdapProvisionerTestConfigInput addExtraConfig(String suffix, String value) {
     this.extraConfig.put(suffix, value);
     return this;
   }
@@ -94,7 +94,7 @@ public class LdapProvisioningTestConfigInput {
    * if posix and gidnumber, default to false
    * @param posixGroup
    */
-  public LdapProvisioningTestConfigInput assignPosixGroup(boolean posixGroup) {
+  public LdapProvisionerTestConfigInput assignPosixGroup(boolean posixGroup) {
     this.posixGroup = posixGroup;
     return this;
   }
@@ -117,7 +117,7 @@ public class LdapProvisioningTestConfigInput {
    * @param membershipStructureEntityAttributes1
    * @return this for chaining
    */
-  public LdapProvisioningTestConfigInput assignMembershipStructureEntityAttributes(boolean membershipStructureEntityAttributes1) {
+  public LdapProvisionerTestConfigInput assignMembershipStructureEntityAttributes(boolean membershipStructureEntityAttributes1) {
     this.membershipStructureEntityAttributes = membershipStructureEntityAttributes1;
     return this;
   }
@@ -140,16 +140,11 @@ public class LdapProvisioningTestConfigInput {
    * @param groupDnType
    * @return this for chaining
    */
-  public LdapProvisioningTestConfigInput assignGroupDnTypeBushy(boolean groupDnType) {
+  public LdapProvisionerTestConfigInput assignGroupDnTypeBushy(boolean groupDnType) {
     this.groupDnTypeBushy = groupDnType;
     return this;
   }
 
-  /**
-   * groupDeleteType e.g. deleteGroupsIfNotExistInGrouper or deleteGroupsIfGrouperDeleted or deleteGroupsIfGrouperCreated or null (default)
-   */
-  private String groupDeleteType; 
-  
   /**
    * true to set an explicit searchall or search one filter, false to let grouper figure that out (default)
    */
@@ -179,7 +174,7 @@ public class LdapProvisioningTestConfigInput {
    * @param updateEntitiesAndDn1
    * @return this for chaining
    */
-  public LdapProvisioningTestConfigInput assignUpdateEntitiesAndDn(boolean updateEntitiesAndDn1) {
+  public LdapProvisionerTestConfigInput assignUpdateEntitiesAndDn(boolean updateEntitiesAndDn1) {
     this.updateEntitiesAndDn = updateEntitiesAndDn1;
     return this;
   }
@@ -197,6 +192,12 @@ public class LdapProvisioningTestConfigInput {
   /**
    * groupDeleteType e.g. deleteGroupsIfNotExistInGrouper or deleteGroupsIfGrouperDeleted or deleteGroupsIfGrouperCreated or null (default)
    */
+  private String groupDeleteType; 
+  
+
+  /**
+   * groupDeleteType e.g. deleteGroupsIfNotExistInGrouper or deleteGroupsIfGrouperDeleted or deleteGroupsIfGrouperCreated or null (default)
+   */
   public String getGroupDeleteType() {
     return groupDeleteType;
   }
@@ -206,7 +207,7 @@ public class LdapProvisioningTestConfigInput {
    * @param groupDeleteType
    * @return this for chaining
    */
-  public LdapProvisioningTestConfigInput assignGroupDeleteType(String groupDeleteType) {
+  public LdapProvisionerTestConfigInput assignGroupDeleteType(String groupDeleteType) {
     this.groupDeleteType = groupDeleteType;
     return this;
   }
@@ -224,7 +225,7 @@ public class LdapProvisioningTestConfigInput {
    * @param explicitFilters
    * @return
    */
-  public LdapProvisioningTestConfigInput assignExplicitFilters(boolean explicitFilters) {
+  public LdapProvisionerTestConfigInput assignExplicitFilters(boolean explicitFilters) {
     this.explicitFilters = explicitFilters;
     return this;
   }
@@ -240,7 +241,7 @@ public class LdapProvisioningTestConfigInput {
    * name (default) or extension
    * @param translateFromGrouperProvisioningGroupField
    */
-  public LdapProvisioningTestConfigInput assignTranslateFromGrouperProvisioningGroupField(String translateFromGrouperProvisioningGroupField) {
+  public LdapProvisionerTestConfigInput assignTranslateFromGrouperProvisioningGroupField(String translateFromGrouperProvisioningGroupField) {
     this.translateFromGrouperProvisioningGroupField = translateFromGrouperProvisioningGroupField;
     return this;
   }
@@ -258,7 +259,7 @@ public class LdapProvisioningTestConfigInput {
    * @param updateGroupsAndDn
    * @return
    */
-  public LdapProvisioningTestConfigInput assignUpdateGroupsAndDn(boolean updateGroupsAndDn) {
+  public LdapProvisionerTestConfigInput assignUpdateGroupsAndDn(boolean updateGroupsAndDn) {
     this.updateGroupsAndDn = updateGroupsAndDn;
     return this;
   }
@@ -276,7 +277,7 @@ public class LdapProvisioningTestConfigInput {
    * @param businessCategoryTranslateFromGrouperProvisioningGroupField
    * @return
    */
-  public LdapProvisioningTestConfigInput assignBusinessCategoryTranslateFromGrouperProvisioningGroupField(
+  public LdapProvisionerTestConfigInput assignBusinessCategoryTranslateFromGrouperProvisioningGroupField(
       String businessCategoryTranslateFromGrouperProvisioningGroupField) {
     this.businessCategoryTranslateFromGrouperProvisioningGroupField = businessCategoryTranslateFromGrouperProvisioningGroupField;
     return this;
@@ -292,7 +293,7 @@ public class LdapProvisioningTestConfigInput {
   /**
    * member (default) or description
    */
-  public LdapProvisioningTestConfigInput assignMembershipAttribute(String membershipAttribute) {
+  public LdapProvisionerTestConfigInput assignMembershipAttribute(String membershipAttribute) {
     this.membershipAttribute = membershipAttribute;
     return this;
   }
@@ -307,7 +308,7 @@ public class LdapProvisioningTestConfigInput {
   /**
    * subjectId (default) or subjectIdentifier0
    */
-  public LdapProvisioningTestConfigInput assignEntityUidTranslateFromGrouperProvisioningEntityField(
+  public LdapProvisionerTestConfigInput assignEntityUidTranslateFromGrouperProvisioningEntityField(
       String entityUidTranslateFromGrouperProvisioningEntityField) {
     this.entityUidTranslateFromGrouperProvisioningEntityField = entityUidTranslateFromGrouperProvisioningEntityField;
     return this;
@@ -323,7 +324,7 @@ public class LdapProvisioningTestConfigInput {
   /**
    * personLdapSource (default) or jdbc
    */
-  public LdapProvisioningTestConfigInput assignSubjectSourcesToProvision(String subjectSourcesToProvision) {
+  public LdapProvisionerTestConfigInput assignSubjectSourcesToProvision(String subjectSourcesToProvision) {
     this.subjectSourcesToProvision = subjectSourcesToProvision;
     return this;
   }
@@ -341,7 +342,7 @@ public class LdapProvisioningTestConfigInput {
    * @param insertEntityAndAttributes
    * @return
    */
-  public LdapProvisioningTestConfigInput assignInsertEntityAndAttributes(boolean insertEntityAttributes) {
+  public LdapProvisionerTestConfigInput assignInsertEntityAndAttributes(boolean insertEntityAttributes) {
     this.insertEntityAndAttributes = insertEntityAttributes;
     return this;
   }
@@ -356,7 +357,7 @@ public class LdapProvisioningTestConfigInput {
   /**
    * 0, 2 (default), 3 or 6 (if has extended entity attributes
    */
-  public LdapProvisioningTestConfigInput assignEntityAttributeCount(int entityAttributeCount) {
+  public LdapProvisionerTestConfigInput assignEntityAttributeCount(int entityAttributeCount) {
     this.entityAttributeCount = entityAttributeCount;
     return this;
   }
@@ -371,7 +372,7 @@ public class LdapProvisioningTestConfigInput {
   /**
    * 0, 1, or 6 (default)
    */
-  public LdapProvisioningTestConfigInput assignGroupAttributeCount(int groupAttributeCount) {
+  public LdapProvisionerTestConfigInput assignGroupAttributeCount(int groupAttributeCount) {
     this.groupAttributeCount = groupAttributeCount;
     return this;
   }
@@ -415,7 +416,7 @@ public class LdapProvisioningTestConfigInput {
    * @param entitlementMetadata1
    * @return this for chaining
    */
-  public LdapProvisioningTestConfigInput assignEntitlementMetadata(boolean entitlementMetadata1) {
+  public LdapProvisionerTestConfigInput assignEntitlementMetadata(boolean entitlementMetadata1) {
     this.entitlementMetadata = entitlementMetadata1;
     return this;
   }
@@ -440,7 +441,7 @@ public class LdapProvisioningTestConfigInput {
    * @param string
    * @return
    */
-  public LdapProvisioningTestConfigInput assignConfigId(String string) {
+  public LdapProvisionerTestConfigInput assignConfigId(String string) {
     this.configId = string;
     return this;
   }

@@ -123,7 +123,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   public void testSimpleLdapProvisionerFullLatestConfig_1() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
@@ -318,7 +318,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     source.setSubjectIdentifierAttributesAll(null);
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
@@ -510,7 +510,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   public void testDeletingAGroupOnGrouperSideShouldRemoveFromLdapAsWell() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
@@ -590,7 +590,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   public void testDeletingAGroupOnGrouperSideVariousDeleteTypesFullProvisioning() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
@@ -711,7 +711,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   public void testDeletingAGroupOnGrouperSideVariousDeleteTypesIncrementalProvisioning() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
@@ -833,7 +833,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   public void testAddSingleGroupToLdapWithoutAnyMembers() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
@@ -876,7 +876,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   public void testAddSingleGroupToLdapWithoutParentFolderProvisioning() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
@@ -926,7 +926,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   public void testAddGroupThenRemoveManuallyThenAddAgainUsingProvisioning() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
@@ -1050,7 +1050,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   public void testSimpleLdapEntityProvisionerFull() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignConfigId("eduPersonEntitlement")
           .assignGroupAttributeCount(0)
           .assignEntityAttributeCount(3)
@@ -1180,7 +1180,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     new LdapSyncDaoForLdap().modify("personLdap", "uid=banderson,ou=People,dc=example,dc=edu", ldapModificationItems);
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignConfigId("eduPersonEntitlement")
           .assignTranslateFromGrouperProvisioningGroupField("extension")
           .assignGroupAttributeCount(1)
@@ -1326,7 +1326,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   public void testSimpleLdapProvisionerRestrictGroup() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
@@ -1532,7 +1532,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
   public void testSimpleLdapProvisionerFullOverrideDn() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)

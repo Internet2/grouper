@@ -132,7 +132,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
   public void testIncrementalDoNotCreateUsers() {
   
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true)
         .assignBusinessCategoryTranslateFromGrouperProvisioningGroupField("id")
@@ -272,7 +272,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
   public void testIncrementalCreateUsers() {
   
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true)
         .assignBusinessCategoryTranslateFromGrouperProvisioningGroupField("id")
@@ -411,7 +411,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
   public void testFullCreateUsers() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignMembershipAttribute("description")
         .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
         .assignInsertEntityAndAttributes(true)
@@ -550,7 +550,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
   public void testFullDoNotCreateUsers() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-      new LdapProvisioningTestConfigInput()
+      new LdapProvisionerTestConfigInput()
       .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
       .assignExplicitFilters(true)
       .assignUpdateGroupsAndDn(true)
@@ -687,7 +687,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
   public void testFullSubjectIdentifierChanged() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignBusinessCategoryTranslateFromGrouperProvisioningGroupField("id")
         .assignUpdateGroupsAndDn(true)
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
@@ -787,7 +787,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     source.setSubjectIdentifierAttributesAll(null);
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true)
         .assignEntityAttributeCount(6)
@@ -934,7 +934,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     source.setSubjectIdentifierAttributesAll(null);
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true)
@@ -1078,7 +1078,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     source.setSubjectIdentifierAttributesAll(null);
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true)
@@ -1229,7 +1229,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
     source.setSubjectIdentifierAttributesAll(null);
   
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true)

@@ -122,7 +122,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   public void testFullLdapBushy() {
       
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()        
+        new LdapProvisionerTestConfigInput()        
         .assignGroupDnTypeBushy(true)
         .assignUpdateGroupsAndDn(true));
     
@@ -363,7 +363,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   
   public void testIncrementalLdapBushy() {
     
-    LdapProvisionerTestUtils.configureLdapProvisioner(new LdapProvisioningTestConfigInput()
+    LdapProvisionerTestUtils.configureLdapProvisioner(new LdapProvisionerTestConfigInput()
         .assignGroupDnTypeBushy(true)
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true));
@@ -611,7 +611,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   public void testFullLdapBushyWithCNName() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignGroupDnTypeBushy(true)
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true));
@@ -856,7 +856,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   public void testIncrementalLdapBushyWithCNName() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignGroupDnTypeBushy(true)
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true));

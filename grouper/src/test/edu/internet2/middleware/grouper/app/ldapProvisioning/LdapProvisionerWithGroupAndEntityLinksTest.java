@@ -111,7 +111,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testLdapProvisionerWithGroupAndEntityLinksFullLatestConfig_1() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignUpdateGroupsAndDn(true)
           .assignExplicitFilters(true)
           .assignPosixGroup(true)
@@ -244,7 +244,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testLdapProvisionerWithGroupAndEntityLinksFullLatestConfig_2() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignUpdateGroupsAndDn(true)
           .assignExplicitFilters(true));
 
@@ -381,7 +381,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     
   
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignPosixGroup(true)
@@ -445,7 +445,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testPolicyGroups() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true)
         .addExtraConfig("allowPolicyGroupOverride", "true")
@@ -552,7 +552,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testRegexRestriction() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
           .assignExplicitFilters(true)
           .addExtraConfig("allowProvisionableRegexOverride", "true")
@@ -640,7 +640,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testDoNotDeleteFull() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true));
@@ -701,7 +701,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testDoNotDeleteIncremental() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignUpdateGroupsAndDn(true)
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
           .assignExplicitFilters(true));
@@ -751,7 +751,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testFullNullDefaultValue() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .addExtraConfig("targetGroupAttribute.4.defaultValue", "<emptyString>")
         .addExtraConfig("targetGroupAttribute.5.name", "seeAlso")
@@ -858,7 +858,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testIncrementalNullDefaultValue() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .addExtraConfig("targetGroupAttribute.4.defaultValue", "<emptyString>")
         .addExtraConfig("targetGroupAttribute.5.name", "seeAlso")
@@ -964,7 +964,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testIncrementalNullDefaultValue2() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
         .addExtraConfig("targetGroupAttribute.4.defaultValue", "<emptyString>")
         .addExtraConfig("targetGroupAttribute.5.name", "seeAlso")
@@ -1061,7 +1061,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testFullAndIncrementalTogether() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignUpdateGroupsAndDn(true)
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
           .assignExplicitFilters(true));
@@ -1193,7 +1193,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testDnOverrideTranslationScript() {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
         .assignDnOverrideScript(true));
     
     new StemSave(this.grouperSession).assignName("test").save();
@@ -1279,7 +1279,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testFullDnOverrideFlat() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .addExtraConfig("groupSearchAllFilter", null)
           .assignDnOverrideConfig(true)
         );
@@ -1409,7 +1409,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testFullDnOverrideBushy() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignTranslateFromGrouperProvisioningGroupField("extension")
           .assignGroupDnTypeBushy(true)
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
@@ -1543,7 +1543,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testIncrementalDnOverrideFlat() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .addExtraConfig("groupSearchAllFilter", null)
           .assignDnOverrideConfig(true)
         );
@@ -1669,7 +1669,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testIncrementalDnOverrideBushy() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignTranslateFromGrouperProvisioningGroupField("extension")
           .assignGroupDnTypeBushy(true)
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
@@ -1799,7 +1799,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testFullDnCompareOUCase() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignTranslateFromGrouperProvisioningGroupField("extension")
           .assignGroupDnTypeBushy(true)
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
@@ -1913,7 +1913,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testFullDnCompareComma() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignTranslateFromGrouperProvisioningGroupField("extension")
           .assignGroupDnTypeBushy(true)
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
@@ -2016,7 +2016,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testFullBushyOUCaseChange() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignTranslateFromGrouperProvisioningGroupField("extension")
           .assignGroupDnTypeBushy(true)
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
@@ -2122,7 +2122,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
   public void testIncrementalBushyOUCaseChange() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisioningTestConfigInput()
+        new LdapProvisionerTestConfigInput()
           .assignTranslateFromGrouperProvisioningGroupField("extension")
           .assignGroupDnTypeBushy(true)
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
