@@ -78,6 +78,13 @@ public class GrouperDaemonEnabledDisabledCheck {
     return records;
   }
   
+  /**
+   * for testing
+   */
+  public static void internal_clearCache() {
+    lastQuery = -1;
+  }
+  
   private static int internal_groupsFixEnabledDisabledUsingCache() {
     int updates = 0;
     
