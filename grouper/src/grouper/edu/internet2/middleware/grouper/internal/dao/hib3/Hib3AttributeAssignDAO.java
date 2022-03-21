@@ -218,19 +218,18 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
   private static final Log LOG = GrouperUtil.getLog(Hib3AttributeAssignDAO.class);
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAllEnabledDisabledMismatch()
+   * @see edu.internet2.middleware.grouper.internal.dao.AttributeAssignDAO#findAllEnabledDisabledMismatch(long)
    */
-  public Set<AttributeAssign> findAllEnabledDisabledMismatch() {
+  public Set<AttributeAssign> findAllEnabledDisabledMismatch(long queryTime) {
     Set<AttributeAssign> attributeAssigns = new LinkedHashSet<AttributeAssign>();
-    long now = System.currentTimeMillis();
 
     {
       // if the owner is an object that can't be disabled
       StringBuilder sql = new StringBuilder(
           "select ats from AttributeAssign as ats where ats.ownerAttributeAssignId is null and ats.ownerGroupId is null and ats.ownerMemberId is null and ats.ownerMembershipId is null and ("          
-            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now)) "
-            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
-            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :queryTime) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :queryTime)) "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :queryTime) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :queryTime) "
             + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
             + " or (ats.enabledDb is null)) "
        );
@@ -238,7 +237,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       attributeAssigns.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong("now", now)
+        .setLong("queryTime", queryTime)
         .listSet(AttributeAssign.class));
     }
     
@@ -246,10 +245,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       // if the owner is an attribute assign
       StringBuilder sql = new StringBuilder(
           "select ats from AttributeAssign as ats, AttributeAssign as ats2 where ats.ownerAttributeAssignId is not null and ats.ownerAttributeAssignId = ats2.id and ("          
-            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and ats2.enabledDb = 'T') "
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :queryTime) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :queryTime) and ats2.enabledDb = 'T') "
             + " or (ats.enabledDb = 'T' and ats2.enabledDb = 'F') "
-            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
-            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :queryTime) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :queryTime) "
             + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
             + " or (ats.enabledDb is null)) "
        );
@@ -257,7 +256,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       attributeAssigns.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong("now", now)
+        .setLong("queryTime", queryTime)
         .listSet(AttributeAssign.class));
     }
     
@@ -265,10 +264,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       // if the owner is an immediate membership
       StringBuilder sql = new StringBuilder(
           "select ats from AttributeAssign as ats, ImmediateMembershipEntry as ms where ats.ownerMembershipId is not null and ats.ownerMembershipId = ms.id and ("          
-            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and ms.enabledDb = 'T') "
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :queryTime) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :queryTime) and ms.enabledDb = 'T') "
             + " or (ats.enabledDb = 'T' and ms.enabledDb = 'F') "
-            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
-            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :queryTime) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :queryTime) "
             + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
             + " or (ats.enabledDb is null)) "
        );
@@ -276,7 +275,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       attributeAssigns.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong("now", now)
+        .setLong("queryTime", queryTime)
         .listSet(AttributeAssign.class));
     }
     
@@ -284,10 +283,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       // if the owner is a group
       StringBuilder sql = new StringBuilder(
           "select ats from AttributeAssign as ats, Group as g where ats.ownerGroupId is not null and ats.ownerMemberId is null and ats.ownerGroupId = g.id and ("          
-            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and g.enabledDb = 'T') "
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :queryTime) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :queryTime) and g.enabledDb = 'T') "
             + " or (ats.enabledDb = 'T' and g.enabledDb = 'F') "
-            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
-            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :queryTime) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :queryTime) "
             + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
             + " or (ats.enabledDb is null)) "
        );
@@ -295,7 +294,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       attributeAssigns.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong("now", now)
+        .setLong("queryTime", queryTime)
         .listSet(AttributeAssign.class));
     }
     
@@ -303,9 +302,9 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       // if the owner is a member that is not a group
       StringBuilder sql = new StringBuilder(
           "select ats from AttributeAssign as ats, Member as m where ats.ownerMemberId is not null and ats.ownerGroupId is null and ats.ownerMemberId = m.id and m.subjectSourceIdDb not in ('g:gsa', 'grouperEntities') and ("          
-            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now)) "
-            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
-            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :queryTime) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :queryTime)) "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :queryTime) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :queryTime) "
             + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
             + " or (ats.enabledDb is null)) "
        );
@@ -313,7 +312,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       attributeAssigns.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong("now", now)
+        .setLong("queryTime", queryTime)
         .listSet(AttributeAssign.class));
     }
     
@@ -321,10 +320,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       // if the owner is a member that is a group
       StringBuilder sql = new StringBuilder(
           "select ats from AttributeAssign as ats, Member as m, Group as mg where ats.ownerMemberId is not null and ats.ownerGroupId is null and ats.ownerMemberId = m.id and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb in ('g:gsa', 'grouperEntities') and ("          
-            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and mg.enabledDb = 'T') "
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :queryTime) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :queryTime) and mg.enabledDb = 'T') "
             + " or (ats.enabledDb = 'T' and mg.enabledDb = 'F') "
-            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
-            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :queryTime) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :queryTime) "
             + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
             + " or (ats.enabledDb is null)) "
        );
@@ -332,7 +331,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       attributeAssigns.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong("now", now)
+        .setLong("queryTime", queryTime)
         .listSet(AttributeAssign.class));
     }
     
@@ -340,10 +339,10 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       // if the owner is an effective membership and the member is not a group
       StringBuilder sql = new StringBuilder(
           "select ats from AttributeAssign as ats, Member as m, Group as g where ats.ownerMemberId is not null and ats.ownerGroupId is not null and ats.ownerMemberId = m.id and ats.ownerGroupId = g.id and m.subjectSourceIdDb not in ('g:gsa', 'grouperEntities') and ("          
-            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and g.enabledDb = 'T') "
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :queryTime) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :queryTime) and g.enabledDb = 'T') "
             + " or (ats.enabledDb = 'T' and g.enabledDb = 'F') "
-            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
-            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :queryTime) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :queryTime) "
             + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
             + " or (ats.enabledDb is null)) "
        );
@@ -351,7 +350,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       attributeAssigns.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong("now", now)
+        .setLong("queryTime", queryTime)
         .listSet(AttributeAssign.class));
     }
     
@@ -359,11 +358,11 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       // if the owner is an effective membership and the member is a group
       StringBuilder sql = new StringBuilder(
           "select ats from AttributeAssign as ats, Member as m, Group as g, Group as mg where ats.ownerMemberId is not null and ats.ownerGroupId is not null and ats.ownerMemberId = m.id and ats.ownerGroupId = g.id and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb in ('g:gsa', 'grouperEntities') and ("          
-            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :now) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :now) and g.enabledDb = 'T' and mg.enabledDb = 'T') "
+            + " (ats.enabledDb = 'F' and (ats.enabledTimeDb is null or ats.enabledTimeDb < :queryTime) and (ats.disabledTimeDb is null or ats.disabledTimeDb > :queryTime) and g.enabledDb = 'T' and mg.enabledDb = 'T') "
             + " or (ats.enabledDb = 'T' and g.enabledDb = 'F') "
             + " or (ats.enabledDb = 'T' and mg.enabledDb = 'F') "
-            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :now) "
-            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :now) "
+            + " or (ats.enabledDb = 'T' and ats.disabledTimeDb < :queryTime) "
+            + " or (ats.enabledDb = 'T' and ats.enabledTimeDb > :queryTime) "
             + " or (ats.enabledDb <> 'T' and ats.enabledDb <> 'F') "
             + " or (ats.enabledDb is null)) "
        );
@@ -371,7 +370,7 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
       attributeAssigns.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong("now", now)
+        .setLong("queryTime", queryTime)
         .listSet(AttributeAssign.class));
     }
     

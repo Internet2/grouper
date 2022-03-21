@@ -1138,8 +1138,9 @@ public interface GroupDAO extends GrouperDAO {
 
   /**
    * find records which are disabled which shouldnt be, and enabled which shouldnt be
+   * @param queryTime
    * @return the groups
    */
-  public Set<Group> findAllEnabledDisabledMismatch();
+  public Set<Group> findAllEnabledDisabledMismatch(long queryTime);
 } 
 

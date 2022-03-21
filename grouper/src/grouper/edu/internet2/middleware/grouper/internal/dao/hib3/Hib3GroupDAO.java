@@ -4120,19 +4120,18 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   }
   
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findAllEnabledDisabledMismatch()
+   * @see edu.internet2.middleware.grouper.internal.dao.GroupDAO#findAllEnabledDisabledMismatch(long)
    */
-  public Set<Group> findAllEnabledDisabledMismatch() {
-    long now = System.currentTimeMillis();
+  public Set<Group> findAllEnabledDisabledMismatch(long queryTime) {
 
     StringBuilder sql = new StringBuilder(
         "select g from Group as g where  "
           + "(g.enabledDb = 'F' and g.enabledTimeDb is null and g.disabledTimeDb is null) "  
-          + " or (g.enabledDb = 'F' and g.enabledTimeDb is null and g.disabledTimeDb > :now) "
-          + " or (g.enabledDb = 'F' and g.enabledTimeDb < :now and g.disabledTimeDb is null) "
-          + " or (g.enabledDb = 'F' and g.enabledTimeDb < :now and g.disabledTimeDb > :now) "
-          + " or (g.enabledDb = 'T' and g.disabledTimeDb < :now) "
-          + " or (g.enabledDb = 'T' and g.enabledTimeDb > :now) "
+          + " or (g.enabledDb = 'F' and g.enabledTimeDb is null and g.disabledTimeDb > :queryTime) "
+          + " or (g.enabledDb = 'F' and g.enabledTimeDb < :queryTime and g.disabledTimeDb is null) "
+          + " or (g.enabledDb = 'F' and g.enabledTimeDb < :queryTime and g.disabledTimeDb > :queryTime) "
+          + " or (g.enabledDb = 'T' and g.disabledTimeDb < :queryTime) "
+          + " or (g.enabledDb = 'T' and g.enabledTimeDb > :queryTime) "
           + " or (g.enabledDb <> 'T' and g.enabledDb <> 'F') "
           + " or (g.enabledDb is null) "
      );
@@ -4140,7 +4139,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     Set<Group> groups = HibernateSession.byHqlStatic()
       .createQuery(sql.toString())
       .setCacheable(false)
-      .setLong( "now",  now )
+      .setLong( "queryTime",  queryTime )
       .listSet(Group.class);
     
     return groups;

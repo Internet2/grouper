@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonEnabledDisabledCheck;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -738,7 +739,7 @@ public class HibernateSessionTest extends GrouperTest {
       .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
-    int fixed = Membership.internal_fixEnabledDisabled();
+    int fixed = GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis());
     
     assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     
@@ -758,7 +759,7 @@ public class HibernateSessionTest extends GrouperTest {
     
     //###########################################
     //run with nothing to do
-    fixed = Membership.internal_fixEnabledDisabled();
+    fixed = GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis());
     
     assertEquals("Should have fixed no records", 0, fixed);
     
@@ -771,7 +772,7 @@ public class HibernateSessionTest extends GrouperTest {
       .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
-    fixed = Membership.internal_fixEnabledDisabled();
+    fixed = GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis());
     
     assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     
@@ -799,7 +800,7 @@ public class HibernateSessionTest extends GrouperTest {
       .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
-    fixed = Membership.internal_fixEnabledDisabled();
+    fixed = GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis());
     
     assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     
@@ -826,7 +827,7 @@ public class HibernateSessionTest extends GrouperTest {
       .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
-    fixed = Membership.internal_fixEnabledDisabled();
+    fixed = GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis());
     
     assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     
@@ -853,7 +854,7 @@ public class HibernateSessionTest extends GrouperTest {
       .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
-    fixed = Membership.internal_fixEnabledDisabled();
+    fixed = GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis());
     
     assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     
@@ -881,7 +882,7 @@ public class HibernateSessionTest extends GrouperTest {
       .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
-    fixed = Membership.internal_fixEnabledDisabled();
+    fixed = GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis());
     
     assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     
@@ -913,7 +914,7 @@ public class HibernateSessionTest extends GrouperTest {
       .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
-    fixed = Membership.internal_fixEnabledDisabled();
+    fixed = GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis());
     
     assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     GrouperCacheUtils.clearAllCaches();
@@ -933,7 +934,7 @@ public class HibernateSessionTest extends GrouperTest {
       .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
-    fixed = Membership.internal_fixEnabledDisabled();
+    fixed = GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis());
     
     assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     GrouperCacheUtils.clearAllCaches();
@@ -953,7 +954,7 @@ public class HibernateSessionTest extends GrouperTest {
       .setString("theId", membership.getImmediateMembershipId()).executeUpdate();
     
     //run daemon
-    fixed = Membership.internal_fixEnabledDisabled();
+    fixed = GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis());
     
     assertEquals("Should have fixed one record, immediateMembershipId: " + membership.getImmediateMembershipId(), 1, fixed);
     GrouperCacheUtils.clearAllCaches();

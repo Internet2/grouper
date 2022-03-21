@@ -2743,25 +2743,23 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   }
 
   /**
-   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllEnabledDisabledMismatch()
+   * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findAllEnabledDisabledMismatch(long)
    */
-  public Set<Membership> findAllEnabledDisabledMismatch() {
+  public Set<Membership> findAllEnabledDisabledMismatch(long queryTime) {
     Set<Membership> memberships = new LinkedHashSet<Membership>();
     
     String adminFieldId = AccessPrivilege.ADMIN.getField().getId();
     // dividing up into 4 queries instead of a single large query with outer joins
     
-    long now = System.currentTimeMillis();
-
     {
       // owner and member are both groups
       StringBuilder sql = new StringBuilder(
           "select ms from ImmediateMembershipEntry as ms, Group as g, Member as m, Group as mg where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb in ('g:gsa', 'grouperEntities') and ("
-            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now) and (g.enabledDb = 'T' or ms.fieldId = '" + adminFieldId + "') and (mg.enabledDb = 'T' or (g.uuid = mg.uuid and ms.fieldId = '" + adminFieldId + "'))) "
+            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :queryTime) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :queryTime) and (g.enabledDb = 'T' or ms.fieldId = '" + adminFieldId + "') and (mg.enabledDb = 'T' or (g.uuid = mg.uuid and ms.fieldId = '" + adminFieldId + "'))) "
             + " or (ms.enabledDb = 'T' and g.enabledDb = 'F' and ms.fieldId <> '" + adminFieldId + "') "
             + " or (ms.enabledDb = 'T' and mg.enabledDb = 'F' and (g.uuid <> mg.uuid or ms.fieldId <> '" + adminFieldId + "') ) "
-            + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :now) "
-            + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :now) "
+            + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :queryTime) "
+            + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :queryTime) "
             + " or (ms.enabledDb <> 'T' and ms.enabledDb <> 'F') "
             + " or (ms.enabledDb is null)) "
        );
@@ -2769,7 +2767,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       memberships.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong( "now",  now )
+        .setLong( "queryTime",  queryTime )
         .listSet(Membership.class));
     }
     
@@ -2777,10 +2775,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       // owner is a group, member is not a group
       StringBuilder sql = new StringBuilder(
           "select ms from ImmediateMembershipEntry as ms, Group as g, Member as m where ms.ownerGroupId = g.uuid and ms.memberUuid = m.uuid and m.subjectSourceIdDb not in ('g:gsa', 'grouperEntities') and ("
-            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now) and (g.enabledDb = 'T' or ms.fieldId = '" + adminFieldId + "')) "
+            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :queryTime) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :queryTime) and (g.enabledDb = 'T' or ms.fieldId = '" + adminFieldId + "')) "
             + " or (ms.enabledDb = 'T' and g.enabledDb = 'F' and ms.fieldId <> '" + adminFieldId + "') "
-            + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :now) "
-            + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :now) "
+            + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :queryTime) "
+            + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :queryTime) "
             + " or (ms.enabledDb <> 'T' and ms.enabledDb <> 'F') "
             + " or (ms.enabledDb is null)) "
        );
@@ -2788,7 +2786,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       memberships.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong( "now",  now )
+        .setLong( "queryTime",  queryTime )
         .listSet(Membership.class));
     }
     
@@ -2796,10 +2794,10 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       // owner is not a group, member is a group
       StringBuilder sql = new StringBuilder(
           "select ms from ImmediateMembershipEntry as ms, Member as m, Group as mg where ms.memberUuid = m.uuid and ms.ownerGroupId is null and m.subjectIdDb = mg.uuid and m.subjectSourceIdDb in ('g:gsa', 'grouperEntities') and ("
-            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now) and mg.enabledDb = 'T') "
+            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :queryTime) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :queryTime) and mg.enabledDb = 'T') "
             + " or (ms.enabledDb = 'T' and mg.enabledDb = 'F') "
-            + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :now) "
-            + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :now) "
+            + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :queryTime) "
+            + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :queryTime) "
             + " or (ms.enabledDb <> 'T' and ms.enabledDb <> 'F') "
             + " or (ms.enabledDb is null)) "
        );
@@ -2807,7 +2805,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       memberships.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong( "now",  now )
+        .setLong( "queryTime",  queryTime )
         .listSet(Membership.class));
     }
     
@@ -2815,9 +2813,9 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       // neither owner nor member are groups
       StringBuilder sql = new StringBuilder(
           "select ms from ImmediateMembershipEntry as ms, Member as m where ms.memberUuid = m.uuid and ms.ownerGroupId is null and m.subjectSourceIdDb not in ('g:gsa', 'grouperEntities') and ("
-            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :now) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :now)) "
-            + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :now) "
-            + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :now) "
+            + "(ms.enabledDb = 'F' and (ms.enabledTimeDb is null or ms.enabledTimeDb < :queryTime) and (ms.disabledTimeDb is null or ms.disabledTimeDb > :queryTime)) "
+            + " or (ms.enabledDb = 'T' and ms.disabledTimeDb < :queryTime) "
+            + " or (ms.enabledDb = 'T' and ms.enabledTimeDb > :queryTime) "
             + " or (ms.enabledDb <> 'T' and ms.enabledDb <> 'F') "
             + " or (ms.enabledDb is null)) "
        );
@@ -2825,7 +2823,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       memberships.addAll(HibernateSession.byHqlStatic()
         .createQuery(sql.toString())
         .setCacheable(false)
-        .setLong( "now",  now )
+        .setLong( "queryTime",  queryTime )
         .listSet(Membership.class));
     }
     
@@ -3846,6 +3844,46 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     
     return membership;
+  }
+  
+  /**
+   * retrieve by ids.  note, this is not a secure method, will return any results queried
+   * @param ids
+   * @return the memberships, will not return null
+   */
+  public Set<Membership> findByImmediateUuids(Collection<String> ids) {
+    int idsSize = GrouperUtil.length(ids);
+    
+    Set<Membership> results = new HashSet<Membership>();
+    
+    if (idsSize == 0) {
+      return results;
+    }
+    
+    List<String> idsList = new ArrayList<String>(ids);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, 100);
+    
+    //if there are more than 100, batch these up and return them
+    for (int i=0;i<numberOfBatches; i++) {
+      
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      
+      StringBuilder sql = new StringBuilder("from ImmediateMembershipEntry where ");
+      
+      List<String> currentBatch = GrouperUtil.batchList(idsList, 100, i);
+      
+      sql.append(" immediateMembershipId in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(") ");
+    
+      Set<Membership> localResult = byHqlStatic.createQuery(sql.toString())
+        .listSet(Membership.class);
+      
+      results.addAll(localResult);
+    }
+
+    return results;
   }
 
   /**

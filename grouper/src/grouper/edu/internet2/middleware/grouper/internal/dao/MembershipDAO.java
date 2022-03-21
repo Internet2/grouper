@@ -65,9 +65,10 @@ public interface MembershipDAO extends GrouperDAO {
 
   /**
    * find records which are disabled which shouldnt be, and enabled which shouldnt be
+   * @param queryTime
    * @return the memberships
    */
-  public Set<Membership> findAllEnabledDisabledMismatch();
+  public Set<Membership> findAllEnabledDisabledMismatch(long queryTime);
   
   /**
    * get all memberships
@@ -1440,5 +1441,11 @@ TODO update for 1.5
       String scopeForAttributeDef, boolean splitScopeForAttributeDef, boolean hasFieldForAttributeDef,
       boolean hasMembershipTypeForAttributeDef);
   
+  /**
+   * retrieve by ids.  note, this is not a secure method, will return any results queried
+   * @param ids
+   * @return the memberships, will not return null
+   */
+  public Set<Membership> findByImmediateUuids(Collection<String> ids);
 } 
 

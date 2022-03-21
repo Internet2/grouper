@@ -39,9 +39,10 @@ public interface AttributeAssignDAO extends GrouperDAO {
   
   /**
    * find records which are disabled which shouldnt be, and enabled which shouldnt be
+   * @param queryTime
    * @return the attribute assignments
    */
-  public Set<AttributeAssign> findAllEnabledDisabledMismatch();
+  public Set<AttributeAssign> findAllEnabledDisabledMismatch(long queryTime);
 
   /** 
    * insert or update an attribute assign object 

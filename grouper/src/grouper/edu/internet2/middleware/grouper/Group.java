@@ -599,7 +599,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * Should this group be enabled based on the enabled and disabled dates?
    * @return boolean
    */
-  private boolean internal_isEnabledUsingTimestamps() {
+  public boolean internal_isEnabledUsingTimestamps() {
     long now = System.currentTimeMillis();
     if (this.enabledTimeDb != null && this.enabledTimeDb > now) {
       return false;
@@ -8589,20 +8589,6 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             return null;
           }
         });
-  }
-  
-  /**
-   * fix enabled and disabled groups, and return the count of how many were fixed
-   * @return the number of records affected
-   */
-  public static int internal_fixEnabledDisabled() {
-    Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findAllEnabledDisabledMismatch();
-    for (Group group : groups) {
-      group.setEnabled(group.internal_isEnabledUsingTimestamps());
-      group.store();
-    }
-
-    return groups.size();
   }
 
   /**

@@ -2523,19 +2523,4 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
         DB_VERSION_FIELDS, null);
     return result;
   }
-
-  /**
-   * fix enabled and disabled memberships, and return the count of how many were fixed
-   * @return the number of records affected
-   */
-  public static int internal_fixEnabledDisabled() {
-    Set<AttributeAssign> attributeAssigns = GrouperDAOFactory.getFactory()
-      .getAttributeAssign().findAllEnabledDisabledMismatch();
-    for (AttributeAssign attributeAssign : attributeAssigns) {
-      attributeAssign.setEnabled(attributeAssign.internal_isEnabledUsingTimestamps());
-      GrouperDAOFactory.getFactory().getAttributeAssign().saveOrUpdate(attributeAssign);
-    }
-    return attributeAssigns.size();
-  }
-
 }

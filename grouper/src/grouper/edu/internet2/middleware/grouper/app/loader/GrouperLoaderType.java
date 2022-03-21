@@ -57,7 +57,6 @@ import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
@@ -331,16 +330,10 @@ public enum GrouperLoaderType {
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else if (StringUtils.equals(GROUPER_ENABLED_DISABLED, hib3GrouploaderLog.getJobName())) {
-
-          int records = Group.internal_fixEnabledDisabled();
-          records += Membership.internal_fixEnabledDisabled();
-          records += AttributeAssign.internal_fixEnabledDisabled();
-          records += ExternalSubject.internal_fixDisabled();
-
-          hib3GrouploaderLog.setUpdateCount(records);
-
-          hib3GrouploaderLog.setJobMessage("Ran enabled/disabled daemon, changed " + records + " records");
+          int records = GrouperDaemonEnabledDisabledCheck.fixEnabledDisabled();
           
+          hib3GrouploaderLog.setUpdateCount(records);
+          hib3GrouploaderLog.setJobMessage("Ran enabled/disabled daemon, changed " + records + " records");    
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else if (StringUtils.equals(GROUPER_BUILTIN_MESSAGING_DAEMON, hib3GrouploaderLog.getJobName())) {
 
