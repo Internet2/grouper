@@ -47,7 +47,7 @@ public class GuiPITMembershipView {
       return null;
     }
 
-    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.PITMembership.dateFormat", "yyyy/MM/dd h:mm aa");
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.PITMembership.dateFormat", "yyyy/MM/dd h:mm a z");
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
     
     return simpleDateFormat.format(this.membership.getStartTime());
@@ -65,7 +65,7 @@ public class GuiPITMembershipView {
       return null;
     }
 
-    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.PITMembership.dateFormat", "yyyy/MM/dd h:mm aa");
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.PITMembership.dateFormat", "yyyy/MM/dd h:mm a z");
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
     
     return simpleDateFormat.format(this.membership.getEndTime());

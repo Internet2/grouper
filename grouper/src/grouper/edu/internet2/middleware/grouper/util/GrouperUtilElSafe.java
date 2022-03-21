@@ -51,6 +51,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -6569,5 +6570,57 @@ public class GrouperUtilElSafe {
     }
     
     return results;
+  }
+  
+  private static String friendlyTimezoneStringForInputDescription;
+  
+  /**
+   * Return a string that combines the standard and daylight timezones of the server
+   * into one string separated by a slash that can be used in an input description
+   * to inform the user of the server timezone.  For the main US timezones, the following
+   * is returned instead:  ET, CT, MT, PT. 
+   * @return string
+   * 
+   */
+  public static String getFriendlyTimezoneStringForInputDescription() {
+    if (friendlyTimezoneStringForInputDescription == null) {
+      synchronized(GrouperUtil.class) {
+        Calendar now = Calendar.getInstance();
+        TimeZone timeZone = now.getTimeZone();
+        
+        String tzWithoutDaylight = timeZone.getDisplayName(false, TimeZone.SHORT);
+        String tzWithDaylight = timeZone.observesDaylightTime() ? timeZone.getDisplayName(true, TimeZone.SHORT) : null;
+        
+        if (isBlank(tzWithoutDaylight) && isBlank(tzWithDaylight)) {
+          friendlyTimezoneStringForInputDescription = "Unknown";
+        } else if (isBlank(tzWithoutDaylight)) {
+          friendlyTimezoneStringForInputDescription = tzWithDaylight;
+        } else if (isBlank(tzWithDaylight)) {
+          friendlyTimezoneStringForInputDescription = tzWithoutDaylight;
+        } else {
+          String temp;
+          
+          if (equals(tzWithoutDaylight, tzWithDaylight)) {
+            temp = tzWithoutDaylight;
+          } else {
+            temp = tzWithoutDaylight + "/" + tzWithDaylight;
+          }
+          
+          if (temp.equals("EST/EDT")) {
+            friendlyTimezoneStringForInputDescription = "ET";
+          } else if (temp.equals("CST/CDT")) {
+            friendlyTimezoneStringForInputDescription = "CT";
+          } else if (temp.equals("MST/MDT")) {
+            friendlyTimezoneStringForInputDescription = "MT";
+          } else if (temp.equals("PST/PDT")) {
+            friendlyTimezoneStringForInputDescription = "PT";
+          } else {
+            friendlyTimezoneStringForInputDescription = temp;
+          }          
+        }
+      }
+    }
+    
+    return friendlyTimezoneStringForInputDescription;
   }
 }
