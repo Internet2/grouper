@@ -353,17 +353,18 @@ public class GrouperStartup {
             
             boolean legacyAttributeMigrationIncomplete = GrouperDdlUtils.getTableCount("grouper_types_legacy", false) > 0;
             
-            // skip for now if legacy attribute migration is not done
-            if (!legacyAttributeMigrationIncomplete) {
-              //init include exclude type
-              initIncludeExcludeType();
-              
-              //init loader types and attributes if configured
-              initLoaderType();
-              
-              //init membership lite config type
-              initMembershipLiteConfigType();
+            if (legacyAttributeMigrationIncomplete) {
+              LOG.warn("Legacy attribute tables (e.g. grouper_types_legacy, grouper_attributes_legacy, grouper_groups_types_legacy, grouper_fields_legacy) still exist. Should have been manually dropped after upgrading to v2.2.");
             }
+            
+            //init include exclude type
+            initIncludeExcludeType();
+
+            //init loader types and attributes if configured
+            initLoaderType();
+
+            //init membership lite config type
+            initMembershipLiteConfigType();
             
             if (!ignoreCheckConfig) {
               //post steps after loader config
