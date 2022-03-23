@@ -182,11 +182,14 @@ public class UsduJob extends OtherJobBase {
       LOG.info("Going to mark members as deleted.");
       Set<Member> unresolvableMembers = new LinkedHashSet<Member>();
       List<String> memberIdsToCheck = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck());
+      LOG.debug("Found " + memberIdsToCheck.size() + " member ids to check.");
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsToCheck.size(), batchSize);
       for (int i = 0; i < numberOfBatches; i++) {
+        LOG.debug("Processing batch: " + i);
         List<String> currentBatch = GrouperUtil.batchList(memberIdsToCheck, batchSize, i);
         Set<Member> currentMembers = GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null);
-        
+        LOG.debug("Retrieved current members of size: " + currentMembers.size());
+
         Map<String, Subject> memberIdToSubjectMap = new HashMap<String, Subject>();
   
         for (Member member : currentMembers) {
@@ -197,6 +200,7 @@ public class UsduJob extends OtherJobBase {
           }
           
           if (!USDU.isMemberResolvable(grouperSession, member, memberIdToSubjectMap)) {
+            LOG.debug("Found unresolvable member, subjectId=" + member.getSubjectId() + " source=" + member.getSubjectSourceId());
             unresolvableMembers.add(member);
           }
         }
