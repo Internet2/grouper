@@ -1202,7 +1202,17 @@ public class GrouperUiFilter implements Filter {
 
 //errorCode_ajaxError
         try {
-          httpServletResponse.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=ajaxError");
+          // /grouper/grouperExternal/public/UiV2Public.index
+          String requestUri = GrouperUtil.defaultString(httpServletRequest.getRequestURI());
+
+          // operation=UiV2Public.postIndex&function=UiV2Public.error&code=ajaxError
+          String queryString = GrouperUtil.defaultString(httpServletRequest.getQueryString());
+
+          boolean onErrorPage = requestUri.contains("UiV2Public.index") 
+              && queryString.contains("UiV2Public.error");
+          if (!onErrorPage) {
+            httpServletResponse.sendRedirect(GrouperUiFilter.retrieveServletContext() + "/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=ajaxError");
+          }
         } catch (IOException ioe) {
           throw new RuntimeException("Error", ioe);
         }
