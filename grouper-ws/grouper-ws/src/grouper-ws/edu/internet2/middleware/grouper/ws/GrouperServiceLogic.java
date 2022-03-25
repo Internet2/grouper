@@ -11043,7 +11043,11 @@ public class GrouperServiceLogic {
         if (stem == null) {
          throw new RuntimeException("Could not resolve stem based on ownerStemLookup"); 
         }
-        exec.assignOwnerStemName(stem.getName());
+        if (stem.isRootStem()) {
+          exec.assignOwnerStemName(":");
+        } else {
+          exec.assignOwnerStemName(stem.getName());
+        }
       }
       
       for (WsGshTemplateInput wsTemplateInput: inputs) {
