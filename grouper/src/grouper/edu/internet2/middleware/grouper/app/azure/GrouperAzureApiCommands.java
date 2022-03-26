@@ -375,7 +375,7 @@ public class GrouperAzureApiCommands {
 
       int batchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureMembershipPagingSize", 20);
       List<String> userIdsList = new ArrayList<String>(userIds);
-      int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsList, batchSize);
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsList, batchSize, false);
       debugMap.put("numberOfBatches", numberOfBatches);
       for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
         debugMap.put("batchIndex", batchIndex);

@@ -1608,21 +1608,25 @@ public enum GrouperLoaderType {
             currentMembershipsSize = new GcDbAccess().sql(queryPrefix + " like ?").addBindVar(groupLikeString).select(int.class);
                           
           } else {
-            //just batch up the group names to get the results, in size of 100
-            int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNamesFromGroupQueryAndMembershipQuery, 800);
-  
-            List<String> groupNamesList = new ArrayList<String>(groupNamesFromGroupQueryAndMembershipQuery);
-  
-            for (int i=0;i<numberOfBatches;i++) {
-              
-              List<String> groupNamesInBatch = GrouperUtil.batchList(groupNamesList, 800, i);
-              
-              GcDbAccess gcDbAccess = new GcDbAccess().sql(queryPrefix + " in ("+ GrouperClientUtils.appendQuestions(groupNamesInBatch.size()) + ")");
-              for (String groupName : groupNamesInBatch) {
-                gcDbAccess.addBindVar(groupName);
+            if (GrouperUtil.length(groupNamesFromGroupQueryAndMembershipQuery) == 0) {
+              currentMembershipsSize = 0;
+            } else {
+              //just batch up the group names to get the results, in size of 100
+              int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNamesFromGroupQueryAndMembershipQuery, 800);
+    
+              List<String> groupNamesList = new ArrayList<String>(groupNamesFromGroupQueryAndMembershipQuery);
+    
+              for (int i=0;i<numberOfBatches;i++) {
+                
+                List<String> groupNamesInBatch = GrouperUtil.batchList(groupNamesList, 800, i);
+                
+                GcDbAccess gcDbAccess = new GcDbAccess().sql(queryPrefix + " in ("+ GrouperClientUtils.appendQuestions(groupNamesInBatch.size()) + ")");
+                for (String groupName : groupNamesInBatch) {
+                  gcDbAccess.addBindVar(groupName);
+                }
+                currentMembershipsSize += gcDbAccess.select(int.class);
+    
               }
-              currentMembershipsSize += gcDbAccess.select(int.class);
-  
             }
           }
         }
@@ -1637,21 +1641,25 @@ public enum GrouperLoaderType {
             currentNumberOfGroups = new GcDbAccess().sql(queryPrefix + " like ?").addBindVar(groupLikeString).select(int.class);
                           
           } else {
-            //just batch up the group names to get the results, in size of 100
-            int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNamesFromGroupQueryAndMembershipQuery, 800);
-  
-            List<String> groupNamesList = new ArrayList<String>(groupNamesFromGroupQueryAndMembershipQuery);
-  
-            for (int i=0;i<numberOfBatches;i++) {
-              
-              List<String> groupNamesInBatch = GrouperUtil.batchList(groupNamesList, 800, i);
-              
-              GcDbAccess gcDbAccess = new GcDbAccess().sql(queryPrefix + " in ("+ GrouperClientUtils.appendQuestions(groupNamesInBatch.size()) + ")");
-              for (String groupName : groupNamesInBatch) {
-                gcDbAccess.addBindVar(groupName);
+            if (GrouperUtil.length(groupNamesFromGroupQueryAndMembershipQuery) == 0) {
+              currentNumberOfGroups = 0;
+            } else {
+              //just batch up the group names to get the results, in size of 100
+              int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNamesFromGroupQueryAndMembershipQuery, 800);
+    
+              List<String> groupNamesList = new ArrayList<String>(groupNamesFromGroupQueryAndMembershipQuery);
+    
+              for (int i=0;i<numberOfBatches;i++) {
+                
+                List<String> groupNamesInBatch = GrouperUtil.batchList(groupNamesList, 800, i);
+                
+                GcDbAccess gcDbAccess = new GcDbAccess().sql(queryPrefix + " in ("+ GrouperClientUtils.appendQuestions(groupNamesInBatch.size()) + ")");
+                for (String groupName : groupNamesInBatch) {
+                  gcDbAccess.addBindVar(groupName);
+                }
+                currentNumberOfGroups += gcDbAccess.select(int.class);
+    
               }
-              currentNumberOfGroups += gcDbAccess.select(int.class);
-  
             }
           }
         }

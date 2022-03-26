@@ -129,7 +129,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       allGroupIds.addAll(groupIdToName.keySet());
       List<String> allGroupIdsList = new ArrayList<String>(allGroupIds);
       int batchSize = 900;
-      int numberOfBatches = GrouperUtil.batchNumberOfBatches(allGroupIdsList, 900);
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(allGroupIdsList, 900, false);
       Map<String, Set<String>> groupIdToMemberIds = new HashMap<String, Set<String>>();
       Map<String, Set<String>> memberIdToGroupIds = new HashMap<String, Set<String>>();
       Map<String, String> memberIdToSourceId = new HashMap<String, String>();
