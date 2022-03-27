@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -17,7 +16,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -97,7 +95,7 @@ public class GrouperProvisioningConfigurationValidation {
       if (groupAttributeNamesAllowed != null && !groupAttributeNamesAllowed.contains(name)) {
 
         String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.incorrectGroupAttributeConfigured");
-        errorMessage = errorMessage.replaceAll("$$attributeName$$", name);
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", name);
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(nameConfigKey));
 
       }
@@ -105,7 +103,7 @@ public class GrouperProvisioningConfigurationValidation {
       if (validateGroupAttributesRequireString() && StringUtils.isNotBlank(type) && !StringUtils.equalsIgnoreCase(type, "string")) {
 
         String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.groupAttributeString");
-        errorMessage = errorMessage.replaceAll("$$attributeName$$", name);
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", name);
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(nameConfigKey));
         
       }
@@ -118,7 +116,7 @@ public class GrouperProvisioningConfigurationValidation {
     if (groupAttributeNamesRequired != null && groupAttributeNamesRequired.size()>0) {
       for (String name : groupAttributeNamesRequired) {
         String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.groupAttributeRequired");
-        errorMessage = errorMessage.replaceAll("$$attributeName$$", name);
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", name);
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage));
       }
     }
@@ -181,7 +179,7 @@ public class GrouperProvisioningConfigurationValidation {
       if (entityAttributeNamesAllowed != null && !entityAttributeNamesAllowed.contains(name)) {
 
         String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.incorrectEntityAttributeConfigured");
-        errorMessage = errorMessage.replaceAll("$$attributeName$$", name);
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", name);
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(nameConfigKey));
 
       }
@@ -189,7 +187,7 @@ public class GrouperProvisioningConfigurationValidation {
       if (validateEntityAttributesRequireString() && StringUtils.isNotBlank(type) && !StringUtils.equalsIgnoreCase(type, "string")) {
 
         String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.entityAttributeString");
-        errorMessage = errorMessage.replaceAll("$$attributeName$$", name);
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", name);
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(nameConfigKey));
         
       }
@@ -202,7 +200,7 @@ public class GrouperProvisioningConfigurationValidation {
     if (entityAttributeNamesRequired != null && entityAttributeNamesRequired.size()>0) {
       for (String name : entityAttributeNamesRequired) {
         String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.entityAttributeRequired");
-        errorMessage = errorMessage.replaceAll("$$attributeName$$", name);
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", name);
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage));
       }
     }
@@ -1195,9 +1193,12 @@ public class GrouperProvisioningConfigurationValidation {
 
     // GRP-3911: subject sources to provision should not be in top config section
     if (!StringUtils.isBlank(suffixToConfigValue.get("subjectSourcesToProvision"))) {
-      if (GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false)) {
+      if (!GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false)) {
+        String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.cannotHaveSubjectSourcesIfNotShowingEntities");
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", "operateOnGrouperEntities");
+
         this.addErrorMessage(new ProvisioningValidationIssue()
-            .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.cannotHaveSubjectSourcesIfNotShowingEntities"))
+            .assignMessage(errorMessage)
             .assignRuntimeError(true));
       }
     }
@@ -1217,7 +1218,7 @@ public class GrouperProvisioningConfigurationValidation {
         continue;
       }
       String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.cannotHaveSubjectSourcesIfNotShowingEntities");
-      errorMessage = errorMessage.replaceAll("$$attributeName$$", suffixToRefactor);
+      errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", suffixToRefactor);
 
       this.addErrorMessage(new ProvisioningValidationIssue()
           .assignMessage(errorMessage)
