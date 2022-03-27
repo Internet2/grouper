@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperCacheConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -263,8 +264,15 @@ public enum ConfigFileName {
       
       // cache this since its heavyweight
       ConfigFileMetadata configFileMetadata = configFileNameToConfigFileMetadataCache.get(this);
+      if (GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("configuration.cacheJsonMetadata", true)) {
+        configFileMetadata = null;
+      }
       if (configFileMetadata == null) {
         synchronized(this) {
+          configFileMetadata = configFileNameToConfigFileMetadataCache.get(this);
+          if (GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("configuration.cacheJsonMetadata", true)) {
+            configFileMetadata = null;
+          }
           if (configFileMetadata == null) {
             
             String contents = this.fileContents();
