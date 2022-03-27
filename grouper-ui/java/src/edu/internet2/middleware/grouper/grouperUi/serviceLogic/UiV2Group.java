@@ -1999,6 +1999,64 @@ public class UiV2Group {
         return;
 
       }
+      
+      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+      
+      //set group types to create
+      List<GroupTypeForEdit> typesForEdit = groupContainer.getGroupTypesForCreate();
+      
+      Map<String, String> attributeDefNameNameToConfigId = new HashMap<>();
+      
+      for (GroupTypeForEdit typeForEdit: GrouperUtil.nonNull(typesForEdit)) {
+        attributeDefNameNameToConfigId.put(typeForEdit.getAttributeDefName().getName(), typeForEdit.getConfigId());
+      }
+      
+      Set<String> topLevelMarkersSelected = new HashSet<>();
+      
+      for (GroupTypeForEdit typeForEdit: GrouperUtil.nonNull(typesForEdit)) {
+        
+        if (StringUtils.isNotBlank(typeForEdit.getScopeString()) && 
+            !topLevelMarkersSelected.contains(typeForEdit.getScopeString())) {
+          continue;
+        }
+        
+        String newValue = request.getParameter(typeForEdit.getConfigId()+"__name");
+        newValue = StringUtils.trim(newValue);
+        
+        if (typeForEdit.getFormElementType().equals("CHECKBOX")) {
+          
+          if (StringUtils.isNotBlank(newValue) && GrouperUtil.booleanValue(newValue)) {
+            if (StringUtils.isBlank(typeForEdit.getScopeString())) {
+              topLevelMarkersSelected.add(typeForEdit.getAttributeName());
+            }
+            
+            group.getAttributeDelegate().assignAttribute(typeForEdit.getAttributeDefName());
+          }
+          
+        } else if (typeForEdit.getFormElementType().equals("TEXTFIELD")) {
+          
+          if (StringUtils.isNotBlank(typeForEdit.getScopeString())) {
+            // assignment on assignment
+            AttributeDefName markerAttributeDefName = typeForEdit.getMarkerAttributeDefName();
+            Set<AttributeAssign> assignments = group.getAttributeDelegate().retrieveAssignments(markerAttributeDefName);
+            if (GrouperUtil.length(assignments) != 1) {
+              continue;
+            }
+            
+            if (StringUtils.isNotBlank(newValue)) {
+              assignments.iterator().next().getAttributeValueDelegate()
+                .assignValue(typeForEdit.getAttributeDefName().getName(), newValue);
+            }
+            
+          } else {
+            if (StringUtils.isNotBlank(newValue)) {
+              group.getAttributeValueDelegate().assignValue(typeForEdit.getAttributeDefName().getName(), newValue);
+            }
+          }
+          
+        }
+        
+      }
 
       //go to the view group screen
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "')"));

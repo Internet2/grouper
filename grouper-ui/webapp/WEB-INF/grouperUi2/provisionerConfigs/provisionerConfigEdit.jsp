@@ -20,6 +20,18 @@
              <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
            </div>
          </div>
+         
+         <div class="row-fluid">
+          <div class="span12">
+            <p style="margin-top: -1em; margin-bottom: 1em">
+              ${guiProvisionerConfiguration.provisionerConfiguration.description}
+            </p>
+            <p style="margin-top: -1em; margin-bottom: 1em">
+              ${guiProvisionerConfiguration.provisionerConfiguration.documentation}
+            </p>
+          </div>
+        </div>
+        
        </div>
      </div>
      

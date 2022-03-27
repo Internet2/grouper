@@ -277,6 +277,8 @@ public class ProvisionerConfigurationContainer {
 
   private ProvisionerStartWithBase previousProvisionerStartWith;
 
+  private String startWithSessionId;
+
   public String getCurrentConfigSuffix() {
     return currentConfigSuffix;
   }
@@ -332,6 +334,17 @@ public class ProvisionerConfigurationContainer {
   public ProvisionerStartWithBase getPreviousProvisionerStartWith() {
     return previousProvisionerStartWith;
   }
+
+  public void setStartWithSessionId(String startWithSessionId) {
+    this.startWithSessionId = startWithSessionId;
+  }
+
+  
+  public String getStartWithSessionId() {
+    return startWithSessionId;
+  }
+  
+  
   
   
   

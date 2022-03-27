@@ -2,9 +2,11 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -821,14 +823,88 @@ public class UiV2ProvisionerConfiguration {
           
           provisionerConfigurationContainer.setProvisionerStartWith(provisionerStartWith);
           provisionerConfigurationContainer.setShowStartWithSection(true);
+          
+          
+          String sessionId = request.getParameter("startWithSessionId");
+          if (StringUtils.isBlank(sessionId)) {
+            String newSessionId = GrouperUtil.uniqueId();
+            provisionerConfigurationContainer.setStartWithSessionId(newSessionId);
+            
+            Map<String, GrouperConfigurationModuleAttribute> startWithAttributes = provisionerStartWith.retrieveAttributes();
+            
+            Map<String, String> configSuffixToValues = new HashMap<>();
+            for (String key: startWithAttributes.keySet()) {
+              String startWithValue = startWithAttributes.get(key).getValue();
+              configSuffixToValues.put(key, startWithValue);
+            }
+            
+            provisionerStartWith.populateCache(newSessionId, configSuffixToValues);
+            
+          } else {
+            provisionerConfigurationContainer.setStartWithSessionId(sessionId);
+            
+            Map<String, GrouperConfigurationModuleAttribute> startWithAttributes = provisionerStartWith.retrieveAttributes();
+            
+            Map<String, String> configSuffixToValues = new HashMap<>();
+            for (String key: startWithAttributes.keySet()) {
+              String startWithValue = startWithAttributes.get(key).getValue();
+              configSuffixToValues.put(key, startWithValue);
+            }
+            
+            //Set<String> newKeys = configSuffixToValues.keySet();
+            Set<String> suffixesUserJustChanged = new HashSet<>();
+            Map<String, String> oldSuffixToValue = provisionerStartWith.getCachedConfigKeyToValue(sessionId);
+            if (oldSuffixToValue != null) {
+              
+//              Set<String> oldKeys = oldSuffixToValue.keySet();
+//              newKeys.removeAll(oldKeys);
+              //now newKeys only have the keys that have been added since the last trip to the server
+              
+              // compare old values with new values and build suffixesUserJustChanged
+              
+              for (String key: startWithAttributes.keySet()) {
+                String startWithNewValue = startWithAttributes.get(key).getValue();
+                String startWithOldValue = oldSuffixToValue.get(key);
+                
+                if (!StringUtils.equals(startWithOldValue, startWithNewValue)) {
+                  suffixesUserJustChanged.add(key);
+                }
+                
+              }
+              
+            }
+            
+            provisionerStartWith.populateCache(sessionId, configSuffixToValues);
+            
+            Map<String, String> suffixToValueThatShouldChange = provisionerStartWith.screenRedraw(configSuffixToValues, suffixesUserJustChanged);
+
+            for (String key: suffixToValueThatShouldChange.keySet()) {
+              String valueToSet = suffixToValueThatShouldChange.get(key);
+              
+              if (startWithAttributes.containsKey(key)) {
+                startWithAttributes.get(key).setValue(GrouperUtil.stringValue(valueToSet));
+              }
+            }
+            
+          }
+          
+          
+          
+          
+          
+          
+          
         }
         
+        // once the start with submit is done
         if (!skipStartWith && StringUtils.isNotBlank(previousProvisionerStartWithClass) && StringUtils.isBlank(provisionerStartWithClass)) {
           
           Class<ProvisionerStartWithBase> previousStartWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(previousProvisionerStartWithClass);
           ProvisionerStartWithBase previousProvisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(previousStartWithKlass);
           
           provisionerConfigurationContainer.setProvisionerStartWith(previousProvisionerStartWith);
+          
+          
         }
         
         if (!skipStartWith && ((GrouperUtil.nonNull(startWithConfigClasses).size() > 0
@@ -926,8 +1002,6 @@ public class UiV2ProvisionerConfiguration {
       ProvisioningConfiguration provisionerConfiguration = (ProvisioningConfiguration) GrouperUtil.newInstance(klass);
       provisionerConfiguration.setConfigId(provisionerConfigId);
       
-      List<ProvisionerStartWithBase> startWithConfigClasses = provisionerConfiguration.getStartWithConfigClasses();
-      
       String provisionerStartWithClass = request.getParameter("provisionerStartWithClass");
       
       if (StringUtils.isNotBlank(provisionerStartWithClass)) {
@@ -937,6 +1011,11 @@ public class UiV2ProvisionerConfiguration {
         
         provisionerStartWith.populateConfigurationValuesFromUi(request);
         provisionerConfigurationContainer.setProvisionerStartWith(provisionerStartWith);
+        
+        String sessionId = request.getParameter("startWithSessionId");
+        if (StringUtils.isNotBlank(sessionId)) {
+          provisionerConfigurationContainer.setStartWithSessionId(sessionId);
+        }
         
         List<String> errorsToDisplay = new ArrayList<String>();
         Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
