@@ -28,79 +28,80 @@ public class DuoRoleProvisionerTestUtils {
   }
   
   /**
-   * @param duoRoleProvisioningTestConfigInput     
+   * @param provisioningTestConfigInput     
    * DuoRoleProvisionerTestUtils.configureDuoRoleProvisioner(
    *       new DuoRoleProvisioningTestConfigInput()
    *    .assignConfigId(string)
    *    .addExtraConfig("allowProvisionableRegexOverride", "true")
    *
    */
-  public static void configureDuoRoleProvisioner(DuoRoleProvisionerTestConfigInput duoRoleProvisioningTestConfigInput) {
+  public static void configureDuoRoleProvisioner(DuoRoleProvisionerTestConfigInput provisioningTestConfigInput) {
 
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "class", "edu.internet2.middleware.grouper.app.duo.GrouperDuoProvisioner");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "debugLog", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "deleteGroups", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "deleteGroupsIfNotExistInGrouper", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "deleteMemberships", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "deleteMembershipsIfNotExistInGrouper", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "duoExternalSystemConfigId", "duo1");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "hasTargetEntityLink", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "hasTargetGroupLink", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "insertEntities", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "insertGroups", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "insertMemberships", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "numberOfEntityAttributes", "2");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "numberOfGroupAttributes", "3");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "operateOnGrouperEntities", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "operateOnGrouperGroups", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "operateOnGrouperMemberships", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "provisioningType", "membershipObjects");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "selectEntities", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "selectGroups", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "selectMemberships", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "showAdvanced", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.0.insert", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.0.matchingId", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.0.name", "loginId");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.0.searchAttribute", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.0.select", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.0.update", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.0.valueType", "string");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.1.name", "id");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.1.select", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.1.translateToMemberSyncField", "memberToId2");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetEntityAttribute.1.valueType", "string");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.0.name", "id");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.0.select", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.0.valueType", "string");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.1.insert", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.1.name", "name");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.1.searchAttribute", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.1.select", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", "extension");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.1.update", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.1.valueType", "string");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.2.insert", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.2.name", "description");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.2.select", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "description");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.2.update", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "targetGroupAttribute.2.valueType", "string");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "updateEntities", "true");
-    configureProvisionerSuffix(duoRoleProvisioningTestConfigInput, "updateGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "class", "edu.internet2.middleware.grouper.app.duo.GrouperDuoProvisioner");
+    configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroupsIfNotExistInGrouper", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsIfNotExistInGrouper", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "duoExternalSystemConfigId", "duo1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "2");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "3");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "membershipObjects");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.insert", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.matchingId", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "loginId");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.searchAttribute", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.select", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.update", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.valueType", "string");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "id");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.select", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateToMemberSyncField", "memberToId2");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.valueType", "string");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "id");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.select", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.valueType", "string");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.insert", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "name");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.searchAttribute", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.select", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", "extension");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.update", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.valueType", "string");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.insert", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "description");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.select", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "description");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.update", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.valueType", "string");
+    configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
     
-    for (String key: duoRoleProvisioningTestConfigInput.getExtraConfig().keySet()) {
-      String theValue = duoRoleProvisioningTestConfigInput.getExtraConfig().get(key);
+    for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {
+      String theValue = provisioningTestConfigInput.getExtraConfig().get(key);
       if (!StringUtils.isBlank(theValue)) {
-        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner." + duoRoleProvisioningTestConfigInput.getConfigId() + "." + key).value(theValue).store();
+        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner." + provisioningTestConfigInput.getConfigId() + "." + key).value(theValue).store();
       }
     }
     

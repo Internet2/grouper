@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -19,6 +20,7 @@ import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 /**
  * this could be a deep validate though
@@ -365,7 +367,7 @@ public class GrouperProvisioningConfigurationValidation {
 //        this.addErrorMessageAndJqueryHandle(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertEntities"), "operateOnGrouperEntities");
 //      }
 //    }
-    if (grouperProvisioningConfiguration.isOperateOnGrouperMemberships()) {
+    if (grouperProvisioningConfiguration.isOperateOnGrouperMemberships() && grouperProvisioningConfiguration.isCustomizeMembershipCrud()) {
       if (!grouperProvisioningConfiguration.isSelectMemberships() && !grouperProvisioningConfiguration.isInsertMemberships()) {
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertMemberships")).assignJqueryHandle("operateOnGrouperMemberships"));
       }
@@ -404,6 +406,10 @@ public class GrouperProvisioningConfigurationValidation {
     validateFailsafes();
     validateOperateOnEntitiesIfSubjectSourcesToProvision();
     validateSubjectSourceInEntityConfig();
+    validateSelectAllEntities();
+    validateNoFields();
+    validateEntityResolverRefactorDontUseOldValues();
+    validateCustomizeMembershipCrud();
 
 
     // if there are problems with the basics, then other things could throw exceptions
@@ -1174,13 +1180,13 @@ public class GrouperProvisioningConfigurationValidation {
       }
     }
   }      
-
+  
   /**
    */
   public void validateSelectAllEntities() {
-    //TODO
     // GRP-3938: provisioning selectAllEntities should not have a default
-    if (StringUtils.isBlank(suffixToConfigValue.get("selectAllEntities"))) {
+    if (GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false) && 
+        GrouperUtil.booleanValue(suffixToConfigValue.get("selectEntities"), false) && StringUtils.isBlank(suffixToConfigValue.get("selectAllEntities"))) {
       this.addErrorMessage(new ProvisioningValidationIssue()
           .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.selectAllEntitiesRequired"))
           .assignRuntimeError(true));
@@ -1195,7 +1201,6 @@ public class GrouperProvisioningConfigurationValidation {
     if (!StringUtils.isBlank(suffixToConfigValue.get("subjectSourcesToProvision"))) {
       if (!GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false)) {
         String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.cannotHaveSubjectSourcesIfNotShowingEntities");
-        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", "operateOnGrouperEntities");
 
         this.addErrorMessage(new ProvisioningValidationIssue()
             .assignMessage(errorMessage)
@@ -1205,7 +1210,7 @@ public class GrouperProvisioningConfigurationValidation {
   }
   
   
-  public void provisioningEntityResolverRefactorDontUseOldValues() {
+  public void validateEntityResolverRefactorDontUseOldValues() {
     
     // FROM provisioner.genericProvisioner.entityAttributesNotInSubjectSource
     // TO provisioner.genericProvisioner.entityResolver.entityAttributesNotInSubjectSource
@@ -1213,11 +1218,11 @@ public class GrouperProvisioningConfigurationValidation {
     // GRP-3939: Refactor entity attribute resolver config
     for (String suffixToRefactor : UpgradeTasks.v8_entityResolverSuffixesToRefactor) {
       
-      String resolverValue = GrouperLoaderConfig.retrieveConfig().propertyValueString(suffixToRefactor);
+      String resolverValue = suffixToConfigValue.get(suffixToRefactor);
       if (StringUtils.isBlank(resolverValue)) {
         continue;
       }
-      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.cannotHaveSubjectSourcesIfNotShowingEntities");
+      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
       errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", suffixToRefactor);
 
       this.addErrorMessage(new ProvisioningValidationIssue()
@@ -1227,6 +1232,42 @@ public class GrouperProvisioningConfigurationValidation {
     }
     
   }
-  
+
+  /**
+   * 
+   * @return if did something
+   */
+  public void validateCustomizeMembershipCrud() {
+    // GRP-3953: add provisioning customizeMembershipCrud
+    boolean customizeCrud = GrouperUtil.booleanValue(suffixToConfigValue.get("customizeMembershipCrud"), false);
+    boolean anythingSet = false;
+    for (String key : new String[] { "insertMemberships", "selectMemberships", "deleteMemberships", "deleteMembershipsIfNotExistInGrouper", 
+        "deleteMembershipsIfGrouperDeleted", "deleteMembershipsIfGrouperCreated"}) {
+      if (!customizeCrud) {
+
+          if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {
+            String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+            errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+            this.addErrorMessage(new ProvisioningValidationIssue()
+                .assignMessage(errorMessage)
+                .assignRuntimeError(true));
+
+          }
+      } else {
+        if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {
+          anythingSet = true;
+        }
+      }
+    }
+    
+    if (customizeCrud && !anythingSet) {
+      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.customizeMembershipCrudButNothingSet");
+
+      this.addErrorMessage(new ProvisioningValidationIssue()
+          .assignMessage(errorMessage)
+          .assignRuntimeError(false));
+    }
+  }
 }
  

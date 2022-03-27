@@ -216,6 +216,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       v8_provisioningSelectAllEntitiesDefault();
       
       v8_provisioningEntityResolverRefactor();
+      
+      v8_provisioningCustomizeMembershipCrud();
     }
   };
   
@@ -263,27 +265,17 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
 
             {
               String nameKey = "provisioner." + configId + ".target" + objectType + "Attribute." + i + ".name";
-              new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(nameKey).value("ldap_dn").store();
-              String action = "Provisioning upgrade: setting grouper-loader.properties " + nameKey + " = ldap_dn";
-              LOG.warn(action);
-              System.out.println(action);
+              grouperLoaderConfigUpdate(nameKey, "ldap_dn");
             }
             
             {
               String isFieldElseAttributeKey = "provisioner." + configId + ".target" + objectType + "Attribute." + i + ".isFieldElseAttribute";
               boolean isFieldElseAttribute =GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(isFieldElseAttributeKey, false);
               if (isFieldElseAttribute) {
-                new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(isFieldElseAttributeKey).value("false").store();
-                String action = "Provisioning upgrade: setting grouper-loader.properties " + isFieldElseAttributeKey + " = false";
-                LOG.warn(action);
-                System.out.println(action);
+                grouperLoaderConfigUpdate(isFieldElseAttributeKey, "false");
               }
             }
-            
-            new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(fieldNameKey).delete();
-            String action = "Provisioning upgrade: deleting grouper-loader.properties " + fieldNameKey;
-            LOG.warn(action);
-            System.out.println(action);
+            grouperLoaderConfigDelete(fieldNameKey);
           }
         }
       }
@@ -311,11 +303,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       String operateOnGrouperEntities = GrouperLoaderConfig.retrieveConfig().propertyValueString(operateOnGrouperEntitiesKey);
       boolean operateOnGrouperEntitiesBoolean = GrouperUtil.booleanValue(operateOnGrouperEntities, false);
       if (!StringUtils.isBlank(subjectSourcesToProvision) && !operateOnGrouperEntitiesBoolean) {
-        String action = "Provisioning upgrade: setting grouper-loader.properties " + operateOnGrouperEntitiesKey + " = true";
-        LOG.warn(action);
-        System.out.println(action);
         didSomething = true;
-        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(operateOnGrouperEntitiesKey).value("true").store();
+        grouperLoaderConfigUpdate(operateOnGrouperEntitiesKey, "true");
       }
     }
     if (!didSomething) {
@@ -362,17 +351,9 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
             
             {
               String nameKey = "provisioner." + configId + ".target" + objectType + "Attribute." + i + ".name";
-              new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(nameKey).value(fieldName).store();
-              String action = "Provisioning upgrade: setting grouper-loader.properties " + nameKey + " = " + fieldName;
-              LOG.warn(action);
-              System.out.println(action);
+              grouperLoaderConfigUpdate(nameKey, fieldName);
             }
-            {
-              new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(fieldNameKey).delete();
-              String action = "Provisioning upgrade: deleting grouper-loader.properties " + fieldNameKey;
-              LOG.warn(action);
-              System.out.println(action);
-            }
+            grouperLoaderConfigDelete(fieldNameKey);
 
           }
           {
@@ -380,10 +361,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
             String isFieldElseAttribute =GrouperLoaderConfig.retrieveConfig().propertyValueString(isFieldElseAttributeKey);
             if (!StringUtils.isBlank(isFieldElseAttribute)) {
               didSomething = true;
-              new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(isFieldElseAttributeKey).delete();
-              String action = "Provisioning upgrade: deleting grouper-loader.properties " + isFieldElseAttributeKey;
-              LOG.warn(action);
-              System.out.println(action);
+              grouperLoaderConfigDelete(isFieldElseAttributeKey);
             }
           }
             
@@ -457,15 +435,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         }
         didSomething = true;
 
-        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(resolverKeyNew).value(resolverValue).store();
-        String action = "Provisioning upgrade: setting grouper-loader.properties " + resolverKeyNew + " = " + resolverValue;
-        LOG.warn(action);
-        System.out.println(action);
-        
-        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(resolverKeyOld).delete();
-        action = "Provisioning upgrade: deleting grouper-loader.properties " + resolverKeyOld;
-        LOG.warn(action);
-        System.out.println(action);
+        grouperLoaderConfigUpdate(resolverKeyNew, resolverValue);
+        grouperLoaderConfigDelete(resolverKeyOld);
         
       }
 
@@ -495,10 +466,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         continue;
       }
       didSomething = true;
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(selectAllEntitiesKey).value("false").store();
-      String action = "Provisioning upgrade: setting grouper-loader.properties " + selectAllEntitiesKey + " = false";
-      LOG.warn(action);
-      System.out.println(action);
+      grouperLoaderConfigUpdate(selectAllEntitiesKey, "false");
     }
     if (!didSomething) {
       String action = "Provisioning upgrade: no change for 'select all entities' default";
@@ -508,5 +476,109 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       ConfigPropertiesCascadeBase.clearCache();
     }
     return didSomething;
+  }
+
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningCustomizeMembershipCrud() {
+    // GRP-3953: add provisioning customizeMembershipCrud
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      String customizeMembershipCrudKey = "provisioner." + configId + ".customizeMembershipCrud";
+      String insertMembershipsKey = "provisioner." + configId + ".insertMemberships";
+      String selectMembershipsKey = "provisioner." + configId + ".selectMemberships";
+      String deleteMembershipsKey = "provisioner." + configId + ".deleteMemberships";
+      String deleteMembershipsIfNotExistInGrouperKey = "provisioner." + configId + ".deleteMembershipsIfNotExistInGrouper";
+      String deleteMembershipsIfGrouperDeletedKey = "provisioner." + configId + ".deleteMembershipsIfGrouperDeleted";
+      String deleteMembershipsIfGrouperCreatedKey = "provisioner." + configId + ".deleteMembershipsIfGrouperCreated";
+      
+      Boolean customizeMembershipCrud = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(customizeMembershipCrudKey));
+      
+      // if we are already up to date
+      if (customizeMembershipCrud != null) {
+        continue;
+      }
+
+      didSomething = true;
+
+      Boolean insertMemberships = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(insertMembershipsKey));
+      Boolean selectMemberships = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(selectMembershipsKey));
+      Boolean deleteMemberships = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteMembershipsKey));
+      Boolean deleteMembershipsIfNotExistInGrouper = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteMembershipsIfNotExistInGrouperKey));
+      Boolean deleteMembershipsIfGrouperDeleted = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteMembershipsIfGrouperDeletedKey));
+      Boolean deleteMembershipsIfGrouperCreated = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteMembershipsIfGrouperCreatedKey));
+
+      // if we are somehow at the default
+      if (insertMemberships != null && insertMemberships
+          && selectMemberships != null && selectMemberships
+          && deleteMemberships != null && deleteMemberships
+          && (deleteMembershipsIfNotExistInGrouper == null || !deleteMembershipsIfNotExistInGrouper)
+          && (deleteMembershipsIfGrouperDeleted == null || !deleteMembershipsIfGrouperDeleted)
+          && deleteMembershipsIfGrouperCreated != null && deleteMembershipsIfGrouperCreated) {
+        grouperLoaderConfigDelete(insertMembershipsKey);
+        grouperLoaderConfigDelete(selectMembershipsKey);
+        grouperLoaderConfigDelete(deleteMembershipsKey);
+        if (deleteMembershipsIfNotExistInGrouper != null) {
+          grouperLoaderConfigDelete(deleteMembershipsIfNotExistInGrouperKey);
+        }
+        if (deleteMembershipsIfGrouperDeleted != null) {
+          grouperLoaderConfigDelete(deleteMembershipsIfGrouperDeletedKey);
+        }
+        grouperLoaderConfigDelete(deleteMembershipsIfGrouperCreatedKey);
+      } else {
+        grouperLoaderConfigUpdate(customizeMembershipCrudKey, "true");
+        
+        if (insertMemberships == null) {
+          grouperLoaderConfigUpdate(insertMembershipsKey, "false");
+        } else if (insertMemberships) {
+          grouperLoaderConfigDelete(insertMembershipsKey);
+        }
+        if (selectMemberships == null) {
+          grouperLoaderConfigUpdate(selectMembershipsKey, "false");
+        } else if (selectMemberships) {
+          grouperLoaderConfigDelete(selectMembershipsKey);
+        }
+        if (deleteMemberships == null) {
+          grouperLoaderConfigUpdate(deleteMembershipsKey, "false");
+        } else if (deleteMemberships && deleteMembershipsIfGrouperCreated != null && deleteMembershipsIfGrouperCreated) {
+          grouperLoaderConfigDelete(deleteMembershipsKey);
+          grouperLoaderConfigDelete(deleteMembershipsIfGrouperCreatedKey);
+        }
+        
+      }
+    }
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'membership CRUD defaults'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
+  }
+
+  private static void grouperLoaderConfigDelete(String key) {
+    if (!key.startsWith("provisioner.")) {
+      throw new RuntimeException("Invalid key, should start with provisioner.");
+    }
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(key).delete();
+    String action = "Provisioning upgrade: deleting grouper-loader.properties " + key;
+    LOG.warn(action);
+    System.out.println(action);
+    
+  }
+  
+  private static void grouperLoaderConfigUpdate(String key, String value) {
+    if (!key.startsWith("provisioner.")) {
+      throw new RuntimeException("Invalid key, should start with provisioner.");
+    }
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName(key).value(value).store();
+    String action = "Provisioning upgrade: setting grouper-loader.properties " + key + " = " + value;
+    LOG.warn(action);
+    System.out.println(action);
+
   }
 }

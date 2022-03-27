@@ -27,47 +27,48 @@ public class MessagingProvisionerTestUtils {
   }
   
   /**
-   * @param messagingProvisioningTestConfigInput     
+   * @param provisioningTestConfigInput     
    * MessagingProvisionerTestUtils.configureMessagingProvisioner(
    *       new MessagingProvisioningTestConfigInput()
    *    .assignConfigId(string)
    *    .addExtraConfig("allowProvisionableRegexOverride", "true")
    *
    */
-  public static void configureMessagingProvisioner(MessagingProvisionerTestConfigInput messagingProvisioningTestConfigInput) {
+  public static void configureMessagingProvisioner(MessagingProvisionerTestConfigInput provisioningTestConfigInput) {
 
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "messagingExternalSystemConfigId", "grouperBuiltinMessaging");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "class", "edu.internet2.middleware.grouper.app.messagingProvisioning.GrouperMessagingProvisioner");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "debugLog", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "deleteEntities", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "deleteEntitiesIfGrouperDeleted", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "deleteGroups", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "deleteGroupsIfGrouperDeleted", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "deleteMemberships", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "deleteMembershipsIfGrouperDeleted", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "insertEntities", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "insertGroups", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "insertMemberships", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "messagingFormatType", "EsbEventJson");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "operateOnGrouperEntities", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "operateOnGrouperGroups", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "operateOnGrouperMemberships", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "provisioningType", "membershipObjects");
+    configureProvisionerSuffix(provisioningTestConfigInput, "messagingExternalSystemConfigId", "grouperBuiltinMessaging");
+    configureProvisionerSuffix(provisioningTestConfigInput, "class", "edu.internet2.middleware.grouper.app.messagingProvisioning.GrouperMessagingProvisioner");
+    configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntitiesIfGrouperDeleted", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroupsIfGrouperDeleted", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsIfGrouperDeleted", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "messagingFormatType", "EsbEventJson");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "membershipObjects");
     
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "queueOrTopicName", "testSqsQueue");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "queueType", "queue");
+    configureProvisionerSuffix(provisioningTestConfigInput, "queueOrTopicName", "testSqsQueue");
+    configureProvisionerSuffix(provisioningTestConfigInput, "queueType", "queue");
     
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "showAdvanced", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "updateEntities", "true");
-    configureProvisionerSuffix(messagingProvisioningTestConfigInput, "updateGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
+    configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
 
 
-    for (String key: messagingProvisioningTestConfigInput.getExtraConfig().keySet()) {
-      String theValue = messagingProvisioningTestConfigInput.getExtraConfig().get(key);
+    for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {
+      String theValue = provisioningTestConfigInput.getExtraConfig().get(key);
       if (!StringUtils.isBlank(theValue)) {
-        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner." + messagingProvisioningTestConfigInput.getConfigId() + "." + key).value(theValue).store();
+        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner." + provisioningTestConfigInput.getConfigId() + "." + key).value(theValue).store();
       }
     }
     

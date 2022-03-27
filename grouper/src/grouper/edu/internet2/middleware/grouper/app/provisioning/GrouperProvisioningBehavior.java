@@ -687,13 +687,10 @@ public class GrouperProvisioningBehavior {
 
   private Boolean selectMemberships;
 
-  
-  
   public boolean isSelectMemberships() {
     if (this.selectMemberships != null) {
       return selectMemberships;
     }
-    
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
         .getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
@@ -704,10 +701,15 @@ public class GrouperProvisioningBehavior {
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
-      return false;
+      this.selectMemberships = false;
+      return this.selectMemberships;
     }
-
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships();
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      this.selectMemberships = true;
+      return this.selectMemberships;
+    }
+    this.selectMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships();
+    return this.selectMemberships;
   }
   
   private Boolean selectMembershipsForGroup;
@@ -859,11 +861,17 @@ public class GrouperProvisioningBehavior {
 
     //can the provisioner even do this?
     if (!this.isDeleteMemberships()) {
-      return false;
+      this.deleteMembershipsIfGrouperCreated = false;
+      return this.deleteEntitiesIfGrouperCreated;
     }
-    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      this.deleteMembershipsIfGrouperCreated = true;
+      return this.deleteMembershipsIfGrouperCreated;
+    }
     // is it configured to?
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsIfGrouperCreated();
+    this.deleteMembershipsIfGrouperCreated = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsIfGrouperCreated();
+    return this.deleteMembershipsIfGrouperCreated;
+
   }
 
   public void setDeleteMembershipsIfGrouperCreated(
@@ -1023,13 +1031,18 @@ public class GrouperProvisioningBehavior {
       if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteMembership(), false)
         &&  !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteMemberships(), false)
           ) {
-        return false;
+        this.deleteMemberships = false;
+        return this.deleteMemberships;
       }
 
     }
-
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      this.deleteMemberships = true;
+      return this.deleteMemberships;
+    }
     // is it configured to?
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMemberships();
+    this.deleteMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMemberships();
+    return this.deleteMemberships;
   }
   
   public void setDeleteMemberships(boolean deleteMemberships) {
@@ -1357,7 +1370,7 @@ public class GrouperProvisioningBehavior {
   public void setSelectMembershipAttributes(Set<String> membershipsRetrieveAttributes) {
     this.selectMembershipAttributes = membershipsRetrieveAttributes;
   }
-
+  
   
   public boolean isUpdateMemberships() {
     if (updateMemberships != null) {
@@ -1371,8 +1384,9 @@ public class GrouperProvisioningBehavior {
         return false;
       }
     }    
-    // is it configured to?
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateMemberships();
+    // is it configured to?  theres not a lot of use cases for updating memberships, so lets sort of ignore this for now
+    this.updateMemberships = this.isInsertMemberships();
+    return this.updateMemberships;
   }
 
   
@@ -1400,10 +1414,16 @@ public class GrouperProvisioningBehavior {
       if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanInsertMembership(), false)
         &&  !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanInsertMemberships(), false)
           ) {
-        return false;
+        this.insertMemberships = false;
+        return this.insertMemberships;
       }
     }
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertMemberships();
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      this.insertMemberships = true;
+      return this.insertMemberships;
+    }
+    this.insertMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertMemberships();
+    return this.insertMemberships;
   }
 
   
@@ -1426,10 +1446,19 @@ public class GrouperProvisioningBehavior {
     if (deleteMembershipsIfNotExistInGrouper != null) {
       return deleteMembershipsIfNotExistInGrouper;
     }
+    
+    //can the provisioner even do this?
     if (!this.isDeleteMemberships()) {
-      return false;
+      this.deleteMembershipsIfNotExistInGrouper = false;
+      return this.deleteMembershipsIfNotExistInGrouper;
     }
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsIfNotExistInGrouper();
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      this.deleteMembershipsIfNotExistInGrouper = false;
+      return this.deleteMembershipsIfNotExistInGrouper;
+    }
+    // is it configured to?
+    this.deleteMembershipsIfNotExistInGrouper = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsIfNotExistInGrouper();
+    return this.deleteMembershipsIfNotExistInGrouper;
   }
   
   public void setDeleteMembershipsIfNotExistInGrouper(Boolean membershipsDeleteIfNotInGrouper) {
@@ -1440,10 +1469,19 @@ public class GrouperProvisioningBehavior {
     if (deleteMembershipsIfGrouperDeleted != null) {
       return deleteMembershipsIfGrouperDeleted;
     }
+    //can the provisioner even do this?
     if (!this.isDeleteMemberships()) {
-      return false;
+      this.deleteMembershipsIfGrouperDeleted = false;
+      return this.deleteMembershipsIfGrouperDeleted;
     }
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsIfGrouperDeleted();
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      this.deleteMembershipsIfGrouperDeleted = false;
+      return this.deleteMembershipsIfGrouperDeleted;
+    }
+    // is it configured to?
+    this.deleteMembershipsIfGrouperDeleted = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsIfGrouperDeleted();
+    return this.deleteMembershipsIfGrouperDeleted;
+
   }
   
   public void setDeleteMembershipsIfGrouperDeleted(

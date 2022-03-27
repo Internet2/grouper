@@ -28,7 +28,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningLdapDnAttributeChange"));
+    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningMembershipOPbjectCrudDefault2"));
   }
   
   /**
@@ -239,7 +239,62 @@ public class UpgradeTasksJobTest extends GrouperTest {
     assertFalse(UpgradeTasks.v8_provisioningEntityResolverRefactor());
   }
   
-  
+  /**
+   * 
+   */
+  public void test_v8_provisioningMembershipOPbjectCrudDefault() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeMembershipCrud", false));
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteMembershipsIfNotExistInGrouper").value("false").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteMembershipsIfGrouperCreated").value("true").store();
+
+    ConfigPropertiesCascadeBase.clearCache();
+
+    assertTrue(UpgradeTasks.v8_provisioningCustomizeMembershipCrud());
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.customizeMembershipCrud"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.insertMemberships"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.selectMemberships"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteMemberships"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteMembershipsIfNotExistInGrouper"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteMembershipsIfGrouperDeleted"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteMembershipsIfGrouperCreated"));
+
+    // this will convert again so dont do twice
+    //assertFalse(UpgradeTasks.v8_provisioningCustomizeMembershipCrud());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningMembershipOPbjectCrudDefault2() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeMembershipCrud", false));
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.insertMemberships").delete();
+
+    ConfigPropertiesCascadeBase.clearCache();
+
+    assertTrue(UpgradeTasks.v8_provisioningCustomizeMembershipCrud());
+
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeMembershipCrud", false));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.insertMemberships", true));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.selectMemberships"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.deleteMemberships", false));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.deleteMembershipsIfNotExistInGrouper", false));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteMembershipsIfGrouperDeleted"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteMembershipsIfGrouperCreated"));
+
+    // this will convert again so dont do twice
+    //assertFalse(UpgradeTasks.v8_provisioningCustomizeMembershipCrud());
+    
+  }
+
   /**
    * 
    */

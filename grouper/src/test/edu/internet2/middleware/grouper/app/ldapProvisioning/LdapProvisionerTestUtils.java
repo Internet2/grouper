@@ -184,7 +184,7 @@ public class LdapProvisionerTestUtils {
   }
   
   /**
-   * @param ldapProvisioningTestConfigInput     
+   * @param provisioningTestConfigInput     
    * LdapProvisionerTestUtils.configureLdapProvisioner(
    *       new LdapProvisioningTestConfigInput()
    *    .assignConfigId(string)
@@ -209,298 +209,299 @@ public class LdapProvisionerTestUtils {
    *    .addExtraConfig("allowProvisionableRegexOverride", "true")
    *
    */
-  public static void configureLdapProvisioner(LdapProvisionerTestConfigInput ldapProvisioningTestConfigInput) {
+  public static void configureLdapProvisioner(LdapProvisionerTestConfigInput provisioningTestConfigInput) {
 
-    if (!StringUtils.equals("member", ldapProvisioningTestConfigInput.getMembershipAttribute()) 
-        && !StringUtils.equals("description", ldapProvisioningTestConfigInput.getMembershipAttribute())) {
-      throw new RuntimeException("Expecting member or description but was '" + ldapProvisioningTestConfigInput.getMembershipAttribute() + "'");
+    if (!StringUtils.equals("member", provisioningTestConfigInput.getMembershipAttribute()) 
+        && !StringUtils.equals("description", provisioningTestConfigInput.getMembershipAttribute())) {
+      throw new RuntimeException("Expecting member or description but was '" + provisioningTestConfigInput.getMembershipAttribute() + "'");
     }
-    if (0 != ldapProvisioningTestConfigInput.getEntityAttributeCount() && 2 != ldapProvisioningTestConfigInput.getEntityAttributeCount() && 3 != ldapProvisioningTestConfigInput.getEntityAttributeCount() && 6 != ldapProvisioningTestConfigInput.getEntityAttributeCount()) {
-      throw new RuntimeException("Expecting 0, 2 or 6 for entityAttributeCount but was '" + ldapProvisioningTestConfigInput.getEntityAttributeCount() + "'");
+    if (0 != provisioningTestConfigInput.getEntityAttributeCount() && 2 != provisioningTestConfigInput.getEntityAttributeCount() && 3 != provisioningTestConfigInput.getEntityAttributeCount() && 6 != provisioningTestConfigInput.getEntityAttributeCount()) {
+      throw new RuntimeException("Expecting 0, 2 or 6 for entityAttributeCount but was '" + provisioningTestConfigInput.getEntityAttributeCount() + "'");
     }
-    if (ldapProvisioningTestConfigInput.isPosixGroup() && !StringUtils.equals(ldapProvisioningTestConfigInput.getBusinessCategoryTranslateFromGrouperProvisioningGroupField(), "idIndex")) {
+    if (provisioningTestConfigInput.isPosixGroup() && !StringUtils.equals(provisioningTestConfigInput.getBusinessCategoryTranslateFromGrouperProvisioningGroupField(), "idIndex")) {
       throw new RuntimeException("Cant be posix and business category");
     }
 
-    if (ldapProvisioningTestConfigInput.getGroupAttributeCount() > 0) {
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "numberOfGroupAttributes", "" + ldapProvisioningTestConfigInput.getGroupAttributeCount() + "");
+    if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "" + provisioningTestConfigInput.getGroupAttributeCount() + "");
       
-      if (ldapProvisioningTestConfigInput.getGroupAttributeCount() == 1) {
+      if (provisioningTestConfigInput.getGroupAttributeCount() == 1) {
 
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.name", "entitlement");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "entitlement");
 
-        if (ldapProvisioningTestConfigInput.isEntitlementMetadata()) {
+        if (provisioningTestConfigInput.isEntitlementMetadata()) {
 
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "translationScript");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.translateExpression", 
-              "${grouperUtil.defaultIfBlank(grouperProvisioningGroup.retrieveAttributeValueString('md_entitlementValue') , grouperProvisioningGroup." + ldapProvisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField() + " )}");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "translationScript");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpression", 
+              "${grouperUtil.defaultIfBlank(grouperProvisioningGroup.retrieveAttributeValueString('md_entitlementValue') , grouperProvisioningGroup." + provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField() + " )}");
 
         } else {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", ldapProvisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
           
         }
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.translateGrouperToGroupSyncField", "groupFromId2");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateGrouperToGroupSyncField", "groupFromId2");
         
       } else {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.name", "ldap_dn");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.insert", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.select", "true");
-        if (ldapProvisioningTestConfigInput.isUpdateGroupsAndDn()) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.update", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "ldap_dn");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.insert", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.select", "true");
+        if (provisioningTestConfigInput.isUpdateGroupsAndDn()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.update", "true");
         }
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", ldapProvisioningTestConfigInput.isDnOverrideScript() ? "translationScript" : "grouperProvisioningGroupField");
-        if (ldapProvisioningTestConfigInput.isDnOverrideScript()) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.translateExpression",
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", provisioningTestConfigInput.isDnOverrideScript() ? "translationScript" : "grouperProvisioningGroupField");
+        if (provisioningTestConfigInput.isDnOverrideScript()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpression",
               "${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_ldapGroupDnOverride'), 'cn=' + edu.internet2.middleware.grouper.util.GrouperUtil.ldapEscapeRdnValue(grouperProvisioningGroup." 
-                  + ldapProvisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField() + ") + ',ou=Groups,dc=example,dc=edu')}");
+                  + provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField() + ") + ',ou=Groups,dc=example,dc=edu')}");
         } else {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField",
-              ldapProvisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField",
+              provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
         }
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
       
   
       
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.1.name",
-            ldapProvisioningTestConfigInput.isPosixGroup() ? "gidNumber" : "businessCategory");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.1.valueType", "long");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.1.insert", "true");
-        if (StringUtils.equals(ldapProvisioningTestConfigInput.getBusinessCategoryTranslateFromGrouperProvisioningGroupField(), "idIndex")) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.1.valueType", "long");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name",
+            provisioningTestConfigInput.isPosixGroup() ? "gidNumber" : "businessCategory");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.valueType", "long");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.insert", "true");
+        if (StringUtils.equals(provisioningTestConfigInput.getBusinessCategoryTranslateFromGrouperProvisioningGroupField(), "idIndex")) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.valueType", "long");
         }
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.1.select", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.1.searchAttribute", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", 
-            ldapProvisioningTestConfigInput.getBusinessCategoryTranslateFromGrouperProvisioningGroupField());
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.select", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.searchAttribute", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", 
+            provisioningTestConfigInput.getBusinessCategoryTranslateFromGrouperProvisioningGroupField());
       
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.2.name", "cn");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.2.insert", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.2.select", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "cn");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.insert", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.select", "true");
     
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", ldapProvisioningTestConfigInput.isDnOverrideScript() ? "translationScript" : "grouperProvisioningGroupField");
-        if (ldapProvisioningTestConfigInput.isDnOverrideScript()) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.2.translateExpression",
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", provisioningTestConfigInput.isDnOverrideScript() ? "translationScript" : "grouperProvisioningGroupField");
+        if (provisioningTestConfigInput.isDnOverrideScript()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpression",
               "${edu.internet2.middleware.grouper.util.GrouperUtil.ldapConvertDnToSpecificValue(grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_ldapGroupDnOverride'), "
                   + "'cn=' + edu.internet2.middleware.grouper.util.GrouperUtil.ldapEscapeRdnValue(grouperProvisioningGroup." 
-                  + ldapProvisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField() + ") + ',ou=Groups,dc=example,dc=edu'))}");
+                  + provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField() + ") + ',ou=Groups,dc=example,dc=edu'))}");
         } else {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", 
-              ldapProvisioningTestConfigInput.isGroupDnTypeBushy() ? "extension" : ldapProvisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", 
+              provisioningTestConfigInput.isGroupDnTypeBushy() ? "extension" : provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
         }
     
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.3.name", "objectClass");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.3.insert", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.3.select", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.3.multiValued", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "translationScript");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.3.translateExpression", 
-          "${grouperUtil.toSet('top', '" + (ldapProvisioningTestConfigInput.isPosixGroup() ? "posixGroup" : "groupOfNames") + "')}");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "objectClass");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.insert", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.select", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.multiValued", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "translationScript");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpression", 
+          "${grouperUtil.toSet('top', '" + (provisioningTestConfigInput.isPosixGroup() ? "posixGroup" : "groupOfNames") + "')}");
         
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.4.name", "member");
-        if (StringUtils.equals(ldapProvisioningTestConfigInput.getMembershipAttribute(), "member")) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.4.defaultValue", "cn=admin,dc=example,dc=edu");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.4.multiValued", "true");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.4.membershipAttribute", "true");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.4.translateFromMemberSyncField", ldapProvisioningTestConfigInput.getEntityAttributeCount() > 0 ? "memberToId2" : "subjectId");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "member");
+        if (StringUtils.equals(provisioningTestConfigInput.getMembershipAttribute(), "member")) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.defaultValue", "cn=admin,dc=example,dc=edu");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.multiValued", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.membershipAttribute", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateFromMemberSyncField", provisioningTestConfigInput.getEntityAttributeCount() > 0 ? "memberToId2" : "subjectId");
         } else {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.4.translateExpressionType", "translationScript");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.4.translateExpression", "'cn' + '=' + 'somethingbogussincethisisrequired'");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpressionType", "translationScript");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpression", "'cn' + '=' + 'somethingbogussincethisisrequired'");
         }
         
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.5.name", "description");
-        if (StringUtils.equals(ldapProvisioningTestConfigInput.getMembershipAttribute(), "description")) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.5.multiValued", "true");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.5.membershipAttribute", "true");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.5.translateFromMemberSyncField", ldapProvisioningTestConfigInput.getEntityAttributeCount() > 0 ? "memberToId2" : "subjectId");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.name", "description");
+        if (StringUtils.equals(provisioningTestConfigInput.getMembershipAttribute(), "description")) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.multiValued", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.membershipAttribute", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateFromMemberSyncField", provisioningTestConfigInput.getEntityAttributeCount() > 0 ? "memberToId2" : "subjectId");
         } else {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.5.insert", "true");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.5.update", "true");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.5.select", "true");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.5.translateExpressionType", "grouperProvisioningGroupField");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetGroupAttribute.5.translateFromGrouperProvisioningGroupField", "description");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.insert", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.update", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.select", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateExpressionType", "grouperProvisioningGroupField");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateFromGrouperProvisioningGroupField", "description");
         }    
       }
     }
     
-    if (ldapProvisioningTestConfigInput.getEntityAttributeCount() > 0) {
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttributeCount", ldapProvisioningTestConfigInput.getEntityAttributeCount() + "");
+    if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttributeCount", provisioningTestConfigInput.getEntityAttributeCount() + "");
     
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.0.name", "ldap_dn");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.0.select", "true");
-      if (ldapProvisioningTestConfigInput.isInsertEntityAndAttributes()) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.0.insert", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionTypeCreateOnly", "translationScript");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionCreateOnly", "${'uid=' + grouperProvisioningEntity.retrieveAttributeValueString('" 
-            + ldapProvisioningTestConfigInput.getEntityUidTranslateFromGrouperProvisioningEntityField() + "') + ',ou=People,dc=example,dc=edu'}");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "ldap_dn");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.select", "true");
+      if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.insert", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionTypeCreateOnly", "translationScript");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionCreateOnly", "${'uid=' + grouperProvisioningEntity.retrieveAttributeValueString('" 
+            + provisioningTestConfigInput.getEntityUidTranslateFromGrouperProvisioningEntityField() + "') + ',ou=People,dc=example,dc=edu'}");
       }
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "memberToId2");
-      if (ldapProvisioningTestConfigInput.isUpdateEntitiesAndDn()) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.0.update", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "memberToId2");
+      if (provisioningTestConfigInput.isUpdateEntitiesAndDn()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.update", "true");
       }
 
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.1.name", "uid");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.1.select", "true");
-      if (ldapProvisioningTestConfigInput.isInsertEntityAndAttributes()) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.1.required", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.1.insert", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "uid");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.select", "true");
+      if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.required", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.insert", "true");
       }
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.1.matchingId", "true");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.1.searchAttribute", "true");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", ldapProvisioningTestConfigInput.getEntityUidTranslateFromGrouperProvisioningEntityField());
-      if (ldapProvisioningTestConfigInput.isUpdateEntitiesAndDn()) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.1.update", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.matchingId", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.searchAttribute", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", provisioningTestConfigInput.getEntityUidTranslateFromGrouperProvisioningEntityField());
+      if (provisioningTestConfigInput.isUpdateEntitiesAndDn()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.update", "true");
       }
       
-      if (ldapProvisioningTestConfigInput.getEntityAttributeCount() > 2) {
+      if (provisioningTestConfigInput.getEntityAttributeCount() > 2) {
         
-        if (!ldapProvisioningTestConfigInput.isMembershipStructureEntityAttributes() || ldapProvisioningTestConfigInput.getEntityAttributeCount() > 3) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.2.name", "sn");
-          if (ldapProvisioningTestConfigInput.isInsertEntityAndAttributes()) {
-            configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.2.insert", "true");
+        if (!provisioningTestConfigInput.isMembershipStructureEntityAttributes() || provisioningTestConfigInput.getEntityAttributeCount() > 3) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "sn");
+          if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+            configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.insert", "true");
           }        
           
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionTypeCreateOnly", "translationScript");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionCreateOnly", "'something'");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionTypeCreateOnly", "translationScript");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionCreateOnly", "'something'");
 
         }
       }
-      if (ldapProvisioningTestConfigInput.getEntityAttributeCount() == 6) {
+      if (provisioningTestConfigInput.getEntityAttributeCount() == 6) {
 
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.3.name", "cn");
-        if (ldapProvisioningTestConfigInput.isInsertEntityAndAttributes()) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.3.insert", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.name", "cn");
+        if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.insert", "true");
         }
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionTypeCreateOnly", "translationScript");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionCreateOnly", "'something'");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionTypeCreateOnly", "translationScript");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionCreateOnly", "'something'");
         
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.4.name", "givenName");
-        if (ldapProvisioningTestConfigInput.isInsertEntityAndAttributes()) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.4.insert", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "givenName");
+        if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.insert", "true");
         }
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionTypeCreateOnly", "staticValues");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.4.translateFromStaticValuesCreateOnly", "something");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionTypeCreateOnly", "staticValues");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateFromStaticValuesCreateOnly", "something");
   
-        if (!ldapProvisioningTestConfigInput.isMembershipStructureEntityAttributes()) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.5.name", "objectClass");
-          if (ldapProvisioningTestConfigInput.isInsertEntityAndAttributes()) {
-            configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.5.insert", "true");
+        if (!provisioningTestConfigInput.isMembershipStructureEntityAttributes()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.name", "objectClass");
+          if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+            configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.insert", "true");
           }
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.5.multiValued", "true");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.5.translateExpressionTypeCreateOnly", "staticValues");
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute.5.translateFromStaticValuesCreateOnly", "top, organizationalPerson, person, inetOrgPerson, eduPerson");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.multiValued", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.translateExpressionTypeCreateOnly", "staticValues");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.translateFromStaticValuesCreateOnly", "top, organizationalPerson, person, inetOrgPerson, eduPerson");
         }  
   
       }
-      if (ldapProvisioningTestConfigInput.isMembershipStructureEntityAttributes()) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute." + (ldapProvisioningTestConfigInput.getEntityAttributeCount()-1) + ".name", "eduPersonEntitlement");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute." + (ldapProvisioningTestConfigInput.getEntityAttributeCount()-1) + ".translateFromGroupSyncField", ldapProvisioningTestConfigInput.getGroupAttributeCount() == 1 ? "groupFromId2" : "groupExtension");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute." + (ldapProvisioningTestConfigInput.getEntityAttributeCount()-1) + ".membershipAttribute", "true");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "targetEntityAttribute." + (ldapProvisioningTestConfigInput.getEntityAttributeCount()-1) + ".multiValued", "true");
+      if (provisioningTestConfigInput.isMembershipStructureEntityAttributes()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".name", "eduPersonEntitlement");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".translateFromGroupSyncField", provisioningTestConfigInput.getGroupAttributeCount() == 1 ? "groupFromId2" : "groupExtension");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".membershipAttribute", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".multiValued", "true");
       }
 
     }
     
-    configureProvisionerSuffix(ldapProvisioningTestConfigInput, "class", LdapSync.class.getName());
-    configureProvisionerSuffix(ldapProvisioningTestConfigInput, "ldapExternalSystemConfigId", "personLdap");
-    configureProvisionerSuffix(ldapProvisioningTestConfigInput, "subjectSourcesToProvision", ldapProvisioningTestConfigInput.getSubjectSourcesToProvision());
+    configureProvisionerSuffix(provisioningTestConfigInput, "class", LdapSync.class.getName());
+    configureProvisionerSuffix(provisioningTestConfigInput, "ldapExternalSystemConfigId", "personLdap");
+    configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", provisioningTestConfigInput.getSubjectSourcesToProvision());
   
-    if (!StringUtils.isBlank(ldapProvisioningTestConfigInput.getGroupDeleteType())) {
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "deleteGroups", "true");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, ldapProvisioningTestConfigInput.getGroupDeleteType(), "true");
+    if (!StringUtils.isBlank(provisioningTestConfigInput.getGroupDeleteType())) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getGroupDeleteType(), "true");
     }
   
-    if (ldapProvisioningTestConfigInput.getEntityAttributeCount() > 0) {
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "userSearchBaseDn", "ou=People,dc=example,dc=edu");
+    if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "userSearchBaseDn", "ou=People,dc=example,dc=edu");
     }
   
-    if (ldapProvisioningTestConfigInput.getGroupAttributeCount() > 0) {
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "operateOnGrouperGroups", "true");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "hasTargetGroupLink", "true");
+    if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     }
     
-    configureProvisionerSuffix(ldapProvisioningTestConfigInput, "operateOnGrouperMemberships", "true");
-    configureProvisionerSuffix(ldapProvisioningTestConfigInput, "provisioningType", ldapProvisioningTestConfigInput.isMembershipStructureEntityAttributes() ? "entityAttributes" : "groupAttributes");
-    configureProvisionerSuffix(ldapProvisioningTestConfigInput, "selectMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", provisioningTestConfigInput.isMembershipStructureEntityAttributes() ? "entityAttributes" : "groupAttributes");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "true");
   
-    if (ldapProvisioningTestConfigInput.getGroupAttributeCount() > 0) {
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "groupDnType", ldapProvisioningTestConfigInput.isGroupDnTypeBushy() ? "bushy" : "flat");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "groupSearchBaseDn", "ou=Groups,dc=example,dc=edu");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "insertGroups", "true");
+    if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupDnType", provisioningTestConfigInput.isGroupDnTypeBushy() ? "bushy" : "flat");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchBaseDn", "ou=Groups,dc=example,dc=edu");
+      configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
     }
-    if (ldapProvisioningTestConfigInput.getEntityAttributeCount() > 0) {
-      if (ldapProvisioningTestConfigInput.isInsertEntityAndAttributes()) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "insertEntities", "true");
+    if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
+      if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
       }
     }
-    configureProvisionerSuffix(ldapProvisioningTestConfigInput, "insertMemberships", "true");
-    configureProvisionerSuffix(ldapProvisioningTestConfigInput, "deleteMemberships", "true");
-    configureProvisionerSuffix(ldapProvisioningTestConfigInput, "deleteMembershipsIfNotExistInGrouper", "true");
-    if (ldapProvisioningTestConfigInput.getGroupAttributeCount() > 0) {
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "selectGroups", "true");
-      if (ldapProvisioningTestConfigInput.isUpdateGroupsAndDn()) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "updateGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsIfNotExistInGrouper", "true");
+    if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "true");
+      if (provisioningTestConfigInput.isUpdateGroupsAndDn()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
       }
     }
     
-    if (ldapProvisioningTestConfigInput.isExplicitFilters()) {
-      if (ldapProvisioningTestConfigInput.getGroupAttributeCount() > 0) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "groupSearchAllFilter", "(objectClass=" + (ldapProvisioningTestConfigInput.isPosixGroup() ? "posixGroup" : "groupOfNames") + ")");
-        if (ldapProvisioningTestConfigInput.isPosixGroup()) {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "groupSearchFilter", "(&(objectClass=posixGroup)(gidNumber=${targetGroup.retrieveAttributeValue('gidNumber')}))");
+    if (provisioningTestConfigInput.isExplicitFilters()) {
+      if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchAllFilter", "(objectClass=" + (provisioningTestConfigInput.isPosixGroup() ? "posixGroup" : "groupOfNames") + ")");
+        if (provisioningTestConfigInput.isPosixGroup()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchFilter", "(&(objectClass=posixGroup)(gidNumber=${targetGroup.retrieveAttributeValue('gidNumber')}))");
         } else {
-          configureProvisionerSuffix(ldapProvisioningTestConfigInput, "groupSearchFilter", "(&(objectClass=groupOfNames)(businessCategory=${targetGroup.retrieveAttributeValue('businessCategory')}))");
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchFilter", "(&(objectClass=groupOfNames)(businessCategory=${targetGroup.retrieveAttributeValue('businessCategory')}))");
         }
       }
-      if (ldapProvisioningTestConfigInput.getEntityAttributeCount() > 0) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "userSearchAllFilter", "(&(objectClass=person)(uid=*))");
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "userSearchFilter", "(&(objectClass=person)(uid=${targetEntity.retrieveAttributeValue('uid')}))");
+      if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "userSearchAllFilter", "(&(objectClass=person)(uid=*))");
+        configureProvisionerSuffix(provisioningTestConfigInput, "userSearchFilter", "(&(objectClass=person)(uid=${targetEntity.retrieveAttributeValue('uid')}))");
       }
     }
     
-    if (ldapProvisioningTestConfigInput.getEntityAttributeCount() > 0) {
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "operateOnGrouperEntities", "true");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "hasTargetEntityLink", "true");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "selectEntities", "true");
-      if (ldapProvisioningTestConfigInput.isUpdateEntitiesAndDn()) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "updateEntities", "true");
+    if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
+      if (provisioningTestConfigInput.isUpdateEntitiesAndDn()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
       }
     }
     
-    if (ldapProvisioningTestConfigInput.getGroupAttributeCount() > 0) {
-      if (ldapProvisioningTestConfigInput.isDnOverrideConfig() || ldapProvisioningTestConfigInput.isDnOverrideScript()) {
-        configureProvisionerSuffix(ldapProvisioningTestConfigInput, "allowLdapGroupDnOverride", "true");
+    if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
+      if (provisioningTestConfigInput.isDnOverrideConfig() || provisioningTestConfigInput.isDnOverrideScript()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "allowLdapGroupDnOverride", "true");
       }
     }
     
-    if (ldapProvisioningTestConfigInput.isEntitlementMetadata()) {
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "configureMetadata", "true");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "numberOfMetadata", "1");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "metadata.0.formElementType", "text");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "metadata.0.name", "md_entitlementValue");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "metadata.0.showForGroup", "true");
-      configureProvisionerSuffix(ldapProvisioningTestConfigInput, "metadata.0.valueType", "string");
+    if (provisioningTestConfigInput.isEntitlementMetadata()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "configureMetadata", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "numberOfMetadata", "1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "metadata.0.formElementType", "text");
+      configureProvisionerSuffix(provisioningTestConfigInput, "metadata.0.name", "md_entitlementValue");
+      configureProvisionerSuffix(provisioningTestConfigInput, "metadata.0.showForGroup", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "metadata.0.valueType", "string");
       
     }  
 
-    configureProvisionerSuffix(ldapProvisioningTestConfigInput, "logAllObjectsVerbose", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
   
-    for (String key: ldapProvisioningTestConfigInput.getExtraConfig().keySet()) {
-      String theValue = ldapProvisioningTestConfigInput.getExtraConfig().get(key);
+    for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {
+      String theValue = provisioningTestConfigInput.getExtraConfig().get(key);
       if (!StringUtils.isBlank(theValue)) {
-        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner." + ldapProvisioningTestConfigInput.getConfigId() + "." + key).value(theValue).store();
+        new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner." + provisioningTestConfigInput.getConfigId() + "." + key).value(theValue).store();
       }
     }
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + ldapProvisioningTestConfigInput.getConfigId() + "CLC.class").value(EsbConsumer.class.getName()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + ldapProvisioningTestConfigInput.getConfigId() + "CLC.publisher.class").value(ProvisioningConsumer.class.getName()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + ldapProvisioningTestConfigInput.getConfigId() + "CLC.quartzCron").value("0 0 5 * * 2000").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + ldapProvisioningTestConfigInput.getConfigId() + "CLC.provisionerConfigId").value(ldapProvisioningTestConfigInput.getConfigId()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + ldapProvisioningTestConfigInput.getConfigId() + "CLC.provisionerJobSyncType").value(GrouperProvisioningType.incrementalProvisionChangeLog.name()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + ldapProvisioningTestConfigInput.getConfigId() + "CLC.publisher.debug").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.quartzCron").value("0 0 5 * * 2000").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.provisionerConfigId").value(provisioningTestConfigInput.getConfigId()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.provisionerJobSyncType").value(GrouperProvisioningType.incrementalProvisionChangeLog.name()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.publisher.debug").value("true").store();
   
     ConfigPropertiesCascadeBase.clearCache();
   

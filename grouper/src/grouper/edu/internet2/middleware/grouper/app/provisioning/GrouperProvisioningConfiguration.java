@@ -38,6 +38,21 @@ public abstract class GrouperProvisioningConfiguration {
 //  # {valueType: "boolean", subSection: "advanced", defaultValue: "false", order: 113000, showEl: "${showAdvanced}"}
 //  # provisioner.genericProvisioner.groupsRequireMembers =
 
+  private boolean customizeMembershipCrud;
+
+  public boolean isCustomizeMembershipCrud() {
+    return customizeMembershipCrud;
+  }
+
+
+
+
+
+
+  public void setCustomizeMembershipCrud(boolean customizeMembershipCrud) {
+    this.customizeMembershipCrud = customizeMembershipCrud;
+  }
+
 
   private boolean groupsRequireMembers;
   
@@ -1226,11 +1241,6 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
-   * update memberships
-   */
-  private boolean updateMemberships = false;
-  
-  /**
    * update groups
    */
   private boolean updateGroups = false;
@@ -1239,22 +1249,6 @@ public abstract class GrouperProvisioningConfiguration {
    * update entities
    */
   private boolean updateEntities = false;
-  
-  /**
-   * update memberships
-   * @return
-   */
-  public boolean isUpdateMemberships() {
-    return updateMemberships;
-  }
-
-  /**
-   * update memberships
-   * @param updateMemberships
-   */
-  public void setUpdateMemberships(boolean updateMemberships) {
-    this.updateMemberships = updateMemberships;
-  }
 
   /**
    * update groups
@@ -1320,16 +1314,6 @@ public abstract class GrouperProvisioningConfiguration {
   private boolean deleteEntitiesIfNotExistInGrouper = false;
   
   /**
-   * delete memberships if grouper deleted them
-   */
-  private boolean deleteMembershipsIfGrouperDeleted = false;
-
-  /**
-   * delete memberships if not exist in grouper
-   */
-  private boolean deleteMembershipsIfNotExistInGrouper = false;
-
-  /**
    * delete entities
    */
   private boolean deleteEntities = false;
@@ -1344,11 +1328,6 @@ public abstract class GrouperProvisioningConfiguration {
    */
   private boolean selectAllEntities = true;
   
-  /**
-   * select memberships
-   */
-  private boolean selectMemberships = false;
-
   
   /**
    * delete entities if grouper deleted them
@@ -1484,12 +1463,33 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * if memberships should be inserted in target
    */
-  private boolean insertMemberships = false;
+  private boolean insertMemberships = true;
 
   /**
    * if memberships should be deleted in target
    */
-  private boolean deleteMemberships = false;
+  private boolean deleteMemberships = true;
+
+  /**
+   * 
+   */
+  private boolean deleteMembershipsIfGrouperCreated = true;
+  
+  /**
+   * delete memberships if grouper deleted them
+   */
+  private boolean deleteMembershipsIfGrouperDeleted = false;
+
+  /**
+   * delete memberships if not exist in grouper
+   */
+  private boolean deleteMembershipsIfNotExistInGrouper = false;
+
+  /**
+   * select memberships
+   */
+  private boolean selectMemberships = true;
+
 
   /**
    * if groups should be inserted in target
@@ -1702,11 +1702,6 @@ public abstract class GrouperProvisioningConfiguration {
    */
   private boolean deleteGroupsIfGrouperCreated = false;
 
-  /**
-   * 
-   */
-  private boolean deleteMembershipsIfGrouperCreated = false;
-  
   /**
    * 
    * @return
@@ -2305,20 +2300,31 @@ public abstract class GrouperProvisioningConfiguration {
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
     this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
     
-    this.insertMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertMemberships", false), false);
-
     this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), false);
 
     this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), false);
-
-    this.deleteMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMemberships", false), false);
 
     this.deleteEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntities", false), false);
 
     this.deleteGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroups", false), false);
 
-    this.updateMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateMemberships", false), false);
+    this.customizeMembershipCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeMembershipCrud", false), false);
+    if (this.customizeMembershipCrud) {
+      
+      this.insertMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertMemberships", false), true);
 
+      this.selectMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectMemberships", false), true);
+
+      this.deleteMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMemberships", false), true);
+
+      this.deleteMembershipsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfNotExistInGrouper", false), false);
+
+      this.deleteMembershipsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperDeleted", false), false);
+
+      this.deleteMembershipsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperCreated", false), 
+          (deleteMemberships && !this.deleteMembershipsIfNotExistInGrouper && !this.deleteMembershipsIfGrouperDeleted));
+    }
+    
     this.updateEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateEntities", false), false);
 
     this.updateGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateGroups", false), false);
@@ -2329,8 +2335,6 @@ public abstract class GrouperProvisioningConfiguration {
 
     this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
 
-    this.selectMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectMemberships", false), false);
-
     this.deleteGroupsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfNotExistInGrouper", false), false);
 
     this.deleteGroupsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperDeleted", false), false);
@@ -2338,12 +2342,6 @@ public abstract class GrouperProvisioningConfiguration {
     this.deleteEntitiesIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfNotExistInGrouper", false), false);
 
     this.deleteEntitiesIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperDeleted", false), false);
-
-    this.deleteMembershipsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfNotExistInGrouper", false), false);
-
-    this.deleteMembershipsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperDeleted", false), false);
-
-    this.deleteMembershipsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperCreated", false), false);
 
     this.deleteGroupsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperCreated", false), false);
 
@@ -2416,7 +2414,6 @@ public abstract class GrouperProvisioningConfiguration {
         this.attributeNameForMemberships = targetGroupAttributeName;
         grouperProvisioningConfigurationAttribute.setSelect(this.isSelectMemberships());
         grouperProvisioningConfigurationAttribute.setInsert(this.isInsertMemberships());
-        grouperProvisioningConfigurationAttribute.setUpdate(this.isUpdateMemberships());
       }
       
       if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
@@ -2444,7 +2441,6 @@ public abstract class GrouperProvisioningConfiguration {
         this.entityAttributeNameForMemberships = targetEntityAttributeName;
         grouperProvisioningConfigurationAttribute.setSelect(this.isSelectMemberships());
         grouperProvisioningConfigurationAttribute.setInsert(this.isInsertMemberships());
-        grouperProvisioningConfigurationAttribute.setUpdate(this.isUpdateMemberships());
       }
       
       if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
