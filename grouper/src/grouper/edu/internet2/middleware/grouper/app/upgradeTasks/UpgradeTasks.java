@@ -223,6 +223,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       
       v8_provisioningMembershipShowValidation();
 
+      v8_provisioningGroupShowValidation();
+
     }
   };
   
@@ -783,6 +785,47 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }      
     if (!didSomething) {
       String action = "Provisioning upgrade: no change for 'membership attribute show validation'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
+  }
+
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningGroupShowValidation() {
+    // GRP-3956: provisioning group show validation settings
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      
+      for (int i=0;i<20;i++) {
+        
+        String requiredKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".required";
+        String maxlengthKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".maxlength";
+        String validExpressionKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".validExpression";
+        String showAttributeValidationKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".showAttributeValidation";
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(showAttributeValidationKey)) {
+          // already done
+          continue;
+        }
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(requiredKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(maxlengthKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(validExpressionKey)) {
+          didSomething = true;
+          grouperLoaderConfigUpdate(showAttributeValidationKey, "true");
+        }
+        
+      }
+    }      
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'group attribute show validation'";
       LOG.warn(action);
       System.out.println(action);
     } else {

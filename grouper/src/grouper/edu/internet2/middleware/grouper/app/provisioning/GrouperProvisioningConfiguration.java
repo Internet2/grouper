@@ -2080,22 +2080,28 @@ public abstract class GrouperProvisioningConfiguration {
           boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".insert" , false), false);
           attributeConfig.setInsert(insert);
         }
+        
+        {
+          boolean showAttributeValidation = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeValidation" , false), false);
+          if (showAttributeValidation) {
+            {
+              Integer maxlength = this.retrieveConfigInt(objectType + "."+i+".maxlength", false);
+              attributeConfig.setMaxlength(maxlength);
+            }
+            
+            {
+              String validExpression = this.retrieveConfigString(objectType + "."+i+".validExpression", false);
+              attributeConfig.setValidExpression(validExpression);
+            }
+            
+            {
+              boolean required = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".required" , false), false);
+              attributeConfig.setRequired(required);
+            }
+            
+          }
+        }
 
-        {
-          Integer maxlength = this.retrieveConfigInt(objectType + "."+i+".maxlength", false);
-          attributeConfig.setMaxlength(maxlength);
-        }
-        
-        {
-          String validExpression = this.retrieveConfigString(objectType + "."+i+".validExpression", false);
-          attributeConfig.setValidExpression(validExpression);
-        }
-        
-        {
-          boolean required = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".required" , false), false);
-          attributeConfig.setRequired(required);
-        }
-  
         {
           boolean searchAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".searchAttribute" , false), false);
           attributeConfig.setSearchAttribute(searchAttribute);

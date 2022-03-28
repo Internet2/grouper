@@ -28,7 +28,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningMembershipAttributeShowValidation"));
+    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningGroupAttributeShowValidation"));
   }
   
   /**
@@ -509,6 +509,29 @@ public class UpgradeTasksJobTest extends GrouperTest {
   
     // this will not convert again
     assertFalse(UpgradeTasks.v8_provisioningMembershipShowValidation());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningGroupAttributeShowValidation() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetGroupAttribute.3.showAttributeValidation", false));
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.3.required").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningGroupShowValidation());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetGroupAttribute.3.showAttributeValidation"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetGroupAttribute.3.required"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningGroupShowValidation());
     
   }
 
