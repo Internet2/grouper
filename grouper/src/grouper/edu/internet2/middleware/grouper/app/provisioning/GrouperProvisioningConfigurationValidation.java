@@ -410,6 +410,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateNoFields();
     validateEntityResolverRefactorDontUseOldValues();
     validateCustomizeMembershipCrud();
+    validateCustomizeGroupCrud();
 
 
     // if there are problems with the basics, then other things could throw exceptions
@@ -1235,11 +1236,11 @@ public class GrouperProvisioningConfigurationValidation {
 
   /**
    * 
-   * @return if did something
    */
   public void validateCustomizeMembershipCrud() {
     // GRP-3953: add provisioning customizeMembershipCrud
-    boolean customizeCrud = GrouperUtil.booleanValue(suffixToConfigValue.get("customizeMembershipCrud"), false);
+    boolean operateOnGrouperMemberships = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperMemberships"), false);
+    boolean customizeCrud = operateOnGrouperMemberships && GrouperUtil.booleanValue(suffixToConfigValue.get("customizeMembershipCrud"), false);
     boolean anythingSet = false;
     for (String key : new String[] { "insertMemberships", "selectMemberships", "deleteMemberships", "deleteMembershipsIfNotExistInGrouper", 
         "deleteMembershipsIfGrouperDeleted", "deleteMembershipsIfGrouperCreated"}) {
@@ -1269,5 +1270,44 @@ public class GrouperProvisioningConfigurationValidation {
           .assignRuntimeError(false));
     }
   }
+
+  /**
+   * 
+   */
+  public void validateCustomizeGroupCrud() {
+    // GRP-3954: add provisioning customizeGroupCrud
+    boolean operateOnGrouperGroups = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperGroups"), false);
+    boolean customizeCrud = operateOnGrouperGroups 
+        && GrouperUtil.booleanValue(suffixToConfigValue.get("customizeGroupCrud"), false);
+    boolean anythingSet = false;
+    for (String key : new String[] { "insertGroups", "selectGroups", "updateGroups", "deleteGroups", "deleteGroupsIfNotExistInGrouper", 
+        "deleteGroupsIfGrouperDeleted", "deleteGroupsIfGrouperCreated"}) {
+      if (!customizeCrud) {
+
+          if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {
+            String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+            errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+            this.addErrorMessage(new ProvisioningValidationIssue()
+                .assignMessage(errorMessage)
+                .assignRuntimeError(true));
+
+          }
+      } else {
+        if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {
+          anythingSet = true;
+        }
+      }
+    }
+    
+    if (customizeCrud && !anythingSet) {
+      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.customizeGroupCrudButNothingSet");
+
+      this.addErrorMessage(new ProvisioningValidationIssue()
+          .assignMessage(errorMessage)
+          .assignRuntimeError(false));
+    }
+  }
+
 }
  

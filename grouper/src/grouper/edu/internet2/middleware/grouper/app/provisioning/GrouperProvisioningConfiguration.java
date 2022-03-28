@@ -53,6 +53,21 @@ public abstract class GrouperProvisioningConfiguration {
     this.customizeMembershipCrud = customizeMembershipCrud;
   }
 
+  private boolean customizeGroupCrud;
+
+  public boolean isCustomizeGroupCrud() {
+    return customizeGroupCrud;
+  }
+
+
+
+
+
+
+  public void setCustomizeGroupCrud(boolean customizeGroupCrud) {
+    this.customizeGroupCrud = customizeGroupCrud;
+  }
+
 
   private boolean groupsRequireMembers;
   
@@ -1243,7 +1258,7 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * update groups
    */
-  private boolean updateGroups = false;
+  private boolean updateGroups = true;
 
   /**
    * update entities
@@ -1285,7 +1300,7 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * delete groups
    */
-  private boolean deleteGroups = false;
+  private boolean deleteGroups = true;
 
   /**
    * delete groups
@@ -1494,12 +1509,12 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * if groups should be inserted in target
    */
-  private boolean insertGroups = false;
+  private boolean insertGroups = true;
   
   /**
    * if groups should be selected from target
    */
-  private boolean selectGroups = false;
+  private boolean selectGroups = true;
   
   /**
    * if groups should be selected from target
@@ -1700,7 +1715,7 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * 
    */
-  private boolean deleteGroupsIfGrouperCreated = false;
+  private boolean deleteGroupsIfGrouperCreated = true;
 
   /**
    * 
@@ -1752,7 +1767,7 @@ public abstract class GrouperProvisioningConfiguration {
    * true or false if groups that were created in grouper were deleted should it be deleted in ldap?
    * or for attributes, delete attribute value if deleted in grouper default to true
    */
-  private boolean deleteGroupsIfGrouperDeleted = true;
+  private boolean deleteGroupsIfGrouperDeleted = false;
 
   /**
    * if provisioning normal memberships or privileges  default to "members" for normal memberships, otherwise which privileges
@@ -2302,12 +2317,29 @@ public abstract class GrouperProvisioningConfiguration {
     
     this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), false);
 
-    this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), false);
-
     this.deleteEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntities", false), false);
 
-    this.deleteGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroups", false), false);
+    this.customizeGroupCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeGroupCrud", false), false);
+    
+    if (this.customizeGroupCrud) {
 
+      this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), true);
+
+      this.selectGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectGroups", false), true);
+
+      this.updateGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateGroups", false), true);
+
+      this.deleteGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroups", false), true);
+
+      this.deleteGroupsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfNotExistInGrouper", false), false);
+
+      this.deleteGroupsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperDeleted", false), false);
+
+      this.deleteGroupsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperCreated", false), 
+          (deleteGroups && !this.deleteGroupsIfNotExistInGrouper && !this.deleteGroupsIfGrouperDeleted));
+    }
+
+    
     this.customizeMembershipCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeMembershipCrud", false), false);
     if (this.customizeMembershipCrud) {
       
@@ -2327,23 +2359,13 @@ public abstract class GrouperProvisioningConfiguration {
     
     this.updateEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateEntities", false), false);
 
-    this.updateGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateGroups", false), false);
-
-    this.selectGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectGroups", false), false);
-
     this.selectEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectEntities", false), false);
 
     this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
 
-    this.deleteGroupsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfNotExistInGrouper", false), false);
-
-    this.deleteGroupsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperDeleted", false), false);
-
     this.deleteEntitiesIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfNotExistInGrouper", false), false);
 
     this.deleteEntitiesIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperDeleted", false), false);
-
-    this.deleteGroupsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperCreated", false), false);
 
     this.deleteEntitiesIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperCreated", false), false);
 

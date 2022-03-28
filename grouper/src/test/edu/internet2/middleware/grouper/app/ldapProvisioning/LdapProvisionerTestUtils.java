@@ -430,6 +430,7 @@ public class LdapProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupDnType", provisioningTestConfigInput.isGroupDnTypeBushy() ? "bushy" : "flat");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchBaseDn", "ou=Groups,dc=example,dc=edu");
       configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
     }
     if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
       if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {

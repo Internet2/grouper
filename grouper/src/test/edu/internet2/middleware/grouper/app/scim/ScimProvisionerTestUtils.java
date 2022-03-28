@@ -105,6 +105,7 @@ public class ScimProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
     
     if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");

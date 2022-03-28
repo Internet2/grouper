@@ -218,6 +218,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       v8_provisioningEntityResolverRefactor();
       
       v8_provisioningCustomizeMembershipCrud();
+
+      v8_provisioningCustomizeGroupCrud();
     }
   };
   
@@ -487,6 +489,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     boolean didSomething = false;
     Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
     for (String configId : GrouperUtil.nonNull(configIds)) {
+      String operateOnGrouperMembershipsKey = "provisioner." + configId + ".operateOnGrouperMemberships";
       String customizeMembershipCrudKey = "provisioner." + configId + ".customizeMembershipCrud";
       String insertMembershipsKey = "provisioner." + configId + ".insertMemberships";
       String selectMembershipsKey = "provisioner." + configId + ".selectMemberships";
@@ -502,14 +505,27 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         continue;
       }
 
-      didSomething = true;
-
+      Boolean operateOnGrouperMemberships = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(operateOnGrouperMembershipsKey));
       Boolean insertMemberships = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(insertMembershipsKey));
       Boolean selectMemberships = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(selectMembershipsKey));
       Boolean deleteMemberships = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteMembershipsKey));
       Boolean deleteMembershipsIfNotExistInGrouper = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteMembershipsIfNotExistInGrouperKey));
       Boolean deleteMembershipsIfGrouperDeleted = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteMembershipsIfGrouperDeletedKey));
       Boolean deleteMembershipsIfGrouperCreated = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteMembershipsIfGrouperCreatedKey));
+
+      // if nothing set thats ok
+      if ((operateOnGrouperMemberships == null || !operateOnGrouperMemberships) 
+          && customizeMembershipCrud == null
+          && insertMemberships == null
+          && deleteMemberships == null
+          && deleteMembershipsIfNotExistInGrouper == null
+          && deleteMembershipsIfGrouperDeleted == null
+          && deleteMembershipsIfGrouperCreated == null ) {
+        continue;
+      }
+
+      didSomething = true;
+
 
       // if we are somehow at the default
       if (insertMemberships != null && insertMemberships
@@ -552,6 +568,111 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }
     if (!didSomething) {
       String action = "Provisioning upgrade: no change for 'membership CRUD defaults'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
+  }
+
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningCustomizeGroupCrud() {
+    // GRP-3953: add provisioning customizeGroupCrud
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      String operateOnGrouperGroupsKey = "provisioner." + configId + ".operateOnGrouperGroups";
+      String customizeGroupCrudKey = "provisioner." + configId + ".customizeGroupCrud";
+      String insertGroupsKey = "provisioner." + configId + ".insertGroups";
+      String updateGroupsKey = "provisioner." + configId + ".updateGroups";
+      String selectGroupsKey = "provisioner." + configId + ".selectGroups";
+      String deleteGroupsKey = "provisioner." + configId + ".deleteGroups";
+      String deleteGroupsIfNotExistInGrouperKey = "provisioner." + configId + ".deleteGroupsIfNotExistInGrouper";
+      String deleteGroupsIfGrouperDeletedKey = "provisioner." + configId + ".deleteGroupsIfGrouperDeleted";
+      String deleteGroupsIfGrouperCreatedKey = "provisioner." + configId + ".deleteGroupsIfGrouperCreated";
+      
+      Boolean customizeGroupCrud = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(customizeGroupCrudKey));
+      Boolean operateOnGrouperGroups = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(operateOnGrouperGroupsKey));
+      
+      // if we are already up to date
+      if (operateOnGrouperGroups != null && operateOnGrouperGroups && customizeGroupCrud != null) {
+        continue;
+      }
+
+      Boolean insertGroups = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(insertGroupsKey));
+      Boolean updateGroups = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(updateGroupsKey));
+      Boolean selectGroups = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(selectGroupsKey));
+      Boolean deleteGroups = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteGroupsKey));
+      Boolean deleteGroupsIfNotExistInGrouper = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteGroupsIfNotExistInGrouperKey));
+      Boolean deleteGroupsIfGrouperDeleted = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteGroupsIfGrouperDeletedKey));
+      Boolean deleteGroupsIfGrouperCreated = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteGroupsIfGrouperCreatedKey));
+
+      // if nothing set thats ok
+      if ((operateOnGrouperGroups == null || !operateOnGrouperGroups) 
+          && customizeGroupCrud == null
+          && insertGroups == null
+          && updateGroups == null
+          && deleteGroups == null
+          && deleteGroupsIfNotExistInGrouper == null
+          && deleteGroupsIfGrouperDeleted == null
+          && deleteGroupsIfGrouperCreated == null ) {
+        continue;
+      }
+          
+      didSomething = true;
+
+      // if we are somehow at the default
+      if (insertGroups != null && insertGroups
+          && updateGroups != null && updateGroups
+          && selectGroups != null && selectGroups
+          && deleteGroups != null && deleteGroups
+          && (deleteGroupsIfNotExistInGrouper == null || !deleteGroupsIfNotExistInGrouper)
+          && (deleteGroupsIfGrouperDeleted == null || !deleteGroupsIfGrouperDeleted)
+          && deleteGroupsIfGrouperCreated != null && deleteGroupsIfGrouperCreated) {
+        grouperLoaderConfigDelete(insertGroupsKey);
+        grouperLoaderConfigDelete(updateGroupsKey);
+        grouperLoaderConfigDelete(selectGroupsKey);
+        grouperLoaderConfigDelete(deleteGroupsKey);
+        if (deleteGroupsIfNotExistInGrouper != null) {
+          grouperLoaderConfigDelete(deleteGroupsIfNotExistInGrouperKey);
+        }
+        if (deleteGroupsIfGrouperDeleted != null) {
+          grouperLoaderConfigDelete(deleteGroupsIfGrouperDeletedKey);
+        }
+        grouperLoaderConfigDelete(deleteGroupsIfGrouperCreatedKey);
+      } else {
+        grouperLoaderConfigUpdate(customizeGroupCrudKey, "true");
+        
+        if (insertGroups == null) {
+          grouperLoaderConfigUpdate(insertGroupsKey, "false");
+        } else if (insertGroups) {
+          grouperLoaderConfigDelete(insertGroupsKey);
+        }
+        if (updateGroups == null) {
+          grouperLoaderConfigUpdate(updateGroupsKey, "false");
+        } else if (updateGroups) {
+          grouperLoaderConfigDelete(updateGroupsKey);
+        }
+        if (selectGroups == null) {
+          grouperLoaderConfigUpdate(selectGroupsKey, "false");
+        } else if (selectGroups) {
+          grouperLoaderConfigDelete(selectGroupsKey);
+        }
+        if (deleteGroups == null) {
+          grouperLoaderConfigUpdate(deleteGroupsKey, "false");
+        } else if (deleteGroups && deleteGroupsIfGrouperCreated != null && deleteGroupsIfGrouperCreated) {
+          grouperLoaderConfigDelete(deleteGroupsKey);
+          grouperLoaderConfigDelete(deleteGroupsIfGrouperCreatedKey);
+        }
+        
+      }
+    }
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'group CRUD defaults'";
       LOG.warn(action);
       System.out.println(action);
     } else {

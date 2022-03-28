@@ -143,8 +143,6 @@ public class SqlProvisionerTestUtils {
     if (provisioningTestConfigInput.isHasTargetGroupLink()) {
       configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     }
-    configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
@@ -241,6 +239,7 @@ public class SqlProvisionerTestUtils {
     if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "" + provisioningTestConfigInput.getGroupAttributeCount());
       configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
@@ -365,8 +364,6 @@ public class SqlProvisionerTestUtils {
     
     if (provisioningTestConfigInput.getMembershipAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfMembershipAttributes", "" + provisioningTestConfigInput.getMembershipAttributeCount());
-      configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "true");
       
       for (int i=0;i<provisioningTestConfigInput.getMembershipAttributeCount();i++) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".select", "true");

@@ -88,6 +88,7 @@ public class GoogleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
