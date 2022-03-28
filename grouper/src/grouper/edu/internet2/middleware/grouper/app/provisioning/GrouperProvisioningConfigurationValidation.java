@@ -411,6 +411,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateCustomizeMembershipCrud();
     validateCustomizeGroupCrud();
     validateCustomizeEntityCrud();
+    validateMembershipShowValidation();
 
 
     // if there are problems with the basics, then other things could throw exceptions
@@ -1292,6 +1293,39 @@ public class GrouperProvisioningConfigurationValidation {
           .assignRuntimeError(false));
     }
   }
+  
+  /**
+   * 
+   */
+  public void validateMembershipShowValidation() {
+    // GRP-3957: provisioning membership show validation settings
+    for (int i=0;i<20;i++) {
+      
+      String requiredKey = "targetMembershipAttribute." + i + ".required";
+      String maxlengthKey = "targetMembershipAttribute." + i + ".maxlength";
+      String validExpressionKey = "targetMembershipAttribute." + i + ".validExpression";
+      String showAttributeValidationKey = "targetMembershipAttribute." + i + ".showAttributeValidation";
+      
+      if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeValidationKey), false)) {
+        // already done
+        continue;
+      }
+      // cannot contain any of these if now showing membership attribute validation
+      for (String key : new String[] {requiredKey, maxlengthKey, validExpressionKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
+  
   /**
    * 
    */

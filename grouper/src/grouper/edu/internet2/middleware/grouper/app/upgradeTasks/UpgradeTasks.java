@@ -220,6 +220,9 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       v8_provisioningCustomizeGroupCrud();
 
       v8_provisioningCustomizeEntityCrud();
+      
+      v8_provisioningMembershipShowValidation();
+
     }
   };
   
@@ -747,6 +750,46 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     return didSomething;
   }
 
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningMembershipShowValidation() {
+    // GRP-3957: provisioning membership show validation settings
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      
+      for (int i=0;i<20;i++) {
+        
+        String requiredKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".required";
+        String maxlengthKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".maxlength";
+        String validExpressionKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".validExpression";
+        String showAttributeValidationKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".showAttributeValidation";
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(showAttributeValidationKey)) {
+          // already done
+          continue;
+        }
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(requiredKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(maxlengthKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(validExpressionKey)) {
+          didSomething = true;
+          grouperLoaderConfigUpdate(showAttributeValidationKey, "true");
+        }
+        
+      }
+    }      
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'membership attribute show validation'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
+  }
 
   private static void grouperLoaderConfigDelete(String key) {
     if (!key.startsWith("provisioner.")) {

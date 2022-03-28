@@ -28,7 +28,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningEntityObjectCrudDefault2"));
+    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningMembershipAttributeShowValidation"));
   }
   
   /**
@@ -486,6 +486,29 @@ public class UpgradeTasksJobTest extends GrouperTest {
   
     // this will convert again so dont do twice
     //assertFalse(UpgradeTasks.v8_provisioningCustomizeEntityCrud());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningMembershipAttributeShowValidation() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeValidation", false));
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.required").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningMembershipShowValidation());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeValidation"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.required"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningMembershipShowValidation());
     
   }
 
