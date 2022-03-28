@@ -387,7 +387,9 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
         .assignPosixGroup(true)
         .assignExplicitFilters(true)
         .assignMembershipAttribute("description")
-        .addExtraConfig("targetGroupAttribute.4.maxlength", "40"));
+        .addExtraConfig("targetGroupAttribute.4.showAttributeValidation", "true")
+        .addExtraConfig("targetGroupAttribute.4.maxlength", "40")
+        );
 
     Subject jsmith = SubjectFinder.findById("jsmith", true);
     Subject banderson = SubjectFinder.findById("banderson", true);

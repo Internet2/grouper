@@ -28,7 +28,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningEntityAttributeShowValidation"));
+    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningMembershipAttributeShowCrud"));
   }
   
   /**
@@ -45,7 +45,6 @@ public class UpgradeTasksJobTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.subjectSourcesToProvision").value("jdbc").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.logAllObjectsVerbose").value("true").store();
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.provisionerName").value("One prod LDAP flat").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.provisioningType").value("groupAttributes").store();
 
     //TODO make an attribute config for this
@@ -587,5 +586,28 @@ public class UpgradeTasksJobTest extends GrouperTest {
     // this will not convert again
     assertFalse(UpgradeTasks.v8_provisioningCustomizeEntityCrud());
   
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningMembershipAttributeShowCrud() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeCrud", false));
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.insert").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningMembershipShowAttributeCrud());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeCrud"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.insert"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningMembershipShowAttributeCrud());
+    
   }
 }

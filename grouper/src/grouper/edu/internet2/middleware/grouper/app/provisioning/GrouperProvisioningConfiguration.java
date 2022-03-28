@@ -2077,11 +2077,6 @@ public abstract class GrouperProvisioningConfiguration {
         attributeConfig.setName(name);
         
         {
-          boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".insert" , false), false);
-          attributeConfig.setInsert(insert);
-        }
-        
-        {
           boolean showAttributeValidation = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeValidation" , false), false);
           if (showAttributeValidation) {
             {
@@ -2127,11 +2122,6 @@ public abstract class GrouperProvisioningConfiguration {
           attributeConfig.setMultiValued(multiValued);
         }
   
-        {
-          boolean select = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".select" , false), false);
-          attributeConfig.setSelect(select);
-        }
-        
         {
           boolean matchingId = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".matchingId" , false), false);
           if (matchingId) {
@@ -2218,12 +2208,26 @@ public abstract class GrouperProvisioningConfiguration {
           String translateGrouperToMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateGrouperToMemberSyncField" , false);
           attributeConfig.setTranslateGrouperToMemberSyncField(translateGrouperToMemberSyncField);
         }
-        
         {
-          boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType+"."+i+".update" , false), false);
-          attributeConfig.setUpdate(update);
+          boolean showAttributeCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeCrud" , false), false);
+          if (showAttributeCrud) {
+
+            {
+              boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".insert" , false), false);
+              attributeConfig.setInsert(insert);
+            }
+    
+            {
+              boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType+"."+i+".update" , false), false);
+              attributeConfig.setUpdate(update);
+            }
+            {
+              boolean select = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".select" , false), false);
+              attributeConfig.setSelect(select);
+            }
+          }
         }
-        
+
         {
           GrouperProvisioningConfigurationAttributeValueType valueType = 
               GrouperProvisioningConfigurationAttributeValueType.valueOfIgnoreCase(

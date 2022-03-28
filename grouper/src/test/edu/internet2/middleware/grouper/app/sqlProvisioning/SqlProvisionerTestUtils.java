@@ -371,6 +371,8 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfMembershipAttributes", "" + provisioningTestConfigInput.getMembershipAttributeCount());
       
       for (int i=0;i<provisioningTestConfigInput.getMembershipAttributeCount();i++) {
+        // note, we dont really need these...
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".showAttributeCrud", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".select", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".insert", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".update", "true");

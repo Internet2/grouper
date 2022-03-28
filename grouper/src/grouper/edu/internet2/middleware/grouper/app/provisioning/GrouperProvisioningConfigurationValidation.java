@@ -414,6 +414,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateMembershipShowValidation();
     validateGroupShowValidation();
     validateEntityShowValidation();
+    validateMembershipShowAttributeCrud();
 
     // if there are problems with the basics, then other things could throw exceptions
     if (this.provisioningValidationIssues.size() > 0) {
@@ -1313,6 +1314,36 @@ public class GrouperProvisioningConfigurationValidation {
       }
       // cannot contain any of these if now showing membership attribute validation
       for (String key : new String[] {requiredKey, maxlengthKey, validExpressionKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
+  /**
+   * 
+   */
+  public void validateMembershipShowAttributeCrud() {
+    // GRP-3960: provisioning membership attribute customize CRUD
+    for (int i=0;i<20;i++) {
+      
+      String insertKey = "targetMembershipAttribute." + i + ".insert";
+      String selectKey = "targetMembershipAttribute." + i + ".select";
+      String showAttributeCrudKey = "targetMembershipAttribute." + i + ".showAttributeCrud";
+      
+      if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeCrudKey), false)) {
+        // already done
+        continue;
+      }
+      // cannot contain any of these if now showing membership attribute validation
+      for (String key : new String[] {insertKey, selectKey}) {
         
         if (suffixToConfigValue.containsKey(key)) {
           String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");

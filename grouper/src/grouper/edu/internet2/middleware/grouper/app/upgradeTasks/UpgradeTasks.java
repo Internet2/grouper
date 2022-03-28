@@ -227,6 +227,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
 
       v8_provisioningEntityShowValidation();
 
+      v8_provisioningMembershipShowAttributeCrud();
     }
   };
   
@@ -787,6 +788,46 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }      
     if (!didSomething) {
       String action = "Provisioning upgrade: no change for 'membership attribute show validation'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
+  }
+
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningMembershipShowAttributeCrud() {
+    // GRP-3960: provisioning membership attribute customize CRUD
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      
+      for (int i=0;i<20;i++) {
+        
+        String showAttributeCrudKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".showAttributeCrud";
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(showAttributeCrudKey)) {
+          // already done
+          continue;
+        }
+        
+        String insertKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".insert";
+        String selectKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".select";
+
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(insertKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(selectKey)) {
+          didSomething = true;
+          grouperLoaderConfigUpdate(showAttributeCrudKey, "true");
+        }
+        
+      }
+    }      
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'membership attribute show crud'";
       LOG.warn(action);
       System.out.println(action);
     } else {
