@@ -225,6 +225,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
 
       v8_provisioningGroupShowValidation();
 
+      v8_provisioningEntityShowValidation();
+
     }
   };
   
@@ -826,6 +828,47 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }      
     if (!didSomething) {
       String action = "Provisioning upgrade: no change for 'group attribute show validation'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
+  }
+
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningEntityShowValidation() {
+    // GRP-3959: provisioning Entity show validation settings
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      
+      for (int i=0;i<20;i++) {
+        
+        String requiredKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".required";
+        String maxlengthKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".maxlength";
+        String validExpressionKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".validExpression";
+        String showAttributeValidationKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".showAttributeValidation";
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(showAttributeValidationKey)) {
+          // already done
+          continue;
+        }
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(requiredKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(maxlengthKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(validExpressionKey)) {
+          didSomething = true;
+          grouperLoaderConfigUpdate(showAttributeValidationKey, "true");
+        }
+        
+      }
+    }      
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'entity attribute show validation'";
       LOG.warn(action);
       System.out.println(action);
     } else {

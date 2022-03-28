@@ -344,6 +344,7 @@ public class LdapProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "uid");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.select", "true");
       if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.showAttributeValidation", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.required", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.insert", "true");
       }

@@ -413,7 +413,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateCustomizeEntityCrud();
     validateMembershipShowValidation();
     validateGroupShowValidation();
-
+    validateEntityShowValidation();
 
     // if there are problems with the basics, then other things could throw exceptions
     if (this.provisioningValidationIssues.size() > 0) {
@@ -1343,6 +1343,37 @@ public class GrouperProvisioningConfigurationValidation {
         continue;
       }
       // cannot contain any of these if now showing Group attribute validation
+      for (String key : new String[] {requiredKey, maxlengthKey, validExpressionKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
+  /**
+   * 
+   */
+  public void validateEntityShowValidation() {
+    // GRP-3959: provisioning entity show validation settings
+    for (int i=0;i<20;i++) {
+      
+      String requiredKey = "targetEntityAttribute." + i + ".required";
+      String maxlengthKey = "targetEntityAttribute." + i + ".maxlength";
+      String validExpressionKey = "targetEntityAttribute." + i + ".validExpression";
+      String showAttributeValidationKey = "targetEntityAttribute." + i + ".showAttributeValidation";
+      
+      if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeValidationKey), false)) {
+        // already done
+        continue;
+      }
+      // cannot contain any of these if now showing Entity attribute validation
       for (String key : new String[] {requiredKey, maxlengthKey, validExpressionKey}) {
         
         if (suffixToConfigValue.containsKey(key)) {
