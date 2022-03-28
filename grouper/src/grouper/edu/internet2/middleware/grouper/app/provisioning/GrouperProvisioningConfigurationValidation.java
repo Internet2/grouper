@@ -405,7 +405,6 @@ public class GrouperProvisioningConfigurationValidation {
     validateMetadata();
     validateFailsafes();
     validateOperateOnEntitiesIfSubjectSourcesToProvision();
-    validateSubjectSourceInEntityConfig();
     validateSelectAllEntities();
     validateNoFields();
     validateEntityResolverRefactorDontUseOldValues();
@@ -1193,23 +1192,7 @@ public class GrouperProvisioningConfigurationValidation {
           .assignRuntimeError(true));
     }
   }
-  
-  /**
-   */
-  public void validateSubjectSourceInEntityConfig() {
-
-    // GRP-3911: subject sources to provision should not be in top config section
-    if (!StringUtils.isBlank(suffixToConfigValue.get("subjectSourcesToProvision"))) {
-      if (!GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false)) {
-        String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.cannotHaveSubjectSourcesIfNotShowingEntities");
-
-        this.addErrorMessage(new ProvisioningValidationIssue()
-            .assignMessage(errorMessage)
-            .assignRuntimeError(true));
-      }
-    }
-  }
-  
+    
   
   public void validateEntityResolverRefactorDontUseOldValues() {
     

@@ -206,9 +206,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     
     @Override
     public void updateVersionFromPrevious() {
-  
-      v8_provisioningSubjectSourcesInEntity();
-      
+        
       v8_provisioningLdapDnAttributeChange();
      
       v8_provisioningFieldNameToAttributeChange();
@@ -284,33 +282,6 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }
     if (!didSomething) {
       String action = "Provisioning upgrade: no change for LDAP DN field name change to ldap_dn attribute";
-      LOG.warn(action);
-      System.out.println(action);
-    } else {
-      ConfigPropertiesCascadeBase.clearCache();
-    }
-    return didSomething;
-  }
-
-  /**
-   * @return if did something
-   */
-  public static boolean v8_provisioningSubjectSourcesInEntity() {
-    // GRP-3911: subject sources to provision should not be in top config section
-    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.subjectSourcesToProvision$"));
-    boolean didSomething = false;
-    for (String configId : GrouperUtil.nonNull(configIds)) {
-      String subjectSourcesToProvision = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configId + ".subjectSourcesToProvision");
-      String operateOnGrouperEntitiesKey = "provisioner." + configId + ".operateOnGrouperEntities";
-      String operateOnGrouperEntities = GrouperLoaderConfig.retrieveConfig().propertyValueString(operateOnGrouperEntitiesKey);
-      boolean operateOnGrouperEntitiesBoolean = GrouperUtil.booleanValue(operateOnGrouperEntities, false);
-      if (!StringUtils.isBlank(subjectSourcesToProvision) && !operateOnGrouperEntitiesBoolean) {
-        didSomething = true;
-        grouperLoaderConfigUpdate(operateOnGrouperEntitiesKey, "true");
-      }
-    }
-    if (!didSomething) {
-      String action = "Provisioning upgrade: no change for subjectSourcesToProvision requiring operateOnGrouperEntities";
       LOG.warn(action);
       System.out.println(action);
     } else {

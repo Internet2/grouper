@@ -161,10 +161,10 @@ public class SqlProvisionerTestUtils {
     }
     
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
 
     if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "" + provisioningTestConfigInput.getEntityAttributeCount());
       configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");

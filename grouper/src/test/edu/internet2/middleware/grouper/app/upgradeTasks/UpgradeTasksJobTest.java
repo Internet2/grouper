@@ -296,24 +296,6 @@ public class UpgradeTasksJobTest extends GrouperTest {
   /**
    * 
    */
-  public void test_v8_provisioningSubjectSourcesInEntity() {
-    
-    v8configure();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.operateOnGrouperEntities").value("false").store();
-    ConfigPropertiesCascadeBase.clearCache();
-
-    assertTrue(UpgradeTasks.v8_provisioningSubjectSourcesInEntity());
-
-    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.operateOnGrouperEntities", false));
-
-    assertFalse(UpgradeTasks.v8_provisioningSubjectSourcesInEntity());
-    
-  }
-
-  /**
-   * 
-   */
   public void testVersion1() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
