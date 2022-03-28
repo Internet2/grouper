@@ -50,6 +50,8 @@ public class DuoRoleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "2");

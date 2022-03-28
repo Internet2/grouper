@@ -166,14 +166,20 @@ public class SqlProvisionerTestUtils {
     if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "" + provisioningTestConfigInput.getEntityAttributeCount());
-      configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+      if (provisioningTestConfigInput.getEntityAttributeCount() != 3) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
+      }
       
       for (int i=0;i<provisioningTestConfigInput.getEntityAttributeCount();i++) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + i + ".select", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + i + ".insert", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + i + ".update", "true");
+        if (provisioningTestConfigInput.getEntityAttributeCount() != 3) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + i + ".insert", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + i + ".update", "true");
+        }
         
       }
       
@@ -184,14 +190,13 @@ public class SqlProvisionerTestUtils {
       
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "dn");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.storageType", "separateAttributesTable");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.searchAttribute", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.matchingId", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "memberToId2");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "employeeID");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.storageType", "separateAttributesTable");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "name");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.searchAttribute", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.matchingId", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "entity_uuid");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "id");

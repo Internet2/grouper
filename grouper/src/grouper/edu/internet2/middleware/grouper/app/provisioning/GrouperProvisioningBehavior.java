@@ -674,9 +674,18 @@ public class GrouperProvisioningBehavior {
     }
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveEntities(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveEntity(), false)) {
-      return false;
+      selectEntities = false;
+      return selectEntities;
     }
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities();
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
+      selectEntities = false;
+      return selectEntities;
+    }
+
+    this.selectEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities();
+    return this.selectEntities;
+
   }
 
 
@@ -836,11 +845,19 @@ public class GrouperProvisioningBehavior {
 
     //can the provisioner even do this?
     if (!isDeleteEntities()) {
-      return false;
+      deleteEntitiesIfGrouperCreated = false;
+      return deleteEntitiesIfGrouperCreated;
     }
-
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
+      deleteEntitiesIfGrouperCreated = false;
+      return deleteEntitiesIfGrouperCreated;
+    }
+    
     // is it configured to?
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntitiesIfGrouperCreated();
+    deleteEntitiesIfGrouperCreated = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntitiesIfGrouperCreated();
+    return deleteEntitiesIfGrouperCreated;
+
   }
 
   public void setDeleteEntitiesIfGrouperCreated(Boolean deleteEntitiesIfGrouperCreated) {
@@ -967,11 +984,19 @@ public class GrouperProvisioningBehavior {
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteEntity(), false)
       &&  !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteEntities(), false)
         ) {
-      return false;
+      deleteEntities = false;
+      return deleteEntities;
     }
 
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
+      deleteEntities = false;
+      return deleteEntities;
+    }
+    
     // is it configured to?
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntities();
+    deleteEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntities();
+    return deleteEntities;
 
   }
   
@@ -1249,12 +1274,15 @@ public class GrouperProvisioningBehavior {
 
     //can the provisioner even do this?
     if (!this.isSelectEntities()) {
-      return false;
+      selectEntitiesAll = false;
+      return selectEntitiesAll;
     }
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false)) {
-      return false;
+      selectEntitiesAll = false;
+      return selectEntitiesAll;
     }
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities();
+    selectEntitiesAll = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities();
+    return selectEntitiesAll;
   }
 
   
@@ -1281,10 +1309,18 @@ public class GrouperProvisioningBehavior {
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanUpdateEntity(), false)
       &&  !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanUpdateEntities(), false)
         ) {
-      return false;
+      updateEntities = false;
+      return updateEntities;
     }
-    
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateEntities();
+
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
+      updateEntities = false;
+      return updateEntities;
+    }
+
+    // is it configured to?
+    updateEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateEntities();
+    return updateEntities;
   }
 
   
@@ -1312,10 +1348,18 @@ public class GrouperProvisioningBehavior {
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanInsertEntity(), false)
       &&  !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanInsertEntities(), false)
         ) {
-      return false;
+      insertEntities = false;
+      return insertEntities;
     }
 
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertEntities();
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
+      insertEntities = false;
+      return insertEntities;
+    }
+
+    // is it configured to?
+    insertEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertEntities();
+    return insertEntities;
   }
   
   public void setInsertEntities(Boolean entitiesInsert) {
@@ -1340,16 +1384,19 @@ public class GrouperProvisioningBehavior {
     }
 
     //can the provisioner even do this?
-    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteEntity(), false)
-      &&  !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteEntities(), false)
-        ) {
-      return false;
-    }
     if (!isDeleteEntities()) {
-      return false;
+      deleteEntitiesIfNotExistInGrouper = false;
+      return deleteEntitiesIfNotExistInGrouper;
     }
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
+      deleteEntitiesIfNotExistInGrouper = false;
+      return deleteEntitiesIfNotExistInGrouper;
+    }
+    
     // is it configured to?
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntitiesIfNotExistInGrouper();
+    deleteEntitiesIfNotExistInGrouper = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntitiesIfNotExistInGrouper();
+    return deleteEntitiesIfNotExistInGrouper;
   }
 
   
@@ -1365,17 +1412,19 @@ public class GrouperProvisioningBehavior {
     }
     
     //can the provisioner even do this?
-    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteEntity(), false)
-      &&  !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanDeleteEntities(), false)
-        ) {
-      return false;
-    }
     if (!isDeleteEntities()) {
-      return false;
+      deleteEntitiesIfGrouperDeleted = false;
+      return deleteEntitiesIfGrouperDeleted;
+    }
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
+      deleteEntitiesIfGrouperDeleted = false;
+      return deleteEntitiesIfGrouperDeleted;
     }
     
     // is it configured to?
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntitiesIfGrouperDeleted();
+    deleteEntitiesIfGrouperDeleted = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntitiesIfGrouperDeleted();
+    return deleteEntitiesIfGrouperDeleted;
   }
 
   public void setDeleteEntitiesIfGrouperDeleted(

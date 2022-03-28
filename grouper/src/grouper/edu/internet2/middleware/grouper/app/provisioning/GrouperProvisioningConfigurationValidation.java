@@ -410,6 +410,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateEntityResolverRefactorDontUseOldValues();
     validateCustomizeMembershipCrud();
     validateCustomizeGroupCrud();
+    validateCustomizeEntityCrud();
 
 
     // if there are problems with the basics, then other things could throw exceptions
@@ -1285,6 +1286,48 @@ public class GrouperProvisioningConfigurationValidation {
     
     if (customizeCrud && !anythingSet) {
       String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.customizeGroupCrudButNothingSet");
+
+      this.addErrorMessage(new ProvisioningValidationIssue()
+          .assignMessage(errorMessage)
+          .assignRuntimeError(false));
+    }
+  }
+  /**
+   * 
+   */
+  public void validateCustomizeEntityCrud() {
+    // GRP-3955: add provisioning customizeEntityCrud
+    boolean operateOnGrouperEntities = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false);
+    boolean customizeCrud = operateOnGrouperEntities 
+        && GrouperUtil.booleanValue(suffixToConfigValue.get("customizeEntityCrud"), false);
+    
+    boolean makeChangesToEntities = operateOnGrouperEntities 
+        && GrouperUtil.booleanValue(suffixToConfigValue.get("makeChangesToEntities"), false);
+    
+    boolean anythingSet = false;
+    for (String key : new String[] { "insertEntities", "selectEntities", "updateEntities", "deleteEntities", "deleteEntitiesIfNotExistInGrouper", 
+        "deleteEntitiesIfGrouperDeleted", "deleteEntitiesIfGrouperCreated"}) {
+      if (!customizeCrud || (!makeChangesToEntities && !StringUtils.equals("selectEntities", key))) {
+
+          if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {
+            String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+            errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+            this.addErrorMessage(new ProvisioningValidationIssue()
+                .assignMessage(errorMessage)
+                .assignRuntimeError(true));
+
+          }
+      } else {
+        if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {
+          anythingSet = true;
+        }
+      }
+      
+    }
+    
+    if (customizeCrud && !anythingSet) {
+      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.customizeEntityCrudButNothingSet");
 
       this.addErrorMessage(new ProvisioningValidationIssue()
           .assignMessage(errorMessage)

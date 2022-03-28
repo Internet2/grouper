@@ -467,8 +467,11 @@ public class LdapProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+
       if (provisioningTestConfigInput.isUpdateEntitiesAndDn()) {
         configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
       }
     }
     

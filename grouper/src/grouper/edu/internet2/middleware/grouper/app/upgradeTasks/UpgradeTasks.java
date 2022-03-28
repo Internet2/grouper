@@ -218,6 +218,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       v8_provisioningCustomizeMembershipCrud();
 
       v8_provisioningCustomizeGroupCrud();
+
+      v8_provisioningCustomizeEntityCrud();
     }
   };
   
@@ -499,40 +501,31 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
 
 
       // if we are somehow at the default
-      if (insertMemberships != null && insertMemberships
+      if (operateOnGrouperMemberships && insertMemberships != null && insertMemberships
           && selectMemberships != null && selectMemberships
           && deleteMemberships != null && deleteMemberships
-          && (deleteMembershipsIfNotExistInGrouper == null || !deleteMembershipsIfNotExistInGrouper)
-          && (deleteMembershipsIfGrouperDeleted == null || !deleteMembershipsIfGrouperDeleted)
+          && deleteMembershipsIfNotExistInGrouper == null
+          && deleteMembershipsIfGrouperDeleted == null
           && deleteMembershipsIfGrouperCreated != null && deleteMembershipsIfGrouperCreated) {
         grouperLoaderConfigDelete(insertMembershipsKey);
         grouperLoaderConfigDelete(selectMembershipsKey);
         grouperLoaderConfigDelete(deleteMembershipsKey);
-        if (deleteMembershipsIfNotExistInGrouper != null) {
-          grouperLoaderConfigDelete(deleteMembershipsIfNotExistInGrouperKey);
-        }
-        if (deleteMembershipsIfGrouperDeleted != null) {
-          grouperLoaderConfigDelete(deleteMembershipsIfGrouperDeletedKey);
-        }
         grouperLoaderConfigDelete(deleteMembershipsIfGrouperCreatedKey);
       } else {
+        
         grouperLoaderConfigUpdate(customizeMembershipCrudKey, "true");
         
         if (insertMemberships == null) {
           grouperLoaderConfigUpdate(insertMembershipsKey, "false");
-        } else if (insertMemberships) {
-          grouperLoaderConfigDelete(insertMembershipsKey);
         }
         if (selectMemberships == null) {
           grouperLoaderConfigUpdate(selectMembershipsKey, "false");
-        } else if (selectMemberships) {
-          grouperLoaderConfigDelete(selectMembershipsKey);
         }
         if (deleteMemberships == null) {
           grouperLoaderConfigUpdate(deleteMembershipsKey, "false");
-        } else if (deleteMemberships && deleteMembershipsIfGrouperCreated != null && deleteMembershipsIfGrouperCreated) {
-          grouperLoaderConfigDelete(deleteMembershipsKey);
-          grouperLoaderConfigDelete(deleteMembershipsIfGrouperCreatedKey);
+        }
+        if (deleteMemberships != null && deleteMemberships && deleteMembershipsIfNotExistInGrouper == null && deleteMembershipsIfGrouperDeleted == null && deleteMembershipsIfGrouperCreated == null) {
+          grouperLoaderConfigUpdate(deleteMembershipsIfGrouperCreatedKey, "false");
         }
         
       }
@@ -597,49 +590,36 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       didSomething = true;
 
       // if we are somehow at the default
-      if (insertGroups != null && insertGroups
+      if (operateOnGrouperGroups && insertGroups != null && insertGroups
           && updateGroups != null && updateGroups
           && selectGroups != null && selectGroups
           && deleteGroups != null && deleteGroups
-          && (deleteGroupsIfNotExistInGrouper == null || !deleteGroupsIfNotExistInGrouper)
-          && (deleteGroupsIfGrouperDeleted == null || !deleteGroupsIfGrouperDeleted)
+          && deleteGroupsIfNotExistInGrouper == null
+          && deleteGroupsIfGrouperDeleted == null
           && deleteGroupsIfGrouperCreated != null && deleteGroupsIfGrouperCreated) {
         grouperLoaderConfigDelete(insertGroupsKey);
         grouperLoaderConfigDelete(updateGroupsKey);
         grouperLoaderConfigDelete(selectGroupsKey);
         grouperLoaderConfigDelete(deleteGroupsKey);
-        if (deleteGroupsIfNotExistInGrouper != null) {
-          grouperLoaderConfigDelete(deleteGroupsIfNotExistInGrouperKey);
-        }
-        if (deleteGroupsIfGrouperDeleted != null) {
-          grouperLoaderConfigDelete(deleteGroupsIfGrouperDeletedKey);
-        }
         grouperLoaderConfigDelete(deleteGroupsIfGrouperCreatedKey);
       } else {
         grouperLoaderConfigUpdate(customizeGroupCrudKey, "true");
         
         if (insertGroups == null) {
           grouperLoaderConfigUpdate(insertGroupsKey, "false");
-        } else if (insertGroups) {
-          grouperLoaderConfigDelete(insertGroupsKey);
-        }
-        if (updateGroups == null) {
-          grouperLoaderConfigUpdate(updateGroupsKey, "false");
-        } else if (updateGroups) {
-          grouperLoaderConfigDelete(updateGroupsKey);
         }
         if (selectGroups == null) {
           grouperLoaderConfigUpdate(selectGroupsKey, "false");
-        } else if (selectGroups) {
-          grouperLoaderConfigDelete(selectGroupsKey);
+        }
+        if (updateGroups == null) {
+          grouperLoaderConfigUpdate(updateGroupsKey, "false");
         }
         if (deleteGroups == null) {
           grouperLoaderConfigUpdate(deleteGroupsKey, "false");
-        } else if (deleteGroups && deleteGroupsIfGrouperCreated != null && deleteGroupsIfGrouperCreated) {
-          grouperLoaderConfigDelete(deleteGroupsKey);
-          grouperLoaderConfigDelete(deleteGroupsIfGrouperCreatedKey);
         }
-        
+        if (deleteGroups != null && deleteGroups && deleteGroupsIfNotExistInGrouper == null && deleteGroupsIfGrouperDeleted == null && deleteGroupsIfGrouperCreated == null) {
+          grouperLoaderConfigUpdate(deleteGroupsIfGrouperCreatedKey, "false");
+        }
       }
     }
     if (!didSomething) {
@@ -651,6 +631,122 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }
     return didSomething;
   }
+
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningCustomizeEntityCrud() {
+    // GRP-3955: add provisioning customizeEntityCrud
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      String operateOnGrouperEntitiesKey = "provisioner." + configId + ".operateOnGrouperEntities";
+      String makeChangesToEntitiesKey = "provisioner." + configId + ".makeChangesToEntities";
+      String customizeEntityCrudKey = "provisioner." + configId + ".customizeEntityCrud";
+      String insertEntitiesKey = "provisioner." + configId + ".insertEntities";
+      String updateEntitiesKey = "provisioner." + configId + ".updateEntities";
+      String selectEntitiesKey = "provisioner." + configId + ".selectEntities";
+      String deleteEntitiesKey = "provisioner." + configId + ".deleteEntities";
+      String deleteEntitiesIfNotExistInGrouperKey = "provisioner." + configId + ".deleteEntitiesIfNotExistInGrouper";
+      String deleteEntitiesIfGrouperDeletedKey = "provisioner." + configId + ".deleteEntitiesIfGrouperDeleted";
+      String deleteEntitiesIfGrouperCreatedKey = "provisioner." + configId + ".deleteEntitiesIfGrouperCreated";
+      
+      Boolean customizeEntityCrud = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(customizeEntityCrudKey));
+      Boolean operateOnGrouperEntities = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(operateOnGrouperEntitiesKey));
+      Boolean makeChangesToEntities = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(makeChangesToEntitiesKey));
+      
+      // if we are already up to date
+      if (operateOnGrouperEntities != null && operateOnGrouperEntities && (customizeEntityCrud != null || makeChangesToEntities != null)) {
+        continue;
+      }
+
+      Boolean insertEntities = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(insertEntitiesKey));
+      Boolean updateEntities = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(updateEntitiesKey));
+      Boolean selectEntities = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(selectEntitiesKey));
+      Boolean deleteEntities = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteEntitiesKey));
+      Boolean deleteEntitiesIfNotExistInGrouper = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteEntitiesIfNotExistInGrouperKey));
+      Boolean deleteEntitiesIfGrouperDeleted = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteEntitiesIfGrouperDeletedKey));
+      Boolean deleteEntitiesIfGrouperCreated = GrouperUtil.booleanObjectValue(GrouperLoaderConfig.retrieveConfig().propertyValueString(deleteEntitiesIfGrouperCreatedKey));
+
+      // if nothing set thats ok
+      if ((operateOnGrouperEntities == null || !operateOnGrouperEntities) 
+          && customizeEntityCrud == null
+          && insertEntities == null
+          && updateEntities == null
+          && deleteEntities == null
+          && deleteEntitiesIfNotExistInGrouper == null
+          && deleteEntitiesIfGrouperDeleted == null
+          && deleteEntitiesIfGrouperCreated == null ) {
+        continue;
+      }
+          
+      didSomething = true;
+      
+      // if we are somehow at the default readonly
+      if (operateOnGrouperEntities 
+          && insertEntities == null
+          && updateEntities == null
+          && selectEntities != null && selectEntities
+          && deleteEntities == null
+          && deleteEntitiesIfNotExistInGrouper == null
+          && deleteEntitiesIfGrouperDeleted == null
+          && deleteEntitiesIfGrouperCreated == null) {
+        grouperLoaderConfigDelete(selectEntitiesKey);
+        
+        // if we are somehow at the default
+      } else if (operateOnGrouperEntities && insertEntities != null && insertEntities
+          && updateEntities != null && updateEntities
+          && selectEntities != null && selectEntities
+          && deleteEntities != null && deleteEntities
+          && deleteEntitiesIfNotExistInGrouper == null
+          && deleteEntitiesIfGrouperDeleted == null
+          && deleteEntitiesIfGrouperCreated != null && deleteEntitiesIfGrouperCreated) {
+        grouperLoaderConfigUpdate(makeChangesToEntitiesKey, "true");
+        grouperLoaderConfigDelete(insertEntitiesKey);
+        grouperLoaderConfigDelete(updateEntitiesKey);
+        grouperLoaderConfigDelete(selectEntitiesKey);
+        grouperLoaderConfigDelete(deleteEntitiesKey);
+        grouperLoaderConfigDelete(deleteEntitiesIfGrouperCreatedKey);
+      } else {
+        
+        grouperLoaderConfigUpdate(customizeEntityCrudKey, "true");
+
+        if ((insertEntities!= null && insertEntities)
+            || (updateEntities!= null && updateEntities)
+            || (deleteEntitiesIfNotExistInGrouper!= null && deleteEntitiesIfNotExistInGrouper)
+            || (deleteEntitiesIfGrouperDeleted!= null && deleteEntitiesIfGrouperDeleted)
+            || (deleteEntitiesIfGrouperCreated!= null && deleteEntitiesIfGrouperCreated)) {
+          grouperLoaderConfigUpdate(makeChangesToEntitiesKey, "true");
+        }
+        
+        if (insertEntities == null) {
+          grouperLoaderConfigUpdate(insertEntitiesKey, "false");
+        }
+        if (selectEntities == null) {
+          grouperLoaderConfigUpdate(selectEntitiesKey, "false");
+        }
+        if (updateEntities == null) {
+          grouperLoaderConfigUpdate(updateEntitiesKey, "false");
+        }
+        if (deleteEntities == null) {
+          grouperLoaderConfigUpdate(deleteEntitiesKey, "false");
+        }
+        if (deleteEntities != null && deleteEntities && deleteEntitiesIfNotExistInGrouper == null && deleteEntitiesIfGrouperDeleted == null && deleteEntitiesIfGrouperCreated == null) {
+          grouperLoaderConfigUpdate(deleteEntitiesIfGrouperCreatedKey, "false");
+        }
+      }
+    }
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'entity CRUD defaults'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
+  }
+
 
   private static void grouperLoaderConfigDelete(String key) {
     if (!key.startsWith("provisioner.")) {

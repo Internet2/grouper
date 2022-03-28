@@ -38,6 +38,28 @@ public abstract class GrouperProvisioningConfiguration {
 //  # {valueType: "boolean", subSection: "advanced", defaultValue: "false", order: 113000, showEl: "${showAdvanced}"}
 //  # provisioner.genericProvisioner.groupsRequireMembers =
 
+  private boolean customizeEntityCrud;
+  
+  public boolean isCustomizeEntityCrud() {
+    return customizeEntityCrud;
+  }
+
+  public void setCustomizeEntityCrud(boolean customizeEntityCrud) {
+    this.customizeEntityCrud = customizeEntityCrud;
+  }
+  
+  private boolean makeChangesToEntities;
+  
+  
+
+  public boolean isMakeChangesToEntities() {
+    return makeChangesToEntities;
+  }
+
+  public void setMakeChangesToEntities(boolean makeChangesToEntities) {
+    this.makeChangesToEntities = makeChangesToEntities;
+  }
+
   private boolean customizeMembershipCrud;
 
   public boolean isCustomizeMembershipCrud() {
@@ -1336,7 +1358,7 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * select entities
    */
-  private boolean selectEntities = false;
+  private boolean selectEntities = true;
   
   /**
    * should the provisioner select all entities from the target
@@ -2315,10 +2337,6 @@ public abstract class GrouperProvisioningConfiguration {
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
     this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
     
-    this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), false);
-
-    this.deleteEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntities", false), false);
-
     this.customizeGroupCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeGroupCrud", false), false);
     
     if (this.customizeGroupCrud) {
@@ -2356,18 +2374,37 @@ public abstract class GrouperProvisioningConfiguration {
       this.deleteMembershipsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperCreated", false), 
           (deleteMemberships && !this.deleteMembershipsIfNotExistInGrouper && !this.deleteMembershipsIfGrouperDeleted));
     }
-    
-    this.updateEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateEntities", false), false);
 
-    this.selectEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectEntities", false), false);
+    this.makeChangesToEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("makeChangesToEntities", false), false);
 
+    // reset some defaults if making changes
+    if (this.makeChangesToEntities) {
+      this.insertEntities = true;
+      this.updateEntities = true;
+      this.deleteEntities = true;
+      this.deleteEntitiesIfGrouperCreated = true;
+    }
+
+    this.customizeEntityCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeEntityCrud", false), false);
+  
+    if (this.customizeEntityCrud) {
+      this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), this.insertEntities);
+      
+      this.deleteEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntities", false), this.deleteEntities);
+  
+      this.updateEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateEntities", false), this.updateEntities);
+  
+      this.selectEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectEntities", false), this.selectEntities);
+  
+      this.deleteEntitiesIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfNotExistInGrouper", false), this.deleteEntitiesIfNotExistInGrouper);
+  
+      this.deleteEntitiesIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperDeleted", false), this.deleteEntitiesIfGrouperDeleted);
+  
+      this.deleteEntitiesIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperCreated", false), 
+          (this.makeChangesToEntities && deleteEntities && !this.deleteEntitiesIfNotExistInGrouper && !this.deleteEntitiesIfGrouperDeleted));
+          
+    }
     this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
-
-    this.deleteEntitiesIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfNotExistInGrouper", false), false);
-
-    this.deleteEntitiesIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperDeleted", false), false);
-
-    this.deleteEntitiesIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperCreated", false), false);
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
     
