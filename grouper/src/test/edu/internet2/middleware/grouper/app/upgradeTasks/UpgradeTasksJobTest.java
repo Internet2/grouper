@@ -28,7 +28,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningGroupAttributeShowCrud"));
+    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningEntityAttributeShowCrud"));
   }
   
   /**
@@ -631,6 +631,29 @@ public class UpgradeTasksJobTest extends GrouperTest {
   
     // this will not convert again
     assertFalse(UpgradeTasks.v8_provisioningGroupShowAttributeCrud());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningEntityAttributeShowCrud() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetEntityAttribute.2.showAttributeCrud", false));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.targetEntityAttribute.2.update"));
+    
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningEntityShowAttributeCrud());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetEntityAttribute.2.showAttributeCrud"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.targetEntityAttribute.2.update"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetEntityAttribute.2.update"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningEntityShowAttributeCrud());
     
   }
 }

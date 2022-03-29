@@ -230,6 +230,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       v8_provisioningMembershipShowAttributeCrud();
 
       v8_provisioningGroupShowAttributeCrud();
+      
+      v8_provisioningEntityShowAttributeCrud();
     }
   };
   
@@ -1038,5 +1040,74 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     LOG.warn(action);
     System.out.println(action);
 
+  }
+
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningEntityShowAttributeCrud() {
+    // GRP-3962: provisioning Entity attribute customize CRUD
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      
+      for (int i=0;i<20;i++) {
+        
+        if (!GrouperLoaderConfig.retrieveConfig().containsKey("provisioner." + configId + ".targetEntityAttribute." + i + ".name")) {
+          continue;
+        }
+        
+        String showAttributeCrudKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".showAttributeCrud";
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(showAttributeCrudKey)) {
+          // already done
+          continue;
+        }
+        
+        String insertKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".insert";
+        String updateKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".update";
+        String selectKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".select";
+  
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(insertKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(updateKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(selectKey)) {
+          didSomething = true;
+          grouperLoaderConfigUpdate(showAttributeCrudKey, "true");
+        }
+        if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".operateOnGrouperEntities", false)) {
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".customizeEntityCrud", false)
+              || GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".selectEntities", true)) {
+            if (!GrouperLoaderConfig.retrieveConfig().containsKey(selectKey)) {
+              didSomething = true;
+              grouperLoaderConfigUpdate(selectKey, "false");
+              
+            }
+          }
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".customizeEntityCrud", false)
+              || GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".insertEntities", true)) {
+            if (!GrouperLoaderConfig.retrieveConfig().containsKey(insertKey)) {
+              didSomething = true;
+              grouperLoaderConfigUpdate(insertKey, "false");
+            }
+          }
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".customizeEntityCrud", false)
+              || GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".updateEntities", true)) {
+            if (!GrouperLoaderConfig.retrieveConfig().containsKey(updateKey)) {
+              didSomething = true;
+              grouperLoaderConfigUpdate(updateKey, "false");
+            }
+          }
+        }
+      }
+    }      
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'entity attribute show crud'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
   }
 }

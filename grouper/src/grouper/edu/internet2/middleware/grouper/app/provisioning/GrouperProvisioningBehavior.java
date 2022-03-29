@@ -994,6 +994,11 @@ public class GrouperProvisioningBehavior {
       return deleteEntities;
     }
     
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isMakeChangesToEntities()) {
+      deleteEntities = false;
+      return deleteEntities;
+    }
+
     // is it configured to?
     deleteEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntities();
     return deleteEntities;
@@ -1318,6 +1323,11 @@ public class GrouperProvisioningBehavior {
       return updateEntities;
     }
 
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isMakeChangesToEntities()) {
+      updateEntities = false;
+      return updateEntities;
+    }
+
     // is it configured to?
     updateEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateEntities();
     return updateEntities;
@@ -1353,6 +1363,11 @@ public class GrouperProvisioningBehavior {
     }
 
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
+      insertEntities = false;
+      return insertEntities;
+    }
+
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isMakeChangesToEntities()) {
       insertEntities = false;
       return insertEntities;
     }

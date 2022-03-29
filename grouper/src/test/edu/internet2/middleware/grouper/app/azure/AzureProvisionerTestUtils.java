@@ -117,26 +117,17 @@ public class AzureProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "id");
     }
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.update", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "userPrincipalName");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpression", "${gcGrouperSyncMember.memberFromId2}");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "translationScript");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.update", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "displayName");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.searchAttribute", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", "name");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "mailEnabled");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.select", "true");
     if (provisioningTestConfigInput.getGroupAttributeCount() == 5) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpression", "${'true'}");
     } else {

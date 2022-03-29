@@ -65,17 +65,13 @@ public class DuoRoleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.matchingId", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "loginId");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.searchAttribute", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.update", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.valueType", "string");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateToMemberSyncField", "memberToId2");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.valueType", "string");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "id");
