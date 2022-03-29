@@ -28,7 +28,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningMembershipAttributeShowCrud"));
+    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningGroupAttributeShowCrud"));
   }
   
   /**
@@ -608,6 +608,29 @@ public class UpgradeTasksJobTest extends GrouperTest {
   
     // this will not convert again
     assertFalse(UpgradeTasks.v8_provisioningMembershipShowAttributeCrud());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningGroupAttributeShowCrud() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetGroupAttribute.3.showAttributeCrud", false));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.targetGroupAttribute.3.update"));
+    
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningGroupShowAttributeCrud());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetGroupAttribute.3.showAttributeCrud"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.targetGroupAttribute.3.update"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetGroupAttribute.3.update"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningGroupShowAttributeCrud());
     
   }
 }

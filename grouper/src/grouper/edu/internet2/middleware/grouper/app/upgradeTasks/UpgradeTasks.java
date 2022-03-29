@@ -228,6 +228,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       v8_provisioningEntityShowValidation();
 
       v8_provisioningMembershipShowAttributeCrud();
+
+      v8_provisioningGroupShowAttributeCrud();
     }
   };
   
@@ -767,6 +769,9 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       
       for (int i=0;i<20;i++) {
         
+        if (!GrouperLoaderConfig.retrieveConfig().containsKey("provisioner." + configId + ".targetMembershipAttribute." + i + ".name")) {
+          continue;
+        }
         String requiredKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".required";
         String maxlengthKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".maxlength";
         String validExpressionKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".validExpression";
@@ -808,6 +813,9 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       
       for (int i=0;i<20;i++) {
         
+        if (!GrouperLoaderConfig.retrieveConfig().containsKey("provisioner." + configId + ".targetMembershipAttribute." + i + ".name")) {
+          continue;
+        }
         String showAttributeCrudKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".showAttributeCrud";
         
         if (GrouperLoaderConfig.retrieveConfig().containsKey(showAttributeCrudKey)) {
@@ -824,10 +832,96 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
           grouperLoaderConfigUpdate(showAttributeCrudKey, "true");
         }
         
+        if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".operateOnGrouperMemberships", false)) {
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".customizeMembershipCrud", false)
+              || GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".selectMemberships", true)) {
+            if (!GrouperLoaderConfig.retrieveConfig().containsKey(selectKey)) {
+              didSomething = true;
+              grouperLoaderConfigUpdate(selectKey, "false");
+              
+            }
+          }
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".customizeMembershipCrud", false)
+              || GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".insertMemberships", true)) {
+            if (!GrouperLoaderConfig.retrieveConfig().containsKey(insertKey)) {
+              didSomething = true;
+              grouperLoaderConfigUpdate(insertKey, "false");
+            }
+          }
+        }
       }
     }      
     if (!didSomething) {
       String action = "Provisioning upgrade: no change for 'membership attribute show crud'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
+  }
+
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningGroupShowAttributeCrud() {
+    // GRP-3961: provisioning group attribute customize CRUD
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      
+      for (int i=0;i<20;i++) {
+        
+        if (!GrouperLoaderConfig.retrieveConfig().containsKey("provisioner." + configId + ".targetGroupAttribute." + i + ".name")) {
+          continue;
+        }
+        
+        String showAttributeCrudKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".showAttributeCrud";
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(showAttributeCrudKey)) {
+          // already done
+          continue;
+        }
+        
+        String insertKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".insert";
+        String updateKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".update";
+        String selectKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".select";
+
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(insertKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(updateKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(selectKey)) {
+          didSomething = true;
+          grouperLoaderConfigUpdate(showAttributeCrudKey, "true");
+        }
+        if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".operateOnGrouperGroups", false)) {
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".customizeGroupCrud", false)
+              || GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".selectGroups", true)) {
+            if (!GrouperLoaderConfig.retrieveConfig().containsKey(selectKey)) {
+              didSomething = true;
+              grouperLoaderConfigUpdate(selectKey, "false");
+              
+            }
+          }
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".customizeGroupCrud", false)
+              || GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".insertGroups", true)) {
+            if (!GrouperLoaderConfig.retrieveConfig().containsKey(insertKey)) {
+              didSomething = true;
+              grouperLoaderConfigUpdate(insertKey, "false");
+            }
+          }
+          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".customizeGroupCrud", false)
+              || GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configId + ".updateGroups", true)) {
+            if (!GrouperLoaderConfig.retrieveConfig().containsKey(updateKey)) {
+              didSomething = true;
+              grouperLoaderConfigUpdate(updateKey, "false");
+            }
+          }
+        }
+      }
+    }      
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'group attribute show crud'";
       LOG.warn(action);
       System.out.println(action);
     } else {
@@ -848,6 +942,9 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       
       for (int i=0;i<20;i++) {
         
+        if (!GrouperLoaderConfig.retrieveConfig().containsKey("provisioner." + configId + ".targetGroupAttribute." + i + ".name")) {
+          continue;
+        }
         String requiredKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".required";
         String maxlengthKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".maxlength";
         String validExpressionKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".validExpression";
@@ -889,6 +986,9 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       
       for (int i=0;i<20;i++) {
         
+        if (!GrouperLoaderConfig.retrieveConfig().containsKey("provisioner." + configId + ".targetEntityAttribute." + i + ".name")) {
+          continue;
+        }
         String requiredKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".required";
         String maxlengthKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".maxlength";
         String validExpressionKey = "provisioner." + configId + ".targetEntityAttribute." + i + ".validExpression";

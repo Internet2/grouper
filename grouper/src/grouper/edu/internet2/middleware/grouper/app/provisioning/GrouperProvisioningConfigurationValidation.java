@@ -415,6 +415,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateGroupShowValidation();
     validateEntityShowValidation();
     validateMembershipShowAttributeCrud();
+    validateGroupShowAttributeCrud();
 
     // if there are problems with the basics, then other things could throw exceptions
     if (this.provisioningValidationIssues.size() > 0) {
@@ -1356,6 +1357,36 @@ public class GrouperProvisioningConfigurationValidation {
       }
     }      
   }
+  /**
+   * 
+   */
+  public void validateGroupShowAttributeCrud() {
+    // GRP-3961: provisioning group attribute customize CRUD
+    for (int i=0;i<20;i++) {
+      
+      String insertKey = "targetGroupAttribute." + i + ".insert";
+      String selectKey = "targetGroupAttribute." + i + ".select";
+      String showAttributeCrudKey = "targetGroupAttribute." + i + ".showAttributeCrud";
+      
+      if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeCrudKey), false)) {
+        // already done
+        continue;
+      }
+      // cannot contain any of these if now showing Group attribute validation
+      for (String key : new String[] {insertKey, selectKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
 
   /**
    * 

@@ -99,25 +99,16 @@ public class AzureProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "showProvisioningDiagnostics", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "memberToId2");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "accountEnabled");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpression", "${'true'}");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "translationScript");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.update", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.matchingId", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "displayName");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.searchAttribute", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "name");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.update", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.name", "mailNickname");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
 
     if (provisioningTestConfigInput.getGroupAttributeCount() == 5) {

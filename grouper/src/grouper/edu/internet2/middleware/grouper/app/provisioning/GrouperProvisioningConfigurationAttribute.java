@@ -400,7 +400,7 @@ public class GrouperProvisioningConfigurationAttribute {
   /**
    * insert this attribute
    */
-  private boolean insert;
+  private boolean insert = true;
   
   /**
    * 
@@ -426,12 +426,12 @@ public class GrouperProvisioningConfigurationAttribute {
   /**
    * select this attribute for normal selects
    */
-  private boolean select;
+  private boolean select = true;
   
   /**
    * update this attribute in normal updates
    */
-  private boolean update;
+  private boolean update = true;
   
   /**
    * if this is a multivalued attribute (Set)

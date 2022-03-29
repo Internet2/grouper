@@ -187,16 +187,12 @@ public class ScimProvisionerTestUtils {
       throw new RuntimeException("Not value entityAttribute5Name: '" + provisioningTestConfigInput.getEntityAttribute4name() + "'");
     }
     if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.insert", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.matchingId", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "displayName");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.searchAttribute", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.select", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "extension");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.insert", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "id");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.select", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateToGroupSyncField", "groupToId2");
     }
     configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");

@@ -248,14 +248,7 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
-      
-      for (int i=0;i<provisioningTestConfigInput.getGroupAttributeCount();i++) {
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute." + i + ".select", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute." + i + ".insert", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute." + i + ".update", "true");
-        
-      }
-      
+            
     }
     if (provisioningTestConfigInput.getGroupAttributeCount() == 1) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "uuid");

@@ -2213,16 +2213,16 @@ public abstract class GrouperProvisioningConfiguration {
           if (showAttributeCrud) {
 
             {
-              boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".insert" , false), false);
+              boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".insert" , false), true);
               attributeConfig.setInsert(insert);
             }
     
             {
-              boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType+"."+i+".update" , false), false);
+              boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType+"."+i+".update" , false), true);
               attributeConfig.setUpdate(update);
             }
             {
-              boolean select = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".select" , false), false);
+              boolean select = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".select" , false), true);
               attributeConfig.setSelect(select);
             }
           }

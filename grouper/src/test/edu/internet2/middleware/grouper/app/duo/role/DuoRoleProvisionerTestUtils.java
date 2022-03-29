@@ -82,6 +82,7 @@ public class DuoRoleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.valueType", "string");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.showAttributeCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "name");
@@ -90,6 +91,7 @@ public class DuoRoleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", "extension");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.update", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.showAttributeCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.valueType", "string");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "description");
@@ -97,6 +99,7 @@ public class DuoRoleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "description");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.update", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.showAttributeCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.valueType", "string");
     configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
