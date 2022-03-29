@@ -317,7 +317,7 @@ public class LdapProvisionerTestUtils {
     }
     
     if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttributeCount", provisioningTestConfigInput.getEntityAttributeCount() + "");
+      configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", provisioningTestConfigInput.getEntityAttributeCount() + "");
     
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "ldap_dn");
       if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {

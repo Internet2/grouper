@@ -28,7 +28,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningMembershipAttributeShowAttributeValueSettings"));
+    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningGroupAttributeShowAttributeValueSettings"));
   }
   
   /**
@@ -108,7 +108,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.5.storageType").value("groupTableColumn").store();
     
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetEntityAttributeCount").value("3").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.numberOfEntityAttributes").value("3").store();
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetEntityAttribute.0.name").value("dn").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetEntityAttribute.0.select").value("true").store();
@@ -532,6 +532,27 @@ public class UpgradeTasksJobTest extends GrouperTest {
   
     // this will not convert again
     assertFalse(UpgradeTasks.v8_provisioningMembershipShowAttributeValueSettings());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningGroupAttributeShowAttributeValueSettings() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetGroupAttribute.0.showAttributeValueSettings", false));
+      
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningGroupShowAttributeValueSettings());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetGroupAttribute.0.showAttributeValueSettings"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.targetGroupAttribute.0.valueType"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningGroupShowAttributeValueSettings());
     
   }
 

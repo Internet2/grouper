@@ -234,6 +234,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       v8_provisioningEntityShowAttributeCrud();
       
       v8_provisioningMembershipShowAttributeValueSettings();
+      
+      v8_provisioningGroupShowAttributeValueSettings();
     }
   };
   
@@ -1158,4 +1160,52 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }
     return didSomething;
   }
+  
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningGroupShowAttributeValueSettings() {
+    // GRP-3963: provisioning Group attribute value settings
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      
+      for (int i=0;i<20;i++) {
+        
+        if (!GrouperLoaderConfig.retrieveConfig().containsKey("provisioner." + configId + ".targetGroupAttribute." + i + ".name")) {
+          continue;
+        }
+        String valueTypeKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".valueType";
+        String ignoreIfMatchesValueKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".ignoreIfMatchesValue";
+        String defaultValueKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".defaultValue";
+        String multiValuedKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".multiValued";
+        String showAttributeValueSettingsKey = "provisioner." + configId + ".targetGroupAttribute." + i + ".showAttributeValueSettings";
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(showAttributeValueSettingsKey)) {
+          // already done
+          continue;
+        }
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(valueTypeKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(ignoreIfMatchesValueKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(defaultValueKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(multiValuedKey)) {
+          didSomething = true;
+          grouperLoaderConfigUpdate(showAttributeValueSettingsKey, "true");
+        }
+        
+      }
+    }      
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'group attribute show attribute value settings'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
+  }
+
+
 }

@@ -418,7 +418,8 @@ public class GrouperProvisioningConfigurationValidation {
     validateGroupShowAttributeCrud();
     validateEntityShowAttributeCrud();
     validateMembershipShowAttributeValueSettings();
-
+    validateGroupShowAttributeValueSettings();
+    
     // if there are problems with the basics, then other things could throw exceptions
     if (this.provisioningValidationIssues.size() > 0) {
       return;
@@ -1570,6 +1571,42 @@ public class GrouperProvisioningConfigurationValidation {
       String defaultValueKey = "targetMembershipAttribute." + i + ".defaultValue";
       String multiValuedKey = "targetMembershipAttribute." + i + ".multiValued";
       // cannot contain any of these if now showing Membership attribute validation
+      for (String key : new String[] {valueTypeKey, ignoreIfMatchesValueKey, defaultValueKey, multiValuedKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+  
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
+  /**
+   * 
+   */
+  public void validateGroupShowAttributeValueSettings() {
+    // GRP-3964: provisioning group attribute value settings
+    for (int i=0;i<20;i++) {
+      if (!suffixToConfigValue.containsKey("targetGroupAttribute." + i + ".name")) {
+        continue;
+      }
+      {
+        String showAttributeValueSettingsKey = "targetGroupAttribute." + i + ".showAttributeValueSettings";
+        
+        if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeValueSettingsKey), false)) {
+          // already done
+          continue;
+        }
+      }
+      String valueTypeKey = "targetGroupAttribute." + i + ".valueType";
+      String ignoreIfMatchesValueKey = "targetGroupAttribute." + i + ".ignoreIfMatchesValue";
+      String defaultValueKey = "targetGroupAttribute." + i + ".defaultValue";
+      String multiValuedKey = "targetGroupAttribute." + i + ".multiValued";
+      // cannot contain any of these if now showing Group attribute validation
       for (String key : new String[] {valueTypeKey, ignoreIfMatchesValueKey, defaultValueKey, multiValuedKey}) {
         
         if (suffixToConfigValue.containsKey(key)) {

@@ -369,7 +369,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     //  provisioner.ldapProvTest.targetEntityAttribute.1.select = true
     //  provisioner.ldapProvTest.targetEntityAttribute.1.translateExpressionType = grouperProvisioningEntityField
     //  provisioner.ldapProvTest.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField = subjectId
-    //  provisioner.ldapProvTest.targetEntityAttributeCount = 2
+    //  provisioner.ldapProvTest.numberOfEntityAttributes = 2
     //  provisioner.ldapProvTest.targetGroupAttribute.0.fieldName = name
     //  provisioner.ldapProvTest.targetGroupAttribute.0.insert = true
     //  provisioner.ldapProvTest.targetGroupAttribute.0.select = true
