@@ -755,9 +755,12 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
+        .addExtraConfig("targetGroupAttribute.4.showAttributeValueSettings", "true")
         .addExtraConfig("targetGroupAttribute.4.defaultValue", "<emptyString>")
         .addExtraConfig("targetGroupAttribute.5.name", "seeAlso")
-        .addExtraConfig("targetGroupAttribute.5.defaultValue", "<emptyString>"));
+        .addExtraConfig("targetGroupAttribute.5.defaultValue", "<emptyString>")
+        .addExtraConfig("targetGroupAttribute.5.showAttributeValueSettings", "true")
+        );
         
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     
@@ -862,8 +865,10 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
+        .addExtraConfig("targetGroupAttribute.4.showAttributeValueSettings", "true")
         .addExtraConfig("targetGroupAttribute.4.defaultValue", "<emptyString>")
         .addExtraConfig("targetGroupAttribute.5.name", "seeAlso")
+        .addExtraConfig("targetGroupAttribute.5.showAttributeValueSettings", "true")
         .addExtraConfig("targetGroupAttribute.5.defaultValue", "<emptyString>"));
   
     // initialize
@@ -968,8 +973,10 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
+        .addExtraConfig("targetGroupAttribute.4.showAttributeValueSettings", "true")
         .addExtraConfig("targetGroupAttribute.4.defaultValue", "<emptyString>")
         .addExtraConfig("targetGroupAttribute.5.name", "seeAlso")
+        .addExtraConfig("targetGroupAttribute.5.showAttributeValueSettings", "true")
         .addExtraConfig("targetGroupAttribute.5.defaultValue", "<emptyString>"));
   
     // initialize

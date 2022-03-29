@@ -232,6 +232,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       v8_provisioningGroupShowAttributeCrud();
       
       v8_provisioningEntityShowAttributeCrud();
+      
+      v8_provisioningMembershipShowAttributeValueSettings();
     }
   };
   
@@ -795,6 +797,52 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }      
     if (!didSomething) {
       String action = "Provisioning upgrade: no change for 'membership attribute show validation'";
+      LOG.warn(action);
+      System.out.println(action);
+    } else {
+      ConfigPropertiesCascadeBase.clearCache();
+    }
+    return didSomething;
+  }
+
+  /**
+   * 
+   * @return if did something
+   */
+  public static boolean v8_provisioningMembershipShowAttributeValueSettings() {
+    // GRP-3963: provisioning membership attribute value settings
+    boolean didSomething = false;
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(Pattern.compile("^provisioner\\.([^.]+)\\.class$"));
+    for (String configId : GrouperUtil.nonNull(configIds)) {
+      
+      for (int i=0;i<20;i++) {
+        
+        if (!GrouperLoaderConfig.retrieveConfig().containsKey("provisioner." + configId + ".targetMembershipAttribute." + i + ".name")) {
+          continue;
+        }
+        String valueTypeKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".valueType";
+        String ignoreIfMatchesValueKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".ignoreIfMatchesValue";
+        String defaultValueKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".defaultValue";
+        String multiValuedKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".multiValued";
+        String showAttributeValueSettingsKey = "provisioner." + configId + ".targetMembershipAttribute." + i + ".showAttributeValueSettings";
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(showAttributeValueSettingsKey)) {
+          // already done
+          continue;
+        }
+        
+        if (GrouperLoaderConfig.retrieveConfig().containsKey(valueTypeKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(ignoreIfMatchesValueKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(defaultValueKey)
+            || GrouperLoaderConfig.retrieveConfig().containsKey(multiValuedKey)) {
+          didSomething = true;
+          grouperLoaderConfigUpdate(showAttributeValueSettingsKey, "true");
+        }
+        
+      }
+    }      
+    if (!didSomething) {
+      String action = "Provisioning upgrade: no change for 'membership attribute show attribute value settings'";
       LOG.warn(action);
       System.out.println(action);
     } else {

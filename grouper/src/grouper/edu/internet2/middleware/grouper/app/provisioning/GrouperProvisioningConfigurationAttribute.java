@@ -332,7 +332,7 @@ public class GrouperProvisioningConfigurationAttribute {
   /**
    * value type
    */
-  private GrouperProvisioningConfigurationAttributeValueType valueType;
+  private GrouperProvisioningConfigurationAttributeValueType valueType = GrouperProvisioningConfigurationAttributeValueType.STRING;
   
   /**
    * Validate value with jexl to see if valid for provisioning, the variable 'value' represents the current value.  return true if valid and false if invalid

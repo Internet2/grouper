@@ -2118,11 +2118,6 @@ public abstract class GrouperProvisioningConfiguration {
         }
   
         {
-          boolean multiValued = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".multiValued" , false), false);
-          attributeConfig.setMultiValued(multiValued);
-        }
-  
-        {
           boolean matchingId = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".matchingId" , false), false);
           if (matchingId) {
             if (foundMatchingId) {
@@ -2132,11 +2127,6 @@ public abstract class GrouperProvisioningConfiguration {
             foundMatchingIdName = name;
           }
           attributeConfig.setMatchingId(matchingId);
-        }
-        
-        {
-          String defaultValue = this.retrieveConfigString(objectType + "."+i+".defaultValue" , false);
-          attributeConfig.setDefaultValue(defaultValue);
         }
         
         {
@@ -2229,25 +2219,43 @@ public abstract class GrouperProvisioningConfiguration {
         }
 
         {
-          GrouperProvisioningConfigurationAttributeValueType valueType = 
-              GrouperProvisioningConfigurationAttributeValueType.valueOfIgnoreCase(
-                  this.retrieveConfigString(objectType+ "."+i+".valueType" , false), false);
-          if (valueType == null) {
-            valueType = GrouperProvisioningConfigurationAttributeValueType.STRING;
-          }
-          attributeConfig.setValueType(valueType);
-        }
-        
-        {
-          String ignoreIfMatchesValuesRaw = this.retrieveConfigString(objectType + "."+i+".ignoreIfMatchesValue" , false);
-          if (!StringUtils.isBlank(ignoreIfMatchesValuesRaw)) {
-            GrouperProvisioningConfigurationAttributeValueType valueType = GrouperUtil.defaultIfNull(attributeConfig.getValueType(), 
-                GrouperProvisioningConfigurationAttributeValueType.STRING);
+          boolean showAttributeValueSettings = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeValueSettings" , false), false);
+          if (showAttributeValueSettings) {
+
+            {
+              boolean multiValued = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".multiValued" , false), false);
+              attributeConfig.setMultiValued(multiValued);
+            }
+      
+
+            {
+              String defaultValue = this.retrieveConfigString(objectType + "."+i+".defaultValue" , false);
+              attributeConfig.setDefaultValue(defaultValue);
+            }
             
-            for (String ignoreIfMatchesValueRaw : GrouperUtil.splitTrim(ignoreIfMatchesValuesRaw, ",")) {
-              ignoreIfMatchesValueRaw = StringUtils.replace(ignoreIfMatchesValueRaw, "U+002C", ",");
-              Object ignoreIfMatchesValue = valueType.convert(ignoreIfMatchesValueRaw);
-              attributeConfig.getIgnoreIfMatchesValues().add(ignoreIfMatchesValue);
+    
+            {
+              GrouperProvisioningConfigurationAttributeValueType valueType = 
+                  GrouperProvisioningConfigurationAttributeValueType.valueOfIgnoreCase(
+                      this.retrieveConfigString(objectType+ "."+i+".valueType" , false), false);
+              if (valueType == null) {
+                valueType = GrouperProvisioningConfigurationAttributeValueType.STRING;
+              }
+              attributeConfig.setValueType(valueType);
+            }
+            
+            {
+              String ignoreIfMatchesValuesRaw = this.retrieveConfigString(objectType + "."+i+".ignoreIfMatchesValue" , false);
+              if (!StringUtils.isBlank(ignoreIfMatchesValuesRaw)) {
+                GrouperProvisioningConfigurationAttributeValueType valueType = GrouperUtil.defaultIfNull(attributeConfig.getValueType(), 
+                    GrouperProvisioningConfigurationAttributeValueType.STRING);
+                
+                for (String ignoreIfMatchesValueRaw : GrouperUtil.splitTrim(ignoreIfMatchesValuesRaw, ",")) {
+                  ignoreIfMatchesValueRaw = StringUtils.replace(ignoreIfMatchesValueRaw, "U+002C", ",");
+                  Object ignoreIfMatchesValue = valueType.convert(ignoreIfMatchesValueRaw);
+                  attributeConfig.getIgnoreIfMatchesValues().add(ignoreIfMatchesValue);
+                }
+              }
             }
           }
         }

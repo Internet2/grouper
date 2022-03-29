@@ -259,8 +259,9 @@ public class LdapProvisionerTestUtils {
       
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name",
             provisioningTestConfigInput.isPosixGroup() ? "gidNumber" : "businessCategory");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.valueType", "long");
+        
         if (StringUtils.equals(provisioningTestConfigInput.getBusinessCategoryTranslateFromGrouperProvisioningGroupField(), "idIndex")) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.showAttributeValueSettings", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.valueType", "long");
         }
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "true");
@@ -283,6 +284,7 @@ public class LdapProvisionerTestUtils {
         }
     
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "objectClass");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeValueSettings", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.multiValued", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "translationScript");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpression", 
@@ -290,7 +292,9 @@ public class LdapProvisionerTestUtils {
         
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "member");
         if (StringUtils.equals(provisioningTestConfigInput.getMembershipAttribute(), "member")) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAttributeValueSettings", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.defaultValue", "cn=admin,dc=example,dc=edu");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAttributeValueSettings", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.multiValued", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.membershipAttribute", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateFromMemberSyncField", provisioningTestConfigInput.getEntityAttributeCount() > 0 ? "memberToId2" : "subjectId");
@@ -301,6 +305,7 @@ public class LdapProvisionerTestUtils {
         
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.name", "description");
         if (StringUtils.equals(provisioningTestConfigInput.getMembershipAttribute(), "description")) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAttributeValueSettings", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.multiValued", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.membershipAttribute", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateFromMemberSyncField", provisioningTestConfigInput.getEntityAttributeCount() > 0 ? "memberToId2" : "subjectId");
@@ -354,6 +359,7 @@ public class LdapProvisionerTestUtils {
   
         if (!provisioningTestConfigInput.isMembershipStructureEntityAttributes()) {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.name", "objectClass");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.showAttributeValueSettings", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.multiValued", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.translateExpressionTypeCreateOnly", "staticValues");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.translateFromStaticValuesCreateOnly", "top, organizationalPerson, person, inetOrgPerson, eduPerson");
@@ -364,6 +370,7 @@ public class LdapProvisionerTestUtils {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".name", "eduPersonEntitlement");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".translateFromGroupSyncField", provisioningTestConfigInput.getGroupAttributeCount() == 1 ? "groupFromId2" : "groupExtension");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".membershipAttribute", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".showAttributeValueSettings", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".multiValued", "true");
       }
 
@@ -452,7 +459,6 @@ public class LdapProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "metadata.0.formElementType", "text");
       configureProvisionerSuffix(provisioningTestConfigInput, "metadata.0.name", "md_entitlementValue");
       configureProvisionerSuffix(provisioningTestConfigInput, "metadata.0.showForGroup", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "metadata.0.valueType", "string");
       
     }  
 

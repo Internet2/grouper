@@ -28,7 +28,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningEntityAttributeShowCrud"));
+    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningMembershipAttributeShowAttributeValueSettings"));
   }
   
   /**
@@ -496,17 +496,42 @@ public class UpgradeTasksJobTest extends GrouperTest {
 
     assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeValidation", false));
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.required").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.name").value("abc").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.defaultValue").value("true").store();
   
     ConfigPropertiesCascadeBase.clearCache();
   
-    assertTrue(UpgradeTasks.v8_provisioningMembershipShowValidation());
+    assertTrue(UpgradeTasks.v8_provisioningMembershipShowAttributeValueSettings());
   
     assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeValidation"));
-    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.required"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.defaultValue"));
   
     // this will not convert again
-    assertFalse(UpgradeTasks.v8_provisioningMembershipShowValidation());
+    assertFalse(UpgradeTasks.v8_provisioningMembershipShowAttributeValueSettings());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningMembershipAttributeShowAttributeValueSettings() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeValueSettings", false));
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.name").value("abc").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.valueType").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningMembershipShowAttributeValueSettings());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeValueSettings"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.valueType"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningMembershipShowAttributeValueSettings());
     
   }
 
