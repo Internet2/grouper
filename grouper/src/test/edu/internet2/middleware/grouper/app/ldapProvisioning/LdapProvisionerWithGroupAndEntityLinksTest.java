@@ -387,7 +387,9 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
         .assignPosixGroup(true)
         .assignExplicitFilters(true)
         .assignMembershipAttribute("description")
-        .addExtraConfig("targetGroupAttribute.4.maxlength", "40"));
+        .addExtraConfig("targetGroupAttribute.4.showAttributeValidation", "true")
+        .addExtraConfig("targetGroupAttribute.4.maxlength", "40")
+        );
 
     Subject jsmith = SubjectFinder.findById("jsmith", true);
     Subject banderson = SubjectFinder.findById("banderson", true);
@@ -753,9 +755,12 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
+        .addExtraConfig("targetGroupAttribute.4.showAttributeValueSettings", "true")
         .addExtraConfig("targetGroupAttribute.4.defaultValue", "<emptyString>")
         .addExtraConfig("targetGroupAttribute.5.name", "seeAlso")
-        .addExtraConfig("targetGroupAttribute.5.defaultValue", "<emptyString>"));
+        .addExtraConfig("targetGroupAttribute.5.defaultValue", "<emptyString>")
+        .addExtraConfig("targetGroupAttribute.5.showAttributeValueSettings", "true")
+        );
         
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     
@@ -860,8 +865,10 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
+        .addExtraConfig("targetGroupAttribute.4.showAttributeValueSettings", "true")
         .addExtraConfig("targetGroupAttribute.4.defaultValue", "<emptyString>")
         .addExtraConfig("targetGroupAttribute.5.name", "seeAlso")
+        .addExtraConfig("targetGroupAttribute.5.showAttributeValueSettings", "true")
         .addExtraConfig("targetGroupAttribute.5.defaultValue", "<emptyString>"));
   
     // initialize
@@ -966,8 +973,10 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
+        .addExtraConfig("targetGroupAttribute.4.showAttributeValueSettings", "true")
         .addExtraConfig("targetGroupAttribute.4.defaultValue", "<emptyString>")
         .addExtraConfig("targetGroupAttribute.5.name", "seeAlso")
+        .addExtraConfig("targetGroupAttribute.5.showAttributeValueSettings", "true")
         .addExtraConfig("targetGroupAttribute.5.defaultValue", "<emptyString>"));
   
     // initialize

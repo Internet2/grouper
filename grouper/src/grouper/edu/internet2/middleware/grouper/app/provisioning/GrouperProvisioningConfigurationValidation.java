@@ -405,13 +405,21 @@ public class GrouperProvisioningConfigurationValidation {
     validateMetadata();
     validateFailsafes();
     validateOperateOnEntitiesIfSubjectSourcesToProvision();
-    validateSubjectSourceInEntityConfig();
     validateSelectAllEntities();
     validateNoFields();
     validateEntityResolverRefactorDontUseOldValues();
     validateCustomizeMembershipCrud();
-
-
+    validateCustomizeGroupCrud();
+    validateCustomizeEntityCrud();
+    validateMembershipShowValidation();
+    validateGroupShowValidation();
+    validateEntityShowValidation();
+    validateMembershipShowAttributeCrud();
+    validateGroupShowAttributeCrud();
+    validateEntityShowAttributeCrud();
+    validateMembershipShowAttributeValueSettings();
+    validateGroupShowAttributeValueSettings();
+    
     // if there are problems with the basics, then other things could throw exceptions
     if (this.provisioningValidationIssues.size() > 0) {
       return;
@@ -1192,23 +1200,7 @@ public class GrouperProvisioningConfigurationValidation {
           .assignRuntimeError(true));
     }
   }
-  
-  /**
-   */
-  public void validateSubjectSourceInEntityConfig() {
-
-    // GRP-3911: subject sources to provision should not be in top config section
-    if (!StringUtils.isBlank(suffixToConfigValue.get("subjectSourcesToProvision"))) {
-      if (!GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false)) {
-        String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.cannotHaveSubjectSourcesIfNotShowingEntities");
-
-        this.addErrorMessage(new ProvisioningValidationIssue()
-            .assignMessage(errorMessage)
-            .assignRuntimeError(true));
-      }
-    }
-  }
-  
+    
   
   public void validateEntityResolverRefactorDontUseOldValues() {
     
@@ -1235,11 +1227,11 @@ public class GrouperProvisioningConfigurationValidation {
 
   /**
    * 
-   * @return if did something
    */
   public void validateCustomizeMembershipCrud() {
     // GRP-3953: add provisioning customizeMembershipCrud
-    boolean customizeCrud = GrouperUtil.booleanValue(suffixToConfigValue.get("customizeMembershipCrud"), false);
+    boolean operateOnGrouperMemberships = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperMemberships"), false);
+    boolean customizeCrud = operateOnGrouperMemberships && GrouperUtil.booleanValue(suffixToConfigValue.get("customizeMembershipCrud"), false);
     boolean anythingSet = false;
     for (String key : new String[] { "insertMemberships", "selectMemberships", "deleteMemberships", "deleteMembershipsIfNotExistInGrouper", 
         "deleteMembershipsIfGrouperDeleted", "deleteMembershipsIfGrouperCreated"}) {
@@ -1269,5 +1261,365 @@ public class GrouperProvisioningConfigurationValidation {
           .assignRuntimeError(false));
     }
   }
+
+  /**
+   * 
+   */
+  public void validateCustomizeGroupCrud() {
+    // GRP-3954: add provisioning customizeGroupCrud
+    boolean operateOnGrouperGroups = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperGroups"), false);
+    boolean customizeCrud = operateOnGrouperGroups 
+        && GrouperUtil.booleanValue(suffixToConfigValue.get("customizeGroupCrud"), false);
+    boolean anythingSet = false;
+    for (String key : new String[] { "insertGroups", "selectGroups", "updateGroups", "deleteGroups", "deleteGroupsIfNotExistInGrouper", 
+        "deleteGroupsIfGrouperDeleted", "deleteGroupsIfGrouperCreated"}) {
+      if (!customizeCrud) {
+
+          if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {
+            String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+            errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+            this.addErrorMessage(new ProvisioningValidationIssue()
+                .assignMessage(errorMessage)
+                .assignRuntimeError(true));
+
+          }
+      } else {
+        if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {
+          anythingSet = true;
+        }
+      }
+    }
+    
+    if (customizeCrud && !anythingSet) {
+      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.customizeGroupCrudButNothingSet");
+
+      this.addErrorMessage(new ProvisioningValidationIssue()
+          .assignMessage(errorMessage)
+          .assignRuntimeError(false));
+    }
+  }
+  
+  /**
+   * 
+   */
+  public void validateMembershipShowValidation() {
+    // GRP-3957: provisioning membership show validation settings
+    for (int i=0;i<20;i++) {
+      
+      if (!suffixToConfigValue.containsKey("targetMembershipAttribute." + i + ".name")) {
+        continue;
+      }
+      String requiredKey = "targetMembershipAttribute." + i + ".required";
+      String maxlengthKey = "targetMembershipAttribute." + i + ".maxlength";
+      String validExpressionKey = "targetMembershipAttribute." + i + ".validExpression";
+      String showAttributeValidationKey = "targetMembershipAttribute." + i + ".showAttributeValidation";
+      
+      if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeValidationKey), false)) {
+        // already done
+        continue;
+      }
+      // cannot contain any of these if now showing membership attribute validation
+      for (String key : new String[] {requiredKey, maxlengthKey, validExpressionKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
+  /**
+   * 
+   */
+  public void validateMembershipShowAttributeCrud() {
+    // GRP-3960: provisioning membership attribute customize CRUD
+    for (int i=0;i<20;i++) {
+      
+      if (!suffixToConfigValue.containsKey("targetMembershipAttribute." + i + ".name")) {
+        continue;
+      }
+
+      String insertKey = "targetMembershipAttribute." + i + ".insert";
+      String selectKey = "targetMembershipAttribute." + i + ".select";
+      String showAttributeCrudKey = "targetMembershipAttribute." + i + ".showAttributeCrud";
+      
+      if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeCrudKey), false)) {
+        // already done
+        continue;
+      }
+      // cannot contain any of these if now showing membership attribute validation
+      for (String key : new String[] {insertKey, selectKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+  /**
+   * 
+   */
+  public void validateGroupShowAttributeCrud() {
+    // GRP-3961: provisioning group attribute customize CRUD
+    for (int i=0;i<20;i++) {
+      
+      if (!suffixToConfigValue.containsKey("targetGroupAttribute." + i + ".name")) {
+        continue;
+      }
+      String insertKey = "targetGroupAttribute." + i + ".insert";
+      String updateKey = "targetGroupAttribute." + i + ".update";
+      String selectKey = "targetGroupAttribute." + i + ".select";
+      String showAttributeCrudKey = "targetGroupAttribute." + i + ".showAttributeCrud";
+      
+      if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeCrudKey), false)) {
+        // already done
+        continue;
+      }
+      // cannot contain any of these if now showing Group attribute validation
+      for (String key : new String[] {insertKey, selectKey, updateKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
+
+  /**
+   * 
+   */
+  public void validateGroupShowValidation() {
+    // GRP-3958: provisioning group show validation settings
+    for (int i=0;i<20;i++) {
+      
+      if (!suffixToConfigValue.containsKey("targetGroupAttribute." + i + ".name")) {
+        continue;
+      }
+      String requiredKey = "targetGroupAttribute." + i + ".required";
+      String maxlengthKey = "targetGroupAttribute." + i + ".maxlength";
+      String validExpressionKey = "targetGroupAttribute." + i + ".validExpression";
+      String showAttributeValidationKey = "targetGroupAttribute." + i + ".showAttributeValidation";
+      
+      if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeValidationKey), false)) {
+        // already done
+        continue;
+      }
+      // cannot contain any of these if now showing Group attribute validation
+      for (String key : new String[] {requiredKey, maxlengthKey, validExpressionKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
+  /**
+   * 
+   */
+  public void validateEntityShowValidation() {
+    // GRP-3959: provisioning entity show validation settings
+    for (int i=0;i<20;i++) {
+      
+      if (!suffixToConfigValue.containsKey("targetEntityAttribute." + i + ".name")) {
+        continue;
+      }
+      String requiredKey = "targetEntityAttribute." + i + ".required";
+      String maxlengthKey = "targetEntityAttribute." + i + ".maxlength";
+      String validExpressionKey = "targetEntityAttribute." + i + ".validExpression";
+      String showAttributeValidationKey = "targetEntityAttribute." + i + ".showAttributeValidation";
+      
+      if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeValidationKey), false)) {
+        // already done
+        continue;
+      }
+      // cannot contain any of these if now showing Entity attribute validation
+      for (String key : new String[] {requiredKey, maxlengthKey, validExpressionKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
+  
+  /**
+   * 
+   */
+  public void validateCustomizeEntityCrud() {
+    // GRP-3955: add provisioning customizeEntityCrud
+    boolean operateOnGrouperEntities = GrouperUtil.booleanValue(suffixToConfigValue.get("operateOnGrouperEntities"), false);
+    boolean customizeCrud = operateOnGrouperEntities 
+        && GrouperUtil.booleanValue(suffixToConfigValue.get("customizeEntityCrud"), false);
+    
+    boolean makeChangesToEntities = operateOnGrouperEntities 
+        && GrouperUtil.booleanValue(suffixToConfigValue.get("makeChangesToEntities"), false);
+    
+    boolean anythingSet = false;
+    for (String key : new String[] { "insertEntities", "selectEntities", "updateEntities", "deleteEntities", "deleteEntitiesIfNotExistInGrouper", 
+        "deleteEntitiesIfGrouperDeleted", "deleteEntitiesIfGrouperCreated"}) {
+      if (!customizeCrud || (!makeChangesToEntities && !StringUtils.equals("selectEntities", key))) {
+
+          if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {
+            String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+            errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+
+            this.addErrorMessage(new ProvisioningValidationIssue()
+                .assignMessage(errorMessage)
+                .assignRuntimeError(true));
+
+          }
+      } else {
+        if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {
+          anythingSet = true;
+        }
+      }
+      
+    }
+    
+    if (customizeCrud && !anythingSet) {
+      String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.customizeEntityCrudButNothingSet");
+
+      this.addErrorMessage(new ProvisioningValidationIssue()
+          .assignMessage(errorMessage)
+          .assignRuntimeError(false));
+    }
+  }
+
+  /**
+   * 
+   */
+  public void validateEntityShowAttributeCrud() {
+    // GRP-3961: provisioning entity attribute customize CRUD
+    for (int i=0;i<20;i++) {
+
+      if (!suffixToConfigValue.containsKey("targetEntityAttribute." + i + ".name")) {
+        continue;
+      }
+
+      String insertKey = "targetEntityAttribute." + i + ".insert";
+      String updateKey = "targetEntityAttribute." + i + ".update";
+      String selectKey = "targetEntityAttribute." + i + ".select";
+      String showAttributeCrudKey = "targetEntityAttribute." + i + ".showAttributeCrud";
+      
+      if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeCrudKey), false)) {
+        // already done
+        continue;
+      }
+      // cannot contain any of these if now showing Entity attribute validation
+      for (String key : new String[] {insertKey, selectKey, updateKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+  
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
+  /**
+   * 
+   */
+  public void validateMembershipShowAttributeValueSettings() {
+    // GRP-3963: provisioning membership attribute value settings
+    for (int i=0;i<20;i++) {
+      if (!suffixToConfigValue.containsKey("targetMembershipAttribute." + i + ".name")) {
+        continue;
+      }
+      {
+        String showAttributeValueSettingsKey = "targetMembershipAttribute." + i + ".showAttributeValueSettings";
+        
+        if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeValueSettingsKey), false)) {
+          // already done
+          continue;
+        }
+      }
+      String valueTypeKey = "targetMembershipAttribute." + i + ".valueType";
+      String ignoreIfMatchesValueKey = "targetMembershipAttribute." + i + ".ignoreIfMatchesValue";
+      String defaultValueKey = "targetMembershipAttribute." + i + ".defaultValue";
+      String multiValuedKey = "targetMembershipAttribute." + i + ".multiValued";
+      // cannot contain any of these if now showing Membership attribute validation
+      for (String key : new String[] {valueTypeKey, ignoreIfMatchesValueKey, defaultValueKey, multiValuedKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+  
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
+  /**
+   * 
+   */
+  public void validateGroupShowAttributeValueSettings() {
+    // GRP-3964: provisioning group attribute value settings
+    for (int i=0;i<20;i++) {
+      if (!suffixToConfigValue.containsKey("targetGroupAttribute." + i + ".name")) {
+        continue;
+      }
+      {
+        String showAttributeValueSettingsKey = "targetGroupAttribute." + i + ".showAttributeValueSettings";
+        
+        if (GrouperUtil.booleanValue(suffixToConfigValue.get(showAttributeValueSettingsKey), false)) {
+          // already done
+          continue;
+        }
+      }
+      String valueTypeKey = "targetGroupAttribute." + i + ".valueType";
+      String ignoreIfMatchesValueKey = "targetGroupAttribute." + i + ".ignoreIfMatchesValue";
+      String defaultValueKey = "targetGroupAttribute." + i + ".defaultValue";
+      String multiValuedKey = "targetGroupAttribute." + i + ".multiValued";
+      // cannot contain any of these if now showing Group attribute validation
+      for (String key : new String[] {valueTypeKey, ignoreIfMatchesValueKey, defaultValueKey, multiValuedKey}) {
+        
+        if (suffixToConfigValue.containsKey(key)) {
+          String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.upgradeTask");
+          errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", key);
+  
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(errorMessage)
+              .assignRuntimeError(true));
+        }
+      }
+    }      
+  }
+
 }
  

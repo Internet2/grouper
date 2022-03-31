@@ -28,7 +28,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningMembershipOPbjectCrudDefault2"));
+    TestRunner.run(new UpgradeTasksJobTest("test_v8_provisioningGroupAttributeShowAttributeValueSettings"));
   }
   
   /**
@@ -45,7 +45,6 @@ public class UpgradeTasksJobTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.subjectSourcesToProvision").value("jdbc").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.logAllObjectsVerbose").value("true").store();
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.provisionerName").value("One prod LDAP flat").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.provisioningType").value("groupAttributes").store();
 
     //TODO make an attribute config for this
@@ -96,7 +95,6 @@ public class UpgradeTasksJobTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.4.select").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.4.insert").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.4.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.4.delete").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.4.membershipAttribute").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.4.multiValued").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.4.translateFromMemberSyncField").value("memberToId2").store();
@@ -110,7 +108,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.5.storageType").value("groupTableColumn").store();
     
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetEntityAttributeCount").value("3").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.numberOfEntityAttributes").value("3").store();
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetEntityAttribute.0.name").value("dn").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetEntityAttribute.0.select").value("true").store();
@@ -138,15 +136,13 @@ public class UpgradeTasksJobTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.insertGroups").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.updateGroups").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteGroupsNotInGrouper").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteGroupsIfNotExistInGrouper").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.selectGroups").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.selectEntities").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.selectMemberships").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.insertMemberships").value("true").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteMembershipsIfNotExistInGrouper").value("true").store();
-//      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteGroupsDeletedGrouper").value("true").store();
-    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteMembershipsIfNotExistInGrouper").value("true").store();    
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.groupTableName").value("testgrouper_prov_ldap_group").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.groupTableIdColumn").value("uuid").store();
@@ -242,13 +238,13 @@ public class UpgradeTasksJobTest extends GrouperTest {
   /**
    * 
    */
-  public void test_v8_provisioningMembershipOPbjectCrudDefault() {
+  public void test_v8_provisioningMembershipObjectCrudDefault() {
     
     v8configure();
 
     assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeMembershipCrud", false));
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteMembershipsIfNotExistInGrouper").value("false").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteMembershipsIfNotExistInGrouper").delete();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteMembershipsIfGrouperCreated").value("true").store();
 
     ConfigPropertiesCascadeBase.clearCache();
@@ -271,7 +267,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
   /**
    * 
    */
-  public void test_v8_provisioningMembershipOPbjectCrudDefault2() {
+  public void test_v8_provisioningMembershipObjectCrudDefault2() {
     
     v8configure();
 
@@ -284,32 +280,14 @@ public class UpgradeTasksJobTest extends GrouperTest {
 
     assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeMembershipCrud", false));
     assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.insertMemberships", true));
-    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.selectMemberships"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.selectMemberships"));
     assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.deleteMemberships", false));
     assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.deleteMembershipsIfNotExistInGrouper", false));
     assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteMembershipsIfGrouperDeleted"));
     assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteMembershipsIfGrouperCreated"));
 
     // this will convert again so dont do twice
-    //assertFalse(UpgradeTasks.v8_provisioningCustomizeMembershipCrud());
-    
-  }
-
-  /**
-   * 
-   */
-  public void test_v8_provisioningSubjectSourcesInEntity() {
-    
-    v8configure();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.operateOnGrouperEntities").value("false").store();
-    ConfigPropertiesCascadeBase.clearCache();
-
-    assertTrue(UpgradeTasks.v8_provisioningSubjectSourcesInEntity());
-
-    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.operateOnGrouperEntities", false));
-
-    assertFalse(UpgradeTasks.v8_provisioningSubjectSourcesInEntity());
+    assertFalse(UpgradeTasks.v8_provisioningCustomizeMembershipCrud());
     
   }
 
@@ -383,5 +361,345 @@ public class UpgradeTasksJobTest extends GrouperTest {
     assertEquals(GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs2.getId(), false).size(), 1);
     assertEquals(GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs3.getId(), false).size(), 1);
     assertEquals(GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs4.getId(), false).size(), 1);
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningGroupObjectCrudDefault() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeGroupCrud", false));
+  
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteGroupsIfNotExistInGrouper").delete();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteGroupsIfGrouperCreated").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningCustomizeGroupCrud());
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.customizeGroupCrud"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.insertGroups"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.updateGroups"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.selectGroups"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteGroups"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteGroupsIfNotExistInGrouper"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteGroupsIfGrouperDeleted"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteGroupsIfGrouperCreated"));
+  
+    // this will convert again so dont do twice
+    //assertFalse(UpgradeTasks.v8_provisioningCustomizeGroupCrud());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningGroupObjectCrudDefault2() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeGroupCrud", false));
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.insertGroups").delete();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningCustomizeGroupCrud());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeGroupCrud", false));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.insertGroups", true));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.selectGroups"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.updateGroups"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.deleteGroups", false));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.deleteGroupsIfNotExistInGrouper", false));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteGroupsIfGrouperDeleted"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteGroupsIfGrouperCreated"));
+
+    // this will convert again so dont do twice
+    assertFalse(UpgradeTasks.v8_provisioningCustomizeGroupCrud());
+
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningEntityObjectCrudDefault() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeEntityCrud", false));
+  
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.insertEntities").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.updateEntities").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteEntities").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteEntitiesIfGrouperCreated").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningCustomizeEntityCrud());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.makeChangesToEntities"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.customizeGroupCrud"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.insertEntities"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.updateEntities"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.selectEntities"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteEntities"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteEntitiesIfNotExistInGrouper"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteEntitiesIfGrouperDeleted"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteEntitiesIfGrouperCreated"));
+  
+    // this will convert again so dont do twice
+    assertFalse(UpgradeTasks.v8_provisioningCustomizeEntityCrud());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningEntityObjectCrudDefaultRO() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeEntityCrud", false));
+  
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.insertEntities").delete();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.updateEntities").delete();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteEntities").delete();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteEntitiesIfGrouperCreated").delete();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningCustomizeEntityCrud());
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.makeChangesToEntities"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.customizeGroupCrud"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.insertEntities"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.updateEntities"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.selectEntities"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteEntities"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteEntitiesIfNotExistInGrouper"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteEntitiesIfGrouperDeleted"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteEntitiesIfGrouperCreated"));
+  
+    // this will convert again so dont do twice
+    //assertFalse(UpgradeTasks.v8_provisioningCustomizeEntityCrud());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningMembershipAttributeShowValidation() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeValidation", false));
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.name").value("abc").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.defaultValue").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningMembershipShowAttributeValueSettings());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeValidation"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.defaultValue"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningMembershipShowAttributeValueSettings());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningMembershipAttributeShowAttributeValueSettings() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeValueSettings", false));
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.name").value("abc").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.valueType").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningMembershipShowAttributeValueSettings());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeValueSettings"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.valueType"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningMembershipShowAttributeValueSettings());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningGroupAttributeShowAttributeValueSettings() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetGroupAttribute.0.showAttributeValueSettings", false));
+      
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningGroupShowAttributeValueSettings());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetGroupAttribute.0.showAttributeValueSettings"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.targetGroupAttribute.0.valueType"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningGroupShowAttributeValueSettings());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningGroupAttributeShowValidation() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetGroupAttribute.3.showAttributeValidation", false));
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetGroupAttribute.3.required").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningGroupShowValidation());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetGroupAttribute.3.showAttributeValidation"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetGroupAttribute.3.required"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningGroupShowValidation());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningEntityAttributeShowValidation() {
+    
+    v8configure();
+
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetEntityAttribute.3.showAttributeValidation", false));
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetEntityAttribute.3.required").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningEntityShowValidation());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetEntityAttribute.3.showAttributeValidation"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetEntityAttribute.3.required"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningEntityShowValidation());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningEntityObjectCrudDefault2() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.customizeEntityCrud", false));
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.insertEntities").delete();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.updateEntities").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteEntities").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.deleteEntitiesIfNotExistInGrouper").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningCustomizeEntityCrud());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.makeChangesToEntities"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.customizeEntityCrud"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.insertEntities"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.selectEntities"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.updateEntities"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.deleteEntities"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.deleteEntitiesIfNotExistInGrouper"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteEntitiesIfGrouperDeleted"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.deleteEntitiesIfGrouperCreated"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningCustomizeEntityCrud());
+  
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningMembershipAttributeShowCrud() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeCrud", false));
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.pspng_oneprod.targetMembershipAttribute.3.insert").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningMembershipShowAttributeCrud());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.showAttributeCrud"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetMembershipAttribute.3.insert"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningMembershipShowAttributeCrud());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningGroupAttributeShowCrud() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetGroupAttribute.3.showAttributeCrud", false));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.targetGroupAttribute.3.update"));
+    
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningGroupShowAttributeCrud());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetGroupAttribute.3.showAttributeCrud"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.targetGroupAttribute.3.update"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetGroupAttribute.3.update"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningGroupShowAttributeCrud());
+    
+  }
+
+  /**
+   * 
+   */
+  public void test_v8_provisioningEntityAttributeShowCrud() {
+    
+    v8configure();
+  
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner.pspng_oneprod.targetEntityAttribute.2.showAttributeCrud", false));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.targetEntityAttribute.2.update"));
+    
+    ConfigPropertiesCascadeBase.clearCache();
+  
+    assertTrue(UpgradeTasks.v8_provisioningEntityShowAttributeCrud());
+  
+    assertTrue(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetEntityAttribute.2.showAttributeCrud"));
+    assertTrue(GrouperLoaderConfig.retrieveConfig().containsKey("provisioner.pspng_oneprod.targetEntityAttribute.2.update"));
+    assertFalse(GrouperLoaderConfig.retrieveConfig().propertyValueBooleanRequired("provisioner.pspng_oneprod.targetEntityAttribute.2.update"));
+  
+    // this will not convert again
+    assertFalse(UpgradeTasks.v8_provisioningEntityShowAttributeCrud());
+    
   }
 }

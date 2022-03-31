@@ -38,6 +38,28 @@ public abstract class GrouperProvisioningConfiguration {
 //  # {valueType: "boolean", subSection: "advanced", defaultValue: "false", order: 113000, showEl: "${showAdvanced}"}
 //  # provisioner.genericProvisioner.groupsRequireMembers =
 
+  private boolean customizeEntityCrud;
+  
+  public boolean isCustomizeEntityCrud() {
+    return customizeEntityCrud;
+  }
+
+  public void setCustomizeEntityCrud(boolean customizeEntityCrud) {
+    this.customizeEntityCrud = customizeEntityCrud;
+  }
+  
+  private boolean makeChangesToEntities;
+  
+  
+
+  public boolean isMakeChangesToEntities() {
+    return makeChangesToEntities;
+  }
+
+  public void setMakeChangesToEntities(boolean makeChangesToEntities) {
+    this.makeChangesToEntities = makeChangesToEntities;
+  }
+
   private boolean customizeMembershipCrud;
 
   public boolean isCustomizeMembershipCrud() {
@@ -51,6 +73,21 @@ public abstract class GrouperProvisioningConfiguration {
 
   public void setCustomizeMembershipCrud(boolean customizeMembershipCrud) {
     this.customizeMembershipCrud = customizeMembershipCrud;
+  }
+
+  private boolean customizeGroupCrud;
+
+  public boolean isCustomizeGroupCrud() {
+    return customizeGroupCrud;
+  }
+
+
+
+
+
+
+  public void setCustomizeGroupCrud(boolean customizeGroupCrud) {
+    this.customizeGroupCrud = customizeGroupCrud;
   }
 
 
@@ -1243,7 +1280,7 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * update groups
    */
-  private boolean updateGroups = false;
+  private boolean updateGroups = true;
 
   /**
    * update entities
@@ -1285,7 +1322,7 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * delete groups
    */
-  private boolean deleteGroups = false;
+  private boolean deleteGroups = true;
 
   /**
    * delete groups
@@ -1321,7 +1358,7 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * select entities
    */
-  private boolean selectEntities = false;
+  private boolean selectEntities = true;
   
   /**
    * should the provisioner select all entities from the target
@@ -1494,12 +1531,12 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * if groups should be inserted in target
    */
-  private boolean insertGroups = false;
+  private boolean insertGroups = true;
   
   /**
    * if groups should be selected from target
    */
-  private boolean selectGroups = false;
+  private boolean selectGroups = true;
   
   /**
    * if groups should be selected from target
@@ -1700,7 +1737,7 @@ public abstract class GrouperProvisioningConfiguration {
   /**
    * 
    */
-  private boolean deleteGroupsIfGrouperCreated = false;
+  private boolean deleteGroupsIfGrouperCreated = true;
 
   /**
    * 
@@ -1752,7 +1789,7 @@ public abstract class GrouperProvisioningConfiguration {
    * true or false if groups that were created in grouper were deleted should it be deleted in ldap?
    * or for attributes, delete attribute value if deleted in grouper default to true
    */
-  private boolean deleteGroupsIfGrouperDeleted = true;
+  private boolean deleteGroupsIfGrouperDeleted = false;
 
   /**
    * if provisioning normal memberships or privileges  default to "members" for normal memberships, otherwise which privileges
@@ -2040,25 +2077,26 @@ public abstract class GrouperProvisioningConfiguration {
         attributeConfig.setName(name);
         
         {
-          boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".insert" , false), false);
-          attributeConfig.setInsert(insert);
+          boolean showAttributeValidation = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeValidation" , false), false);
+          if (showAttributeValidation) {
+            {
+              Integer maxlength = this.retrieveConfigInt(objectType + "."+i+".maxlength", false);
+              attributeConfig.setMaxlength(maxlength);
+            }
+            
+            {
+              String validExpression = this.retrieveConfigString(objectType + "."+i+".validExpression", false);
+              attributeConfig.setValidExpression(validExpression);
+            }
+            
+            {
+              boolean required = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".required" , false), false);
+              attributeConfig.setRequired(required);
+            }
+            
+          }
         }
 
-        {
-          Integer maxlength = this.retrieveConfigInt(objectType + "."+i+".maxlength", false);
-          attributeConfig.setMaxlength(maxlength);
-        }
-        
-        {
-          String validExpression = this.retrieveConfigString(objectType + "."+i+".validExpression", false);
-          attributeConfig.setValidExpression(validExpression);
-        }
-        
-        {
-          boolean required = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".required" , false), false);
-          attributeConfig.setRequired(required);
-        }
-  
         {
           boolean searchAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".searchAttribute" , false), false);
           attributeConfig.setSearchAttribute(searchAttribute);
@@ -2080,16 +2118,6 @@ public abstract class GrouperProvisioningConfiguration {
         }
   
         {
-          boolean multiValued = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".multiValued" , false), false);
-          attributeConfig.setMultiValued(multiValued);
-        }
-  
-        {
-          boolean select = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".select" , false), false);
-          attributeConfig.setSelect(select);
-        }
-        
-        {
           boolean matchingId = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".matchingId" , false), false);
           if (matchingId) {
             if (foundMatchingId) {
@@ -2099,11 +2127,6 @@ public abstract class GrouperProvisioningConfiguration {
             foundMatchingIdName = name;
           }
           attributeConfig.setMatchingId(matchingId);
-        }
-        
-        {
-          String defaultValue = this.retrieveConfigString(objectType + "."+i+".defaultValue" , false);
-          attributeConfig.setDefaultValue(defaultValue);
         }
         
         {
@@ -2175,32 +2198,64 @@ public abstract class GrouperProvisioningConfiguration {
           String translateGrouperToMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateGrouperToMemberSyncField" , false);
           attributeConfig.setTranslateGrouperToMemberSyncField(translateGrouperToMemberSyncField);
         }
-        
         {
-          boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType+"."+i+".update" , false), false);
-          attributeConfig.setUpdate(update);
-        }
-        
-        {
-          GrouperProvisioningConfigurationAttributeValueType valueType = 
-              GrouperProvisioningConfigurationAttributeValueType.valueOfIgnoreCase(
-                  this.retrieveConfigString(objectType+ "."+i+".valueType" , false), false);
-          if (valueType == null) {
-            valueType = GrouperProvisioningConfigurationAttributeValueType.STRING;
+          boolean showAttributeCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeCrud" , false), false);
+          if (showAttributeCrud) {
+
+            {
+              boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".insert" , false), true);
+              attributeConfig.setInsert(insert);
+            }
+    
+            {
+              boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType+"."+i+".update" , false), true);
+              attributeConfig.setUpdate(update);
+            }
+            {
+              boolean select = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".select" , false), true);
+              attributeConfig.setSelect(select);
+            }
           }
-          attributeConfig.setValueType(valueType);
         }
-        
+
         {
-          String ignoreIfMatchesValuesRaw = this.retrieveConfigString(objectType + "."+i+".ignoreIfMatchesValue" , false);
-          if (!StringUtils.isBlank(ignoreIfMatchesValuesRaw)) {
-            GrouperProvisioningConfigurationAttributeValueType valueType = GrouperUtil.defaultIfNull(attributeConfig.getValueType(), 
-                GrouperProvisioningConfigurationAttributeValueType.STRING);
+          boolean showAttributeValueSettings = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeValueSettings" , false), false);
+          if (showAttributeValueSettings) {
+
+            {
+              boolean multiValued = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".multiValued" , false), false);
+              attributeConfig.setMultiValued(multiValued);
+            }
+      
+
+            {
+              String defaultValue = this.retrieveConfigString(objectType + "."+i+".defaultValue" , false);
+              attributeConfig.setDefaultValue(defaultValue);
+            }
             
-            for (String ignoreIfMatchesValueRaw : GrouperUtil.splitTrim(ignoreIfMatchesValuesRaw, ",")) {
-              ignoreIfMatchesValueRaw = StringUtils.replace(ignoreIfMatchesValueRaw, "U+002C", ",");
-              Object ignoreIfMatchesValue = valueType.convert(ignoreIfMatchesValueRaw);
-              attributeConfig.getIgnoreIfMatchesValues().add(ignoreIfMatchesValue);
+    
+            {
+              GrouperProvisioningConfigurationAttributeValueType valueType = 
+                  GrouperProvisioningConfigurationAttributeValueType.valueOfIgnoreCase(
+                      this.retrieveConfigString(objectType+ "."+i+".valueType" , false), false);
+              if (valueType == null) {
+                valueType = GrouperProvisioningConfigurationAttributeValueType.STRING;
+              }
+              attributeConfig.setValueType(valueType);
+            }
+            
+            {
+              String ignoreIfMatchesValuesRaw = this.retrieveConfigString(objectType + "."+i+".ignoreIfMatchesValue" , false);
+              if (!StringUtils.isBlank(ignoreIfMatchesValuesRaw)) {
+                GrouperProvisioningConfigurationAttributeValueType valueType = GrouperUtil.defaultIfNull(attributeConfig.getValueType(), 
+                    GrouperProvisioningConfigurationAttributeValueType.STRING);
+                
+                for (String ignoreIfMatchesValueRaw : GrouperUtil.splitTrim(ignoreIfMatchesValuesRaw, ",")) {
+                  ignoreIfMatchesValueRaw = StringUtils.replace(ignoreIfMatchesValueRaw, "U+002C", ",");
+                  Object ignoreIfMatchesValue = valueType.convert(ignoreIfMatchesValueRaw);
+                  attributeConfig.getIgnoreIfMatchesValues().add(ignoreIfMatchesValue);
+                }
+              }
             }
           }
         }
@@ -2300,14 +2355,27 @@ public abstract class GrouperProvisioningConfiguration {
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
     this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
     
-    this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), false);
+    this.customizeGroupCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeGroupCrud", false), false);
+    
+    if (this.customizeGroupCrud) {
 
-    this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), false);
+      this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), true);
 
-    this.deleteEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntities", false), false);
+      this.selectGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectGroups", false), true);
 
-    this.deleteGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroups", false), false);
+      this.updateGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateGroups", false), true);
 
+      this.deleteGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroups", false), true);
+
+      this.deleteGroupsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfNotExistInGrouper", false), false);
+
+      this.deleteGroupsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperDeleted", false), false);
+
+      this.deleteGroupsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperCreated", false), 
+          (deleteGroups && !this.deleteGroupsIfNotExistInGrouper && !this.deleteGroupsIfGrouperDeleted));
+    }
+
+    
     this.customizeMembershipCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeMembershipCrud", false), false);
     if (this.customizeMembershipCrud) {
       
@@ -2324,28 +2392,37 @@ public abstract class GrouperProvisioningConfiguration {
       this.deleteMembershipsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperCreated", false), 
           (deleteMemberships && !this.deleteMembershipsIfNotExistInGrouper && !this.deleteMembershipsIfGrouperDeleted));
     }
-    
-    this.updateEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateEntities", false), false);
 
-    this.updateGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateGroups", false), false);
+    this.makeChangesToEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("makeChangesToEntities", false), false);
 
-    this.selectGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectGroups", false), false);
+    // reset some defaults if making changes
+    if (this.makeChangesToEntities) {
+      this.insertEntities = true;
+      this.updateEntities = true;
+      this.deleteEntities = true;
+      this.deleteEntitiesIfGrouperCreated = true;
+    }
 
-    this.selectEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectEntities", false), false);
-
+    this.customizeEntityCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeEntityCrud", false), false);
+  
+    if (this.customizeEntityCrud) {
+      this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), this.insertEntities);
+      
+      this.deleteEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntities", false), this.deleteEntities);
+  
+      this.updateEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateEntities", false), this.updateEntities);
+  
+      this.selectEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectEntities", false), this.selectEntities);
+  
+      this.deleteEntitiesIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfNotExistInGrouper", false), this.deleteEntitiesIfNotExistInGrouper);
+  
+      this.deleteEntitiesIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperDeleted", false), this.deleteEntitiesIfGrouperDeleted);
+  
+      this.deleteEntitiesIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperCreated", false), 
+          (this.makeChangesToEntities && deleteEntities && !this.deleteEntitiesIfNotExistInGrouper && !this.deleteEntitiesIfGrouperDeleted));
+          
+    }
     this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
-
-    this.deleteGroupsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfNotExistInGrouper", false), false);
-
-    this.deleteGroupsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperDeleted", false), false);
-
-    this.deleteEntitiesIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfNotExistInGrouper", false), false);
-
-    this.deleteEntitiesIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperDeleted", false), false);
-
-    this.deleteGroupsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperCreated", false), false);
-
-    this.deleteEntitiesIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperCreated", false), false);
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
     

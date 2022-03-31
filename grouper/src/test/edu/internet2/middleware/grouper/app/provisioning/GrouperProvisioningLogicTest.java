@@ -153,6 +153,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
 
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.showAttributeValueSettings", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.defaultValue", "cn=admin,dc=example,dc=edu");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.multiValued", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.name", "member");
@@ -240,7 +241,6 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "string");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.defaultValue", "cn=admin,dc=example,dc=edu");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.multiValued", "true");
@@ -369,7 +369,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     //  provisioner.ldapProvTest.targetEntityAttribute.1.select = true
     //  provisioner.ldapProvTest.targetEntityAttribute.1.translateExpressionType = grouperProvisioningEntityField
     //  provisioner.ldapProvTest.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField = subjectId
-    //  provisioner.ldapProvTest.targetEntityAttributeCount = 2
+    //  provisioner.ldapProvTest.numberOfEntityAttributes = 2
     //  provisioner.ldapProvTest.targetGroupAttribute.0.fieldName = name
     //  provisioner.ldapProvTest.targetGroupAttribute.0.insert = true
     //  provisioner.ldapProvTest.targetGroupAttribute.0.select = true

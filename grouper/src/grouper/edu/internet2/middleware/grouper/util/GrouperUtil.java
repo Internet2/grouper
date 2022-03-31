@@ -341,18 +341,19 @@ public class GrouperUtil {
 //    // loader with jexl script
 //    // entity.memberOf('ref:staff') && entity.memberOf('ref:payroll:fullTime') && entity.memberOf('ref:mfaEnrolled')
 
-    String json = readFileIntoString(new File("C:/git/grouper_prod/grouper/temp/file.json"));
-    JsonNode jsonNode = jsonJacksonNode(json);
+//    String json = readFileIntoString(new File("C:/git/grouper_prod/grouper/temp/file.json"));
+//    JsonNode jsonNode = jsonJacksonNode(json);
+//    
+//    JsonNode jsonNode2 = jsonNode.at("/WsFindGroupsResults/groupResults");
+//    String resultCode = jsonJacksonGetStringFromJsonPointer(jsonNode, "/WsFindGroupsResults/resultMetadata/resultCode");
+//    
+//    List<Object[]> listObjectArray = jsonJacksonListObjectArrayFromJsonPointers(jsonNode, "/WsFindGroupsResults/groupResults",
+//        GrouperUtil.toList("/extension", "/name"));
+//    
+//    System.out.println(GrouperUtil.toStringForLog(listObjectArray));
     
-    JsonNode jsonNode2 = jsonNode.at("/WsFindGroupsResults/groupResults");
-    String resultCode = jsonJacksonGetStringFromJsonPointer(jsonNode, "/WsFindGroupsResults/resultMetadata/resultCode");
-    
-    List<Object[]> listObjectArray = jsonJacksonListObjectArrayFromJsonPointers(jsonNode, "/WsFindGroupsResults/groupResults",
-        GrouperUtil.toList("/extension", "/name"));
-    
-    System.out.println(GrouperUtil.toStringForLog(listObjectArray));
   }
-  
+
   /**
    * start the sub field with JSON_NODE_ROOT if you want the pointer from root node instead of array node
    * @param rootJsonNode
@@ -10853,6 +10854,30 @@ public class GrouperUtil {
 
  }
 
+ /**
+  * print out a variable map as java to try to debug whats going on
+  * @param variableMap
+  */
+ public static void substituteVariableMapPrint(Map<String, Object> variableMap) {
+   for (String key : variableMap.keySet()) {
+     Object theValue = variableMap.get(key);
+     String variableValue = null;
+     if (theValue == null) {
+       variableValue = "null";
+     } else if (theValue instanceof String) {
+       variableValue = "\"" + theValue + "\"";
+     } else if (theValue instanceof Number) {
+       variableValue = theValue.toString();
+     } else if (theValue instanceof Boolean) {
+       variableValue = ((Boolean)theValue).booleanValue() ? "true" : "false";
+     } else {
+       variableValue = theValue.getClass().getName();
+     }
+     System.out.println("    variableMap.put(\"" + key + "\", " + variableValue + ");");
+   }
+
+ }
+ 
   /**
    * substitute an EL for objects
    * @param stringToParse

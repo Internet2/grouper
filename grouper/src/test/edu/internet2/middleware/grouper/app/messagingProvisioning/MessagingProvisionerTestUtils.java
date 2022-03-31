@@ -46,6 +46,9 @@ public class MessagingProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsIfGrouperDeleted", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");

@@ -951,6 +951,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     GrouperTextContainer.resetThreadLocalVariableMap();
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.name", "ldap_dn");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.showAttributeValueSettings", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "int");
 
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
@@ -961,6 +962,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString"), "#config_targetGroupAttribute.0.fieldName_spanid")));
     GrouperTextContainer.resetThreadLocalVariableMap();
     
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.showAttributeValueSettings", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "string");
 
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
