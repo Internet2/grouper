@@ -105,7 +105,7 @@ public class GroupContainer {
   }
   
   /**
-   * @param checkOnlyReadPrivileges
+   * @param mode - create|view|edit
    * @return list of group types
    */
   private List<GroupTypeForEdit> getGroupTypes(String mode) {

@@ -877,12 +877,13 @@ public class UiV2ProvisionerConfiguration {
             provisionerStartWith.populateCache(sessionId, configSuffixToValues);
             
             Map<String, String> suffixToValueThatShouldChange = provisionerStartWith.screenRedraw(configSuffixToValues, suffixesUserJustChanged);
-
-            for (String key: suffixToValueThatShouldChange.keySet()) {
-              String valueToSet = suffixToValueThatShouldChange.get(key);
-              
-              if (startWithAttributes.containsKey(key)) {
-                startWithAttributes.get(key).setValue(GrouperUtil.stringValue(valueToSet));
+            if (suffixToValueThatShouldChange != null) {
+              for (String key: suffixToValueThatShouldChange.keySet()) {
+                String valueToSet = suffixToValueThatShouldChange.get(key);
+                
+                if (startWithAttributes.containsKey(key)) {
+                  startWithAttributes.get(key).setValue(GrouperUtil.stringValue(valueToSet));
+                }
               }
             }
             
