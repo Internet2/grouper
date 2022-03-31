@@ -208,6 +208,7 @@ public class GrouperPublicPrivateKeyJwt {
         return null;
       }
       
+      grouperPasswordRecentlyUsed.setStatus('S');
       return subject;
     } catch (Exception e) {
       debugMap.put("exception", ExceptionUtils.getFullStackTrace(e));
