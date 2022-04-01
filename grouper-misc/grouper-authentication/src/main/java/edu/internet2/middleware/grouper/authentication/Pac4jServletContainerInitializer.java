@@ -21,12 +21,12 @@ public class Pac4jServletContainerInitializer implements ServletContainerInitial
     public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
         LOGGER.info("initializing pac4j");
 
-        CallbackFilterFacade callbackFilterFacade = new CallbackFilterFacade();
+        final CallbackFilterFacade callbackFilterFacade = new CallbackFilterFacade();
         FilterRegistration.Dynamic callbackFilter = ctx.addFilter("callbackFilter", callbackFilterFacade);
         callbackFilter.addMappingForUrlPatterns(null, false, "/*");
 
-        SecurityFilterFacade securityFilterFacade = new SecurityFilterFacade();
-        FilterRegistration.Dynamic securityFilter = ctx.addFilter("securityFilter", SecurityFilterFacade.class);
+        final SecurityFilterFacade securityFilterFacade = new SecurityFilterFacade();
+        FilterRegistration.Dynamic securityFilter = ctx.addFilter("securityFilter", securityFilterFacade);
         securityFilter.addMappingForUrlPatterns(null, false, "/*");
 
         this.config = ConfigUtils.getBestGrouperConfiguration().propertiesMap(Pattern.compile("^external\\.authentication\\.([^.]+)$"));
