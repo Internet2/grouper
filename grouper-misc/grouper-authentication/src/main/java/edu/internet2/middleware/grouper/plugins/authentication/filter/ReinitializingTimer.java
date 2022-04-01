@@ -16,6 +16,7 @@ public class ReinitializingTimer extends TimerTask {
 
     public ReinitializingTimer(Reinitializable initTarget) {
         this.initTarget = initTarget;
+        config = ConfigUtils.getBestGrouperConfiguration().propertiesMap(Pattern.compile("^external\\.authentication\\.([^.]+)$"));
     }
 
     protected static boolean areEqual(Map<String, String> first, Map<String, String> second) {
@@ -27,8 +28,7 @@ public class ReinitializingTimer extends TimerTask {
 
     @Override
     public void run() {
-        Map curConfig = ConfigUtils.getBestGrouperConfiguration()
-                        .propertiesMap(Pattern.compile("^external\\.authentication\\.([^.]+)$"));
+        Map curConfig = ConfigUtils.getBestGrouperConfiguration().propertiesMap(Pattern.compile("^external\\.authentication\\.([^.]+)$"));
         if (!areEqual(config, curConfig)) {
             config = curConfig;
             initTarget.initDecorator();
