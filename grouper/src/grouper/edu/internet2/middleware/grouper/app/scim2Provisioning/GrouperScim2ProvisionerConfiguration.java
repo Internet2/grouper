@@ -1,8 +1,8 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 
-public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningConfigurationBase {
+public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningConfiguration {
 
   private String bearerTokenExternalSystemConfigId;
   

@@ -101,13 +101,11 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.jexl2.Expression;
-import org.apache.commons.jexl2.ExpressionImpl;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.JexlException;
 import org.apache.commons.jexl2.MapContext;
 import org.apache.commons.jexl2.Script;
-import org.apache.commons.jexl2.parser.ASTJexlScript;
 import org.apache.commons.jexl2.parser.JexlNode;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JxltEngine;
@@ -132,6 +130,7 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.ldaptive.io.Hex;
 
+import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -147,7 +146,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.abac.GrouperAbacEntity;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -308,43 +306,115 @@ public class GrouperUtil {
 //    
 //    System.out.println("Result: '" + result + "'");
     
-    GrouperAbacEntity grouperAbacEntity = new GrouperAbacEntity();
-    {
-      Map<String, String> singleValuedGroupExtensionInFolder = new HashMap<String, String>();
-      singleValuedGroupExtensionInFolder.put("ref:primaryAffiliation", "faculty");
-      grouperAbacEntity.setSingleValuedGroupExtensionInFolder(singleValuedGroupExtensionInFolder);
-    }    
-    {
-      Set<String> dept = toSet("math", "english");
-      Map<String, Set<String>> multiValuedGroupExtensionInFolder = new HashMap<String, Set<String>>();
-      multiValuedGroupExtensionInFolder.put("ref:dept", dept);
-      grouperAbacEntity.setMultiValuedGroupExtensionInFolder(multiValuedGroupExtensionInFolder);
-    }
-    
-    // String script = "${entity.singleValuedAttr['primaryAffiliation'] = 'faculty' && entity.multiValuedAttr['dept'].contains('math') }";
-    // String script = "${entity.singleValuedGroupExtensionInFolder['ref:primaryAffiliation'] == 'faculty' && entity.multiValuedGroupExtensionInFolder['ref:dept'].contains('math')}";
-    String script = "${entity.multiValuedGroupExtensionInFolder['ref:primaryAffiliation'].contains('faculty') && entity.multiValuedGroupExtensionInFolder['ref:dept'].containsAny('math', 'physics')"
-        + "&& entity.memberOf('ref:employee') && entity.hasPrivOnGroup('ref:something', 'read') && entity.singleValuedAttributeResolver('mySqlUserAttrs', 'address_street').toLowerCase() =~ '^.*main st$'"
-        + "&& entity.multiValuedAttributeResolver('myLdapUserAttrs', 'objectClass').contains('person') && entity.singleValuedSubjectAttribute('name').toLowerCase() =~ '^(tom|thomas)$' }";
-    
-    ExpressionImpl expression = (ExpressionImpl)jexlEngines.get(new MultiKey(false, true)).createScript(script.substring(2, script.length()-1));
-    
-    ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
-    substituteExpressionPrintNode(astJexlScript, "");
-    
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-    
-    variableMap.put("entity", grouperAbacEntity);
-    
-    
-    Object result = substituteExpressionLanguageScript(script, variableMap, true, false, true);
-    System.out.println(result);
-    
-    // loader with jexl script
-    // entity.memberOf('ref:staff') && entity.memberOf('ref:payroll:fullTime') && entity.memberOf('ref:mfaEnrolled')
+//    GrouperAbacEntity grouperAbacEntity = new GrouperAbacEntity();
+//    {
+//      Map<String, String> singleValuedGroupExtensionInFolder = new HashMap<String, String>();
+//      singleValuedGroupExtensionInFolder.put("ref:primaryAffiliation", "faculty");
+//      grouperAbacEntity.setSingleValuedGroupExtensionInFolder(singleValuedGroupExtensionInFolder);
+//    }    
+//    {
+//      Set<String> dept = toSet("math", "english");
+//      Map<String, Set<String>> multiValuedGroupExtensionInFolder = new HashMap<String, Set<String>>();
+//      multiValuedGroupExtensionInFolder.put("ref:dept", dept);
+//      grouperAbacEntity.setMultiValuedGroupExtensionInFolder(multiValuedGroupExtensionInFolder);
+//    }
+//    
+//    // String script = "${entity.singleValuedAttr['primaryAffiliation'] = 'faculty' && entity.multiValuedAttr['dept'].contains('math') }";
+//    // String script = "${entity.singleValuedGroupExtensionInFolder['ref:primaryAffiliation'] == 'faculty' && entity.multiValuedGroupExtensionInFolder['ref:dept'].contains('math')}";
+//    String script = "${entity.multiValuedGroupExtensionInFolder['ref:primaryAffiliation'].contains('faculty') && entity.multiValuedGroupExtensionInFolder['ref:dept'].containsAny('math', 'physics')"
+//        + "&& entity.memberOf('ref:employee') && entity.hasPrivOnGroup('ref:something', 'read') && entity.singleValuedAttributeResolver('mySqlUserAttrs', 'address_street').toLowerCase() =~ '^.*main st$'"
+//        + "&& entity.multiValuedAttributeResolver('myLdapUserAttrs', 'objectClass').contains('person') && entity.singleValuedSubjectAttribute('name').toLowerCase() =~ '^(tom|thomas)$' }";
+//    
+//    ExpressionImpl expression = (ExpressionImpl)jexlEngines.get(new MultiKey(false, true)).createScript(script.substring(2, script.length()-1));
+//    
+//    ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
+//    substituteExpressionPrintNode(astJexlScript, "");
+//    
+//    Map<String, Object> variableMap = new HashMap<String, Object>();
+//    
+//    variableMap.put("entity", grouperAbacEntity);
+//    
+//    
+//    Object result = substituteExpressionLanguageScript(script, variableMap, true, false, true);
+//    System.out.println(result);
+//    
+//    // loader with jexl script
+//    // entity.memberOf('ref:staff') && entity.memberOf('ref:payroll:fullTime') && entity.memberOf('ref:mfaEnrolled')
+
+//    String json = readFileIntoString(new File("C:/git/grouper_prod/grouper/temp/file.json"));
+//    JsonNode jsonNode = jsonJacksonNode(json);
+//    
+//    JsonNode jsonNode2 = jsonNode.at("/WsFindGroupsResults/groupResults");
+//    String resultCode = jsonJacksonGetStringFromJsonPointer(jsonNode, "/WsFindGroupsResults/resultMetadata/resultCode");
+//    
+//    List<Object[]> listObjectArray = jsonJacksonListObjectArrayFromJsonPointers(jsonNode, "/WsFindGroupsResults/groupResults",
+//        GrouperUtil.toList("/extension", "/name"));
+//    
+//    System.out.println(GrouperUtil.toStringForLog(listObjectArray));
     
   }
-  
+
+  /**
+   * start the sub field with JSON_NODE_ROOT if you want the pointer from root node instead of array node
+   * @param rootJsonNode
+   * @param jsonPointerOfArrayNode json path that returns a list e.g. /a/b
+   * @param jsonPointersOfSubFields from the perspective of the array node, e.g. /c/d
+   * @return the list of object arrays not null
+   */
+  public static List<Object[]> jsonJacksonListObjectArrayFromJsonPointers(JsonNode rootJsonNode, String jsonPointerOfArrayNode,
+      List<String> jsonPointersOfSubFields) {
+    
+    List<Object[]> results = new ArrayList<Object[]>();
+    
+    if (rootJsonNode != null) {
+      
+      JsonNode arrayNodeJsonNode = null;
+      // traverse down a tad
+      if (!StringUtils.isBlank(jsonPointerOfArrayNode)) {
+        arrayNodeJsonNode = rootJsonNode.at(jsonPointerOfArrayNode);
+      }
+      
+      if (arrayNodeJsonNode != null) {
+        if (!(arrayNodeJsonNode instanceof ArrayNode)) {
+          throw new RuntimeException("ArrayNode not found at '" + jsonPointerOfArrayNode + "'");
+        }
+        ArrayNode arrayNode = (ArrayNode)arrayNodeJsonNode;
+        
+        for (int i=0;i<arrayNode.size();i++) {
+          JsonNode objectIterated = arrayNode.get(i);
+          Object[] row = new Object[length(jsonPointersOfSubFields)];
+          results.add(row);
+          int j=0;
+          for (String jsonPointerOfSubField : nonNull(jsonPointersOfSubFields)) {
+            JsonNode dataValueNode = null;
+            if (jsonPointerOfSubField.startsWith("JSON_NODE_ROOT")) {
+              jsonPointerOfSubField = prefixOrSuffix(jsonPointerOfSubField, "JSON_NODE_ROOT", false);
+              dataValueNode = rootJsonNode.at(jsonPointerOfSubField);
+            } else {
+              dataValueNode = objectIterated.at(jsonPointerOfSubField);
+            }
+            
+            if (dataValueNode != null && !(dataValueNode instanceof NullNode)) {
+
+              if (dataValueNode.isInt() || dataValueNode.isLong()) {
+                row[j] = dataValueNode.asLong();
+              } else if (dataValueNode.isDouble() || dataValueNode.isFloat()) {
+                row[j] = dataValueNode.asDouble();
+              } else if (dataValueNode.isBoolean()) {
+                row[j] = dataValueNode.asBoolean();
+              } else {
+                row[j] = dataValueNode.asText();
+              }
+            }        
+            j++;
+          }
+        }
+      }
+    }
+    
+    return results;
+  }
+
   public static void substituteExpressionPrintNode(JexlNode jexlNode, String prefix) {
     System.out.println(prefix + jexlNode.getClass().getSimpleName() + (StringUtils.isBlank(jexlNode.image) ? "" : (": " + jexlNode.image)));
     String newPrefix = StringUtils.isBlank(prefix) ? "- " : ("  " + prefix);
@@ -398,6 +468,9 @@ public class GrouperUtil {
    */
   public static String gshRunScript(String script, boolean lightWeight) {
     GrouperGroovysh.GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(script, lightWeight);
+    if (grouperGroovyResult.getException() != null) {
+      throw grouperGroovyResult.getException();
+    }
     String output = grouperGroovyResult.fullOutput();
     return output;
   }
@@ -1093,47 +1166,60 @@ public class GrouperUtil {
     }
     logDirsCreated = true;
 
-    String location = "log4j.properties";
+    String location = "log4j2.xml";
     
-    fileCopyExampleResourceIfNotExist("log4j.example.properties", location);
-    Properties properties = propertiesFromResourceName(location);
-    Set<String> keySet = (Set<String>)(Object)properties.keySet();
-    for (String key : keySet) {
-      //if its a file property
-      if (key.endsWith(".File")) {
-        try {
-          String fileName = properties.getProperty(key);
-          if(fileName.startsWith("${grouper.home}")) {
-            if(grouperHome==null) {
-            throw new IllegalStateException("The System property grouper.home is referenced in log4j configuration " +
-                "however, it is not set.");
-            }
-            if (!grouperHome.endsWith("/") && !grouperHome.endsWith("\\")) {
-              fileName = grouperHome + File.separator + fileName.substring(15);
-            } else {
-              fileName = grouperHome + fileName.substring(15);
-            }
-          }
-          File file = new File(fileName);
-          File parent = file.getParentFile();
-
-          if (parent != null && !parent.exists()) {
-            //dont have a logger yet, so just print to stdout
-            System.out.println("Grouper warning: parent dir of log file doesnt exist: " + fileCanonicalPath(parent));
-            //create the parent
-            mkdirs(parent);
-            System.out.println("Grouper note: auto-created parent dir of log file: " + fileCanonicalPath(parent));
-
-          }
-
-        } catch (RuntimeException re) {
-          //this is bad, print to stderr rightaway (though might dupe)
-          System.err.println(LOG_ERROR);
-          re.printStackTrace();
-          throw new RuntimeException(LOG_ERROR, re);
-        }
-      }
-    }
+    fileCopyExampleResourceIfNotExist("log4j2.example.xml", location);
+    
+//    URL url = computeUrl(location, false);
+//    
+//    // Instantiate the Factory
+//    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+//
+//    try {
+//
+//        // parse XML file
+//        DocumentBuilder db = dbf.newDocumentBuilder();
+//
+//        Document doc = db.parse(url.openStream());
+//    
+//    Properties properties = propertiesFromResourceName(location);
+//    Set<String> keySet = (Set<String>)(Object)properties.keySet();
+//    for (String key : keySet) {
+//      //if its a file property
+//      if (key.endsWith(".File")) {
+//        try {
+//          String fileName = properties.getProperty(key);
+//          if(fileName.startsWith("${grouper.home}")) {
+//            if(grouperHome==null) {
+//            throw new IllegalStateException("The System property grouper.home is referenced in log4j configuration " +
+//                "however, it is not set.");
+//            }
+//            if (!grouperHome.endsWith("/") && !grouperHome.endsWith("\\")) {
+//              fileName = grouperHome + File.separator + fileName.substring(15);
+//            } else {
+//              fileName = grouperHome + fileName.substring(15);
+//            }
+//          }
+//          File file = new File(fileName);
+//          File parent = file.getParentFile();
+//
+//          if (parent != null && !parent.exists()) {
+//            //dont have a logger yet, so just print to stdout
+//            System.out.println("Grouper warning: parent dir of log file doesnt exist: " + fileCanonicalPath(parent));
+//            //create the parent
+//            mkdirs(parent);
+//            System.out.println("Grouper note: auto-created parent dir of log file: " + fileCanonicalPath(parent));
+//
+//          }
+//
+//        } catch (RuntimeException re) {
+//          //this is bad, print to stderr rightaway (though might dupe)
+//          System.err.println(LOG_ERROR);
+//          re.printStackTrace();
+//          throw new RuntimeException(LOG_ERROR, re);
+//        }
+//      }
+//    }
   }
 
   /**
@@ -1243,7 +1329,7 @@ public class GrouperUtil {
       log4jPropertiesFrom =
               ((org.apache.logging.log4j.core.Logger) rootLogger).getContext().getConfiguration().getConfigurationSource().getLocation();
     } catch (Exception e) {
-      log4jPropertiesFrom = "log4j.properties (failed to to determine exact location)";
+      log4jPropertiesFrom = "log4j2.xml (failed to to determine exact location)";
     }
 
     while (rootLogger != null && !writesLogs) {
@@ -2283,6 +2369,21 @@ public class GrouperUtil {
     return "{\"" + object.getClass().getSimpleName() + "\":" + json + "}";
   }
 
+  /**
+   * get field names from json node, assume field names are unique
+   * @param jsonNode
+   * @return
+   */
+  public static Set<String> jsonJacksonFieldNames(JsonNode jsonNode) {
+    Set<String> fieldNames = new LinkedHashSet<String>();
+    if (jsonNode != null) {
+      Iterator<String> iterator = jsonNode.fieldNames();
+      while (iterator.hasNext()) {
+        fieldNames.add(iterator.next());
+      }
+    }
+    return fieldNames;
+  }
 
   /**
    * get a field as string and handle null
@@ -2443,6 +2544,28 @@ public class GrouperUtil {
   }
 
   /**
+   * get a field as boolean and handle null
+   * @param jsonNode
+   * @param jsonPointer e.g. /a/b
+   * @param defaultBoolean if null use this value
+   * @return the string
+   */
+  public static Boolean jsonJacksonGetBooleanFromJsonPointer(JsonNode jsonNode, String jsonPointer, Boolean defaultBoolean) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.at(jsonPointer);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultBoolean != null) {
+            return fieldNode.asBoolean(defaultBoolean);
+          }
+          return fieldNode.asBoolean();
+        }
+      }
+    }
+    return defaultBoolean;
+  }
+
+  /**
    * get a field as long and handle null
    * @param jsonNode
    * @param fieldName
@@ -2522,6 +2645,10 @@ public class GrouperUtil {
   public static JsonNode jsonJacksonNode(String json) {
     try {
       ObjectMapper objectMapper = new ObjectMapper();
+      
+      objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+      objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
+      
       //read JSON like DOM Parser
       JsonNode rootNode = objectMapper.readTree(json);
       return rootNode;
@@ -3027,8 +3154,13 @@ public class GrouperUtil {
    * @param count is size of set
    * @param batchSize
    * @return the number of batches
+   * @param haveAtLeastOne is true if there should be at least one run even if the collection is empty (e.g. for queries based on other things)
    */
-  public static int batchNumberOfBatches(int count, int batchSize) {
+  public static int batchNumberOfBatches(int count, int batchSize, boolean haveAtLeastOne) {
+    if (!haveAtLeastOne && count == 0) {
+      return 0;
+    }
+
     //not sure why this would be 0...
     if (batchSize == 0) {
       return 0;
@@ -3039,14 +3171,39 @@ public class GrouperUtil {
   }
 
   /**
-   * If batching this is the number of batches
+   * If batching this is the number of batches.  Will return at least 1
+   * @param count is size of set
+   * @param batchSize
+   * @return the number of batches
+   * @deprecated use batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne)
+   */
+  @Deprecated
+  public static int batchNumberOfBatches(int count, int batchSize) {
+    return batchNumberOfBatches(count, batchSize, true);
+  }
+
+  /**
+   * If batching this is the number of batches, will return at least 1
    * @param collection
    * @param batchSize
    * @return the number of batches
+   * @deprecated use batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne)
    */
+  @Deprecated
   public static int batchNumberOfBatches(Collection<?> collection, int batchSize) {
+    return batchNumberOfBatches(collection, batchSize, true);
+  }
+
+  /**
+   * If batching this is the number of batches, will return at least 1
+   * @param collection
+   * @param batchSize
+   * @param haveAtLeastOne is true if there should be at least one run even if the collection is empty (e.g. for queries based on other things)
+   * @return the number of batches
+   */
+  public static int batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne) {
     int arrraySize = length(collection);
-    return batchNumberOfBatches(arrraySize, batchSize);
+    return batchNumberOfBatches(arrraySize, batchSize, haveAtLeastOne);
 
   }
 
@@ -3483,7 +3640,27 @@ public class GrouperUtil {
   static {
     timestampIsoUtcSeconds.setTimeZone(TimeZone.getTimeZone("UTC"));
   }
-  
+
+  /**
+   * 
+   */
+  public static final DateFormat timestampIsoHoursMinutesTZ = new SimpleDateFormat("yyyy-MM-dd'T'HH:mmXXX");
+
+  /**
+   * 
+   */
+  public static final DateFormat timestampHoursMinutes = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+
+  /**
+   * 
+   */
+  public static final DateFormat timestampHoursMinutesAMPM = new SimpleDateFormat("yyyy/MM/dd h:mm a");
+
+  static {
+    // prevent 2011/07/18 13:24 PM
+    timestampHoursMinutesAMPM.setLenient(false);
+  }
+
   /**
    * string format of dates
    */
@@ -7409,6 +7586,56 @@ public class GrouperUtil {
   }
 
   /**
+   * <pre>convert a string to timestamp based on the following formats:
+   * 2011-07-18T15:24+02:00
+   * 2011/07/18 15:24
+   * 2011/07/18 3:24 PM
+   * </pre>
+   * @param input
+   * @return the timestamp object
+   */
+  public static Timestamp stringToTimestampTimeRequiredWithoutSeconds(String input) {
+    Date date = stringToTimestampTimeRequiredWithoutSecondsHelper(input);
+    if (date == null) {
+      return null;
+    }
+    //maybe already a timestamp
+    if (date instanceof Timestamp) {
+      return (Timestamp)date;
+    }
+    return new Timestamp(date.getTime());
+  }
+
+  /**
+   * <pre>convert a string to timestamp based on the following formats:
+   * 2011-07-18T15:24+02:00
+   * 2011/07/18 15:24
+   * 2011/07/18 3:24 PM
+   * </pre>
+   * @param input
+   * @return the date object
+   */
+  synchronized static Date stringToTimestampTimeRequiredWithoutSecondsHelper(String input) {
+    //trim and handle null and empty
+    if (isBlank(input)) {
+      return null;
+    }
+    input = input.trim();
+    try {
+      if (input.toUpperCase().endsWith("AM") || input.toUpperCase().endsWith("PM")) {
+        return timestampHoursMinutesAMPM.parse(input);
+      }
+      if (contains(input, 'T')) {
+        return timestampIsoHoursMinutesTZ.parse(input);
+      }
+
+      return timestampHoursMinutes.parse(input);
+    } catch (ParseException pe) {
+      throw new RuntimeException("Invalid timestamp, please use any of the formats: 2011-07-18T15:24+02:00, 2011/07/18 15:24, 2011/07/18 3:24 PM" + input);
+    }
+  }
+
+  /**
    * start of error parsing messages
    */
   private static final String errorStart = "Invalid timestamp, please use any of the formats: "
@@ -10298,6 +10525,15 @@ public class GrouperUtil {
   }
 
   /**
+   * contains newline since JSP cant have a quoted newlines
+   * @param string
+   * @return newline
+   */
+  public static boolean containsNewline(String string) {
+    return string != null && string.contains("\n");
+  }
+  
+  /**
    * <p>Checks if String contains a search character, handling <code>null</code>.
    * This method uses {@link String#indexOf(int)}.</p>
    *
@@ -10618,6 +10854,30 @@ public class GrouperUtil {
 
  }
 
+ /**
+  * print out a variable map as java to try to debug whats going on
+  * @param variableMap
+  */
+ public static void substituteVariableMapPrint(Map<String, Object> variableMap) {
+   for (String key : variableMap.keySet()) {
+     Object theValue = variableMap.get(key);
+     String variableValue = null;
+     if (theValue == null) {
+       variableValue = "null";
+     } else if (theValue instanceof String) {
+       variableValue = "\"" + theValue + "\"";
+     } else if (theValue instanceof Number) {
+       variableValue = theValue.toString();
+     } else if (theValue instanceof Boolean) {
+       variableValue = ((Boolean)theValue).booleanValue() ? "true" : "false";
+     } else {
+       variableValue = theValue.getClass().getName();
+     }
+     System.out.println("    variableMap.put(\"" + key + "\", " + variableValue + ");");
+   }
+
+ }
+ 
   /**
    * substitute an EL for objects
    * @param stringToParse
@@ -14362,5 +14622,182 @@ public class GrouperUtil {
 
   public static boolean zipGzipIsCompressed(final byte[] compressed) {
     return (compressed[0] == (byte) (GZIPInputStream.GZIP_MAGIC)) && (compressed[1] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8));
+  }
+
+  /**
+   * get a field as boolean and handle null
+   * @param jsonNode
+   * @param jsonPointer e.g. /a/b
+   * @return the string
+   */
+  public static Boolean jsonJacksonGetBooleanFromJsonPointer(JsonNode jsonNode, String jsonPointer) {
+    return jsonJacksonGetBooleanFromJsonPointer(jsonNode, jsonPointer, null);
+  }
+
+  /**
+   * get a field as integer and handle null
+   * @param jsonNode
+   * @param jsonPointer e.g. /a/b
+   * @return the string
+   */
+  public static Integer jsonJacksonGetIntegerFromJsonPointer(JsonNode jsonNode, String jsonPointer) {
+    return jsonJacksonGetIntegerFromJsonPointer(jsonNode, jsonPointer, null);
+  }
+
+  /**
+   * get a field as integer and handle null
+   * @param jsonNode
+   * @param jsonPointer e.g. /a/b
+   * @return the string
+   */
+  public static Integer jsonJacksonGetIntegerFromJsonPointer(JsonNode jsonNode, String jsonPointer, Integer defaultInteger) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.at(jsonPointer);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultInteger != null) {
+            return fieldNode.asInt(defaultInteger);
+          }
+          return fieldNode.asInt();
+        }
+      }
+    }
+    return defaultInteger;
+  }
+
+  /**
+   * get a field as long and handle null
+   * @param jsonNode
+   * @param jsonPointer e.g. /a/b
+   * @return the string
+   */
+  public static Long jsonJacksonGetLongFromJsonPointer(JsonNode jsonNode, String jsonPointer) {
+    return jsonJacksonGetLongFromJsonPointer(jsonNode, jsonPointer, null);
+  }
+
+  /**
+   * get a field as long and handle null
+   * @param jsonNode
+   * @param jsonPointer e.g. /a/b
+   * @return the string
+   */
+  public static Long jsonJacksonGetLongFromJsonPointer(JsonNode jsonNode, String jsonPointer, Long defaultLong) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.at(jsonPointer);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultLong != null) {
+            return fieldNode.asLong(defaultLong);
+          }
+          return fieldNode.asLong();
+        }
+      }
+    }
+    return defaultLong;
+  }
+
+  /**
+   * get a field as node or array.  could return null if not there
+   * @param jsonNode
+   * @param jsonPointer e.g. /a/b
+   * @return the node or array
+   */
+  public static JsonNode jsonJacksonGetNodeFromJsonPointer(JsonNode jsonNode, String jsonPointer) {
+    
+    if (jsonNode == null) {
+      return null;
+    }
+    
+    JsonNode fieldNode = jsonNode.at(jsonPointer);
+    if (fieldNode == null || fieldNode instanceof NullNode) {
+      return null;
+    }
+    return fieldNode;
+    
+  }
+
+  /**
+   * get a field as string and handle null
+   * @param jsonNode
+   * @param jsonPointer e.g. /a/b
+   * @return the string
+   */
+  public static String jsonJacksonGetStringFromJsonPointer(JsonNode jsonNode, String jsonPointer) {
+    return jsonJacksonGetStringFromJsonPointer(jsonNode, jsonPointer, null);
+  }
+
+  /**
+   * get a field as string and handle null
+   * @param jsonNode
+   * @param jsonPointer e.g. /a/b
+   * @return the string
+   */
+  public static String jsonJacksonGetStringFromJsonPointer(JsonNode jsonNode, String jsonPointer, String defaultString) {
+    if (jsonNode != null) {
+      JsonNode fieldNode = jsonNode.at(jsonPointer);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          if (defaultString != null) {
+            return fieldNode.asText(defaultString);
+          }
+          return fieldNode.asText();
+        }
+      }
+    }
+    return defaultString;
+  }
+
+  /**
+   * get a field as string set.  could return null if not there
+   * @param jsonNode
+   * @param jsonPointer e.g. /a/b
+   * @return the string
+   */
+  public static Set<String> jsonJacksonGetStringSetFromJsonPointer(JsonNode jsonNode, String jsonPointer) {
+    Set<String> result = null;
+    if (jsonNode != null) {
+      ArrayNode fieldNode = (ArrayNode)jsonNode.at(jsonPointer);
+      if (fieldNode != null) {
+        result = new LinkedHashSet<String>();
+        for (int i=0;i<fieldNode.size();i++) {
+          JsonNode textNode = fieldNode.get(i);
+          String textValue = textNode.asText();
+          result.add(textValue);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
+   * assertEquals("c.b.a", GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", -1));
+   * assertEquals("c.b.", GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", 4));
+   * @param string
+   * @param string2
+   * @param i
+   * @return the new string
+   */
+  public static String stringFormatNameReverseReplaceTruncate(String name, String newSeparator, int maxLength) {
+    
+    if (name == null) {
+      return null;
+    }
+    String newName = name;
+    if (name.contains(":")) {
+      String[] extensions = splitTrim(name, ":");
+      StringBuilder newNameBuilder = new StringBuilder();
+      
+      for (int i=0;i<extensions.length;i++) {
+        if (i>0) {
+          newNameBuilder.append(newSeparator);
+        }
+        newNameBuilder.append(extensions[extensions.length - 1 - i]);
+      }
+      newName = newNameBuilder.toString();
+    }
+    if (maxLength >= 0 && newName.length() > maxLength) {
+      newName = newName.substring(0, maxLength);
+    }
+    return newName;
   }
 }

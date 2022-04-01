@@ -109,7 +109,7 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
         Set<String> values = new HashSet<String>();
         
         Collection<String> stringValues = attribute.getStringValues();
-        if (this.getSourceAttributesToLowerCase().containsKey(attributeName)) {
+        if (this.getSourceAttributesToLowerCase().contains(attributeName)) {
           for (String singleValue: stringValues) {
             singleValue = singleValue == null ? null: singleValue.toLowerCase();
             values.add(singleValue);
@@ -122,7 +122,7 @@ public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
         if (GrouperUtil.length(attribute.getStringValues()) > 0) {
           String singleValue = attribute.getStringValues().iterator().next();
           
-          if (this.getSourceAttributesToLowerCase().containsKey(attributeName) && singleValue != null) {
+          if (this.getSourceAttributesToLowerCase().contains(attributeName) && singleValue != null) {
             singleValue = singleValue.toLowerCase();
           }
           

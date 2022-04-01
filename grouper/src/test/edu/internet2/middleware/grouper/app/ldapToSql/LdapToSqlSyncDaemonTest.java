@@ -39,6 +39,8 @@ public class LdapToSqlSyncDaemonTest extends GrouperTest {
 
   public void testExecuteJobExecutionContextMultivalued() {
 
+    createTablesIfNotThere();
+    
     // create a table
 //    final String tableName = "testgrouper_ldapsync";
 //
@@ -79,44 +81,6 @@ public class LdapToSqlSyncDaemonTest extends GrouperTest {
 //    }
 //
 //    
-//    // create a table
-//    final String tableName2 = "testgrouper_ldapsync_attr";
-//
-//
-//    try {
-//      // if you cant connrc to it, its not there
-//      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName2);
-//      try {
-//        HibernateSession.bySqlStatic().executeSql("drop table " + tableName2);
-//      } catch (Exception e) {
-//      }
-//      try {
-//        // if you cant connrc to it, its not there
-//        HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName2);
-//        throw new RuntimeException("Cant drop table: '" + tableName2 + "'");
-//      } catch (Exception e) {
-//        return;
-//      }
-//    } catch (Exception e) {
-//    }
-//
-//    try {
-//      new GcDbAccess().sql("select count(*) from " + tableName2).select(int.class);
-//    } catch (Exception e) {
-//
-//      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-//        public void changeDatabase(DdlVersionBean ddlVersionBean) {
-//
-//          Database database = ddlVersionBean.getDatabase();
-//
-//          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName2);
-//
-//          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "ldap_id", Types.VARCHAR, "200", false, true);
-//          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", false, true);
-//          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", false, false);
-//        }
-//      });
-//    }
 //
 //    GrouperSession grouperSession = GrouperSession.startRootSession();
 //
@@ -296,44 +260,7 @@ public class LdapToSqlSyncDaemonTest extends GrouperTest {
 
   public void testExecuteJobExecutionContext() {
 
-    // create a table
-    final String tableName = "testgrouper_ldapsync";
-
-
-    try {
-      // if you cant connrc to it, its not there
-      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
-      try {
-        HibernateSession.bySqlStatic().executeSql("drop table " + tableName);
-      } catch (Exception e) {
-      }
-      try {
-        // if you cant connrc to it, its not there
-        HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
-        throw new RuntimeException("Cant drop table: '" + tableName + "'");
-      } catch (Exception e) {
-        return;
-      }
-    } catch (Exception e) {
-    }
-
-    try {
-      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
-    } catch (Exception e) {
-
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-        public void changeDatabase(DdlVersionBean ddlVersionBean) {
-
-          Database database = ddlVersionBean.getDatabase();
-
-          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "the_dn", Types.VARCHAR, "200", true, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "cn", Types.VARCHAR, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "the_date", Types.DATE, null, false, false);
-        }
-      });
-    }
+    createTablesIfNotThere();
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
     LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
@@ -421,6 +348,87 @@ public class LdapToSqlSyncDaemonTest extends GrouperTest {
     // check database
     databaseRecords = new GcDbAccess().sql("select the_dn, cn, the_date from testgrouper_ldapsync").selectList(Object[].class);
     assertEquals(0, databaseRecords.size());
+  }
+
+  private void createTablesIfNotThere() {
+    // create a table
+    final String tableName = "testgrouper_ldapsync";
+
+
+//    try {
+//      // if you cant connrc to it, its not there
+//      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+//      try {
+//        HibernateSession.bySqlStatic().executeSql("drop table " + tableName);
+//      } catch (Exception e) {
+//      }
+//      try {
+//        // if you cant connrc to it, its not there
+//        HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName);
+//        throw new RuntimeException("Cant drop table: '" + tableName + "'");
+//      } catch (Exception e) {
+//        return;
+//      }
+//    } catch (Exception e) {
+//    }
+
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+
+          Database database = ddlVersionBean.getDatabase();
+
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "the_dn", Types.VARCHAR, "200", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "cn", Types.VARCHAR, "200", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "the_date", Types.DATE, null, false, false);
+        }
+      });
+    }
+    
+    // create a table
+    final String tableName2 = "testgrouper_ldapsync_attr";
+
+
+//    try {
+//      // if you cant connrc to it, its not there
+//      HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName2);
+//      try {
+//        HibernateSession.bySqlStatic().executeSql("drop table " + tableName2);
+//      } catch (Exception e) {
+//      }
+//      try {
+//        // if you cant connrc to it, its not there
+//        HibernateSession.bySqlStatic().select(Integer.class, "select count(1) from " + tableName2);
+//        throw new RuntimeException("Cant drop table: '" + tableName2 + "'");
+//      } catch (Exception e) {
+//        return;
+//      }
+//    } catch (Exception e) {
+//    }
+
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName2).select(int.class);
+    } catch (Exception e) {
+
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+
+          Database database = ddlVersionBean.getDatabase();
+
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName2);
+
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "ldap_id", Types.VARCHAR, "200", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", false, false);
+        }
+      });
+    }
+
   }
 
 }

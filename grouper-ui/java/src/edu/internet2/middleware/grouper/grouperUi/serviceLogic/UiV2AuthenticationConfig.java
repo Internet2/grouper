@@ -221,12 +221,12 @@ public class UiV2AuthenticationConfig {
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      wsTrustedJwtConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      wsTrustedJwtConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -239,7 +239,7 @@ public class UiV2AuthenticationConfig {
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AuthenticationConfig.viewWsTrustedJwts')"));
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("wsTrustedJwtConfigAddEditSuccess")));
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -342,13 +342,14 @@ public class UiV2AuthenticationConfig {
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
-      
-      wsTrustedJwtConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      List<String> actionsPerformed = new ArrayList<String>();
+
+      wsTrustedJwtConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -361,7 +362,7 @@ public class UiV2AuthenticationConfig {
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AuthenticationConfig.viewWsTrustedJwts')"));
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("wsTrustedJwtConfigAddEditSuccess")));
    
       
@@ -456,7 +457,7 @@ public class UiV2AuthenticationConfig {
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -469,7 +470,7 @@ public class UiV2AuthenticationConfig {
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AuthenticationConfig.viewWsTrustedJwts')"));
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("wsTrustedJwtConfigChangeStatusSuccess")));
       
     } finally {
@@ -517,7 +518,7 @@ public class UiV2AuthenticationConfig {
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -530,7 +531,7 @@ public class UiV2AuthenticationConfig {
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AuthenticationConfig.viewWsTrustedJwts')"));
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("wsTrustedJwtConfigChangeStatusSuccess")));
       
     } finally {

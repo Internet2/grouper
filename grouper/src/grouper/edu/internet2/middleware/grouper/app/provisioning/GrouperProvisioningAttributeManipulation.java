@@ -126,7 +126,7 @@ public class GrouperProvisioningAttributeManipulation {
   public void assignDefaultsForGroups(List<ProvisioningGroup> provisioningGroups, GrouperProvisioningConfigurationAttribute attribute) {
     
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
 
     GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeId = groupFieldNameToConfig.get("id");
     GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttributeDisplayName = groupFieldNameToConfig.get("displayName");
@@ -172,7 +172,7 @@ public class GrouperProvisioningAttributeManipulation {
   public void assignDefaultsForEntities(List<ProvisioningEntity> provisioningEntities, GrouperProvisioningConfigurationAttribute attribute) {
     
     Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
     
     int[] assignDefaultFieldsAndAttributesCount = new int[] {0};
     
@@ -214,7 +214,7 @@ public class GrouperProvisioningAttributeManipulation {
   public void assignDefaultsForMemberships(List<ProvisioningMembership> provisioningMemberships) {
     
     Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
     
     int[] assignDefaultFieldsAndAttributesCount = new int[] {0};
     
@@ -296,13 +296,6 @@ public class GrouperProvisioningAttributeManipulation {
       }
       return;
     }
-    if (currentValue != null && currentValue.getClass().isArray()) {
-      if (Array.getLength(currentValue) == 0) {
-        provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), new Object[] {defaultValue});
-        count[0]++;
-      }
-      return;
-    }
     throw new RuntimeException("Not expecting attribute type: " + currentValue.getClass());
   }
 
@@ -330,12 +323,6 @@ public class GrouperProvisioningAttributeManipulation {
       } else if (currentValue instanceof Collection) {
         currentValue = new HashSet((Collection)currentValue);
         
-      } else if (currentValue.getClass().isArray()) {
-        Set newValue = new HashSet();
-        for (int i=0;i<Array.getLength(currentValue); i++) {
-          newValue.add(Array.get(currentValue, i));
-        }
-        currentValue = newValue;
       } else {
         currentValue = GrouperUtil.toSet(currentValue);
       }
@@ -361,14 +348,6 @@ public class GrouperProvisioningAttributeManipulation {
         return;
       } else {
         throw new RuntimeException("Attribute should not be a collection: " + grouperProvisioningConfigurationAttribute.getName());
-      }
-    } else if (currentValue.getClass().isArray()) {
-      if (Array.getLength(currentValue) == 1) {
-        currentValue = Array.get(currentValue, 0);
-      } else if (Array.getLength(currentValue) == 0) {
-        return;
-      } else {
-        throw new RuntimeException("Attribute should not be an array: " + grouperProvisioningConfigurationAttribute.getName());
       }
     }
     Object newValue = valueType.convert(currentValue);
@@ -425,12 +404,12 @@ public class GrouperProvisioningAttributeManipulation {
 
   public void filterGroupFieldsAndAttributes(List<ProvisioningGroup> provisioningGroups, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
     
-    if (this.getGrouperProvisioner().retrieveGrouperTranslator().isTranslateGrouperToTargetAutomatically()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
       return;
     }
     
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
     
     int[] filterGroupFieldsAndAttributesCount = new int[] {0};
     
@@ -444,7 +423,10 @@ public class GrouperProvisioningAttributeManipulation {
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : groupAttributeNameToConfig.values() ) {
         
         String attributeName = grouperProvisioningConfigurationAttribute.getName();
-        if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect())
+        //TODO maybe change this to not filter the membership attributes
+        //If we are storing something to the grouper side for example in entity attribute the membership label
+        // We are not selecting, inserting, or updating but we do want this attribute to exist
+        if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect() && (grouperProvisioningConfigurationAttribute.isInsert() || grouperProvisioningConfigurationAttribute.isUpdate()) )
             || (filterInsert && !grouperProvisioningConfigurationAttribute.isInsert())
             || (filterUpdate && !grouperProvisioningConfigurationAttribute.isUpdate())){
           provisioningGroup.removeAttribute(attributeName);
@@ -464,12 +446,12 @@ public class GrouperProvisioningAttributeManipulation {
 
   public void filterEntityFieldsAndAttributes(List<ProvisioningEntity> provisioningEntities, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
     
-    if (this.getGrouperProvisioner().retrieveGrouperTranslator().isTranslateGrouperToTargetAutomatically()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
       return;
     }
     
     Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
     
     int[] filterEntityFieldsAndAttributesCount = new int[] {0};
 
@@ -483,7 +465,10 @@ public class GrouperProvisioningAttributeManipulation {
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : entityAttributeNameToConfig.values() ) {
         
         String attributeName = grouperProvisioningConfigurationAttribute.getName();
-        if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect())
+        //TODO maybe change this to not filter the membership attributes
+        //If we are storing something to the grouper side for example in entity attribute the membership label
+        // We are not selecting, inserting, or updating but we do want this attribute to exist
+        if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect() && (grouperProvisioningConfigurationAttribute.isInsert() || grouperProvisioningConfigurationAttribute.isUpdate()) )
             || (filterInsert && !grouperProvisioningConfigurationAttribute.isInsert())
             || (filterUpdate && !grouperProvisioningConfigurationAttribute.isUpdate())){
           filterEntityFieldsAndAttributesCount[0]++;
@@ -504,12 +489,12 @@ public class GrouperProvisioningAttributeManipulation {
 
   public void filterMembershipFieldsAndAttributes(List<ProvisioningMembership> provisioningMemberships, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
     
-    if (this.getGrouperProvisioner().retrieveGrouperTranslator().isTranslateGrouperToTargetAutomatically()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
       return;
     }
     
     Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
-    Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipFieldNameToConfig();
+    Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
     if (GrouperUtil.length(membershipAttributeNameToConfig) == 0 && GrouperUtil.length(membershipFieldNameToConfig) == 0) {
       return;
     }

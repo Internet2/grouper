@@ -132,46 +132,61 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
     
     retrieveDataFromDatabase();
     retrieveDataFromLdap();
-    convertLdapDataToDatabaseFormat();
-        
-    GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
-    gcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
-
-    gcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
     
-    GcTableSyncSubtype.fullSyncFull.syncData(this.debugMap, gcTableSync);
+    long nowNanos = System.nanoTime();
+    try { 
+      convertLdapDataToDatabaseFormat();
+    } finally {
+      this.debugMap.put("convertDataMillis", (System.nanoTime()-nowNanos)/1000);
+    }
+        
+    nowNanos = System.nanoTime();
+    try { 
+      GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
+      gcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
 
+      gcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
+      
+      GcTableSyncSubtype.fullSyncFull.syncData(this.debugMap, gcTableSync);
+    } finally {
+      this.debugMap.put("changeSqlMainTableMillis", (System.nanoTime()-nowNanos)/1000);
+    }
     if (this.hasMultiValuedTable) {
-      
-      GcTableSyncConfiguration gcTableSyncConfigurationAttr = new GcTableSyncConfiguration();
-      gcTableSyncAttr.setGcTableSyncConfiguration(gcTableSyncConfigurationAttr);
+      nowNanos = System.nanoTime();
+      try { 
+        GcTableSyncConfiguration gcTableSyncConfigurationAttr = new GcTableSyncConfiguration();
+        gcTableSyncAttr.setGcTableSyncConfiguration(gcTableSyncConfigurationAttr);
 
-      gcTableSyncAttr.setGcTableSyncOutput(new GcTableSyncOutput());
-      
-      
-      Map<String, Object> debugMapAttr = new LinkedHashMap<String, Object>();
-      GcTableSyncSubtype.fullSyncFull.syncData(debugMapAttr, gcTableSyncAttr);
+        gcTableSyncAttr.setGcTableSyncOutput(new GcTableSyncOutput());
+        
+        
+        Map<String, Object> debugMapAttr = new LinkedHashMap<String, Object>();
+        GcTableSyncSubtype.fullSyncFull.syncData(debugMapAttr, gcTableSyncAttr);
 
-      // merge the debug maps
-      for (String key : debugMapAttr.keySet()) {
-        
-        Object newValue = debugMapAttr.get(key);
-        Object existingValue = this.debugMap.get(key);
-        
-        if (existingValue instanceof Long) {
-          this.debugMap.put(key, (Long)existingValue + GrouperUtil.longValue(newValue));
-        } else if (existingValue instanceof Integer) {
-          this.debugMap.put(key, (Integer)existingValue + GrouperUtil.intValue(newValue));
-        } else if (this.debugMap.containsKey(key)) {
-          this.debugMap.put(key + "_attr", newValue);
-        } else {
-          this.debugMap.put(key, newValue);
+        // merge the debug maps
+        for (String key : debugMapAttr.keySet()) {
+          
+          Object newValue = debugMapAttr.get(key);
+          Object existingValue = this.debugMap.get(key);
+          
+          if (existingValue instanceof Long) {
+            this.debugMap.put(key, (Long)existingValue + GrouperUtil.longValue(newValue));
+          } else if (existingValue instanceof Integer) {
+            this.debugMap.put(key, (Integer)existingValue + GrouperUtil.intValue(newValue));
+          } else if (this.debugMap.containsKey(key)) {
+            this.debugMap.put(key + "_attr", newValue);
+          } else {
+            this.debugMap.put(key, newValue);
+          }
+
+          
         }
-
-        
+      
+      } finally {
+        this.debugMap.put("changeSqlAttributeTableMillis", (System.nanoTime()-nowNanos)/1000);
       }
     }
-    
+      
     //  dbConnection: grouper, baseDn: ou=Groups,dc=example,dc=edu, filter: (objectClass=groupOfUniqueNames), ldapConnection: personLdap, 
     //      numberOfColumns: 3, searchScope: SUBTREE_SCOPE, tableName: testgrouper_ldapsync, extraAttributes: null, ldapRecords: 1, 
     //      dbRows: 0, dbUniqueKeys: 0, deletesCount: 0, deletesMillis: 81, insertsCount: 1, insertsMillis: 1997, updatesCount: 0, updatesMillis: 4
@@ -459,209 +474,220 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
   private ArrayList<Object[]> ldapDataAttr;
   
   private void retrieveDataFromDatabase() {
+    long nowNanos = System.nanoTime();
     
-    gcTableSyncTableBeanSql = new GcTableSyncTableBean(gcTableSync);
-    gcTableSyncTableBeanSql.configureMetadata(this.dbConnection, this.tableName);
-    this.gcTableSync.setDataBeanTo(gcTableSyncTableBeanSql);
-
-    Set<String> databaseColumnNames = new TreeSet<String>();
-    for (LdapToSqlSyncColumn ldapToSqlSyncColumn : GrouperUtil.nonNull(this.ldapToSqlSyncColumns).values()) {
-      databaseColumnNames.add(ldapToSqlSyncColumn.getSqlColumn());
-    }
-
-    this.uniqueKeyColumnNames = new TreeSet<String>();
-    for (LdapToSqlSyncColumn ldapToSqlSyncColumn : GrouperUtil.nonNull(this.ldapToSqlSyncColumns).values()) {
-      if (ldapToSqlSyncColumn.isUniqueKey()) {
-        this.uniqueKeyColumnNames.add(ldapToSqlSyncColumn.getSqlColumn());
+    try {
+      gcTableSyncTableBeanSql = new GcTableSyncTableBean(gcTableSync);
+      gcTableSyncTableBeanSql.configureMetadata(this.dbConnection, this.tableName);
+      this.gcTableSync.setDataBeanTo(gcTableSyncTableBeanSql);
+  
+      Set<String> databaseColumnNames = new TreeSet<String>();
+      for (LdapToSqlSyncColumn ldapToSqlSyncColumn : GrouperUtil.nonNull(this.ldapToSqlSyncColumns).values()) {
+        databaseColumnNames.add(ldapToSqlSyncColumn.getSqlColumn());
       }
-    }
-
-    GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanSql.getTableMetadata();
-
-    gcTableSyncTableMetadata.assignColumns(GrouperUtil.join(databaseColumnNames.iterator(), ','));
-    gcTableSyncTableMetadata.assignPrimaryKeyColumns(GrouperUtil.join(this.uniqueKeyColumnNames.iterator(), ','));
-    
-    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.dbConnection);
-    
-    String sql = "select " + gcTableSyncTableMetadata.columnListAll() + " from " + gcTableSyncTableMetadata.getTableName();
-    
-    List<Object[]> results = gcDbAccess.sql(sql).selectList(Object[].class);
-
-    this.debugMap.put("dbRows", GrouperUtil.length(results));
-
-    this.gcTableSyncTableDataSql = new GcTableSyncTableData();
-    this.gcTableSyncTableDataSql.init(this.gcTableSyncTableBeanSql, gcTableSyncTableMetadata.lookupColumns(this.gcTableSyncTableBeanSql.getTableMetadata().columnListAll()), results);
-    this.gcTableSyncTableDataSql.indexData();
-
-    gcTableSyncTableBeanSql.setDataInitialQuery(this.gcTableSyncTableDataSql);
-    gcTableSyncTableBeanSql.setGcTableSync(gcTableSync);
-
-    
-    this.debugMap.put("dbUniqueKeys", this.gcTableSyncTableDataSql.allPrimaryKeys().size());
-    
-    if (this.hasMultiValuedTable) {
-      this.gcTableSyncTableBeanSqlAttr = new GcTableSyncTableBean(gcTableSyncAttr);
-      this.gcTableSyncTableBeanSqlAttr.configureMetadata(this.dbConnection, this.multiValuedTableName);
-      this.gcTableSyncAttr.setDataBeanTo(this.gcTableSyncTableBeanSqlAttr);
-
-      databaseColumnNames = new TreeSet<String>();
-      databaseColumnNames.add("ldap_id");
-      databaseColumnNames.add("attribute_name");
-      databaseColumnNames.add("attribute_value");
-
-      GcTableSyncTableMetadata gcTableSyncTableMetadataAttr = gcTableSyncTableBeanSqlAttr.getTableMetadata();
-
-      gcTableSyncTableMetadataAttr.assignColumns(GrouperUtil.join(databaseColumnNames.iterator(), ','));
-      gcTableSyncTableMetadataAttr.assignPrimaryKeyColumns(GrouperUtil.join(databaseColumnNames.iterator(), ','));
+  
+      this.uniqueKeyColumnNames = new TreeSet<String>();
+      for (LdapToSqlSyncColumn ldapToSqlSyncColumn : GrouperUtil.nonNull(this.ldapToSqlSyncColumns).values()) {
+        if (ldapToSqlSyncColumn.isUniqueKey()) {
+          this.uniqueKeyColumnNames.add(ldapToSqlSyncColumn.getSqlColumn());
+        }
+      }
+  
+      GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanSql.getTableMetadata();
+  
+      gcTableSyncTableMetadata.assignColumns(GrouperUtil.join(databaseColumnNames.iterator(), ','));
+      gcTableSyncTableMetadata.assignPrimaryKeyColumns(GrouperUtil.join(this.uniqueKeyColumnNames.iterator(), ','));
       
-      gcDbAccess = new GcDbAccess().connectionName(this.dbConnection);
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.dbConnection);
       
-      sql = "select " + gcTableSyncTableMetadataAttr.columnListAll() + " from " + gcTableSyncTableMetadataAttr.getTableName();
+      String sql = "select " + gcTableSyncTableMetadata.columnListAll() + " from " + gcTableSyncTableMetadata.getTableName();
       
-      results = gcDbAccess.sql(sql).selectList(Object[].class);
-
+      List<Object[]> results = gcDbAccess.sql(sql).selectList(Object[].class);
+  
       this.debugMap.put("dbRows", GrouperUtil.length(results));
-
-      this.gcTableSyncTableDataSqlAttr = new GcTableSyncTableData();
-      this.gcTableSyncTableDataSqlAttr.init(this.gcTableSyncTableBeanSqlAttr, gcTableSyncTableMetadataAttr.lookupColumns(this.gcTableSyncTableBeanSqlAttr.getTableMetadata().columnListAll()), results);
-      this.gcTableSyncTableDataSqlAttr.indexData();
-
-      gcTableSyncTableBeanSqlAttr.setDataInitialQuery(this.gcTableSyncTableDataSqlAttr);
-      gcTableSyncTableBeanSqlAttr.setGcTableSync(gcTableSyncAttr);
-
+  
+      this.gcTableSyncTableDataSql = new GcTableSyncTableData();
+      this.gcTableSyncTableDataSql.init(this.gcTableSyncTableBeanSql, gcTableSyncTableMetadata.lookupColumns(this.gcTableSyncTableBeanSql.getTableMetadata().columnListAll()), results);
+      this.gcTableSyncTableDataSql.indexData();
+  
+      gcTableSyncTableBeanSql.setDataInitialQuery(this.gcTableSyncTableDataSql);
+      gcTableSyncTableBeanSql.setGcTableSync(gcTableSync);
+  
       
-      this.debugMap.put("dbMultiValuedAttributes", this.gcTableSyncTableDataSqlAttr.allPrimaryKeys().size());
+      this.debugMap.put("dbUniqueKeys", this.gcTableSyncTableDataSql.allPrimaryKeys().size());
       
-
+      if (this.hasMultiValuedTable) {
+        this.gcTableSyncTableBeanSqlAttr = new GcTableSyncTableBean(gcTableSyncAttr);
+        this.gcTableSyncTableBeanSqlAttr.configureMetadata(this.dbConnection, this.multiValuedTableName);
+        this.gcTableSyncAttr.setDataBeanTo(this.gcTableSyncTableBeanSqlAttr);
+  
+        databaseColumnNames = new TreeSet<String>();
+        databaseColumnNames.add("ldap_id");
+        databaseColumnNames.add("attribute_name");
+        databaseColumnNames.add("attribute_value");
+  
+        GcTableSyncTableMetadata gcTableSyncTableMetadataAttr = gcTableSyncTableBeanSqlAttr.getTableMetadata();
+  
+        gcTableSyncTableMetadataAttr.assignColumns(GrouperUtil.join(databaseColumnNames.iterator(), ','));
+        gcTableSyncTableMetadataAttr.assignPrimaryKeyColumns(GrouperUtil.join(databaseColumnNames.iterator(), ','));
+        
+        gcDbAccess = new GcDbAccess().connectionName(this.dbConnection);
+        
+        sql = "select " + gcTableSyncTableMetadataAttr.columnListAll() + " from " + gcTableSyncTableMetadataAttr.getTableName();
+        
+        results = gcDbAccess.sql(sql).selectList(Object[].class);
+  
+        this.debugMap.put("dbRows", GrouperUtil.length(results));
+  
+        this.gcTableSyncTableDataSqlAttr = new GcTableSyncTableData();
+        this.gcTableSyncTableDataSqlAttr.init(this.gcTableSyncTableBeanSqlAttr, gcTableSyncTableMetadataAttr.lookupColumns(this.gcTableSyncTableBeanSqlAttr.getTableMetadata().columnListAll()), results);
+        this.gcTableSyncTableDataSqlAttr.indexData();
+  
+        gcTableSyncTableBeanSqlAttr.setDataInitialQuery(this.gcTableSyncTableDataSqlAttr);
+        gcTableSyncTableBeanSqlAttr.setGcTableSync(gcTableSyncAttr);
+  
+        
+        this.debugMap.put("dbMultiValuedAttributes", this.gcTableSyncTableDataSqlAttr.allPrimaryKeys().size());
+        
+  
+      }
+    } finally {
+      this.debugMap.put("retrieveDataSqlMillis", (System.nanoTime()-nowNanos)/1000);
     }
-    
     
   }
 
   private void retrieveDataFromLdap() {
     
-    LdapSession ldapSession = LdapSessionUtils.ldapSession();
-    
-    Set<String> ldapAttributeNamesSet = new TreeSet<String>();
-    
-    ldapAttributeNamesSet.addAll(GrouperUtil.nonNull(this.extraAttributes));
-    
-    Set<String> attributesInMainTable = new HashSet<String>(ldapAttributeNamesSet);
-
-    LdapToSqlSyncColumn multiValuedIdColumnObject = null;
-    
-    for (LdapToSqlSyncColumn ldapToSqlSyncColumn : GrouperUtil.nonNull(this.ldapToSqlSyncColumns).values()) {
-      if (!StringUtils.isBlank(ldapToSqlSyncColumn.getLdapName())) {
-        ldapAttributeNamesSet.add(ldapToSqlSyncColumn.getLdapName());
-        attributesInMainTable.add(ldapToSqlSyncColumn.getLdapName());
-        
-        if (this.hasMultiValuedTable && StringUtils.equalsIgnoreCase(ldapToSqlSyncColumn.getSqlColumn(), this.multiValuedIdColumn)) {
-          multiValuedIdColumnObject = ldapToSqlSyncColumn;
+    long nowNanos = System.nanoTime();
+    try {
+      LdapSession ldapSession = LdapSessionUtils.ldapSession();
+      
+      Set<String> ldapAttributeNamesSet = new TreeSet<String>();
+      
+      ldapAttributeNamesSet.addAll(GrouperUtil.nonNull(this.extraAttributes));
+      
+      Set<String> attributesInMainTable = new HashSet<String>(ldapAttributeNamesSet);
+  
+      LdapToSqlSyncColumn multiValuedIdColumnObject = null;
+      
+      for (LdapToSqlSyncColumn ldapToSqlSyncColumn : GrouperUtil.nonNull(this.ldapToSqlSyncColumns).values()) {
+        if (!StringUtils.isBlank(ldapToSqlSyncColumn.getLdapName())) {
+          ldapAttributeNamesSet.add(ldapToSqlSyncColumn.getLdapName());
+          attributesInMainTable.add(ldapToSqlSyncColumn.getLdapName());
+          
+          if (this.hasMultiValuedTable && StringUtils.equalsIgnoreCase(ldapToSqlSyncColumn.getSqlColumn(), this.multiValuedIdColumn)) {
+            multiValuedIdColumnObject = ldapToSqlSyncColumn;
+          }
+          
         }
-        
       }
-    }
-
-    Set<String> multiValuedAttributesSet = null;
-    if (this.hasMultiValuedTable) {
-      multiValuedAttributesSet = GrouperUtil.splitTrimToSet(this.multiValuedAttributes, ",");
-      ldapAttributeNamesSet.addAll(multiValuedAttributesSet);
-    }
-    
-    this.ldapAttributeNames = GrouperUtil.toArray(ldapAttributeNamesSet, String.class);
-    this.ldapAttributeNameIndex = new HashMap<String, Integer>();
-
-    for (int i=0;i<GrouperUtil.length(this.ldapAttributeNames);i++) {
-      this.ldapAttributeNameIndex.put(this.ldapAttributeNames[i], i);
-    }
-    
-    List<LdapEntry> result = ldapSession.list(this.ldapConnection, this.baseDn, LdapSearchScope.valueOfIgnoreCase(this.searchScope, true), this.filter, this.ldapAttributeNames, null);
-
-    this.ldapData = new ArrayList<Object[]>();
-
-    this.ldapDataAttr = new ArrayList<Object[]>();
-
-    for (LdapEntry ldapEntry : GrouperUtil.nonNull(result)) {
-      Object[] values = new Object[this.ldapAttributeNames.length];
-      for (int i=0;i<this.ldapAttributeNames.length;i++) {
-        
-        if (!this.hasMultiValuedTable || attributesInMainTable.contains(this.ldapAttributeNames[i])) {
-          if (StringUtils.equalsIgnoreCase("dn", this.ldapAttributeNames[i])) {
-            values[i] = ldapEntry.getDn();
-          } else {
-            Collection<String> stringValues = ldapEntry.getAttribute(this.ldapAttributeNames[i]).getStringValues();
-            if (stringValues == null || stringValues.size() == 0) {
-              values[i] = null;
-            } else if (stringValues.size() == 1) {
-              values[i] = stringValues.iterator().next();
+  
+      Set<String> multiValuedAttributesSet = null;
+      if (this.hasMultiValuedTable) {
+        multiValuedAttributesSet = GrouperUtil.splitTrimToSet(this.multiValuedAttributes, ",");
+        ldapAttributeNamesSet.addAll(multiValuedAttributesSet);
+      }
+      
+      this.ldapAttributeNames = GrouperUtil.toArray(ldapAttributeNamesSet, String.class);
+      this.ldapAttributeNameIndex = new HashMap<String, Integer>();
+  
+      for (int i=0;i<GrouperUtil.length(this.ldapAttributeNames);i++) {
+        this.ldapAttributeNameIndex.put(this.ldapAttributeNames[i], i);
+      }
+      
+      List<LdapEntry> result = ldapSession.list(this.ldapConnection, this.baseDn, LdapSearchScope.valueOfIgnoreCase(this.searchScope, true), this.filter, this.ldapAttributeNames, null);
+  
+      this.ldapData = new ArrayList<Object[]>();
+  
+      this.ldapDataAttr = new ArrayList<Object[]>();
+  
+      for (LdapEntry ldapEntry : GrouperUtil.nonNull(result)) {
+        Object[] values = new Object[this.ldapAttributeNames.length];
+        for (int i=0;i<this.ldapAttributeNames.length;i++) {
+          
+          if (!this.hasMultiValuedTable || attributesInMainTable.contains(this.ldapAttributeNames[i])) {
+            if (StringUtils.equalsIgnoreCase("dn", this.ldapAttributeNames[i])) {
+              values[i] = ldapEntry.getDn();
             } else {
-              stringValues = new TreeSet<String>(stringValues);
-              values[i] = GrouperUtil.join(stringValues.iterator(), ',');
+              Collection<String> stringValues = ldapEntry.getAttribute(this.ldapAttributeNames[i]).getStringValues();
+              if (stringValues == null || stringValues.size() == 0) {
+                values[i] = null;
+              } else if (stringValues.size() == 1) {
+                values[i] = stringValues.iterator().next();
+              } else {
+                stringValues = new TreeSet<String>(stringValues);
+                values[i] = GrouperUtil.join(stringValues.iterator(), ',');
+              }
             }
           }
         }
+        this.ldapData.add(values);
       }
-      this.ldapData.add(values);
-    }
-    this.debugMap.put("ldapRecords", GrouperUtil.length(this.ldapData));
-    
-    GcTableSyncTableBean gcTableSyncTableBeanFrom = new GcTableSyncTableBean();
-    gcTableSync.setDataBeanFrom(gcTableSyncTableBeanFrom);
-    gcTableSyncTableBeanFrom.setTableMetadata(this.gcTableSyncTableBeanSql.getTableMetadata());
-    gcTableSyncTableBeanFrom.setGcTableSync(gcTableSync);
-
-    // lets do attributes
-    if (this.hasMultiValuedTable) {
+      this.debugMap.put("ldapRecords", GrouperUtil.length(this.ldapData));
       
-      if (multiValuedIdColumnObject == null) {
-        throw new RuntimeException("Cannot find multi-valued ID column: '" + this.multiValuedIdColumn + "', configure that column and cannot be a translation, must be direct LDAP attribute");
-      }
-      
-      for (LdapEntry ldapEntry : GrouperUtil.nonNull(result)) {
-
-        String id = null;
+      GcTableSyncTableBean gcTableSyncTableBeanFrom = new GcTableSyncTableBean();
+      gcTableSync.setDataBeanFrom(gcTableSyncTableBeanFrom);
+      gcTableSyncTableBeanFrom.setTableMetadata(this.gcTableSyncTableBeanSql.getTableMetadata());
+      gcTableSyncTableBeanFrom.setGcTableSync(gcTableSync);
+  
+      // lets do attributes
+      if (this.hasMultiValuedTable) {
         
-        try {
-          if (StringUtils.equalsIgnoreCase("dn", multiValuedIdColumnObject.getLdapName())) {
-            id = ldapEntry.getDn();
-          } else {
-            id = GrouperUtil.collectionPopOne(ldapEntry.getAttribute(multiValuedIdColumnObject.getLdapName()).getStringValues(), true);
-          }
-        } catch (RuntimeException e) {
-          GrouperUtil.injectInException(e, "dn is: " + ldapEntry.getDn() + ", attr: " + multiValuedIdColumnObject.getLdapName() + ", values: " 
-              + GrouperUtil.toStringForLog(ldapEntry.getAttribute(multiValuedIdColumnObject.getLdapName()).getStringValues(), 4000));
-          throw e;
+        if (multiValuedIdColumnObject == null) {
+          throw new RuntimeException("Cannot find multi-valued ID column: '" + this.multiValuedIdColumn + "', configure that column and cannot be a translation, must be direct LDAP attribute");
         }
-
-        for (int i=0;i<this.ldapAttributeNames.length;i++) {
-
-          if (multiValuedAttributesSet.contains(this.ldapAttributeNames[i])) {
-            
-            Collection<String> values = null;
-            
-            if (StringUtils.equalsIgnoreCase("dn", this.ldapAttributeNames[i])) {
-              this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], ldapEntry.getDn()});
+        
+        for (LdapEntry ldapEntry : GrouperUtil.nonNull(result)) {
+  
+          String id = null;
+          
+          try {
+            if (StringUtils.equalsIgnoreCase("dn", multiValuedIdColumnObject.getLdapName())) {
+              id = ldapEntry.getDn();
             } else {
-              values = ldapEntry.getAttribute(this.ldapAttributeNames[i]).getStringValues();
-              if (GrouperUtil.length(values) == 0) {
-                this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], null});
+              id = GrouperUtil.collectionPopOne(ldapEntry.getAttribute(multiValuedIdColumnObject.getLdapName()).getStringValues(), true);
+            }
+          } catch (RuntimeException e) {
+            GrouperUtil.injectInException(e, "dn is: " + ldapEntry.getDn() + ", attr: " + multiValuedIdColumnObject.getLdapName() + ", values: " 
+                + GrouperUtil.toStringForLog(ldapEntry.getAttribute(multiValuedIdColumnObject.getLdapName()).getStringValues(), 4000));
+            throw e;
+          }
+  
+          for (int i=0;i<this.ldapAttributeNames.length;i++) {
+  
+            if (multiValuedAttributesSet.contains(this.ldapAttributeNames[i])) {
+              
+              Collection<String> values = null;
+              
+              if (StringUtils.equalsIgnoreCase("dn", this.ldapAttributeNames[i])) {
+                this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], ldapEntry.getDn()});
               } else {
-                for (String value : values) {
-                  this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], value});
+                values = ldapEntry.getAttribute(this.ldapAttributeNames[i]).getStringValues();
+                if (GrouperUtil.length(values) > 0) {
+                  // this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], null});
+                  for (String value : values) {
+                    // cant have empty values since it is assumed to be a key in the database with bind vars
+                    if (!StringUtils.isEmpty(value)) {
+                      this.ldapDataAttr.add(new Object[] {id, this.ldapAttributeNames[i], value});
+                    }
+                  }
                 }
               }
             }
           }
         }
+        
+        this.debugMap.put("ldapMultiValuedAttributes", GrouperUtil.length(this.ldapDataAttr));
+        
+        GcTableSyncTableBean gcTableSyncTableBeanFromAttr = new GcTableSyncTableBean();
+        gcTableSyncAttr.setDataBeanFrom(gcTableSyncTableBeanFromAttr);
+        gcTableSyncTableBeanFromAttr.setTableMetadata(this.gcTableSyncTableBeanSqlAttr.getTableMetadata());
+        gcTableSyncTableBeanFromAttr.setGcTableSync(gcTableSyncAttr);
+  
       }
-      
-      this.debugMap.put("ldapMultiValuedAttributes", GrouperUtil.length(this.ldapDataAttr));
-      
-      GcTableSyncTableBean gcTableSyncTableBeanFromAttr = new GcTableSyncTableBean();
-      gcTableSyncAttr.setDataBeanFrom(gcTableSyncTableBeanFromAttr);
-      gcTableSyncTableBeanFromAttr.setTableMetadata(this.gcTableSyncTableBeanSqlAttr.getTableMetadata());
-      gcTableSyncTableBeanFromAttr.setGcTableSync(gcTableSyncAttr);
-
+    } finally {
+      this.debugMap.put("retrieveDataLdapMillis", (System.nanoTime()-nowNanos)/1000);
     }
   }
   

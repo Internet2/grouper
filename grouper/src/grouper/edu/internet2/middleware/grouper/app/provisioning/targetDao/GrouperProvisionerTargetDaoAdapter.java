@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -143,7 +144,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsAlways()
         || (hasError && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsOnError())) {
-      String debugInfo = this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().loggingStop();
+      String debugInfo = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().loggingStop();
       debugInfo = StringUtils.defaultString(debugInfo, "None implemented for this DAO");
       String theLog = "Command log for provisioner '" + this.getGrouperProvisioner().getConfigId() 
           + "' - '" + this.getGrouperProvisioner().getInstanceId() + "', " + method + ": " + debugInfo;
@@ -184,7 +185,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   private boolean commandLogStartLoggingIfConfigured() {
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsAlways()
         || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLogCommandsOnError()) {
-      return this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().loggingStart();
+      return this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().loggingStart();
     }
     return false;
   }
@@ -331,6 +332,16 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       }
 
     }
+    
+    {
+      TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
+          new ArrayList<>(), 
+          new ArrayList<>(),
+          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+          new HashMap<>());
+      sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
+    }
+    
     {
       TargetDaoSendGroupChangesToTargetRequest targetDaoSendGroupChangesToTargetRequest = new TargetDaoSendGroupChangesToTargetRequest(
           targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningGroups(), 
@@ -349,7 +360,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
           targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
           targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
-          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+          new ArrayList<>(),
           targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships());
       sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
     }

@@ -53,6 +53,9 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.Job;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -142,6 +145,7 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDA
 import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.stem.StemViewPrivilege;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
@@ -448,7 +452,7 @@ public class GrouperCheckConfig {
     checkGrouperConfig();
     checkResource("grouper.cache.properties");
     checkResource("grouper.hibernate.properties");
-    checkResource("log4j.properties");
+    checkResource("log4j2.xml");
     checkResource("morphString.properties");
     checkResource("subject.properties");
     
@@ -946,6 +950,40 @@ public class GrouperCheckConfig {
       if (grouperSession == null) {
         grouperSession = GrouperSession.startRootSession();
         startedGrouperSession = true;
+      }
+
+      //make sure stemViewers is there
+      try {
+        Field field = FieldFinder.find(Field.FIELD_NAME_STEM_VIEWERS, false);
+        if (field == null) {
+          // this will clear cache
+          Field.internal_addField( grouperSession, Field.FIELD_NAME_STEM_VIEWERS, FieldType.NAMING, 
+              NamingPrivilege.STEM_ADMIN, NamingPrivilege.STEM_ADMIN, false, false, null , null);
+        }
+      } catch (Exception e) {
+        // there could be an exception if another container is also adding this field
+        FieldFinder.clearCache();
+      }
+      
+      // stem view pre-compute
+      {
+        String groupNameKey = "security.folder.view.privileges.precompute.group";
+        String groupName = GrouperConfig.retrieveConfig().propertyValueStringRequired(groupNameKey);
+
+        //create stem
+        String privilegeParentStemName = GrouperUtil.parentStemNameFromName(groupName);
+        Stem privilegeParentStem = StemFinder.findByName(grouperSession, privilegeParentStemName, false);
+        if (privilegeParentStem == null) {
+          privilegeParentStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for objects related to Grouper privileges").assignName(privilegeParentStemName)
+            .save();
+        }
+
+        String groupDescription = "If you are having performance issues with UI users and stem privileges, put users in group who should be precomputed in the stem view full sync daemon";
+
+        Group[] theGroup = new Group[1];
+        checkGroup(grouperSession, groupName, wasInCheckConfig, true, wasInCheckConfig, null, groupDescription, "grouper.properties key " + groupNameKey, theGroup);
+        
       }
       
       while(true) {

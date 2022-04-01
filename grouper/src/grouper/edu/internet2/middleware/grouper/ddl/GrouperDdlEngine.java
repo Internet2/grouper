@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.log.GrouperLoggingDynamicConfig;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
@@ -855,6 +856,7 @@ public class GrouperDdlEngine {
   public boolean runDdl() {
     
     GrouperCacheDatabase.stopThread();
+    GrouperLoggingDynamicConfig.stopThread();
     
     this.thisDdlDatabaseLockingUuid = null;
     this.done = false;

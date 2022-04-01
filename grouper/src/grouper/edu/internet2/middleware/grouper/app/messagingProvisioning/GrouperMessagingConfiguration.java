@@ -3,11 +3,11 @@ package edu.internet2.middleware.grouper.app.messagingProvisioning;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
 
-public class GrouperMessagingConfiguration extends GrouperProvisioningConfigurationBase {
+public class GrouperMessagingConfiguration extends GrouperProvisioningConfiguration {
 
   private String messagingExternalSystemConfigId;
   

@@ -58,14 +58,20 @@ public class GrouperUtilTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testIpOnNetworks"));
+    TestRunner.run(new GrouperUtilTest("testStringFormatNameReverseTruncate"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
+    
   }
  
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperUtilTest.class);
 
+  public void testStringFormatNameReverseTruncate() {
+    assertEquals("c.b.a", GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", -1));
+    assertEquals("c.b.", GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", 4));
+  }
+  
   public void testExceptionTruncate() {
     String exception = "2021-10-09 14:43:00,114: [DefaultQuartzScheduler_Worker-9] ERROR GrouperLoaderJob.execute(347) -  - Error running up job\n";
     exception += "java.lang.RuntimeException: Error in loader job: null, check logs: type: consumer, finalLog: false, state: init, consumerName: ldapGroupsWithOverrideIncremental, totalCount: 11, currentSequenceNumber: null, publisherClass: edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer, exception: java.lang.RuntimeException: provisionerClass: LdapSync, configId: ldapGroupsWithOverride, provisioningType: incrementalProvisionChangeLog, state: retrieveIncrementalTargetData, changeLogItemsApplicableByType: 1, recalcEventsDuringFullSync: 0, checkErrors: all, syncGroupsToQuery: 2, syncGroupsFound: 2, retrieveSyncGroupsMillis: 0, syncGroupCount: 2, convertToFullSyncScore: 20, recalcEventsDuringGroupSync: 0, syncMembershipsToQueryFromGroup: 2, syncMembershipsFromGroup: 0, retrieveSyncMembershipsMillis: 1, syncMembershipCount: 0, syncMembersToQuery: 0, syncMembersFound: 0, retrieveSyncMembersMillis: 0, syncMemberCount: 0, retrieveData\n";

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -44,7 +45,6 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SchedulerFactory;
-import org.quartz.SimpleScheduleBuilder;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
@@ -56,7 +56,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -66,7 +65,6 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.client.ClientConfig;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientGroupConfigBean;
@@ -83,7 +81,6 @@ import edu.internet2.middleware.grouper.messaging.MessagingListenerBase;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.morphString.Morph;
 
 
 
@@ -2211,6 +2208,60 @@ public class GrouperLoader {
     GrouperLoaderDryRunBean grouperLoaderDryRunBean = threadLocalGrouperLoaderDryRun.get();
     if (grouperLoaderDryRunBean != null) {
       grouperLoaderDryRunBean.writeLine(line);
+    }
+  }
+  
+  /**
+   * Rename a job and it's associated triggers where the name replaces the oldSubstring with the newSubstring
+   * @param oldJobName
+   * @param oldSubstring
+   * @param newSubstring
+   * @throws SchedulerException
+   */
+  public static void renameJobAndTriggerSubstring(String oldJobName, String oldSubstring, String newSubstring) throws SchedulerException {
+    Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+    String newJobName = oldJobName.replace(oldSubstring, newSubstring);
+    
+    String grouperLoaderLogSqlUpdate = "update grouper_loader_log set job_name = ? where job_name = ?";
+    HibernateSession.bySqlStatic().executeSql(grouperLoaderLogSqlUpdate, 
+        GrouperUtil.toListObject(newJobName, oldJobName), 
+        HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE));
+    
+    JobKey oldJobKey = JobKey.jobKey(oldJobName);
+    JobDetail oldJobDetail = scheduler.getJobDetail(oldJobKey);
+    List<? extends Trigger> oldTriggers = scheduler.getTriggersOfJob(oldJobKey);
+    
+    JobDetail jobDetail = JobBuilder.newJob(oldJobDetail.getJobClass())
+        .withIdentity(newJobName)
+        .withDescription(oldJobDetail.getDescription())
+        .setJobData(oldJobDetail.getJobDataMap())
+        .build();
+    
+    Set<Trigger> triggers = new LinkedHashSet<Trigger>();
+    Set<Trigger> triggersToPause = new LinkedHashSet<Trigger>();
+    for (Trigger oldTrigger : oldTriggers) {
+      String newTriggerName = oldTrigger.getKey().getName().replace(oldSubstring, newSubstring);
+      
+      Trigger trigger = TriggerBuilder.newTrigger()
+          .withIdentity(newTriggerName)
+          .withPriority(oldTrigger.getPriority())
+          .withSchedule(oldTrigger.getScheduleBuilder())
+          .withDescription(oldTrigger.getDescription())
+          .build();
+      
+      triggers.add(trigger);
+      
+      if (scheduler.getTriggerState(oldTrigger.getKey()) == Trigger.TriggerState.PAUSED) {
+        triggersToPause.add(trigger);
+      }
+    }
+    
+    scheduler.deleteJob(oldJobKey);
+    scheduler.scheduleJob(jobDetail, triggers, true);
+    
+    for (Trigger trigger : triggersToPause) {
+      scheduler.pauseTrigger(trigger.getKey());
     }
   }
   

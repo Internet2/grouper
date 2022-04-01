@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcl
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.log.GrouperLoggingDynamicConfig;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
@@ -210,12 +211,6 @@ public class GrouperStartup {
     }
     
     resultString.append("Grouper current directory is: " + new File("").getAbsolutePath() + "\n");
-    //get log4j file
-    String log4jFileLocation = GrouperUtil.getLocationFromResourceName("log4j.properties");
-    if (log4jFileLocation == null) {
-      log4jFileLocation = " [cant find log4j.properties]";
-    }
-    resultString.append("log4j.properties read from:   " + log4jFileLocation + "\n");
     
     resultString.append(GrouperUtil.logDirPrint());
     String hibPropertiesFileLocation = GrouperUtil.getLocationFromResourceName("grouper.hibernate.properties");
@@ -320,6 +315,9 @@ public class GrouperStartup {
             //dont print big classname, dont print nulls
             ToStringBuilder.setDefaultStyle(new GrouperToStringStyle());
 
+            GrouperLoggingDynamicConfig.checkForUpdates();
+            GrouperLoggingDynamicConfig.startThreadIfNotStarted();
+
             //first check databases
             
             if (!ignoreCheckConfig) {
@@ -355,17 +353,18 @@ public class GrouperStartup {
             
             boolean legacyAttributeMigrationIncomplete = GrouperDdlUtils.getTableCount("grouper_types_legacy", false) > 0;
             
-            // skip for now if legacy attribute migration is not done
-            if (!legacyAttributeMigrationIncomplete) {
-              //init include exclude type
-              initIncludeExcludeType();
-              
-              //init loader types and attributes if configured
-              initLoaderType();
-              
-              //init membership lite config type
-              initMembershipLiteConfigType();
+            if (legacyAttributeMigrationIncomplete) {
+              LOG.warn("Legacy attribute tables (e.g. grouper_types_legacy, grouper_attributes_legacy, grouper_groups_types_legacy, grouper_fields_legacy) still exist. Should have been manually dropped after upgrading to v2.2.");
             }
+            
+            //init include exclude type
+            initIncludeExcludeType();
+
+            //init loader types and attributes if configured
+            initLoaderType();
+
+            //init membership lite config type
+            initMembershipLiteConfigType();
             
             if (!ignoreCheckConfig) {
               //post steps after loader config

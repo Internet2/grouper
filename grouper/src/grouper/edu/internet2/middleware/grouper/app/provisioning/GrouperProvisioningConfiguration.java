@@ -1,0 +1,3151 @@
+package edu.internet2.middleware.grouper.app.provisioning;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.subject.provider.SourceManager;
+
+/**
+ * 
+ * @author mchyzer
+ *
+ */
+public abstract class GrouperProvisioningConfiguration {
+  
+
+// grouper-loader.base.properties 3090
+//  # If the group requires members then if there are no members it is not valid and could be deleted
+//  # {valueType: "boolean", subSection: "advanced", defaultValue: "false", order: 113000, showEl: "${showAdvanced}"}
+//  # provisioner.genericProvisioner.groupsRequireMembers =
+
+  private boolean customizeEntityCrud;
+  
+  public boolean isCustomizeEntityCrud() {
+    return customizeEntityCrud;
+  }
+
+  public void setCustomizeEntityCrud(boolean customizeEntityCrud) {
+    this.customizeEntityCrud = customizeEntityCrud;
+  }
+  
+  private boolean makeChangesToEntities;
+  
+  
+
+  public boolean isMakeChangesToEntities() {
+    return makeChangesToEntities;
+  }
+
+  public void setMakeChangesToEntities(boolean makeChangesToEntities) {
+    this.makeChangesToEntities = makeChangesToEntities;
+  }
+
+  private boolean customizeMembershipCrud;
+
+  public boolean isCustomizeMembershipCrud() {
+    return customizeMembershipCrud;
+  }
+
+
+
+
+
+
+  public void setCustomizeMembershipCrud(boolean customizeMembershipCrud) {
+    this.customizeMembershipCrud = customizeMembershipCrud;
+  }
+
+  private boolean customizeGroupCrud;
+
+  public boolean isCustomizeGroupCrud() {
+    return customizeGroupCrud;
+  }
+
+
+
+
+
+
+  public void setCustomizeGroupCrud(boolean customizeGroupCrud) {
+    this.customizeGroupCrud = customizeGroupCrud;
+  }
+
+
+  private boolean groupsRequireMembers;
+  
+  private boolean hasEntityAttributes;
+  
+  private boolean resolveAttributesWithSql;
+
+  private boolean resolveAttributesWithLdap;
+
+  private boolean useGlobalSqlResolver;
+  private boolean useGlobalLdapResolver;
+
+  private String globalSqlResolver;
+
+  private String globalLdapResolver;
+  
+  private boolean selectAllSqlOnFull = true;
+  private boolean filterAllLDAPOnFull = true;
+  
+  private boolean loadEntitiesToGrouperTable;
+  private boolean allowBlankMatchingIds;
+  
+  public boolean isAllowBlankMatchingIds() {
+    return allowBlankMatchingIds;
+  }
+
+
+  private String entityAttributesSqlExternalSystem;
+  private String entityAttributesTableViewName;
+  private String entityAttributesColumnNames;
+  private String entityAttributesSubjectSourceIdColumn;
+  private String entityAttributesSubjectSearchMatchingColumn;
+  private String entityAttributesSqlMappingType;
+  private String entityAttributesSqlMappingEntityAttribute;
+  private String entityAttributesSqlMappingExpression;
+  private String entityAttributesLastUpdatedColumn;
+  private String entityAttributesLastUpdatedType;
+  
+  private String entityAttributesLdapExternalSystem;
+  private String entityAttributesLdapBaseDn;
+  private String entityAttributesLdapSubjectSource;
+  private String entityAttributesLdapSearchScope;
+  private String entityAttributesLdapFilterPart;
+  private String entityAttributesLdapAttributes;
+  private String entityAttributesLdapMutliValuedAttributes;
+  private String entityAttributesLdapMatchingSearchAttribute;
+  private String entityAttributesLdapMappingType;
+  private String entityAttributesLdapMappingEntityAttribute;
+  private String entityAttributesLdapMatchingExpression;
+  private String entityAttributesLdapLastUpdatedAttribute;
+  private String entityAttributesLdapLastUpdatedAttributeFormat;
+  
+  
+  
+  
+  
+  public boolean isFilterAllLDAPOnFull() {
+    return filterAllLDAPOnFull;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapExternalSystem() {
+    return entityAttributesLdapExternalSystem;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapBaseDn() {
+    return entityAttributesLdapBaseDn;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapSearchScope() {
+    return entityAttributesLdapSearchScope;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapFilterPart() {
+    return entityAttributesLdapFilterPart;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapAttributes() {
+    return entityAttributesLdapAttributes;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapMutliValuedAttributes() {
+    return entityAttributesLdapMutliValuedAttributes;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapMatchingSearchAttribute() {
+    return entityAttributesLdapMatchingSearchAttribute;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapMappingType() {
+    return entityAttributesLdapMappingType;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapMappingEntityAttribute() {
+    return entityAttributesLdapMappingEntityAttribute;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapMatchingExpression() {
+    return entityAttributesLdapMatchingExpression;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapLastUpdatedAttribute() {
+    return entityAttributesLdapLastUpdatedAttribute;
+  }
+
+
+
+
+
+  
+  public String getEntityAttributesLdapLastUpdatedAttributeFormat() {
+    return entityAttributesLdapLastUpdatedAttributeFormat;
+  }
+
+
+
+
+
+  public boolean isUseGlobalLdapResolver() {
+    return useGlobalLdapResolver;
+  }
+
+
+
+
+  
+  public String getGlobalLdapResolver() {
+    return globalLdapResolver;
+  }
+
+
+
+
+  public String getEntityAttributesSqlExternalSystem() {
+    return entityAttributesSqlExternalSystem;
+  }
+
+
+
+  
+  public String getEntityAttributesTableViewName() {
+    return entityAttributesTableViewName;
+  }
+
+
+  
+  
+  public String getEntityAttributesColumnNames() {
+    return entityAttributesColumnNames;
+  }
+
+
+
+
+
+  public String getEntityAttributesSubjectSourceIdColumn() {
+    return entityAttributesSubjectSourceIdColumn;
+  }
+
+
+
+  
+  public String getEntityAttributesSubjectSearchMatchingColumn() {
+    return entityAttributesSubjectSearchMatchingColumn;
+  }
+
+
+
+  
+  public String getEntityAttributesSqlMappingType() {
+    return entityAttributesSqlMappingType;
+  }
+
+
+
+  
+  public String getEntityAttributesSqlMappingEntityAttribute() {
+    return entityAttributesSqlMappingEntityAttribute;
+  }
+
+
+
+  
+  public String getEntityAttributesSqlMappingExpression() {
+    return entityAttributesSqlMappingExpression;
+  }
+
+
+
+  
+  public String getEntityAttributesLastUpdatedColumn() {
+    return entityAttributesLastUpdatedColumn;
+  }
+
+
+
+  
+  public String getEntityAttributesLastUpdatedType() {
+    return entityAttributesLastUpdatedType;
+  }
+
+
+
+  public boolean isHasEntityAttributes() {
+    return hasEntityAttributes;
+  }
+
+
+  
+  public boolean isResolveAttributesWithSql() {
+    return resolveAttributesWithSql;
+  }
+
+  
+  public boolean isResolveAttributesWithLdap() {
+    return resolveAttributesWithLdap;
+  }
+
+  
+  public boolean isUseGlobalSqlResolver() {
+    return useGlobalSqlResolver;
+  }
+
+  
+  
+  public String getGlobalSqlResolver() {
+    return globalSqlResolver;
+  }
+
+  
+  
+  public boolean isSelectAllSqlOnFull() {
+    return selectAllSqlOnFull;
+  }
+  
+  
+  public boolean isLoadEntitiesToGrouperTable() {
+    return loadEntitiesToGrouperTable;
+  }
+
+
+  /**
+   * if set then only provision users who are in this group
+   */
+  private String groupIdOfUsersToProvision;
+  
+  /**
+   * if set then only provision users who are in this group
+   * @return group id
+   */
+  public String getGroupIdOfUsersToProvision() {
+    return groupIdOfUsersToProvision;
+  }
+
+  /**
+   * if create group in target during diagnostics
+   */
+  private Boolean createGroupDuringDiagnostics;
+
+  /**
+   * if create group in target during diagnostics
+   * @return if create
+   */
+  public boolean isCreateGroupDuringDiagnostics() {
+    return GrouperUtil.booleanValue(createGroupDuringDiagnostics, false);
+  }
+  
+  /**
+   * if delete group from target during diagnostics
+   */
+  private Boolean deleteGroupDuringDiagnostics;
+
+  /**
+   * if delete group from target during diagnostics
+   * @return if delete
+   */
+  public boolean isDeleteGroupDuringDiagnostics() {
+    return GrouperUtil.booleanValue(deleteGroupDuringDiagnostics, false);
+  }
+  
+  /**
+   * if create entity in target during diagnostics
+   */
+  private Boolean createEntityDuringDiagnostics;
+
+  /**
+   * if create entity in target during diagnostics
+   * @return if create
+   */
+  public boolean isCreateEntityDuringDiagnostics() {
+    return GrouperUtil.booleanValue(createEntityDuringDiagnostics, false);
+  }
+  
+  /**
+   * if delete entity from target during diagnostics
+   */
+  private Boolean deleteEntityDuringDiagnostics;
+
+  /**
+   * if delete entity from target during diagnostics
+   * @return if delete
+   */
+  public boolean isDeleteEntityDuringDiagnostics() {
+    return GrouperUtil.booleanValue(deleteEntityDuringDiagnostics, false);
+  }
+
+  /**
+   * if select all groups during diagnostics (default false)
+   */
+  private Boolean diagnosticsGroupsAllSelect;
+
+  /**
+   * if select all groups during diagnostics
+   * @return true if so
+   */
+  public boolean isDiagnosticsGroupsAllSelect() {
+    if (this.diagnosticsGroupsAllSelect != null) {
+      return this.diagnosticsGroupsAllSelect;
+    }
+    return false;
+  }
+  
+  /**
+   * if select all entities during diagnostics (default false)
+   */
+  private Boolean diagnosticsEntitiesAllSelect;
+
+  /**
+   * if select all entities during diagnostics
+   * @return true if so
+   */
+  public boolean isDiagnosticsEntitiesAllSelect() {
+    if (this.diagnosticsEntitiesAllSelect != null) {
+      return this.diagnosticsEntitiesAllSelect;
+    }
+    return false;
+  }
+  
+  /**
+   * group name of group to use for diagnostics
+   */
+  private String diagnosticsGroupName;
+
+  /**
+   * group name of group to use for diagnostics
+   * @return the group name
+   */
+  public String getDiagnosticsGroupName() {
+    return diagnosticsGroupName;
+  }
+  
+  /**
+   * subject id or identifier of entity to use for diagnostics
+   */
+  private String diagnosticsSubjectIdOrIdentifier;
+
+  /**
+   * subject id or identifier of entity to use for diagnostics
+   * @return the subject id or identifier
+   */
+  public String getDiagnosticsSubjectIdOrIdentifier() {
+    return diagnosticsSubjectIdOrIdentifier;
+  }
+  
+  /**
+   * if select all memberships during diagnostics (default false)
+   */
+  private Boolean diagnosticsMembershipsAllSelect;
+
+  /**
+   * if select all memberships during diagnostics
+   * @return true if so
+   */
+  public boolean isDiagnosticsMembershipsAllSelect() {
+    if (this.diagnosticsMembershipsAllSelect != null) {
+      return this.diagnosticsMembershipsAllSelect;
+    }
+    return false;
+  }
+  
+  /**
+   * Only provision policy groups
+   */
+  private Boolean onlyProvisionPolicyGroups;
+  
+  /**
+   * Only provision policy groups, default false
+   * @return 
+   */
+  public boolean isOnlyProvisionPolicyGroups() {
+    if (this.onlyProvisionPolicyGroups != null) {
+      return this.onlyProvisionPolicyGroups;
+    }
+    return false;
+  }
+  
+  /**
+   * If you want a metadata item on folders for specifying if provision only policy groups
+   */
+  private Boolean allowPolicyGroupOverride;
+  
+  /**
+   * If you want a metadata item on folders for specifying if provision only policy groups
+   * @return
+   */
+  public boolean isAllowPolicyGroupOverride() {
+    if (this.allowPolicyGroupOverride != null) {
+      return this.allowPolicyGroupOverride;
+    }
+    return true;
+  }
+  
+  /**
+   * If you want to filter for groups in a provisionable folder by a regex on its name, specify here.  If the regex matches then the group in the folder is provisionable.  e.g. folderExtension matches ^.*_someExtension   folderName matches ^.*_someExtension   groupExtension matches ^.*_someExtension   groupName matches ^.*_someExtension$
+   */
+  private String provisionableRegex;
+
+  /**
+   * If you want to filter for groups in a provisionable folder by a regex on its name, specify here.  If the regex matches then the group in the folder is provisionable.  e.g. folderExtension matches ^.*_someExtension   folderName matches ^.*_someExtension   groupExtension matches ^.*_someExtension   groupName matches ^.*_someExtension$
+   * @return
+   */
+  public String getProvisionableRegex() {
+    return this.provisionableRegex;
+  }
+  
+  /**
+   * If you want a metadata item on folders for specifying regex of names of objects to provision
+   */
+  private Boolean allowProvisionableRegexOverride;
+  
+  /**
+   * If you want a metadata item on folders for specifying regex of names of objects to provision
+   * @return
+   */
+  public boolean isAllowProvisionableRegexOverride() {
+    if (this.allowProvisionableRegexOverride != null) {
+      return this.allowProvisionableRegexOverride;
+    }
+    return true;
+  }
+  
+  /** if the target should be checked before sending actions.  e.g. if an addMember is made to a provisionable group, then check the target to see if the entity is already a member first. */
+  private boolean recalculateAllOperations;
+
+  /**
+   * attribute name to config
+   */
+  private Map<String, GrouperProvisioningConfigurationAttribute> targetGroupAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
+  
+  /**
+   * metadata name to metadata item
+   */
+  private Map<String, GrouperProvisioningObjectMetadataItem> metadataNameToMetadataItem = new TreeMap<String, GrouperProvisioningObjectMetadataItem>();
+  
+  /**
+   * metadata name to metadata item
+   * @return
+   */
+  public Map<String, GrouperProvisioningObjectMetadataItem> getMetadataNameToMetadataItem() {
+    return metadataNameToMetadataItem;
+  }
+
+  /**
+   * metadata name to metadata item
+   * @param metadataNameToMetadataItem
+   */
+  public void setMetadataNameToMetadataItem(
+      Map<String, GrouperProvisioningObjectMetadataItem> metadataNameToMetadataItem) {
+    this.metadataNameToMetadataItem = metadataNameToMetadataItem;
+  }
+
+  /**
+   * get the group matching attribute object (could be field or attribute)
+   * @return the attribute
+   */
+  public GrouperProvisioningConfigurationAttribute retrieveGroupAttributeMatching() {
+
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetGroupAttributeNameToConfig().values()) {
+      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+        return grouperProvisioningConfigurationAttribute;
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * get the entity matching attribute object (could be field or attribute)
+   * @return the attribute
+   */
+  public GrouperProvisioningConfigurationAttribute retrieveEntityAttributeMatching() {
+
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.getTargetEntityAttributeNameToConfig().values()) {
+      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+        return grouperProvisioningConfigurationAttribute;
+      }
+    }
+    
+    return null;
+  }
+  
+  /**
+   * 
+   * @return map
+   */
+  public Map<String, GrouperProvisioningConfigurationAttribute> getTargetGroupAttributeNameToConfig() {
+    return targetGroupAttributeNameToConfig;
+  }
+
+  /**
+   * use this attribute as a matching id
+   */
+  private String entityMatchingIdAttribute;
+
+  /**
+   * use this attribute as a matching id
+   * @return
+   */
+  public String getEntityMatchingIdAttribute() {
+    return entityMatchingIdAttribute;
+  }
+
+  /**
+   * use this attribute as a matching id
+   * @param entityMatchingIdAttribute
+   */
+  public void setEntityMatchingIdAttribute(String entityMatchingIdAttribute) {
+    this.entityMatchingIdAttribute = entityMatchingIdAttribute;
+  }
+
+  /**
+   * use this attribute as a matching id
+   */
+  private String groupMatchingIdAttribute;
+  
+  
+
+  /**
+   * use this attribute as a matching id
+   * @return
+   */
+  public String getGroupMatchingIdAttribute() {
+    return groupMatchingIdAttribute;
+  }
+
+  /**
+   * use this attribute as a matching id
+   * @param groupMatchingIdAttribute
+   */
+  public void setGroupMatchingIdAttribute(String groupMatchingIdAttribute) {
+    this.groupMatchingIdAttribute = groupMatchingIdAttribute;
+  }
+
+  /**
+   * 
+   */
+  private String membershipMatchingIdAttribute;
+
+  
+  
+  public String getMembershipMatchingIdAttribute() {
+    return membershipMatchingIdAttribute;
+  }
+
+  
+  public void setMembershipMatchingIdAttribute(String membershipMatchingIdAttribute) {
+    this.membershipMatchingIdAttribute = membershipMatchingIdAttribute;
+  }
+
+  /**
+   * expression to get the group id from target group
+   */
+  private String groupMatchingIdExpression;
+
+  /**
+   * expression to get the membership id from the target group
+   */
+  private String membershipMatchingIdExpression;
+
+  /**
+   * expression to get the entity id from the target entity
+   */
+  private String entityMatchingIdExpression;
+  
+  
+  
+  public String getGroupMatchingIdExpression() {
+    return groupMatchingIdExpression;
+  }
+
+
+  
+  public void setGroupMatchingIdExpression(String groupMatchingIdExpression) {
+    this.groupMatchingIdExpression = groupMatchingIdExpression;
+  }
+
+
+  
+  public String getMembershipMatchingIdExpression() {
+    return membershipMatchingIdExpression;
+  }
+
+
+  
+  public void setMembershipMatchingIdExpression(String membershipMatchingIdExpression) {
+    this.membershipMatchingIdExpression = membershipMatchingIdExpression;
+  }
+
+
+  
+  public String getEntityMatchingIdExpression() {
+    return entityMatchingIdExpression;
+  }
+
+
+  
+  public void setEntityMatchingIdExpression(String entityMatchingIdExpression) {
+    this.entityMatchingIdExpression = entityMatchingIdExpression;
+  }
+
+  private boolean logCommandsAlways = false;
+
+  
+  
+  
+  public boolean isLogCommandsAlways() {
+    return logCommandsAlways;
+  }
+
+  
+  public void setLogCommandsAlways(boolean logCommandsAlways) {
+    this.logCommandsAlways = logCommandsAlways;
+  }
+
+  
+  public boolean isLogCommandsOnError() {
+    return logCommandsOnError;
+  }
+
+  
+  public void setLogCommandsOnError(boolean logCommandsOnError) {
+    this.logCommandsOnError = logCommandsOnError;
+  }
+
+  private boolean logCommandsOnError = false;
+  
+  private boolean logAllObjectsVerbose = false;
+  
+  
+  
+  
+  public boolean isLogAllObjectsVerbose() {
+    return logAllObjectsVerbose;
+  }
+
+  
+  public void setLogAllObjectsVerbose(boolean logAllObjectsVerbose) {
+    this.logAllObjectsVerbose = logAllObjectsVerbose;
+  }
+
+  private boolean debugLog = false;
+  
+  
+  
+  
+  public boolean isDebugLog() {
+    return debugLog;
+  }
+
+
+
+  
+  public void setDebugLog(boolean debugLog) {
+    this.debugLog = debugLog;
+  }
+
+  /**
+   * reference back up to the provisioner
+   */
+  private GrouperProvisioner grouperProvisioner = null;
+
+  /**
+   * reference back up to the provisioner
+   * @return the provisioner
+   */
+  public GrouperProvisioner getGrouperProvisioner() {
+    return this.grouperProvisioner;
+  }
+
+  /**
+   * reference back up to the provisioner
+   * @param grouperProvisioner1
+   */
+  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner1) {
+    this.grouperProvisioner = grouperProvisioner1;
+  }
+
+  private String configId;
+
+  public void setConfigId(String configId) {
+    this.configId = configId;
+  }
+  public String getConfigId() {
+    return configId;
+  }
+  
+  /**
+   * key is groupEntity or membership
+   */
+  private Map<String, List<String>> grouperProvisioningToTargetTranslation = new HashMap<String, List<String>>();
+  
+  
+  public Map<String, List<String>> getGrouperProvisioningToTargetTranslation() {
+    return grouperProvisioningToTargetTranslation;
+  }
+  
+  /**
+   * In incremental processing, each provisionable group/entity to sync memberships to sync counts as 10, each provisionable membership to sync counts as 1.  
+   * If the total score is more than this number, it will convert the incrementals to a a full sync.  e.g. 10000 individual memberships 
+   * to sync (and not more than 500 in a single group), or 1000 groups to sync, or a combination.  -1 means do not convert to full sync
+   */
+  private int scoreConvertToFullSyncThreshold;
+  
+  /**
+   * In incremental processing, each provisionable group/entity to sync memberships to sync counts as 10, each provisionable membership to sync counts as 1.  
+   * If the total score is more than this number, it will convert the incrementals to a a full sync.  e.g. 10000 individual memberships 
+   * to sync (and not more than 500 in a single group), or 1000 groups to sync, or a combination.  -1 means do not convert to full sync
+   * @return
+   */
+  public int getScoreConvertToFullSyncThreshold() {
+    return scoreConvertToFullSyncThreshold;
+  }
+
+  /**
+   * In incremental processing, each provisionable group/entity to sync memberships to sync counts as 10, each provisionable membership to sync counts as 1.  
+   * If the total score is more than this number, it will convert the incrementals to a a full sync.  e.g. 10000 individual memberships 
+   * to sync (and not more than 500 in a single group), or 1000 groups to sync, or a combination.  -1 means do not convert to full sync
+   * @param scoreConvertToFullSyncThreshold1
+   */
+  public void setScoreConvertToFullSyncThreshold(int scoreConvertToFullSyncThreshold1) {
+    this.scoreConvertToFullSyncThreshold = scoreConvertToFullSyncThreshold1;
+  }
+
+  /**
+   * If there are this number of memberships or more for a single provisionable group, then perform a "group sync" instead of the individual operations instead, for efficiency
+   * default to provisionerDefault.membershipsConvertToGroupSyncThreshold which is 500.
+   * -1 to not use this feature
+   */
+  private int membershipsConvertToGroupSyncThreshold;
+  
+  /**
+   * If there are this number of memberships or more for a single provisionable group, then perform a "group sync" instead of the individual operations instead, for efficiency
+   * default to provisionerDefault.membershipsConvertToGroupSyncThreshold which is 500
+   * -1 to not use this feature
+   * @return threshold
+   */
+  public int getMembershipsConvertToGroupSyncThreshold() {
+    return membershipsConvertToGroupSyncThreshold;
+  }
+
+  /**
+   * If there are this number of memberships or more for a single provisionable group, then perform a "group sync" instead of the individual operations instead, for efficiency
+   * default to provisionerDefault.membershipsConvertToGroupSyncThreshold which is 500
+   * -1 to not use this feature
+   * @param membershipsConvertToGroupSyncThreshold
+   */
+  public void setMembershipsConvertToGroupSyncThreshold(
+      int membershipsConvertToGroupSyncThreshold) {
+    this.membershipsConvertToGroupSyncThreshold = membershipsConvertToGroupSyncThreshold;
+  }
+
+  /**
+   * get a config name for this or dependency
+   * @param configName
+   * @param required 
+   * @return the config
+   */
+  public Boolean retrieveConfigBoolean(String configName, boolean required) {
+    String configValueString = retrieveConfigString(configName, required);
+    return GrouperClientUtils.booleanObjectValue(configValueString);
+  }
+
+  /**
+   * get a config name for this or dependency
+   * @param configName
+   * @param required 
+   * @return the config
+   */
+  public Integer retrieveConfigInt(String configName, boolean required) {
+    String configValueString = retrieveConfigString(configName, required);
+    return GrouperClientUtils.intObjectValue(configValueString, true);
+  }
+
+  /**
+   * get a config name for this or dependency
+   * @param configSuffix
+   * @param required 
+   * @return the config
+   */
+  public String retrieveConfigString(String configSuffix, boolean required) {
+    
+    String value = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + this.getConfigId() + "." + configSuffix);
+    if (!StringUtils.isBlank(value)) {
+      return value;
+    }
+    value = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisionerDefault." + configSuffix);
+    if (!StringUtils.isBlank(value)) {
+      return value;
+    }
+    if (required) {
+      throw new RuntimeException("Cant find config for provisioning: provisioner." + this.getConfigId() + "." + configSuffix);
+    }
+    return null;
+  
+  }
+
+  private Map<String, Object> debugMap = null;
+
+  public void preConfigure() {
+    // must have key
+    if (StringUtils.isBlank(this.grouperProvisioner.getConfigId())) {
+      throw new RuntimeException("Why is config id blank?");
+    }
+
+    // must have provisioning type
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType() == null) {
+      throw new RuntimeException("Why is provisioning type blank?");
+    }
+
+    this.setConfigId(this.grouperProvisioner.getConfigId());
+
+    if (this.grouperProvisioner.getGcGrouperSync() == null) {
+      this.grouperProvisioner.setGcGrouperSync(GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, this.getConfigId()));
+    }
+    
+    if (StringUtils.isBlank(this.grouperProvisioner.getGcGrouperSync().getSyncEngine())) {
+      this.grouperProvisioner.getGcGrouperSync().setSyncEngine(GcGrouperSync.PROVISIONING);
+      this.grouperProvisioner.getGcGrouperSync().getGcGrouperSyncDao().store();
+    }
+    
+    if (!GrouperClientUtils.equals(GcGrouperSync.PROVISIONING, this.grouperProvisioner.getGcGrouperSync().getSyncEngine())) {
+      throw new RuntimeException("Why is sync engine not 'provisioning'?  " + this.getConfigId() + ", " + this.grouperProvisioner.getGcGrouperSync().getSyncEngine());
+    }
+
+    GcGrouperSyncJob gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSyncJob();
+    if (gcGrouperSyncJob == null) {
+      gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSync().getGcGrouperSyncJobDao()
+          .jobRetrieveOrCreateBySyncType(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().name());
+      this.grouperProvisioner.setGcGrouperSyncJob(gcGrouperSyncJob);
+    }
+    if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + this.getConfigId() + ".debugConfig", false)) {
+      
+      debugMap = this.grouperProvisioner.getDebugMap();
+    } else {
+      debugMap = new LinkedHashMap<String, Object>();
+    }
+  }
+
+  /**
+   * If the subject API is needed to resolve attribute on subject  required, drives requirements of other configurations. defaults to false.
+   */
+  private boolean hasSubjectLink = false;
+  
+  /**
+   * If groups need to be resolved in the target before provisioning
+   */
+  private boolean hasTargetGroupLink = false;
+  
+  /**
+   * If users need to be resolved in the target before provisioning
+   */
+  private boolean hasTargetEntityLink = false;
+  
+  /**
+   * subject sources to provision  optional, defaults to all except g:gsa, grouperExternal, g:isa, localEntities. comma separated list. checkboxes. 
+   */
+  private Set<String> subjectSourcesToProvision = null;
+  
+  
+  private String subjectLinkMemberFromId2;
+
+  private String subjectLinkMemberFromId3;
+
+  private String subjectLinkMemberToId2;
+
+  private String subjectLinkMemberToId3;
+
+  
+  public String getSubjectLinkMemberFromId2() {
+    return subjectLinkMemberFromId2;
+  }
+
+
+
+  
+  public void setSubjectLinkMemberFromId2(String subjectLinkMemberFromId2) {
+    this.subjectLinkMemberFromId2 = subjectLinkMemberFromId2;
+  }
+
+
+
+  
+  public String getSubjectLinkMemberFromId3() {
+    return subjectLinkMemberFromId3;
+  }
+
+
+
+  
+  public void setSubjectLinkMemberFromId3(String subjectLinkMemberFromId3) {
+    this.subjectLinkMemberFromId3 = subjectLinkMemberFromId3;
+  }
+
+
+
+  
+  public String getSubjectLinkMemberToId2() {
+    return subjectLinkMemberToId2;
+  }
+
+
+
+  
+  public void setSubjectLinkMemberToId2(String subjectLinkMemberToId2) {
+    this.subjectLinkMemberToId2 = subjectLinkMemberToId2;
+  }
+
+
+
+  
+  public String getSubjectLinkMemberToId3() {
+    return subjectLinkMemberToId3;
+  }
+
+
+
+  
+  public void setSubjectLinkMemberToId3(String subjectLinkMemberToId3) {
+    this.subjectLinkMemberToId3 = subjectLinkMemberToId3;
+  }
+  
+  /**
+   * attributes to use when searching, targetId is first if multiple
+   */
+  private List<GrouperProvisioningConfigurationAttribute> entitySearchAttributes = null;
+  
+  /**
+   * attributes to use when searching, targetId is first if multiple
+   */
+  private List<GrouperProvisioningConfigurationAttribute> groupSearchAttributes = null;
+  
+  /**
+   * attributes to use when selecting from target
+   */
+  private Set<String> groupSelectAttributes = null;
+  
+  /**
+   * attributes to use when selecting from target
+   * @return
+   */
+  public Set<String> getGroupSelectAttributes() {
+    return groupSelectAttributes;
+  }
+
+  /**
+   * attributes to use when selecting from target
+   * @param groupSelectAttributes
+   */
+  public void setGroupSelectAttributes(Set<String> groupSelectAttributes) {
+    this.groupSelectAttributes = groupSelectAttributes;
+  }
+
+  /**
+   * attributes to use when selecting from target
+   * @return
+   */
+  public Set<String> getEntitySelectAttributes() {
+    return entitySelectAttributes;
+  }
+
+  /**
+   * attributes to use when selecting from target
+   * @param entitySelectAttributes
+   */
+  public void setEntitySelectAttributes(Set<String> entitySelectAttributes) {
+    this.entitySelectAttributes = entitySelectAttributes;
+  }
+
+  /**
+   * attributes to use when selecting from target
+   */
+  private Set<String> entitySelectAttributes = null;
+  
+  /**
+   * someAttr  everything is assumed to be single valued except objectclass and the provisionedAttributeName optional
+   */
+  private Set<String> entityAttributesMultivalued = null;
+  
+  /**
+   * someAttr  everything is assumed to be single valued except objectclass and the provisionedAttributeName optional
+   */
+  private Set<String> groupAttributesMultivalued = null;
+
+  /**
+   * if there are fewer than this many subjects to process, just resolve them
+   */
+  private int refreshSubjectLinkIfLessThanAmount;
+  
+  /**
+   * if there are fewer than this many groups to process, just resolve them
+   */
+  private int refreshGroupLinkIfLessThanAmount;
+  
+  /**
+   * if there are fewer than this many entities to process, just resolve them
+   */
+  private int refreshEntityLinkIfLessThanAmount;
+  
+  /**
+   * if there are fewer than this many groups to process, just resolve them
+   * @return
+   */
+  public int getRefreshGroupLinkIfLessThanAmount() {
+    return refreshGroupLinkIfLessThanAmount;
+  }
+
+
+
+  /**
+   * if there are fewer than this many groups to process, just resolve them
+   * @param refreshGroupLinkIfLessThanAmount
+   */
+  public void setRefreshGroupLinkIfLessThanAmount(int refreshGroupLinkIfLessThanAmount) {
+    this.refreshGroupLinkIfLessThanAmount = refreshGroupLinkIfLessThanAmount;
+  }
+
+
+
+  /**
+   * if there are fewer than this many entities to process, just resolve them
+   * @return
+   */
+  public int getRefreshEntityLinkIfLessThanAmount() {
+    return refreshEntityLinkIfLessThanAmount;
+  }
+
+
+
+  /**
+   * if there are fewer than this many entities to process, just resolve them
+   * @param refreshEntityLinkIfLessThanAmount
+   */
+  public void setRefreshEntityLinkIfLessThanAmount(int refreshEntityLinkIfLessThanAmount) {
+    this.refreshEntityLinkIfLessThanAmount = refreshEntityLinkIfLessThanAmount;
+  }
+
+
+
+  /**
+   * if there are fewer than this many subjects to process, just resolve them
+   * @return
+   */
+  public int getRefreshSubjectLinkIfLessThanAmount() {
+    return refreshSubjectLinkIfLessThanAmount;
+  }
+
+  /**
+   * if there are fewer than this many subjects to process, just resolve them
+   * @param refreshSubjectLinkIfLessThanAmount
+   */
+  public void setRefreshSubjectLinkIfLessThanAmount(
+      int refreshSubjectLinkIfLessThanAmount) {
+    this.refreshSubjectLinkIfLessThanAmount = refreshSubjectLinkIfLessThanAmount;
+  }
+  
+  /**
+   * if entities should be inserted in target 
+   */
+  private boolean insertEntities = false;
+
+  /**
+   * if memberships should be replaced in target
+   */
+  private boolean replaceMemberships = false;
+  
+  /**
+   * if memberships should be replaced in target
+   * @return
+   */
+  public boolean isReplaceMemberships() {
+    return replaceMemberships;
+  }
+  
+  /**
+   * if memberships should be replaced in target
+   * @return
+   */
+  public void setReplaceMemberships(boolean replaceMemberships) {
+    this.replaceMemberships = replaceMemberships;
+  }
+
+  /**
+   * if memberships should be inserted in target
+   * @return
+   */
+  public boolean isInsertMemberships() {
+    return insertMemberships;
+  }
+
+  /**
+   * if memberships should be inserted in target
+   * @param insertMemberships
+   */
+  public void setInsertMemberships(boolean insertMemberships) {
+    this.insertMemberships = insertMemberships;
+  }
+
+  /**
+   * if memberships should be deleted in target
+   * @return
+   */
+  public boolean isDeleteMemberships() {
+    return deleteMemberships;
+  }
+
+  /**
+   * if memberships should be deleted in target
+   * @param deleteMemberships
+   */
+  public void setDeleteMemberships(boolean deleteMemberships) {
+    this.deleteMemberships = deleteMemberships;
+  }
+
+  /**
+   * update groups
+   */
+  private boolean updateGroups = true;
+
+  /**
+   * update entities
+   */
+  private boolean updateEntities = false;
+
+  /**
+   * update groups
+   * @return
+   */
+  public boolean isUpdateGroups() {
+    return updateGroups;
+  }
+
+  /**
+   * update groups
+   * @param updateGroups
+   */
+  public void setUpdateGroups(boolean updateGroups) {
+    this.updateGroups = updateGroups;
+  }
+
+  /**
+   * update entities
+   * @return
+   */
+  public boolean isUpdateEntities() {
+    return updateEntities;
+  }
+
+  /**
+   * update entities
+   * @param updateEntities
+   */
+  public void setUpdateEntities(boolean updateEntities) {
+    this.updateEntities = updateEntities;
+  }
+
+  /**
+   * delete groups
+   */
+  private boolean deleteGroups = true;
+
+  /**
+   * delete groups
+   * @return
+   */
+  public boolean isDeleteGroups() {
+    return deleteGroups;
+  }
+
+  /**
+   * delete groups
+   * @param deleteGroups
+   */
+  public void setDeleteGroups(boolean deleteGroups) {
+    this.deleteGroups = deleteGroups;
+  }
+
+  /**
+   * delete entities if grouper deleted them
+   */
+  private boolean deleteEntitiesIfGrouperDeleted = false;
+
+  /**
+   * delete entities if not exist in grouper
+   */
+  private boolean deleteEntitiesIfNotExistInGrouper = false;
+  
+  /**
+   * delete entities
+   */
+  private boolean deleteEntities = false;
+
+  /**
+   * select entities
+   */
+  private boolean selectEntities = true;
+  
+  /**
+   * should the provisioner select all entities from the target
+   */
+  private boolean selectAllEntities = true;
+  
+  
+  /**
+   * delete entities if grouper deleted them
+   * @return
+   */
+  public boolean isDeleteEntitiesIfGrouperDeleted() {
+    return deleteEntitiesIfGrouperDeleted;
+  }
+
+  /**
+   * delete entities if grouper deleted them
+   * @param deleteEntitiesIfGrouperDeleted
+   */
+  public void setDeleteEntitiesIfGrouperDeleted(boolean deleteEntitiesIfGrouperDeleted) {
+    this.deleteEntitiesIfGrouperDeleted = deleteEntitiesIfGrouperDeleted;
+  }
+
+  /**
+   * delete entities if not exist in grouper
+   * @return
+   */
+  public boolean isDeleteEntitiesIfNotExistInGrouper() {
+    return deleteEntitiesIfNotExistInGrouper;
+  }
+
+  /**
+   * delete entities if not exist in grouper
+   * @param deleteEntitiesIfNotExistInGrouper
+   */
+  public void setDeleteEntitiesIfNotExistInGrouper(
+      boolean deleteEntitiesIfNotExistInGrouper) {
+    this.deleteEntitiesIfNotExistInGrouper = deleteEntitiesIfNotExistInGrouper;
+  }
+
+  /**
+   * delete memberships if grouper deleted them
+   * @return
+   */
+  public boolean isDeleteMembershipsIfGrouperDeleted() {
+    return deleteMembershipsIfGrouperDeleted;
+  }
+
+  /**
+   * delete memberships if grouper deleted them
+   * @param deleteMembershipsIfGrouperDeleted
+   */
+  public void setDeleteMembershipsIfGrouperDeleted(
+      boolean deleteMembershipsIfGrouperDeleted) {
+    this.deleteMembershipsIfGrouperDeleted = deleteMembershipsIfGrouperDeleted;
+  }
+
+  /**
+   * delete memberships if not exist in grouper
+   * @return
+   */
+  public boolean isDeleteMembershipsIfNotExistInGrouper() {
+    return deleteMembershipsIfNotExistInGrouper;
+  }
+
+  /**
+   * delete memberships if not exist in grouper
+   * @param deleteMembershipsIfNotExistInGrouper
+   */
+  public void setDeleteMembershipsIfNotExistInGrouper(
+      boolean deleteMembershipsIfNotExistInGrouper) {
+    this.deleteMembershipsIfNotExistInGrouper = deleteMembershipsIfNotExistInGrouper;
+  }
+
+  /**
+   * delete entities
+   * @return
+   */
+  public boolean isDeleteEntities() {
+    return deleteEntities;
+  }
+
+  /**
+   * delete entities
+   * @param deleteEntities
+   */
+  public void setDeleteEntities(boolean deleteEntities) {
+    this.deleteEntities = deleteEntities;
+  }
+
+  /**
+   * select entities
+   * @return
+   */
+  public boolean isSelectEntities() {
+    return selectEntities;
+  }
+
+  /**
+   * select entities
+   * @param selectEntities
+   */
+  public void setSelectEntities(boolean selectEntities) {
+    this.selectEntities = selectEntities;
+  }
+  
+  /**
+   * should the provisioner select all entities from the target
+   * @return
+   */
+  public boolean isSelectAllEntities() {
+    return selectAllEntities;
+  }
+
+  /**
+   * should the provisioner select all entities from the target
+   * @param selectAllEntities
+   */
+  public void setSelectAllEntities(boolean selectAllEntities) {
+    this.selectAllEntities = selectAllEntities;
+  }
+
+  /**
+   * select memberships
+   * @return
+   */
+  public boolean isSelectMemberships() {
+    return selectMemberships;
+  }
+
+  /**
+   * select memberships
+   * @param selectMemberships
+   */
+  public void setSelectMemberships(boolean selectMemberships) {
+    this.selectMemberships = selectMemberships;
+  }
+
+  /**
+   * if memberships should be inserted in target
+   */
+  private boolean insertMemberships = true;
+
+  /**
+   * if memberships should be deleted in target
+   */
+  private boolean deleteMemberships = true;
+
+  /**
+   * 
+   */
+  private boolean deleteMembershipsIfGrouperCreated = true;
+  
+  /**
+   * delete memberships if grouper deleted them
+   */
+  private boolean deleteMembershipsIfGrouperDeleted = false;
+
+  /**
+   * delete memberships if not exist in grouper
+   */
+  private boolean deleteMembershipsIfNotExistInGrouper = false;
+
+  /**
+   * select memberships
+   */
+  private boolean selectMemberships = true;
+
+
+  /**
+   * if groups should be inserted in target
+   */
+  private boolean insertGroups = true;
+  
+  /**
+   * if groups should be selected from target
+   */
+  private boolean selectGroups = true;
+  
+  /**
+   * if groups should be selected from target
+   * @return
+   */
+  public boolean isSelectGroups() {
+    return selectGroups;
+  }
+
+  /**
+   * if groups should be selected from target
+   * @param selectGroups
+   */
+  public void setSelectGroups(boolean selectGroups) {
+    this.selectGroups = selectGroups;
+  }
+
+  /**
+   * search filter to look up entity if cannot just use the matchingId
+   */
+  private String entitySearchFilter = null;
+  
+  /**
+   * search filter to look up entity if cannot just use the matchingId
+   * @return
+   */
+  public String getEntitySearchFilter() {
+    return entitySearchFilter;
+  }
+
+  /**
+   * search filter to look up entity if cannot just use the matchingId
+   * @param userSearchFilter
+   */
+  public void setEntitySearchFilter(String userSearchFilter) {
+    this.entitySearchFilter = userSearchFilter;
+  }
+
+  private String entitySearchAllFilter;
+
+  /**
+   * search filter to look up all entities
+   * @return
+   */
+  public String getEntitySearchAllFilter() {
+    return entitySearchAllFilter;
+  }
+
+  /**
+   * search filter to look up all entities
+   * @param userSearchAllFilter
+   */
+  public void setEntitySearchAllFilter(String userSearchAllFilter) {
+    this.entitySearchAllFilter = userSearchAllFilter;
+  }
+  
+  protected Class<? extends GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributeClass() {
+    return GrouperProvisioningConfigurationAttribute.class;
+  }  
+  
+  
+  @Override
+  public String toString() {
+    
+    StringBuilder result = new StringBuilder();
+    
+    GrouperProvisioningConfiguration provisionerConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    Set<String> fieldNames = GrouperUtil.fieldNames(provisionerConfiguration.getClass(), 
+        GrouperProvisioningConfiguration.class, null, true, false, false);
+    
+    // assume configurations cache stuff in fields.  We can make this more flexible / customizable at some point
+    fieldNames.remove("configId");
+    fieldNames.remove("debugLog");
+    fieldNames.remove("debugMap");
+    fieldNames.remove("grouperProvisioner");
+    fieldNames.remove("targetEntityAttributeNameToConfig");
+    fieldNames.remove("targetEntityFieldNameToConfig");
+    fieldNames.remove("targetGroupAttributeNameToConfig");
+    fieldNames.remove("targetGroupFieldNameToConfig");
+    fieldNames.remove("targetMembershipAttributeNameToConfig");
+    fieldNames.remove("targetMembershipFieldNameToConfig");
+    fieldNames.remove("grouperProvisioningToTargetTranslation");
+    fieldNames.remove("metadataNameToMetadataItem");
+    
+    
+    fieldNames = new TreeSet<String>(fieldNames);
+    boolean firstField = true;
+    for (String fieldName : fieldNames) {
+      
+      Object value = GrouperUtil.propertyValue(provisionerConfiguration, fieldName);
+      if (!GrouperUtil.isBlank(value)) {
+        
+        if ((value instanceof Collection) && ((Collection)value).size() == 0) {
+          continue;
+        }
+        if ((value instanceof Map) && ((Map)value).size() == 0) {
+          continue;
+        }
+        if ((value.getClass().isArray()) && Array.getLength(value) == 0) {
+          continue;
+        }
+        if (!firstField) {
+          result.append(", ");
+        }
+        firstField = false;
+        result.append(fieldName).append(" = '").append(GrouperUtil.toStringForLog(value, false)).append("'");
+      }
+    }
+    for (String key : new TreeSet<String>(this.metadataNameToMetadataItem.keySet())) {
+      if (result.charAt(result.length()-1) != '\n') {
+        result.append("\n");
+      }
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = this.metadataNameToMetadataItem.get(key);
+      result.append(" - metadata item: " + key + ": " + grouperProvisioningObjectMetadataItem.toString());
+    }
+    for (String key : new TreeSet<String>(this.grouperProvisioningToTargetTranslation.keySet())) {
+      List<String> translations = this.grouperProvisioningToTargetTranslation.get(key);
+      for (int i=0;i<translations.size();i++) {
+        if (result.charAt(result.length()-1) != '\n') {
+          result.append("\n");
+        }
+        result.append(" - grouperProvisioningToTargetTranslation").append(key).append(".").append(i).append(".script = '").append(translations.get(i)).append("'");
+      }
+    }
+    for (String key : new TreeSet<String>(this.targetGroupAttributeNameToConfig.keySet())) {
+      if (result.charAt(result.length()-1) != '\n') {
+        result.append("\n");
+      }
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.targetGroupAttributeNameToConfig.get(key);
+      result.append(" - target group attribute config: " + key + ": " + grouperProvisioningConfigurationAttribute.toString());
+    }
+    for (String key : new TreeSet<String>(this.targetEntityAttributeNameToConfig.keySet())) {
+      if (result.charAt(result.length()-1) != '\n') {
+        result.append("\n");
+      }
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.targetEntityAttributeNameToConfig.get(key);
+      result.append(" - target entity attribute config: " + key + ": " + grouperProvisioningConfigurationAttribute.toString());
+    }
+    for (String key : new TreeSet<String>(this.targetMembershipAttributeNameToConfig.keySet())) {
+      if (result.charAt(result.length()-1) != '\n') {
+        result.append("\n");
+      }
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.targetMembershipAttributeNameToConfig.get(key);
+      result.append(" - target membership attribute config: " + key + ": " + grouperProvisioningConfigurationAttribute.toString());
+    }
+    
+    return result.toString();
+  }
+
+  /**
+   * search filter to look up group if cannot just use the matchingId
+   */
+  private String groupSearchFilter = null;
+  
+  
+  
+  /**
+   * search filter to look up group if cannot just use the matchingId
+   * @return
+   */
+  public String getGroupSearchFilter() {
+    return groupSearchFilter;
+  }
+
+
+
+  /**
+   * search filter to look up group if cannot just use the matchingId
+   * @param groupSearchFilter
+   */
+  public void setGroupSearchFilter(String groupSearchFilter) {
+    this.groupSearchFilter = groupSearchFilter;
+  }
+  
+  private String groupSearchAllFilter;
+
+  /**
+   * search filter to look up all groups
+   * @return
+   */
+  public String getGroupSearchAllFilter() {
+    return groupSearchAllFilter;
+  }
+
+  /**
+   * search filter to look up all groups
+   * @param groupSearchAllFilter
+   */
+  public void setGroupSearchAllFilter(String groupSearchAllFilter) {
+    this.groupSearchAllFilter = groupSearchAllFilter;
+  }
+  
+  /**
+   * 
+   */
+  private boolean deleteEntitiesIfGrouperCreated = false;
+  
+  /**
+   * 
+   */
+  private boolean deleteGroupsIfGrouperCreated = true;
+
+  /**
+   * 
+   * @return
+   */
+  public boolean isDeleteEntitiesIfGrouperCreated() {
+    return deleteEntitiesIfGrouperCreated;
+  }
+
+  /**
+   * 
+   * @param deleteEntitiesIfGrouperCreated
+   */
+  public void setDeleteEntitiesIfGrouperCreated(boolean deleteEntitiesIfGrouperCreated) {
+    this.deleteEntitiesIfGrouperCreated = deleteEntitiesIfGrouperCreated;
+  }
+
+  /**
+   * 
+   * @return
+   */
+  public boolean isDeleteGroupsIfGrouperCreated() {
+    return deleteGroupsIfGrouperCreated;
+  }
+
+  
+  public void setDeleteGroupsIfGrouperCreated(boolean deleteGroupsIfGrouperCreated) {
+    this.deleteGroupsIfGrouperCreated = deleteGroupsIfGrouperCreated;
+  }
+
+  
+  public boolean isDeleteMembershipsIfGrouperCreated() {
+    return deleteMembershipsIfGrouperCreated;
+  }
+
+  
+  public void setDeleteMembershipsIfGrouperCreated(
+      boolean deleteMembershipsIfGrouperCreated) {
+    this.deleteMembershipsIfGrouperCreated = deleteMembershipsIfGrouperCreated;
+  }
+
+  /**
+   * true or false if groups in full sync should be deleted if in group all filter and not in grouper
+   * or for attributes delete other attribute not provisioned by grouper default to false
+   */
+  private boolean deleteGroupsIfNotExistInGrouper = false;
+
+  /**
+   * true or false if groups that were created in grouper were deleted should it be deleted in ldap?
+   * or for attributes, delete attribute value if deleted in grouper default to true
+   */
+  private boolean deleteGroupsIfGrouperDeleted = false;
+
+  /**
+   * if provisioning normal memberships or privileges  default to "members" for normal memberships, otherwise which privileges
+   */
+  private GrouperProvisioningMembershipFieldType grouperProvisioningMembershipFieldType = null;
+
+  /**
+   * attribute name in a group/entity object that refers to memberships (if applicable)
+   */
+  private String attributeNameForMemberships;
+
+  /**
+   * attribute name in a group/entity object that refers to memberships (if applicable)
+   * @return
+   */
+  public String getAttributeNameForMemberships() {
+    return attributeNameForMemberships;
+  }
+
+  /**
+   * attribute name in a group/entity object that refers to memberships (if applicable)
+   * @param attributeNameForMemberships
+   */
+  public void setAttributeNameForMemberships(String attributeNameForMemberships) {
+    this.attributeNameForMemberships = attributeNameForMemberships;
+  }
+
+  /**
+   * attribute name in a group object that refers to memberships (if applicable)
+   */
+  private String groupAttributeNameForMemberships;
+  
+  /**
+   * attribute name in a group object that refers to memberships (if applicable)
+   * @return
+   */
+  public String getGroupAttributeNameForMemberships() {
+    return groupAttributeNameForMemberships;
+  }
+
+  /**
+   * attribute name in a group object that refers to memberships (if applicable)
+   * @param groupAttributeNameForMemberships
+   */
+  public void setGroupAttributeNameForMemberships(String groupAttributeNameForMemberships) {
+    this.groupAttributeNameForMemberships = groupAttributeNameForMemberships;
+  }
+  
+  /**
+   * attribute name in a user object that refers to memberships (if applicable)
+   */
+  private String entityAttributeNameForMemberships;
+  
+  /**
+   * attribute name in a user object that refers to memberships (if applicable)
+   * @return
+   */
+  public String getEntityAttributeNameForMemberships() {
+    return entityAttributeNameForMemberships;
+  }
+
+  /**
+   * attribute name in a user object that refers to memberships (if applicable)
+   * @param userAttributeNameForMemberships
+   */
+  public void setEntityAttributeNameForMemberships(String userAttributeNameForMemberships) {
+    this.entityAttributeNameForMemberships = userAttributeNameForMemberships;
+  }
+
+  /**
+   * 
+   */
+  public abstract void configureSpecificSettings();
+
+  private GrouperProvisioningBehaviorMembershipType grouperProvisioningBehaviorMembershipType;
+
+  /**
+   * number of metadata
+   */
+  private int numberOfMetadata;  
+  
+  
+  /**
+   * number of metadata
+   * @return
+   */
+  public int getNumberOfMetadata() {
+    return numberOfMetadata;
+  }
+
+  /**
+   * number of metadata
+   * @param numberOfMetadata
+   */
+  public void setNumberOfMetadata(int numberOfMetadata) {
+    this.numberOfMetadata = numberOfMetadata;
+  }
+
+  public GrouperProvisioningBehaviorMembershipType getGrouperProvisioningBehaviorMembershipType() {
+    return grouperProvisioningBehaviorMembershipType;
+  }
+
+  
+  public void setGrouperProvisioningBehaviorMembershipType(
+      GrouperProvisioningBehaviorMembershipType grouperProvisioningBehaviorMembershipType) {
+    this.grouperProvisioningBehaviorMembershipType = grouperProvisioningBehaviorMembershipType;
+  }
+  
+  public void configureProvisionableSettings() {
+    if (this.getConfigId() == null) {
+      this.setConfigId(this.grouperProvisioner.getConfigId());
+    }
+    
+    this.onlyProvisionPolicyGroups = this.retrieveConfigBoolean("onlyProvisionPolicyGroups", false);
+
+    this.allowPolicyGroupOverride = this.retrieveConfigBoolean("allowPolicyGroupOverride", false);
+
+    this.allowProvisionableRegexOverride = this.retrieveConfigBoolean("allowProvisionableRegexOverride", false);
+
+    this.provisionableRegex = this.retrieveConfigString("provisionableRegex", false);
+  }
+
+  public void configureGenericSettings() {
+    configureProvisionableSettings();
+    
+    {
+      Boolean operateOnGrouperMemberships = this.retrieveConfigBoolean("operateOnGrouperMemberships", false);
+      if (operateOnGrouperMemberships == null) {
+        operateOnGrouperMemberships = false;
+      }
+      
+      if (operateOnGrouperMemberships) {
+        String provisioningTypeString = this.retrieveConfigString("provisioningType", true);
+        this.grouperProvisioningBehaviorMembershipType = GrouperProvisioningBehaviorMembershipType.valueOf(provisioningTypeString);
+      }
+      
+    }
+
+    this.numberOfMetadata = GrouperUtil.intValue(this.retrieveConfigInt("numberOfMetadata", false), 0);
+    
+    for (int i=0;i<this.numberOfMetadata;i++) {
+      
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+      {
+        String name = this.retrieveConfigString("metadata."+i+".name", false);
+        if (!name.startsWith("md_")) {
+          //TODO validate this
+          this.debugMap.put("invalid_metadataName_" + name, true);
+          continue;
+        }
+        grouperProvisioningObjectMetadataItem.setName(name);
+        if (this.metadataNameToMetadataItem.containsKey(name)) {
+          throw new RuntimeException("Conflicting metadata names! " + name);
+        }
+        this.metadataNameToMetadataItem.put(name, grouperProvisioningObjectMetadataItem);
+      }
+      
+      grouperProvisioningObjectMetadataItem.setLabelKey(grouperProvisioningObjectMetadataItem.getName() + "_" + this.getGrouperProvisioner().getConfigId() + "_label");
+      grouperProvisioningObjectMetadataItem.setDescriptionKey(grouperProvisioningObjectMetadataItem.getName() + "_" + this.getGrouperProvisioner().getConfigId() + "_description");
+      
+      {
+        boolean showForFolder = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".showForFolder", false), false);
+        grouperProvisioningObjectMetadataItem.setShowForFolder(showForFolder);
+      }
+      
+      {
+        boolean showForGroup = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".showForGroup", false), false);
+        grouperProvisioningObjectMetadataItem.setShowForGroup(showForGroup);
+      }
+      
+      {
+        boolean showForMember = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".showForMember", false), false);
+        grouperProvisioningObjectMetadataItem.setShowForMember(showForMember);
+      }
+      
+      {
+        boolean showForMembership = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".showForMembership", false), false);
+        grouperProvisioningObjectMetadataItem.setShowForMembership(showForMembership);
+      }
+
+      {
+        String valueType = this.retrieveConfigString("metadata."+i+".valueType", false);
+        GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
+            StringUtils.isBlank(valueType) ? GrouperProvisioningObjectMetadataItemValueType.STRING 
+                : GrouperProvisioningObjectMetadataItemValueType.valueOfIgnoreCase(valueType, true);
+        grouperProvisioningObjectMetadataItem.setValueType(grouperProvisioningObjectMetadataItemValueType);
+        
+        if (grouperProvisioningObjectMetadataItemValueType == GrouperProvisioningObjectMetadataItemValueType.BOOLEAN) {
+          grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
+         
+          String trueLabel = GrouperTextContainer.textOrNull("config.defaultTrueLabel");
+          String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+          
+          String defaultValue = this.retrieveConfigString("metadata."+i+".defaultValue", false);
+          
+          List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
+          
+          if (StringUtils.isNotBlank(defaultValue)) {
+            
+            Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(defaultValue);
+            if (booleanObjectValue != null) {
+              String defaultValueStr = booleanObjectValue ? "("+trueLabel+")" : "("+falseLabel+")"; 
+              keysAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" " + defaultValueStr ));
+            }
+          }
+          
+          keysAndLabels.add(new MultiKey("true", trueLabel));
+          keysAndLabels.add(new MultiKey("false", falseLabel));
+          grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(keysAndLabels);
+        } else {
+          String formElementType = this.retrieveConfigString("metadata."+i+".formElementType", false);
+          GrouperProvisioningObjectMetadataItemFormElementType grouperProvisioningObjectMetadataItemFormElementType =
+              StringUtils.isBlank(formElementType) ? GrouperProvisioningObjectMetadataItemFormElementType.TEXT 
+                  : GrouperProvisioningObjectMetadataItemFormElementType.valueOfIgnoreCase(formElementType, true);
+          grouperProvisioningObjectMetadataItem.setFormElementType(grouperProvisioningObjectMetadataItemFormElementType);
+        }
+      }
+      
+      {
+        String defaultValue = this.retrieveConfigString("metadata."+i+".defaultValue", false);
+        grouperProvisioningObjectMetadataItem.setDefaultValue(defaultValue);
+      }
+      
+      {
+        String dropdownValues = this.retrieveConfigString("metadata."+i+".dropdownValues", false);
+        if (!StringUtils.isBlank(dropdownValues)) {
+          String[] dropdownValuesArray = GrouperUtil.splitTrim(dropdownValues, ",");
+          List<MultiKey> keysAndLabels = new ArrayList<MultiKey>();
+          keysAndLabels.add(new MultiKey("", ""));
+          for (String dropdownValue : dropdownValuesArray) {
+            dropdownValue = GrouperUtil.replace(dropdownValue, "&#x2c;", ",");
+            MultiKey keyAndLabel = new MultiKey(dropdownValue, dropdownValue);
+            keysAndLabels.add(keyAndLabel);
+          }
+          grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(keysAndLabels);
+        }
+      }
+      
+      {
+        boolean required = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".required", false), false);
+        grouperProvisioningObjectMetadataItem.setRequired(required);
+      }
+
+      {
+        String groupIdThatCanView = this.retrieveConfigString("metadata."+i+".groupIdThatCanView", false);
+        grouperProvisioningObjectMetadataItem.setGroupIdThatCanView(groupIdThatCanView);
+      }
+      {
+        String groupIdThatCanUpdate = this.retrieveConfigString("metadata."+i+".groupIdThatCanUpdate", false);
+        grouperProvisioningObjectMetadataItem.setGroupIdThatCanUpdate(groupIdThatCanUpdate);
+      }
+      
+    }
+    
+    for (String objectType: new String[] {"targetGroupAttribute", "targetEntityAttribute", "targetMembershipAttribute"}) {
+      
+      boolean foundMatchingId = false;
+      String foundMatchingIdName = null;
+      
+      boolean foundMembershipAttribute = false;
+      String foundMembershipAttributeName = null;
+      
+      for (int i=0; i< 20; i++) {
+  
+        
+        GrouperProvisioningConfigurationAttribute attributeConfig = GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
+        
+        attributeConfig.setGrouperProvisioner(grouperProvisioner);
+        attributeConfig.setConfigIndex(i);
+        
+        if (StringUtils.equals("targetGroupAttribute", objectType)) {
+          attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+        } else if (StringUtils.equals("targetEntityAttribute", objectType)) {
+          attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        } else if (StringUtils.equals("targetMembershipAttribute", objectType)) {
+          attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.membership);
+        } else {
+          throw new RuntimeException("Cant find object type: " + objectType);
+        }
+
+        String name = this.retrieveConfigString(objectType + "."+i+ ".name" , false);
+        if (StringUtils.isBlank(name)) {
+          break;
+        }
+        attributeConfig.setName(name);
+        
+        {
+          boolean showAttributeValidation = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeValidation" , false), false);
+          if (showAttributeValidation) {
+            {
+              Integer maxlength = this.retrieveConfigInt(objectType + "."+i+".maxlength", false);
+              attributeConfig.setMaxlength(maxlength);
+            }
+            
+            {
+              String validExpression = this.retrieveConfigString(objectType + "."+i+".validExpression", false);
+              attributeConfig.setValidExpression(validExpression);
+            }
+            
+            {
+              boolean required = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".required" , false), false);
+              attributeConfig.setRequired(required);
+            }
+            
+          }
+        }
+
+        {
+          boolean searchAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".searchAttribute" , false), false);
+          attributeConfig.setSearchAttribute(searchAttribute);
+        }
+  
+        {
+          boolean membershipAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".membershipAttribute" , false), false);
+          String translateExpressionFromMembership = this.retrieveConfigString(objectType + "." + i + ".translateExpressionFromMembership", false);
+          if (membershipAttribute) {
+            if (foundMembershipAttribute) {
+              throw new RuntimeException("Can only have one " + objectType + " membershipAttribute attribute or field! " + name + ", " + foundMembershipAttributeName);
+            }
+            foundMembershipAttribute = true;
+            foundMembershipAttributeName = name;
+            
+            attributeConfig.setTranslateExpressionFromMembership(translateExpressionFromMembership);
+          }
+          attributeConfig.setMembershipAttribute(membershipAttribute);
+        }
+  
+        {
+          boolean matchingId = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".matchingId" , false), false);
+          if (matchingId) {
+            if (foundMatchingId) {
+              throw new RuntimeException("Can only have one " + objectType + " matchingId attribute or field! " + name + ", " + foundMatchingIdName);
+            }
+            foundMatchingId = true;
+            foundMatchingIdName = name;
+          }
+          attributeConfig.setMatchingId(matchingId);
+        }
+        
+        {
+          String translateExpression = this.retrieveConfigString(objectType + "."+i+".translateExpression" , false);
+          attributeConfig.setTranslateExpression(translateExpression);
+        }
+        
+        {
+          String translateExpressionCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateExpressionCreateOnly" , false);
+          attributeConfig.setTranslateExpressionCreateOnly(translateExpressionCreateOnly);
+        }
+        
+        {
+          String translateFromStaticValues = this.retrieveConfigString(objectType + "."+i+".translateFromStaticValues" , false);
+          attributeConfig.setTranslateFromStaticValues(translateFromStaticValues);
+        }
+        
+        {
+          String translateFromStaticValuesCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateFromStaticValuesCreateOnly" , false);
+          attributeConfig.setTranslateFromStaticValuesCreateOnly(translateFromStaticValuesCreateOnly);
+        }
+        
+        {
+          String translateFromGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromGroupSyncField" , false);
+          attributeConfig.setTranslateFromGroupSyncField(translateFromGroupSyncField);
+        }
+
+        {
+          String translateFromGrouperProvisioningGroupField = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperProvisioningGroupField" , false);
+          attributeConfig.setTranslateFromGrouperProvisioningGroupField(translateFromGrouperProvisioningGroupField);
+        }
+        
+        {
+          String translateFromGrouperProvisioningEntityField = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperProvisioningEntityField" , false);
+          attributeConfig.setTranslateFromGrouperProvisioningEntityField(translateFromGrouperProvisioningEntityField);
+        }
+        
+        {
+          String translateFromGrouperProvisioningGroupFieldCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperProvisioningGroupFieldCreateOnly" , false);
+          attributeConfig.setTranslateFromGrouperProvisioningGroupFieldCreateOnly(translateFromGrouperProvisioningGroupFieldCreateOnly);
+        }
+        
+        {
+          String translateFromGrouperProvisioningEntityFieldCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperProvisioningEntityFieldCreateOnly" , false);
+          attributeConfig.setTranslateFromGrouperProvisioningEntityFieldCreateOnly(translateFromGrouperProvisioningEntityFieldCreateOnly);
+        }
+        
+        {
+          String translateFromMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromMemberSyncField" , false);
+          attributeConfig.setTranslateFromMemberSyncField(translateFromMemberSyncField);
+        }
+        
+        {
+          String translateToGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateToGroupSyncField" , false);
+          attributeConfig.setTranslateToGroupSyncField(translateToGroupSyncField);
+        }
+        
+        {
+          String translateToMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateToMemberSyncField" , false);
+          attributeConfig.setTranslateToMemberSyncField(translateToMemberSyncField);
+        }
+        
+        {
+          String translateGrouperToGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateGrouperToGroupSyncField" , false);
+          attributeConfig.setTranslateGrouperToGroupSyncField(translateGrouperToGroupSyncField);
+        }
+        
+        {
+          String translateGrouperToMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateGrouperToMemberSyncField" , false);
+          attributeConfig.setTranslateGrouperToMemberSyncField(translateGrouperToMemberSyncField);
+        }
+        {
+          boolean showAttributeCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeCrud" , false), false);
+          if (showAttributeCrud) {
+
+            {
+              boolean insert = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".insert" , false), true);
+              attributeConfig.setInsert(insert);
+            }
+    
+            {
+              boolean update = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType+"."+i+".update" , false), true);
+              attributeConfig.setUpdate(update);
+            }
+            {
+              boolean select = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".select" , false), true);
+              attributeConfig.setSelect(select);
+            }
+          }
+        }
+
+        {
+          boolean showAttributeValueSettings = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeValueSettings" , false), false);
+          if (showAttributeValueSettings) {
+
+            {
+              boolean multiValued = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".multiValued" , false), false);
+              attributeConfig.setMultiValued(multiValued);
+            }
+      
+
+            {
+              String defaultValue = this.retrieveConfigString(objectType + "."+i+".defaultValue" , false);
+              attributeConfig.setDefaultValue(defaultValue);
+            }
+            
+    
+            {
+              GrouperProvisioningConfigurationAttributeValueType valueType = 
+                  GrouperProvisioningConfigurationAttributeValueType.valueOfIgnoreCase(
+                      this.retrieveConfigString(objectType+ "."+i+".valueType" , false), false);
+              if (valueType == null) {
+                valueType = GrouperProvisioningConfigurationAttributeValueType.STRING;
+              }
+              attributeConfig.setValueType(valueType);
+            }
+            
+            {
+              String ignoreIfMatchesValuesRaw = this.retrieveConfigString(objectType + "."+i+".ignoreIfMatchesValue" , false);
+              if (!StringUtils.isBlank(ignoreIfMatchesValuesRaw)) {
+                GrouperProvisioningConfigurationAttributeValueType valueType = GrouperUtil.defaultIfNull(attributeConfig.getValueType(), 
+                    GrouperProvisioningConfigurationAttributeValueType.STRING);
+                
+                for (String ignoreIfMatchesValueRaw : GrouperUtil.splitTrim(ignoreIfMatchesValuesRaw, ",")) {
+                  ignoreIfMatchesValueRaw = StringUtils.replace(ignoreIfMatchesValueRaw, "U+002C", ",");
+                  Object ignoreIfMatchesValue = valueType.convert(ignoreIfMatchesValueRaw);
+                  attributeConfig.getIgnoreIfMatchesValues().add(ignoreIfMatchesValue);
+                }
+              }
+            }
+          }
+        }
+
+        if ("targetGroupAttribute".equals(objectType)) {
+          if (targetGroupAttributeNameToConfig.containsKey(name)) {
+            throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
+          }
+        
+          targetGroupAttributeNameToConfig.put(name, attributeConfig);
+          
+        } else if ("targetEntityAttribute".equals(objectType)) {
+          if (targetEntityAttributeNameToConfig.containsKey(name)) {
+            throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
+          }
+          targetEntityAttributeNameToConfig.put(name, attributeConfig);
+          
+        } else if ("targetMembershipAttribute".equals(objectType)) {
+          if (targetMembershipAttributeNameToConfig.containsKey(name)) {
+            throw new RuntimeException("Multiple configurations for " + objectType + " attribute: " + name);
+          }
+          targetMembershipAttributeNameToConfig.put(name, attributeConfig);
+          
+        } else {
+          throw new RuntimeException("Invalid object type: '" + objectType + "'");
+        }
+      }
+    }
+    
+    this.hasSubjectLink = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("hasSubjectLink", false), false);
+    if (this.hasSubjectLink) {
+      this.debugMap.put("hasSubjectLink", this.hasSubjectLink);
+    }
+    
+    this.hasTargetGroupLink = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("hasTargetGroupLink", false), false);
+    if (this.hasTargetGroupLink) {
+      this.debugMap.put("hasTargetGroupLink", this.hasTargetGroupLink);
+    }
+
+    this.hasTargetEntityLink = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("hasTargetEntityLink", false), false);
+    if (this.hasTargetEntityLink) {
+      this.debugMap.put("hasTargetEntityLink", this.hasTargetEntityLink);
+    }
+
+    this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
+
+    this.entityMatchingIdExpression = this.retrieveConfigString("entityMatchingIdExpression", false);
+    this.groupMatchingIdExpression = this.retrieveConfigString("groupMatchingIdExpression", false);
+    this.membershipMatchingIdExpression = this.retrieveConfigString("membershipMatchingIdExpression", false);
+
+    this.entityMatchingIdAttribute = this.retrieveConfigString("entityMatchingIdAttribute", false);
+    this.groupMatchingIdAttribute = this.retrieveConfigString("groupMatchingIdAttribute", false);
+    
+    this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
+
+    this.logCommandsAlways = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsAlways", false), false);
+    
+    this.logCommandsOnError = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsOnError", false), false);
+    
+    this.debugLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("debugLog", false), false);
+    
+    this.operateOnGrouperEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperEntities", false), false);
+
+    this.subjectSourcesToProvision = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(this.retrieveConfigString("subjectSourcesToProvision", false), ","));
+
+    for (String sourceId : this.subjectSourcesToProvision) {
+      if (null == SourceManager.getInstance().getSource(sourceId)) {
+        throw new RuntimeException("Cant find source: '" + sourceId + "'");
+      }
+    }
+    this.debugMap.put("subjectSourcesToProvision", GrouperUtil.join(this.subjectSourcesToProvision.iterator(), ','));
+
+    this.subjectLinkMemberFromId2 = this.retrieveConfigString("common.subjectLink.memberFromId2", false);
+    this.subjectLinkMemberFromId3 = this.retrieveConfigString("common.subjectLink.memberFromId3", false);
+    this.subjectLinkMemberToId2 = this.retrieveConfigString("common.subjectLink.memberToId2", false);
+    this.subjectLinkMemberToId3 = this.retrieveConfigString("common.subjectLink.memberToId3", false);
+
+    this.groupLinkGroupFromId2 = this.retrieveConfigString("common.groupLink.groupFromId2", false);
+    this.groupLinkGroupFromId3 = this.retrieveConfigString("common.groupLink.groupFromId3", false);
+    this.groupLinkGroupToId2 = this.retrieveConfigString("common.groupLink.groupToId2", false);
+    this.groupLinkGroupToId3 = this.retrieveConfigString("common.groupLink.groupToId3", false);
+
+    this.entityLinkMemberFromId2 = this.retrieveConfigString("common.entityLink.memberFromId2", false);
+    this.entityLinkMemberFromId3 = this.retrieveConfigString("common.entityLink.memberFromId3", false);
+    this.entityLinkMemberToId2 = this.retrieveConfigString("common.entityLink.memberToId2", false);
+    this.entityLinkMemberToId3 = this.retrieveConfigString("common.entityLink.memberToId3", false);
+
+    this.refreshSubjectLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshSubjectLinkIfLessThanAmount", false), 20);
+    this.refreshGroupLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshGroupLinkIfLessThanAmount", false), 20);
+    this.refreshEntityLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshEntityLinkIfLessThanAmount", false), 20);
+    
+    this.scoreConvertToFullSyncThreshold = GrouperUtil.intValue(this.retrieveConfigInt("scoreConvertToFullSyncThreshold", false), 10000);
+    this.membershipsConvertToGroupSyncThreshold = GrouperUtil.intValue(this.retrieveConfigInt("membershipsConvertToGroupSyncThreshold", false), 500);
+    
+    this.entitySearchFilter = this.retrieveConfigString("userSearchFilter", false);
+    this.entitySearchAllFilter = this.retrieveConfigString("userSearchAllFilter", false);
+    this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
+    this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
+    
+    this.customizeGroupCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeGroupCrud", false), false);
+    
+    if (this.customizeGroupCrud) {
+
+      this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), true);
+
+      this.selectGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectGroups", false), true);
+
+      this.updateGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateGroups", false), true);
+
+      this.deleteGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroups", false), true);
+
+      this.deleteGroupsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfNotExistInGrouper", false), false);
+
+      this.deleteGroupsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperDeleted", false), false);
+
+      this.deleteGroupsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperCreated", false), 
+          (deleteGroups && !this.deleteGroupsIfNotExistInGrouper && !this.deleteGroupsIfGrouperDeleted));
+    }
+
+    
+    this.customizeMembershipCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeMembershipCrud", false), false);
+    if (this.customizeMembershipCrud) {
+      
+      this.insertMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertMemberships", false), true);
+
+      this.selectMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectMemberships", false), true);
+
+      this.deleteMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMemberships", false), true);
+
+      this.deleteMembershipsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfNotExistInGrouper", false), false);
+
+      this.deleteMembershipsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperDeleted", false), false);
+
+      this.deleteMembershipsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperCreated", false), 
+          (deleteMemberships && !this.deleteMembershipsIfNotExistInGrouper && !this.deleteMembershipsIfGrouperDeleted));
+    }
+
+    this.makeChangesToEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("makeChangesToEntities", false), false);
+
+    // reset some defaults if making changes
+    if (this.makeChangesToEntities) {
+      this.insertEntities = true;
+      this.updateEntities = true;
+      this.deleteEntities = true;
+      this.deleteEntitiesIfGrouperCreated = true;
+    }
+
+    this.customizeEntityCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeEntityCrud", false), false);
+  
+    if (this.customizeEntityCrud) {
+      this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), this.insertEntities);
+      
+      this.deleteEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntities", false), this.deleteEntities);
+  
+      this.updateEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("updateEntities", false), this.updateEntities);
+  
+      this.selectEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectEntities", false), this.selectEntities);
+  
+      this.deleteEntitiesIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfNotExistInGrouper", false), this.deleteEntitiesIfNotExistInGrouper);
+  
+      this.deleteEntitiesIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperDeleted", false), this.deleteEntitiesIfGrouperDeleted);
+  
+      this.deleteEntitiesIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteEntitiesIfGrouperCreated", false), 
+          (this.makeChangesToEntities && deleteEntities && !this.deleteEntitiesIfNotExistInGrouper && !this.deleteEntitiesIfGrouperDeleted));
+          
+    }
+    this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
+
+    this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
+    
+    this.groupsRequireMembers = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupsRequireMembers", false), false);
+    this.loadEntitiesToGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGrouperTable", false), false);
+    this.allowBlankMatchingIds = GrouperUtil.booleanValue(this.retrieveConfigBoolean("allowBlankMatchingIds", false), false);
+    
+    this.hasEntityAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.entityAttributesNotInSubjectSource", false), false);
+    this.resolveAttributesWithSql = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.resolveAttributesWithSQL", false), false);
+    this.resolveAttributesWithLdap = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.resolveAttributesWithLDAP", false), false);
+    this.useGlobalSqlResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.useGlobalSQLResolver", false), false);
+
+    this.useGlobalLdapResolver = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.useGlobalLDAPResolver", false), false);
+    this.globalSqlResolver = this.retrieveConfigString("entityResolver.globalSQLResolver", false);
+    this.globalLdapResolver = this.retrieveConfigString("entityResolver.globalLDAPResolver", false);
+    this.selectAllSqlOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.selectAllSQLOnFull", false), true);
+    this.filterAllLDAPOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.filterAllLDAPOnFull", false), true);
+    
+    this.entityAttributesSqlExternalSystem = this.retrieveConfigString("entityResolver.sqlConfigId", false);
+    this.entityAttributesTableViewName = this.retrieveConfigString("entityResolver.tableOrViewName", false);
+    this.entityAttributesColumnNames = this.retrieveConfigString("entityResolver.columnNames", false);
+    this.entityAttributesSubjectSourceIdColumn = this.retrieveConfigString("entityResolver.subjectSourceIdColumn", false);
+    this.entityAttributesSubjectSearchMatchingColumn = this.retrieveConfigString("entityResolver.subjectSearchMatchingColumn", false);
+    this.entityAttributesSqlMappingType = this.retrieveConfigString("entityResolver.sqlMappingType", false);
+    this.entityAttributesSqlMappingEntityAttribute = this.retrieveConfigString("entityResolver.sqlMappingEntityAttribute", false);
+    this.entityAttributesSqlMappingExpression = this.retrieveConfigString("entityResolver.sqlMappingExpression", false);
+    this.entityAttributesLastUpdatedColumn = this.retrieveConfigString("entityResolver.lastUpdatedColumn", false);
+    this.entityAttributesLastUpdatedType = this.retrieveConfigString("entityResolver.lastUpdatedType", false);
+    
+    this.entityAttributesLdapExternalSystem = this.retrieveConfigString("entityResolver.ldapConfigId", false);
+    this.entityAttributesLdapBaseDn = this.retrieveConfigString("entityResolver.baseDN", false);
+    this.entityAttributesLdapSubjectSource = this.retrieveConfigString("entityResolver.subjectSourceId", false);
+    this.entityAttributesLdapSearchScope = this.retrieveConfigString("entityResolver.searchScope", false);
+    this.entityAttributesLdapFilterPart = this.retrieveConfigString("entityResolver.filterPart", false);
+    this.entityAttributesLdapAttributes = this.retrieveConfigString("entityResolver.attributes", false);
+    this.entityAttributesLdapMutliValuedAttributes = this.retrieveConfigString("entityResolver.multiValuedLdapAttributes", false);
+    this.entityAttributesLdapMatchingSearchAttribute = this.retrieveConfigString("entityResolver.ldapMatchingSearchAttribute", false);
+    this.entityAttributesLdapMappingType = this.retrieveConfigString("entityResolver.ldapMappingType", false);
+    this.entityAttributesLdapMappingEntityAttribute = this.retrieveConfigString("entityResolver.ldapMappingEntityAttribute", false);
+    this.entityAttributesLdapMatchingExpression = this.retrieveConfigString("entityResolver.ldapMatchingExpression", false);
+    this.entityAttributesLdapLastUpdatedAttribute = this.retrieveConfigString("entityResolver.lastUpdatedAttribute", false);
+    this.entityAttributesLdapLastUpdatedAttributeFormat = this.retrieveConfigString("entityResolver.lastUpdatedFormat", false);
+
+    // init this in the behavior
+    this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().setGroupIdOfUsersToProvision(this.groupIdOfUsersToProvision);
+    
+    if (this.entityAttributesMultivalued == null) {
+      this.entityAttributesMultivalued = new HashSet<String>();
+    }
+    
+    if (this.groupAttributesMultivalued == null) {
+      this.groupAttributesMultivalued = new HashSet<String>(); 
+    }
+
+    this.groupSelectAttributes = new HashSet<String>();
+    this.groupSearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
+
+    for (String targetGroupAttributeName : this.targetGroupAttributeNameToConfig.keySet()) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = targetGroupAttributeNameToConfig.get(targetGroupAttributeName);
+      if (grouperProvisioningConfigurationAttribute.isSelect()) {
+        this.groupSelectAttributes.add(targetGroupAttributeName);
+      }
+      
+      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
+        this.groupAttributeNameForMemberships = targetGroupAttributeName;
+        this.attributeNameForMemberships = targetGroupAttributeName;
+        grouperProvisioningConfigurationAttribute.setSelect(this.isSelectMemberships());
+        grouperProvisioningConfigurationAttribute.setInsert(this.isInsertMemberships());
+      }
+      
+      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
+        this.groupAttributesMultivalued.add(targetGroupAttributeName);
+      }
+      if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+          this.groupSearchAttributes.add(0, grouperProvisioningConfigurationAttribute);
+        } else {
+          this.groupSearchAttributes.add(grouperProvisioningConfigurationAttribute);
+        }
+      }
+    }
+    
+    this.entitySelectAttributes = new HashSet<String>();
+    this.entitySearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
+    for (String targetEntityAttributeName : this.targetEntityAttributeNameToConfig.keySet()) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = targetEntityAttributeNameToConfig.get(targetEntityAttributeName);
+      if (grouperProvisioningConfigurationAttribute.isSelect()) {
+        this.entitySelectAttributes.add(targetEntityAttributeName);
+      }
+      
+      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
+        this.attributeNameForMemberships = targetEntityAttributeName;
+        this.entityAttributeNameForMemberships = targetEntityAttributeName;
+        grouperProvisioningConfigurationAttribute.setSelect(this.isSelectMemberships());
+        grouperProvisioningConfigurationAttribute.setInsert(this.isInsertMemberships());
+      }
+      
+      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
+        this.entityAttributesMultivalued.add(targetEntityAttributeName);
+      }
+
+      if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
+        if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
+          this.entitySearchAttributes.add(0, grouperProvisioningConfigurationAttribute);
+        } else {
+          this.entitySearchAttributes.add(grouperProvisioningConfigurationAttribute);
+        }
+      }
+    }
+
+    if (StringUtils.isEmpty(this.groupAttributeNameForMemberships)) {
+      this.groupAttributeNameForMemberships = this.retrieveConfigString("groupAttributeNameForMemberships", false);
+    } else if (!StringUtils.isEmpty(this.retrieveConfigString("groupAttributeNameForMemberships", false))) {
+      throw new RuntimeException("Should only specify membershipAttribute on one attribute or groupAttributeNameForMemberships");
+    }
+    
+    if (StringUtils.isEmpty(this.entityAttributeNameForMemberships)) {
+      this.entityAttributeNameForMemberships = this.retrieveConfigString("userAttributeNameForMemberships", false);
+    } else if (!StringUtils.isEmpty(this.retrieveConfigString("userAttributeNameForMemberships", false))) {
+      throw new RuntimeException("Should only specify membershipAttribute on one attribute or userAttributeNameForMemberships");
+    }
+
+    this.recalculateAllOperations = GrouperUtil.booleanValue(this.retrieveConfigBoolean("recalculateAllOperations", false), false);
+    
+    {
+      String grouperProvisioningMembershipFieldTypeString = this.retrieveConfigString("membershipFields", false);
+      if (StringUtils.isBlank(grouperProvisioningMembershipFieldTypeString) || StringUtils.equalsIgnoreCase("members", grouperProvisioningMembershipFieldTypeString)) {
+        this.grouperProvisioningMembershipFieldType = GrouperProvisioningMembershipFieldType.members;
+      } else if (StringUtils.equals("admin", grouperProvisioningMembershipFieldTypeString)) {
+        this.grouperProvisioningMembershipFieldType = GrouperProvisioningMembershipFieldType.admin;
+      } else if (StringUtils.equals("read,admin", grouperProvisioningMembershipFieldTypeString)) {
+        this.grouperProvisioningMembershipFieldType = GrouperProvisioningMembershipFieldType.readAdmin;
+      } else if (StringUtils.equals("update,admin", grouperProvisioningMembershipFieldTypeString)) {
+        this.grouperProvisioningMembershipFieldType = GrouperProvisioningMembershipFieldType.updateAdmin;
+      } else {
+        throw new RuntimeException("Invalid GrouperProvisioningMembershipFieldType: '" + grouperProvisioningMembershipFieldTypeString + "'");
+      }
+    }
+    
+    for (String configItem : new String[] {"grouperToTargetTranslationMembership", "grouperToTargetTranslationEntity",
+        "grouperToTargetTranslationGroup", "grouperToTargetTranslationGroupCreateOnly"}) {
+      String key = GrouperUtil.stripPrefix(configItem, "grouperToTargetTranslation");
+      for (int i=0; i<= 1000; i++) {
+        
+        String script = this.retrieveConfigString(configItem + "."+i+".script" , false);
+        if (StringUtils.isBlank(script)) {
+          break;
+        }
+        List<String> scripts = this.grouperProvisioningToTargetTranslation.get(key);
+        if (scripts == null) {
+          scripts = new ArrayList<String>();
+          this.grouperProvisioningToTargetTranslation.put(key, scripts);
+        }
+        scripts.add(script);
+        
+      }
+      
+    }
+    
+    // diagnostics settings
+    this.diagnosticsGroupsAllSelect = this.retrieveConfigBoolean("selectAllGroupsDuringDiagnostics", false);
+    this.diagnosticsEntitiesAllSelect = this.retrieveConfigBoolean("selectAllEntitiesDuringDiagnostics", false);
+    this.diagnosticsMembershipsAllSelect = this.retrieveConfigBoolean("selectAllMembershipsDuringDiagnostics", false);
+    this.diagnosticsGroupName = this.retrieveConfigString("testGroupName", false);
+    this.diagnosticsSubjectIdOrIdentifier = this.retrieveConfigString("testSubjectIdOrIdentifier", false);
+    this.createGroupDuringDiagnostics = this.retrieveConfigBoolean("createGroupDuringDiagnostics", false);
+    this.deleteGroupDuringDiagnostics = this.retrieveConfigBoolean("deleteGroupDuringDiagnostics", false);
+    this.createEntityDuringDiagnostics = this.retrieveConfigBoolean("createEntityDuringDiagnostics", false);
+    this.deleteEntityDuringDiagnostics = this.retrieveConfigBoolean("deleteEntityDuringDiagnostics", false);
+    
+    //register metadata
+    this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());
+    
+    this.operateOnGrouperMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperMemberships", false), false);
+    this.operateOnGrouperGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperGroups", false), false);
+    
+    assignAutoTranslatedGroupsConfiguration();
+
+    assignAutoTranslatedEntitiesConfiguration();
+    
+  }
+  
+  public boolean isGroupsRequireMembers() {
+    return groupsRequireMembers;
+  }
+
+
+
+
+
+
+  private void assignAutoTranslatedGroupsConfiguration() {
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
+      
+      if (this.targetGroupAttributeNameToConfig.size() == 0) {
+        
+        GrouperProvisioningConfigurationAttribute nameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        nameConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        nameConfigurationAttribute.setUpdate(this.isUpdateGroups());
+        nameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+        nameConfigurationAttribute.setInsert(this.isInsertGroups());
+        nameConfigurationAttribute.setName("name");
+        nameConfigurationAttribute.setSelect(this.isSelectGroups());
+        nameConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        nameConfigurationAttribute.setTranslateFromGrouperProvisioningGroupField("name");
+        this.targetGroupAttributeNameToConfig.put("name", nameConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute displayNameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        displayNameConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        displayNameConfigurationAttribute.setUpdate(this.isUpdateGroups());
+        displayNameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+        displayNameConfigurationAttribute.setInsert(this.isInsertGroups());
+        displayNameConfigurationAttribute.setName("displayName");
+        displayNameConfigurationAttribute.setSelect(this.isSelectGroups());
+        displayNameConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        displayNameConfigurationAttribute.setTranslateFromGrouperProvisioningGroupField("displayName");
+        this.targetGroupAttributeNameToConfig.put("displayName", displayNameConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute idIndexConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        idIndexConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        idIndexConfigurationAttribute.setUpdate(this.isUpdateGroups());
+        idIndexConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+        idIndexConfigurationAttribute.setInsert(this.isInsertGroups());
+        idIndexConfigurationAttribute.setName("idIndex");
+        idIndexConfigurationAttribute.setSelect(this.isSelectGroups());
+        idIndexConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        idIndexConfigurationAttribute.setTranslateFromGrouperProvisioningGroupField("idIndex");
+        this.targetGroupAttributeNameToConfig.put("idIndex", idIndexConfigurationAttribute);
+        
+        
+        GrouperProvisioningConfigurationAttribute descriptionConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        descriptionConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        descriptionConfigurationAttribute.setUpdate(this.isUpdateGroups());
+        descriptionConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+        descriptionConfigurationAttribute.setInsert(this.isInsertGroups());
+        descriptionConfigurationAttribute.setName("description");
+        descriptionConfigurationAttribute.setSelect(this.isSelectGroups());
+        descriptionConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        descriptionConfigurationAttribute.setTranslateFromGrouperProvisioningGroupField("description");
+        this.targetGroupAttributeNameToConfig.put("description", descriptionConfigurationAttribute);
+        
+      }
+      
+    }
+  }
+  
+  private void assignAutoTranslatedEntitiesConfiguration() {
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
+      
+      if (this.targetEntityAttributeNameToConfig.size() == 0) {
+        
+        GrouperProvisioningConfigurationAttribute idConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        idConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        idConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        idConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        idConfigurationAttribute.setInsert(this.isInsertEntities());
+        idConfigurationAttribute.setName("id");
+        idConfigurationAttribute.setSelect(this.isSelectEntities());
+        idConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        idConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("id");
+        this.targetEntityAttributeNameToConfig.put("id", idConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute nameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        nameConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        nameConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        nameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        nameConfigurationAttribute.setInsert(this.isInsertEntities());
+        nameConfigurationAttribute.setName("name");
+        nameConfigurationAttribute.setSelect(this.isSelectEntities());
+        nameConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        nameConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("name");
+        this.targetEntityAttributeNameToConfig.put("name", nameConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute subjectIdConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectIdConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        subjectIdConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        subjectIdConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        subjectIdConfigurationAttribute.setInsert(this.isInsertEntities());
+        subjectIdConfigurationAttribute.setName("subjectId");
+        subjectIdConfigurationAttribute.setSelect(this.isSelectEntities());
+        subjectIdConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        subjectIdConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectId");
+        this.targetEntityAttributeNameToConfig.put("subjectId", subjectIdConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute descriptionConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        descriptionConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        descriptionConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        descriptionConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        descriptionConfigurationAttribute.setInsert(this.isInsertEntities());
+        descriptionConfigurationAttribute.setName("description");
+        descriptionConfigurationAttribute.setSelect(this.isSelectEntities());
+        descriptionConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        descriptionConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("description");
+        this.targetEntityAttributeNameToConfig.put("description", descriptionConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute subjectSourceIdConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectSourceIdConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        subjectSourceIdConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        subjectSourceIdConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        subjectSourceIdConfigurationAttribute.setInsert(this.isInsertEntities());
+        subjectSourceIdConfigurationAttribute.setName("subjectSourceId");
+        subjectSourceIdConfigurationAttribute.setSelect(this.isSelectEntities());
+        subjectSourceIdConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        subjectSourceIdConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectSourceId");
+        this.targetEntityAttributeNameToConfig.put("subjectSourceId", subjectSourceIdConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute subjectIdetifier0ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectIdetifier0ConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        subjectIdetifier0ConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        subjectIdetifier0ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        subjectIdetifier0ConfigurationAttribute.setInsert(this.isInsertEntities());
+        subjectIdetifier0ConfigurationAttribute.setName("subjectIdentifier0");
+        subjectIdetifier0ConfigurationAttribute.setSelect(this.isSelectEntities());
+        subjectIdetifier0ConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        subjectIdetifier0ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectIdentifier0");
+        this.targetEntityAttributeNameToConfig.put("subjectIdentifier0", subjectIdetifier0ConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute subjectIdetifier1ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectIdetifier1ConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        subjectIdetifier1ConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        subjectIdetifier1ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        subjectIdetifier1ConfigurationAttribute.setInsert(this.isInsertEntities());
+        subjectIdetifier1ConfigurationAttribute.setName("subjectIdentifier1");
+        subjectIdetifier1ConfigurationAttribute.setSelect(this.isSelectEntities());
+        subjectIdetifier1ConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        subjectIdetifier1ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectIdentifier1");
+        this.targetEntityAttributeNameToConfig.put("subjectIdentifier1", subjectIdetifier1ConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute subjectIdetifier2ConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        subjectIdetifier2ConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        subjectIdetifier2ConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        subjectIdetifier2ConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        subjectIdetifier2ConfigurationAttribute.setInsert(this.isInsertEntities());
+        subjectIdetifier2ConfigurationAttribute.setName("subjectIdentifier2");
+        subjectIdetifier2ConfigurationAttribute.setSelect(this.isSelectEntities());
+        subjectIdetifier2ConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        subjectIdetifier2ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectIdentifier2");
+        this.targetEntityAttributeNameToConfig.put("subjectIdentifier2", subjectIdetifier2ConfigurationAttribute);
+      }
+      
+    }
+  }
+  
+  /**
+   * operate on grouper entities
+   */
+  private boolean operateOnGrouperEntities;
+  
+  /**
+   * operate on grouper memberships
+   */
+  private boolean operateOnGrouperMemberships;
+  
+  /**
+   * operate on grouper groups
+   */
+  private boolean operateOnGrouperGroups;
+  
+  /**
+   * operate on grouper entities
+   * @return is operate
+   */
+  public boolean isOperateOnGrouperEntities() {
+    return operateOnGrouperEntities;
+  }
+
+  /**
+   * operate on grouper entities
+   * @return is operate
+   */
+  public boolean isOperateOnGrouperMemberships() {
+    return operateOnGrouperMemberships;
+  }
+
+  
+  public boolean isOperateOnGrouperGroups() {
+    return operateOnGrouperGroups;
+  }
+
+  public boolean isRecalculateAllOperations() {
+    return recalculateAllOperations;
+  }
+
+  
+  public void setRecalculateAllOperations(boolean recalculateAllOperations) {
+    this.recalculateAllOperations = recalculateAllOperations;
+  }
+
+  /**
+   * no need to configure twice if the caller needs to configure before provisioning
+   */
+  private boolean configured = false;
+
+  private String entityLinkMemberFromId2;
+
+  private String entityLinkMemberFromId3;
+
+  private String entityLinkMemberToId2;
+
+  private String entityLinkMemberToId3;
+  
+  
+  
+  public String getEntityLinkMemberFromId2() {
+    return entityLinkMemberFromId2;
+  }
+
+
+
+  
+  public void setEntityLinkMemberFromId2(String entityLinkMemberFromId2) {
+    this.entityLinkMemberFromId2 = entityLinkMemberFromId2;
+  }
+
+
+
+  
+  public String getEntityLinkMemberFromId3() {
+    return entityLinkMemberFromId3;
+  }
+
+
+
+  
+  public void setEntityLinkMemberFromId3(String entityLinkMemberFromId3) {
+    this.entityLinkMemberFromId3 = entityLinkMemberFromId3;
+  }
+
+
+
+  
+  public String getEntityLinkMemberToId2() {
+    return entityLinkMemberToId2;
+  }
+
+
+
+  
+  public void setEntityLinkMemberToId2(String entityLinkMemberToId2) {
+    this.entityLinkMemberToId2 = entityLinkMemberToId2;
+  }
+
+
+
+  
+  public String getEntityLinkMemberToId3() {
+    return entityLinkMemberToId3;
+  }
+
+
+
+  
+  public void setEntityLinkMemberToId3(String entityLinkMemberToId3) {
+    this.entityLinkMemberToId3 = entityLinkMemberToId3;
+  }
+
+  private String groupLinkGroupFromId2;
+
+  private String groupLinkGroupFromId3;
+
+  private String groupLinkGroupToId2;
+
+  private String groupLinkGroupToId3;
+
+  /**
+   * attribute name to config
+   */
+  private Map<String, GrouperProvisioningConfigurationAttribute> targetEntityAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
+
+  /**
+   * attribute name to config
+   */
+  private Map<String, GrouperProvisioningConfigurationAttribute> targetMembershipAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
+
+  public Map<String, GrouperProvisioningConfigurationAttribute> getTargetMembershipAttributeNameToConfig() {
+    return targetMembershipAttributeNameToConfig;
+  }
+
+  
+  public Map<String, GrouperProvisioningConfigurationAttribute> getTargetEntityAttributeNameToConfig() {
+    return targetEntityAttributeNameToConfig;
+  }
+
+  
+  public String getGroupLinkGroupFromId2() {
+    return groupLinkGroupFromId2;
+  }
+
+
+
+  
+  public void setGroupLinkGroupFromId2(String groupLinkGroupFromId2) {
+    this.groupLinkGroupFromId2 = groupLinkGroupFromId2;
+  }
+
+
+
+  
+  public String getGroupLinkGroupFromId3() {
+    return groupLinkGroupFromId3;
+  }
+
+
+
+  
+  public void setGroupLinkGroupFromId3(String groupLinkGroupFromId3) {
+    this.groupLinkGroupFromId3 = groupLinkGroupFromId3;
+  }
+
+
+
+  
+  public String getGroupLinkGroupToId2() {
+    return groupLinkGroupToId2;
+  }
+
+
+
+  
+  public void setGroupLinkGroupToId2(String groupLinkGroupToId2) {
+    this.groupLinkGroupToId2 = groupLinkGroupToId2;
+  }
+
+
+
+  
+  public String getGroupLinkGroupToId3() {
+    return groupLinkGroupToId3;
+  }
+
+
+
+  
+  public void setGroupLinkGroupToId3(String groupLinkGroupToId3) {
+    this.groupLinkGroupToId3 = groupLinkGroupToId3;
+  }
+
+
+
+  /**
+   * configure the provisioner, call super if subclassing
+   */
+  public void configureProvisioner() {
+    
+    if (this.configured) {
+      return;
+    }
+    try {
+    
+      this.preConfigure();
+    
+      this.configureGenericSettings();
+      
+      this.configureSpecificSettings();
+    
+    } catch (RuntimeException re) {
+      if (this.grouperProvisioner != null && this.grouperProvisioner.getGcGrouperSyncLog() != null) {
+        try {
+          this.grouperProvisioner.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.CONFIG_ERROR);
+          this.grouperProvisioner.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logStore(this.grouperProvisioner.getGcGrouperSyncLog());
+        } catch (RuntimeException re2) {
+          GrouperClientUtils.injectInException(re, "***** START ANOTHER EXCEPTON *******" + GrouperClientUtils.getFullStackTrace(re2) + "***** END ANOTHER EXCEPTON *******");
+        }
+      }
+      throw re;
+    }
+
+    this.configured = true;
+  }
+
+  
+  
+  public boolean isConfigured() {
+    return configured;
+  }
+
+
+
+  public Map<String, Object> getDebugMap() {
+    return debugMap;
+  }
+
+  
+  public void setDebugMap(Map<String, Object> debugMap) {
+    this.debugMap = debugMap;
+  }
+
+  
+  public boolean isHasSubjectLink() {
+    return hasSubjectLink;
+  }
+
+  
+  public void setHasSubjectLink(boolean hasSubjectLink) {
+    this.hasSubjectLink = hasSubjectLink;
+  }
+
+  
+  public boolean isHasTargetGroupLink() {
+    return hasTargetGroupLink;
+  }
+
+  
+  public void setHasTargetGroupLink(boolean hasTargetGroupLink) {
+    this.hasTargetGroupLink = hasTargetGroupLink;
+  }
+
+  
+  public boolean isHasTargetEntityLink() {
+    return hasTargetEntityLink;
+  }
+
+  
+  public void setHasTargetEntityLink(boolean hasTargetEntityLink) {
+    this.hasTargetEntityLink = hasTargetEntityLink;
+  }
+  
+  public Set<String> getSubjectSourcesToProvision() {
+    return subjectSourcesToProvision;
+  }
+
+  
+  public void setSubjectSourcesToProvision(Set<String> subjectSourcesToProvision) {
+    this.subjectSourcesToProvision = subjectSourcesToProvision;
+  }
+  
+  public List<GrouperProvisioningConfigurationAttribute> getEntitySearchAttributes() {
+    return entitySearchAttributes;
+  }
+
+  
+  public void setEntitySearchAttributes(List<GrouperProvisioningConfigurationAttribute> userSearchAttributes ) {
+    this.entitySearchAttributes = userSearchAttributes;
+  }
+
+  
+  public List<GrouperProvisioningConfigurationAttribute> getGroupSearchAttributes() {
+    return groupSearchAttributes;
+  }
+
+  public void setGroupSearchAttributes(List<GrouperProvisioningConfigurationAttribute> groupSearchAttributes) {
+    this.groupSearchAttributes = groupSearchAttributes;
+  }
+
+  
+  public Set<String> getEntityAttributesMultivalued() {
+    return entityAttributesMultivalued;
+  }
+
+  
+  public void setEntityAttributesMultivalued(Set<String> userAttributesMultivalued) {
+    this.entityAttributesMultivalued = userAttributesMultivalued;
+  }
+
+  
+  public Set<String> getGroupAttributesMultivalued() {
+    return groupAttributesMultivalued;
+  }
+
+  
+  public void setGroupAttributesMultivalued(Set<String> groupAttributesMultivalued) {
+    this.groupAttributesMultivalued = groupAttributesMultivalued;
+  }
+
+  public boolean isInsertEntities() {
+    return insertEntities;
+  }
+
+  
+  public void setInsertEntities(boolean insertEntities) {
+    this.insertEntities = insertEntities;
+  }
+
+  
+  public boolean isInsertGroups() {
+    return insertGroups;
+  }
+
+  
+  public void setInsertGroups(boolean insertGroups) {
+    this.insertGroups = insertGroups;
+  }
+
+  
+  
+  public boolean isDeleteGroupsIfNotExistInGrouper() {
+    return deleteGroupsIfNotExistInGrouper;
+  }
+
+  
+  public void setDeleteGroupsIfNotExistInGrouper(boolean deleteGroupsIfNotExistInGrouper) {
+    this.deleteGroupsIfNotExistInGrouper = deleteGroupsIfNotExistInGrouper;
+  }
+
+
+  public boolean isDeleteGroupsIfGrouperDeleted() {
+    return deleteGroupsIfGrouperDeleted;
+  }
+
+  
+  public void setDeleteGroupsIfGrouperDeleted(boolean deleteGroupsIfGrouperDeleted) {
+    this.deleteGroupsIfGrouperDeleted = deleteGroupsIfGrouperDeleted;
+  }
+
+  public GrouperProvisioningMembershipFieldType getGrouperProvisioningMembershipFieldType() {
+    return grouperProvisioningMembershipFieldType;
+  }
+
+  
+  public void setGrouperProvisioningMembershipFieldType(
+      GrouperProvisioningMembershipFieldType grouperProvisioningMembershipFieldType) {
+    this.grouperProvisioningMembershipFieldType = grouperProvisioningMembershipFieldType;
+  }
+
+
+
+
+
+
+  public String getEntityAttributesLdapSubjectSource() {
+    return entityAttributesLdapSubjectSource;
+  }
+  
+}

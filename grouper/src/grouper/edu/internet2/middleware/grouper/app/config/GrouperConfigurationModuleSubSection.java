@@ -3,8 +3,6 @@ package edu.internet2.middleware.grouper.app.config;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -93,6 +91,37 @@ public class GrouperConfigurationModuleSubSection {
     return description;
 
     
+  }
+  
+  /**
+   * get documentation of the subsection
+   * @return
+   */
+  public String getDocumentation() {
+    
+    String realConfigSuffix = this.label;
+    String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+", ".i");
+    boolean hasIconfigSuffix = !StringUtils.equals(realConfigSuffix, iOrRealConfigSuffix);
+    
+    String documentation = GrouperTextContainer.textOrNull("config." + this.configuration.getClass().getSimpleName() + ".subSection." + iOrRealConfigSuffix + ".documentation");
+
+    if (StringUtils.isBlank(documentation)) {
+      documentation = GrouperTextContainer.textOrNull("config.GenericConfiguration.subSection." + iOrRealConfigSuffix + ".documentation");
+    }
+    
+    if (StringUtils.isBlank(documentation)) {
+      documentation = iOrRealConfigSuffix;
+    } else {
+      documentation = this.configuration.formatIndexes(realConfigSuffix, hasIconfigSuffix, documentation);
+    }      
+    
+    if (StringUtils.isNotBlank(documentation)) {
+      String id = GrouperUtil.uniqueId();
+      String documentationLink = GrouperTextContainer.textOrNull("provisioning.documentationLink");
+      return "<a href='#' onclick=$('#"+id+"').toggle('slow'); return false;>"+documentationLink+"</a> <div id='"+id+"' style='display:none;font-weight:normal;'>"+documentation+"</div>"; 
+    }
+    
+    return documentation;
   }
 
   /**

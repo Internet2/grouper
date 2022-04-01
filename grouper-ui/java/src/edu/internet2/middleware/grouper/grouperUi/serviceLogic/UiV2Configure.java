@@ -53,11 +53,13 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGrouperConfigHibernate;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
@@ -282,6 +284,12 @@ public class UiV2Configure {
 
           if (isPassword) {
             valueString = request.getParameter("passwordValueName");
+          } else {
+            if (valueString != null) {
+              // convert newlines
+              valueString = GrouperUtil.whitespaceNormalizeNewLines(valueString);
+              valueString = GrouperUtil.trim(valueString);
+            }
           }
 
           StringBuilder message = new StringBuilder();
@@ -292,8 +300,18 @@ public class UiV2Configure {
           ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, true);
           ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
 
+          Set<MultiKey> configFileNameAndKeys = GrouperUtil.toSet(new MultiKey(configFileName.getConfigFileName(), propertyNameString));
+
+          Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate = GrouperDAOFactory.getFactory().getConfig().findByFileAndKey(configFileNameAndKeys);
+
+          String thePropertyNameString = GrouperUtil.stripSuffix(propertyNameString, ".elConfig");
+          Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(thePropertyNameString);
+          
+          String propertyNameStringEl = thePropertyNameString + ".elConfig";
+          Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+          
           boolean result = configurationFileAddEditHelper2(configFileName, configFileString, configFileMetadata, propertyNameString,
-              expressionLanguageString, valueString, isPassword, message, added, error, true, null);
+              expressionLanguageString, valueString, isPassword, message, added, error, true, null, grouperConfigHibernates, grouperConfigHibernatesEl);
 
           GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
@@ -426,9 +444,9 @@ public class UiV2Configure {
             grouperConfigHibernateMap.get(property) != null && grouperConfigHibernateMap.get(property).isConfigEncrypted()) {
           value = "*******";
         }
-        value = GrouperUtil.replace(value, "\r\n", "\n");
-        value = GrouperUtil.replace(value, "\r", "\n");
-        value = GrouperUtil.replace(value, "\n", "\\\n");
+        value = GrouperUtil.whitespaceNormalizeNewLines(value);
+        // the end of a newline must be literally: \n\{newline}
+        value = GrouperUtil.replace(value, "\n", "\\n\\\n");
         
         contents.append(property + " = " + value);
         contents.append("\n");
@@ -483,11 +501,26 @@ public class UiV2Configure {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
-      String result = DbConfigEngine.configurationFileItemDeleteHelper(configFileString, propertyNameString, true, true);
+      Set<MultiKey> configFileNameAndKeys = GrouperUtil.toSet(new MultiKey(configFileString, propertyNameString));
+
+      Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate = GrouperDAOFactory.getFactory().getConfig().findByFileAndKey(configFileNameAndKeys);
+      
+      String thePropertyNameString = GrouperUtil.stripSuffix(propertyNameString, ".elConfig");
+      Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(thePropertyNameString);
+      
+      String propertyNameStringEl = thePropertyNameString + ".elConfig";
+      Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+
+      String result = DbConfigEngine.configurationFileItemDeleteHelper(configFileString, propertyNameString, true, true, new ArrayList<String>(), grouperConfigHibernates, grouperConfigHibernatesEl);
       
       if (!StringUtils.isBlank(result)) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
-            result));
+        if (result.toLowerCase().contains("warn")) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+              result));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              result));
+        }
       }
       buildConfigFileAndMetadata(null, null);
       
@@ -511,7 +544,7 @@ public class UiV2Configure {
     
     configurationContainer.setConfigFileName(configFileName);
 
-    String message = DbConfigEngine.configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi);
+    String message = DbConfigEngine.configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi, new ArrayList<String>());
     if (!StringUtils.isBlank(message) && fromUi) {
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -915,7 +948,7 @@ public class UiV2Configure {
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -928,7 +961,7 @@ public class UiV2Configure {
       
       historyHelper(request);
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("configurationHistoryRevertSuccess")));
       
     } finally {
@@ -1052,6 +1085,8 @@ public class UiV2Configure {
           return;
           
         }
+        configFileContents = GrouperUtil.whitespaceNormalizeNewLines(configFileContents);
+        configFileContents = StringUtils.replace(configFileContents, "\\n\\\n ", "\\n\\\n\u0020");
         
         // create a new reader
         StringReader reader = new StringReader(configFileContents);
@@ -1121,14 +1156,34 @@ public class UiV2Configure {
       
       ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
       
+      Set<MultiKey> configFileNameAndKeys = new HashSet<MultiKey>();
+      // add all the possible ones
+      for (Object keyObject : propertiesToImport.keySet()) {
+      
+        String key = (String)keyObject;
+        
+        MultiKey configFileNameAndKey = new MultiKey(configFileName.getConfigFileName(), key);
+        configFileNameAndKeys.add(configFileNameAndKey);
+
+      }
+
+      Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate = GrouperDAOFactory.getFactory().getConfig().findByFileAndKey(configFileNameAndKeys);
+      
       for (Object keyObject : propertiesToImport.keySet()) {
         try {
         
           countProperties++;
           String key = (String)keyObject;
           String value = propertiesToImport.getProperty(key);
-   
-          configurationFileAddEditHelper2(configFileName, configFileName.name(), configFileMetadata, key, Boolean.toString(key.endsWith(".elConfig")), value, null, message, added, error, fromUi, null);
+
+          String propertyNameString = GrouperUtil.stripSuffix(key, ".elConfig");
+          Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(propertyNameString);
+          
+          String propertyNameStringEl = propertyNameString + ".elConfig";
+          Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+
+          configurationFileAddEditHelper2(configFileName, configFileName.name(), configFileMetadata, key, 
+              Boolean.toString(key.endsWith(".elConfig")), value, null, message, added, error, fromUi, null, grouperConfigHibernates, grouperConfigHibernatesEl);
           
           // added (first index) will be true if added, false if updated, and null if no change
           if (added[0] == null) {
@@ -1203,7 +1258,8 @@ public class UiV2Configure {
    */
   public static boolean configurationFileAddEditHelper2(ConfigFileName configFileName, String configFileString, ConfigFileMetadata configFileMetadata, String propertyNameString,
       String expressionLanguageString, String valueString, Boolean userSelectedPassword,
-      StringBuilder message, Boolean[] added, Boolean[] error, boolean fromUi, String comment) {
+      StringBuilder message, Boolean[] added, Boolean[] error, boolean fromUi, String comment,
+      final Set<GrouperConfigHibernate> grouperConfigHibernates, Set<GrouperConfigHibernate> grouperConfigHibernatesEl) {
 
     GuiResponseJs guiResponseJs = fromUi ? GuiResponseJs.retrieveGuiResponseJs() : null;
     
@@ -1213,14 +1269,15 @@ public class UiV2Configure {
 
     List<String> errorsToDisplay = new ArrayList<String>();
     Map<String, String> validationErrorsToDisplay = new LinkedHashMap<String, String>();
-    
+    List<String> actionsPerformed = new ArrayList<String>();
+
     boolean result = DbConfigEngine.configurationFileAddEditHelper2(configFileName, configFileString, configFileMetadata, propertyNameString, 
         expressionLanguageString, valueString, userSelectedPassword, message, added, error, 
-        fromUi, comment, errorsToDisplay, validationErrorsToDisplay, true);
+        fromUi, comment, errorsToDisplay, validationErrorsToDisplay, true, actionsPerformed, grouperConfigHibernates, grouperConfigHibernatesEl);
     
     if (fromUi) {
       for (String errorToDisplay: errorsToDisplay) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
       }
       for (String validationKey: validationErrorsToDisplay.keySet()) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 

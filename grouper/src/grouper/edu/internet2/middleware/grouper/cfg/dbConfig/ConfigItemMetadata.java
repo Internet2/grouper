@@ -4,10 +4,12 @@
  */
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -398,132 +400,132 @@ public class ConfigItemMetadata {
     this.order = 0;
     
     if (!StringUtils.isBlank(this.rawMetadataJson)) {
+      ObjectNode jsonNode = (ObjectNode)GrouperUtil.jsonJacksonNode(this.rawMetadataJson);
       
-      JSONObject jsonObject = JSONObject.fromObject(this.rawMetadataJson);
-      
-      if (jsonObject.containsKey("multiple")) {
-        this.multiple = jsonObject.getBoolean("multiple");
-        jsonObject.remove("multiple");
+      if (jsonNode.has("multiple")) {
+        this.multiple = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "multiple");
+        jsonNode.remove("multiple");
       }
       
-      if (jsonObject.containsKey("repeatGroup")) {
-        this.repeatGroup = jsonObject.getString("repeatGroup");
-        jsonObject.remove("repeatGroup");
+      if (jsonNode.has("repeatGroup")) {
+        this.repeatGroup = GrouperUtil.jsonJacksonGetString(jsonNode, "repeatGroup");
+        jsonNode.remove("repeatGroup");
       }
       
-      if (jsonObject.containsKey("repeatCount")) {
-        this.repeatCount = jsonObject.getInt("repeatCount");
-        jsonObject.remove("repeatCount");
+      if (jsonNode.has("repeatCount")) {
+        this.repeatCount = GrouperUtil.jsonJacksonGetInteger(jsonNode, "repeatCount");
+        jsonNode.remove("repeatCount");
       }
       
-      if (jsonObject.containsKey("order")) {
-        this.order = jsonObject.getInt("order");
-        jsonObject.remove("order");
+      if (jsonNode.has("order")) {
+        this.order = GrouperUtil.jsonJacksonGetInteger(jsonNode, "order");
+        jsonNode.remove("order");
       }
       
-      if (jsonObject.containsKey("mustExtendClass")) {
-        this.mustExtendClass = jsonObject.getString("mustExtendClass");
-        jsonObject.remove("mustExtendClass");
+      if (jsonNode.has("mustExtendClass")) {
+        this.mustExtendClass = GrouperUtil.jsonJacksonGetString(jsonNode, "mustExtendClass");
+        jsonNode.remove("mustExtendClass");
       }
       
-      if (jsonObject.containsKey("mustImplementInterface")) {
-        this.mustImplementInterface = jsonObject.getString("mustImplementInterface");
-        jsonObject.remove("mustImplementInterface");
+      if (jsonNode.has("mustImplementInterface")) {
+        this.mustImplementInterface = GrouperUtil.jsonJacksonGetString(jsonNode, "mustImplementInterface");
+        jsonNode.remove("mustImplementInterface");
       }
       
-      if (jsonObject.containsKey("optionValuesFromClass")) {
-        this.optionValuesFromClass = jsonObject.getString("optionValuesFromClass");
-        jsonObject.remove("optionValuesFromClass");
+      if (jsonNode.has("optionValuesFromClass")) {
+        this.optionValuesFromClass = GrouperUtil.jsonJacksonGetString(jsonNode, "optionValuesFromClass");
+        jsonNode.remove("optionValuesFromClass");
       }
       
-      if (jsonObject.containsKey("checkboxValuesFromClass")) {
-        this.checkboxValuesFromClass = jsonObject.getString("checkboxValuesFromClass");
-        jsonObject.remove("checkboxValuesFromClass");
+      if (jsonNode.has("checkboxValuesFromClass")) {
+        this.checkboxValuesFromClass = GrouperUtil.jsonJacksonGetString(jsonNode, "checkboxValuesFromClass");
+        jsonNode.remove("checkboxValuesFromClass");
       }
       
-      if (jsonObject.containsKey("regex")) {
-        this.regex = jsonObject.getString("regex");
-        jsonObject.remove("regex");
+      if (jsonNode.has("regex")) {
+        this.regex = GrouperUtil.jsonJacksonGetString(jsonNode, "regex");
+        jsonNode.remove("regex");
       }
       
-      if (jsonObject.containsKey("defaultValueEl")) {
-        this.defaultValueEl = jsonObject.getString("defaultValueEl");
-        jsonObject.remove("defaultValueEl");
+      if (jsonNode.has("defaultValueEl")) {
+        this.defaultValueEl = GrouperUtil.jsonJacksonGetString(jsonNode, "defaultValueEl");
+        jsonNode.remove("defaultValueEl");
       }
       
-      if (jsonObject.containsKey("required")) {
-        this.required = jsonObject.getBoolean("required");
-        jsonObject.remove("required");
+      if (jsonNode.has("required")) {
+        this.required = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "required");
+        jsonNode.remove("required");
       }
       
-      if (jsonObject.containsKey("readOnly")) {
-        this.readOnly = jsonObject.getBoolean("readOnly");
-        jsonObject.remove("readOnly");
+      if (jsonNode.has("readOnly")) {
+        this.readOnly = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "readOnly");
+        jsonNode.remove("readOnly");
       }
       
-      if (jsonObject.containsKey("saveToDb")) {
-        this.saveToDb = jsonObject.getBoolean("saveToDb");
-        jsonObject.remove("saveToDb");
+      if (jsonNode.has("saveToDb")) {
+        this.saveToDb = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "saveToDb");
+        jsonNode.remove("saveToDb");
       }
       
-      if (jsonObject.containsKey("requiresRestart")) {
-        this.requiresRestart = jsonObject.getBoolean("requiresRestart");
-        jsonObject.remove("requiresRestart");
+      if (jsonNode.has("requiresRestart")) {
+        this.requiresRestart = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "requiresRestart");
+        jsonNode.remove("requiresRestart");
       }
       
-      if (jsonObject.containsKey("sampleValue")) {
-        this.sampleValue = jsonObject.getString("sampleValue");
-        jsonObject.remove("sampleValue");
+      if (jsonNode.has("sampleValue")) {
+        this.sampleValue = GrouperUtil.jsonJacksonGetString(jsonNode, "sampleValue");
+        jsonNode.remove("sampleValue");
       }
       
-      if (jsonObject.containsKey("subSection")) {
-        this.subSection = jsonObject.getString("subSection");
-        jsonObject.remove("subSection");
+      if (jsonNode.has("subSection")) {
+        this.subSection = GrouperUtil.jsonJacksonGetString(jsonNode, "subSection");
+        jsonNode.remove("subSection");
       }
       
-      if (jsonObject.containsKey("sensitive")) {
-        this.sensitive = jsonObject.getBoolean("sensitive");
-        jsonObject.remove("sensitive");
+      if (jsonNode.has("sensitive")) {
+        this.sensitive = GrouperUtil.jsonJacksonGetBoolean(jsonNode, "sensitive");
+        jsonNode.remove("sensitive");
       }
       
-      if (jsonObject.containsKey("valueType")) {
-        this.valueType = ConfigItemMetadataType.valueOfIgnoreCase(jsonObject.getString("valueType"), false);
-        jsonObject.remove("valueType");
+      if (jsonNode.has("valueType")) {
+        this.valueType = ConfigItemMetadataType.valueOfIgnoreCase(GrouperUtil.jsonJacksonGetString(jsonNode, "valueType"), false);
+        jsonNode.remove("valueType");
       }
       
-      if (jsonObject.containsKey("defaultValue")) {
-        this.defaultValue = jsonObject.getString("defaultValue");
-        jsonObject.remove("defaultValue");
+      if (jsonNode.has("defaultValue")) {
+        this.defaultValue = GrouperUtil.jsonJacksonGetString(jsonNode, "defaultValue");
+        jsonNode.remove("defaultValue");
       }
       
-      if (jsonObject.containsKey("showEl")) {
-        this.showEl = jsonObject.getString("showEl");
-        jsonObject.remove("showEl");
+      if (jsonNode.has("showEl")) {
+        this.showEl = GrouperUtil.jsonJacksonGetString(jsonNode, "showEl");
+        jsonNode.remove("showEl");
       }
       
-      if (jsonObject.containsKey("requiredEl")) {
-        this.requiredEl = jsonObject.getString("requiredEl");
-        jsonObject.remove("requiredEl");
+      if (jsonNode.has("requiredEl")) {
+        this.requiredEl = GrouperUtil.jsonJacksonGetString(jsonNode, "requiredEl");
+        jsonNode.remove("requiredEl");
       }
       
-      if (jsonObject.containsKey("formElement")) {
-        String formElementString = jsonObject.getString("formElement");
+      if (jsonNode.has("formElement")) {
+        String formElementString = GrouperUtil.jsonJacksonGetString(jsonNode, "formElement");
         this.formElement = ConfigItemFormElement.valueOfIgnoreCase(formElementString, true);
-        jsonObject.remove("formElement");
+        jsonNode.remove("formElement");
       }
       
-      if (jsonObject.containsKey("optionValues")) {
-        JSONArray jsonArray = jsonObject.getJSONArray("optionValues");
+      if (jsonNode.has("optionValues")) {
+        ArrayNode jsonArray = (ArrayNode)GrouperUtil.jsonJacksonGetNode(jsonNode, "optionValues");
         this.optionValues = new String[jsonArray.size()];
         for (int i=0;i<this.optionValues.length;i++) {
-          this.optionValues[i] = jsonArray.getString(i);
+          this.optionValues[i] = jsonArray.get(i).asText();
         }
-        jsonObject.remove("optionValues");
+        jsonNode.remove("optionValues");
       }
       
       
-      if (jsonObject.keySet().size() > 0) {
-        this.metadataError = "Extra keys from json (unexpected): " + GrouperUtil.join(jsonObject.keySet().iterator(), ", ");
+      Set<String> unusedFieldNames = GrouperUtil.jsonJacksonFieldNames(jsonNode);
+      if (GrouperUtil.length(unusedFieldNames) > 0) {
+        this.metadataError = "Extra keys from json (unexpected): " + GrouperUtil.join(unusedFieldNames.iterator(), ", ");
         throw new RuntimeException(this.metadataError);
       }
     }

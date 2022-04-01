@@ -181,13 +181,14 @@ public class UiV2ExternalSystem {
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
-      
-      grouperExternalSystem.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      List<String> actionsPerformed = new ArrayList<String>();
+
+      grouperExternalSystem.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -330,12 +331,12 @@ public class UiV2ExternalSystem {
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      grouperExternalSystem.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      grouperExternalSystem.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
 
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -593,7 +594,7 @@ public class UiV2ExternalSystem {
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -666,7 +667,7 @@ public class UiV2ExternalSystem {
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 

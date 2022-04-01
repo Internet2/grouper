@@ -82,7 +82,7 @@ public class GuiMembershipContainer {
       return null;
     }
 
-    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.Membership.dateFormat", "yyyy/MM/dd HH:mm:ss");
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.Membership.dateFormat", "yyyy/MM/dd h:mm a z");
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
 
     return simpleDateFormat.format(this.membershipContainer.getImmediateMembership().getEnabledTime());
@@ -100,7 +100,7 @@ public class GuiMembershipContainer {
       return null;
     }
 
-    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.Membership.dateFormat", "yyyy/MM/dd HH:mm:ss");
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.group.Membership.dateFormat", "yyyy/MM/dd h:mm a z");
     SimpleDateFormat simpleDateFormat = new SimpleDateFormat(dateFormat);
 
     return simpleDateFormat.format(this.membershipContainer.getImmediateMembership().getDisabledTime());

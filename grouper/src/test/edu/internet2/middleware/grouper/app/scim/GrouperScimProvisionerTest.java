@@ -47,7 +47,7 @@ import junit.textui.TestRunner;
 public class GrouperScimProvisionerTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperScimProvisionerTest("testAWSFullSyncProvisionGroupAndThenDeleteTheGroup"));
+    TestRunner.run(new GrouperScimProvisionerTest("testGithubIncrementalSync"));
 
   }
   
@@ -77,91 +77,29 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
     testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
     
-    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
-    boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
-    String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
+    ScimProvisionerTestUtils.setupGithubExternalSystem();
     
-    String token = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword");
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.githubExternalSystem.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/githubScim/v2/organizations/orgName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.githubExternalSystem.accessTokenPassword").value(token).store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.acceptHeader").value("application/vnd.github.v3+json").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.bearerTokenExternalSystemConfigId").value("githubExternalSystem").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.class").value("edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Provisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.deleteEntitiesIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.groupIdOfUsersToProvision").value(testGroup.getUuid()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.hasTargetEntityLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.numberOfEntityAttributes").value("5").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.provisioningType").value("membershipObjects").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.scimType").value("Github").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.common.subjectLink.memberFromId2").value("${subject.getAttributeValue(\"email\")}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectAllEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectMemberships").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.showAdvanced").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.0.isFieldElseAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.name").value("userName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.name").value("givenName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.name").value("familyName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.name").value("emailValue").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.select").value("true").store();
-
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateExpression").value("${gcGrouperSyncMember.memberFromId2}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.updateEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.updateGroups").value("false").store();
-    
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
+        .assignAcceptHeader("application/vnd.github.v3+json")
+        .assignBearerTokenExternalSystemConfigId("githubExternalSystem")
+        .addSubjectLink("memberFromId2", "${subject.getAttributeValue('email')}")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupOfUsersToProvision(testGroup)
+        .assignScimMembershipType("group")
+        .assignScimType("Github")
+        .assignSelectAllEntities(true)
+        .assignGroupAttributeCount(0)
+        .assignEntityAttribute4name("emailValue")
+        );
+        
     GrouperStartup.startup();
     
     if (startTomcat) {
       CommandLineExec commandLineExec = tomcatStart();
     }
     
-    GrouperStartup.startup();
-    
-    
-    // edu.internet2.middleware.grouper.changeLog.esb.consumer
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.class", EsbConsumer.class.getName());
-    // edu.internet2.middleware.grouper.app.provisioning
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.quartzCron",  "0 0 5 * * 2000");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.provisionerConfigId", "githubProvisioner");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.githubScimProvTestCLC.publisher.debug", "true");
-    
+
     try {
       // this will create tables
       List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null);
@@ -222,74 +160,22 @@ public class GrouperScimProvisionerTest extends GrouperTest {
     testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
     testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
     
-    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
-    boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
-    String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
-    
-    String token = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword");
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.githubExternalSystem.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/githubScim/v2/organizations/orgName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.githubExternalSystem.accessTokenPassword").value(token).store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.acceptHeader").value("application/vnd.github.v3+json").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.bearerTokenExternalSystemConfigId").value("githubExternalSystem").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.class").value("edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Provisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.deleteEntitiesIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.groupIdOfUsersToProvision").value(testGroup.getUuid()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.hasTargetEntityLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.numberOfEntityAttributes").value("5").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.provisioningType").value("membershipObjects").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.scimType").value("Github").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.common.subjectLink.memberFromId2").value("${subject.getAttributeValue(\"email\")}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectAllEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.selectMemberships").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.showAdvanced").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.0.isFieldElseAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.name").value("userName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.name").value("givenName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.2.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.name").value("familyName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.3.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.name").value("emailValue").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.select").value("true").store();
+    ScimProvisionerTestUtils.setupGithubExternalSystem();
+        
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
+        .assignAcceptHeader("application/vnd.github.v3+json")
+        .assignBearerTokenExternalSystemConfigId("githubExternalSystem")
+        .addSubjectLink("memberFromId2", "${subject.getAttributeValue('email')}")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupOfUsersToProvision(testGroup)
+        .assignScimMembershipType("group")
+        .assignScimType("Github")
+        .assignSelectAllEntities(true)
+        .assignGroupAttributeCount(0)
+        .assignEntityAttribute4name("emailValue")
+        );
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.translateExpression").value("${gcGrouperSyncMember.memberFromId2}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.targetEntityAttribute.4.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.updateEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.updateGroups").value("false").store();
-    
-    
     
     GrouperStartup.startup();
     
@@ -349,106 +235,19 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       return;
     }
 
-    
-    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
-    boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
-    String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
-    
-    String token = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword");
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/awsScim/v2/").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.accessTokenPassword").value(token).store();
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.bearerTokenExternalSystemConfigId").value("awsConfigId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.class").value("edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Provisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteEntitiesIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteGroups").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteGroupsIfNotExistInGrouper").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteGroupsIfGrouperDeleted").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteMemberships").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteMembershipsIfNotExistInGrouper").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteMembershipsIfGrouperDeleted").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.hasTargetGroupLink").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.hasTargetEntityLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.insertGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.insertMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.numberOfEntityAttributes").value("5").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.numberOfGroupAttributes").value("2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.operateOnGrouperGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.operateOnGrouperMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.provisioningType").value("membershipObjects").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.replaceMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.scimMembershipType").value("groups").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.scimType").value("AWS").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.selectAllEntities").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.selectEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.selectGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.selectMemberships").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.showAdvanced").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.0.isFieldElseAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.0.select").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.name").value("userName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.name").value("displayName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.name").value("familyName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.name").value("givenName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.fieldName").value("displayName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.isFieldElseAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField").value("extension").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.1.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.1.isFieldElseAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.1.translateToGroupSyncField").value("groupToId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.updateEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.updateGroups").value("false").store();
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+      .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+      .assignBearerTokenExternalSystemConfigId("awsConfigId")
+      .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+      .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+      .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+      .assignScimType("AWS")
+      .assignGroupAttributeCount(2)
+    );
+
+
 
     GrouperStartup.startup();
     
@@ -907,113 +706,21 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       return;
     }
 
-//    int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
-    int port = 8081;
-    boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
-    String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
-    
-    String token = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword");
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/awsScim/v2/").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.accessTokenPassword").value(token).store();
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.bearerTokenExternalSystemConfigId").value("awsConfigId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.class").value("edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Provisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteEntitiesIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteGroupsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.deleteMembershipsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.hasTargetGroupLink").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.hasTargetEntityLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.insertGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.insertMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.numberOfEntityAttributes").value("5").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.numberOfGroupAttributes").value("2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.operateOnGrouperGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.operateOnGrouperMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.provisioningType").value("membershipObjects").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.replaceMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.scimMembershipType").value("groups").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.scimType").value("AWS").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.selectAllEntities").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.selectEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.selectGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.selectMemberships").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.showAdvanced").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.0.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.0.isFieldElseAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.0.select").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.name").value("userName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.1.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.name").value("displayName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.2.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.name").value("familyName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.3.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.name").value("givenName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetEntityAttribute.4.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.fieldName").value("displayName").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.isFieldElseAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField").value("extension").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.1.fieldName").value("id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.1.isFieldElseAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.targetGroupAttribute.1.translateToGroupSyncField").value("groupToId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.updateEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.awsProvisioner.updateGroups").value("false").store();
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+        .assignBearerTokenExternalSystemConfigId("awsConfigId")
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+        .assignScimType("AWS")
+        .assignGroupAttributeCount(2)
+      );
 
     GrouperStartup.startup();
     
     
-    // edu.internet2.middleware.grouper.changeLog.esb.consumer
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.awsScimProvTestCLC.class", EsbConsumer.class.getName());
-    // edu.internet2.middleware.grouper.app.provisioning
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.awsScimProvTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.awsScimProvTestCLC.quartzCron",  "0 0 5 * * 2000");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.awsScimProvTestCLC.provisionerConfigId", "awsProvisioner");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.awsScimProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.awsScimProvTestCLC.publisher.debug", "true");
 
     if (startTomcat) {
       CommandLineExec commandLineExec = tomcatStart();

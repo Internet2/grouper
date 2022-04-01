@@ -55,37 +55,14 @@ public class ProvisioningObjectChange {
 
 
   public ProvisioningObjectChange(
-      ProvisioningObjectChangeDataType provisioningObjectChangeDataType, String fieldName,
       String attributeName, ProvisioningObjectChangeAction provisioningObjectChangeAction,
       Object oldValue, Object newValue) {
     super();
-    this.provisioningObjectChangeDataType = provisioningObjectChangeDataType;
-    this.fieldName = fieldName;
     this.attributeName = attributeName;
     this.provisioningObjectChangeAction = provisioningObjectChangeAction;
     this.oldValue = oldValue;
     this.newValue = newValue;
   }
-
-
-  /**
-   * field or attribute
-   */
-  private ProvisioningObjectChangeDataType provisioningObjectChangeDataType;
-
-  public ProvisioningObjectChangeDataType getProvisioningObjectChangeDataType() {
-    return provisioningObjectChangeDataType;
-  }
-  
-  public void setProvisioningObjectChangeDataType(
-      ProvisioningObjectChangeDataType provisioningObjectChangeDataType) {
-    this.provisioningObjectChangeDataType = provisioningObjectChangeDataType;
-  }
-  
-  /**
-   * if field this is the field name
-   */
-  private String fieldName;
   
   /**
    * if attribute this is the attribute name
@@ -106,17 +83,6 @@ public class ProvisioningObjectChange {
    * new value if not a delete
    */
   private Object newValue;
-
-  
-  public String getFieldName() {
-    return fieldName;
-  }
-
-  
-  public void setFieldName(String fieldName) {
-    this.fieldName = fieldName;
-  }
-
   
   public String getAttributeName() {
     return attributeName;

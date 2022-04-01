@@ -35,6 +35,50 @@ import edu.internet2.middleware.subject.Subject;
 public class ProvisioningContainer {
   
   /**
+   * for externalized text, current config suffix
+   */
+  private String currentConfigSuffix;
+  
+  /**
+   * for externalized text, current config suffix
+   */
+  private String currentConfigValueTruncatedEscaped;
+
+  
+  /**
+   * for externalized text, current config suffix
+   * @return
+   */
+  public String getCurrentConfigSuffix() {
+    return currentConfigSuffix;
+  }
+
+  /**
+   * for externalized text, current config suffix
+   * @param currentConfigSuffix
+   */
+  public void setCurrentConfigSuffix(String currentConfigSuffix) {
+    this.currentConfigSuffix = currentConfigSuffix;
+  }
+
+  /**
+   * for externalized text, current config suffix
+   * @return
+   */
+  public String getCurrentConfigValueTruncatedEscaped() {
+    return currentConfigValueTruncatedEscaped;
+  }
+
+  /**
+   * for externalized text, current config suffix
+   * @param currentConfigValueTruncatedEscaped
+   */
+  public void setCurrentConfigValueTruncatedEscaped(String currentConfigValueTruncatedEscaped) {
+    this.currentConfigValueTruncatedEscaped = currentConfigValueTruncatedEscaped;
+  }
+
+
+  /**
    * target name user is currently working on
    */
   private String targetName;

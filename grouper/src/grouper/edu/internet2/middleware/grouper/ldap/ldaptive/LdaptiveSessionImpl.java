@@ -797,7 +797,7 @@ public class LdaptiveSessionImpl implements LdapSession {
     }
     
     if (this.debug) {
-      this.debugLog.append("Ldaptive searchRequest: ").append(StringUtils.abbreviate(searchRequest.toString(), 2000)).append("\n");
+      this.debugLog.append("Ldaptive searchRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(searchRequest.toString(), 2000)).append("\n");
     }
     if (pageSize == null) {
       SearchOperation search = new SearchOperation(ldap);
@@ -807,11 +807,11 @@ public class LdaptiveSessionImpl implements LdapSession {
       response = client.executeToCompletion(searchRequest);
     }
     if (this.debug) {
-      this.debugLog.append("Ldaptive searchResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+      this.debugLog.append("Ldaptive searchResponse (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
     }
     searchResults = response.getResult();
     if (this.debug) {
-      this.debugLog.append("Ldaptive searchResults: ").append(StringUtils.abbreviate(searchResults.toString(), 2000)).append("\n");
+      this.debugLog.append("Ldaptive searchResults (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(searchResults.toString(), 2000)).append("\n");
     }
     return searchResults;
   }
@@ -930,13 +930,13 @@ public class LdaptiveSessionImpl implements LdapSession {
             deleteRequest.setReferralHandler(new DeleteReferralHandler());
           }
           if (debug) {
-            debugLog.append("Ldaptive deleteRequest: ").append(StringUtils.abbreviate(deleteRequest.toString(), 2000)).append("\n");
+            debugLog.append("Ldaptive deleteRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(deleteRequest.toString(), 2000)).append("\n");
           }
 
           try {
             Response<Void> response = delete.execute(deleteRequest);
             if (debug) {
-              debugLog.append("Ldaptive deleteResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+              debugLog.append("Ldaptive deleteResponse (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
             }
             if (response.getResultCode() == ResultCode.SUCCESS) {
               return null;
@@ -949,13 +949,13 @@ public class LdaptiveSessionImpl implements LdapSession {
             // note that this only happens if an intermediate context does not exist
             if (e.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
               if (debug) {
-                debugLog.append("Ldaptive deleteResultCode: NO_SUCH_OBJECT\n");
+                debugLog.append("Ldaptive deleteResultCode (").append(ldapServerId).append("): NO_SUCH_OBJECT\n");
               }
               return null;
             }
 
             if (debug) {
-              debugLog.append("Ldaptive delete error: ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
+              debugLog.append("Ldaptive delete error (").append(ldapServerId).append("): ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
             }
             
             // TODO should we re-query just to be sure?
@@ -1014,13 +1014,13 @@ public class LdaptiveSessionImpl implements LdapSession {
             addRequest.setReferralHandler(new AddReferralHandler());
           }
           if (debug) {
-            debugLog.append("Ldaptive addRequest: ").append(StringUtils.abbreviate(addRequest.toString(), 2000)).append("\n");
+            debugLog.append("Ldaptive addRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(addRequest.toString(), 2000)).append("\n");
           }
 
           try {
             Response<Void> response = add.execute(addRequest);
             if (debug) {
-              debugLog.append("Ldaptive addResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+              debugLog.append("Ldaptive addResponse (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
             }
             if (response.getResultCode() == ResultCode.SUCCESS) {
               return true;
@@ -1032,7 +1032,7 @@ public class LdaptiveSessionImpl implements LdapSession {
             // update attributes instead
             if (e.getResultCode() == ResultCode.ENTRY_ALREADY_EXISTS) {
               if (debug) {
-                debugLog.append("Ldaptive addResponse: ENTRY_ALREADY_EXISTS\n");
+                debugLog.append("Ldaptive addResponse (").append(ldapServerId).append("): ENTRY_ALREADY_EXISTS\n");
               }
               ModifyOperation modify = new ModifyOperation(ldap);
               ModifyRequest modifyRequest = new ModifyRequest(ldapEntry.getDn(), ldaptiveModifications.toArray(new AttributeModification[] { }));
@@ -1041,12 +1041,12 @@ public class LdaptiveSessionImpl implements LdapSession {
                 modifyRequest.setReferralHandler(new ModifyReferralHandler());
               }
               if (debug) {
-                debugLog.append("Ldaptive addModifyRequest: ").append(StringUtils.abbreviate(modifyRequest.toString(), 2000)).append("\n");
+                debugLog.append("Ldaptive addModifyRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(modifyRequest.toString(), 2000)).append("\n");
               }
 
               Response<Void> response = modify.execute(modifyRequest);
               if (debug) {
-                debugLog.append("Ldaptive addModifyResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+                debugLog.append("Ldaptive addModifyResponse (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
               }
               if (response.getResultCode() == ResultCode.SUCCESS) {
                 return false;
@@ -1055,7 +1055,7 @@ public class LdaptiveSessionImpl implements LdapSession {
               }
             }
             if (debug) {
-              debugLog.append("Ldaptive add error: ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
+              debugLog.append("Ldaptive add error (").append(ldapServerId).append("): ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
             }
             
             throw e;
@@ -1099,12 +1099,12 @@ public class LdaptiveSessionImpl implements LdapSession {
           }
           
           if (debug) {
-            debugLog.append("Ldaptive moveRequest: ").append(StringUtils.abbreviate(modifyDnRequest.toString(), 2000)).append("\n");
+            debugLog.append("Ldaptive moveRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(modifyDnRequest.toString(), 2000)).append("\n");
           }
           try {
             Response<Void> response = modifyDn.execute(modifyDnRequest);
             if (debug) {
-              debugLog.append("Ldaptive moveResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+              debugLog.append("Ldaptive moveResponse (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
             }
             if (response.getResultCode() == ResultCode.SUCCESS) {
               return true;
@@ -1116,7 +1116,7 @@ public class LdaptiveSessionImpl implements LdapSession {
             if (e.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
 
               if (debug) {
-                debugLog.append("Ldaptive moveResponse: NO_SUCH_OBJECT\n");
+                debugLog.append("Ldaptive moveResponse (").append(ldapServerId).append("): NO_SUCH_OBJECT\n");
               }
               // old entry doesn't exist.  if the new one does, then let's assume it was already renamed and return false
               // note that this exception could also happen if the oldDn exists but the newDn is an invalid location - in that case we should still end up throwing the original exception below
@@ -1135,7 +1135,7 @@ public class LdaptiveSessionImpl implements LdapSession {
               }
             }   
             if (debug) {
-              debugLog.append("Ldaptive move error: ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
+              debugLog.append("Ldaptive move error (").append(ldapServerId).append("): ").append(GrouperUtil.getFullStackTrace(e)).append("\n");
             }            
             throw e;
           }
@@ -1187,12 +1187,12 @@ public class LdaptiveSessionImpl implements LdapSession {
           }
           
           if (debug) {
-            debugLog.append("Ldaptive modifyRequest: ").append(StringUtils.abbreviate(modifyRequest.toString(), 2000)).append("\n");
+            debugLog.append("Ldaptive modifyRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(modifyRequest.toString(), 2000)).append("\n");
           }
           
           Response<Void> response = modify.execute(modifyRequest);
           if (debug) {
-            debugLog.append("Ldaptive modifyResponse: ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+            debugLog.append("Ldaptive modifyResponse (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
           }
           if (response.getResultCode() == ResultCode.SUCCESS) {
             return null;
@@ -1203,7 +1203,7 @@ public class LdaptiveSessionImpl implements LdapSession {
       });
     } catch (RuntimeException re) {
       if (debug) {
-        debugLog.append("Ldaptive modify error: ").append(GrouperUtil.getFullStackTrace(re)).append("\n");
+        debugLog.append("Ldaptive modify error (").append(ldapServerId).append("): ").append(GrouperUtil.getFullStackTrace(re)).append("\n");
       }
       GrouperUtil.injectInException(re, "Error modifying entry server id: " + ldapServerId + ", dn: " + dn);
       throw re;

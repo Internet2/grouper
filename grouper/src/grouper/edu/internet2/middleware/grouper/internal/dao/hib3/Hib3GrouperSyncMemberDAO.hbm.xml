@@ -88,5 +88,6 @@
     <property name="sourceId" column="source_id"/>
     <property name="subjectId" column="subject_id"/>
     <property name="subjectIdentifier" column="subject_identifier"/>
+    <property name="metadataJson" column="metadata_json"/>
   </class>
 </hibernate-mapping>

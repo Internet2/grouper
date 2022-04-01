@@ -594,6 +594,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     }
     
     queryOptions.paging(limitInt, 1, true);
+    
     queryOptions.sort(new QuerySort("email", true));
     query.options(queryOptions);
     

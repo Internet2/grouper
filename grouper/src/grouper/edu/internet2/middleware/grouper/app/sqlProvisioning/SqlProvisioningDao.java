@@ -3,20 +3,20 @@ package edu.internet2.middleware.grouper.app.sqlProvisioning;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningUpdatable;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerDaoCapabilities;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteEntitiesRequest;
@@ -45,136 +45,179 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsBulkResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsResponse;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
-
+/**
+ * 
+ * @author mchyzer
+ *
+ */
 public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
+  /**
+   * 
+   */
   @Override
   public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
-    List<ProvisioningMembership> targetMemberships = this.retrieveMemberships(true, null, null, null);
-    return new TargetDaoRetrieveAllMembershipsResponse(targetMemberships);
+    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    
+    String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
+
+    List<String> membershipTablePrimaryColNamesList = new ArrayList<String>();
+
+    String membershipTableName = sqlProvisioningConfiguration.getMembershipTableName();
+    
+    List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
+
+    Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetMembershipAttributeNameToConfig();
+    
+    for (String attributeName: membershipAttributeNameToConfigAttribute.keySet()) {
+      GrouperProvisioningConfigurationAttribute configurationAttribute = membershipAttributeNameToConfigAttribute.get(attributeName);
+      if (!configurationAttribute.isSelect()) {
+        continue;
+      }
+
+      membershipTablePrimaryColNamesList.add(attributeName);
+    }
+
+    GrouperUtil.assertion(GrouperUtil.length(membershipTablePrimaryColNamesList) > 0, "Cannot find any membership columns to select from");
+    
+    List<Object[]> membershipPrimaryAttributeValues = null;
+
+    membershipPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, membershipTablePrimaryColNamesList, membershipTableName);
+
+    retrieveMembershipsAddRecord(result, membershipPrimaryAttributeValues, membershipTablePrimaryColNamesList);
+            
+    return new TargetDaoRetrieveAllMembershipsResponse(result);
   }
 
-  public List<ProvisioningMembership> retrieveMemberships(boolean retrieveAll, List<ProvisioningGroup> grouperTargetGroups, 
+  /**
+   * 
+   * @param grouperTargetGroups
+   * @param grouperTargetEntities
+   * @param grouperTargetMembershipsInput
+   * @return memberships
+   */
+  public List<ProvisioningMembership> retrieveMemberships(List<ProvisioningGroup> grouperTargetGroups, 
       List<ProvisioningEntity> grouperTargetEntities, List<Object> grouperTargetMembershipsInput) {
-    
-    if (retrieveAll && (grouperTargetGroups != null || grouperTargetEntities != null || grouperTargetMembershipsInput != null)) {
-      throw new RuntimeException("Cant retrieve all and pass in groups to retrieve");
-    }
     
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
 
     String membershipGroupColumn = sqlProvisioningConfiguration.getMembershipGroupForeignKeyColumn();
-    String membershipUserColumn = sqlProvisioningConfiguration.getMembershipEntityForeignKeyColumn();
+    String membershipEntityColumn = sqlProvisioningConfiguration.getMembershipEntityForeignKeyColumn();
+
+    String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
+    String groupTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
 
     String membershipTableName = sqlProvisioningConfiguration.getMembershipTableName();
     
-    List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
+    List<ProvisioningMembership> overallResult = new ArrayList<ProvisioningMembership>();
 
-    List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
+    Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetMembershipAttributeNameToConfig();
+
+    List<String> membershipColumnNames = new ArrayList<String>();
+    
+    for (String attributeName: entityAttributeNameToConfigAttribute.keySet()) {
+      SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) entityAttributeNameToConfigAttribute.get(attributeName);
+      GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
+      if (!configurationAttribute.isSelect()) {
+        continue;
+      }
+      membershipColumnNames.add(attributeName);
+    }
+    
+    GrouperUtil.assertion(membershipColumnNames.contains(membershipEntityColumn), "Entity id col in membership table is not selectable!  Configure as select true! " + entityTableIdColumn);
+    GrouperUtil.assertion(membershipColumnNames.contains(membershipGroupColumn), "Group id col in membership table is not selectable!  Configure as select true! " + groupTableIdColumn);
+
+    List<Object> grouperTargetMemberships = new ArrayList<Object>();
+
     for (Object grouperTargetMembershipMultiKey : GrouperUtil.nonNull(grouperTargetMembershipsInput)) {
       ProvisioningMembership grouperTargetMembership = (ProvisioningMembership)grouperTargetMembershipMultiKey;
       if (grouperTargetMembership != null) {
-        grouperTargetMemberships.add(grouperTargetMembership);
+        Object groupId = grouperTargetMembership.retrieveAttributeValue(membershipGroupColumn);
+        Object entityId = grouperTargetMembership.retrieveAttributeValue(membershipEntityColumn);
+        grouperTargetMemberships.add(new Object[] {groupId, entityId});
       }
     }
     
     if (StringUtils.isNotBlank(membershipTableName)) {
 
-      Set<String> membershipAttributeNames = sqlProvisioningConfiguration.getTargetMembershipAttributeNameToConfig().keySet();
-      
-      List<String> membershipAttributeNamesList = new ArrayList<String>(membershipAttributeNames);
-      
-      StringBuilder commaSeparatedColumnNames = new StringBuilder();
-      for (int i=0; i<membershipAttributeNamesList.size(); i++) {
-        if (i>0) {
-          commaSeparatedColumnNames.append(", ");
-        }
-        commaSeparatedColumnNames.append(membershipAttributeNamesList.get(i));
-      }
-      
-//      String commaSeparatedAttributeNames = null;// TODO sqlProvisioningConfiguration.getMembershipAttributeNames();
-      
-      StringBuilder sqlInitial = new StringBuilder("select " + commaSeparatedColumnNames.toString() + " from "+membershipTableName);
-      List<Object[]> membershipAttributeValues = null;
-
-      String[] colNames = GrouperUtil.splitTrim(commaSeparatedColumnNames.toString(), ",");
-
-      if (retrieveAll) {
-        GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+      if (GrouperUtil.length(grouperTargetMemberships) > 0) {
+        List<Object[]> membershipAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
+            dbExternalSystemConfigId, membershipColumnNames, membershipTableName, null, null, 
+            GrouperUtil.toList(membershipGroupColumn, membershipEntityColumn), grouperTargetMemberships);
         
-        membershipAttributeValues = gcDbAccess.sql(sqlInitial.toString()).selectList(Object[].class);
-        retrieveMembershipsAddRecord(result, membershipAttributeValues, colNames);
-      } else {
-
-        List<ProvisioningUpdatable> grouperTargetUpdatables = new ArrayList<ProvisioningUpdatable>();
-        
-        grouperTargetUpdatables.addAll(GrouperUtil.nonNull(grouperTargetGroups));
-        grouperTargetUpdatables.addAll(GrouperUtil.nonNull(grouperTargetEntities));
-        grouperTargetUpdatables.addAll(GrouperUtil.nonNull(grouperTargetMemberships));
-
-        if (!retrieveAll && GrouperUtil.isBlank(grouperTargetMemberships)) {
-          return result;
-        }
-
-        int numberOfBatches = GrouperUtil.batchNumberOfBatches(grouperTargetMemberships.size(), 450);
-        for (int i = 0; i < numberOfBatches; i++) {
-          List<ProvisioningMembership> currentBatchGrouperTargetMemberships = GrouperUtil.batchList(grouperTargetMemberships, 450, i);
-          StringBuilder sql = new StringBuilder(sqlInitial);
-          sql.append(" where ( ");
-          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-          
-          for (int j=0; j<currentBatchGrouperTargetMemberships.size();j++) {
-            ProvisioningMembership grouperTargetMembership = currentBatchGrouperTargetMemberships.get(j);
-            gcDbAccess.addBindVar(((MultiKey)grouperTargetMembership.getMatchingId()).getKey(0));
-            gcDbAccess.addBindVar(((MultiKey)grouperTargetMembership.getMatchingId()).getKey(1));
-            if (j>0) {
-              sql.append(" or ");
-            }
-            sql.append("  (" + membershipGroupColumn + " = ? && " + membershipUserColumn + " = ?) ");
-          }
-          sql.append(" ) ");
-          membershipAttributeValues = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
-          retrieveMembershipsAddRecord(result, membershipAttributeValues, colNames);
-          
-        }
+        retrieveMembershipsAddRecord(overallResult, membershipAttributeValues, membershipColumnNames);
       }
+
+      if (GrouperUtil.length(grouperTargetGroups) > 0) {
+        
+        List<Object> idsToRetrieve = new ArrayList<Object>();
+        for (ProvisioningGroup provisioningGroup : grouperTargetGroups) {
+          idsToRetrieve.add(provisioningGroup.retrieveAttributeValue(groupTableIdColumn));
+        }
+        
+        List<Object[]> membershipAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
+            dbExternalSystemConfigId, membershipColumnNames, membershipTableName, null, null, 
+            GrouperUtil.toList(membershipGroupColumn), idsToRetrieve);
+        
+        retrieveMembershipsAddRecord(overallResult, membershipAttributeValues, membershipColumnNames);
+      }
+
+      if (GrouperUtil.length(grouperTargetEntities) > 0) { 
+        
+        List<Object> idsToRetrieve = new ArrayList<Object>();
+        for (ProvisioningEntity provisioningEntity : grouperTargetEntities) {
+          idsToRetrieve.add(provisioningEntity.retrieveAttributeValue(entityTableIdColumn));
+        }
+        
+        List<Object[]> membershipAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
+            dbExternalSystemConfigId, membershipColumnNames, membershipTableName, null, null, 
+            GrouperUtil.toList(membershipGroupColumn), idsToRetrieve);
+        
+        retrieveMembershipsAddRecord(overallResult, membershipAttributeValues, membershipColumnNames);
+      }
+
     }
     
-    return result;
-   
+    return overallResult;
   }
-
-  protected void retrieveMembershipsAddRecord(List<ProvisioningMembership> result,
-      List<Object[]> membershipAttributeValues, String[] colNames) {
-    for (Object[] membershipAttributeValue: GrouperUtil.nonNull(membershipAttributeValues)) {
+  
+  /**
+   * 
+   * @param result
+   * @param membershipPrimaryAttributeValues
+   * @param membershipTablePrimaryColNamesList
+   */
+  protected void retrieveMembershipsAddRecord(List<ProvisioningMembership> result, 
+      List<Object[]> membershipPrimaryAttributeValues, 
+      List<String> membershipTablePrimaryColNamesList) {
+    
+    for (Object[] membershipAttributeValue: GrouperUtil.nonNull(membershipPrimaryAttributeValues)) {
       ProvisioningMembership provisioningMembership = new ProvisioningMembership();
-            
-      for (int i=0; i<colNames.length; i++) {
-        String colName = colNames[i];
+ 
+      for (int i=0; i<membershipTablePrimaryColNamesList.size(); i++) {
+
+        String colName = membershipTablePrimaryColNamesList.get(i);
         
         Object value = membershipAttributeValue[i];
-        
+         
         provisioningMembership.assignAttributeValue(colName, value);
+                
       }
             
       result.add(provisioningMembership);
     }
+    
   }
-  
-  
+
+  /**
+   * 
+   */
   @Override
   public TargetDaoUpdateGroupsResponse updateGroups(TargetDaoUpdateGroupsRequest targetDaoUpdateGroupsRequest) {
     
@@ -195,323 +238,180 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String groupAttributesAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeValueColumn();
 
     String groupAttributesLastModifiedColumn = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumn();
+    
     String groupAttributesLastModifiedColumnType = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumnType();
     
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig();
     
     List<ProvisioningGroup> targetGroups = targetDaoUpdateGroupsRequest.getTargetGroups();
     
-    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-    
+    List<String> primaryColumnsWhereClause = new ArrayList<String>();
+    primaryColumnsWhereClause.add(groupTableIdColumn);
     List<String> primaryColumnsToUpdate = new ArrayList<String>();
+    Map<String, Integer> primaryColumnNameToIndex = new HashMap<String, Integer>();
     
     for (String attributeName: attributeNameToConfig.keySet()) {
       SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
+      GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
+      if (!configurationAttribute.isUpdate()) {
+        continue;
+      }
       
-      configurationAttribute.getTranslateToGroupSyncField();
-      
-      if (configurationAttribute.isUpdate()) {
-        if (StringUtils.isBlank(configurationAttribute.getStorageType()) || StringUtils.equals(configurationAttribute.getStorageType(), "groupTableColumn")) {
-          primaryColumnsToUpdate.add(attributeName);
-        }
+      if (StringUtils.isBlank(configurationAttribute.getStorageType()) || StringUtils.equals(configurationAttribute.getStorageType(), "groupTableColumn")) {
+        primaryColumnNameToIndex.put(attributeName, GrouperUtil.length(primaryColumnsToUpdate));
+        primaryColumnsToUpdate.add(attributeName);
       }
       
     }
+
+    List<String> attributeColumnsToDelete = GrouperUtil.toList(groupAttributesGroupForeignKeyColumn, 
+        groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
+
+    List<String> attributeColumnsToInsert = GrouperUtil.toList(groupAttributesGroupForeignKeyColumn, 
+        groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
+
+    List<String> attributeColumnsWhereClause = GrouperUtil.toList(groupAttributesGroupForeignKeyColumn, 
+        groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
     
-    List<List<Object>> batchBindVarsForPrimaryTable = new ArrayList<List<Object>>();
-    List<List<Object>> batchUpdateBindVarsForAttributesTable = new ArrayList<List<Object>>();
-    List<List<Object>> batchInsertBindVarsForAttributesTable = new ArrayList<List<Object>>();
-    List<List<Object>> batchDeleteBindVarsForAttributesTable = new ArrayList<List<Object>>();
+    if (!StringUtils.isBlank(groupAttributesLastModifiedColumn)) {
+      attributeColumnsToInsert.add(groupAttributesLastModifiedColumn);
+    }
+
+    // owner id, attribute name, old value, new value, last updated
+    List<String> attributeColumnsToUpdate = GrouperUtil.toList(groupAttributesGroupForeignKeyColumn, 
+        groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
+    if (!StringUtils.isBlank(groupAttributesLastModifiedColumn)) {
+      attributeColumnsToUpdate.add(groupAttributesLastModifiedColumn);
+    }
+
+    List<Object[]> primaryTableUpdates = new ArrayList<Object[]>();
+    List<Object[]> primaryTableWhereClause = new ArrayList<Object[]>();
+    List<Object[]> attributeTableUpdates = new ArrayList<Object[]>();
+    List<Object[]> attributeTableUpdatesWhereClause = new ArrayList<Object[]>();
+    List<Object[]> attributeTableInserts = new ArrayList<Object[]>();
+    List<Object[]> attributeTableDeletes = new ArrayList<Object[]>();
+    List<Object[]> attributeTableDeletesWhereClause = new ArrayList<Object[]>();
     
     for (ProvisioningGroup targetGroup: targetGroups) {
       
-      Map<String, ProvisioningAttribute> targetGroupAttributes = targetGroup.getAttributes();
-      
-      Map<String, Object> attributeNamesToValues = new HashMap<String, Object>();
-      
       String groupIdentifierValue = targetGroup.retrieveAttributeValueString(groupTableIdColumn);
       
-      // we are filling in the old values here and later replacing the ones that have changed with the new ones.
-      for (String attributeName: targetGroupAttributes.keySet()) {
-        if (primaryColumnsToUpdate.contains(attributeName)) {
-          Object oldValue = targetGroupAttributes.get(attributeName).getValue();
-          attributeNamesToValues.put(attributeName, oldValue);
-        }
-        
-      }
-      
       if (StringUtils.isBlank(groupIdentifierValue)) {
-        throw new RuntimeException("Unable to retrieve group identifier value");
+        throw new RuntimeException("Unable to retrieve entitiy identifier value");
       }
+      Object[] mainData = new Object[primaryColumnsToUpdate.size()];
       
+      // set all the current values and the new values will overlay
+      for (String mainAttributeName : primaryColumnsToUpdate) {
+        mainData[primaryColumnNameToIndex.get(mainAttributeName)] = targetGroup.retrieveAttributeValue(mainAttributeName);
+      }
+      boolean hasPrimaryUpdate = false;
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         
         String attributeName = provisioningObjectChange.getAttributeName();
         SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
-        
+        GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
         if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
           
           if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.update) {
-            if (GrouperUtil.isEmpty(provisioningObjectChange.getOldValue())) {
-              //attributeNamesToValuesNeedingInsert.put(attributeName, provisioningObjectChange.getNewValue());
-              
-              List<Object> bindInsertVarsForAttributesTable = new ArrayList<Object>();
-              batchInsertBindVarsForAttributesTable.add(bindInsertVarsForAttributesTable);
-              
-              bindInsertVarsForAttributesTable.add(groupIdentifierValue);
-              bindInsertVarsForAttributesTable.add(attributeName);
-              bindInsertVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
-              
-              if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-                if (StringUtils.equals(groupAttributesLastModifiedColumnType, "timestamp")) {
-                  bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
-                } else if (StringUtils.equals(groupAttributesLastModifiedColumnType, "long")) {
-                  bindInsertVarsForAttributesTable.add(System.currentTimeMillis());
-                } else {
-                  throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+groupAttributesLastModifiedColumnType+"'");
-                }
-              }
-              
-              
-            } else if (GrouperUtil.isEmpty(provisioningObjectChange.getNewValue())) {
-              //attributeNamesToValuesNeedingDelete.put(attributeName, provisioningObjectChange.getOldValue());
-              
-              List<Object> bindDeleteVarsForAttributesTable = new ArrayList<Object>();
-              batchDeleteBindVarsForAttributesTable.add(bindDeleteVarsForAttributesTable);
-              
-              bindDeleteVarsForAttributesTable.add(groupIdentifierValue);
-              bindDeleteVarsForAttributesTable.add(attributeName);
-              bindDeleteVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
-              
-            } else {
-              
-              List<Object> bindUpdateVarsForAttributesTable = new ArrayList<Object>();
-              batchUpdateBindVarsForAttributesTable.add(bindUpdateVarsForAttributesTable);
-              
-              bindUpdateVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
-              if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-                if (StringUtils.equals(groupAttributesLastModifiedColumnType, "timestamp")) {
-                  bindUpdateVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
-                } else if (StringUtils.equals(groupAttributesLastModifiedColumnType, "long")) {
-                  bindUpdateVarsForAttributesTable.add(System.currentTimeMillis());
-                } else {
-                  throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+groupAttributesLastModifiedColumnType+"'");
-                }
-              }
-              
-              bindUpdateVarsForAttributesTable.add(groupIdentifierValue);
-              bindUpdateVarsForAttributesTable.add(attributeName);
-              bindUpdateVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
-              
-              //attributeNamesToValuesNeedingUpdate.put(attributeName, new MultiKey(provisioningObjectChange.getOldValue(), provisioningObjectChange.getNewValue()));
-            }
-          } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
             
-            List<Object> bindInsertVarsForAttributesTable = new ArrayList<Object>();
-            batchInsertBindVarsForAttributesTable.add(bindInsertVarsForAttributesTable);
-            
-            bindInsertVarsForAttributesTable.add(groupIdentifierValue);
-            bindInsertVarsForAttributesTable.add(attributeName);
-            bindInsertVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
-            
+            Object[] updateData = new Object[attributeColumnsToUpdate.size()];
+            attributeTableUpdates.add(updateData);
+            updateData[0] = groupIdentifierValue;
+            updateData[1] = attributeName;
+            updateData[2] = provisioningObjectChange.getNewValue();
             if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
               if (StringUtils.equals(groupAttributesLastModifiedColumnType, "timestamp")) {
-                bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+                updateData[3] = new Timestamp(System.currentTimeMillis());
               } else if (StringUtils.equals(groupAttributesLastModifiedColumnType, "long")) {
-                bindInsertVarsForAttributesTable.add(System.currentTimeMillis());
+                updateData[3] = System.currentTimeMillis();
               } else {
                 throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+groupAttributesLastModifiedColumnType+"'");
               }
             }
+            attributeTableUpdatesWhereClause.add(new Object[] {groupIdentifierValue, attributeName, provisioningObjectChange.getOldValue()});
             
-            // attributeNamesToValuesNeedingInsert.put(attributeName, provisioningObjectChange.getNewValue());
+          } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
+            
+            Object[] insertData = new Object[attributeColumnsToInsert.size()];
+            attributeTableInserts.add(insertData);
+            insertData[0] = groupIdentifierValue;
+            insertData[1] = attributeName;
+            insertData[2] = provisioningObjectChange.getNewValue();
+            if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
+              if (StringUtils.equals(groupAttributesLastModifiedColumnType, "timestamp")) {
+                insertData[3] = new Timestamp(System.currentTimeMillis());
+              } else if (StringUtils.equals(groupAttributesLastModifiedColumnType, "long")) {
+                insertData[3] = System.currentTimeMillis();
+              } else {
+                throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+groupAttributesLastModifiedColumnType+"'");
+              }
+            }
+
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
-            //attributeNamesToValuesNeedingDelete.put(attributeName, provisioningObjectChange.getOldValue());
-            List<Object> bindDeleteVarsForAttributesTable = new ArrayList<Object>();
-            batchDeleteBindVarsForAttributesTable.add(bindDeleteVarsForAttributesTable);
-            
-            bindDeleteVarsForAttributesTable.add(groupIdentifierValue);
-            bindDeleteVarsForAttributesTable.add(attributeName);
-            bindDeleteVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
+            Object[] deleteData = new Object[attributeColumnsToDelete.size()];
+            attributeTableDeletes.add(deleteData);
+            deleteData[0] = groupIdentifierValue;
+            deleteData[1] = attributeName;
+            deleteData[2] = provisioningObjectChange.getOldValue();
+            attributeTableDeletesWhereClause.add(new Object[] {groupIdentifierValue});
           }
           
         } else {
-          //primaryColumnsToUpdate.add(attributeName);
           
-          attributeNamesToValues.put(attributeName, provisioningObjectChange.getNewValue());
-          
-//          primaryValuesToUpdate.add(provisioningObjectChange.getNewValue());
-          
-//          if (i>0) {
-//            commaSeparatedColumnNames.append(", ");
-//            commaSeparatedQuestionMarks.append(", ");
-//          }
-//          commaSeparatedColumnNames.append(attributeName);
-//          commaSeparatedQuestionMarks.append(" ? ");
-//          i++;
+          Integer columnIndex = primaryColumnNameToIndex.get(attributeName);
+          GrouperUtil.assertion(columnIndex!=null, "Cant find column: " + attributeName);
+          mainData[columnIndex] = provisioningObjectChange.getNewValue();
+          hasPrimaryUpdate = true;
         }
         
       }
-      
-      List<Object> bindVarsForPrimaryTable = new ArrayList<Object>();
-      batchBindVarsForPrimaryTable.add(bindVarsForPrimaryTable);
-      
-      for (String colName: primaryColumnsToUpdate) {
-        // add where clause bind variable in there
-        bindVarsForPrimaryTable.add(attributeNamesToValues.get(colName));
+      if (hasPrimaryUpdate) {
+        primaryTableUpdates.add(mainData);
+        primaryTableWhereClause.add(new Object[] {groupIdentifierValue});
       }
+    }
+    
+    if (primaryTableUpdates.size() > 0) {
       
-      // This always gives new uuid
-      // bindVarsForPrimaryTable.add(targetGroupAttributes.get(groupTableIdColumn).getValue());
-       bindVarsForPrimaryTable.add(groupIdentifierValue);
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, groupTableName, primaryColumnsToUpdate, primaryTableUpdates, primaryColumnsWhereClause, primaryTableWhereClause);
       
-      //TODO set it only after running the sql statement
+    }
+    
+    if (attributeTableUpdates.size() > 0 ) {
+      
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, groupAttributesTableName, attributeColumnsToUpdate, attributeTableUpdates, attributeColumnsWhereClause, attributeTableUpdatesWhereClause);
+      
+    }
+    
+    if (attributeTableInserts.size() > 0 ) {
+      
+      SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, groupAttributesTableName, attributeColumnsToInsert, attributeTableInserts); 
+      
+    }
+    
+    if (attributeTableDeletes.size() > 0 ) {
+      
+      SqlProvisionerCommands.deleteObjects(attributeTableDeletes, dbExternalSystemConfigId, groupAttributesTableName, attributeColumnsToDelete, null, null); 
+      
+    }
+    
+    for (ProvisioningGroup targetGroup: targetGroups) {
+      
       targetGroup.setProvisioned(true);
-      
-    }
-    
-    if (primaryColumnsToUpdate.size() > 0) {
-      StringBuilder sqlPrimary = new StringBuilder("update "+groupTableName + " set ");
-      
-      for (int j = 0; j<primaryColumnsToUpdate.size(); j++) {
-        
-        if (j > 0) {
-          sqlPrimary.append(", ");
-        }
-        
-        sqlPrimary.append(primaryColumnsToUpdate.get(j));
-        sqlPrimary.append(" = ");
-        sqlPrimary.append(" ? ");
-        
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
       }
-      
-      sqlPrimary.append(" where "+ groupTableIdColumn + " = ? ");
-      
-      
-      gcDbAccess.sql(sqlPrimary.toString());
-      
-      gcDbAccess.batchBindVars(batchBindVarsForPrimaryTable);
 
-      int[] executeBatchSql = gcDbAccess.executeBatchSql();
-      
-      for (int j=0; j<executeBatchSql.length; j++) {
-        
-        if (executeBatchSql[j] == 1) {
-          targetGroups.get(j).setProvisioned(true);
-        }
-        
-      }
-      
     }
-    
-    if (batchUpdateBindVarsForAttributesTable.size() > 0 ) {
-      
-      gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-      
-      StringBuilder sqlAttributes = new StringBuilder("update "+groupAttributesTableName + " set " +groupAttributesAttributeValueColumn +" = ? ");
-      
-      if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-        sqlAttributes.append(", "+groupAttributesLastModifiedColumn+ " = ? ");
-      }
-      
-      sqlAttributes.append(" where "+ groupAttributesGroupForeignKeyColumn + " = ? and "+ groupAttributesAttributeNameColumn + " = ? and "+ groupAttributesAttributeValueColumn + " = ? ");
-      
-      gcDbAccess.sql(sqlAttributes.toString());
-      int[] executeBatchSql = gcDbAccess.batchBindVars(batchUpdateBindVarsForAttributesTable).executeBatchSql();
-      
-      // {g1, g1, g2, g3}
-      // { 0, 1, 1, 1 }
-      
-      /**
-       * 
-       * 0 -> g1
-       * 1 -> g1
-       * 2 -> g2
-       * 3 -> g3
-       * 
-       * 
-       */
-      
-//      for (String attributeName: attributeNamesToValuesNeedingUpdate.keySet()) {
-//        MultiKey oldAndNewValue = attributeNamesToValuesNeedingUpdate.get(attributeName);
-//        gcDbAccess.addBindVar(oldAndNewValue.getKey(1));
-//        if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) { 
-//          gcDbAccess.addBindVar(new Timestamp(System.currentTimeMillis()));
-//        }
-//        gcDbAccess.addBindVar(targetGroups.getAttributes().get(groupIdColumnName).getValue());
-//        gcDbAccess.addBindVar(attributeName);
-//        gcDbAccess.addBindVar(oldAndNewValue.getKey(0));
-//        
-//        gcDbAccess.executeSql();
-//      }
-      
-    }
-    
-    if (batchInsertBindVarsForAttributesTable.size() > 0 ) {
-      
-      List<String> columnsToInsertInAttributesTable = new ArrayList<String>();
-      columnsToInsertInAttributesTable.add(groupAttributesGroupForeignKeyColumn);
-      columnsToInsertInAttributesTable.add(groupAttributesAttributeNameColumn);
-      columnsToInsertInAttributesTable.add(groupAttributesAttributeValueColumn);
-      if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-        columnsToInsertInAttributesTable.add(groupAttributesLastModifiedColumn);
-      }
-      
-      String commaSeparatedColNamesAttributesTable = StringUtils.join(columnsToInsertInAttributesTable, ",");
-      String commaSeparatedQuestionMarksAttributesTable = GrouperClientUtils.appendQuestions(columnsToInsertInAttributesTable.size());
-      
-      String sqlForAttributesTable = "insert into " + groupAttributesTableName + "(" + commaSeparatedColNamesAttributesTable + ") values ("+commaSeparatedQuestionMarksAttributesTable+")";
-      
-      //List<List<Object>> batchBindVarsForAttributesTable = new ArrayList<List<Object>>();
-      
-//      for (String attributeName: attributeNamesToValuesNeedingInsert.keySet()) {
-//        
-//        List<Object> bindVars = new ArrayList<Object>();
-//        batchBindVarsForAttributesTable.add(bindVars);
-//        
-//        Object newValue = attributeNamesToValuesNeedingInsert.get(attributeName);
-//        
-//        bindVars.add(targetGroups.getAttributes().get(groupIdColumnName).getValue());
-//        bindVars.add(attributeName);
-//        bindVars.add(newValue);
-//        if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) { 
-//          bindVars.add(new Timestamp(System.currentTimeMillis()));
-//        }
-//        
-//      }
-      
-      int[] countsAttributesTable = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlForAttributesTable.toString()).batchBindVars(batchInsertBindVarsForAttributesTable).executeBatchSql();
-      
-    }
-    
-    if (batchDeleteBindVarsForAttributesTable.size() > 0 ) {
-      
-      String sqlForAttributesTable = " delete from " + groupAttributesTableName + " where " + groupAttributesGroupForeignKeyColumn + " = ? and " 
-          + groupAttributesAttributeNameColumn + " = ? and "
-          + groupAttributesAttributeValueColumn + " = ? " ;
-      
-//      List<List<Object>> batchBindVarsForAttributesTable = new ArrayList<List<Object>>();
-//      
-//      for (String attributeName: attributeNamesToValuesNeedingDelete.keySet()) {
-//        
-//        List<Object> bindVars = new ArrayList<Object>();
-//        batchBindVarsForAttributesTable.add(bindVars);
-//        
-//        Object oldValue = attributeNamesToValuesNeedingDelete.get(attributeName);
-//        
-//        bindVars.add(targetGroups.getAttributes().get(groupIdColumnName).getValue());
-//        bindVars.add(attributeName);
-//        bindVars.add(oldValue);
-//      }
-      
-      int[] countsAttributesTable = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlForAttributesTable.toString()).batchBindVars(batchDeleteBindVarsForAttributesTable).executeBatchSql();
-      
-    }
+
     
     return new TargetDaoUpdateGroupsResponse();
-
   }
   
+  /**
+   * 
+   */
   @Override
   public TargetDaoUpdateEntitiesResponse updateEntities(TargetDaoUpdateEntitiesRequest targetDaoUpdateEntitiesRequest) {
     
@@ -539,587 +439,174 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     List<ProvisioningEntity> targetEntities = targetDaoUpdateEntitiesRequest.getTargetEntities();
     
-    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-    
+    List<String> primaryColumnsWhereClause = new ArrayList<String>();
+    primaryColumnsWhereClause.add(entityTableIdColumn);
     List<String> primaryColumnsToUpdate = new ArrayList<String>();
+    Map<String, Integer> primaryColumnNameToIndex = new HashMap<String, Integer>();
     
     for (String attributeName: attributeNameToConfig.keySet()) {
       SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
+      GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
+      if (!configurationAttribute.isUpdate()) {
+        continue;
+      }
       
-      configurationAttribute.getTranslateToMemberSyncField();
-      
-      if (configurationAttribute.isUpdate()) {
-        if (StringUtils.isBlank(configurationAttribute.getStorageType()) || StringUtils.equals(configurationAttribute.getStorageType(), "entityTableColumn")) {
-          primaryColumnsToUpdate.add(attributeName);
-        }
+      if (StringUtils.isBlank(configurationAttribute.getStorageType()) || StringUtils.equals(configurationAttribute.getStorageType(), "entityTableColumn")) {
+        primaryColumnNameToIndex.put(attributeName, GrouperUtil.length(primaryColumnsToUpdate));
+        primaryColumnsToUpdate.add(attributeName);
       }
       
     }
+
+    List<String> attributeColumnsToDelete = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, 
+        entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
+
+    List<String> attributeColumnsToInsert = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, 
+        entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
+
+    List<String> attributeColumnsWhereClause = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, 
+        entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
     
-    List<List<Object>> batchBindVarsForPrimaryTable = new ArrayList<List<Object>>();
-    List<List<Object>> batchUpdateBindVarsForAttributesTable = new ArrayList<List<Object>>();
-    List<List<Object>> batchInsertBindVarsForAttributesTable = new ArrayList<List<Object>>();
-    List<List<Object>> batchDeleteBindVarsForAttributesTable = new ArrayList<List<Object>>();
+    if (!StringUtils.isBlank(entityAttributesLastModifiedColumn)) {
+      attributeColumnsToInsert.add(entityAttributesLastModifiedColumn);
+    }
+
+    // owner id, attribute name, old value, new value, last updated
+    List<String> attributeColumnsToUpdate = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, 
+        entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
+    if (!StringUtils.isBlank(entityAttributesLastModifiedColumn)) {
+      attributeColumnsToUpdate.add(entityAttributesLastModifiedColumn);
+    }
+
+    List<Object[]> primaryTableUpdates = new ArrayList<Object[]>();
+    List<Object[]> primaryTableWhereClause = new ArrayList<Object[]>();
+    List<Object[]> attributeTableUpdates = new ArrayList<Object[]>();
+    List<Object[]> attributeTableUpdatesWhereClause = new ArrayList<Object[]>();
+    List<Object[]> attributeTableInserts = new ArrayList<Object[]>();
+    List<Object[]> attributeTableDeletes = new ArrayList<Object[]>();
+    List<Object[]> attributeTableDeletesWhereClause = new ArrayList<Object[]>();
     
     for (ProvisioningEntity targetEntity: targetEntities) {
       
-      Map<String, ProvisioningAttribute> targetEntityAttributes = targetEntity.getAttributes();
-      
-      Map<String, Object> attributeNamesToValues = new HashMap<String, Object>();
-      
       String entityIdentifierValue = targetEntity.retrieveAttributeValueString(entityTableIdColumn);
-      
-      // we are filling in the old values here and later replacing the ones that have changed with the new ones.
-      for (String attributeName: targetEntityAttributes.keySet()) {
-        if (primaryColumnsToUpdate.contains(attributeName)) {
-          Object oldValue = targetEntityAttributes.get(attributeName).getValue();
-          attributeNamesToValues.put(attributeName, oldValue);
-        }
-        
-      }
       
       if (StringUtils.isBlank(entityIdentifierValue)) {
         throw new RuntimeException("Unable to retrieve entitiy identifier value");
       }
+      Object[] mainData = new Object[primaryColumnsToUpdate.size()];
       
+      // set all the current values and the new values will overlay
+      for (String mainAttributeName : primaryColumnsToUpdate) {
+        mainData[primaryColumnNameToIndex.get(mainAttributeName)] = targetEntity.retrieveAttributeValue(mainAttributeName);
+      }
+      boolean hasPrimaryUpdate = false;
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         
         String attributeName = provisioningObjectChange.getAttributeName();
         SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
-        
+        GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
         if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
           
           if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.update) {
-            if (GrouperUtil.isEmpty(provisioningObjectChange.getOldValue())) {
-              //attributeNamesToValuesNeedingInsert.put(attributeName, provisioningObjectChange.getNewValue());
-              
-              List<Object> bindInsertVarsForAttributesTable = new ArrayList<Object>();
-              batchInsertBindVarsForAttributesTable.add(bindInsertVarsForAttributesTable);
-              
-              bindInsertVarsForAttributesTable.add(entityIdentifierValue);
-              bindInsertVarsForAttributesTable.add(attributeName);
-              bindInsertVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
-              
-              if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-                if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
-                  bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
-                } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
-                  bindInsertVarsForAttributesTable.add(System.currentTimeMillis());
-                } else {
-                  throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
-                }
-              }
-              
-            } else if (GrouperUtil.isEmpty(provisioningObjectChange.getNewValue())) {
-              //attributeNamesToValuesNeedingDelete.put(attributeName, provisioningObjectChange.getOldValue());
-              
-              List<Object> bindDeleteVarsForAttributesTable = new ArrayList<Object>();
-              batchDeleteBindVarsForAttributesTable.add(bindDeleteVarsForAttributesTable);
-              
-              bindDeleteVarsForAttributesTable.add(entityIdentifierValue);
-              bindDeleteVarsForAttributesTable.add(attributeName);
-              bindDeleteVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
-              
-            } else {
-              
-              List<Object> bindUpdateVarsForAttributesTable = new ArrayList<Object>();
-              batchUpdateBindVarsForAttributesTable.add(bindUpdateVarsForAttributesTable);
-              
-              bindUpdateVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
-              if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-                if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
-                  bindUpdateVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
-                } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
-                  bindUpdateVarsForAttributesTable.add(System.currentTimeMillis());
-                } else {
-                  throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
-                }
-              }
-              
-              bindUpdateVarsForAttributesTable.add(entityIdentifierValue);
-              bindUpdateVarsForAttributesTable.add(attributeName);
-              bindUpdateVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
-              
-              //attributeNamesToValuesNeedingUpdate.put(attributeName, new MultiKey(provisioningObjectChange.getOldValue(), provisioningObjectChange.getNewValue()));
-            }
-          } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
             
-            List<Object> bindInsertVarsForAttributesTable = new ArrayList<Object>();
-            batchInsertBindVarsForAttributesTable.add(bindInsertVarsForAttributesTable);
-            
-            bindInsertVarsForAttributesTable.add(entityIdentifierValue);
-            bindInsertVarsForAttributesTable.add(attributeName);
-            bindInsertVarsForAttributesTable.add(provisioningObjectChange.getNewValue());
-            
+            Object[] updateData = new Object[attributeColumnsToUpdate.size()];
+            attributeTableUpdates.add(updateData);
+            updateData[0] = entityIdentifierValue;
+            updateData[1] = attributeName;
+            updateData[2] = provisioningObjectChange.getNewValue();
             if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
               if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
-                bindInsertVarsForAttributesTable.add(new Timestamp(System.currentTimeMillis()));
+                updateData[3] = new Timestamp(System.currentTimeMillis());
               } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
-                bindInsertVarsForAttributesTable.add(System.currentTimeMillis());
+                updateData[3] = System.currentTimeMillis();
               } else {
                 throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
               }
             }
+            attributeTableUpdatesWhereClause.add(new Object[] {entityIdentifierValue, attributeName, provisioningObjectChange.getOldValue()});
             
-            // attributeNamesToValuesNeedingInsert.put(attributeName, provisioningObjectChange.getNewValue());
+          } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
+            
+            Object[] insertData = new Object[attributeColumnsToInsert.size()];
+            attributeTableInserts.add(insertData);
+            insertData[0] = entityIdentifierValue;
+            insertData[1] = attributeName;
+            insertData[2] = provisioningObjectChange.getNewValue();
+            if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
+              if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
+                insertData[3] = new Timestamp(System.currentTimeMillis());
+              } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
+                insertData[3] = System.currentTimeMillis();
+              } else {
+                throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
+              }
+            }
+
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
-            //attributeNamesToValuesNeedingDelete.put(attributeName, provisioningObjectChange.getOldValue());
-            List<Object> bindDeleteVarsForAttributesTable = new ArrayList<Object>();
-            batchDeleteBindVarsForAttributesTable.add(bindDeleteVarsForAttributesTable);
-            
-            bindDeleteVarsForAttributesTable.add(entityIdentifierValue);
-            bindDeleteVarsForAttributesTable.add(attributeName);
-            bindDeleteVarsForAttributesTable.add(provisioningObjectChange.getOldValue());
+            Object[] deleteData = new Object[attributeColumnsToDelete.size()];
+            attributeTableDeletes.add(deleteData);
+            deleteData[0] = entityIdentifierValue;
+            deleteData[1] = attributeName;
+            deleteData[2] = provisioningObjectChange.getOldValue();
+            attributeTableDeletesWhereClause.add(new Object[] {entityIdentifierValue});
           }
           
         } else {
-          //primaryColumnsToUpdate.add(attributeName);
-          
-          attributeNamesToValues.put(attributeName, provisioningObjectChange.getNewValue());
-          
-//          primaryValuesToUpdate.add(provisioningObjectChange.getNewValue());
-          
-//          if (i>0) {
-//            commaSeparatedColumnNames.append(", ");
-//            commaSeparatedQuestionMarks.append(", ");
-//          }
-//          commaSeparatedColumnNames.append(attributeName);
-//          commaSeparatedQuestionMarks.append(" ? ");
-//          i++;
+          Integer columnIndex = primaryColumnNameToIndex.get(attributeName);
+          GrouperUtil.assertion(columnIndex!=null, "Cant find column: " + attributeName);
+          mainData[columnIndex] = provisioningObjectChange.getNewValue();
+          hasPrimaryUpdate = true;
         }
         
       }
-      
-      List<Object> bindVarsForPrimaryTable = new ArrayList<Object>();
-      batchBindVarsForPrimaryTable.add(bindVarsForPrimaryTable);
-      
-      for (String colName: primaryColumnsToUpdate) {
-        // add where clause bind variable in there
-        bindVarsForPrimaryTable.add(attributeNamesToValues.get(colName));
+      if (hasPrimaryUpdate) {
+        primaryTableUpdates.add(mainData);
+        primaryTableWhereClause.add(new Object[] {entityIdentifierValue});
       }
+    }
+    
+    if (primaryTableUpdates.size() > 0) {
       
-      // This always gives new uuid
-      // bindVarsForPrimaryTable.add(targetGroupAttributes.get(groupTableIdColumn).getValue());
-       bindVarsForPrimaryTable.add(entityIdentifierValue);
-      
-      //TODO set it only after running the sql statement
-      targetEntity.setProvisioned(true);
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, entityTableName, primaryColumnsToUpdate, primaryTableUpdates, primaryColumnsWhereClause, primaryTableWhereClause);
       
     }
     
-    if (primaryColumnsToUpdate.size() > 0) {
-      StringBuilder sqlPrimary = new StringBuilder("update "+entityTableName + " set ");
+    if (attributeTableUpdates.size() > 0 ) {
       
-      for (int j = 0; j<primaryColumnsToUpdate.size(); j++) {
-        
-        if (j > 0) {
-          sqlPrimary.append(", ");
-        }
-        
-        sqlPrimary.append(primaryColumnsToUpdate.get(j));
-        sqlPrimary.append(" = ");
-        sqlPrimary.append(" ? ");
-        
-      }
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, entityAttributesTableName, attributeColumnsToUpdate, attributeTableUpdates, attributeColumnsWhereClause, attributeTableUpdatesWhereClause);
       
-      sqlPrimary.append(" where "+ entityTableIdColumn + " = ? ");
+    }
+    
+    if (attributeTableInserts.size() > 0 ) {
       
+      SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, entityAttributesTableName, attributeColumnsToInsert, attributeTableInserts); 
       
-      gcDbAccess.sql(sqlPrimary.toString());
+    }
+    
+    if (attributeTableDeletes.size() > 0 ) {
       
-      gcDbAccess.batchBindVars(batchBindVarsForPrimaryTable);
+      SqlProvisionerCommands.deleteObjects(attributeTableDeletes, dbExternalSystemConfigId, entityAttributesTableName, attributeColumnsToDelete, null, null); 
 
-      int[] executeBatchSql = gcDbAccess.executeBatchSql();
-      
-      for (int j=0; j<executeBatchSql.length; j++) {
-        
-        if (executeBatchSql[j] == 1) {
-          targetEntities.get(j).setProvisioned(true);
-        }
-        
-      }
-      
     }
     
-    if (batchUpdateBindVarsForAttributesTable.size() > 0 ) {
+    for (ProvisioningEntity targetEntity: targetEntities) {
       
-      gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-      
-      StringBuilder sqlAttributes = new StringBuilder("update "+entityAttributesTableName + " set " +entityAttributesAttributeValueColumn +" = ? ");
-      
-      if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-        sqlAttributes.append(", "+entityAttributesLastModifiedColumn+ " = ? ");
+      targetEntity.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
       }
-      
-      sqlAttributes.append(" where "+ entityAttributesEntityForeignKeyColumn + " = ? and "+ entityAttributesAttributeNameColumn + " = ? and "+ entityAttributesAttributeValueColumn + " = ? ");
-      
-      gcDbAccess.sql(sqlAttributes.toString());
-      int[] executeBatchSql = gcDbAccess.batchBindVars(batchUpdateBindVarsForAttributesTable).executeBatchSql();
-      
-//      for (String attributeName: attributeNamesToValuesNeedingUpdate.keySet()) {
-//        MultiKey oldAndNewValue = attributeNamesToValuesNeedingUpdate.get(attributeName);
-//        gcDbAccess.addBindVar(oldAndNewValue.getKey(1));
-//        if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) { 
-//          gcDbAccess.addBindVar(new Timestamp(System.currentTimeMillis()));
-//        }
-//        gcDbAccess.addBindVar(targetGroups.getAttributes().get(groupIdColumnName).getValue());
-//        gcDbAccess.addBindVar(attributeName);
-//        gcDbAccess.addBindVar(oldAndNewValue.getKey(0));
-//        
-//        gcDbAccess.executeSql();
-//      }
-      
+ 
     }
-    
-    if (batchInsertBindVarsForAttributesTable.size() > 0 ) {
-      
-      List<String> columnsToInsertInAttributesTable = new ArrayList<String>();
-      columnsToInsertInAttributesTable.add(entityAttributesEntityForeignKeyColumn);
-      columnsToInsertInAttributesTable.add(entityAttributesAttributeNameColumn);
-      columnsToInsertInAttributesTable.add(entityAttributesAttributeValueColumn);
-      if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-        columnsToInsertInAttributesTable.add(entityAttributesLastModifiedColumn);
-      }
-      
-      String commaSeparatedColNamesAttributesTable = StringUtils.join(columnsToInsertInAttributesTable, ",");
-      String commaSeparatedQuestionMarksAttributesTable = GrouperClientUtils.appendQuestions(columnsToInsertInAttributesTable.size());
-      
-      String sqlForAttributesTable = "insert into " + entityAttributesTableName + "(" + commaSeparatedColNamesAttributesTable + ") values ("+commaSeparatedQuestionMarksAttributesTable+")";
-      
-      //List<List<Object>> batchBindVarsForAttributesTable = new ArrayList<List<Object>>();
-      
-//      for (String attributeName: attributeNamesToValuesNeedingInsert.keySet()) {
-//        
-//        List<Object> bindVars = new ArrayList<Object>();
-//        batchBindVarsForAttributesTable.add(bindVars);
-//        
-//        Object newValue = attributeNamesToValuesNeedingInsert.get(attributeName);
-//        
-//        bindVars.add(targetGroups.getAttributes().get(groupIdColumnName).getValue());
-//        bindVars.add(attributeName);
-//        bindVars.add(newValue);
-//        if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) { 
-//          bindVars.add(new Timestamp(System.currentTimeMillis()));
-//        }
-//        
-//      }
-      
-      int[] countsAttributesTable = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlForAttributesTable.toString()).batchBindVars(batchInsertBindVarsForAttributesTable).executeBatchSql();
-      
-    }
-    
-    if (batchDeleteBindVarsForAttributesTable.size() > 0 ) {
-      
-      String sqlForAttributesTable = " delete from " + entityAttributesTableName + " where " + entityAttributesEntityForeignKeyColumn + " = ? and " 
-          + entityAttributesAttributeNameColumn + " = ? and "
-          + entityAttributesAttributeValueColumn + " = ? " ;
-      
-//      List<List<Object>> batchBindVarsForAttributesTable = new ArrayList<List<Object>>();
-//      
-//      for (String attributeName: attributeNamesToValuesNeedingDelete.keySet()) {
-//        
-//        List<Object> bindVars = new ArrayList<Object>();
-//        batchBindVarsForAttributesTable.add(bindVars);
-//        
-//        Object oldValue = attributeNamesToValuesNeedingDelete.get(attributeName);
-//        
-//        bindVars.add(targetGroups.getAttributes().get(groupIdColumnName).getValue());
-//        bindVars.add(attributeName);
-//        bindVars.add(oldValue);
-//      }
-      
-      int[] countsAttributesTable = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlForAttributesTable.toString()).batchBindVars(batchDeleteBindVarsForAttributesTable).executeBatchSql();
-      
-    }
+
     
     return new TargetDaoUpdateEntitiesResponse();
 
   }
 
   
-  //TODO make db statements in a transaction
-  //TODO handle exceptions
-  //TODO if the batch fails, try individually
-//  @Override
-//  public TargetDaoUpdateGroupResponse updateGroup(TargetDaoUpdateGroupRequest targetDaoUpdateGroupRequest) {
-//    
-//    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-//    
-//    String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
-//    
-//    String groupTableName = sqlProvisioningConfiguration.getGroupTableName();
-//
-//    String groupTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
-//    
-//    String groupIdColumnName = sqlProvisioningConfiguration.getGroupTableIdColumn();
-//    
-//    String groupAttributesTableName = sqlProvisioningConfiguration.getGroupAttributesTableName();
-//
-//    String groupAttributesGroupForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
-//    
-//    String groupAttributesAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeNameColumn();
-//
-//    String groupAttributesAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeValueColumn();
-//
-//    String groupAttributesLastModifiedColumn = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumn();
-//    
-//    Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig();
-//    
-//    ProvisioningGroup targetGroup = targetDaoUpdateGroupRequest.getTargetGroup();
-//    
-//    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-//    
-//    List<String> primaryColumnsToUpdate = new ArrayList<String>();
-//    List<Object> primaryValuesToUpdate = new ArrayList<Object>();
-//    
-//    StringBuilder commaSeparatedColumnNames = new StringBuilder();
-//    StringBuilder commaSeparatedQuestionMarks = new StringBuilder();
-//
-//    int i = 0;
-//    
-//    // attribute name to old & new value
-//    Map<String, MultiKey> attributeNamesToValuesNeedingUpdate = new HashMap<String, MultiKey>();
-//    Map<String, Object> attributeNamesToValuesNeedingInsert = new HashMap<String, Object>();
-//    Map<String, Object> attributeNamesToValuesNeedingDelete = new HashMap<String, Object>();
-//    
-//    for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-//      
-//      String attributeName = provisioningObjectChange.getAttributeName();
-//      SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
-//      
-//      if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
-//        
-//        if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.update) {
-//          if (GrouperUtil.isEmpty(provisioningObjectChange.getOldValue())) {
-//            attributeNamesToValuesNeedingInsert.put(attributeName, provisioningObjectChange.getNewValue());
-//          } else if (GrouperUtil.isEmpty(provisioningObjectChange.getNewValue())) {
-//            attributeNamesToValuesNeedingDelete.put(attributeName, provisioningObjectChange.getOldValue());
-//          } else {
-//            attributeNamesToValuesNeedingUpdate.put(attributeName, new MultiKey(provisioningObjectChange.getOldValue(), provisioningObjectChange.getNewValue()));
-//          }
-//        } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
-//          attributeNamesToValuesNeedingInsert.put(attributeName, provisioningObjectChange.getNewValue());
-//        } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) { 
-//          attributeNamesToValuesNeedingDelete.put(attributeName, provisioningObjectChange.getOldValue());
-//        }
-//        
-//      } else {
-//        primaryColumnsToUpdate.add(attributeName);
-//        
-//        primaryValuesToUpdate.add(provisioningObjectChange.getNewValue());
-//        
-//        if (i>0) {
-//          commaSeparatedColumnNames.append(", ");
-//          commaSeparatedQuestionMarks.append(", ");
-//        }
-//        commaSeparatedColumnNames.append(attributeName);
-//        commaSeparatedQuestionMarks.append(" ? ");
-//        i++;
-//      }
-//      
-//    }
-//    
-//    if (primaryColumnsToUpdate.size() != 0) {
-//      StringBuilder sqlPrimary = new StringBuilder("update "+groupTableName + " set ");
-//      
-//      for (int j = 0; j<primaryColumnsToUpdate.size(); j++) {
-//        
-//        if (j > 0) {
-//          sqlPrimary.append(", ");
-//        }
-//        
-//        sqlPrimary.append(primaryColumnsToUpdate.get(j));
-//        sqlPrimary.append(" = ");
-//        sqlPrimary.append(" ? ");
-//        
-//      }
-//      
-//      sqlPrimary.append(" where "+ groupTableIdColumn + " = ? ");
-//      
-//      
-//      gcDbAccess.sql(sqlPrimary.toString());
-//      
-//      for (Object valueToUpdate: primaryValuesToUpdate) {
-//        gcDbAccess.addBindVar(valueToUpdate);
-//      }
-//      
-//      gcDbAccess.addBindVar(targetGroup.getId());
-//
-//      gcDbAccess.executeSql();
-//      
-//    }
-//    
-//    if (attributeNamesToValuesNeedingUpdate.size() > 0 ) {
-//      
-//      StringBuilder sqlAttributes = new StringBuilder("update "+groupAttributesTableName + " set " +groupAttributesAttributeValueColumn +" = ? ");
-//      
-//      if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-//        sqlAttributes.append(", "+groupAttributesLastModifiedColumn+ " = ? ");
-//      }
-//      
-//      sqlAttributes.append(" where "+ groupAttributesGroupForeignKeyColumn + " = ? and "+ groupAttributesAttributeNameColumn + " = ? and "+ groupAttributesAttributeValueColumn + " = ? ");
-//      
-//      gcDbAccess.sql(sqlAttributes.toString());
-//      
-//      for (String attributeName: attributeNamesToValuesNeedingUpdate.keySet()) {
-//        MultiKey oldAndNewValue = attributeNamesToValuesNeedingUpdate.get(attributeName);
-//        gcDbAccess.addBindVar(oldAndNewValue.getKey(1));
-//        if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) { 
-//          gcDbAccess.addBindVar(new Timestamp(System.currentTimeMillis()));
-//        }
-//        gcDbAccess.addBindVar(targetGroup.getAttributes().get(groupIdColumnName).getValue());
-//        gcDbAccess.addBindVar(attributeName);
-//        gcDbAccess.addBindVar(oldAndNewValue.getKey(0));
-//        
-//        gcDbAccess.executeSql();
-//      }
-//      
-//    }
-//    
-//    if (attributeNamesToValuesNeedingInsert.size() > 0 ) {
-//      
-//      List<String> columnsToInsertInAttributesTable = new ArrayList<String>();
-//      columnsToInsertInAttributesTable.add(groupAttributesGroupForeignKeyColumn);
-//      columnsToInsertInAttributesTable.add(groupAttributesAttributeNameColumn);
-//      columnsToInsertInAttributesTable.add(groupAttributesAttributeValueColumn);
-//      if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-//        columnsToInsertInAttributesTable.add(groupAttributesLastModifiedColumn);
-//      }
-//      
-//      String commaSeparatedColNamesAttributesTable = StringUtils.join(columnsToInsertInAttributesTable, ",");
-//      String commaSeparatedQuestionMarksAttributesTable = GrouperClientUtils.appendQuestions(columnsToInsertInAttributesTable.size());
-//      
-//      String sqlForAttributesTable = "insert into " + groupAttributesTableName + "(" + commaSeparatedColNamesAttributesTable + ") values ("+commaSeparatedQuestionMarksAttributesTable+")";
-//      
-//      List<List<Object>> batchBindVarsForAttributesTable = new ArrayList<List<Object>>();
-//      
-//      for (String attributeName: attributeNamesToValuesNeedingInsert.keySet()) {
-//        
-//        List<Object> bindVars = new ArrayList<Object>();
-//        batchBindVarsForAttributesTable.add(bindVars);
-//        
-//        Object newValue = attributeNamesToValuesNeedingInsert.get(attributeName);
-//        
-//        bindVars.add(targetGroup.getAttributes().get(groupIdColumnName).getValue());
-//        bindVars.add(attributeName);
-//        bindVars.add(newValue);
-//        if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) { 
-//          bindVars.add(new Timestamp(System.currentTimeMillis()));
-//        }
-//        
-//      }
-//      
-//      int[] countsAttributesTable = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlForAttributesTable.toString()).batchBindVars(batchBindVarsForAttributesTable).executeBatchSql();
-//      
-//    }
-//    
-//    if (attributeNamesToValuesNeedingDelete.size() > 0 ) {
-//      
-//      String sqlForAttributesTable = " delete from " + groupAttributesTableName + " where " + groupAttributesGroupForeignKeyColumn + " = ? and " 
-//          + groupAttributesAttributeNameColumn + " = ? and "
-//          + groupAttributesAttributeValueColumn + " = ? " ;
-//      
-//      List<List<Object>> batchBindVarsForAttributesTable = new ArrayList<List<Object>>();
-//      
-//      for (String attributeName: attributeNamesToValuesNeedingDelete.keySet()) {
-//        
-//        List<Object> bindVars = new ArrayList<Object>();
-//        batchBindVarsForAttributesTable.add(bindVars);
-//        
-//        Object oldValue = attributeNamesToValuesNeedingDelete.get(attributeName);
-//        
-//        bindVars.add(targetGroup.getAttributes().get(groupIdColumnName).getValue());
-//        bindVars.add(attributeName);
-//        bindVars.add(oldValue);
-//      }
-//      
-//      int[] countsAttributesTable = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlForAttributesTable.toString()).batchBindVars(batchBindVarsForAttributesTable).executeBatchSql();
-//      
-//    }
-//    
-//    targetGroup.setProvisioned(true);
-//      
-//    return new TargetDaoUpdateGroupResponse();
-//
-//  }
-  
-  @Override
-  public TargetDaoUpdateEntityResponse updateEntity(TargetDaoUpdateEntityRequest targetDaoUpdateEntityRequest) {
-    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-    
-    String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
-    
-    String entityTableName = sqlProvisioningConfiguration.getEntityTableName();
-    
-    ProvisioningEntity targetEntity = targetDaoUpdateEntityRequest.getTargetEntity();
-
-    String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
-    
-    if (!StringUtils.isBlank(entityTableName)) {
-      
-      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-      
-      List<String> columnsToUpdate = new ArrayList<String>();
-      List<Object> valuesToUpdate = new ArrayList<Object>();
-      
-      StringBuilder commaSeparatedColumnNames = new StringBuilder();
-      StringBuilder commaSeparatedQuestionMarks = new StringBuilder();
-
-      int i = 0;
-      
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
-        if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.update) {
-          String attributeName = provisioningObjectChange.getAttributeName();
-          columnsToUpdate.add(attributeName);
-          valuesToUpdate.add(provisioningObjectChange.getNewValue());
-          
-          if (i>0) {
-            commaSeparatedColumnNames.append(", ");
-            commaSeparatedQuestionMarks.append(", ");
-          }
-          commaSeparatedColumnNames.append(attributeName);
-          commaSeparatedQuestionMarks.append(" ? ");
-          i++;
-          
-        }
-      }
-      
-      if (columnsToUpdate.size() == 0) {
-        return new TargetDaoUpdateEntityResponse();
-      }
-      
-      StringBuilder sql = new StringBuilder("update "+entityTableName + " set ");
-      
-      for (int j = 0; j<columnsToUpdate.size(); j++) {
-        
-        if (j > 0) {
-          sql.append(", ");
-        }
-        
-        sql.append(columnsToUpdate.get(j));
-        sql.append(" = ");
-        sql.append(" ? ");
-        
-      }
-      
-      sql.append(" where "+ entityTableIdColumn + " = ? ");
-      
-      gcDbAccess.sql(sql.toString());
-      
-      for (Object valueToUpdate: valuesToUpdate) {
-        gcDbAccess.addBindVar(valueToUpdate);
-      }
-      
-      gcDbAccess.addBindVar(targetEntity.getId());
-
-      gcDbAccess.executeSql();
-      
-    }  
-    
-    return new TargetDaoUpdateEntityResponse();
-
-  }
-
+  /**
+   * 
+   */
   @Override
   public TargetDaoDeleteGroupsResponse deleteGroups(TargetDaoDeleteGroupsRequest targetDaoDeleteGroupRequest) {
     
@@ -1129,66 +616,37 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
     
-    String groupTableName = sqlProvisioningConfiguration.getGroupTableName();
-    String groupTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
-    String groupAttributesTableName = sqlProvisioningConfiguration.getGroupAttributesTableName();
-    String groupAttributesGroupForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
-    
-    StringBuilder sqlAttributes = new StringBuilder();
-    if (StringUtils.isNotBlank(groupAttributesTableName)) {
-      sqlAttributes.append("delete from "+groupAttributesTableName + " where " + groupAttributesGroupForeignKeyColumn + "  = ? ");
-    }
-    
-    StringBuilder sqlPrimary = new StringBuilder("delete from  " + groupTableName);
-    List<List<Object>> batchPrimaryBindVars = new ArrayList<List<Object>>();
-    List<List<Object>> batchAttributesBindVars = new ArrayList<List<Object>>();
-    
-    List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = sqlProvisioningConfiguration.getGroupSearchAttributes();
-    if (grouperProvisioningConfigurationAttributes.size() > 1) {
-      //TODO add this to validation
-      throw new RuntimeException("Can currently only have one searchAttribute! " + grouperProvisioningConfigurationAttributes);
-    }
-    
-    if (grouperProvisioningConfigurationAttributes.size() == 1) {
-      
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
-      sqlPrimary.append(" where "+ grouperProvisioningConfigurationAttribute.getName() + " = ? ");
-      
-      for (ProvisioningGroup targetGroup: targetGroups) {
-        String value = targetGroup.retrieveFieldOrAttributeValueString(grouperProvisioningConfigurationAttribute);
-        batchPrimaryBindVars.add(GrouperUtil.toListObject(value));
-        
-        if (StringUtils.isNotBlank(groupAttributesTableName)) {
-          ProvisioningAttribute idAttribute = targetGroup.getAttributes().get(groupTableIdColumn);
-          if (idAttribute != null && idAttribute.getValue() != null) {
-            batchAttributesBindVars.add(GrouperUtil.toListObject(idAttribute.getValue()));
-          }
-          
-        }
-        
-      }
-      
-    } else {
-      throw new RuntimeException("Why is groupSearchFilter empty?");
-    }
-    
-    int[] counts = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlPrimary.toString()).batchBindVars(batchPrimaryBindVars).executeBatchSql();
+    String objectTableName = sqlProvisioningConfiguration.getGroupTableName();
+    String objectTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
+    String objectAttributesTableName = sqlProvisioningConfiguration.getGroupAttributesTableName();
+    String objectAttributesGroupForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
 
-    for (int i=0; i<counts.length; i++) {
+    List<Object[]> ownerIds = new ArrayList<Object[]>();
+    
+    for (ProvisioningGroup targetGroup: targetGroups) {
+      String groupIdValue = targetGroup.retrieveAttributeValueString(objectTableIdColumn);
+      ownerIds.add(new Object[] {groupIdValue});
+    }
+        
+    SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, objectTableName, GrouperUtil.toList(objectTableIdColumn), objectAttributesTableName, objectAttributesGroupForeignKeyColumn);
+    
+    for (ProvisioningGroup targetGroup: targetGroups) {
       
-      if(counts[i] == 1) {
-        targetGroups.get(i).setProvisioned(true);
+      targetGroup.setProvisioned(true);
+      
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
       }
+
     }
   
-    if (batchAttributesBindVars.size() > 0) {
-      new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlAttributes.toString()).batchBindVars(batchAttributesBindVars).executeBatchSql();
-    }
-    
     return new TargetDaoDeleteGroupsResponse();
   }
   
 
+  /**
+   * 
+   */
   @Override
   public TargetDaoDeleteEntitiesResponse deleteEntities(TargetDaoDeleteEntitiesRequest targetDaoDeleteEntitiesRequest) {
     
@@ -1202,61 +660,34 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
     String entityAttributesTableName = sqlProvisioningConfiguration.getEntityAttributesTableName();
     String entityAttributesGroupForeignKeyColumn = sqlProvisioningConfiguration.getEntityAttributesEntityForeignKeyColumn();
-    
-    StringBuilder sqlAttributes = new StringBuilder();
-    if (StringUtils.isNotBlank(entityAttributesTableName)) {
-      sqlAttributes.append("delete from "+entityAttributesTableName + " where " + entityAttributesGroupForeignKeyColumn + "  = ? ");
-    }
-    
-    StringBuilder sqlPrimary = new StringBuilder("delete from  " + entityTableName);
-    List<List<Object>> batchPrimaryBindVars = new ArrayList<List<Object>>();
-    List<List<Object>> batchAttributesBindVars = new ArrayList<List<Object>>();
-    
-    List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = sqlProvisioningConfiguration.getEntitySearchAttributes();
-    if (grouperProvisioningConfigurationAttributes.size() > 1) {
-      //TODO add this to validation
-      throw new RuntimeException("Can currently only have one searchAttribute! " + grouperProvisioningConfigurationAttributes);
-    }
-    
-    if (grouperProvisioningConfigurationAttributes.size() == 1) {
-      
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
-      sqlPrimary.append(" where "+ grouperProvisioningConfigurationAttribute.getName() + " = ? ");
-      
-      for (ProvisioningEntity targetEntity: targetEntities) {
-        String value = targetEntity.retrieveFieldOrAttributeValueString(grouperProvisioningConfigurationAttribute);
-        batchPrimaryBindVars.add(GrouperUtil.toListObject(value));
-        
-        if (StringUtils.isNotBlank(entityAttributesTableName)) {
-          ProvisioningAttribute idAttribute = targetEntity.getAttributes().get(entityTableIdColumn);
-          if (idAttribute != null && idAttribute.getValue() != null) {
-            batchAttributesBindVars.add(GrouperUtil.toListObject(idAttribute.getValue()));
-          }
-          
-        }
-        
-      }
-      
-    } else {
-      throw new RuntimeException("Why is groupSearchFilter empty?");
-    }
-    
-    int[] counts = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlPrimary.toString()).batchBindVars(batchPrimaryBindVars).executeBatchSql();
 
-    for (int i=0; i<counts.length; i++) {
-      
-      if(counts[i] == 1) {
-        targetEntities.get(i).setProvisioned(true);
-      }
+    List<Object[]> ownerIds = new ArrayList<Object[]>();
+
+    for (ProvisioningEntity targetEntity: targetEntities) {
+      String entityIdValue = targetEntity.retrieveAttributeValueString(entityTableIdColumn);
+      ownerIds.add(new Object[] {entityIdValue});
     }
-  
-    if (batchAttributesBindVars.size() > 0) {
-      new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlAttributes.toString()).batchBindVars(batchAttributesBindVars).executeBatchSql();
+    
+    SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, entityTableName, GrouperUtil.toList(entityTableIdColumn), 
+        entityAttributesTableName, entityAttributesGroupForeignKeyColumn);
+    
+    for (ProvisioningEntity targetEntity: targetEntities) {
+      
+      targetEntity.setProvisioned(true);
+      
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
     }
     
     return new TargetDaoDeleteEntitiesResponse();
+    
   }
 
+  /**
+   * 
+   */
   @Override
   public TargetDaoDeleteMembershipsResponse deleteMemberships(TargetDaoDeleteMembershipsRequest targetDaoDeleteMembershipsRequest) {
     
@@ -1265,39 +696,41 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
+
+    String objectTableName = sqlProvisioningConfiguration.getMembershipTableName();
     
-    String membershipTableName = sqlProvisioningConfiguration.getMembershipTableName();
+    GrouperUtil.assertion(!StringUtils.isBlank(objectTableName), "Need membership table name");
     
     String entityIdForeignKeyColumn = sqlProvisioningConfiguration.getMembershipEntityForeignKeyColumn();
-    
     String groupIdForeignKeyColumn = sqlProvisioningConfiguration.getMembershipGroupForeignKeyColumn();
-    
-    if (!StringUtils.isBlank(membershipTableName)) {
-      
-      List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
-      
-      StringBuilder sql = new StringBuilder("delete from "+membershipTableName + " where "+ entityIdForeignKeyColumn + " = ? and "+ groupIdForeignKeyColumn + " = ? ");
-      
-      for (ProvisioningMembership targetMembership: targetMemberships) {
-        
-        batchBindVars.add(GrouperUtil.toListObject(targetMembership.retrieveAttributeValue(entityIdForeignKeyColumn), targetMembership.retrieveAttributeValue(groupIdForeignKeyColumn)));
-      }
-        
-      int[] counts = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sql.toString()).batchBindVars(batchBindVars).executeBatchSql();
 
-      for (int i=0; i<counts.length; i++) {
-        
-        if(counts[i] == 1) {
-          targetMemberships.get(i).setProvisioned(true);
-        }
-      }
-  
-    } else {
-      throw new RuntimeException("Need membership table name");
+    List<Object[]> ownerIds = new ArrayList<Object[]>();
+    
+    for (ProvisioningMembership targetMembership: targetMemberships) {
+      String groupIdValue = targetMembership.retrieveAttributeValueString(groupIdForeignKeyColumn);
+      String entityIdValue = targetMembership.retrieveAttributeValueString(entityIdForeignKeyColumn);
+      ownerIds.add(new Object[] {groupIdValue, entityIdValue});
     }
+        
+    SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, objectTableName, 
+        GrouperUtil.toList(groupIdForeignKeyColumn, entityIdForeignKeyColumn), null, null);
+    
+    for (ProvisioningMembership targetMembership: targetMemberships) {
+      
+      targetMembership.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
+    }
+
     return new TargetDaoDeleteMembershipsResponse();
+
   }
   
+  /**
+   * 
+   */
   @Override
   public TargetDaoInsertMembershipsResponse insertMemberships(TargetDaoInsertMembershipsRequest targetDaoInsertMembershipsRequest) {
     
@@ -1307,69 +740,57 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
     
-    String membershipTableName = sqlProvisioningConfiguration.getMembershipTableName();
+    String objectTableName = sqlProvisioningConfiguration.getMembershipTableName();
     
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetMembershipAttributeNameToConfig();
     
+    List<String> columnsToInsertInPrimaryTable = new ArrayList<String>();
+    Map<String, Integer> columnsToInsertInPrimaryTableToIndex = new HashMap<String, Integer>();
     
-    if (!StringUtils.isBlank(membershipTableName)) {
-      
-      List<String> columnsToInsert = new ArrayList<String>();
-      
-      for (String attributeName: attributeNameToConfig.keySet()) {
-        GrouperProvisioningConfigurationAttribute configurationAttribute = attributeNameToConfig.get(attributeName);
-        if (configurationAttribute.isInsert()) {
-          columnsToInsert.add(attributeName);
-        }
+    for (String attributeName: attributeNameToConfig.keySet()) {
+      SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
+      GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
+      if (configurationAttribute.isInsert()) {
+        columnsToInsertInPrimaryTableToIndex.put(attributeName, GrouperUtil.length(columnsToInsertInPrimaryTable));
+        columnsToInsertInPrimaryTable.add(attributeName);
       }
+    }
+    
+    List<Object[]> attributeValuesPrimaryTable = new ArrayList<Object[]>();
+    
+    for (ProvisioningMembership targetMembership: targetMemberships) {
       
-      String commaSeparatedColNames = StringUtils.join(columnsToInsert, ",");
-      String commaSeparatedQuestionMarks = GrouperClientUtils.appendQuestions(columnsToInsert.size());
-      
-      
-      List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
-      
-      
-      String sql = "insert into " + membershipTableName + "(" + commaSeparatedColNames + ") values ("+commaSeparatedQuestionMarks+")";
-      
-      for (ProvisioningMembership targetMembership: targetMemberships) {
-        
-        Map<String, Object> attributeNameToValue = new HashMap<String, Object>();
-        
-        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-          if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
-            String attributeName = provisioningObjectChange.getAttributeName();
+      Object[] attributeValuePrimaryTable = new Object[columnsToInsertInPrimaryTable.size()];
+      attributeValuesPrimaryTable.add(attributeValuePrimaryTable);
+      for (ProvisioningObjectChange provisioningObjectChange: GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+        if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
+          String attributeName = provisioningObjectChange.getAttributeName();
           
-            attributeNameToValue.put(attributeName, provisioningObjectChange.getNewValue());
-            
-          }
-        }
-        
-        List<Object> bindVars = new ArrayList<Object>();
-        batchBindVars.add(bindVars);
-        
-        for (String colName: columnsToInsert) {
-          bindVars.add(attributeNameToValue.get(colName));
-        }
-        
-      }
-      
-      int[] counts = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sql.toString()).batchBindVars(batchBindVars).executeBatchSql();
+          Integer columnIndex = columnsToInsertInPrimaryTableToIndex.get(attributeName);
+          GrouperUtil.assertion(columnIndex!=null, "Cant find column: " + attributeName);
 
-      for (int i=0; i<counts.length; i++) {
-        
-        if(counts[i] == 1) {
-          targetMemberships.get(i).setProvisioned(true);
+          attributeValuePrimaryTable[columnIndex] = provisioningObjectChange.getNewValue();
         }
       }
-      
+    }
+
+    SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, objectTableName, columnsToInsertInPrimaryTable, attributeValuesPrimaryTable);
+    
+    for (ProvisioningMembership targetMembership : targetMemberships) {
+      targetMembership.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
+      }
+
     }
     
     return new TargetDaoInsertMembershipsResponse();
     
-
   }
   
+  /**
+   * 
+   */
   @Override
   public TargetDaoInsertGroupsResponse insertGroups(TargetDaoInsertGroupsRequest targetDaoInsertGroupsRequest) {
     
@@ -1379,127 +800,103 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
     
-    String groupTableName = sqlProvisioningConfiguration.getGroupTableName();
+    String objectTableName = sqlProvisioningConfiguration.getGroupTableName();
+    String attributeTableName = sqlProvisioningConfiguration.getGroupAttributesTableName();
 
-    String groupIdColumnName = sqlProvisioningConfiguration.getGroupTableIdColumn();
+    String objectIdColumnName = sqlProvisioningConfiguration.getGroupTableIdColumn();
     
-    String groupAttributesTableName = sqlProvisioningConfiguration.getGroupAttributesTableName();
-
-    String groupAttributesGroupForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
+    String attributeForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
     
-    String groupAttributesAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeNameColumn();
+    String attributesAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeNameColumn();
 
-    String groupAttributesAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeValueColumn();
+    String attributesAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeValueColumn();
 
-    String groupAttributesLastModifiedColumn = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumn();
-    String groupAttributesLastModifiedColumnType = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumnType();
-    
+    String attributesLastModifiedColumn = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumn();
+    String attributesLastModifiedColumnType = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumnType();
+
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig();
     
     List<String> columnsToInsertInPrimaryTable = new ArrayList<String>();
+    Map<String, Integer> columnsToInsertInPrimaryTableToIndex = new HashMap<String, Integer>();
     
     for (String attributeName: attributeNameToConfig.keySet()) {
       SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
-      
+      GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
       if (configurationAttribute.isInsert()) {
         if ( StringUtils.isBlank(configurationAttribute.getStorageType()) || StringUtils.equals(configurationAttribute.getStorageType(), "groupTableColumn")) {
+          columnsToInsertInPrimaryTableToIndex.put(attributeName, GrouperUtil.length(columnsToInsertInPrimaryTable));
           columnsToInsertInPrimaryTable.add(attributeName);
         }
       }
-      
+    }
+
+    List<String> columnsToInsertInAttributeTable = GrouperUtil.toList(attributeForeignKeyColumn, attributesAttributeNameColumn, attributesAttributeValueColumn);
+    if (!StringUtils.isBlank(attributesLastModifiedColumn)) {
+      columnsToInsertInAttributeTable.add(attributesLastModifiedColumn);
     }
     
-    String commaSeparatedColNamesPrimaryTable = StringUtils.join(columnsToInsertInPrimaryTable, ",");
-    String commaSeparatedQuestionMarksPrimaryTable = GrouperClientUtils.appendQuestions(columnsToInsertInPrimaryTable.size());
-    
-    List<List<Object>> batchBindVarsForPrimaryTable = new ArrayList<List<Object>>();
-
-    List<List<Object>> batchBindVarsForAttributesTable = new ArrayList<List<Object>>();
-    
-    String sqlForPrimaryTable = "insert into " + groupTableName + "(" + commaSeparatedColNamesPrimaryTable + ") values ("+commaSeparatedQuestionMarksPrimaryTable+")";
-
+    List<Object[]> attributeValuesAttributeTable = new ArrayList<Object[]>();
+    List<Object[]> attributeValuesPrimaryTable = new ArrayList<Object[]>();
     for (ProvisioningGroup targetGroup: targetGroups) {
       
-      Map<String, Object> attributeNameToValueForPrimaryTable = new HashMap<String, Object>();
-
-      Map<String, Object> attributeNameToValueForAttributesTable = new HashMap<String, Object>();
-      
+      Object[] attributeValuePrimaryTable = new Object[columnsToInsertInPrimaryTable.size()];
+      attributeValuesPrimaryTable.add(attributeValuePrimaryTable);
+          
       for (ProvisioningObjectChange provisioningObjectChange: GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
           String attributeName = provisioningObjectChange.getAttributeName();
           
           SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
+          GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
           if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
-            
-            //TODO add ability to insert null values into the attributes table.
+            GrouperUtil.assertion(!StringUtils.isBlank(attributeTableName), "Attribute table name is blank!");
             if (GrouperUtil.isEmpty(provisioningObjectChange.getNewValue())) {
               continue;
             }
-            
-            List<Object> bindVarsForSecondaryTable = new ArrayList<Object>();
-            bindVarsForSecondaryTable.add(targetGroup.getAttributes().get(groupIdColumnName).getValue());
-            bindVarsForSecondaryTable.add(attributeName);
-            bindVarsForSecondaryTable.add(provisioningObjectChange.getNewValue());
-            if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-              if (StringUtils.equals(groupAttributesLastModifiedColumnType, "timestamp")) {
-                bindVarsForSecondaryTable.add(new Timestamp(System.currentTimeMillis()));
-              } else if (StringUtils.equals(groupAttributesLastModifiedColumnType, "long")) {
-                bindVarsForSecondaryTable.add(System.currentTimeMillis());
+            Object[] groupIdAttributeNameAttributeValue = new Object[columnsToInsertInAttributeTable.size()];
+            groupIdAttributeNameAttributeValue[0] = targetGroup.retrieveAttributeValue(objectIdColumnName);
+            groupIdAttributeNameAttributeValue[1] = attributeName;
+            groupIdAttributeNameAttributeValue[2] = provisioningObjectChange.getNewValue();
+            if (StringUtils.isNotBlank(attributesLastModifiedColumn)) {
+              if (StringUtils.equals(attributesLastModifiedColumnType, "timestamp")) {
+                groupIdAttributeNameAttributeValue[3] = new Timestamp(System.currentTimeMillis());
+              } else if (StringUtils.equals(attributesLastModifiedColumnType, "long")) {
+                groupIdAttributeNameAttributeValue[3] = System.currentTimeMillis();
               } else {
-                throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+groupAttributesLastModifiedColumnType+"'");
+                throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+attributesLastModifiedColumnType+"'");
               }
             }
-            
-            batchBindVarsForAttributesTable.add(bindVarsForSecondaryTable);
-            
-            attributeNameToValueForAttributesTable.put(attributeName, provisioningObjectChange.getNewValue());
+
+            attributeValuesAttributeTable.add(groupIdAttributeNameAttributeValue);
           } else {
-            attributeNameToValueForPrimaryTable.put(attributeName, provisioningObjectChange.getNewValue());
+            Integer columnIndex = columnsToInsertInPrimaryTableToIndex.get(attributeName);
+            GrouperUtil.assertion(columnIndex!=null, "Cant find column: " + attributeName);
+            attributeValuePrimaryTable[columnIndex] = provisioningObjectChange.getNewValue();
           }
-          
         }
       }
-      
-      List<Object> bindVarsForPrimaryTable = new ArrayList<Object>();
-      batchBindVarsForPrimaryTable.add(bindVarsForPrimaryTable);
-      
-      for (String colName: columnsToInsertInPrimaryTable) {
-        bindVarsForPrimaryTable.add(attributeNameToValueForPrimaryTable.get(colName));
-      }
-      
-    }
-    
-    int[] countsPrimaryTable = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlForPrimaryTable.toString()).batchBindVars(batchBindVarsForPrimaryTable).executeBatchSql();
-    
-    if (StringUtils.isNotBlank(groupAttributesTableName) && batchBindVarsForAttributesTable.size() > 0) {
-      List<String> columnsToInsertInAttributesTable = new ArrayList<String>();
-      columnsToInsertInAttributesTable.add(groupAttributesGroupForeignKeyColumn);
-      columnsToInsertInAttributesTable.add(groupAttributesAttributeNameColumn);
-      columnsToInsertInAttributesTable.add(groupAttributesAttributeValueColumn);
-      if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-        columnsToInsertInAttributesTable.add(groupAttributesLastModifiedColumn);
-      }
-      
-      String commaSeparatedColNamesAttributesTable = StringUtils.join(columnsToInsertInAttributesTable, ",");
-      String commaSeparatedQuestionMarksAttributesTable = GrouperClientUtils.appendQuestions(columnsToInsertInAttributesTable.size());
-      
-      String sqlForAttributesTable = "insert into " + groupAttributesTableName + "(" + commaSeparatedColNamesAttributesTable + ") values ("+commaSeparatedQuestionMarksAttributesTable+")";
-      
-      int[] countsAttributesTable = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlForAttributesTable.toString()).batchBindVars(batchBindVarsForAttributesTable).executeBatchSql();
-      
     }
 
-    for (int i=0; i<countsPrimaryTable.length; i++) {
-      
-      if(countsPrimaryTable[i] == 1) {
-        targetGroups.get(i).setProvisioned(true);
+    // TODO put in transaction (along with other operations)
+    SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, objectTableName, columnsToInsertInPrimaryTable, attributeValuesPrimaryTable);
+    
+    SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, attributeTableName, columnsToInsertInAttributeTable, attributeValuesAttributeTable);
+ 
+    for (ProvisioningGroup targetGroup : targetGroups) {
+      targetGroup.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
       }
+      
     }
     
     return new TargetDaoInsertGroupsResponse();
     
   }
   
+  /**
+   * 
+   */
   @Override
   public TargetDaoInsertEntitiesResponse insertEntities(TargetDaoInsertEntitiesRequest targetDaoInsertEntitiesRequest) {
     
@@ -1509,120 +906,95 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
     
-    String entityTableName = sqlProvisioningConfiguration.getEntityTableName();
+    String objectTableName = sqlProvisioningConfiguration.getEntityTableName();
+    String attributeTableName = sqlProvisioningConfiguration.getEntityAttributesTableName();
 
-    String entityIdColumnName = sqlProvisioningConfiguration.getEntityTableIdColumn();
+    String objectIdColumnName = sqlProvisioningConfiguration.getEntityTableIdColumn();
     
-    String entityAttributesTableName = sqlProvisioningConfiguration.getEntityAttributesTableName();
-
-    String entityAttributesEntityForeignKeyColumn = sqlProvisioningConfiguration.getEntityAttributesEntityForeignKeyColumn();
+    String attributeForeignKeyColumn = sqlProvisioningConfiguration.getEntityAttributesEntityForeignKeyColumn();
     
-    String entityAttributesAttributeNameColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeNameColumn();
+    String attributesAttributeNameColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeNameColumn();
 
-    String entityAttributesAttributeValueColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeValueColumn();
+    String attributesAttributeValueColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeValueColumn();
 
-    String entityAttributesLastModifiedColumn = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumn();
-    String entityAttributesLastModifiedColumnType = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumnType();
-    
+    String attributesLastModifiedColumn = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumn();
+    String attributesLastModifiedColumnType = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumnType();
+
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
     
     List<String> columnsToInsertInPrimaryTable = new ArrayList<String>();
+    Map<String, Integer> columnsToInsertInPrimaryTableToIndex = new HashMap<String, Integer>();
     
     for (String attributeName: attributeNameToConfig.keySet()) {
       SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
-      
+      GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
       if (configurationAttribute.isInsert()) {
         if ( StringUtils.isBlank(configurationAttribute.getStorageType()) || StringUtils.equals(configurationAttribute.getStorageType(), "entityTableColumn")) {
+          columnsToInsertInPrimaryTableToIndex.put(attributeName, GrouperUtil.length(columnsToInsertInPrimaryTable));
           columnsToInsertInPrimaryTable.add(attributeName);
         }
       }
-      
     }
     
-    String commaSeparatedColNamesPrimaryTable = StringUtils.join(columnsToInsertInPrimaryTable, ",");
-    String commaSeparatedQuestionMarksPrimaryTable = GrouperClientUtils.appendQuestions(columnsToInsertInPrimaryTable.size());
-    
-    List<List<Object>> batchBindVarsForPrimaryTable = new ArrayList<List<Object>>();
+    List<String> columnsToInsertInAttributeTable = GrouperUtil.toList(attributeForeignKeyColumn, attributesAttributeNameColumn, attributesAttributeValueColumn);
+    if (!StringUtils.isBlank(attributesLastModifiedColumn)) {
+      columnsToInsertInAttributeTable.add(attributesLastModifiedColumn);
+    }
 
-    List<List<Object>> batchBindVarsForAttributesTable = new ArrayList<List<Object>>();
+    List<Object[]> attributeValuesAttributeTable = new ArrayList<Object[]>();
+    List<Object[]> attributeValuesPrimaryTable = new ArrayList<Object[]>();
     
-    String sqlForPrimaryTable = "insert into " + entityTableName + "(" + commaSeparatedColNamesPrimaryTable + ") values ("+commaSeparatedQuestionMarksPrimaryTable+")";
-
     for (ProvisioningEntity targetEntity: targetEntities) {
       
-      Map<String, Object> attributeNameToValueForPrimaryTable = new HashMap<String, Object>();
-
-      Map<String, Object> attributeNameToValueForAttributesTable = new HashMap<String, Object>();
-      
+      Object[] attributeValuePrimaryTable = new Object[columnsToInsertInPrimaryTable.size()];
+      attributeValuesPrimaryTable.add(attributeValuePrimaryTable);
+          
       for (ProvisioningObjectChange provisioningObjectChange: GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
           String attributeName = provisioningObjectChange.getAttributeName();
           
           SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) attributeNameToConfig.get(attributeName);
+          GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
           if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
             
-            //TODO add ability to insert null values into the attributes table.
             if (GrouperUtil.isEmpty(provisioningObjectChange.getNewValue())) {
               continue;
             }
-            
-            List<Object> bindVarsForSecondaryTable = new ArrayList<Object>();
-            bindVarsForSecondaryTable.add(targetEntity.getAttributes().get(entityIdColumnName).getValue());
-            bindVarsForSecondaryTable.add(attributeName);
-            bindVarsForSecondaryTable.add(provisioningObjectChange.getNewValue());
-            if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-              if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
-                bindVarsForSecondaryTable.add(new Timestamp(System.currentTimeMillis()));
-              } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
-                bindVarsForSecondaryTable.add(System.currentTimeMillis());
+            Object[] entityIdAttributeNameAttributeValue = new Object[columnsToInsertInAttributeTable.size()];
+            entityIdAttributeNameAttributeValue[0] = targetEntity.retrieveAttributeValue(objectIdColumnName);
+            entityIdAttributeNameAttributeValue[1] = attributeName;
+            entityIdAttributeNameAttributeValue[2] = provisioningObjectChange.getNewValue();
+            if (StringUtils.isNotBlank(attributesLastModifiedColumn)) {
+              if (StringUtils.equals(attributesLastModifiedColumnType, "timestamp")) {
+                entityIdAttributeNameAttributeValue[3] = new Timestamp(System.currentTimeMillis());
+              } else if (StringUtils.equals(attributesLastModifiedColumnType, "long")) {
+                entityIdAttributeNameAttributeValue[3] = System.currentTimeMillis();
               } else {
-                throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
+                throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+attributesLastModifiedColumnType+"'");
               }
             }
-            
-            batchBindVarsForAttributesTable.add(bindVarsForSecondaryTable);
-            
-            attributeNameToValueForAttributesTable.put(attributeName, provisioningObjectChange.getNewValue());
+
+            attributeValuesAttributeTable.add(entityIdAttributeNameAttributeValue);
           } else {
-            attributeNameToValueForPrimaryTable.put(attributeName, provisioningObjectChange.getNewValue());
+            Integer columnIndex = columnsToInsertInPrimaryTableToIndex.get(attributeName);
+            GrouperUtil.assertion(columnIndex!=null, "Cant find column: " + attributeName);
+            attributeValuePrimaryTable[columnIndex] = provisioningObjectChange.getNewValue();
           }
-          
         }
       }
-      
-      List<Object> bindVarsForPrimaryTable = new ArrayList<Object>();
-      batchBindVarsForPrimaryTable.add(bindVarsForPrimaryTable);
-      
-      for (String colName: columnsToInsertInPrimaryTable) {
-        bindVarsForPrimaryTable.add(attributeNameToValueForPrimaryTable.get(colName));
-      }
-      
-    }
-    
-    int[] countsPrimaryTable = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlForPrimaryTable.toString()).batchBindVars(batchBindVarsForPrimaryTable).executeBatchSql();
-    
-    if (StringUtils.isNotBlank(entityAttributesTableName) && batchBindVarsForAttributesTable.size() > 0) {
-      List<String> columnsToInsertInAttributesTable = new ArrayList<String>();
-      columnsToInsertInAttributesTable.add(entityAttributesEntityForeignKeyColumn);
-      columnsToInsertInAttributesTable.add(entityAttributesAttributeNameColumn);
-      columnsToInsertInAttributesTable.add(entityAttributesAttributeValueColumn);
-      if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-        columnsToInsertInAttributesTable.add(entityAttributesLastModifiedColumn);
-      }
-      
-      String commaSeparatedColNamesAttributesTable = StringUtils.join(columnsToInsertInAttributesTable, ",");
-      String commaSeparatedQuestionMarksAttributesTable = GrouperClientUtils.appendQuestions(columnsToInsertInAttributesTable.size());
-      
-      String sqlForAttributesTable = "insert into " + entityAttributesTableName + "(" + commaSeparatedColNamesAttributesTable + ") values ("+commaSeparatedQuestionMarksAttributesTable+")";
-      
-      int[] countsAttributesTable = new GcDbAccess().connectionName(dbExternalSystemConfigId).sql(sqlForAttributesTable.toString()).batchBindVars(batchBindVarsForAttributesTable).executeBatchSql();
-      
     }
 
-    for (int i=0; i<countsPrimaryTable.length; i++) {
+    // TODO put in transaction (along with other operations)
+    SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, objectTableName, columnsToInsertInPrimaryTable, attributeValuesPrimaryTable);
+    
+    SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, attributeTableName, columnsToInsertInAttributeTable, attributeValuesAttributeTable);
+ 
+
+    for (ProvisioningEntity targetEntity : targetEntities) {
       
-      if(countsPrimaryTable[i] == 1) {
-        targetEntities.get(i).setProvisioned(true);
+      targetEntity.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
       }
     }
     
@@ -1632,20 +1004,17 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   
   
   
-  
+  /**
+   * 
+   */
   @Override
   public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
-    boolean includeAllMembershipsIfApplicable = targetDaoRetrieveAllGroupsRequest == null ? false: targetDaoRetrieveAllGroupsRequest.isIncludeAllMembershipsIfApplicable();
-    List<ProvisioningGroup> targetGroups = retrieveGroups(true, null, includeAllMembershipsIfApplicable);
-    return new TargetDaoRetrieveAllGroupsResponse(targetGroups);
-  }
-
-  private List<ProvisioningGroup> retrieveGroups(boolean retrieveAll, List<ProvisioningGroup> grouperTargetGroups,
-      boolean retrieveAllMembershipsInGroups) {
     
-    if (retrieveAll && grouperTargetGroups != null) {
-      throw new RuntimeException("Cant retrieve all and pass in groups to retrieve");
-    }
+    boolean includeMemberships = targetDaoRetrieveAllGroupsRequest.isIncludeAllMembershipsIfApplicable();
+
+    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
+    
+    boolean isGroupAttributes = membershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes;
     
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     
@@ -1654,10 +1023,11 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String groupTableName = sqlProvisioningConfiguration.getGroupTableName();
     
     String groupTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
+    int groupTableIdColumnIndex = -1;
     
     String groupAttributesTableName  = sqlProvisioningConfiguration.getGroupAttributesTableName();
 
-    String groupAttributesGroupForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
+    String groupAttributesEntityForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
     
     String groupAttributesAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeNameColumn();
 
@@ -1665,369 +1035,129 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
     
-    if (!retrieveAll && GrouperUtil.isBlank(grouperTargetGroups)) {
-      return result;
-    }
-
     List<String> groupTablePrimaryColNamesList = new ArrayList<String>();
-    List<String> groupTableAttributesColNamesList = new ArrayList<String>();
+    List<String> attributeTableAttributesNamesList = new ArrayList<String>();
     
+    List<String> groupTableAttributesColNamesList = null;
+
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig();
     
     for (String attributeName: groupAttributeNameToConfigAttribute.keySet()) {
       SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) groupAttributeNameToConfigAttribute.get(attributeName);
-      
+      GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
+      if (!configurationAttribute.isSelect()) {
+        continue;
+      }
+
+      // maybe we dont want memberships
       if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
-        groupTableAttributesColNamesList.add(attributeName);
+        
+        if (!configurationAttribute.isMembershipAttribute() || (isGroupAttributes && includeMemberships)) {
+
+          attributeTableAttributesNamesList.add(attributeName);
+
+        }
+        
       } else {
+        if (StringUtils.equals(groupTableIdColumn,  attributeName)) {
+          groupTableIdColumnIndex = GrouperUtil.length(groupTablePrimaryColNamesList);
+        }
         groupTablePrimaryColNamesList.add(attributeName);
       }
     }
-    
-    StringBuilder commaSeparatedPrimaryColumnNames = new StringBuilder();
-    for (int i=0; i<groupTablePrimaryColNamesList.size(); i++) {
-      if (i>0) {
-        commaSeparatedPrimaryColumnNames.append(", ");
-      }
-      commaSeparatedPrimaryColumnNames.append(groupTablePrimaryColNamesList.get(i));
+        
+    if (attributeTableAttributesNamesList.size() > 0 ) {
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesEntityForeignKeyColumn), "entity attributes foreign key column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeNameColumn), "entity attributes attribute name column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeValueColumn), "entity attributes attribute value column must be configured");
+      groupTableAttributesColNamesList = GrouperUtil.toList(groupAttributesEntityForeignKeyColumn, groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
     }
-    
-    String[] colNames = GrouperUtil.splitTrim(commaSeparatedPrimaryColumnNames.toString(), ",");
-    
-    StringBuilder sqlInitialPrimary = new StringBuilder("select " + commaSeparatedPrimaryColumnNames.toString() + " from " + groupTableName);
-
-    StringBuilder sqlInitialAttributes = new StringBuilder();
-    if (groupTableAttributesColNamesList.size() > 0 ) {
-      sqlInitialAttributes = new StringBuilder("select " + groupAttributesGroupForeignKeyColumn + ", " + groupAttributesAttributeNameColumn + ", " +  groupAttributesAttributeValueColumn 
-          + " from " + groupAttributesTableName);
-    }
-    
+     
+     
     List<Object[]> groupPrimaryAttributeValues = null;
 
-    List<Object[]> groupAttributeValues = null;
+    List<Object[]> attributeValuesSeparateTable = null;
     
-    if (retrieveAll) {
-      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-      
-      groupPrimaryAttributeValues = gcDbAccess.sql(sqlInitialPrimary.toString()).selectList(Object[].class);
-      
-      Map<Object, List<Object[]>> groupIdentifierToAttributes = new HashMap<Object, List<Object[]>>();
-      
-      if (StringUtils.isNotBlank(sqlInitialAttributes.toString())) {
-        groupAttributeValues = gcDbAccess.sql(sqlInitialAttributes.toString()).selectList(Object[].class);
+    groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName);
         
-        for (Object[] obj: GrouperUtil.nonNull(groupAttributeValues)) {
-          Object groupIdentifier = obj[0];
-          
-          if (groupIdentifierToAttributes.containsKey(groupIdentifier)) {
-            groupIdentifierToAttributes.get(groupIdentifier).add(obj);
-          } else {
-            List<Object[]> list = new ArrayList<Object[]>();
-            list.add(obj);
-            groupIdentifierToAttributes.put(groupIdentifier, list);
-          }
-          
-        }
-        
+    // look up attributes if we should and if we got results
+    if (attributeTableAttributesNamesList.size() > 0 && GrouperUtil.length(groupPrimaryAttributeValues) > 0 ) {
+      
+      List<Object> mainTableIdsFound = new ArrayList<Object>();
+      for (Object[] groupPrimaryAttributeValue : groupPrimaryAttributeValues) {
+        Object mainTableId = groupPrimaryAttributeValue[groupTableIdColumnIndex];
+        GrouperUtil.assertion(!GrouperUtil.isBlank(mainTableId), "Why is main table ID blank?");
+        mainTableIdsFound.add(mainTableId);
       }
       
-      retrieveGroupsAddRecord(result, colNames, groupPrimaryAttributeValues, groupIdentifierToAttributes, groupTableIdColumn);
-    } else {
-      
-      List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = sqlProvisioningConfiguration.getGroupSearchAttributes();
-      if (grouperProvisioningConfigurationAttributes.size() > 1) {
-        //TODO add this to validation
-        throw new RuntimeException("Can currently only have one searchAttribute! " + grouperProvisioningConfigurationAttributes);
-      }
-      
-      if (grouperProvisioningConfigurationAttributes.size() == 1) {
-        
-        int numberOfBatches = GrouperUtil.batchNumberOfBatches(grouperTargetGroups.size(), 900);
-        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
-        
-        for (int i = 0; i < numberOfBatches; i++) {
+      attributeValuesSeparateTable = SqlProvisionerCommands.retrieveObjectsColumnFilter(dbExternalSystemConfigId, groupTableAttributesColNamesList, 
+          groupAttributesTableName, GrouperUtil.toList(groupAttributesAttributeNameColumn),  (List<Object>)(Object)attributeTableAttributesNamesList, 
+          GrouperUtil.toList(groupAttributesEntityForeignKeyColumn), mainTableIdsFound);
           
-          List<ProvisioningGroup> currentBatchGrouperTargetGroups = GrouperUtil.batchList(grouperTargetGroups, 900, i);
-          StringBuilder sql = new StringBuilder(sqlInitialPrimary);
-          
-          sql.append(" where "+ grouperProvisioningConfigurationAttribute.getName() + " in ( ");
-          
-          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-          
-          for (int j=0; j<currentBatchGrouperTargetGroups.size();j++) {
-            ProvisioningGroup grouperTargetGroup = currentBatchGrouperTargetGroups.get(j);
-            String value = grouperTargetGroup.retrieveFieldOrAttributeValueString(grouperProvisioningConfigurationAttribute);
-            gcDbAccess.addBindVar(value);
-            if (j>0) {
-              sql.append(",");
-            }
-            sql.append("?");
-          }
-          sql.append(" ) ");
-          groupPrimaryAttributeValues = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
-          
-          Map<Object, List<Object[]>> groupIdentifierToAttributes = new HashMap<Object, List<Object[]>>();
-          
-          if (StringUtils.isNotBlank(sqlInitialAttributes.toString())) {
-            gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-            sqlInitialAttributes.append(" where "+ groupAttributesGroupForeignKeyColumn + " in ( ");
-            int p = 0;
-            for (Object[] groupPrimaryAttributes: groupPrimaryAttributeValues) {
-              
-              for (int k=0; k<colNames.length; k++) {
-                
-                if (StringUtils.equalsIgnoreCase(colNames[k], groupTableIdColumn)) {
-                  Object object = groupPrimaryAttributes[k];
-                  
-                  gcDbAccess.addBindVar(object);
-                  if (p>0) {
-                    sqlInitialAttributes.append(",");
-                  }
-                  sqlInitialAttributes.append("?");
-                  p++;
-                  
-                }
-                
-              }
-              
-            }
-            sqlInitialAttributes.append(" ) ");
+    }
+     
+    retrieveGroupsAddRecord(result, 
+        groupPrimaryAttributeValues, attributeValuesSeparateTable, 
+        groupTablePrimaryColNamesList, attributeTableAttributesNamesList,
+        groupTableIdColumn, groupAttributeNameToConfigAttribute);
             
-            groupAttributeValues = gcDbAccess.sql(sqlInitialAttributes.toString()).selectList(Object[].class);
-            
-            for (Object[] obj: GrouperUtil.nonNull(groupAttributeValues)) {
-              Object groupIdentifier = obj[0];
-              
-              if (groupIdentifierToAttributes.containsKey(groupIdentifier)) {
-                groupIdentifierToAttributes.get(groupIdentifier).add(obj);
-              } else {
-                List<Object[]> list = new ArrayList<Object[]>();
-                list.add(obj);
-                groupIdentifierToAttributes.put(groupIdentifier, list);
-              }
-              
-            }
-            
-          }
-          
-          retrieveGroupsAddRecord(result, colNames, groupPrimaryAttributeValues, groupIdentifierToAttributes, groupTableIdColumn);
-          
-        }
-        
-      } else {
-        throw new RuntimeException("Why is groupSearchFilter empty?");
-      }
-      
-    }
-
-    return result;
-   
-  }
-  
-  private List<ProvisioningEntity> retrieveEntities(boolean retrieveAll, List<ProvisioningEntity> grouperTargetEntities) {
+    return new TargetDaoRetrieveAllGroupsResponse(result);
     
-    if (retrieveAll && grouperTargetEntities != null) {
-      throw new RuntimeException("Cant retrieve all and pass in entities to retrieve");
-    }
-    
-    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-    
-    String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
-    
-    String entityTableName = sqlProvisioningConfiguration.getEntityTableName();
-    
-    String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
-    
-    String entityAttributesTableName  = sqlProvisioningConfiguration.getEntityAttributesTableName();
-
-    String entityAttributesEntityForeignKeyColumn = sqlProvisioningConfiguration.getEntityAttributesEntityForeignKeyColumn();
-    
-    String entityAttributesAttributeNameColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeNameColumn();
-
-    String entityAttributesAttributeValueColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeValueColumn();
-    
-    List<ProvisioningEntity> result = new ArrayList<ProvisioningEntity>();
-    
-    if (!retrieveAll && GrouperUtil.isBlank(grouperTargetEntities)) {
-      return result;
-    }
-
-    List<String> entityTablePrimaryColNamesList = new ArrayList<String>();
-    List<String> entityTableAttributesColNamesList = new ArrayList<String>();
-    
-    Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
-    
-    for (String attributeName: entityAttributeNameToConfigAttribute.keySet()) {
-      SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) entityAttributeNameToConfigAttribute.get(attributeName);
-      
-      if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
-        entityTableAttributesColNamesList.add(attributeName);
-      } else {
-        entityTablePrimaryColNamesList.add(attributeName);
-      }
-    }
-    
-    StringBuilder commaSeparatedPrimaryColumnNames = new StringBuilder();
-    for (int i=0; i<entityTablePrimaryColNamesList.size(); i++) {
-      if (i>0) {
-        commaSeparatedPrimaryColumnNames.append(", ");
-      }
-      commaSeparatedPrimaryColumnNames.append(entityTablePrimaryColNamesList.get(i));
-    }
-    
-    String[] colNames = GrouperUtil.splitTrim(commaSeparatedPrimaryColumnNames.toString(), ",");
-    
-    StringBuilder sqlInitialPrimary = new StringBuilder("select " + commaSeparatedPrimaryColumnNames.toString() + " from " + entityTableName);
-
-    StringBuilder sqlInitialAttributes = new StringBuilder();
-    if (entityTableAttributesColNamesList.size() > 0 ) {
-      sqlInitialAttributes = new StringBuilder("select " + entityAttributesEntityForeignKeyColumn + ", " + entityAttributesAttributeNameColumn + ", " +  entityAttributesAttributeValueColumn 
-          + " from " + entityAttributesTableName);
-    }
-    
-    List<Object[]> entityPrimaryAttributeValues = null;
-
-    List<Object[]> entityAttributeValues = null;
-    
-    if (retrieveAll) {
-      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-      
-      entityPrimaryAttributeValues = gcDbAccess.sql(sqlInitialPrimary.toString()).selectList(Object[].class);
-      
-      Map<Object, List<Object[]>> entityIdentifierToAttributes = new HashMap<Object, List<Object[]>>();
-      
-      if (StringUtils.isNotBlank(sqlInitialAttributes.toString())) {
-        entityAttributeValues = gcDbAccess.sql(sqlInitialAttributes.toString()).selectList(Object[].class);
-        
-        for (Object[] obj: GrouperUtil.nonNull(entityAttributeValues)) {
-          Object entityIdentifier = obj[0];
-          
-          if (entityIdentifierToAttributes.containsKey(entityIdentifier)) {
-            entityIdentifierToAttributes.get(entityIdentifier).add(obj);
-          } else {
-            List<Object[]> list = new ArrayList<Object[]>();
-            list.add(obj);
-            entityIdentifierToAttributes.put(entityIdentifier, list);
-          }
-          
-        }
-        
-      }
-      
-      retrieveEntitiesAddRecord(result, colNames, entityPrimaryAttributeValues, entityIdentifierToAttributes, entityTableIdColumn);
-    } else {
-      
-      List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = sqlProvisioningConfiguration.getGroupSearchAttributes();
-      if (grouperProvisioningConfigurationAttributes.size() > 1) {
-        //TODO add this to validation
-        throw new RuntimeException("Can currently only have one searchAttribute! " + grouperProvisioningConfigurationAttributes);
-      }
-      
-      if (grouperProvisioningConfigurationAttributes.size() == 1) {
-        
-        int numberOfBatches = GrouperUtil.batchNumberOfBatches(grouperTargetEntities.size(), 900);
-        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
-        
-        for (int i = 0; i < numberOfBatches; i++) {
-          
-          List<ProvisioningEntity> currentBatchGrouperTargetEntities = GrouperUtil.batchList(grouperTargetEntities, 900, i);
-          StringBuilder sql = new StringBuilder(sqlInitialPrimary);
-          
-          sql.append(" where "+ grouperProvisioningConfigurationAttribute.getName() + " in ( ");
-          
-          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-          
-          for (int j=0; j<currentBatchGrouperTargetEntities.size();j++) {
-            ProvisioningEntity grouperTargetEntity = currentBatchGrouperTargetEntities.get(j);
-            String value = grouperTargetEntity.retrieveFieldOrAttributeValueString(grouperProvisioningConfigurationAttribute);
-            gcDbAccess.addBindVar(value);
-            if (j>0) {
-              sql.append(",");
-            }
-            sql.append("?");
-          }
-          sql.append(" ) ");
-          entityPrimaryAttributeValues = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
-          
-          Map<Object, List<Object[]>> entityIdentifierToAttributes = new HashMap<Object, List<Object[]>>();
-          
-          if (StringUtils.isNotBlank(sqlInitialAttributes.toString())) {
-            gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-            sqlInitialAttributes.append(" where "+ entityAttributesEntityForeignKeyColumn + " in ( ");
-            int p = 0;
-            for (Object[] entityPrimaryAttributes: entityPrimaryAttributeValues) {
-              
-              for (int k=0; k<colNames.length; k++) {
-                
-                if (StringUtils.equalsIgnoreCase(colNames[k], entityTableIdColumn)) {
-                  Object object = entityPrimaryAttributes[k];
-                  
-                  gcDbAccess.addBindVar(object);
-                  if (p>0) {
-                    sqlInitialAttributes.append(",");
-                  }
-                  sqlInitialAttributes.append("?");
-                  p++;
-                  
-                }
-                
-              }
-              
-            }
-            sqlInitialAttributes.append(" ) ");
-            
-            entityAttributeValues = gcDbAccess.sql(sqlInitialAttributes.toString()).selectList(Object[].class);
-            
-            for (Object[] obj: GrouperUtil.nonNull(entityAttributeValues)) {
-              Object groupIdentifier = obj[0];
-              
-              if (entityIdentifierToAttributes.containsKey(groupIdentifier)) {
-                entityIdentifierToAttributes.get(groupIdentifier).add(obj);
-              } else {
-                List<Object[]> list = new ArrayList<Object[]>();
-                list.add(obj);
-                entityIdentifierToAttributes.put(groupIdentifier, list);
-              }
-              
-            }
-            
-          }
-          
-          retrieveEntitiesAddRecord(result, colNames, entityPrimaryAttributeValues, entityIdentifierToAttributes, entityTableIdColumn);
-          
-        }
-        
-      } else {
-        throw new RuntimeException("Why is entitySearchFilter empty?");
-      }
-      
-    }
-
-    return result;
-   
   }
 
-  public void retrieveGroupsAddRecord(List<ProvisioningGroup> result, String[] colNames, List<Object[]> groupAttributeValues, 
-      Map<Object, List<Object[]>> groupIdentifierToAttributes, String groupTableIdColumn) {
+  /**
+   * 
+   * @param result
+   * @param groupPrimaryAttributeValues
+   * @param attributeValuesSeparateTable
+   * @param groupTablePrimaryColNamesList
+   * @param attributeTableAttributesNamesList
+   * @param groupTableIdColumn
+   * @param groupAttributeNameToConfigAttribute
+   */
+  protected void retrieveGroupsAddRecord(List<ProvisioningGroup> result, 
+      List<Object[]> groupPrimaryAttributeValues, List<Object[]> attributeValuesSeparateTable, 
+      List<String> groupTablePrimaryColNamesList, List<String> attributeTableAttributesNamesList,
+      String groupTableIdColumn, Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfigAttribute) {
     
-    for (Object[] groupAttributeValue: GrouperUtil.nonNull(groupAttributeValues)) {
+    Map<Object, List<Object[]>> groupIdentifierToAttributes = new HashMap<Object, List<Object[]>>();
+    
+    if (GrouperUtil.length(attributeTableAttributesNamesList) > 0) {
+      
+      for (Object[] obj: GrouperUtil.nonNull(attributeValuesSeparateTable)) {
+        Object groupIdentifier = obj[0];
+        
+        List<Object[]> list = groupIdentifierToAttributes.get(groupIdentifier);
+
+        if (list == null) {
+          list = new ArrayList<Object[]>();
+          groupIdentifierToAttributes.put(groupIdentifier, list);
+        }
+        list.add(obj);
+        
+      }
+    }
+    
+    for (Object[] groupAttributeValue: GrouperUtil.nonNull(groupPrimaryAttributeValues)) {
       ProvisioningGroup provisioningGroup = new ProvisioningGroup();
  
-      for (int i=0; i<colNames.length; i++) {
-        String colName = colNames[i];
+      for (int i=0; i<groupTablePrimaryColNamesList.size(); i++) {
+
+        String colName = groupTablePrimaryColNamesList.get(i);
         
-        GrouperProvisioningConfigurationAttribute configurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
-            .getTargetGroupAttributeNameToConfig().get(colName);
+        Object value = groupAttributeValue[i];
+        
+        GrouperProvisioningConfigurationAttribute configurationAttribute = groupAttributeNameToConfigAttribute.get(colName);
+
         if (configurationAttribute.isMultiValued()) {
           throw new RuntimeException("An attribute that's a column of the primary table to be provisioned cannot be multivalued. "+colName);
         }
-        
-        Object value = groupAttributeValue[i];
 
-        if (StringUtils.equalsIgnoreCase(groupTableIdColumn, colName)) {
+        if (StringUtils.equalsIgnoreCase(groupTableIdColumn, colName) && GrouperUtil.length(attributeTableAttributesNamesList) > 0) {
           List<Object[]> moreAttributesFromSeparateAttributesTable = groupIdentifierToAttributes.get(value);
           
           for (Object[] namesValues: GrouperUtil.nonNull(moreAttributesFromSeparateAttributesTable)) {
+            
             String attributeName = namesValues[1].toString();
             Object attributeValue = namesValues[2];
             
@@ -2050,27 +1180,59 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             
       result.add(provisioningGroup);
     }
+    
   }
-  
-  public void retrieveEntitiesAddRecord(List<ProvisioningEntity> result, String[] colNames, List<Object[]> entityAttributeValues,
-      Map<Object, List<Object[]>> entityIdentifierToAttributes, String entityTableIdColumn) {
+
+
+  /**
+   * 
+   * @param result
+   * @param entityPrimaryAttributeValues
+   * @param attributeValuesSeparateTable
+   * @param entityTablePrimaryColNamesList
+   * @param attributeTableAttributesNamesList
+   * @param entityTableIdColumn
+   * @param entityAttributeNameToConfigAttribute
+   */
+  protected void retrieveEntitiesAddRecord(List<ProvisioningEntity> result, 
+      List<Object[]> entityPrimaryAttributeValues, List<Object[]> attributeValuesSeparateTable, 
+      List<String> entityTablePrimaryColNamesList, List<String> attributeTableAttributesNamesList,
+      String entityTableIdColumn, Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfigAttribute) {
     
+    Map<Object, List<Object[]>> entityIdentifierToAttributes = new HashMap<Object, List<Object[]>>();
     
-    for (Object[] entityAttributeValue: GrouperUtil.nonNull(entityAttributeValues)) {
+    if (GrouperUtil.length(attributeTableAttributesNamesList) > 0) {
+      
+      for (Object[] obj: GrouperUtil.nonNull(attributeValuesSeparateTable)) {
+        Object entityIdentifier = obj[0];
+        
+        List<Object[]> list = entityIdentifierToAttributes.get(entityIdentifier);
+
+        if (list == null) {
+          list = new ArrayList<Object[]>();
+          entityIdentifierToAttributes.put(entityIdentifier, list);
+        }
+        list.add(obj);
+        
+      }
+    }
+    
+    for (Object[] entityAttributeValue: GrouperUtil.nonNull(entityPrimaryAttributeValues)) {
       ProvisioningEntity provisioningEntity = new ProvisioningEntity();
  
-      for (int i=0; i<colNames.length; i++) {
-        String colName = colNames[i];
+      for (int i=0; i<entityTablePrimaryColNamesList.size(); i++) {
+
+        String colName = entityTablePrimaryColNamesList.get(i);
         
         Object value = entityAttributeValue[i];
         
-        GrouperProvisioningConfigurationAttribute configurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
-            .getTargetEntityAttributeNameToConfig().get(colName);
+        GrouperProvisioningConfigurationAttribute configurationAttribute = entityAttributeNameToConfigAttribute.get(colName);
+
         if (configurationAttribute.isMultiValued()) {
           throw new RuntimeException("An attribute that's a column of the primary table to be provisioned cannot be multivalued. "+colName);
         }
 
-        if (StringUtils.equalsIgnoreCase(entityTableIdColumn, colName)) {
+        if (StringUtils.equalsIgnoreCase(entityTableIdColumn, colName) && GrouperUtil.length(attributeTableAttributesNamesList) > 0) {
           List<Object[]> moreAttributesFromSeparateAttributesTable = entityIdentifierToAttributes.get(value);
           
           for (Object[] namesValues: GrouperUtil.nonNull(moreAttributesFromSeparateAttributesTable)) {
@@ -2079,7 +1241,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             Object attributeValue = namesValues[2];
             
             GrouperProvisioningConfigurationAttribute configurationAttributeForSeparateTable = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()
-                .getTargetGroupAttributeNameToConfig().get(attributeName);
+                .getTargetEntityAttributeNameToConfig().get(attributeName);
             
             if(configurationAttributeForSeparateTable.isMultiValued()) {
               provisioningEntity.addAttributeValue(attributeName, attributeValue);
@@ -2100,40 +1262,385 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
   }
 
+  /**
+   * 
+   */
   @Override
   public TargetDaoRetrieveGroupsResponse retrieveGroups(TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest) {
-    List<ProvisioningGroup> grouperTargetGroups = targetDaoRetrieveGroupsRequest == null ? null : targetDaoRetrieveGroupsRequest.getTargetGroups();
-    boolean retrieveAllMembershipsInGroups = targetDaoRetrieveGroupsRequest == null ? false : targetDaoRetrieveGroupsRequest.isIncludeAllMembershipsIfApplicable();
-    List<ProvisioningGroup> targetGroups = this.retrieveGroups(false, grouperTargetGroups, retrieveAllMembershipsInGroups);
-    return new TargetDaoRetrieveGroupsResponse(targetGroups);
+    
+    boolean includeMemberships = targetDaoRetrieveGroupsRequest.isIncludeAllMembershipsIfApplicable();
+
+    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
+    
+    boolean isGroupAttributes = membershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes;
+    
+    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    
+    String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
+    
+    String groupTableName = sqlProvisioningConfiguration.getGroupTableName();
+    
+    String groupTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
+    int groupTableIdColumnIndex = -1;
+    String groupAttributesTableName  = sqlProvisioningConfiguration.getGroupAttributesTableName();
+
+    String groupAttributesGroupForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
+    
+    String groupAttributesAttributeNameColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeNameColumn();
+
+    String groupAttributesAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeValueColumn();
+    
+    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
+    
+    List<String> groupTablePrimaryColNamesList = new ArrayList<String>();
+    List<String> attributeTableAttributesNamesList = new ArrayList<String>();
+    
+    List<String> groupTableAttributesColNamesList = null;
+
+    Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig();
+
+    List<GrouperProvisioningConfigurationAttribute> searchAttributes = sqlProvisioningConfiguration.getGroupSearchAttributes();
+    if (searchAttributes.size() != 1) {
+      throw new RuntimeException("Can currently only have one searchAttribute! " + GrouperUtil.toStringForLog(searchAttributes));
+    }
+
+    GrouperProvisioningConfigurationAttribute searchAttribute = searchAttributes.get(0);
+    
+    for (String attributeName: groupAttributeNameToConfigAttribute.keySet()) {
+      SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) groupAttributeNameToConfigAttribute.get(attributeName);
+      GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
+      if (!configurationAttribute.isSelect() && !StringUtils.equals(searchAttribute.getName(), attributeName)) {
+        continue;
+      }
+      
+      // maybe we dont want memberships
+      if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
+        
+        if (!configurationAttribute.isMembershipAttribute() || (isGroupAttributes && includeMemberships)) {
+
+          attributeTableAttributesNamesList.add(attributeName);
+
+        }
+        
+      } else {
+        if (StringUtils.equals(groupTableIdColumn,  attributeName)) {
+          groupTableIdColumnIndex = GrouperUtil.length(groupTablePrimaryColNamesList);
+        }
+        groupTablePrimaryColNamesList.add(attributeName);
+      }
+    }
+
+    boolean filterByColumn = groupTablePrimaryColNamesList.contains(searchAttribute.getName());
+    
+    boolean filterByAttribute = searchAttribute != null && attributeTableAttributesNamesList.contains(searchAttribute.getName());
+    
+    GrouperUtil.assertion(filterByAttribute || filterByColumn, "Must filter by attribute or column");
+
+    if (attributeTableAttributesNamesList.size() > 0 ) {
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesGroupForeignKeyColumn), "entity attributes foreign key column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeNameColumn), "entity attributes attribute name column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeValueColumn), "entity attributes attribute value column must be configured");
+      groupTableAttributesColNamesList = GrouperUtil.toList(groupAttributesGroupForeignKeyColumn, groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
+    }
+     
+    if (GrouperUtil.length(targetDaoRetrieveGroupsRequest.getTargetGroups()) > 0) {
+      
+      List<Object> idsToRetrieve = new ArrayList<Object>();
+      for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsRequest.getTargetGroups()) {
+        idsToRetrieve.add(provisioningGroup.retrieveAttributeValue(searchAttribute.getName()));
+      }
+      
+      List<Object[]> groupPrimaryAttributeValues = null;
+  
+
+      if (filterByColumn) {
+        groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
+            dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName, null, null, GrouperUtil.toList(searchAttribute.getName()), idsToRetrieve);
+        
+      } else if (filterByAttribute) {
+        groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsAttributeFilter(dbExternalSystemConfigId, 
+            groupTablePrimaryColNamesList, groupTableName, groupTableIdColumn, groupAttributesTableName, groupAttributesGroupForeignKeyColumn, 
+            groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn, searchAttribute.getName(), idsToRetrieve);
+            
+      }
+      
+      List<Object[]> attributeValuesSeparateTable = null;
+
+      // look up attributes if we should and if we got results
+      if (attributeTableAttributesNamesList.size() > 0 && GrouperUtil.length(groupPrimaryAttributeValues) > 0 ) {
+        
+        List<Object> mainTableIdsFound = new ArrayList<Object>();
+        for (Object[] groupPrimaryAttributeValue : groupPrimaryAttributeValues) {
+          Object mainTableId = groupPrimaryAttributeValue[groupTableIdColumnIndex];
+          GrouperUtil.assertion(!GrouperUtil.isBlank(mainTableId), "Why is main table ID blank?");
+          mainTableIdsFound.add(mainTableId);
+        }
+        
+        attributeValuesSeparateTable = SqlProvisionerCommands.retrieveObjectsColumnFilter(dbExternalSystemConfigId, groupTableAttributesColNamesList, 
+            groupAttributesTableName, GrouperUtil.toList(groupAttributesAttributeNameColumn),  (List<Object>)(Object)attributeTableAttributesNamesList, 
+            GrouperUtil.toList(groupAttributesGroupForeignKeyColumn), mainTableIdsFound);
+
+      }
+
+      retrieveGroupsAddRecord(result, 
+          groupPrimaryAttributeValues, attributeValuesSeparateTable, 
+          groupTablePrimaryColNamesList, attributeTableAttributesNamesList,
+          groupTableIdColumn, groupAttributeNameToConfigAttribute);
+    }
+    
+    return new TargetDaoRetrieveGroupsResponse(result);
   }
 
+  /**
+   * 
+   */
   @Override
   public TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk(TargetDaoRetrieveMembershipsBulkRequest targetDaoRetrieveMembershipsBulkRequest) {
     List<ProvisioningGroup> grouperTargetGroups = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroupsForAllMemberships();
     List<ProvisioningEntity> grouperTargetEntities = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetEntitiesForAllMemberships();
     List<Object> grouperTargetMemberships = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetMemberships();
-    List<ProvisioningMembership> targetMemberships = this.retrieveMemberships(false, grouperTargetGroups, grouperTargetEntities, grouperTargetMemberships);
+    List<ProvisioningMembership> targetMemberships = this.retrieveMemberships(grouperTargetGroups, grouperTargetEntities, grouperTargetMemberships);
     List<Object> targetMembershipsObjects = new ArrayList<Object>();
     targetMembershipsObjects.addAll(targetMemberships);
     return new TargetDaoRetrieveMembershipsBulkResponse(targetMembershipsObjects);
   }
 
+  /**
+   * 
+   */
   @Override
   public TargetDaoRetrieveAllEntitiesResponse retrieveAllEntities(TargetDaoRetrieveAllEntitiesRequest targetDaoRetrieveAllEntitiesRequest) {
     
-    List<ProvisioningEntity> targetEntities = retrieveEntities(true, null);
-    return new TargetDaoRetrieveAllEntitiesResponse(targetEntities);
+    boolean includeMemberships = targetDaoRetrieveAllEntitiesRequest.isIncludeAllMembershipsIfApplicable();
+
+    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
+    
+    boolean isEntityAttributes = membershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes;
+    
+    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    
+    String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
+    
+    String entityTableName = sqlProvisioningConfiguration.getEntityTableName();
+    
+    GrouperUtil.assertion(!StringUtils.isBlank(entityTableName), "Entity table name is required!");
+    
+    String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
+
+    GrouperUtil.assertion(!StringUtils.isBlank(entityTableIdColumn), "Entity table ID column is required!");
+
+    String entityAttributesTableName  = sqlProvisioningConfiguration.getEntityAttributesTableName();
+
+    String entityAttributesEntityForeignKeyColumn = sqlProvisioningConfiguration.getEntityAttributesEntityForeignKeyColumn();
+    
+    String entityAttributesAttributeNameColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeNameColumn();
+
+    String entityAttributesAttributeValueColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeValueColumn();
+    
+    int entityTableIdColumnIndex = -1;
+    
+    List<ProvisioningEntity> result = new ArrayList<ProvisioningEntity>();
+    
+    List<String> entityTablePrimaryColNamesList = new ArrayList<String>();
+    List<String> attributeTableAttributesNamesList = new ArrayList<String>();
+    
+    List<String> entityTableAttributesColNamesList = null;
+    
+
+    Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
+    
+    for (String attributeName: entityAttributeNameToConfigAttribute.keySet()) {
+      SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) entityAttributeNameToConfigAttribute.get(attributeName);
+      GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
+      if (!configurationAttribute.isSelect()) {
+        continue;
+      }
+      
+      // maybe we dont want memberships
+      if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
+        
+        if (!configurationAttribute.isMembershipAttribute() || (isEntityAttributes && includeMemberships)) {
+
+          attributeTableAttributesNamesList.add(attributeName);
+
+        }
+        
+      } else {
+        if (StringUtils.equals(entityTableIdColumn,  attributeName)) {
+          entityTableIdColumnIndex = GrouperUtil.length(entityTablePrimaryColNamesList);
+        }
+
+        entityTablePrimaryColNamesList.add(attributeName);
+      }
+    }
+        
+    if (attributeTableAttributesNamesList.size() > 0 ) {
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesEntityForeignKeyColumn), "entity attributes foreign key column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesAttributeNameColumn), "entity attributes attribute name column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesAttributeValueColumn), "entity attributes attribute value column must be configured");
+      entityTableAttributesColNamesList = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, 
+          entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
+    }
+     
+     
+    List<Object[]> entityPrimaryAttributeValues = null;
+
+    List<Object[]> attributeValuesSeparateTable = null;
+    
+    entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName);
+    
+    // look up attributes if we should and if we got results
+    if (attributeTableAttributesNamesList.size() > 0 && GrouperUtil.length(entityPrimaryAttributeValues) > 0 ) {
+      
+      List<Object> mainTableIdsFound = new ArrayList<Object>();
+      for (Object[] entityPrimaryAttributeValue : entityPrimaryAttributeValues) {
+        Object mainTableId = entityPrimaryAttributeValue[entityTableIdColumnIndex];
+        GrouperUtil.assertion(!GrouperUtil.isBlank(mainTableId), "Why is main table ID blank?");
+        mainTableIdsFound.add(mainTableId);
+      }
+      
+      attributeValuesSeparateTable = SqlProvisionerCommands.retrieveObjectsColumnFilter(dbExternalSystemConfigId, entityTableAttributesColNamesList, 
+          entityAttributesTableName, GrouperUtil.toList(entityAttributesAttributeNameColumn),  (List<Object>)(Object)attributeTableAttributesNamesList, 
+          GrouperUtil.toList(entityAttributesEntityForeignKeyColumn), mainTableIdsFound);
+          
+    }
+    
+    retrieveEntitiesAddRecord(result, 
+        entityPrimaryAttributeValues, attributeValuesSeparateTable, 
+        entityTablePrimaryColNamesList, attributeTableAttributesNamesList,
+        entityTableIdColumn, entityAttributeNameToConfigAttribute);
+            
+    return new TargetDaoRetrieveAllEntitiesResponse(result);
     
   }
-  
 
+  /**
+   * 
+   */
   @Override
   public TargetDaoRetrieveEntitiesResponse retrieveEntities(TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest) {
     
-    List<ProvisioningEntity> grouperTargetEntities = targetDaoRetrieveEntitiesRequest == null ? null : targetDaoRetrieveEntitiesRequest.getTargetEntities();
-    List<ProvisioningEntity> targetEntities = this.retrieveEntities(false, grouperTargetEntities);
-    return new TargetDaoRetrieveEntitiesResponse(targetEntities);
+    boolean includeMemberships = targetDaoRetrieveEntitiesRequest.isIncludeAllMembershipsIfApplicable();
+
+    GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
+    
+    boolean isEntityAttributes = membershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes;
+    
+    SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    
+    String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
+    
+    String entityTableName = sqlProvisioningConfiguration.getEntityTableName();
+    
+    String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
+    int entityTableIdColumnIndex = -1;
+    String entityAttributesTableName  = sqlProvisioningConfiguration.getEntityAttributesTableName();
+
+    String entityAttributesEntityForeignKeyColumn = sqlProvisioningConfiguration.getEntityAttributesEntityForeignKeyColumn();
+    
+    String entityAttributesAttributeNameColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeNameColumn();
+
+    String entityAttributesAttributeValueColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeValueColumn();
+    
+    List<ProvisioningEntity> result = new ArrayList<ProvisioningEntity>();
+    
+    List<String> entityTablePrimaryColNamesList = new ArrayList<String>();
+    List<String> attributeTableAttributesNamesList = new ArrayList<String>();
+    
+    List<String> entityTableAttributesColNamesList = null;
+
+    Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
+
+    List<GrouperProvisioningConfigurationAttribute> searchAttributes = sqlProvisioningConfiguration.getEntitySearchAttributes();
+    if (searchAttributes.size() != 1) {
+      throw new RuntimeException("Can currently only have one searchAttribute! " + GrouperUtil.toStringForLog(searchAttributes));
+    }
+
+    GrouperProvisioningConfigurationAttribute searchAttribute = searchAttributes.get(0);
+    
+    for (String attributeName: entityAttributeNameToConfigAttribute.keySet()) {
+      SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) entityAttributeNameToConfigAttribute.get(attributeName);
+      GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
+      if (!configurationAttribute.isSelect() && !StringUtils.equals(searchAttribute.getName(), attributeName)) {
+        continue;
+      }
+      
+      // maybe we dont want memberships
+      if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
+        
+        if (!configurationAttribute.isMembershipAttribute() || (isEntityAttributes && includeMemberships)) {
+
+          attributeTableAttributesNamesList.add(attributeName);
+
+        }
+        
+      } else {
+        if (StringUtils.equals(entityTableIdColumn,  attributeName)) {
+          entityTableIdColumnIndex = GrouperUtil.length(entityTablePrimaryColNamesList);
+        }
+        entityTablePrimaryColNamesList.add(attributeName);
+      }
+    }
+
+    boolean filterByColumn = entityTablePrimaryColNamesList.contains(searchAttribute.getName());
+
+    boolean filterByAttribute = searchAttribute != null && attributeTableAttributesNamesList.contains(searchAttribute.getName());
+    
+    GrouperUtil.assertion(filterByAttribute || filterByColumn, "Must filter by attribute or column");
+
+    if (attributeTableAttributesNamesList.size() > 0 ) {
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesEntityForeignKeyColumn), "entity attributes foreign key column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesAttributeNameColumn), "entity attributes attribute name column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(entityAttributesAttributeValueColumn), "entity attributes attribute value column must be configured");
+      entityTableAttributesColNamesList = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
+    }
+     
+    if (GrouperUtil.length(targetDaoRetrieveEntitiesRequest.getTargetEntities()) > 0) {
+      
+      List<Object> idsToRetrieve = new ArrayList<Object>();
+      for (ProvisioningEntity provisioningEntity : targetDaoRetrieveEntitiesRequest.getTargetEntities()) {
+        idsToRetrieve.add(provisioningEntity.retrieveAttributeValue(searchAttribute.getName()));
+      }
+      
+      List<Object[]> entityPrimaryAttributeValues = null;
+  
+
+      if (filterByColumn) {
+        entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
+            dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName, null, null, GrouperUtil.toList(searchAttribute.getName()), idsToRetrieve);
+        
+      } else if (filterByAttribute) {
+        entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsAttributeFilter(dbExternalSystemConfigId, 
+            entityTablePrimaryColNamesList, entityTableName, entityTableIdColumn, entityAttributesTableName, entityAttributesEntityForeignKeyColumn, 
+            entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn, searchAttribute.getName(), idsToRetrieve);
+            
+      }
+      
+      List<Object[]> attributeValuesSeparateTable = null;
+
+      // look up attributes if we should and if we got results
+      if (attributeTableAttributesNamesList.size() > 0 && GrouperUtil.length(entityPrimaryAttributeValues) > 0 ) {
+        
+        List<Object> mainTableIdsFound = new ArrayList<Object>();
+        for (Object[] entityPrimaryAttributeValue : entityPrimaryAttributeValues) {
+          Object mainTableId = entityPrimaryAttributeValue[entityTableIdColumnIndex];
+          GrouperUtil.assertion(!GrouperUtil.isBlank(mainTableId), "Why is main table ID blank?");
+          mainTableIdsFound.add(mainTableId);
+        }
+        
+        attributeValuesSeparateTable = SqlProvisionerCommands.retrieveObjectsColumnFilter(dbExternalSystemConfigId, entityTableAttributesColNamesList, 
+            entityAttributesTableName, GrouperUtil.toList(entityAttributesAttributeNameColumn),  (List<Object>)(Object)attributeTableAttributesNamesList, 
+            GrouperUtil.toList(entityAttributesEntityForeignKeyColumn), mainTableIdsFound);
+
+      }
+
+      retrieveEntitiesAddRecord(result, 
+          entityPrimaryAttributeValues, attributeValuesSeparateTable, 
+          entityTablePrimaryColNamesList, attributeTableAttributesNamesList,
+          entityTableIdColumn, entityAttributeNameToConfigAttribute);
+    }
+    
+    return new TargetDaoRetrieveEntitiesResponse(result);
   }
 
 
@@ -2155,10 +1662,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroups(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMemberships(true);
-//    grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+
     grouperProvisionerDaoCapabilities.setCanUpdateGroups(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntities(true);
     
   }
-
 }

@@ -84,7 +84,7 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
    * @see edu.internet2.middleware.grouper.j2ee.status.ws.status.DiagnosticTask#doTask()
    */
   @Override
-  protected boolean doTask() {
+  public boolean doTask() {
     
     int minutesSinceLastSuccess = DaemonJobStatus.getMinutesSinceLastSuccess(this.jobName, this.grouperLoaderType);
     

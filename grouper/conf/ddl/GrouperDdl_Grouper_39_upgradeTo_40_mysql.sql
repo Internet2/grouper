@@ -8,6 +8,8 @@ CREATE INDEX member_subjidentifier2_idx ON grouper_members (subject_identifier2)
 
 CREATE INDEX member_email0_idx ON grouper_members (email0);
 
+ALTER TABLE grouper_sync_member ADD COLUMN metadata_json text;
+
 update grouper_ddl set last_updated = date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), history = substring(concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V', db_version, ' to V40, ', history), 1, 3500), db_version = 40 where object_name = 'Grouper';
 commit;
 

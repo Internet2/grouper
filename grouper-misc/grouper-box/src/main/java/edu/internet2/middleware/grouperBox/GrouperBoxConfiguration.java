@@ -1,9 +1,9 @@
 package edu.internet2.middleware.grouperBox;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-public class GrouperBoxConfiguration extends GrouperProvisioningConfigurationBase {
+public class GrouperBoxConfiguration extends GrouperProvisioningConfiguration {
 
   private String boxExternalSystemConfigId;
   private String invitabilityLevel;

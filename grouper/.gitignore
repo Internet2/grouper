@@ -31,3 +31,4 @@ test.log
 src/grouper/SampleGrouperMain.java
 src/grouper/Test*.java
 src/grouper/Covid*.java
+felix-cache

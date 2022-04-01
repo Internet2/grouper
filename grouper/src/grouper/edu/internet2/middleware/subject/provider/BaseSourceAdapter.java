@@ -25,17 +25,24 @@ package edu.internet2.middleware.subject.provider;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2_5;
+import edu.internet2.middleware.grouper.subj.GrouperLdapSourceAdapter2_5;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
@@ -62,7 +69,7 @@ import edu.internet2.middleware.subject.provider.SourceManager.SourceManagerStat
  */
 public abstract class BaseSourceAdapter implements Source {
   
-  private Map<String, Void> sourceAttributesToLowerCase = null;
+  private Set<String> sourceAttributesToLowerCase = null;
   
   protected String nameAttributeName;
   protected String descriptionAttributeName;
@@ -98,34 +105,12 @@ public abstract class BaseSourceAdapter implements Source {
           translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), value);
         } else if (isSourceAttribute) {
           
-          String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute").toLowerCase();
+          String sourceAttribute = StringUtils.trimToEmpty(SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute")).toLowerCase();
 
           Object value = sourceAttributesToValues.get(sourceAttribute);
           subjectAttributesToValues.put(subjectAttributeName, value);
           translationMap.put("subject_attribute__"+subjectAttributeName.toLowerCase(), value);
         }
-        
-      }
-      
-      
-      for (int i=0; i<numberOfAttrs; i++) {
-        
-        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-        
-        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translationType");
-        
-        boolean isTranslation = StringUtils.equals(translationType, "translation");
-        
-        if (isTranslation) {
-
-          String translation = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".translation");
-          
-          Object valueObject = GrouperUtil.substituteExpressionLanguageScript(translation, translationMap, true, false, true);
-          valueObject = GrouperUtil.stringValue(valueObject);
-          subjectAttributesToValues.put(subjectAttributeName, valueObject);
-          
-        }
-        
       }
       
     }
@@ -150,11 +135,11 @@ public abstract class BaseSourceAdapter implements Source {
     return subject;
   }
   
-  public Map<String, Void> getSourceAttributesToLowerCase() {
+  public Set<String> getSourceAttributesToLowerCase() {
     
     if (sourceAttributesToLowerCase == null) {
       
-      Map<String, Void> temp = new CaseInsensitiveMap();
+      Set<String> temp = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
       
       String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
             
@@ -173,10 +158,10 @@ public abstract class BaseSourceAdapter implements Source {
           if (formatToLowerCase) {
             if (isSourceAttributeSameAsSubjectAttribute) {
               String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-              temp.put(subjectAttributeName, null);
+              temp.add(subjectAttributeName);
             } else if (isSourceAttribute) {
               String sourceAttribute = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".sourceAttribute");
-              temp.put(sourceAttribute, null);
+              temp.add(sourceAttribute);
             }
             
           } 
@@ -228,6 +213,9 @@ public abstract class BaseSourceAdapter implements Source {
   
   private Map<String, String> exportLabelToAttributeName = null;
 
+  private Map<String, String> attributeNameToViewerGroupName = null;
+  
+  
   /**
    * return export label to attribute name (if there are overrides)
    * @return empty if no overrides, otherwise the attribute name to export label
@@ -257,6 +245,37 @@ public abstract class BaseSourceAdapter implements Source {
       this.exportLabelToAttributeName = tempExportLabelToAttributeName;
     }
     return this.exportLabelToAttributeName;
+  }
+  
+  /**
+   * return the attribute name
+   * @return empty if no overrides, otherwise the attribute name to export label
+   */
+  public Map<String, String> attributeNameToViewerGroupName() {
+    
+    if (this.attributeNameToViewerGroupName == null) {
+      Map<String, String> tempAttributeNameToViewerGroupName = new HashMap<String, String>();
+      
+      String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+      
+      if (this.isEditable()) {
+            
+        if (StringUtils.isNotBlank(numberOfAttributes)) {
+          
+          int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+          for (int i=0; i<numberOfAttrs; i++) {
+            
+            String requireGroupNameForView = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".requireGroupNameForView");
+            if (!StringUtils.isBlank(requireGroupNameForView)) {
+              String attributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+              tempAttributeNameToViewerGroupName.put(attributeName, requireGroupNameForView);
+            }
+          }
+        }
+      }
+      this.attributeNameToViewerGroupName = tempAttributeNameToViewerGroupName;
+    }
+    return this.attributeNameToViewerGroupName;
   }
   
   public String convertSourceAttributeToSubjectAttribute(String nameOfSourceAttribute) {
@@ -889,22 +908,25 @@ public abstract class BaseSourceAdapter implements Source {
             }        
           }
           
-          String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
-          if (StringUtils.isNotBlank(numberOfAttributes)) {
-            
-            int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-            for (int i=0; i<numberOfAttrs; i++) {
+          if (temp.size() == 0) {
+            String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+            if (StringUtils.isNotBlank(numberOfAttributes)) {
               
-              boolean subjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
-              if (subjectIdentifier) {
-                String name = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-                if (StringUtils.isNotBlank(name)) {
-                  temp.put(temp.size()-1, name.toLowerCase());
+              int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+              for (int i=0; i<numberOfAttrs; i++) {
+                
+                boolean subjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
+                if (subjectIdentifier) {
+                  String name = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+                  if (StringUtils.isNotBlank(name)) {
+                    int attributeNumber = temp.size();
+                    temp.put(attributeNumber, name.toLowerCase());
+                  }
                 }
+              
               }
-            
+              
             }
-            
           }
           
           this.subjectIdentifierAttributes = temp;
@@ -931,27 +953,28 @@ public abstract class BaseSourceAdapter implements Source {
             String value = getInitParam("subjectIdentifierAttribute" + i);
             if (value != null) {
               temp.put(i, value.toLowerCase());
-            }  else {
-              break;
-            }
+            }        
           }
-          
-          String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
-          if (StringUtils.isNotBlank(numberOfAttributes)) {
-            
-            int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-            for (int i=0; i<numberOfAttrs; i++) {
+
+          if (temp.size() == 0) {
+            String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".numberOfAttributes");
+            if (StringUtils.isNotBlank(numberOfAttributes)) {
               
-              boolean subjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
-              if (subjectIdentifier) {
-                String name = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
-                if (StringUtils.isNotBlank(name)) {
-                  temp.put(temp.size()-1, name.toLowerCase());
+              int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+              for (int i=0; i<numberOfAttrs; i++) {
+                
+                boolean subjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + this.getConfigId() + ".attribute."+i+".subjectIdentifier", false);
+                if (subjectIdentifier) {
+                  String name = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + this.getConfigId() + ".attribute."+i+".name");
+                  if (StringUtils.isNotBlank(name)) {
+                    int attributeNumber = temp.size();
+                    temp.put(attributeNumber, name.toLowerCase());
+                  }
                 }
+              
               }
-            
+              
             }
-            
           }
           
           this.subjectIdentifierAttributesAll = temp;
@@ -1020,6 +1043,18 @@ public abstract class BaseSourceAdapter implements Source {
 
   private String configId;
   
+  /** expirable cache will not look at configs all the time, but will refresh */
+  private static ExpirableCache<String, Map<String, String>> virtualAttributeForSource = 
+    new ExpirableCache<String, Map<String, String>>(2);
+
+  /** expirable cache will not look at configs all the time, but will refresh */
+  private static ExpirableCache<String, Map<String, String>> virtualAttributeForSourceLegacy = 
+    new ExpirableCache<String, Map<String, String>>(2);
+
+  /** expirable cache will not look at configs all the time, but will refresh */
+  private static ExpirableCache<String, Map<String, String>> virtualAttributeVariablesForSourceLegacy = 
+    new ExpirableCache<String, Map<String, String>>(2);
+  
   @Override
   public String getConfigId() {
     return this.configId;
@@ -1034,6 +1069,189 @@ public abstract class BaseSourceAdapter implements Source {
   @Override
   public boolean isEnabled() {
     return true;
+  }
+  
+  /**
+   * get the ordered list of virtual attributes for a source (new style)
+   * @param source
+   * @return the ordered list
+   */
+  @SuppressWarnings("unchecked")
+  public static Map<String, String> virtualAttributesForSource(Source source) {
+  
+    Map<String, String> virtualAttributes = virtualAttributeForSource.get(source.getId());
+    if (virtualAttributes!=null) {
+      return virtualAttributes;
+    }
+    String configId = source.getConfigId();
+    virtualAttributes = new LinkedHashMap<String, String>();
+    
+    String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + configId + ".numberOfAttributes");
+    
+    if (StringUtils.isNotBlank(numberOfAttributes)) {
+  
+      int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+  
+      for (int i=0; i<numberOfAttrs; i++) {
+        
+        String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + configId + ".attribute."+i+".name");
+        
+        String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + configId + ".attribute."+i+".translationType");
+        
+        boolean isTranslation = StringUtils.equals(translationType, "translation");
+        
+        if (isTranslation) {
+  
+          String translation = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + configId + ".attribute."+i+".translation");
+          virtualAttributes.put(subjectAttributeName, translation);
+        }
+      }
+    }
+    
+    virtualAttributeForSource.put(source.getId(), virtualAttributes);
+    return virtualAttributes;
+  }
+
+  /**
+   * get the ordered list of virtual attributes for a source
+   * @param source
+   * @return the ordered list
+   */
+  @SuppressWarnings("unchecked")
+  public static Map<String, String> virtualAttributesForSourceLegacy(Source source) {
+  
+    Map<String, String> virtualAttributes = virtualAttributeForSourceLegacy.get(source.getId());
+    if (virtualAttributes!=null) {
+      return virtualAttributes;
+    }
+    
+    virtualAttributes = new LinkedHashMap<String, String>();
+    
+    if (source instanceof GrouperLdapSourceAdapter2_5 || source instanceof GrouperJdbcSourceAdapter2_5) {
+      
+      String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".numberOfAttributes");
+      
+      if (StringUtils.isNotBlank(numberOfAttributes)) {
+        
+        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+        for (int i=0; i<numberOfAttrs; i++) {
+          
+          String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".name");
+          
+          String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".translationType");
+          
+          boolean isTranslation = StringUtils.equals(translationType, "translation");
+          
+          if (isTranslation) {
+            String translation = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".translation");
+            virtualAttributes.put(subjectAttributeName, translation);
+          }
+       }
+      }
+      
+    } else {
+      Properties properties = source.initParams();
+      
+      //no virtuals
+      if (properties != null && properties.size() > 0) {
+        
+        //these are the virtual names:
+        Set<String> virtualKeys = new HashSet<String>((Set<String>)(Object)properties.keySet());
+        
+  
+        Iterator<String> iterator = virtualKeys.iterator();
+        
+        while (iterator.hasNext()) {
+          String virtualKey = iterator.next();
+          if (!virtualKey.startsWith("subjectVirtualAttribute_")) {
+            iterator.remove();
+          }
+        }
+        
+        //look for virtuals, we need these in order since they might depend on each other
+        for (int i=0;i<100;i++) {
+  
+          //maybe we are done
+          if (virtualKeys.size() == 0) {
+            break;
+          }
+          
+          iterator = virtualKeys.iterator();
+          
+          Pattern pattern = Pattern.compile("^subjectVirtualAttribute_" + i + "_(.*)$");
+          
+          //subjectVirtualAttribute_0_someName (name alphanumeric underscore) JEXL expression
+          while (iterator.hasNext()) {
+            String key = iterator.next();
+            Matcher matcher = pattern.matcher(key);
+            if (matcher.matches()) {
+              String name = matcher.group(1);
+              if (!name.matches("[a-zA-Z0-9_]+")) {
+                String message = "Virtual attribute name (from subject.properties?) must be alphanumeric, or underscore: '" 
+                  + name + "' for source: " + source.getId();
+                log.error(message);
+                throw new RuntimeException(message);
+              }
+              virtualAttributes.put(name, properties.getProperty(key));
+              iterator.remove();
+            }
+          }
+        }
+        if (virtualKeys.size() > 0) {
+          log.error("Invalid virtual attribute keys: " + SubjectUtils.toStringForLog(virtualKeys) + ", for source: " + source.getId());
+        }
+      }
+    }
+    
+    
+    virtualAttributeForSourceLegacy.put(source.getId(), virtualAttributes);
+    return virtualAttributes;
+  }
+
+  /**
+   * get the ordered list of virtual attributes for a source
+   * @param source
+   * @return the ordered list
+   */
+  @SuppressWarnings("unchecked")
+  public static Map<String, String> virtualAttributeVariablesForSourceLegacy(Source source) {
+  
+    Map<String, String> virtualAttributeVariables = virtualAttributeVariablesForSourceLegacy.get(source.getId());
+    if (virtualAttributeVariables!=null) {
+      return virtualAttributeVariables;
+    }
+    
+    virtualAttributeVariables = new LinkedHashMap<String, String>();
+    Properties properties = source.initParams();
+    
+    //no virtuals
+    if (properties != null && properties.size() > 0) {
+      
+      //these are the virtual names:
+      Set<String> propertiesSet = new HashSet<String>((Set<String>)(Object)properties.keySet());
+      
+      Iterator<String> iterator = propertiesSet.iterator();
+      
+      Pattern pattern = Pattern.compile("^subjectVirtualAttributeVariable_(.*)$");
+  
+      while (iterator.hasNext()) {
+        String property = iterator.next();
+        Matcher matcher = pattern.matcher(property);
+        if (matcher.matches()) {
+          String name = matcher.group(1);
+          if (!name.matches("[a-zA-Z0-9_]+")) {
+            String message = "Virtual attribute variable name (from subject.properties?) must be alphanumeric, or underscore: '" 
+              + name + "' for source: " + source.getId();
+            log.error(message);
+            throw new RuntimeException(message);
+          }
+          virtualAttributeVariables.put(name, properties.getProperty(property));
+        }
+      }
+    }
+    
+    virtualAttributeVariablesForSourceLegacy.put(source.getId(), virtualAttributeVariables);
+    return virtualAttributeVariables;
   }
   
 }

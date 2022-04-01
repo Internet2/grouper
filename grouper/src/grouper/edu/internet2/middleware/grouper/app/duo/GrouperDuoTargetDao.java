@@ -105,8 +105,10 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
+      
+      boolean loadEntitiesToGrouperTable = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGrouperTable();
 
-      List<GrouperDuoUser> grouperDuoUsers = GrouperDuoApiCommands.retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId());
+      List<GrouperDuoUser> grouperDuoUsers = GrouperDuoApiCommands.retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId(), loadEntitiesToGrouperTable);
 
       for (GrouperDuoUser grouperDuoUser : grouperDuoUsers) {
         ProvisioningEntity targetEntity = grouperDuoUser.toProvisioningEntity();
@@ -307,7 +309,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       // lets make sure we are doing the right thing
       Set<String> fieldNamesToUpdate = new HashSet<String>();
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
+        String fieldName = provisioningObjectChange.getAttributeName();
         fieldNamesToUpdate.add(fieldName);
       }
       
@@ -479,7 +481,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      List<GrouperDuoUser> duoUsers = GrouperDuoApiCommands.retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId());
+      List<GrouperDuoUser> duoUsers = GrouperDuoApiCommands.retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId(), false);
 
       List<ProvisioningMembership> results = new ArrayList<>();
       
@@ -513,7 +515,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       // lets make sure we are doing the right thing
       Set<String> fieldNamesToUpdate = new HashSet<String>();
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
-        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
+        String fieldName = provisioningObjectChange.getAttributeName();
         fieldNamesToUpdate.add(fieldName);
       }
       
@@ -623,7 +625,9 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       
       targetData.setProvisioningGroups(targetGroups);
       
-      List<GrouperDuoUser> duoUsers = GrouperDuoApiCommands.retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId());
+      boolean loadEntitiesToGrouperTable = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGrouperTable();
+      
+      List<GrouperDuoUser> duoUsers = GrouperDuoApiCommands.retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId(), loadEntitiesToGrouperTable);
 
       List<ProvisioningMembership> targetMemberships = new ArrayList<>();
       targetData.setProvisioningMemberships(targetMemberships);

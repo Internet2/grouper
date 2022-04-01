@@ -54,6 +54,15 @@ import edu.internet2.middleware.subject.Subject;
 * input.assignValueString("zoomTest");
 * exec.addGshTemplateInput(input);
 * GshTemplateExecOutput output = exec.execute();
+* if (output.getGshTemplateOutput().isError()) {
+*   // handle this... e.g. from another template: gsh_builtin_gshTemplateOutput.addOutputLine("Error running sub-template");
+* }
+* if (GrouperUtil.length(output.getGshTemplateOutput().getValidationLines()) > 0) {
+*   for (GshValidationLine gshValidationLine : output.getGshTemplateOutput().getValidationLines()) {
+*     // handle this... e.g. from another template 
+*     // gsh_builtin_gshTemplateOutput.addOutputLine((String)(gshValidationLine.getInputName() + ": " + gshValidationLine.getText()));
+*   }
+* }
 * </pre>
 * </blockquote>
 * 

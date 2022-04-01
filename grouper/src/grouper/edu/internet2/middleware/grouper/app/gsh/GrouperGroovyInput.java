@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.app.gsh;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
+
 public class GrouperGroovyInput {
 
   /**
@@ -63,6 +65,11 @@ public class GrouperGroovyInput {
    * input name to value
    */
   private Map<String, Object> inputNameToValue = new HashMap<String, Object>();
+  
+  /**
+   * input name to form element
+   */
+  private Map<String, ConfigItemFormElement> inputNameToFormElement = new HashMap<>();
 
   /**
    * set this to true to run as a root session
@@ -74,7 +81,11 @@ public class GrouperGroovyInput {
   public Map<String, Object> getInputNameToValue() {
     return inputNameToValue;
   }
-
+  
+  
+  public Map<String, ConfigItemFormElement> getInputNameToFormElement() {
+    return inputNameToFormElement;
+  }
 
   public String getScript() {
     return script;
@@ -138,6 +149,16 @@ public class GrouperGroovyInput {
    */
   public GrouperGroovyInput assignInputValueString(String inputName, String inputValue) {
     this.inputNameToValue.put(inputName, inputValue);
+    return this;
+  }
+  
+  /**
+   * 
+   * @param inputName
+   * @param formElement
+   */
+  public GrouperGroovyInput assignInputFormElement(String inputName, ConfigItemFormElement formElement) {
+    this.inputNameToFormElement.put(inputName, formElement);
     return this;
   }
 

@@ -17,6 +17,7 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.DuoMockServiceHandler;
+import edu.internet2.middleware.grouper.app.duo.role.DuoRoleMockServiceHandler;
 import edu.internet2.middleware.grouper.app.google.GoogleMockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.AwsScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GithubScim2MockServiceHandler;
@@ -45,6 +46,7 @@ public class MockServiceServlet extends HttpServlet {
       "azure", AzureMockServiceHandler.class.getName(),
       "awsScim", AwsScim2MockServiceHandler.class.getName(),
       "duo", DuoMockServiceHandler.class.getName(),
+      "duoRole", DuoRoleMockServiceHandler.class.getName(),
       "githubScim", GithubScim2MockServiceHandler.class.getName(),
       "google", GoogleMockServiceHandler.class.getName()
       );

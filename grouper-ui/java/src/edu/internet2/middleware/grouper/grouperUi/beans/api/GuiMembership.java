@@ -45,8 +45,8 @@ public class GuiMembership {
 
 
   /**
-   * start label string yyyy/mm/dd
-   * @return the start label string yyyy/mm/dd
+   * start label string yyyy/MM/dd h:mm a
+   * @return the start label string yyyy/MM/dd h:mm a
    */
   public String getStartDateLabel() {
         
@@ -54,15 +54,15 @@ public class GuiMembership {
       return null;
     }
     
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd h:mm a");
     
     return simpleDateFormat.format(this.membership.getEnabledTime());
     
   }
 
   /**
-   * end label string yyyy/mm/dd
-   * @return the end label string yyyy/mm/dd
+   * end label string yyyy/MM/dd h:mm a
+   * @return the end label string yyyy/MM/dd h:mm a
    */
   public String getEndDateLabel() {
     
@@ -71,7 +71,7 @@ public class GuiMembership {
       return null;
     }
     
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd h:mm a");
     
     return simpleDateFormat.format(this.membership.getDisabledTime());
     

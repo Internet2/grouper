@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,9 +38,9 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeDataType;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoDeleteGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesRequest;
@@ -79,6 +80,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobState;
@@ -123,7 +125,8 @@ public class SqlProvisionerTest extends GrouperTest {
 //    sqlMembershipProvisionerTest.testSimpleGroupMembershipProvisioningFull_1();
 
     GrouperStartup.startup();
-    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisionerFailsafe"));
+    // testSimpleGroupLdapPa
+    TestRunner.run(new SqlProvisionerTest("testSimpleMembershipGroupNameSubjectId"));
     
   }
   
@@ -168,6 +171,7 @@ public class SqlProvisionerTest extends GrouperTest {
       new GcDbAccess().sql("delete from testgrouper_prov_mship1").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_mship2").executeSql();
       
+      failsafeGroups.clear();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -193,9 +197,9 @@ public class SqlProvisionerTest extends GrouperTest {
    */
   public void dropTableSyncTables() {
     
-    dropTableSyncTable("testgrouper_prov_ldap_group_attr");
+    dropTableSyncTable("testgrouper_pro_ldap_group_attr");
     dropTableSyncTable("testgrouper_prov_ldap_group");
-    dropTableSyncTable("testgrouper_prov_ldap_entity_attr");
+    dropTableSyncTable("testgrouper_pro_dap_entity_attr");
     dropTableSyncTable("testgrouper_prov_ldap_entity");
     dropTableSyncTable("testgrouper_prov_group");
     dropTableSyncTable("testgrouper_prov_mship0");
@@ -203,30 +207,74 @@ public class SqlProvisionerTest extends GrouperTest {
     
   }
   
+  public void testSimpleMembershipGroupNameSubjectId() {
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignMembershipTableName("testgrouper_prov_mship0")
+        .assignMembershipTableIdColumn("group_name, subject_id")
+        .assignMembershipGroupForeignKeyColumn("group_name")
+        .assignMembershipEntityForeignKeyColumn("subject_id")
+        .assignMembershipAttributeCount(2)
+    );
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
+    //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
+    
+    //lets sync these over
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    String sql = "select group_name, subject_id from testgrouper_prov_mship0";
+    
+    List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      membershipsInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(2, membershipsInTable.size());
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.0")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.1")));
+
+  }
+  
   public void testIncrementalSyncSqlProvisionerFailsafe() {
     
     
     setupFailsafeJob();
-    
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
 
     GrouperStartup.startup();
     
-    // edu.internet2.middleware.grouper.changeLog.esb.consumer
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.class", EsbConsumer.class.getName());
-    // edu.internet2.middleware.grouper.app.provisioning
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.quartzCron",  "0 0 5 * * 2000");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerConfigId", "mySqlProvisioner1");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.debug", "true");
-
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinGroupSize").value("8").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxPercentRemove").value("20").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMinGroupSize").value("8").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentMembershipsRemove").value("20").store();
         
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
     
@@ -252,7 +300,7 @@ public class SqlProvisionerTest extends GrouperTest {
     List<Object[]> memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
     assertEquals(100, memberships.size());
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxOverallPercentMembershipsRemove").value("25").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentMembershipsRemove").value("25").store();
     
     for (int i=0;i<5;i++) {
       failsafeGroups.get(i).delete();
@@ -283,7 +331,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperUtil.sleep(1000);
     
     assertFalse(GrouperFailsafe.isApproved(jobName));
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxOverallPercentMembershipsRemove").value("60").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentMembershipsRemove").value("60").store();
   
     GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
   
@@ -308,179 +356,31 @@ public class SqlProvisionerTest extends GrouperTest {
   
   public void testIncrementalSyncSqlProvisioner() {
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.class").value("edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.dbExternalSystemConfigId").value("grouper").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetEntityLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetGroupLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteEntitiesIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroupsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteMembershipsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupTableName").value("testgrouper_prov_group").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipEntityForeignKeyColumn").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipGroupForeignKeyColumn").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipTableName").value("testgrouper_prov_mship2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfEntityAttributes").value("5").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfGroupAttributes").value("3").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfMembershipAttributes").value("3").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.provisioningType").value("membershipObjects").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectAllEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showAdvanced").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showProvisioningDiagnostics").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.tableStructures").value("defaultTableStructure").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.name").value("subject_id_or_identifier").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.translateFromGrouperProvisioningEntityField").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.name").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.name").value("description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.translateFromGrouperProvisioningEntityField").value("attribute__description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateToGroupSyncField").value("groupToId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.name").value("posix_id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField").value("idIndex").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.valueType").value("long").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.name").value("description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.translateFromGrouperProvisioningGroupField").value("attribute__description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.name").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.translateExpressionType").value("groupSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.translateFromGroupSyncField").value("groupToId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.10.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.11.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.12.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.13.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.14.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.15.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.16.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.17.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.18.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.19.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.name").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.translateExpressionType").value("memberSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.translateFromMemberSyncField").value("memberToId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.5.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.6.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.7.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.8.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.9.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.updateEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.updateGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.userPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.userTableName").value("testgrouper_prov_entity").store();
-    
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
-
     GrouperStartup.startup();
     
-    // edu.internet2.middleware.grouper.changeLog.esb.consumer
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.class", EsbConsumer.class.getName());
-    // edu.internet2.middleware.grouper.app.provisioning
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.quartzCron",  "0 0 5 * * 2000");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerConfigId", "mySqlProvisioner1");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.sqlProvTestCLC.publisher.debug", "true");
 
     try {
-     
+      SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+          .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+          .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+          .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+          .assignGroupTableName("testgrouper_prov_group")
+          .assignGroupTableIdColumn("uuid")
+          .assignEntityTableName("testgrouper_prov_entity")
+          .assignEntityTableIdColumn("uuid")
+          .assignMembershipTableName("testgrouper_prov_mship2")
+          .assignMembershipTableIdColumn("uuid")
+          .assignMembershipGroupForeignKeyColumn("group_uuid")
+          .assignMembershipEntityForeignKeyColumn("entity_uuid")
+          .assignHasTargetEntityLink(true)
+          .assignHasTargetGroupLink(true)
+          .assignEntityAttributeCount(5)
+          .assignGroupAttributeCount(4)
+          .assignMembershipAttributeCount(3)
+          );
+
       
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
       
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
       
@@ -505,8 +405,8 @@ public class SqlProvisionerTest extends GrouperTest {
       
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);
-      attributeValue.setDoProvision("mySqlProvisioner1");
-      attributeValue.setTargetName("mySqlProvisioner1");
+      attributeValue.setDoProvision("sqlProvTest");
+      attributeValue.setTargetName("sqlProvTest");
       attributeValue.setStemScopeString("sub");
   
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
@@ -553,8 +453,30 @@ public class SqlProvisionerTest extends GrouperTest {
    * just do a simple full sync of groups and memberships
    */
   public void testSimpleGroupMembershipProvisioningFull_1_GlobalResolvers() {
-    
+    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.ldap.dinkel", false)) {
+      System.out.println("Not running testSimpleGroupMembershipProvisioningFull_1_GlobalResolvers since grouper.properties junit.test.ldap.dinkel = false");
+      return;
+    }
     stopAndStartLdapContainer();
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignEntityResolverGlobal(true)
+        .assignGroupTableName("testgrouper_prov_group")
+        .assignGroupTableIdColumn("uuid")
+        .assignEntityTableName("testgrouper_prov_entity")
+        .assignEntityTableIdColumn("uuid")
+        .assignMembershipTableName("testgrouper_prov_mship2")
+        .assignMembershipTableIdColumn("uuid")
+        .assignMembershipGroupForeignKeyColumn("group_uuid")
+        .assignMembershipEntityForeignKeyColumn("entity_uuid")
+        .assignHasTargetEntityLink(true)
+        .assignEntityAttributeCount(6)
+        .assignGroupAttributeCount(4)
+        .assignMembershipAttributeCount(3)
+        );
     
     new GcDbAccess().sql("delete from testgrouper_prov_entity1").executeSql();
     
@@ -599,196 +521,7 @@ public class SqlProvisionerTest extends GrouperTest {
     ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
     result = ldapSyncDaoForLdap.modify("personLdap", "uid=aanderson727,ou=People,dc=example,dc=edu", ldapModificationItems);
     
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.grouperAttributeThatMatchesRow").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.resolverType").value("sql").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.sqlConfigId").value("grouper").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.subjectSourceIdColumn").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.subjectSearchMatchingColumn").value("subject_id_or_identifier").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.tableOrViewName").value("testgrouper_prov_entity1").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalSqlEntityResolver.columnNames").value("school,subject_id_or_identifier").store();
     
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalLdapConfig.baseDn").value("ou=People,dc=example,dc=edu").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalLdapConfig.grouperAttributeThatMatchesRecord").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalLdapConfig.ldapAttributes").value("givenName,mail,objectClass").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalLdapConfig.ldapConfigId").value("personLdap").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalLdapConfig.resolverType").value("ldap").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalLdapConfig.searchScope").value("SUBTREE_SCOPE").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("entityAttributeResolver.globalLdapConfig.subjectSearchMatchingAttribute").value("mail").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesNotInSubjectSource").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.globalSQLResolver").value("globalSqlEntityResolver").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.globalLDAPResolver").value("globalLdapConfig").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.useGlobalSQLResolver").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.useGlobalLDAPResolver").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.resolveAttributesWithSQL").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.resolveAttributesWithLDAP").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.class").value("edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.dbExternalSystemConfigId").value("grouper").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetEntityLink").value("true").store();
-    //new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetGroupLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteEntitiesIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroupsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteMembershipsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupTableName").value("testgrouper_prov_group").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipEntityForeignKeyColumn").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipGroupForeignKeyColumn").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipTableName").value("testgrouper_prov_mship2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfEntityAttributes").value("6").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfGroupAttributes").value("3").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfMembershipAttributes").value("3").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.provisioningType").value("membershipObjects").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectAllEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showAdvanced").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showProvisioningDiagnostics").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.tableStructures").value("defaultTableStructure").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.name").value("subject_id_or_identifier").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.translateFromGrouperProvisioningEntityField").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.name").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.name").value("description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.translateFromGrouperProvisioningEntityField").value("attribute__description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.name").value("school").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.translateExpression").value("${grouperProvisioningEntity.retrieveAttributeValueString('entityAttributeResolverLdap__givenname')}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateGrouperToGroupSyncField").value("groupFromId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.name").value("posix_id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField").value("idIndex").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.valueType").value("long").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.name").value("description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.translateFromGrouperProvisioningGroupField").value("attribute__description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.name").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.translateExpressionType").value("groupSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.translateFromGroupSyncField").value("groupFromId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.10.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.11.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.12.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.13.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.14.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.15.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.16.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.17.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.18.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.19.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.name").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.translateExpressionType").value("memberSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.translateFromMemberSyncField").value("memberToId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.5.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.6.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.7.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.8.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.9.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.updateEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.updateGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.userPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.userTableName").value("testgrouper_prov_entity").store();
-    
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
-        
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
     
@@ -805,8 +538,8 @@ public class SqlProvisionerTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision("mySqlProvisioner1");
-    attributeValue.setTargetName("mySqlProvisioner1");
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
@@ -815,7 +548,7 @@ public class SqlProvisionerTest extends GrouperTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -883,7 +616,7 @@ public class SqlProvisionerTest extends GrouperTest {
     testGroup.deleteMember(SubjectTestHelper.SUBJ1);
     testGroup.deleteMember(SubjectTestHelper.SUBJ2);
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -912,7 +645,7 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
         .assignSaveMode(SaveMode.UPDATE).save();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -929,7 +662,7 @@ public class SqlProvisionerTest extends GrouperTest {
     // now delete the group
     testGroup.delete();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -951,9 +684,24 @@ public class SqlProvisionerTest extends GrouperTest {
     
     stopAndStartLdapContainer();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("ldap.personLdap.url").value("ldap://localhost:389").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("ldap.personLdap.user").value("cn=admin,dc=example,dc=edu").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("ldap.personLdap.pass").value("secret").store();
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignEntityResolverLocal(true)
+        .assignGroupTableName("testgrouper_prov_group")
+        .assignGroupTableIdColumn("uuid")
+        .assignEntityTableName("testgrouper_prov_entity")
+        .assignEntityTableIdColumn("uuid")
+        .assignMembershipTableName("testgrouper_prov_mship2")
+        .assignMembershipTableIdColumn("uuid")
+        .assignMembershipGroupForeignKeyColumn("group_uuid")
+        .assignMembershipEntityForeignKeyColumn("entity_uuid")
+        .assignHasTargetEntityLink(true)
+        .assignEntityAttributeCount(6)
+        .assignGroupAttributeCount(4)
+        .assignMembershipAttributeCount(3)
+        );
     
     LdapAttribute replaceAttribute = new LdapAttribute("mail");
     replaceAttribute.addStringValues(Arrays.asList("test.subject.1"));
@@ -977,196 +725,6 @@ public class SqlProvisionerTest extends GrouperTest {
     ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
     result = ldapSyncDaoForLdap.modify("personLdap", "uid=aanderson727,ou=People,dc=example,dc=edu", ldapModificationItems);
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.columnNames").value("school").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.dbExternalSystemConfigId").value("grouper").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesNotInSubjectSource").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.useGlobalSQLResolver").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.useGlobalLDAPResolver").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.resolveAttributesWithSQL").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.resolveAttributesWithLDAP").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectAllSQLOnFull").value("false").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.ldapConfigId").value("personLdap").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.baseDN").value("ou=People,dc=example,dc=edu").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.searchScope").value("SUBTREE_SCOPE").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.attributes").value("givenName,mail,objectClass").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.ldapMatchingSearchAttribute").value("mail").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.ldapMappingType").value("entityAttribute").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.ldapMappingEntityAttribute").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.filterAllLDAPOnFull").value("false").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.class").value("edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.dbExternalSystemConfigId").value("grouper").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetEntityLink").value("true").store();
-    //new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetGroupLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteEntitiesIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroupsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteMembershipsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupTableName").value("testgrouper_prov_group").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipEntityForeignKeyColumn").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipGroupForeignKeyColumn").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipTableName").value("testgrouper_prov_mship2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfEntityAttributes").value("6").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfGroupAttributes").value("3").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfMembershipAttributes").value("3").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.provisioningType").value("membershipObjects").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectAllEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showAdvanced").value("true").store();
-
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.sqlConfigId").value("grouper").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.sqlMappingEntityAttribute").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.sqlMappingType").value("entityAttribute").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.subjectSearchMatchingColumn").value("subject_id_or_identifier").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.tableOrViewName").value("testgrouper_prov_entity1").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showProvisioningDiagnostics").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.tableStructures").value("defaultTableStructure").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateToMemberSyncField").value("memberToId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.name").value("subject_id_or_identifier").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.translateFromGrouperProvisioningEntityField").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.name").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.name").value("description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.translateFromGrouperProvisioningEntityField").value("attribute__description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.name").value("school").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.translateExpression").value("${grouperProvisioningEntity.retrieveAttributeValueString('entityAttributeResolverLdap__givenname')}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.5.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateGrouperToGroupSyncField").value("groupFromId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.name").value("posix_id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField").value("idIndex").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.valueType").value("long").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.name").value("description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.translateFromGrouperProvisioningGroupField").value("attribute__description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.name").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.translateExpressionType").value("groupSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.translateFromGroupSyncField").value("groupFromId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.10.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.11.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.12.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.13.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.14.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.15.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.16.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.17.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.18.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.19.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.name").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.translateExpressionType").value("memberSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.translateFromMemberSyncField").value("memberToId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.5.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.6.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.7.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.8.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.9.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.updateEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.updateGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.userPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.userTableName").value("testgrouper_prov_entity").store();
-    
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
         
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
@@ -1183,8 +741,8 @@ public class SqlProvisionerTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision("mySqlProvisioner1");
-    attributeValue.setTargetName("mySqlProvisioner1");
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
@@ -1193,7 +751,7 @@ public class SqlProvisionerTest extends GrouperTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1244,7 +802,7 @@ public class SqlProvisionerTest extends GrouperTest {
     // delete a member from testGroup and reprovision
     testGroup.deleteMember(SubjectTestHelper.SUBJ1);
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1273,7 +831,7 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
         .assignSaveMode(SaveMode.UPDATE).save();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1290,7 +848,7 @@ public class SqlProvisionerTest extends GrouperTest {
     // now delete the group
     testGroup.delete();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1306,204 +864,28 @@ public class SqlProvisionerTest extends GrouperTest {
   }
   
   public void testSimpleGroupMembershipProvisioningFullWithAttributesTable() {
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.class").value("edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.dbExternalSystemConfigId").value("grouper").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetEntityLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetGroupLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteEntitiesIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroupsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteMembershipsIfNotExistInGrouper").value("true").store();
-
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesAttributeNameColumn").value("entity_attribute_name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesAttributeValueColumn").value("entity_attribute_value").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesEntityForeignKeyColumn").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesLastModifiedColumn").value("last_modified").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesLastModifiedColumnType").value("timestamp").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesTableName").value("testgrouper_pro_dap_entity_attr").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesAttributeNameColumn").value("attribute_name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesAttributeValueColumn").value("attribute_value").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesGroupForeignKeyColumn").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesLastModifiedColumn").value("last_modified").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesLastModifiedColumnType").value("timestamp").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesTableName").value("testgrouper_pro_ldap_group_attr").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupTableName").value("testgrouper_prov_group").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipEntityForeignKeyColumn").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipGroupForeignKeyColumn").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipTableName").value("testgrouper_prov_mship2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfEntityAttributes").value("5").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfGroupAttributes").value("4").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfMembershipAttributes").value("3").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.provisioningType").value("membershipObjects").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectAllEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showAdvanced").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showProvisioningDiagnostics").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.tableStructures").value("defaultTableStructure").store();
-    
-    
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateGrouperToMemberSyncField").value("memberFromId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.storageType").value("entityTableColumn").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateExpressionType").value("translationScript").store();
-    
-    
-    
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.storageType").value("entityTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.name").value("subject_id_or_identifier").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.storageType").value("entityTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.translateFromGrouperProvisioningEntityField").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.name").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.storageType").value("entityTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.update").value("true").store();
-    
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.name").value("description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.storageType").value("separateAttributesTable").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.translateFromGrouperProvisioningEntityField").value("attribute__description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.storageType").value("groupTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateGrouperToGroupSyncField").value("groupFromId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.name").value("posix_id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.storageType").value("groupTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField").value("idIndex").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.valueType").value("long").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.storageType").value("groupTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.update").value("true").store();
-
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.name").value("description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.storageType").value("separateAttributesTable").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.translateFromGrouperProvisioningGroupField").value("attribute__description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.name").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.translateExpressionType").value("groupSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.translateFromGroupSyncField").value("groupFromId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.10.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.11.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.12.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.13.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.14.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.15.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.16.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.17.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.18.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.19.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.name").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.translateExpressionType").value("memberSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.translateFromMemberSyncField").value("memberFromId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.5.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.6.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.7.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.8.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.9.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.updateEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.updateGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.userPrimaryKey").value("uuid").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.useSeparateTableForGroupAttributes").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.useSeparateTableForEntityAttributes").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.userTableName").value("testgrouper_prov_entity").store();
-    
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
-
         
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignEntityAttributesTable(true)
+        .assignGroupAttributesTable(true)
+        .assignGroupTableName("testgrouper_prov_group")
+        .assignGroupTableIdColumn("uuid")
+        .assignEntityTableName("testgrouper_prov_entity")
+        .assignEntityTableIdColumn("uuid")
+        .assignMembershipTableName("testgrouper_prov_mship2")
+        .assignMembershipTableIdColumn("uuid")
+        .assignMembershipGroupForeignKeyColumn("group_uuid")
+        .assignMembershipEntityForeignKeyColumn("entity_uuid")
+        .assignHasTargetEntityLink(true)
+        .assignHasTargetGroupLink(true)
+        .assignEntityAttributeCount(5)
+        .assignGroupAttributeCount(4)
+        .assignMembershipAttributeCount(3)
+        );
+
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
     
@@ -1519,8 +901,8 @@ public class SqlProvisionerTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision("mySqlProvisioner1");
-    attributeValue.setTargetName("mySqlProvisioner1");
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
@@ -1529,7 +911,7 @@ public class SqlProvisionerTest extends GrouperTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1585,7 +967,7 @@ public class SqlProvisionerTest extends GrouperTest {
     // delete a member from testGroup and reprovision
     testGroup.deleteMember(SubjectTestHelper.SUBJ1);
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1605,7 +987,7 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
         .assignSaveMode(SaveMode.UPDATE).save();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1629,7 +1011,7 @@ public class SqlProvisionerTest extends GrouperTest {
     new GcDbAccess().sql("update subjectattribute set value = 'newTestDescription' where subjectid = 'test.subject.0' and name = 'description' ").executeSql();
     GrouperCacheUtils.clearAllCaches();
     SubjectFinder.findById("test.subject.0", true);
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1645,7 +1027,7 @@ public class SqlProvisionerTest extends GrouperTest {
     // now delete the group
     testGroup.delete();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("mySqlProvisioner1");
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1749,11 +1131,11 @@ public class SqlProvisionerTest extends GrouperTest {
           
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", Types.VARCHAR, "40", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", Types.VARCHAR, "1024", true, true);
 
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "posix_id", Types.BIGINT, "10", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "posix_id", Types.BIGINT, "10", false, false);
 
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "name", Types.VARCHAR, "1024", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "name", Types.VARCHAR, "1024", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "1024", false, false);
 
@@ -1768,6 +1150,7 @@ public class SqlProvisionerTest extends GrouperTest {
     
     LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
     LdapProvisionerTestUtils.startLdapContainer();
+    LdapProvisionerTestUtils.setupLdapExternalSystem();
     
   }
   
@@ -1916,13 +1299,19 @@ public class SqlProvisionerTest extends GrouperTest {
 
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
 
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", true, true);
+          // no primary key
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", true, false);
 
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", true, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.TIMESTAMP, "200", false, false);
+
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, "testgrouper_pro_ldap_gr_idx0", null, false, "group_uuid", "attribute_name");
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "testgrouper_pro_ldap_gr_fk", "testgrouper_prov_ldap_group", "group_uuid", "uuid");
         }
         
       });
@@ -2031,54 +1420,18 @@ public class SqlProvisionerTest extends GrouperTest {
      */
     public void testSimpleGroupLdap() {
       
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.sqlProvisioningType", "sqlLikeLdapGroupMemberships");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.provisioningType", "groupAttributes");
+      SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+          .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+          .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+          .assignGroupAttributesTable(true)
+          .assignGroupTableName("testgrouper_prov_ldap_group")
+          .assignGroupTableIdColumn("uuid")
+          .assignHasTargetGroupLink(true)
+          .assignGroupAttributeCount(4)
+          .assignPosixId(false)
+          .assignProvisioningType("groupAttributes")
+      );
 
-      
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.numberOfGroupAttributes", "4");
-
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.name", "groupName");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.isFieldElseAttribute", "false");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.valueType", "string");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.insert", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.update", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.delete", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.select", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.matchingId", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.multiValued", "false");
-      // TODO this is different
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.translateSyncField", "groupName");
-      
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.name", "subjectId");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.isFieldElseAttribute", "false");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.valueType", "string");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.insert", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.update", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.delete", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.select", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.membershipAttribute", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.multiValued", "true");
-      // TODO this is different
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.translateSyncField", "subjectId");
-
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableName", "testgrouper_prov_ldap_group");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupMatchingId", "groupName");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
-      
-      // # if provisioning in ui should be enabled
-      //# {valueType: "boolean", required: true}
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
-  
-          
       Stem stem = new StemSave(this.grouperSession).assignName("test").save();
       Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
       
@@ -2111,20 +1464,13 @@ public class SqlProvisionerTest extends GrouperTest {
       
       String sql = "select uuid from testgrouper_prov_ldap_group";
       
-      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
-      
-      Set<MultiKey> groupNamesInTable = new HashSet<MultiKey>();
-      
-      for (Object[] row: dataInTable) {
-        groupNamesInTable.add(new MultiKey(row));
-      }
-      
-      assertEquals(1, groupNamesInTable.size());
-      assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
-
+      List<String> stringsInTable = new GcDbAccess().sql(sql).selectList(String.class);
+            
+      assertEquals(1, stringsInTable.size());
+      String uuid = stringsInTable.get(0);
       sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
       
-      dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
       
       Set<MultiKey> attributesInTable = new HashSet<MultiKey>();
       
@@ -2133,60 +1479,17 @@ public class SqlProvisionerTest extends GrouperTest {
       }
       
       assertEquals(3, attributesInTable.size());
-      assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "groupName", "test:testGroup")));
-      assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.0")));
-      assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "subjectId", "test.subject.1")));
+      assertTrue(attributesInTable.contains(new MultiKey(uuid, "name", "test:testGroup")));
+      assertTrue(attributesInTable.contains(new MultiKey(uuid, "subjectId", "test.subject.0")));
+      assertTrue(attributesInTable.contains(new MultiKey(uuid, "subjectId", "test.subject.1")));
     }
 
   /**
        * just do a simple full sync of groups and memberships
        */
       public void testSimpleGroupLdapInsertUpdateDeleteFullSync() {
-        
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.provisioningType", "groupAttributes");
 
-    
-        
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-            "${grouperTargetGroup.assignAttributeValue('groupName', grouperProvisioningGroup.getName())}");
-        // # could be group, membership, or entity
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
-        //#translate from group auto translated to the common format
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
-            "${grouperTargetGroup.addAttributeValueForMembership('subjectId', "
-            + "grouperProvisioningEntity.retrieveAttributeValueString('subjectId'))}");
-        // # could be group, membership, or entity
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "membership");
-  
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.script", 
-            "${grouperTargetMembership.setRemoveFromList(true)}");
-        // # could be group, membership, or entity
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.for", "membership");
-  
-        //# could be group, membership, or entity
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
-        
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupMatchingIdExpression", 
-            "${targetGroup.retrieveAttributeValueString('groupName')}");
-  
-        
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableName", "testgrouper_prov_ldap_group");
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupMatchingId", "groupName");
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
-        GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
-        
-        // # if provisioning in ui should be enabled
-        //# {valueType: "boolean", required: true}
-        GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
-    
+        simpleGroupLdapConfigure();    
             
         Stem stem = new StemSave(this.grouperSession).assignName("test").save();
         Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
@@ -2240,7 +1543,7 @@ public class SqlProvisionerTest extends GrouperTest {
         assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
         assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test3:testGroup3"})));
   
-        sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+        sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
         
         dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
         
@@ -2287,7 +1590,7 @@ public class SqlProvisionerTest extends GrouperTest {
         assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
         assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test4:testGroup4"})));
   
-        sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+        sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
         
         dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
         
@@ -2312,53 +1615,10 @@ public class SqlProvisionerTest extends GrouperTest {
    */
   public void testSimpleGroupLdapInsertUpdateDeleteRealTime() {
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.debugLog", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.sqlProvisioningType", "sqlLikeLdapGroupMemberships");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.provisioningType", "groupAttributes");
+    simpleGroupLdapConfigure();
 
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-        "${grouperTargetGroup.assignAttributeValue('groupName', grouperProvisioningGroup.getName())}");
-    // # could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
     
-    //#translate from group auto translated to the common format
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
-        "${grouperTargetGroup.addAttributeValueForMembership('subjectId', "
-        + "grouperProvisioningEntity.retrieveAttributeValueString('subjectId'))}");
-    // # could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "membership");
-  
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.script", 
-        "${grouperTargetMembership.setRemoveFromList(true)}");
-    // # could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.for", "membership");
-  
-    //# could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupMatchingIdExpression", 
-        "${targetGroup.retrieveAttributeValueString('groupName')}");
-  
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableName", "testgrouper_prov_ldap_group");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupMatchingId", "groupName");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
-    
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
-  
-        
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
     Stem stem3 = new StemSave(this.grouperSession).assignName("test3").save();
@@ -2397,6 +1657,16 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = grouperProvisioner.retrieveGrouperProvisioningOutput().getHib3GrouperLoaderLog();
+    // we have 4 memberships and 2 groups.  the users arent in the target
+    assertEquals(6, GrouperUtil.intValue(hib3GrouperLoaderLog.getTotalCount(), -1));
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
+    // insert those
+    assertEquals(6, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
+    // had to update the two groups
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getUpdateCount(), -1));
+
+
     String sql = "select uuid from testgrouper_prov_ldap_group";
     
     List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
@@ -2411,7 +1681,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test3:testGroup3"})));
   
-    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
     
     dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
     
@@ -2429,8 +1699,6 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(attributesInTable.contains(new MultiKey("test3:testGroup3", "subjectId", "test.subject.4")));
     assertTrue(attributesInTable.contains(new MultiKey("test3:testGroup3", "subjectId", "test.subject.5")));
   
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
-    
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
         EsbConsumer.class.getName());
     
@@ -2455,8 +1723,12 @@ public class SqlProvisionerTest extends GrouperTest {
     //clear out changelog
     // run the provisioner, it will init
     hib3GrouperLoaderLog = runJobs(true, true);
-    
-    // add 4
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getTotalCount(), -1));
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getUpdateCount(), -1));
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
+
+    // add 3
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem4);
   
     // remove 3
@@ -2473,10 +1745,11 @@ public class SqlProvisionerTest extends GrouperTest {
     hib3GrouperLoaderLog = runJobs(true, true);
 
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
-    // this includes fields and attributes etc
-    assertEquals(5, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
-//TODO    assertEquals(5, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
-//TODO    assertEquals(1, GrouperUtil.intValue(hib3GrouperLoaderLog.getUpdateCount(), -1));
+
+    assertTrue(10 < GrouperUtil.intValue(hib3GrouperLoaderLog.getTotalCount(), -1));
+    assertEquals(4, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
+    assertEquals(4, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
+    assertEquals(1, GrouperUtil.intValue(hib3GrouperLoaderLog.getUpdateCount(), -1));
 
 //TODO    assertEquals(0, this.esbConsumer.internal_esbConsumerTestingData.changeLogEntryListSize);
     
@@ -2494,7 +1767,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test4:testGroup4"})));
   
-    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
     
     dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
     
@@ -2533,7 +1806,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test4:testGroup4"})));
   
-    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
     
     dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
     
@@ -2570,7 +1843,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test4:testGroup4"})));
   
-    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
     
     dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
     
@@ -2591,6 +1864,19 @@ public class SqlProvisionerTest extends GrouperTest {
 
   }
 
+  private void simpleGroupLdapConfigure() {
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignGroupAttributesTable(true)
+        .assignGroupTableName("testgrouper_prov_ldap_group")
+        .assignGroupTableIdColumn("uuid")
+        .assignGroupAttributeCount(3)
+        .assignProvisioningType("groupAttributes")
+      );
+
+  }
+
   /**
    * esb consumer
    */
@@ -2599,7 +1885,7 @@ public class SqlProvisionerTest extends GrouperTest {
   /**
    * 
    */
-  private final String JOB_NAME = "TEST_SQL_LDAP";
+  private final String JOB_NAME = "sqlProvisionerIncremental";
 
   /**
    * 
@@ -2613,10 +1899,10 @@ public class SqlProvisionerTest extends GrouperTest {
     if (runConsumer) {
       Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
       hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_sqlProvTestCLC");
+      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_sqlProvisionerIncremental");
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
       this.esbConsumer = new EsbConsumer();
-      ChangeLogHelper.processRecords("sqlProvTestCLC", hib3GrouploaderLog, this.esbConsumer);
+      ChangeLogHelper.processRecords("sqlProvisionerIncremental", hib3GrouploaderLog, this.esbConsumer);
   
       return hib3GrouploaderLog;
     }
@@ -2629,49 +1915,7 @@ public class SqlProvisionerTest extends GrouperTest {
    */
   public void testSimpleGroupLdapInsertUpdateDeleteFullSync2() {
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.provisioningType", "groupAttributes");
-
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-        "${grouperTargetGroup.assignAttributeValue('groupName', grouperProvisioningGroup.getName())}");
-    // # could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
-    //#translate from group auto translated to the common format
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
-        "${grouperTargetGroup.addAttributeValueForMembership('subjectId', "
-        + "grouperProvisioningEntity.retrieveAttributeValueString('subjectId'))}");
-    // # could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "membership");
-  
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.script", 
-        "${grouperTargetMembership.setRemoveFromList(true)}");
-    // # could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.for", "membership");
-  
-    //# could be group, membership, or entity
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupMatchingIdExpression", 
-        "${targetGroup.retrieveAttributeValueString('groupName')}");
-  
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableName", "testgrouper_prov_ldap_group");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupMatchingId", "groupName");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
-    
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
-  
+    simpleGroupLdapConfigure();
         
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
@@ -2725,7 +1969,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test3:testGroup3"})));
   
-    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
     
     dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
     
@@ -2772,7 +2016,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test4:testGroup4"})));
   
-    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
     
     dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
     
@@ -2797,50 +2041,7 @@ public class SqlProvisionerTest extends GrouperTest {
      */
     public void testSimpleGroupLdapInsertUpdateDeleteRealTimeChangeLogSize() {
       
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.debugLog", "true");
-    
-      
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.script", 
-          "${grouperTargetGroup.assignAttributeValue('groupName', grouperProvisioningGroup.getName())}");
-      // # could be group, membership, or entity
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.0.for", "group");
-      
-      //#translate from group auto translated to the common format
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.script", 
-          "${grouperTargetGroup.addAttributeValueForMembership('subjectId', "
-          + "grouperProvisioningEntity.retrieveAttributeValueString('subjectId'))}");
-      // # could be group, membership, or entity
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.1.for", "membership");
-    
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.script", 
-          "${grouperTargetMembership.setRemoveFromList(true)}");
-      // # could be group, membership, or entity
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.grouperToTargetTranslation.2.for", "membership");
-    
-      //# could be group, membership, or entity
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.commonToTargetTranslation.1.for", "membership");
-      
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupMatchingIdExpression", 
-          "${targetGroup.retrieveAttributeValueString('groupName')}");
-    
-      
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableName", "testgrouper_prov_ldap_group");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupMatchingId", "groupName");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
-      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
-      
-      // # if provisioning in ui should be enabled
-      //# {valueType: "boolean", required: true}
-      GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
-    
+      simpleGroupLdapConfigure();
           
       Stem stem = new StemSave(this.grouperSession).assignName("test").save();
       Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
@@ -2927,110 +2128,81 @@ public class SqlProvisionerTest extends GrouperTest {
    */
   public void testSimpleGroupLdapDao() {
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.class", SqlProvisioner.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.dbExternalSystemConfigId", "grouper");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.sqlProvisioningType", "sqlLikeLdapGroupMemberships");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.provisioningType", "groupAttributes");
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignGroupAttributesTable(true)
+        .assignGroupTableName("testgrouper_prov_ldap_group")
+        .assignGroupTableIdColumn("uuid")
+        .assignEntityTableName("testgrouper_prov_ldap_entity")
+        .assignEntityTableIdColumn("entity_uuid")
+        .assignEntityAttributeCount(3)
+        .assignGroupAttributeCount(3)
+        .assignProvisioningType("groupAttributes")
+        );
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.subjectSourcesToProvision", "jdbc");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.logAllObjectsVerbose", "true");
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.numberOfGroupAttributes", "2");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.name", "groupName");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.isFieldElseAttribute", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.valueType", "string");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.update", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.delete", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.matchingId", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.multiValued", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.translateFromGroupSyncField", "groupName");
-
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.name", "subjectId");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.isFieldElseAttribute", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.valueType", "string");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.update", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.delete", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.matchingId", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.multiValued", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.membershipAttribute", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.1.translateFromMemberSyncField", "subjectId");
-  
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableName", "testgrouper_prov_ldap_group");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeNames", "uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupTableIdColumn", "uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameIsGroupMatchingId", "groupName");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableForeignKeyToGroup", "group_uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeNameColumn", "attribute_name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeTableAttributeValueColumn", "attribute_value");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityTableName", "testgrouper_prov_ldap_entity");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeNames", "entity_uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeTableName", "testgrouper_prov_ldap_entity_attr");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityTableIdColumn", "entity_uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeTableAttributeNameIsEntityMatchingId", "entityName");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeTableForeignKeyToEntity", "entity_uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeTableAttributeNameColumn", "entity_attribute_name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeTableAttributeValueColumn", "entity_attribute_value");
-
     int countFromGroupTable = -1;
     int countFromGroupAttributeTable = -1;
     countFromGroupTable = new GcDbAccess().sql("select count(*) from testgrouper_prov_ldap_group").select(int.class);
     assertEquals(0, countFromGroupTable);
-    countFromGroupAttributeTable = new GcDbAccess().sql("select count(*) from testgrouper_prov_ldap_group_attr").select(int.class);
+    countFromGroupAttributeTable = new GcDbAccess().sql("select count(*) from testgrouper_pro_ldap_group_attr").select(int.class);
     assertEquals(0, countFromGroupAttributeTable);
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     grouperProvisioner.retrieveGrouperProvisioningBehavior().setGrouperProvisioningType(GrouperProvisioningType.fullProvisionFull);
     grouperProvisioner.retrieveGrouperProvisioningConfiguration().configureProvisioner();
     // let the target dao tell the framework what it can do
-    grouperProvisioner.retrieveGrouperTargetDaoAdapter().getWrappedDao().registerGrouperProvisionerDaoCapabilities(
-        grouperProvisioner.retrieveGrouperTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities()
+    grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao().registerGrouperProvisionerDaoCapabilities(
+        grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao().getGrouperProvisionerDaoCapabilities()
         );
 
     // let the provisioner tell the framework how the provisioner should behave with respect to the target
     grouperProvisioner.registerProvisioningBehaviors(grouperProvisioner.retrieveGrouperProvisioningBehavior());
 
     ProvisioningGroup provisioningGroup1 = new ProvisioningGroup();
-    provisioningGroup1.setId("abc123");
+    ProvisioningGroupWrapper provisioningGroupWrapper = new ProvisioningGroupWrapper();
+    provisioningGroupWrapper.setGrouperProvisioner(grouperProvisioner);
+    provisioningGroup1.setProvisioningGroupWrapper(provisioningGroupWrapper);
+    provisioningGroup1.assignAttributeValue("uuid", "abc123");
     provisioningGroup1.assignAttributeValue("groupName", "a:b:c");
     provisioningGroup1.assignAttributeValue("subjectId", "subjectId0");
     provisioningGroup1.assignAttributeValue("subjectId", "subjectId1");
 
-    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, ProvisioningObjectChangeAction.insert, null, "abc123"));
-    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName", ProvisioningObjectChangeAction.insert, null, "a:b:c"));
-    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId0"));
-    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId1"));
+    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange("uuid", ProvisioningObjectChangeAction.insert, null, "abc123"));
+    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange("groupName", ProvisioningObjectChangeAction.insert, null, "a:b:c"));
+    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId0"));
+    provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId1"));
 
     ProvisioningGroup provisioningGroup2 = new ProvisioningGroup();
-    provisioningGroup2.setId("def456");
+    provisioningGroupWrapper = new ProvisioningGroupWrapper();
+    provisioningGroupWrapper.setGrouperProvisioner(grouperProvisioner);
+    provisioningGroup2.setProvisioningGroupWrapper(provisioningGroupWrapper);
+    provisioningGroup2.assignAttributeValue("uuid", "def456");
     provisioningGroup2.assignAttributeValue("groupName", "d:e:f");
     provisioningGroup2.assignAttributeValue("subjectId", "subjectId2");
     provisioningGroup2.assignAttributeValue("subjectId", "subjectId3");
 
-    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, ProvisioningObjectChangeAction.insert, null, "def456"));
-    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName", ProvisioningObjectChangeAction.insert, null, "d:e:f"));
-    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId2"));
-    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId3"));
+    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange("uuid", ProvisioningObjectChangeAction.insert, null, "def456"));
+    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange("groupName", ProvisioningObjectChangeAction.insert, null, "d:e:f"));
+    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId2"));
+    provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId3"));
     
     ProvisioningGroup provisioningGroup3 = new ProvisioningGroup();
-    provisioningGroup3.setId("ghi789");
+    provisioningGroupWrapper = new ProvisioningGroupWrapper();
+    provisioningGroupWrapper.setGrouperProvisioner(grouperProvisioner);
+    provisioningGroup3.setProvisioningGroupWrapper(provisioningGroupWrapper);
+    provisioningGroup3.assignAttributeValue("uuid", "ghi789");
     provisioningGroup3.assignAttributeValue("groupName", "g:h:i");
     provisioningGroup3.assignAttributeValue("subjectId", "subjectId4");
     provisioningGroup3.assignAttributeValue("subjectId", "subjectId5");
 
-    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.field, "id", null, ProvisioningObjectChangeAction.insert, null, "ghi789"));
-    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName", ProvisioningObjectChangeAction.insert, null, "g:h:i"));
-    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId4"));
-    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId5"));
+    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange("uuid", ProvisioningObjectChangeAction.insert, null, "ghi789"));
+    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange("groupName", ProvisioningObjectChangeAction.insert, null, "g:h:i"));
+    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId4"));
+    provisioningGroup3.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId5"));
     
-    grouperProvisioner.retrieveGrouperTargetDaoAdapter().insertGroups(new TargetDaoInsertGroupsRequest(GrouperUtil.toList(provisioningGroup1, provisioningGroup2, provisioningGroup3)));
+    grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().insertGroups(new TargetDaoInsertGroupsRequest(GrouperUtil.toList(provisioningGroup1, provisioningGroup2, provisioningGroup3)));
 
     Set<MultiKey> groupNamesInTable = selectGroupLikeLdapRecords();
     
@@ -3053,24 +2225,24 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(attributesInTable.contains(new MultiKey("ghi789", "subjectId", "subjectId5")));
 
     // retrieve all groups with memberships
-    TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(true));
+    TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(true));
     Map<String, ProvisioningGroup> idToGroup = new HashMap<String, ProvisioningGroup>();
     for (ProvisioningGroup provisioningGroup : targetDaoRetrieveAllGroupsResponse.getTargetGroups()) {
-      idToGroup.put(provisioningGroup.getId(), provisioningGroup);
+      idToGroup.put(provisioningGroup.retrieveAttributeValueString("uuid"), provisioningGroup);
     }
     assertEquals(3, idToGroup.size());
     ProvisioningGroup provisioningGroup1retrieved = idToGroup.get("abc123");
-    assertEquals("abc123", provisioningGroup1retrieved.getId());
+    assertEquals("abc123", provisioningGroup1retrieved.retrieveAttributeValueString("uuid"));
     assertEquals("a:b:c", provisioningGroup1retrieved.retrieveAttributeValueString("groupName"));
     assertTrue(provisioningGroup1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId0"));
     assertTrue(provisioningGroup1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId1"));
     ProvisioningGroup provisioningGroup2retrieved = idToGroup.get("def456");
-    assertEquals("def456", provisioningGroup2retrieved.getId());
+    assertEquals("def456", provisioningGroup2retrieved.retrieveAttributeValueString("uuid"));
     assertEquals("d:e:f", provisioningGroup2retrieved.retrieveAttributeValueString("groupName"));
     assertTrue(provisioningGroup2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId2"));
     assertTrue(provisioningGroup2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId3"));
     ProvisioningGroup provisioningGroup3retrieved = idToGroup.get("ghi789");
-    assertEquals("ghi789", provisioningGroup3retrieved.getId());
+    assertEquals("ghi789", provisioningGroup3retrieved.retrieveAttributeValueString("uuid"));
     assertEquals("g:h:i", provisioningGroup3retrieved.retrieveAttributeValueString("groupName"));
     assertTrue(provisioningGroup3retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId4"));
     assertTrue(provisioningGroup3retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId5"));
@@ -3079,19 +2251,19 @@ public class SqlProvisionerTest extends GrouperTest {
     TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(
         GrouperUtil.toList(provisioningGroup1, provisioningGroup2), true);
     TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
-        grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveGroups(targetDaoRetrieveGroupsRequest);
+        grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(targetDaoRetrieveGroupsRequest);
     idToGroup = new HashMap<String, ProvisioningGroup>();
     for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsResponse.getTargetGroups()) {
-      idToGroup.put(provisioningGroup.getId(), provisioningGroup);
+      idToGroup.put(provisioningGroup.retrieveAttributeValueString("uuid"), provisioningGroup);
     }
     assertEquals(2, idToGroup.size());
     provisioningGroup1retrieved = idToGroup.get("abc123");
-    assertEquals("abc123", provisioningGroup1retrieved.getId());
+    assertEquals("abc123", provisioningGroup1retrieved.retrieveAttributeValueString("uuid"));
     assertEquals("a:b:c", provisioningGroup1retrieved.retrieveAttributeValueString("groupName"));
     assertTrue(provisioningGroup1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId0"));
     assertTrue(provisioningGroup1retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId1"));
     provisioningGroup2retrieved = idToGroup.get("def456");
-    assertEquals("def456", provisioningGroup2retrieved.getId());
+    assertEquals("def456", provisioningGroup2retrieved.retrieveAttributeValueString("uuid"));
     assertEquals("d:e:f", provisioningGroup2retrieved.retrieveAttributeValueString("groupName"));
     assertTrue(provisioningGroup2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId2"));
     assertTrue(provisioningGroup2retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId3"));
@@ -3100,51 +2272,49 @@ public class SqlProvisionerTest extends GrouperTest {
     targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(
         GrouperUtil.toList(provisioningGroup1, provisioningGroup2), false);
     targetDaoRetrieveGroupsResponse = 
-        grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveGroups(targetDaoRetrieveGroupsRequest);
+        grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(targetDaoRetrieveGroupsRequest);
     idToGroup = new HashMap<String, ProvisioningGroup>();
     for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsResponse.getTargetGroups()) {
-      idToGroup.put(provisioningGroup.getId(), provisioningGroup);
+      idToGroup.put(provisioningGroup.retrieveAttributeValueString("uuid"), provisioningGroup);
     }
     assertEquals(2, idToGroup.size());
     provisioningGroup1retrieved = idToGroup.get("abc123");
-    assertEquals("abc123", provisioningGroup1retrieved.getId());
+    assertEquals("abc123", provisioningGroup1retrieved.retrieveAttributeValueString("uuid"));
     assertEquals("a:b:c", provisioningGroup1retrieved.retrieveAttributeValueString("groupName"));
     assertFalse(provisioningGroup1retrieved.getAttributes().containsKey("subjectId"));
     provisioningGroup2retrieved = idToGroup.get("def456");
-    assertEquals("def456", provisioningGroup2retrieved.getId());
+    assertEquals("def456", provisioningGroup2retrieved.retrieveAttributeValueString("uuid"));
     assertEquals("d:e:f", provisioningGroup2retrieved.retrieveAttributeValueString("groupName"));
     assertFalse(provisioningGroup2retrieved.getAttributes().containsKey("subjectId"));
 
     // update groups
     ProvisioningGroup provisioningGroup1update = new ProvisioningGroup();
-    provisioningGroup1update.setId("abc123");
+    provisioningGroup1update.assignAttributeValue("uuid", "abc123");
     provisioningGroup1update.assignAttributeValue("groupName", "a:b:c");
     provisioningGroup1update.assignAttributeValue("subjectId", "subjectId0");
     provisioningGroup1update.assignAttributeValue("subjectId", "subjectId1");
 
-    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName2", ProvisioningObjectChangeAction.insert, null, "a:b:c2"));
-    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName", ProvisioningObjectChangeAction.update, "a:b:c", "a:b:cu"));
-    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId0i"));
-    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.delete, "subjectId1", null));
-    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.update, "subjectId0", "subjectId0u"));
+    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange("groupName", ProvisioningObjectChangeAction.update, "a:b:c", "a:b:cu"));
+    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId0i"));
+    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.delete, "subjectId1", null));
+    provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.update, "subjectId0", "subjectId0u"));
 
     ProvisioningGroup provisioningGroup2update = new ProvisioningGroup();
-    provisioningGroup2update.setId("def456");
+    provisioningGroup2update.assignAttributeValue("uuid", "def456");
     provisioningGroup2update.assignAttributeValue("groupName", "d:e:f");
     provisioningGroup2update.assignAttributeValue("subjectId", "subjectId2");
     provisioningGroup2update.assignAttributeValue("subjectId", "subjectId3");
 
-    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName2", ProvisioningObjectChangeAction.insert, null, "d:e:f2"));
-    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "groupName", ProvisioningObjectChangeAction.update, "d:e:f", "d:e:fu"));
-    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId2i"));
-    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.delete, "subjectId3", null));
-    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange(ProvisioningObjectChangeDataType.attribute, null, "subjectId", ProvisioningObjectChangeAction.update, "subjectId2", "subjectId2u"));
+    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange("groupName", ProvisioningObjectChangeAction.update, "d:e:f", "d:e:fu"));
+    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId2i"));
+    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.delete, "subjectId3", null));
+    provisioningGroup2update.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.update, "subjectId2", "subjectId2u"));
 
     TargetDaoUpdateGroupsRequest targetDaoUpdateGroupsRequest = new TargetDaoUpdateGroupsRequest(
         GrouperUtil.toList(provisioningGroup1update, provisioningGroup2update));
 
     TargetDaoUpdateGroupsResponse targetDaoUpdateGroupsResponse = 
-        grouperProvisioner.retrieveGrouperTargetDaoAdapter().updateGroups(targetDaoUpdateGroupsRequest);
+        grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().updateGroups(targetDaoUpdateGroupsRequest);
     
     groupNamesInTable = selectGroupLikeLdapRecords();
     
@@ -3155,12 +2325,10 @@ public class SqlProvisionerTest extends GrouperTest {
   
     attributesInTable = selectGroupLikeLdapAttributeRecords();
     
-    assertEquals(11, attributesInTable.size());
-    assertTrue(attributesInTable.contains(new MultiKey("abc123", "groupName2", "a:b:c2")));
+    assertEquals(9, attributesInTable.size());
     assertTrue(attributesInTable.contains(new MultiKey("abc123", "groupName", "a:b:cu")));
     assertTrue(attributesInTable.contains(new MultiKey("abc123", "subjectId", "subjectId0i")));
     assertTrue(attributesInTable.contains(new MultiKey("abc123", "subjectId", "subjectId0u")));
-    assertTrue(attributesInTable.contains(new MultiKey("def456", "groupName2", "d:e:f2")));
     assertTrue(attributesInTable.contains(new MultiKey("def456", "groupName", "d:e:fu")));
     assertTrue(attributesInTable.contains(new MultiKey("def456", "subjectId", "subjectId2i")));
     assertTrue(attributesInTable.contains(new MultiKey("def456", "subjectId", "subjectId2u")));
@@ -3170,7 +2338,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     
     // delete groups
-    grouperProvisioner.retrieveGrouperTargetDaoAdapter().deleteGroups(new TargetDaoDeleteGroupsRequest(
+    grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().deleteGroups(new TargetDaoDeleteGroupsRequest(
         GrouperUtil.toList(provisioningGroup1, provisioningGroup2)));
 
     groupNamesInTable = selectGroupLikeLdapRecords();
@@ -3187,32 +2355,32 @@ public class SqlProvisionerTest extends GrouperTest {
 
     // insert some entities
     new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar("subject0uuid").executeSql();
-    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+    new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
       .addBindVar("subject0uuid").addBindVar("dn").addBindVar("subject0").executeSql();
-    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+    new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
       .addBindVar("subject0uuid").addBindVar("employeeId").addBindVar("10021368").executeSql();
     
     new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar("subject1uuid").executeSql();
-    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+    new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
       .addBindVar("subject1uuid").addBindVar("dn").addBindVar("subject1").executeSql();
-    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+    new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
       .addBindVar("subject1uuid").addBindVar("employeeId").addBindVar("12345678").executeSql();
 
     new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar("subject2uuid").executeSql();
-    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+    new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
       .addBindVar("subject2uuid").addBindVar("dn").addBindVar("subject2").executeSql();
-    new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+    new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
       .addBindVar("subject2uuid").addBindVar("employeeId").addBindVar("34567890").executeSql();
 
     // retrieve all entities
-    TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveAllEntities(new TargetDaoRetrieveAllEntitiesRequest());
+    TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveAllEntities(new TargetDaoRetrieveAllEntitiesRequest());
     Map<String, ProvisioningEntity> idToEntity = new HashMap<String, ProvisioningEntity>();
     for (ProvisioningEntity provisioningEntity : targetDaoRetrieveAllEntitiesResponse.getTargetEntities()) {
-      idToEntity.put(provisioningEntity.getId(), provisioningEntity);
+      idToEntity.put(provisioningEntity.retrieveAttributeValueString("entity_uuid"), provisioningEntity);
     }
     assertEquals(3, idToEntity.size());
     ProvisioningEntity provisioningEntity1retrieved = idToEntity.get("subject0uuid");
-    assertEquals(provisioningEntity1retrieved.toString(), "subject0uuid", provisioningEntity1retrieved.getId());
+    assertEquals(provisioningEntity1retrieved.toString(), "subject0uuid", provisioningEntity1retrieved.retrieveAttributeValueString("entity_uuid"));
     assertEquals("subject0", provisioningEntity1retrieved.retrieveAttributeValueString("dn"));
     assertEquals("10021368", provisioningEntity1retrieved.retrieveAttributeValueString("employeeId"));
     ProvisioningEntity provisioningEntity2retrieved = idToEntity.get("subject1uuid");
@@ -3247,7 +2415,7 @@ public class SqlProvisionerTest extends GrouperTest {
   }
 
   public Set<MultiKey> selectGroupLikeLdapAttributeRecords() {
-    String sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    String sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
     
     List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
     
@@ -3293,14 +2461,18 @@ public class SqlProvisionerTest extends GrouperTest {
 
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "40", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "40", false, true);
         
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_attribute_name", Types.VARCHAR, "200", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_attribute_name", Types.VARCHAR, "200", false, true);
         
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_attribute_value", Types.VARCHAR, "200", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.TIMESTAMP, "200", false, false);
         
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, "testgrouper_pro_ldap_en_idx0", null, false, "entity_uuid", "attribute_name");
+
+          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "testgrouper_pro_ldap_en_fk", "testgrouper_prov_ldap_entity", "entity_uuid", "entity_uuid");
+
         }
         
       });
@@ -3316,10 +2488,6 @@ public class SqlProvisionerTest extends GrouperTest {
     long started = System.currentTimeMillis();
     
     configureLdapPaTestCase();
-
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
 
         
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
@@ -3337,8 +2505,8 @@ public class SqlProvisionerTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision("pspng_oneprod");
-    attributeValue.setTargetName("pspng_oneprod");
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
@@ -3348,9 +2516,9 @@ public class SqlProvisionerTest extends GrouperTest {
       String uuid = GrouperUuid.getUuid();
       String dn = "dn_test.subject." + i;
       new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar(uuid).executeSql();
-      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
-      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
     }
     
@@ -3359,9 +2527,13 @@ public class SqlProvisionerTest extends GrouperTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    
+    // make sure some time has passed
+    GrouperUtil.sleep(1000);
+    
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     String sql = "select uuid from testgrouper_prov_ldap_group";
@@ -3377,7 +2549,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertEquals(1, groupNamesInTable.size());
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
 
-    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
     
     dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
     
@@ -3416,12 +2588,12 @@ public class SqlProvisionerTest extends GrouperTest {
     assertEquals("member", provisioningObjectChanges.get(1).getAttributeName());
 
     //get the grouper_sync and check cols
-    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "pspng_oneprod");
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "sqlProvTest");
     assertEquals(1, gcGrouperSync.getGroupCount().intValue());
     assertEquals(2, gcGrouperSync.getUserCount().intValue());
     assertEquals(1+2+2, gcGrouperSync.getRecordsCount().intValue());
     assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
-    assertTrue(System.currentTimeMillis() >  gcGrouperSync.getLastFullSyncRun().getTime());
+    assertTrue(new Timestamp(System.currentTimeMillis()) + " > " + new Timestamp(gcGrouperSync.getLastFullSyncRun().getTime()), System.currentTimeMillis() >  gcGrouperSync.getLastFullSyncRun().getTime());
     assertTrue(started < gcGrouperSync.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() > gcGrouperSync.getLastUpdated().getTime());
     
@@ -3507,122 +2679,23 @@ public class SqlProvisionerTest extends GrouperTest {
   }
 
   public void configureLdapPaTestCase() {
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.class", SqlProvisioner.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.dbExternalSystemConfigId", "grouper");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.subjectSourcesToProvision", "jdbc");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.logAllObjectsVerbose", "true");
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignGroupDeleteType("deleteGroupsDeletedGrouper")
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignEntityAttributesTable(true)
+        .assignGroupAttributesTable(true)
+        .assignGroupTableName("testgrouper_prov_ldap_group")
+        .assignGroupTableIdColumn("uuid")
+        .assignEntityTableName("testgrouper_prov_ldap_entity")
+        .assignEntityTableIdColumn("entity_uuid")
+        .assignHasTargetEntityLink(true)
+        .assignEntityAttributeCount(3)
+        .assignGroupAttributeCount(6)
+        .assignProvisioningType("groupAttributes")
+        );
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.provisionerName", "One prod LDAP flat");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.sqlProvisioningType", "sqlLikeLdapGroupMemberships");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.provisioningType", "groupAttributes");
-
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchBaseDn", "OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchBaseDn", "DC=one,DC=upenn,DC=edu");
-
-    //TODO make an attribute config for this
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.hasTargetEntityLink", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.common.entityLink.memberToId2", "${targetEntity.retrieveAttributeValue('dn')}");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.common.groupLink.groupToId2", "${targetGroup.retrieveAttributeValue('dn')}");
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.numberOfGroupAttributes", "6");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.name", "cn");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.isFieldElseAttribute", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.valueType", "string");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.multiValued", "false");
-    //TODO do simple scripts without scripts perhaps (strip whitespace, check to see if it matches, and replace with enum)
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.0.translateExpressionCreateOnly", "${grouperProvisioningGroup.getName()}");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.name", "dn");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.isFieldElseAttribute", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.valueType", "string");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.multiValued", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.translateExpression", "${gcGrouperSyncGroup.getGroupToId2()}");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.1.translateExpressionCreateOnly", "${'cn=' + grouperProvisioningGroup.getName() + ',OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu'}");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.name", "gidNumber");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.isFieldElseAttribute", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.valueType", "long");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.matchingId", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.multiValued", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.2.translateFromGroupSyncField", "groupIdIndex");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.name", "objectClass");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.isFieldElseAttribute", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.valueType", "string");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.multiValued", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.3.translateExpressionCreateOnly", "${grouperUtil.toSet('group')}");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.name", "member");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.valueType", "string");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.update", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.delete", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.membershipAttribute", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.multiValued", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.4.translateFromMemberSyncField", "memberToId2");
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.name", "id");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.isFieldElseAttribute", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.valueType", "string");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.update", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttribute.5.translateExpression", "${grouperProvisioningGroup.getName()}");
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttributeCount", "2");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.name", "dn");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.valueType", "string");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.0.translateFromMemberSyncField", "memberToId2");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.name", "employeeID");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.valueType", "string");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.matchingId", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetEntityAttribute.1.translateFromMemberSyncField", "subjectId");
-    
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchAllFilter", "objectclass=group");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchAllFilter", "employeeID=*");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchFilter", "employeeID=${targetEntity.retrieveAttributeValue('employeeID')}");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchFilter", "(&(objectclass=group) (gidNumber=${grouperProvisioningGroup.retrieveAttributeValue('gidNumber')}))");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchFilter", "gidNumber=${targetGroup.retrieveAttributeValue('gidNumber')}");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.userSearchAttributes", "dn,employeeID");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupSearchAttributes", "dn,gidNumber");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.createEntities", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.deleteEntities", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.createGroups", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.deleteGroupsNotInGrouper", "true");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.deleteGroupsDeletedGrouper", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.targetGroupAttributeNameForMemberships", "member");
-    
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupTableName", "testgrouper_prov_ldap_group");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupAttributeNames", "uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupAttributeTableName", "testgrouper_prov_ldap_group_attr");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupTableIdColumn", "uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupAttributeTableAttributeNameIsGroupMatchingId", "gidNumber");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupAttributeTableForeignKeyToGroup", "group_uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupAttributeTableAttributeNameColumn", "attribute_name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.groupAttributeTableAttributeValueColumn", "attribute_value");
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityTableName", "testgrouper_prov_ldap_entity");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityAttributeNames", "entity_uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityAttributeTableName", "testgrouper_prov_ldap_entity_attr");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityTableIdColumn", "entity_uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityAttributeTableAttributeNameIsEntityMatchingId", "employeeID");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityAttributeTableForeignKeyToEntity", "entity_uuid");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityAttributeTableAttributeNameColumn", "entity_attribute_name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.pspng_oneprod.entityAttributeTableAttributeValueColumn", "entity_attribute_value");
   }
+  
 
   /**
    * just do a simple full sync of groups and memberships
@@ -3632,17 +2705,6 @@ public class SqlProvisionerTest extends GrouperTest {
     long started = System.currentTimeMillis();
 
     configureLdapPaTestCase();
-
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.class", "edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.publisher.class", "edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.quartzCron", "0 * * * * ?");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerConfigId", "pspng_oneprod");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerJobSyncType", "incrementalProvisionChangeLog");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.publisher.debug", "true");
-    
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
 
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
@@ -3667,10 +2729,10 @@ public class SqlProvisionerTest extends GrouperTest {
     testGroup4.addMember(SubjectTestHelper.SUBJ6, false);
     testGroup4.addMember(SubjectTestHelper.SUBJ7, false);
 
-    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision("pspng_oneprod");
-    attributeValue.setTargetName("pspng_oneprod");
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
@@ -3680,9 +2742,9 @@ public class SqlProvisionerTest extends GrouperTest {
       String uuid = GrouperUuid.getUuid();
       String dn = "dn_test.subject." + i;
       new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar(uuid).executeSql();
-      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
-      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
     }
     
@@ -3691,7 +2753,7 @@ public class SqlProvisionerTest extends GrouperTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -3709,7 +2771,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertEquals(1, groupNamesInTable.size());
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
 
-    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
     
     dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
     
@@ -3730,36 +2792,30 @@ public class SqlProvisionerTest extends GrouperTest {
     
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
-        EsbConsumer.class.getName());
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.class", 
-        ProvisioningConsumer.class.getName());
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".publisher.class").value(ProvisioningConsumer.class.getName()).store();
     
     //something that will never fire
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
-        "0 0 5 * * 2000");
-
-    // we dont need an EL filter
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
-//        "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerConfigId", "pspng_oneprod");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
-        GrouperProvisioningType.incrementalProvisionChangeLog.name());
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.debug", "true");
-
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".quartzCron").value("0 0 5 * * 2000").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".provisionerConfigId").value("sqlProvTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType").value(GrouperProvisioningType.incrementalProvisionChangeLog.name()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".publisher.debug").value("true").store();
+    
     //clear out changelog
     // run the provisioner, it will init
     hib3GrouperLoaderLog = runJobs(true, true);
     
     // add 4
+    attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem4);
   
-    // remove 3
+    // remove 3:  note, its not on 3 so im not sure what this is doing
     stem3.getAttributeDelegate().removeAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker());
+ 
     GrouperProvisioningJob.runDaemonStandalone();
     // add member, remove member
     testGroup.addMember(SubjectTestHelper.SUBJ8, false);
@@ -3772,8 +2828,10 @@ public class SqlProvisionerTest extends GrouperTest {
     hib3GrouperLoaderLog = runJobs(true, true);
 
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    //TODO add in all counts and look in target and make sure right
     // this includes fields and attributes etc
-    assertEquals(5, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
+    assertEquals(1, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
 
 
   }
@@ -3786,17 +2844,6 @@ public class SqlProvisionerTest extends GrouperTest {
     long started = System.currentTimeMillis();
 
     configureLdapPaTestCase();
-
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.class", "edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.publisher.class", "edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.quartzCron", "0 * * * * ?");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerConfigId", "pspng_oneprod");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.provisionerJobSyncType", "incrementalProvisionChangeLog");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.TEST_SQL_LDAP.publisher.debug", "true");
-    
-    // # if provisioning in ui should be enabled
-    //# {valueType: "boolean", required: true}
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
 
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
@@ -3823,8 +2870,8 @@ public class SqlProvisionerTest extends GrouperTest {
 
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision("pspng_oneprod");
-    attributeValue.setTargetName("pspng_oneprod");
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
@@ -3834,9 +2881,9 @@ public class SqlProvisionerTest extends GrouperTest {
       String uuid = GrouperUuid.getUuid();
       String dn = "dn_test.subject." + i;
       new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar(uuid).executeSql();
-      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
-      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+      new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
     }
     
@@ -3845,9 +2892,10 @@ public class SqlProvisionerTest extends GrouperTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("pspng_oneprod");
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
     
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    GrouperUtil.sleep(500);
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     assertLdapGroupNamesInTable(GrouperUtil.toSet("test:testGroup"));
@@ -3860,7 +2908,7 @@ public class SqlProvisionerTest extends GrouperTest {
         new MultiKey("test:testGroup", "member", "dn_test.subject.0"),
         new MultiKey("test:testGroup", "member", "dn_test.subject.1")));
     
-    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "pspng_oneprod");
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "sqlProvTest");
 
     GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
     assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
@@ -3877,27 +2925,6 @@ public class SqlProvisionerTest extends GrouperTest {
     
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".class", 
-        EsbConsumer.class.getName());
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.class", 
-        ProvisioningConsumer.class.getName());
-    
-    //something that will never fire
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
-        "0 0 5 * * 2000");
-
-    // we dont need an EL filter
-    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
-    //        "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerConfigId", "pspng_oneprod");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType", 
-        GrouperProvisioningType.incrementalProvisionChangeLog.name());
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".publisher.debug", "true");
-
     //clear out changelog
     // run the provisioner, it will init
     hib3GrouperLoaderLog = runJobs(true, true);
@@ -3917,7 +2944,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
     
-    assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
     
     assertFalse((Boolean)grouperProvisioner.getDebugMap().get("hasIncrementalDataToProcess"));
     
@@ -3978,7 +3005,7 @@ public class SqlProvisionerTest extends GrouperTest {
   }
 
   private void assertLdapAttributesInTable(Set<MultiKey> set) {
-    String sql = "select group_uuid, attribute_name, attribute_value from testgrouper_prov_ldap_group_attr";
+    String sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
     
     List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
     
@@ -4021,217 +3048,28 @@ public class SqlProvisionerTest extends GrouperTest {
   }
 
   private void setupFailsafeJob() {
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.class").value("edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.dbExternalSystemConfigId").value("grouper").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetEntityLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.hasTargetGroupLink").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteEntitiesIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteGroupsIfNotExistInGrouper").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.deleteMembershipsIfNotExistInGrouper").value("true").store();
-  
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesAttributeNameColumn").value("entity_attribute_name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesAttributeValueColumn").value("entity_attribute_value").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesEntityForeignKeyColumn").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesLastModifiedColumn").value("last_modified").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesLastModifiedColumnType").value("timestamp").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.entityAttributesTableName").value("testgrouper_pro_dap_entity_attr").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesAttributeNameColumn").value("attribute_name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesAttributeValueColumn").value("attribute_value").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesGroupForeignKeyColumn").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesLastModifiedColumn").value("last_modified").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesLastModifiedColumnType").value("timestamp").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupAttributesTableName").value("testgrouper_pro_ldap_group_attr").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.groupTableName").value("testgrouper_prov_group").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.insertMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipEntityForeignKeyColumn").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipGroupForeignKeyColumn").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipTableName").value("testgrouper_prov_mship2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.membershipPrimaryKey").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfEntityAttributes").value("5").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfGroupAttributes").value("4").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.numberOfMembershipAttributes").value("3").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.operateOnGrouperMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.provisioningType").value("membershipObjects").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectAllEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.selectMemberships").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showAdvanced").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showProvisioningDiagnostics").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.subjectSourcesToProvision").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.tableStructures").value("defaultTableStructure").store();
-    
-    
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateGrouperToMemberSyncField").value("memberFromId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.storageType").value("entityTableColumn").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.0.translateExpressionType").value("translationScript").store();
-    
-    
-    
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.storageType").value("entityTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.name").value("subject_id_or_identifier").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.storageType").value("entityTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.translateFromGrouperProvisioningEntityField").value("subjectId").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.2.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.name").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.storageType").value("entityTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.translateFromGrouperProvisioningEntityField").value("email").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.3.update").value("true").store();
-    
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.name").value("description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.storageType").value("separateAttributesTable").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.translateExpressionType").value("grouperProvisioningEntityField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.translateFromGrouperProvisioningEntityField").value("attribute__description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetEntityAttribute.4.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.storageType").value("groupTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateGrouperToGroupSyncField").value("groupFromId2").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.matchingId").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.name").value("posix_id").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.storageType").value("groupTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField").value("idIndex").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.update").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.1.valueType").value("long").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.name").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.searchAttribute").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.storageType").value("groupTableColumn").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField").value("name").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.2.update").value("true").store();
-  
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.name").value("description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.storageType").value("separateAttributesTable").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.translateExpressionType").value("grouperProvisioningGroupField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.translateFromGrouperProvisioningGroupField").value("attribute__description").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetGroupAttribute.3.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.name").value("uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.translateExpression").value("${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.0.translateExpressionType").value("translationScript").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.name").value("group_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.translateExpressionType").value("groupSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.translateFromGroupSyncField").value("groupFromId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.1.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.10.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.11.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.12.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.13.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.14.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.15.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.16.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.17.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.18.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.19.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.name").value("entity_uuid").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.translateExpressionType").value("memberSyncField").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.translateFromMemberSyncField").value("memberFromId2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.insert").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.select").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.2.update").value("true").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.3.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.4.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.5.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.6.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.7.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.8.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.targetMembershipAttribute.9.isFieldElseAttribute").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.updateEntities").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.updateGroups").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.userPrimaryKey").value("uuid").store();
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.useSeparateTableForGroupAttributes").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.useSeparateTableForEntityAttributes").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.userTableName").value("testgrouper_prov_entity").store();
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.showFailsafe").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeUse").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeSendEmail").value("false").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinGroupSize").value("-1").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxPercentRemove").value("-1").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinManagedGroups").value("-1").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxOverallPercentGroupsRemove").value("-1").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxOverallPercentMembershipsRemove").value("-1").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinOverallNumberOfMembers").value("-1").store();
-
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.class").value("edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.quartzCron").value("0 0 4 * * ?").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.provisionerConfigId").value("mySqlProvisioner1").store();
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignEntityAttributesTable(true)
+        .assignGroupAttributesTable(true)
+        .assignGroupTableName("testgrouper_prov_group")
+        .assignGroupTableIdColumn("uuid")
+        .assignEntityTableName("testgrouper_prov_entity")
+        .assignEntityTableIdColumn("uuid")
+        .assignMembershipTableName("testgrouper_prov_mship2")
+        .assignMembershipTableIdColumn("uuid")
+        .assignMembershipGroupForeignKeyColumn("group_uuid")
+        .assignMembershipEntityForeignKeyColumn("entity_uuid")
+        .assignHasTargetEntityLink(true)
+        .assignHasTargetGroupLink(true)
+        .assignEntityAttributeCount(5)
+        .assignGroupAttributeCount(4)
+        .assignMembershipAttributeCount(3)
+        );
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.class").value("edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.quartzCron").value("0 * * * * ?").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.provisionerConfigId").value("mySqlProvisioner1").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.publisher.class").value("edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer").store();
-
     // this closes the grouper session
     GrouperLoader.scheduleJobs();     
     this.grouperSession = GrouperSession.startRootSession();
@@ -4257,8 +3095,8 @@ public class SqlProvisionerTest extends GrouperTest {
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision("mySqlProvisioner1");
-    attributeValue.setTargetName("mySqlProvisioner1");
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
   
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
@@ -4289,7 +3127,7 @@ public class SqlProvisionerTest extends GrouperTest {
     List<Object[]> memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
     assertEquals(100, memberships.size());
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinOverallNumberOfMembers").value("85").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMinOverallNumberOfMembers").value("85").store();
     
     for (int i=0;i<5;i++) {
       failsafeGroups.get(i).delete();
@@ -4341,12 +3179,67 @@ public class SqlProvisionerTest extends GrouperTest {
 
   }
 
+  public void testSimpleGroupMembershipProvisioningFullWithAttributesTableRequiredMembers() {
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignGroupTableName("testgrouper_prov_group")
+        .assignGroupTableIdColumn("uuid")
+        .assignGroupAttributeCount(1)
+        .addExtraConfig("groupsRequireMembers", "true")
+        );
+
+    // this closes the grouper session
+    GrouperLoader.scheduleJobs();     
+    this.grouperSession = GrouperSession.startRootSession();
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+
+    // mark some folders to provision
+    for (int i=0;i<10;i++) {
+      failsafeGroups.add(new GroupSave(this.grouperSession).assignName("test:testGroup" + i).assignDescription("testDescription" + i).save());
+      
+      failsafeGroups.get(i).addMember(SubjectTestHelper.SUBJ0, false);
+
+    }
+
+    // group with no members
+    failsafeGroups.add(new GroupSave(this.grouperSession).assignName("test:testGroup" + 10).assignDescription("testDescription" + 10).save());
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    //lets sync these over
+    String jobName = "OTHER_JOB_sqlProvisionerFull";
+    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    
+    List<Object[]> groups = new GcDbAccess().sql("select uuid from testgrouper_prov_group order by name").selectList(Object[].class);
+    assertEquals(10, groups.size());
+    
+    for (int i=0;i<5;i++) {
+      failsafeGroups.get(i).deleteMember(SubjectTestHelper.SUBJ0, true);
+    }
+    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog(jobName);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    groups = new GcDbAccess().sql("select uuid from testgrouper_prov_group order by name").selectList(Object[].class);
+    assertEquals(5, groups.size());
+    
+  }
+
   public void testSimpleGroupMembershipProvisioningFullWithAttributesTableFailsafeMinGroupSize() {
     
     setupFailsafeJob();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinGroupSize").value("8").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxPercentRemove").value("20").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMinGroupSize").value("8").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxPercentRemove").value("20").store();
     
     //lets sync these over
     String jobName = "OTHER_JOB_sqlProvisionerFull";
@@ -4394,7 +3287,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertFalse(GrouperFailsafe.isApproved(jobName));
     GrouperFailsafe.removeFailure(jobName);
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinGroupSize").value("15").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMinGroupSize").value("15").store();
 
     GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
 
@@ -4435,7 +3328,7 @@ public class SqlProvisionerTest extends GrouperTest {
     List<Object[]> memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
     assertEquals(100, memberships.size());
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinOverallNumberOfMembers").value("85").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMinOverallNumberOfMembers").value("85").store();
     
     for (int i=0;i<5;i++) {
       failsafeGroups.get(i).delete();
@@ -4463,7 +3356,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperUtil.sleep(1000);
     
     assertFalse(GrouperFailsafe.isApproved(jobName));
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinOverallNumberOfMembers").value("45").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMinOverallNumberOfMembers").value("45").store();
   
     GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
   
@@ -4505,8 +3398,8 @@ public class SqlProvisionerTest extends GrouperTest {
     List<Object[]> memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
     assertEquals(100, memberships.size());
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxOverallPercentGroupsRemove").value("25").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinManagedGroups").value("8").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentGroupsRemove").value("25").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMinManagedGroups").value("8").store();
     
     for (int i=0;i<5;i++) {
       failsafeGroups.get(i).delete();
@@ -4534,7 +3427,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperUtil.sleep(1000);
     
     assertFalse(GrouperFailsafe.isApproved(jobName));
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMinManagedGroups").value("12").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMinManagedGroups").value("12").store();
   
     GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
   
@@ -4576,7 +3469,7 @@ public class SqlProvisionerTest extends GrouperTest {
     List<Object[]> memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
     assertEquals(100, memberships.size());
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxOverallPercentMembershipsRemove").value("25").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentMembershipsRemove").value("25").store();
     
     for (int i=0;i<5;i++) {
       failsafeGroups.get(i).delete();
@@ -4604,7 +3497,7 @@ public class SqlProvisionerTest extends GrouperTest {
     GrouperUtil.sleep(1000);
     
     assertFalse(GrouperFailsafe.isApproved(jobName));
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.mySqlProvisioner1.failsafeMaxOverallPercentMembershipsRemove").value("60").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentMembershipsRemove").value("60").store();
   
     GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
   
@@ -4624,6 +3517,287 @@ public class SqlProvisionerTest extends GrouperTest {
     
     memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
     assertEquals(50, memberships.size());
+  
+  }
+
+  /**
+   * just do a simple full sync of groups and memberships
+   */
+  public void testSimpleGroupLdapPaMatchingIdMissingValidation() {
+    
+    long started = System.currentTimeMillis();
+    
+    configureLdapPaTestCase();
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetGroupAttribute.2.translateExpressionType").value("translationScript").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetGroupAttribute.2.translateExpression")
+      .value("${grouperProvisioningGroup.name == 'test:testGroup' ? null : grouperProvisioningGroup.idIndex}").store();
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetEntityAttribute.1.translateExpressionType").value("translationScript").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.targetEntityAttribute.1.translateExpression")
+    .value("${grouperProvisioningEntity.subjectId == 'test.subject.4' ? null : grouperProvisioningEntity.subjectId}").store();
+
+    //lets sync these over
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+
+    runJobs(true, true);
+
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ4, false);
+    
+    Member member0 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ0, true);
+    Member member1 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ2, true);
+    Member member3 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ3, true);
+    Member member4 = MemberFinder.findBySubject(this.grouperSession, SubjectTestHelper.SUBJ4, true);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+    // add some entities
+    for (int i=0;i<10;i++) {
+      String uuid = GrouperUuid.getUuid();
+      String dn = "dn_test.subject." + i;
+      new GcDbAccess().sql("insert into testgrouper_prov_ldap_entity (entity_uuid) values (?)").addBindVar(uuid).executeSql();
+      new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+        .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
+      new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
+        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+    }
+    
+    
+    //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
+    //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
+    
+    //lets sync these over
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    
+    grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    
+    // make sure some time has passed
+    GrouperUtil.sleep(1000);
+    
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+  
+    String sql = "select uuid from testgrouper_prov_ldap_group";
+    
+    List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    Set<MultiKey> groupNamesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      groupNamesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(1, groupNamesInTable.size());
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup2"})));
+  
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr";
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    Set<MultiKey> attributesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      attributesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(6, attributesInTable.size());
+    
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup2", "cn", "test:testGroup2")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup2", "dn", "cn=test:testGroup2,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup2", "gidNumber", "" + testGroup2.getIdIndex())));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup2", "objectClass", "group")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup2", "member", "dn_test.subject.2")));
+    assertTrue(attributesInTable.contains(new MultiKey("test:testGroup2", "member", "dn_test.subject.3")));
+    //object changes
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningGroups()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningEntities()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningMemberships()));
+    assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningGroups()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningEntities()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningMemberships()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningGroups()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningEntities()));
+    assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningMemberships()));
+    
+    // field changes
+    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningGroups().iterator().next().getInternal_objectChanges()));
+    List<ProvisioningObjectChange> provisioningObjectChanges = new ArrayList<ProvisioningObjectChange>(
+        grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningGroups().iterator().next().getInternal_objectChanges());
+    assertEquals(ProvisioningObjectChangeAction.insert, provisioningObjectChanges.get(0).getProvisioningObjectChangeAction());
+    assertEquals(ProvisioningObjectChangeAction.insert, provisioningObjectChanges.get(1).getProvisioningObjectChangeAction());
+    assertEquals("member", provisioningObjectChanges.get(0).getAttributeName());
+    assertEquals("member", provisioningObjectChanges.get(1).getAttributeName());
+  
+    //get the grouper_sync and check cols
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "sqlProvTest");
+    assertEquals(2, gcGrouperSync.getGroupCount().intValue());
+    
+    // 2 valid, 1 invalid, 2 in invalid group
+    assertEquals(5, gcGrouperSync.getUserCount().intValue());
+    assertEquals(2+5+5, gcGrouperSync.getRecordsCount().intValue());
+    assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
+    assertTrue(new Timestamp(System.currentTimeMillis()) + " > " + new Timestamp(gcGrouperSync.getLastFullSyncRun().getTime()), System.currentTimeMillis() >  gcGrouperSync.getLastFullSyncRun().getTime());
+    assertTrue(started < gcGrouperSync.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSync.getLastUpdated().getTime());
+    
+    GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType("fullProvisionFull");
+    assertEquals(100, gcGrouperSyncJob.getPercentComplete().intValue());
+    assertEquals(GcGrouperSyncJobState.notRunning, gcGrouperSyncJob.getJobState());
+    assertTrue(started < gcGrouperSyncJob.getLastSyncTimestamp().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncJob.getLastSyncTimestamp().getTime());
+    assertTrue(started < gcGrouperSyncJob.getLastTimeWorkWasDone().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncJob.getLastTimeWorkWasDone().getTime());
+    assertTrue(started < gcGrouperSyncJob.getHeartbeat().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncJob.getHeartbeat().getTime());
+    assertTrue(started < gcGrouperSyncJob.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncJob.getLastUpdated().getTime());
+    assertNull(gcGrouperSyncJob.getErrorMessage());
+    assertNull(gcGrouperSyncJob.getErrorTimestamp());
+    
+    {
+      GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
+      assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
+      assertEquals(testGroup.getIdIndex(), gcGrouperSyncGroup.getGroupIdIndex());
+      assertEquals("T", gcGrouperSyncGroup.getProvisionableDb());
+      assertFalse("T".equals(gcGrouperSyncGroup.getInTargetDb()));
+      assertFalse("T".equals(gcGrouperSyncGroup.getInTargetInsertOrExistsDb()));
+      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncGroup.getErrorCode());
+    }
+    
+    {
+      GcGrouperSyncGroup gcGrouperSyncGroup2 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId());
+      assertEquals(testGroup2.getId(), gcGrouperSyncGroup2.getGroupId());
+      assertEquals(testGroup2.getName(), gcGrouperSyncGroup2.getGroupName());
+      assertEquals(testGroup2.getIdIndex(), gcGrouperSyncGroup2.getGroupIdIndex());
+      assertEquals("T", gcGrouperSyncGroup2.getProvisionableDb());
+      assertTrue("T".equals(gcGrouperSyncGroup2.getInTargetDb()));
+      assertTrue("T".equals(gcGrouperSyncGroup2.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncGroup2.getErrorCode());
+    }
+    
+    {
+      GcGrouperSyncMember gcGrouperSyncMember0 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId());
+      assertEquals(member0.getSubjectId(), gcGrouperSyncMember0.getSubjectId());
+      assertEquals(member0.getSubjectSourceId(), gcGrouperSyncMember0.getSourceId());
+      assertEquals("T", gcGrouperSyncMember0.getProvisionableDb());
+      assertTrue("T".equals(gcGrouperSyncMember0.getInTargetDb()));
+      assertTrue("F".equals(gcGrouperSyncMember0.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMember0.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMember gcGrouperSyncMember1 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId());
+      assertEquals(member1.getSubjectId(), gcGrouperSyncMember1.getSubjectId());
+      assertEquals(member1.getSubjectSourceId(), gcGrouperSyncMember1.getSourceId());
+      assertEquals("T", gcGrouperSyncMember1.getProvisionableDb());
+      assertTrue("T".equals(gcGrouperSyncMember1.getInTargetDb()));
+      assertTrue("F".equals(gcGrouperSyncMember1.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMember1.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMember gcGrouperSyncMember2 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId());
+      assertEquals(member2.getSubjectId(), gcGrouperSyncMember2.getSubjectId());
+      assertEquals(member2.getSubjectSourceId(), gcGrouperSyncMember2.getSourceId());
+      assertEquals("T", gcGrouperSyncMember2.getProvisionableDb());
+      assertTrue("T".equals(gcGrouperSyncMember2.getInTargetDb()));
+      assertTrue("F".equals(gcGrouperSyncMember2.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMember2.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMember gcGrouperSyncMember3 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId());
+      assertEquals(member3.getSubjectId(), gcGrouperSyncMember3.getSubjectId());
+      assertEquals(member3.getSubjectSourceId(), gcGrouperSyncMember3.getSourceId());
+      assertEquals("T", gcGrouperSyncMember3.getProvisionableDb());
+      assertTrue("T".equals(gcGrouperSyncMember3.getInTargetDb()));
+      assertTrue("F".equals(gcGrouperSyncMember3.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMember3.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMember gcGrouperSyncMember4 = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member4.getId());
+      assertEquals(member4.getSubjectId(), gcGrouperSyncMember4.getSubjectId());
+      assertEquals(member4.getSubjectSourceId(), gcGrouperSyncMember4.getSourceId());
+      assertEquals("T", gcGrouperSyncMember4.getProvisionableDb());
+      assertFalse("T".equals(gcGrouperSyncMember4.getInTargetDb()));
+      assertFalse("F".equals(gcGrouperSyncMember4.getInTargetInsertOrExistsDb()));
+      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMember4.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMembership gcGrouperSyncMembership0 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member0.getId());
+      assertFalse("T".equals(gcGrouperSyncMembership0.getInTargetDb()));
+      assertFalse("T".equals(gcGrouperSyncMembership0.getInTargetInsertOrExistsDb()));
+      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMembership0.getErrorCode());
+    }  
+    {
+      GcGrouperSyncMembership gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member1.getId());
+      assertFalse("T".equals(gcGrouperSyncMembership1.getInTargetDb()));
+      assertFalse("T".equals(gcGrouperSyncMembership1.getInTargetInsertOrExistsDb()));
+      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMembership1.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMembership gcGrouperSyncMembership2 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member2.getId());
+      assertTrue("T".equals(gcGrouperSyncMembership2.getInTargetDb()));
+      assertTrue("T".equals(gcGrouperSyncMembership2.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMembership2.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMembership gcGrouperSyncMembership3 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member3.getId());
+      assertTrue("T".equals(gcGrouperSyncMembership3.getInTargetDb()));
+      assertTrue("T".equals(gcGrouperSyncMembership3.getInTargetInsertOrExistsDb()));
+      assertNull(gcGrouperSyncMembership3.getErrorCode());
+    }  
+    
+    {
+      GcGrouperSyncMembership gcGrouperSyncMembership4 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member4.getId());
+      assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetDb()));
+      assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetInsertOrExistsDb()));
+      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMembership4.getErrorCode());
+    }  
+
+    // this should not retry
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = runJobs(true, true);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("addErrorsToQueue"), 0));
+    assertTrue(GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("skippedEventsDueToFullSync"), 0) > 0);
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
+    
+    
+    hib3GrouperLoaderLog = runJobs(true, true);
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("addErrorsToQueue"), 0));
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("skippedEventsDueToFullSync"), 0));
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
+    
   
   }
 

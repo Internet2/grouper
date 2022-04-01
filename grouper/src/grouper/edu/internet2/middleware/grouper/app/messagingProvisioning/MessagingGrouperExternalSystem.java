@@ -30,8 +30,11 @@ public class MessagingGrouperExternalSystem implements OptionValueDriver {
     
     for (GrouperExternalSystem externalMessagingSystem: externalMessagingSystems) {
       
-      String configId = externalMessagingSystem.getConfigId();
-      keysAndLabels.add(new MultiKey(configId, configId));
+      if (externalMessagingSystem.isEnabled()) {
+        String configId = externalMessagingSystem.getConfigId();
+        keysAndLabels.add(new MultiKey(configId, configId));
+      }
+      
     }
     
     Collections.sort(keysAndLabels, new Comparator<MultiKey>() {

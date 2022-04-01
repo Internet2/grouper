@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
@@ -118,6 +119,7 @@ import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.PerformanceLogger;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
@@ -127,6 +129,16 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  *
  */
 public class UiV2Stem {
+
+  /**
+   * use this for performance log label
+   */
+  public static final String PERFORMANCE_LOG_LABEL_STEM_UI_VIEW = "StemUiView";
+
+  /**
+   * use this for performance log label
+   */
+  public static final String PERFORMANCE_LOG_LABEL_STEM_MORE_ACTIONS = "StemUiMoreActions";
 
   /** logger */
   protected static final Log LOG = LogFactory.getLog(UiV2Stem.class);
@@ -530,11 +542,11 @@ public class UiV2Stem {
       
       try {
 
-        stem.setExtension(extension, false);
-        stem.setDisplayExtension(displayExtension);
-        
         //get the new folder that was created
-        newStem = new StemCopy(stem, parentFolder).copyAttributes(copyGroupAttributes)
+        newStem = new StemCopy(stem, parentFolder)
+            .assignStemExtension(extension)
+            .assignStemDisplayExtension(displayExtension)
+            .copyAttributes(copyGroupAttributes)
             .copyListGroupAsMember(copyListMembershipsInOtherGroups)
             .copyListMembersOfGroup(copyListMemberships)
             .copyPrivilegesOfGroup(copyGroupPrivileges)
@@ -887,6 +899,8 @@ public class UiV2Stem {
     
     GrouperPagingTag2.processRequest(request, guiPaging, queryOptions); 
     
+    PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "pre_browseObjectFilter");
+    
     GrouperObjectFinder grouperObjectFinder = new GrouperObjectFinder()
       .assignObjectPrivilege(ObjectPrivilege.view)
       .assignParentStemId(stem.getId())
@@ -904,8 +918,12 @@ public class UiV2Stem {
     
     guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
     
+    PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "pre_stemContents.jsp");
+
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemFilterResultsId", 
         "/WEB-INF/grouperUi2/stem/stemContents.jsp"));
+
+    PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "post_stemContents.jsp");
 
   }
   
@@ -926,6 +944,8 @@ public class UiV2Stem {
 
       grouperSession = GrouperSession.start(loggedInSubject);
 
+      PerformanceLogger.performanceTimingStart(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, false);
+
       stem = retrieveStemHelper(request, false).getStem();
       
       if (stem == null) {
@@ -934,19 +954,32 @@ public class UiV2Stem {
       
       UiV2Attestation.setupAttestation(stem);  
 
+      PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "setupAttestation");
+
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
+      PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "pre_viewStem.jsp");
+
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/viewStem.jsp"));
+
+      PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "post_viewStem.jsp");
 
       if (GrouperUiUtils.isMenuRefreshOnView()) {
         guiResponseJs.addAction(GuiScreenAction.newScript("openFolderTreePathToObject(" + GrouperUiUtils.pathArrayToCurrentObject(grouperSession, stem) + ")"));
       }
 
+      PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "preFilterHelper");
+
       //if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
         filterHelper(request, response, stem);
       //}
+        PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "postFilterHelper");
     } finally {
+      if (PerformanceLogger.performanceTimingEnabled(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW)) {
+        PerformanceLogger.performanceLog().info(PerformanceLogger.performanceTimingDataResult(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW));
+      }
+
       GrouperSession.stopQuietly(grouperSession);
     }
   }
@@ -1038,71 +1071,77 @@ public class UiV2Stem {
     String stemName = request.getParameter("stemName");
     
     boolean addedError = false;
-    
-    if (!StringUtils.isBlank(stemId)) {
-      if (StringUtils.equals("root", stemId)) {
-        stem = StemFinder.findRootStem(grouperSession);
+    try {
+      if (!StringUtils.isBlank(stemId)) {
+        if (StringUtils.equals("root", stemId)) {
+          stem = StemFinder.findRootStem(grouperSession);
+        } else {
+          stem = StemFinder.findByUuid(grouperSession, stemId, false);
+        }
+      } else if (!StringUtils.isBlank(stemName)) {
+        stem = StemFinder.findByName(grouperSession, stemName, false);
+      } else if (!StringUtils.isBlank(stemIndex)) {
+        long idIndex = GrouperUtil.longValue(stemIndex);
+        stem = StemFinder.findByIdIndex(idIndex, false, null);
       } else {
-        stem = StemFinder.findByUuid(grouperSession, stemId, false);
-      }
-    } else if (!StringUtils.isBlank(stemName)) {
-      stem = StemFinder.findByName(grouperSession, stemName, false);
-    } else if (!StringUtils.isBlank(stemIndex)) {
-      long idIndex = GrouperUtil.longValue(stemIndex);
-      stem = StemFinder.findByIdIndex(idIndex, false, null);
-    } else {
-      
-      if (!requireStem) {
-        return result;
-      }
-      
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-          TextContainer.retrieveFromRequest().getText().get("stemCantFindStemId")));
-      addedError = true;
-    }
-
-    if (stem != null) {
-      grouperRequestContainer.getStemContainer().setGuiStem(new GuiStem(stem));      
-
-      if (requireStemPrivilege && !grouperRequestContainer.getStemContainer().isCanAdminPrivileges()) {
+        
+        if (!requireStem) {
+          return result;
+        }
         
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToAdminStem")));
+            TextContainer.retrieveFromRequest().getText().get("stemCantFindStemId")));
         addedError = true;
-
-      } else if (requireCreateGroupPrivilege && !grouperRequestContainer.getStemContainer().isCanCreateGroups()) {
-
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToCreateGroupsStem")));
-        addedError = true;
-
+      }
+    } finally {
+      PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "findStem");
+    }
+    
+    try {
+      if (stem != null) {
+        grouperRequestContainer.getStemContainer().setGuiStem(new GuiStem(stem));      
+  
+        if (requireStemPrivilege && !grouperRequestContainer.getStemContainer().isCanAdminPrivileges()) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToAdminStem")));
+          addedError = true;
+  
+        } else if (requireCreateGroupPrivilege && !grouperRequestContainer.getStemContainer().isCanCreateGroups()) {
+  
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToCreateGroupsStem")));
+          addedError = true;
+  
+        } else {
+          result.setStem(stem);
+          List<GrouperObjectTypesAttributeValue> attributeValuesForGroup = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(stem);
+          grouperRequestContainer.getObjectTypeContainer().setGuiConfiguredGrouperObjectTypesAttributeValues(GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForGroup));
+        }
+  
       } else {
-        result.setStem(stem);
-        List<GrouperObjectTypesAttributeValue> attributeValuesForGroup = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(stem);
-        grouperRequestContainer.getObjectTypeContainer().setGuiConfiguredGrouperObjectTypesAttributeValues(GuiGrouperObjectTypesAttributeValue.convertFromGrouperObjectTypesAttributeValues(attributeValuesForGroup));
+  
+        if (!requireStem) {
+          return result;
+        }
+  
+        if (!addedError && (!StringUtils.isBlank(stemId) || !StringUtils.isBlank(stemName) || !StringUtils.isBlank(stemIndex))) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemCantFindStem")));
+          addedError = true;
+        }
+        
       }
-
-    } else {
-
-      if (!requireStem) {
-        return result;
-      }
-
-      if (!addedError && (!StringUtils.isBlank(stemId) || !StringUtils.isBlank(stemName) || !StringUtils.isBlank(stemIndex))) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("stemCantFindStem")));
-        addedError = true;
-      }
+      result.setAddedError(addedError);
       
+      //go back to the main screen, cant find stem
+      if (addedError) {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/index/indexMain.jsp"));
+      }
+    } finally {
+      PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "stemPrivilege");
     }
-    result.setAddedError(addedError);
-    
-    //go back to the main screen, cant find stem
-    if (addedError) {
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/index/indexMain.jsp"));
-    }
-    
     return result;
   }
 
@@ -3571,6 +3610,47 @@ public class UiV2Stem {
    */
   public void createAttributeDefParentFolderFilter(final HttpServletRequest request, HttpServletResponse response) {
     createGroupParentFolderFilter(request, response);
+  }
+
+  /**
+   * view stem
+   * @param request
+   * @param response
+   */
+  public void populateMoreActionsButton(HttpServletRequest request, HttpServletResponse response) {
+    
+    PerformanceLogger.performanceTimingStart(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_MORE_ACTIONS, false);
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = retrieveStemHelper(request, false).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stem-more-options", 
+          "/WEB-INF/grouperUi2/stem/stemMoreActionsButtonContents2.jsp"));
+  
+      guiResponseJs.addAction(GuiScreenAction.newScript("$(this).attr('aria-expanded',function(index, currentValue) { $('#stem-more-options li').first().focus();return true;})"));
+      
+    } finally {
+      if (PerformanceLogger.performanceTimingEnabled(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_MORE_ACTIONS)) {
+        PerformanceLogger.performanceLog().info(PerformanceLogger.performanceTimingDataResult(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_MORE_ACTIONS));
+      }
+
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
   
 }

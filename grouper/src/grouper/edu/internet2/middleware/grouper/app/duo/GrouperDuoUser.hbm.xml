@@ -45,6 +45,17 @@
             <column name="group_id" not-null="true" />
         </many-to-many>
     </set>
+    
+    <property name="phones" column="phones" />
+    <property name="aliases" column="aliases" />
+    <property name="notes" column="notes" />
+    <property name="status" column="status" />
+    
+    <property name="pushEnabledDb" column="push_enabled" />
+    <property name="enrolledDb" column="enrolled" />
+    <property name="lastDirectorySync" column="last_directory_sync" />
+    <property name="createdAt" column="created_at" />
+    <property name="lastLogin" column="last_login" />
 
   </class>
 </hibernate-mapping>

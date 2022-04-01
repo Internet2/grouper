@@ -1,5 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+   <c:set value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration}" var="guiProvisionerConfiguration" />
+
 	 <div class="bread-header-container">
        <ul class="breadcrumb">
            <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
@@ -13,9 +15,23 @@
          <div class="row-fluid">
            <div class="lead span9 pull-left"><h1>${textContainer.text['miscellaneousProvisionerConfigurationsEditProvisionerDescription'] }</h1></div>
            <div class="span2 pull-right">
+             <c:set var="buttonSize" value="btn-medium" />
+             <c:set var="buttonBlock" value="btn-block" />
              <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
            </div>
          </div>
+         
+         <div class="row-fluid">
+          <div class="span12">
+            <p style="margin-top: -1em; margin-bottom: 1em">
+              ${guiProvisionerConfiguration.provisionerConfiguration.description}
+            </p>
+            <p style="margin-top: -1em; margin-bottom: 1em">
+              ${guiProvisionerConfiguration.provisionerConfiguration.documentation}
+            </p>
+          </div>
+        </div>
+        
        </div>
      </div>
      

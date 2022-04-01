@@ -13,6 +13,13 @@ public class GrouperProvisioningObjectAttributes {
   private Long idIndex;
   private String markerAttributeAssignId;
   
+  //only applicable to members
+  private String subjectId;
+  private String sourceId;
+  private String subjectIdentifier0;
+  private String subjectIdentifier1;
+  private String subjectIdentifier2;
+  
   private String provisioningTarget;
   private String provisioningDirectAssign;
   private String provisioningDoProvision;
@@ -170,6 +177,54 @@ public class GrouperProvisioningObjectAttributes {
   
   public void setUpdated(boolean isUpdated) {
     this.isUpdated = isUpdated;
+  }
+
+  
+  public String getSubjectId() {
+    return subjectId;
+  }
+
+  
+  public void setSubjectId(String subjectId) {
+    this.subjectId = subjectId;
+  }
+
+  
+  public String getSourceId() {
+    return sourceId;
+  }
+
+  
+  public void setSourceId(String sourceId) {
+    this.sourceId = sourceId;
+  }
+
+  
+  public String getSubjectIdentifier0() {
+    return subjectIdentifier0;
+  }
+
+  
+  public void setSubjectIdentifier0(String subjectIdentifier0) {
+    this.subjectIdentifier0 = subjectIdentifier0;
+  }
+  
+  public String getSubjectIdentifier1() {
+    return subjectIdentifier1;
+  }
+
+  
+  public void setSubjectIdentifier1(String subjectIdentifier1) {
+    this.subjectIdentifier1 = subjectIdentifier1;
+  }
+  
+  public String getSubjectIdentifier2() {
+    return subjectIdentifier2;
+  }
+
+  
+  public void setSubjectIdentifier2(String subjectIdentifier2) {
+    this.subjectIdentifier2 = subjectIdentifier2;
   }
   
 }

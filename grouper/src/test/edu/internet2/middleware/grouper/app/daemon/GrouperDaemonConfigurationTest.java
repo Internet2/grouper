@@ -37,7 +37,7 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
     
     configuration.retrieveAttributes().get("syncAttributeName").setValue("etc:attribute:attrLoader:attributeLoader");
     
-    configuration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    configuration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
     
     assertEquals(0, validationErrorsToDisplay.size());
     
@@ -46,7 +46,8 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
     
     configuration.retrieveAttributes().get("quartzCron").setValue("0 50 * * * ?");
     configuration.retrieveAttributes().get("retryOnError").setValue("false");
-    configuration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    List<String> actionsPerformed = new ArrayList<String>();
+    configuration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
     
     assertEquals(0, validationErrorsToDisplay.size());
     

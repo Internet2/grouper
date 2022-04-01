@@ -19,30 +19,10 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   
   /**
    * id uniquely identifies this record, might be a target uuid, or grouper id index, uuid, or name
-   */
-  private String id;
-
-  /**
-   * name of group in target system.  could be group system name, extension, or other
-   */
-  private String name;
-  
-  /**
-   * id index in target (optional)
-   */
-  private Long idIndex;
-
-  /**
-   * display name (optional)
-   */
-  private String displayName;
-  
-  /**
-   * id uniquely identifies this record, might be a target uuid, or grouper id index, uuid, or name
    * @return id
    */
   public String getId() {
-    return this.id;
+    return this.retrieveAttributeValueString("id");
   }
 
   /**
@@ -50,7 +30,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @param id1
    */
   public void setId(String id1) {
-    this.id = id1;
+    this.assignAttributeValue("id", id1);
   }
 
   /**
@@ -58,7 +38,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @return
    */
   public String getExtension() {
-    return GrouperUtil.extensionFromName(this.name);
+    return GrouperUtil.extensionFromName(this.getName());
   }
   
   /**
@@ -66,7 +46,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @return name
    */
   public String getName() {
-    return this.name;
+    return this.retrieveAttributeValueString("name");
   }
 
   /**
@@ -74,7 +54,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @param name1
    */
   public void setName(String name1) {
-    this.name = name1;
+    this.assignAttributeValue("name", name1);
   }
 
   /**
@@ -82,7 +62,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @return id index
    */
   public Long getIdIndex() {
-    return this.idIndex;
+    return this.retrieveAttributeValueLong("idIndex");
   }
 
   /**
@@ -90,7 +70,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @param idIndex1
    */
   public void setIdIndex(Long idIndex1) {
-    this.idIndex = idIndex1;
+    this.assignAttributeValue("idIndex", idIndex1);
   }
 
   /**
@@ -98,7 +78,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @return display name
    */
   public String getDisplayName() {
-    return this.displayName;
+    return this.retrieveAttributeValueString("displayName");
   }
 
   /**
@@ -106,7 +86,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @return
    */
   public String getDisplayExtension() {
-    return GrouperUtil.extensionFromName(this.displayName);
+    return GrouperUtil.extensionFromName(this.getDisplayName());
   }
 
   /**
@@ -114,7 +94,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @param displayName1
    */
   public void setDisplayName(String displayName1) {
-    this.displayName = displayName1;
+    this.assignAttributeValue("displayName", displayName1);
   }
 
   public ProvisioningGroupWrapper getProvisioningGroupWrapper() {
@@ -129,10 +109,6 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   public String toString() {
     StringBuilder result = new StringBuilder("Group(");
     boolean firstField = true;
-    firstField = toStringAppendField(result, firstField, "id", this.id);
-    firstField = toStringAppendField(result, firstField, "idIndex", this.idIndex);
-    firstField = toStringAppendField(result, firstField, "name", this.name);
-    firstField = toStringAppendField(result, firstField, "displayName", this.displayName);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     
     if (this.provisioningGroupWrapper != null) {
@@ -165,10 +141,6 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     ProvisioningGroup provisioningGroup = new ProvisioningGroup();
 
     this.cloneUpdatable(provisioningGroup);
-    provisioningGroup.displayName = this.displayName;
-    provisioningGroup.id = this.id;
-    provisioningGroup.idIndex = this.idIndex;
-    provisioningGroup.name = this.name;
     provisioningGroup.provisioningGroupWrapper = this.provisioningGroupWrapper;
 
     return provisioningGroup;
@@ -179,25 +151,9 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     if (!StringUtils.isBlank(groupSearchFilter)) {
       Map<String, Object> variableMap = new HashMap<String, Object>();
       variableMap.put("targetGroup", this);
-      String result = GrouperUtil.stringValue(this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperTranslator().runExpression(groupSearchFilter, variableMap));
+      String result = GrouperUtil.stringValue(this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningTranslator().runExpression(groupSearchFilter, variableMap));
       this.setSearchFilter(result);
     }
-  }
-
-  /**
-   * see if this object is empty e.g. after translating if empty then dont keep track of group
-   * since the translation might have affected another object
-   * @return
-   */
-  public boolean isEmpty() {
-    if (StringUtils.isBlank(this.displayName)
-        && StringUtils.isBlank(this.id)
-        && this.idIndex == null
-        && StringUtils.isBlank(this.name)
-        && this.isEmptyUpdatable()) {
-      return true;
-    }
-    return false;
   }
 
   @Override
@@ -284,9 +240,9 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @param name
    * @param value
    */
-  public String retrieveFieldOrAttributeValueString(GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String retrieveAttributeValueString(GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     
-    return GrouperUtil.stringValue(this.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute));
+    return GrouperUtil.stringValue(this.retrieveAttributeValue(grouperProvisioningConfigurationAttribute));
     
   }
 
@@ -296,28 +252,12 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @param grouperProvisioningConfigurationAttribute
    * @return the value
    */
-  public Object retrieveFieldOrAttributeValue(
+  public Object retrieveAttributeValue(
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     if (grouperProvisioningConfigurationAttribute == null) {
       throw new NullPointerException("attribute is null: " + this);
     }
-    if (grouperProvisioningConfigurationAttribute.isAttribute()) {
-      return this.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName());
-    } else {
-      if ("displayName".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getDisplayName();
-      }
-      if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getId();
-      }
-      if ("idIndex".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getIdIndex() == null ? null : this.getIdIndex().toString();
-      }
-      if ("name".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getName();
-      }
-      throw new RuntimeException("Invalid field name '" + grouperProvisioningConfigurationAttribute.getName() + "': " + this);
-    }
+    return this.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName());
   }
 
 }

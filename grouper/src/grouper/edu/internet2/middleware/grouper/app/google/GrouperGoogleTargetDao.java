@@ -74,7 +74,7 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       Set<String> fieldNamesToInsert = new HashSet<String>();
 
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
+        String fieldName = provisioningObjectChange.getAttributeName();
         if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
           fieldNamesToInsert.add(fieldName);
         }
@@ -508,7 +508,7 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       // lets make sure we are doing the right thing
       Set<String> fieldNamesToUpdate = new HashSet<String>();
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
-        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
+        String fieldName = provisioningObjectChange.getAttributeName();
         fieldNamesToUpdate.add(fieldName);
       }
       
@@ -546,7 +546,7 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       // lets make sure we are doing the right thing
       Set<String> fieldNamesToUpdate = new HashSet<String>();
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-        String fieldName = GrouperUtil.defaultIfBlank(provisioningObjectChange.getFieldName(), provisioningObjectChange.getAttributeName());
+        String fieldName = provisioningObjectChange.getAttributeName();
         fieldNamesToUpdate.add(fieldName);
       }
       

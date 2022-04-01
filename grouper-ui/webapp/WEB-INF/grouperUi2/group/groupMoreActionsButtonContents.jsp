@@ -17,7 +17,7 @@
                       		${textContainer.text['groupViewMoreActionsButton'] } <span class="caret"></span></a>
   
                       <ul class="dropdown-menu dropdown-menu-right" id="group-more-options">
-                        <li class="dropdown-item disabled grouper-menu-subheader">Quick links</li>
+                        <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['groupViewMoreActionsQuickLinks'] }</li>
                         <%-- add or remove to/from my favorites, this causes a success message --%>
                         <c:if test="${!grouperRequestContainer.groupContainer.favorite}">
                             <li><a href="#" 
@@ -47,7 +47,7 @@
 
                         <c:if test="${ (grouperRequestContainer.groupContainer.canAdmin) || (grouperRequestContainer.groupStemTemplateContainer.templatesToShowInMoreActions.size() > 0 || grouperRequestContainer.groupStemTemplateContainer.customGshTemplates.size() > 0)}">
 
-                          <li class="dropdown-item disabled grouper-menu-subheader">Templates</li>
+                          <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['groupViewMoreActionsTemplates']}</li>
 
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Template.newTemplate&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['createNewTemplateMenuButton'] }</a></li>
@@ -60,7 +60,7 @@
                         </c:if>
                                                 
                         <c:if test="${grouperRequestContainer.groupContainer.canUpdate }">
-                          <li class="dropdown-item disabled grouper-menu-subheader">Manage</li>
+                          <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['groupViewMoreActionsManage']}</li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupCopy&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
@@ -94,7 +94,7 @@
                               >${textContainer.text['groupViewMoveGroupButton'] }</a></li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin}">
-                          <li class="dropdown-item disabled grouper-menu-subheader">Auditing</li>
+                          <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['groupViewMoreActionsAuditing']}</li>
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewAudits&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&auditType=group'); return false;"
                               >${textContainer.text['groupViewAuditButton'] }</a></li>
                               
@@ -120,7 +120,7 @@
                             || grouperRequestContainer.objectTypeContainer.canReadObjectType
                             || grouperRequestContainer.grouperReportContainer.reportingEnabled
                             }">
-                          <li class="dropdown-item disabled grouper-menu-subheader">Administration</li>
+                          <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['groupViewMoreActionsAdministration']}</li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.groupContainer.canRead}">
                           <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Attestation.groupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
@@ -168,7 +168,7 @@
 
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin || (!grouperRequestContainer.groupContainer.guiGroup.hasComposite && grouperRequestContainer.groupContainer.canUpdate) }">
                           <br />
-                          <li class="dropdown-item disabled grouper-menu-subheader">Delete</li>
+                          <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['groupViewMoreActionsDelete']}</li>
   
                           <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
                             <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"

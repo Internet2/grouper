@@ -33,6 +33,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.logging.Log;
@@ -175,6 +176,45 @@ public class SubjectImpl implements Subject {
     this.setAttributes(attributes1);
   }
 
+  private SubjectImpl() {
+    
+  }
+  
+  /**
+   * 
+   * @param subject
+   * @return the cloned subject
+   */
+  public static Subject cloneSubject(Subject subject) {
+
+    if (subject == null) {
+      return null;
+    }
+    
+    if (subject instanceof SubjectImpl) {
+      
+      SubjectImpl clonedSubject = new SubjectImpl(); 
+      clonedSubject.id = ((SubjectImpl)subject).id;
+      clonedSubject.typeName = ((SubjectImpl)subject).typeName;
+      clonedSubject.sourceId = ((SubjectImpl)subject).sourceId;
+      clonedSubject.nameAttribute = ((SubjectImpl)subject).nameAttribute;
+      clonedSubject.descriptionAttribute = ((SubjectImpl)subject).descriptionAttribute;
+      clonedSubject.nameOverride = ((SubjectImpl)subject).nameOverride;
+      clonedSubject.descriptionOverride = ((SubjectImpl)subject).descriptionOverride;
+      clonedSubject.attributes = 
+          new SubjectCaseInsensitiveMapImpl<String, Set<String>>(GrouperUtil.nonNull(((SubjectImpl)subject).attributes));
+      clonedSubject.translationMap = new CaseInsensitiveMap(GrouperUtil.nonNull(((SubjectImpl)subject).translationMap));
+      clonedSubject.attributesInitted = false;
+      return clonedSubject;
+    }
+    
+    Subject clonedSubject = new SubjectImpl(subject.getId(), subject.getName(), 
+        subject.getDescription(), subject.getTypeName(), subject.getSourceId(), 
+        new SubjectCaseInsensitiveMapImpl<String, Set<String>>(GrouperUtil.nonNull(subject.getAttributes(false))));
+    clonedSubject.setTranslationMap(new CaseInsensitiveMap(GrouperUtil.nonNull(subject.getTranslationMap())));
+    return clonedSubject;
+  }
+
   /**
    * Constructor called by SourceManager.  Will create an empty map for attributes
    * @param id1 
@@ -214,6 +254,36 @@ public class SubjectImpl implements Subject {
     this.descriptionOverride = description1;
     this.setAttributes(attributes1);
   }
+
+  /**
+   * init new style virtual (translated) attributes
+   */
+  private void initVirtualAttributes() {
+    
+    Map<String, String> virtualAttributes = BaseSourceAdapter.virtualAttributesForSource(this.getSource());
+
+    if (GrouperUtil.length(virtualAttributes) == 0) {
+      return;
+    }
+
+    // remove the virtual attributes
+    for (String virtualAttributeName : virtualAttributes.keySet()) {
+      this.translationMap.remove(virtualAttributeName);
+    }
+    
+    //do these in order of config
+    for (String virtualAttributeName : virtualAttributes.keySet()) {
+      
+      String translation = virtualAttributes.get(virtualAttributeName);
+      
+      Object valueObject = GrouperUtil.substituteExpressionLanguageScript(translation, this.translationMap, true, false, true);
+      valueObject = GrouperUtil.stringValue(valueObject);
+      this.attributes.put(virtualAttributeName, GrouperUtil.toSet((String)valueObject));
+      this.translationMap.put("subject_attribute__" + virtualAttributeName.toLowerCase(), valueObject);
+      
+    }
+  }
+  
 
   /**
    * {@inheritDoc}
@@ -352,29 +422,53 @@ public class SubjectImpl implements Subject {
     }
     
     if (!this.attributesInitted) {
-      //NOTE, there could be race conditions here (marking initted before initted), 
-      //but we get endless loops without this
-      this.attributesInitted = true;
-      initVirtualAttributes(this);
+      synchronized(this) {
+        if (!this.attributesInitted) {
+          //NOTE we get endless loops without this
+          this.attributesInitted = true;
+          
+          // legacy
+          this.initVirtualAttributesLegacy();
+          this.initVirtualAttributes();
+        }
+      }
     }
   }
 
   /**
-   * make sure the virtual attributes are setup for the subject
-   * @param subject
+   * clear the state for attributes initted, i.e. recalculated them
    */
-  public static void initVirtualAttributes(Subject subject) {
+  public void attributesInittedClear() {
+    this.attributesInitted = false;
     
-    Source source = subject.getSource();
-    Map<String, String> virtualAttributes = virtualAttributesForSource(source);
+    Map<String, String> virtualAttributes = BaseSourceAdapter.virtualAttributesForSource(this.getSource());
+
+    if (GrouperUtil.length(virtualAttributes) == 0) {
+      return;
+    }
+
+    // remove the virtual attributes
+    for (String virtualAttributeName : virtualAttributes.keySet()) {
+      this.attributes.remove(virtualAttributeName);
+      this.translationMap.remove("subject_attribute__" + virtualAttributeName.toLowerCase());
+    }
+  }
+  
+  /**
+   * make sure the virtual attributes are setup for the subject
+   */
+  private void initVirtualAttributesLegacy() {
+    
+    Source source = this.getSource();
+    Map<String, String> virtualAttributes = BaseSourceAdapter.virtualAttributesForSourceLegacy(source);
     if (SubjectUtils.length(virtualAttributes) == 0) {
       return;
     }
     
     Map<String, Object> variableMap = new HashMap<String, Object>();
-    variableMap.put("subject", subject);
+    variableMap.put("subject", this);
 
-    Map<String, String> virtualAttributeVariables = virtualAttributeVariablesForSource(source);
+    Map<String, String> virtualAttributeVariables = BaseSourceAdapter.virtualAttributeVariablesForSourceLegacy(source);
     if (SubjectUtils.length(virtualAttributeVariables) > 0) {
       for (String name : virtualAttributeVariables.keySet()) {
         
@@ -385,177 +479,25 @@ public class SubjectImpl implements Subject {
       }
     }
     
-    if (subject.getTranslationMap() != null ) {
-      variableMap.putAll(subject.getTranslationMap());
+    if (this.getTranslationMap() != null ) {
+      variableMap.putAll(this.getTranslationMap());
     }
+    variableMap.put("subjectUtils", new SubjectUtils());
     
     //take each attribute and init it
     for (String attributeName : virtualAttributes.keySet()) {
       
       String el = virtualAttributes.get(attributeName);
-      //TODO dont warn on null values
-      String value =  SubjectUtils.substituteExpressionLanguage(el, variableMap, true);
+
+      String value =  GrouperUtil.substituteExpressionLanguage(el, variableMap, true, true, true);
       Set<String> valueSet = new HashSet<String>();
       valueSet.add(value);
-      subject.getAttributes(false).put(attributeName, valueSet);
+      this.getAttributes(false).put(attributeName, valueSet);
     }
     
     
   }
 
-  
-  /**
-   * get the ordered list of virtual attributes for a source
-   * @param source
-   * @return the ordered list
-   */
-  @SuppressWarnings("unchecked")
-  public static Map<String, String> virtualAttributeVariablesForSource(Source source) {
-
-    Map<String, String> virtualAttributeVariables = virtualAttributeVariablesForSource.get(source.getId());
-    if (virtualAttributeVariables!=null) {
-      return virtualAttributeVariables;
-    }
-    
-    virtualAttributeVariables = new LinkedHashMap<String, String>();
-    Properties properties = source.initParams();
-    
-    //no virtuals
-    if (properties != null && properties.size() > 0) {
-      
-      //these are the virtual names:
-      Set<String> propertiesSet = new HashSet<String>((Set<String>)(Object)properties.keySet());
-      
-      Iterator<String> iterator = propertiesSet.iterator();
-      
-      Pattern pattern = Pattern.compile("^subjectVirtualAttributeVariable_(.*)$");
-
-      while (iterator.hasNext()) {
-        String property = iterator.next();
-        Matcher matcher = pattern.matcher(property);
-        if (matcher.matches()) {
-          String name = matcher.group(1);
-          if (!name.matches("[a-zA-Z0-9_]+")) {
-            String message = "Virtual attribute variable name (from subject.properties?) must be alphanumeric, or underscore: '" 
-              + name + "' for source: " + source.getId();
-            log.error(message);
-            throw new RuntimeException(message);
-          }
-          virtualAttributeVariables.put(name, properties.getProperty(property));
-        }
-      }
-    }
-    
-    virtualAttributeVariablesForSource.put(source.getId(), virtualAttributeVariables);
-    return virtualAttributeVariables;
-  }
-  
-  /** expirable cache will not look at configs all the time, but will refresh */
-  private static ExpirableCache<String, Map<String, String>> virtualAttributeVariablesForSource = 
-    new ExpirableCache<String, Map<String, String>>(2);
-  
-
-  /**
-   * get the ordered list of virtual attributes for a source
-   * @param source
-   * @return the ordered list
-   */
-  @SuppressWarnings("unchecked")
-  public static Map<String, String> virtualAttributesForSource(Source source) {
-
-    Map<String, String> virtualAttributes = virtualAttributeForSource.get(source.getId());
-    if (virtualAttributes!=null) {
-      return virtualAttributes;
-    }
-    
-    virtualAttributes = new LinkedHashMap<String, String>();
-    
-    if (source instanceof GrouperLdapSourceAdapter2_5 || source instanceof GrouperJdbcSourceAdapter2_5) {
-      
-      String numberOfAttributes = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".numberOfAttributes");
-      
-      if (StringUtils.isNotBlank(numberOfAttributes)) {
-        
-        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-        for (int i=0; i<numberOfAttrs; i++) {
-          
-          String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".name");
-          
-          String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".translationType");
-          
-          boolean isTranslation = StringUtils.equals(translationType, "translation");
-          
-          if (isTranslation) {
-            String translation = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + source.getConfigId() + ".attribute."+i+".translation");
-            virtualAttributes.put(subjectAttributeName, translation);
-          }
-            
-       }
-          
-      }
-      
-    } else {
-      Properties properties = source.initParams();
-      
-      //no virtuals
-      if (properties != null && properties.size() > 0) {
-        
-        //these are the virtual names:
-        Set<String> virtualKeys = new HashSet<String>((Set<String>)(Object)properties.keySet());
-        
-
-        Iterator<String> iterator = virtualKeys.iterator();
-        
-        while (iterator.hasNext()) {
-          String virtualKey = iterator.next();
-          if (!virtualKey.startsWith("subjectVirtualAttribute_")) {
-            iterator.remove();
-          }
-        }
-        
-        //look for virtuals, we need these in order since they might depend on each other
-        for (int i=0;i<100;i++) {
-
-          //maybe we are done
-          if (virtualKeys.size() == 0) {
-            break;
-          }
-          
-          iterator = virtualKeys.iterator();
-          
-          Pattern pattern = Pattern.compile("^subjectVirtualAttribute_" + i + "_(.*)$");
-          
-          //subjectVirtualAttribute_0_someName (name alphanumeric underscore) JEXL expression
-          while (iterator.hasNext()) {
-            String key = iterator.next();
-            Matcher matcher = pattern.matcher(key);
-            if (matcher.matches()) {
-              String name = matcher.group(1);
-              if (!name.matches("[a-zA-Z0-9_]+")) {
-                String message = "Virtual attribute name (from subject.properties?) must be alphanumeric, or underscore: '" 
-                  + name + "' for source: " + source.getId();
-                log.error(message);
-                throw new RuntimeException(message);
-              }
-              virtualAttributes.put(name, properties.getProperty(key));
-              iterator.remove();
-            }
-          }
-        }
-        if (virtualKeys.size() > 0) {
-          log.error("Invalid virtual attribute keys: " + SubjectUtils.toStringForLog(virtualKeys) + ", for source: " + source.getId());
-        }
-      }
-    }
-    
-    
-    virtualAttributeForSource.put(source.getId(), virtualAttributes);
-    return virtualAttributes;
-  }
-  
-  /** expirable cache will not look at configs all the time, but will refresh */
-  private static ExpirableCache<String, Map<String, String>> virtualAttributeForSource = 
-    new ExpirableCache<String, Map<String, String>>(2);
   
   /**
    * @see edu.internet2.middleware.subject.Subject#getAttributes()

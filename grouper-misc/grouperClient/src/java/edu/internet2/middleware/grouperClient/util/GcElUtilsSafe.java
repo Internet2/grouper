@@ -955,8 +955,13 @@ public class GcElUtilsSafe {
    * @param count is size of set
    * @param batchSize
    * @return the number of batches
+   * @param haveAtLeastOne is true if there should be at least one run even if the collection is empty (e.g. for queries based on other things)
    */
-  public static int batchNumberOfBatches(int count, int batchSize) {
+  public static int batchNumberOfBatches(int count, int batchSize, boolean haveAtLeastOne) {
+    if (!haveAtLeastOne && count == 0) {
+      return 0;
+    }
+
     //not sure why this would be 0...
     if (batchSize == 0) {
       return 0;
@@ -967,14 +972,39 @@ public class GcElUtilsSafe {
   }
 
   /**
-   * If batching this is the number of batches
+   * If batching this is the number of batches.  Will return at least 1
+   * @param count is size of set
+   * @param batchSize
+   * @return the number of batches
+   * @deprecated use batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne)
+   */
+  @Deprecated
+  public static int batchNumberOfBatches(int count, int batchSize) {
+    return batchNumberOfBatches(count, batchSize, true);
+  }
+
+  /**
+   * If batching this is the number of batches, will return at least 1
    * @param collection
    * @param batchSize
    * @return the number of batches
+   * @deprecated use batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne)
    */
+  @Deprecated
   public static int batchNumberOfBatches(Collection<?> collection, int batchSize) {
+    return batchNumberOfBatches(collection, batchSize, true);
+  }
+
+  /**
+   * If batching this is the number of batches, will return at least 1
+   * @param collection
+   * @param batchSize
+   * @param haveAtLeastOne is true if there should be at least one run even if the collection is empty (e.g. for queries based on other things)
+   * @return the number of batches
+   */
+  public static int batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne) {
     int arrraySize = length(collection);
-    return batchNumberOfBatches(arrraySize, batchSize);
+    return batchNumberOfBatches(arrraySize, batchSize, haveAtLeastOne);
 
   }
 

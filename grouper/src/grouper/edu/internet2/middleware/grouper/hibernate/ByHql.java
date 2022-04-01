@@ -513,73 +513,84 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
   private Query attachQueryInfo(Session session) {
 
     String theHql = this.query;
-
-    QuerySort querySort = this.queryOptions == null ? 
-        null : this.queryOptions.getQuerySort();
-
-    QueryPaging queryPaging = this.queryOptions == null ? 
-        null : this.queryOptions.getQueryPaging();
-    if (queryPaging != null && queryPaging.isCursorBasedPaging()) {
-        
-      // if its not null, then we arent on the first page
-      if (queryPaging.getLastCursorField() != null) {
-        if (querySort == null) {
-          throw new RuntimeException("If you are doing cursor based paging, you need to sort by a field!");
+    try {
+  
+      QuerySort querySort = this.queryOptions == null ? 
+          null : this.queryOptions.getQuerySort();
+  
+      QueryPaging queryPaging = this.queryOptions == null ? 
+          null : this.queryOptions.getQueryPaging();
+      
+      boolean addedLastCursorFieldParam = false;
+      
+      if (queryPaging != null && queryPaging.isCursorBasedPaging()) {
+          
+        // if its not null, then we arent on the first page
+        if (queryPaging.getLastCursorField() != null) {
+          if (querySort == null) {
+            throw new RuntimeException("If you are doing cursor based paging, you need to sort by a field!");
+          }
+          
+          QuerySortField querySortField = querySort.getQuerySortFields().get(0);
+          
+          if (theHql.toLowerCase().contains(" where" )) {
+            theHql += " and ";
+          } else {
+            theHql += " where ";
+          }
+          
+          theHql += querySortField.getColumn() + " " + (queryPaging.isCursorFieldIncludesLastRetrieved() ? " >= " : " > ") + " :lastCursorField ";
+          this.setScalar("lastCursorField", queryPaging.getLastCursorField());
+          addedLastCursorFieldParam = true;
         }
-        
-        QuerySortField querySortField = querySort.getQuerySortFields().get(0);
-        
-        if (theHql.toLowerCase().contains(" where" )) {
-          theHql += " and ";
-        } else {
-          theHql += " where ";
-        }
-        
-        theHql += querySortField.getColumn() + " " + (queryPaging.isCursorFieldIncludesLastRetrieved() ? " >= " : " > ") + " :lastCursorField ";
-        this.setScalar("lastCursorField", queryPaging.getLastCursorField());
+          
       }
-        
-    }
-
-    if (querySort != null) {
-      String sortString = querySort.sortString(false);
-      if (!StringUtils.isBlank(sortString)) {
-        theHql += " order by " + sortString;
-      }
-    }
-
-    Query query = session.createQuery(theHql);
-
-    if (queryPaging != null) {
-
-      if (!queryPaging.isCursorBasedPaging()) {
-        //GRP-1024: sql server problems with paging page number when not initted
-        if(queryPaging.getFirstIndexOnPage() < 0) {
-          query.setFirstResult(0);
-        } else {
-          query.setFirstResult(queryPaging.getFirstIndexOnPage());
+  
+      if (querySort != null) {
+        String sortString = querySort.sortString(false);
+        if (!StringUtils.isBlank(sortString)) {
+          theHql += " order by " + sortString;
         }
       }
-      query.setMaxResults(queryPaging.getPageSize());
-    }
-    
-    boolean secondLevelCaching = HibUtils.secondLevelCaching(
-        this.cacheable, this.queryOptions);
-    query.setCacheable(secondLevelCaching);
-
-    if (secondLevelCaching) {
-      String secondLevelCacheRegion = HibUtils.secondLevelCacheRegion(this.cacheRegion, 
-          this.queryOptions);
-      if (!StringUtils.isBlank(secondLevelCacheRegion)) {
-        query.setCacheRegion(secondLevelCacheRegion);
+  
+      Query query = session.createQuery(theHql);
+  
+      if (queryPaging != null) {
+  
+        if (!queryPaging.isCursorBasedPaging()) {
+          //GRP-1024: sql server problems with paging page number when not initted
+          if(queryPaging.getFirstIndexOnPage() < 0) {
+            query.setFirstResult(0);
+          } else {
+            query.setFirstResult(queryPaging.getFirstIndexOnPage());
+          }
+        }
+        query.setMaxResults(queryPaging.getPageSize());
       }
+      
+      boolean secondLevelCaching = HibUtils.secondLevelCaching(
+          this.cacheable, this.queryOptions);
+      query.setCacheable(secondLevelCaching);
+  
+      if (secondLevelCaching) {
+        String secondLevelCacheRegion = HibUtils.secondLevelCacheRegion(this.cacheRegion, 
+            this.queryOptions);
+        if (!StringUtils.isBlank(secondLevelCacheRegion)) {
+          query.setCacheRegion(secondLevelCacheRegion);
+        }
+      }
+      //note, dont call the method bindVarNameParams() so it doesnt lazyload...
+      if (this.bindVarNameParams != null) {
+        HibUtils.attachBindValues(query, this.bindVarNameParams());
+      }
+      if (addedLastCursorFieldParam) {
+        this.bindVarNameParams().remove(this.bindVarNameParams().size()-1);
+      }
+      return query;
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, "Query: " + theHql);
+      throw re;
     }
-    //note, dont call the method bindVarNameParams() so it doesnt lazyload...
-    if (this.bindVarNameParams != null) {
-      HibUtils.attachBindValues(query, this.bindVarNameParams());
-    }
-    return query;
-
   }
 
   /**

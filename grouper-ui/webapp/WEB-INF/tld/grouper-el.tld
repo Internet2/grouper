@@ -517,6 +517,30 @@
   </tag>
   <tag>
     <description>
+      Performance gate.  Make an entry into a performance logger as screen draws
+    </description>
+    <name>performanceTimingGate</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperPerformanceTimingGateTag</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+      <description>
+        Registered label must be expected
+        </description>
+      <name>label</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <description>
+        key of timing gate should show up once in the operation being timed
+        </description>
+      <name>key</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  <tag>
+    <description>
       Prints out a subject icon
     </description>
     <name>subjectIcon</name>

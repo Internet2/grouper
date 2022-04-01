@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -41,6 +42,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
@@ -69,6 +71,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -503,6 +506,28 @@ public class UiV2GroupImport {
       final boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers"), false);
       final boolean removeMembers = GrouperUtil.booleanValue(request.getParameter("removeMembers"), false);
   
+      final Timestamp startDate;
+      try {
+        String startDateString = request.getParameter("startDate");
+        startDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(startDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-start-date",
+            TextContainer.retrieveFromRequest().getText().get("groupImportFromDateInvalid")));
+        return;
+      }
+
+      final Timestamp endDate;
+      try {
+        String endDateString = request.getParameter("endDate");
+        endDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(endDateString);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-end-date",
+            TextContainer.retrieveFromRequest().getText().get("groupImportToDateInvalid")));
+        return;
+      }
+      
       final Object[] csvEntriesObject = new Object[1];
   
       final String[] fileName = new String[1];
@@ -724,7 +749,8 @@ public class UiV2GroupImport {
             groupImportContainer.getProgressBean().setStartedMillis(System.currentTimeMillis());
 
             UiV2GroupImport.this.groupImportSubmitHelper(loggedInSubject, groupImportContainer, groups, subjectSet, 
-                listInvalidSubjectIdsAndRow, removeMembers, importReplaceMembers, bulkAddOption, fileName[0], (List<CSVRecord>)csvEntriesObject[0]);
+                listInvalidSubjectIdsAndRow, removeMembers, importReplaceMembers, bulkAddOption, fileName[0], (List<CSVRecord>)csvEntriesObject[0],
+                startDate, endDate);
           } catch (RuntimeException re) {
             groupImportContainer.getProgressBean().setHasException(true);
             // log this since the thread will just end and will never get logged
@@ -865,10 +891,13 @@ public class UiV2GroupImport {
    * @param importReplaceMembers 
    * @param bulkAddOption 
    * @param fileName 
+   * @param startDate
+   * @param endDate
    */
   private void groupImportSubmitHelper(final Subject loggedInSubject, final GroupImportContainer groupImportContainer, 
       final Set<Group> groups, final Set<Subject> subjectSet, Map<String, Integer> listInvalidSubjectIdsAndRow, 
-      boolean removeMembers, boolean importReplaceMembers, String bulkAddOption, String fileName, List<CSVRecord> csvEntries) {
+      boolean removeMembers, boolean importReplaceMembers, String bulkAddOption, String fileName, List<CSVRecord> csvEntries,
+      Timestamp startDate, Timestamp endDate) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -951,7 +980,7 @@ public class UiV2GroupImport {
             
             try {
               // try this even if we have an error
-              group.addMember(subject, false);
+              group.internal_addMember(subject, Group.getDefaultList(), false, null, startDate, endDate);
               GrouperUtil.sleep(pauseBetweenRecordsMillis);
               groupImportGroupSummary.groupCountAddedIncrement();
             } catch (Exception e) {
@@ -995,6 +1024,40 @@ public class UiV2GroupImport {
           }
           
         }
+        
+        if (importReplaceMembers && !removeMembers && overlappingMembers.size() > 0) {
+          // make sure start/end dates are correct
+          Set<Membership> overlappingMemberships = group.getImmediateMemberships(Group.getDefaultList(), overlappingMembers);
+          
+          Map<String, Membership> overlappingMembershipsMap = new LinkedHashMap<String, Membership>();
+          for (Membership overlappingMembership : overlappingMemberships) {
+            overlappingMembershipsMap.put(overlappingMembership.getMemberUuid(), overlappingMembership);
+          }
+          
+          // go through based on overlappingMembers instead of overlappingMemberships in case the latter has anything extra
+          for (Member overlappingMember : overlappingMembers) {
+            Membership overlappingMembership = overlappingMembershipsMap.get(overlappingMember.getUuid());
+            if (overlappingMembership != null) {
+              if (!GrouperUtil.equals(overlappingMembership.getEnabledTime(), startDate) || 
+                  !GrouperUtil.equals(overlappingMembership.getDisabledTime(), endDate)) {
+                
+                try {
+                  overlappingMembership.setEnabledTime(startDate);
+                  overlappingMembership.setDisabledTime(endDate);
+                  GrouperDAOFactory.getFactory().getMembership().update(overlappingMembership);
+                  GrouperUtil.sleep(pauseBetweenRecordsMillis);
+                  groupImportGroupSummary.groupCountUpdatedIncrement();
+                } catch (Exception e) {
+                  String subjectString = SubjectUtils.subjectToString(overlappingMember.getSubject());
+                  GroupImportError groupImportError = new GroupImportError(subjectString, GrouperUtil.xmlEscape(e.getMessage()));
+                  groupImportGroupSummary.getGroupImportErrors().add(groupImportError);
+                  groupImportGroupSummary.groupCountErrorsIncrement();
+                  LOG.warn("error with " + subjectString, e);
+                }
+              }
+            }
+          }
+        }
     
         boolean didntImportDueToSubjects = groupImportGroupSummary.getGroupCountErrors() > 0;
     
@@ -1035,7 +1098,7 @@ public class UiV2GroupImport {
         }
         
         if (StringUtils.equals(bulkAddOption, "import")) {
-          auditImport(group.getUuid(), group.getName(), fileName, groupImportGroupSummary.getGroupCountAdded(), groupImportGroupSummary.getGroupCountDeleted());
+          auditImport(group.getUuid(), group.getName(), fileName, groupImportGroupSummary.getGroupCountAdded(), groupImportGroupSummary.getGroupCountDeleted(), groupImportGroupSummary.getGroupCountUpdated());
         }
 
         groupImportGroupSummary.setComplete(true);
@@ -1054,7 +1117,7 @@ public class UiV2GroupImport {
   }
   
     private void auditImport(final String groupId, final String groupName, final String fileName,
-        final int countAdded, final int countDeleted) {
+        final int countAdded, final int countDeleted, final int countUpdated) {
       HibernateSession.callbackHibernateSession(
 		    GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
 			    new HibernateHandler() {
@@ -1064,8 +1127,8 @@ public class UiV2GroupImport {
 				      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_IMPORT, "file", fileName, "totalAdded", 
 				          String.valueOf(countAdded), "groupId", groupId, "groupName", groupName, "totalDeleted", String.valueOf(countDeleted));
 						  
-				      String description = "Added : " + countAdded + " subjects "
-				          + "  and deleted "+countDeleted + " subjects in group ."+groupName;
+				      String description = "Added : " + countAdded + " subjects, updated " + countUpdated + " subjects"
+				          + " and deleted "+countDeleted + " subjects in group "+groupName;
 						auditEntry.setDescription(description);
 						auditEntry.saveOrUpdate(true);
 						  

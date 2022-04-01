@@ -63,50 +63,6 @@ public class SqlSyncConfiguration extends GrouperConfigurationModuleBase impleme
    return (List<SqlSyncConfiguration>) (Object) retrieveAllConfigurations(classNames);
   }
   
-  /**
-   * is the config enabled or not
-   * @return
-   */
-  @Override
-  public boolean isEnabled() {
-   try {
-     GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
-     String enabledString = enabledAttribute.getValue();
-     if (StringUtils.isBlank(enabledString)) {
-       enabledString = enabledAttribute.getDefaultValue();
-     }
-     return GrouperUtil.booleanValue(enabledString, true);
-   } catch (Exception e) {
-     return false;
-   }
-    
-  }
-  
-  
-  /**
-   * change status of config to disable/enable
-   * @param enable
-   * @param message
-   * @param errorsToDisplay
-   * @param validationErrorsToDisplay
-   */
-  public void changeStatus(boolean enable, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
-    
-    GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
-    enabledAttribute.setValue(enable? "true": "false");
-    
-    ConfigFileName configFileName = this.getConfigFileName();
-    ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
-
-    DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
-        enabledAttribute.getFullPropertyName(), 
-        enabledAttribute.isExpressionLanguage() ? "true" : "false", 
-        enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
-        enabledAttribute.isPassword(), message, new Boolean[] {false},
-        new Boolean[] {false}, true, "Sql sync config status changed", errorsToDisplay, validationErrorsToDisplay, false);    
-    ConfigPropertiesCascadeBase.clearCache();
-  }
-  
   @Override
   public List<MultiKey> retrieveKeysAndLabels() {
     

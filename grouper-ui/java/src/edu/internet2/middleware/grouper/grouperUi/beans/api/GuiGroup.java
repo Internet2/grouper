@@ -798,8 +798,8 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   }
   
   /**
-   * enabled date label string yyyy/mm/dd hh24:mi:ss
-   * @return the enabled date label string yyyy/mm/dd hh24:mi:ss
+   * enabled date label string yyyy/mm/dd hh:mi am/pm
+   * @return the enabled date label string yyyy/mm/dd hh:mi am/pm
    */
   public String getEnabledDateLabel() {
         
@@ -807,14 +807,14 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
       return null;
     }
     
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd h:mm a");
     
     return simpleDateFormat.format(this.group.getEnabledTime());
   }
   
   /**
-   * disabled date label string yyyy/mm/dd hh24:mi:ss
-   * @return the disabled date label string yyyy/mm/dd hh24:mi:ss
+   * disabled date label string yyyy/mm/dd hh:mi am/pm
+   * @return the disabled date label string yyyy/mm/dd hh:mi am/pm
    */
   public String getDisabledDateLabel() {
         
@@ -822,7 +822,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
       return null;
     }
     
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd h:mm a");
     
     return simpleDateFormat.format(this.group.getDisabledTime());
   }

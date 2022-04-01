@@ -81,6 +81,35 @@
                       <input type="text" name="disabledDate" placeholder="${textContainer.text['groupCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.disabledDateLabel }" id="groupDisabledDate"><span class="help-block">${textContainer.text['groupCreateDisabledDateDescription'] }</span>
                     </div>
                   </div>
+                  
+                  <c:forEach items="${grouperRequestContainer.groupContainer.groupTypesForEdit}" var="groupTypeForEdit">
+                  
+                    <div class="control-group ${groupTypeForEdit.markerAttributeDefName.id}__class" 
+                      style="display: ${groupTypeForEdit.initiallyVisible ? 'block' : 'none'}">
+                      <label for="${groupTypeForEdit.attributeName}Id" class="control-label">
+                        ${grouper:escapeHtml(groupTypeForEdit.label)}</label>
+                      <div class="controls">
+                        <c:if test="${groupTypeForEdit.formElementType == 'TEXTFIELD'}">
+                          <input type="text" name="${groupTypeForEdit.configId}__name"
+                              value="${grouper:escapeHtml(groupTypeForEdit.value)}"
+                              id="${groupTypeForEdit.configId}__id">
+                        </c:if>
+                        
+                        <c:if test="${groupTypeForEdit.formElementType == 'CHECKBOX'}">
+                         
+                          <input type="checkbox" id="${groupTypeForEdit.configId}__id" name="${groupTypeForEdit.configId}__name"
+                           ${groupTypeForEdit.value == 'true' ? 'checked="checked"' : ''}
+                           value="true"
+                           onclick="if($(this).is(':checked')) {$('.${groupTypeForEdit.attributeDefName.id}__class').show(300);} else { $('.${groupTypeForEdit.attributeDefName.id}__class').hide(200); }"
+                          />
+                        </c:if>
+                        <span class="help-block">${grouper:escapeHtml(groupTypeForEdit.description)}</span>
+                      </div>
+                    </div>
+                  
+                  </c:forEach>
+                  
+                  
                   <p class="shownAdvancedProperties"><a href="#" 
                     onclick="$('.hiddenAdvancedProperties').show('slow'); $('.shownAdvancedProperties').hide('slow'); return false;" 
                     >${textContainer.text['groupCreateAdvanced'] } <i class="fa fa-angle-down"></i></a></p>

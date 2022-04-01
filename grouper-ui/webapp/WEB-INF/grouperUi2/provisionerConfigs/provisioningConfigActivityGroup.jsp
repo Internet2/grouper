@@ -1,5 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+   <c:set value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration}" var="guiProvisionerConfiguration" />
+
 <div class="row-fluid">
    <c:choose>
      <c:when test="${fn:length(grouperRequestContainer.provisionerConfigurationContainer.activityForGroup) > 0}">

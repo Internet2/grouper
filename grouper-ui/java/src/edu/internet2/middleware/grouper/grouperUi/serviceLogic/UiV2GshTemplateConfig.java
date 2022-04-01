@@ -161,7 +161,7 @@ public class UiV2GshTemplateConfig {
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      gshTemplateConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      gshTemplateConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
@@ -285,7 +285,9 @@ public class UiV2GshTemplateConfig {
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      gshTemplateConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      List<String> actionsPerformed = new ArrayList<String>();
+
+      gshTemplateConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 

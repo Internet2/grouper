@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.customUi;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -62,32 +63,9 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
    return (List<CustomUiConfiguration>) (Object) retrieveAllConfigurations(classNames);
   }
   
-  /**
-   * is the config enabled or not
-   * @return
-   */
-  @Override
-  public boolean isEnabled() {
-   try {
-     GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
-     String enabledString = enabledAttribute.getValue();
-     if (StringUtils.isBlank(enabledString)) {
-       enabledString = enabledAttribute.getDefaultValue();
-     }
-     return GrouperUtil.booleanValue(enabledString, true);
-   } catch (Exception e) {
-     return false;
-   }
-    
-  }
-  
   public String getGroupId() {
     try {
-      GrouperConfigurationModuleAttribute groupUUIDOrNameAttribute = this.retrieveAttributes().get("groupUUIDOrName");
-      String groupUuidOrNameString = groupUUIDOrNameAttribute.getValue();
-      if (StringUtils.isBlank(groupUuidOrNameString)) {
-        throw new RuntimeException("groupUUIDOrName cannot be blank!!");
-      }
+      String groupUuidOrNameString = this.retrieveAttributeValueFromConfig("groupUUIDOrName", true);
       
       Group group = GroupFinder.findByUuid(groupUuidOrNameString, false);
       if (group == null) {
@@ -98,30 +76,6 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
       throw new RuntimeException("could not find group for custom ui configId "+this.getConfigId());
     }
     
-  }
-  
-  /**
-   * change status of config to disable/enable
-   * @param enable
-   * @param message
-   * @param errorsToDisplay
-   * @param validationErrorsToDisplay
-   */
-  public void changeStatus(boolean enable, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
-    
-    GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
-    enabledAttribute.setValue(enable? "true": "false");
-    
-    ConfigFileName configFileName = this.getConfigFileName();
-    ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
-
-    DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
-        enabledAttribute.getFullPropertyName(), 
-        enabledAttribute.isExpressionLanguage() ? "true" : "false", 
-        enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
-        enabledAttribute.isPassword(), message, new Boolean[] {false},
-        new Boolean[] {false}, true, "Custom UI status changed", errorsToDisplay, validationErrorsToDisplay, false);    
-    ConfigPropertiesCascadeBase.clearCache();
   }
   
   private void validateAttributeDefIds(Map<String, String> validationErrorsToDisplay) {

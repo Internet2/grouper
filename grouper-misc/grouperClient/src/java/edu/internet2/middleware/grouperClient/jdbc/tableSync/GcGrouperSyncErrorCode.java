@@ -16,5 +16,8 @@ public enum GcGrouperSyncErrorCode {
   REQ,
 
   /** object is missing in the target and not able to be inserted */
-  DNE;
+  DNE,
+  
+  /** group has no members, and configured to be not provisionable */
+  MEM;
 }

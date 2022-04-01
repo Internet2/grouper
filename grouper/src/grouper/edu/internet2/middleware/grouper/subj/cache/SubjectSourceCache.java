@@ -17,15 +17,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import org.apache.commons.collections.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -1251,7 +1253,7 @@ public class SubjectSourceCache {
           }
           updateSubjectInCache(subject, subjectSourceCacheItem, source.getId(), true, id, true, retrieved, false);
 
-          subject = cloneSubject(subject);
+          subject = SubjectImpl.cloneSubject(subject);
 
         }
 
@@ -1520,7 +1522,7 @@ public class SubjectSourceCache {
           }
           updateSubjectInCache(subject, subjectSourceCacheItem, source.getId(), false, identifier, true, retrieved, false);
           
-          subject = cloneSubject(subject);
+          subject = SubjectImpl.cloneSubject(subject);
         }
         
         resolved = subject != null;
@@ -1669,7 +1671,7 @@ public class SubjectSourceCache {
           updateSubjectInCache(subject, subjectSourceCacheItem, source.getId(), 
               foundById, idOrIdentifier, true, retrieved, false);
 
-          subject = cloneSubject(subject);
+          subject = SubjectImpl.cloneSubject(subject);
 
         }
         resolved = subject != null;
@@ -1857,28 +1859,6 @@ public class SubjectSourceCache {
     }
     
   }
-
-  /**
-   * 
-   * @param subject
-   * @return the cloned subject
-   */
-  public static Subject cloneSubject(Subject subject) {
-
-    if (subject == null) {
-      return null;
-    }
-    
-    if (SubjectConfig.retrieveConfig().propertyValueBoolean("subject.cache.cloneSubjectsOnReturn", true)) {
-      Subject clonedSubject = new SubjectImpl(subject.getId(), subject.getName(), 
-          subject.getDescription(), subject.getTypeName(), subject.getSourceId(), 
-          subject.getAttributes(false));
-      clonedSubject.setTranslationMap(subject.getTranslationMap());
-      return clonedSubject;
-    }
-    
-    return subject;
-  }
   
   /**
    * @param subjects
@@ -1892,7 +1872,7 @@ public class SubjectSourceCache {
     
     if (SubjectConfig.retrieveConfig().propertyValueBoolean("subject.cache.cloneSubjectsOnReturn", true)) {
       for (Map.Entry<String, Subject> entry : subjects.entrySet()) {
-        subjects.put(entry.getKey(), cloneSubject(entry.getValue()));
+        subjects.put(entry.getKey(), SubjectImpl.cloneSubject(entry.getValue()));
       }
     }
     

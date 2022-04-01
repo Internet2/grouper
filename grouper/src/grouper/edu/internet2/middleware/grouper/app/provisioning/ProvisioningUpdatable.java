@@ -16,6 +16,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public abstract class ProvisioningUpdatable {
 
+  public String provisioningUpdatableTypeShort() {
+    
+    if (this instanceof ProvisioningGroup) {
+      return "G";
+    }
+    if (this instanceof ProvisioningEntity) {
+      return "E";
+    }
+    if (this instanceof ProvisioningMembership) {
+      return "M";
+    }
+    throw new RuntimeException("Not expecting provisioning updatable: " + this.getClass());
+  }
+
   public boolean isRecalc() {
     if (this instanceof ProvisioningGroup) {
       return ((ProvisioningGroup)this).getProvisioningGroupWrapper().isRecalc();
@@ -42,10 +56,10 @@ public abstract class ProvisioningUpdatable {
   /**
    * see if this object is empty e.g. after translating if empty then dont keep track of group
    * since the translation might have affected another object
-   * @return
+   * @return true if empty
    */
-  protected final boolean isEmptyUpdatable() {
-    if (matchingId == null && GrouperUtil.length(this.attributes) == 0) {
+  public boolean isEmpty() {
+    if (this.matchingId == null && GrouperUtil.length(this.attributes) == 0) {
       return true;
     }
     return false;
@@ -227,7 +241,7 @@ public abstract class ProvisioningUpdatable {
    */
   public void addAttributeValueForMembership(String name, Object value) {
     
-    ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslatorBase.retrieveProvisioningMembershipWrapper();
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslator.retrieveProvisioningMembershipWrapper();
     
     if (provisioningMembershipWrapper == null) {
       throw new NullPointerException("Cant find membership wrapper! " + name + ", " + value + ", " + this);
@@ -276,14 +290,14 @@ public abstract class ProvisioningUpdatable {
     
     ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
     
-    Set<Object> values = null;
+    Collection<Object> values = null;
     
     if (provisioningAttribute == null) {
       provisioningAttribute = new ProvisioningAttribute();
       this.attributes.put(name, provisioningAttribute);
       provisioningAttribute.setName(name);
     } else {
-      values = (Set<Object>)provisioningAttribute.getValue();
+      values = (Collection<Object>)provisioningAttribute.getValue();
     }
     
     if (values == null) {
@@ -486,10 +500,6 @@ public abstract class ProvisioningUpdatable {
         }
 
         result.append(provisioningObjectChange.getProvisioningObjectChangeAction()).append(" ");
-        result.append(provisioningObjectChange.getProvisioningObjectChangeDataType()).append(" ");
-        result.append(
-            provisioningObjectChange.getProvisioningObjectChangeDataType() == ProvisioningObjectChangeDataType.field ? 
-                provisioningObjectChange.getFieldName() : provisioningObjectChange.getAttributeName()).append(" ");
         switch(provisioningObjectChange.getProvisioningObjectChangeAction()) {
           case insert:
             result.append(stringValueWithType(provisioningObjectChange.getNewValue()));
@@ -556,8 +566,6 @@ public abstract class ProvisioningUpdatable {
         }
         index++;
       }
-    } else if (fieldValue.getClass().isArray() || fieldValue instanceof Map) {
-      result.append(GrouperUtil.toStringForLog(fieldValue, 1000));
     } else {
       result.append(stringValueWithType(fieldValue));
     }

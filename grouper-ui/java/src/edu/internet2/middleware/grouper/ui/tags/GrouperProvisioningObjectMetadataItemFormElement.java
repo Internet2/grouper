@@ -194,12 +194,18 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
     field.append("<td style='vertical-align: top; white-space: nowrap;' >");
     
     String displayClass = "";
+    GrouperProvisioningObjectMetadataItemFormElementType configItemFormElement = GrouperProvisioningObjectMetadataItemFormElementType.valueOfIgnoreCase(formElementType, true);
+
     if (readOnly) {
-      field.append(GrouperUtil.escapeHtml(value, true) + " ");
+      
+      if (configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON && 
+          configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN) {
+        field.append(GrouperUtil.escapeHtml(value, true) + " ");
+      }
+      
       displayClass = " display: none; ";
     }
     
-    GrouperProvisioningObjectMetadataItemFormElementType configItemFormElement = GrouperProvisioningObjectMetadataItemFormElementType.valueOfIgnoreCase(formElementType, true);
     
     if (configItemFormElement == GrouperProvisioningObjectMetadataItemFormElementType.TEXT) {
       
@@ -225,48 +231,78 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
     
     if (configItemFormElement == GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN) {
       
-      field.append("<select style='width:30em; "+ displayClass + "' id='"+name+"_id' name='"+name+"' ");
-      
-      field.append("onchange=\""+ajaxCallback+"\"");
-      field.append(">");
-      
-      for (MultiKey multiKey: valuesAndLabels) {
+      if (readOnly) {
+        for (MultiKey multiKey: valuesAndLabels) {
+          
+          String key = (String) multiKey.getKey(0);
+          String optionValue = (String) multiKey.getKey(1);
+          
+          boolean selected = StringUtils.equals(key, value);
+          if (!selected) {
+            continue;
+          }
+          field.append("<span style='margin-right: 10px;'>"+optionValue+"</span>"); 
+        }
+      } else {
+        field.append("<select style='width:30em; "+ displayClass + "' id='"+name+"_id' name='"+name+"' ");
         
-        String key = (String) multiKey.getKey(0);
-        String optionValue = (String) multiKey.getKey(1);
+        field.append("onchange=\""+ajaxCallback+"\"");
+        field.append(">");
         
-        boolean selected = StringUtils.equals(key, value);
+        for (MultiKey multiKey: valuesAndLabels) {
+          
+          String key = (String) multiKey.getKey(0);
+          String optionValue = (String) multiKey.getKey(1);
+          
+          boolean selected = StringUtils.equals(key, value);
+          
+          field.append("<option value='"+key+"'" + (selected ? " selected='selected'" : "") + ">");
+          field.append(GrouperUtil.escapeHtml(optionValue, true));
+          field.append("</option>");
+        }
         
-        field.append("<option value='"+key+"'" + (selected ? " selected='selected'" : "") + ">");
-        field.append(GrouperUtil.escapeHtml(optionValue, true));
-        field.append("</option>");
+        field.append("</select>");
       }
       
-      field.append("</select>");
     }
     
     if (configItemFormElement == GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON) {
       
       boolean firstOption = true;
-      for (MultiKey multiKey: valuesAndLabels) {
-        
-        String key = (String) multiKey.getKey(0);
-        String radioButtonValue = (String) multiKey.getKey(1);
-        boolean checked = StringUtils.equals(key, value);
-
-        field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='"+name+"_id' name='"+name+"' value='"+key+"' ");
-        field.append(checked ? " checked ": "");
-        field.append("onchange=\""+ajaxCallback+"\"");
-        field.append(">");
-        field.append("</input>");
-        
-        if (firstOption) {
-          firstOption = false;
-          field.append("<span style='display: inline-block; width: 120px;'>"+radioButtonValue+"</span>");
-        } else {
+      
+      if (readOnly) {
+        for (MultiKey multiKey: valuesAndLabels) {
+          
+          String key = (String) multiKey.getKey(0);
+          String radioButtonValue = (String) multiKey.getKey(1);
+          boolean checked = StringUtils.equals(key, value);
+          if (!checked) {
+            continue;
+          }
           field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
         }
+      } else {
+        for (MultiKey multiKey: valuesAndLabels) {
+          
+          String key = (String) multiKey.getKey(0);
+          String radioButtonValue = (String) multiKey.getKey(1);
+          boolean checked = StringUtils.equals(key, value);
+
+          field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='"+name+"_id' name='"+name+"' value='"+key+"' ");
+          field.append(checked ? " checked ": "");
+          field.append("onchange=\""+ajaxCallback+"\"");
+          field.append(">");
+          field.append("</input>");
+          
+          if (firstOption) {
+            firstOption = false;
+            field.append("<span style='display: inline-block; width: 120px;'>"+radioButtonValue+"</span>");
+          } else {
+            field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
+          }
+        }
       }
+      
     }
     
     

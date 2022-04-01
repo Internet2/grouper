@@ -319,6 +319,7 @@
                 <artifactId>swagger-maven-plugin</artifactId>
                 <version>3.1.8</version>
                 <configuration>
+                    <skipSwaggerGeneration>true</skipSwaggerGeneration>
                     <apiSources>
                       <apiSource>
                             <springmvc>false</springmvc>
@@ -326,7 +327,7 @@
                               <location>edu.internet2.middleware.grouper.ws.rest.GrouperServiceRest</location>
                               <location>edu.internet2.middleware.grouper.ws.coresoap.GrouperService</location>
                             </locations>
-                            <schemes>https</schemes>
+                            <schemes><scheme>https</scheme></schemes>
                             <host>grouper.institution.edu</host>
                             <basePath></basePath>
                             <info>

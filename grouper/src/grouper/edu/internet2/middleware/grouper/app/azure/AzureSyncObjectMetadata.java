@@ -21,6 +21,33 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
    */
   public void initBuiltInMetadata() {
     super.initBuiltInMetadata();
+    
+    if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isAllowOnlyMembersToPost() &&
+        !this.containsMetadataItemByName("md_grouper_azureGroupType")) {
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+
+      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataAzureGroupTypeDescription");
+      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAzureGroupTypeLabel");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_azureGroupType");
+      grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setCanUpdate(false);
+      //grouperProvisioningObjectMetadataItem.setValidateUniqueValue(true);
+      
+      grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
+      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN);
+      
+      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+      
+      valuesAndLabels.add(new MultiKey("groupTypeMailEnabled", GrouperTextContainer.textOrNull("config.azureGroupTypeMailEnabled") ));
+      valuesAndLabels.add(new MultiKey("groupTypeMailEnabledSecurity", GrouperTextContainer.textOrNull("config.azureGroupTypeMailEnabledSecurity")));
+      valuesAndLabels.add(new MultiKey("groupTypeSecurity", GrouperTextContainer.textOrNull("config.azureGroupTypeSecurity")));
+      valuesAndLabels.add(new MultiKey("groupTypeUnifiedSecurityEnabled", GrouperTextContainer.textOrNull("config.azureGroupTypeUnifiedSecurityEnabled")));
+      valuesAndLabels.add(new MultiKey("groupTypeUnifiedNotSecurityEnabled", GrouperTextContainer.textOrNull("config.azureGroupTypeUnifiedNotSecurityEnabled")));
+      
+      grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
+      
+      this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
+    }
 
     if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isAllowOnlyMembersToPost() &&
         !this.containsMetadataItemByName("md_grouper_allowOnlyMembersToPost")) {
@@ -31,6 +58,8 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowOnlyMembersToPost");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
+      //grouperProvisioningObjectMetadataItem.setValidateUniqueValue(true);
+      
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       

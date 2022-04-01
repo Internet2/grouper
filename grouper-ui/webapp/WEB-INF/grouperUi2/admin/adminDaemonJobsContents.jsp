@@ -74,27 +74,29 @@
                                 ${textContainer.text['adminDaemonJobsMoreActionsDefaultText'] } <span class="caret"></span>
                               </a>
                               <ul class="dropdown-menu dropdown-menu-right" id="daemon-jobs-more-actions">
-                                <c:if test="${guiDaemonJob.showMoreActionsRunNow}" >
-                                  <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=runNow&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsRunNow'] }</a></li>
-                                </c:if>
-                                <c:if test="${guiDaemonJob.showMoreActionsEnable}" >
-                                  <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=enable&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsEnable'] }</a></li>
-                                </c:if>
-                                <c:if test="${guiDaemonJob.showMoreActionsDisable}" >
-                                  <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=disable&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsDisable'] }</a></li>
-                                </c:if>
-                                <c:if test="${guiDaemonJob.failsafeNeedsApproval}" >
-                                  <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=failsafeApprove&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsFailsafeApprove'] }</a></li>
-                                </c:if>
-                                <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsLogs'] }</a></li>
                                 <c:if test="${guiDaemonJob.loader == false}">
 	                                <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.editDaemon&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
                                 </c:if>
                                 <c:if test="${guiDaemonJob.loader == true}">
 	                                <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.editGrouperLoader&${guiDaemonJob.editQueryParam}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
                                 </c:if>
+                                <c:if test="${guiDaemonJob.failsafeNeedsApproval}" >
+                                  <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=failsafeApprove&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsFailsafeApprove'] }</a></li>
+                                </c:if>
+                                <c:if test="${guiDaemonJob.showMoreActionsRunNow}" >
+                                  <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=runNow&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsRunNow'] }</a></li>
+                                </c:if>
+                                <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${guiDaemonJob.jobName}'); return false;">${textContainer.text['adminDaemonJobsMoreActionsLogs'] }</a></li>
+                                <br />
+                                <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['adminDaemonJobsMoreActionsDelete']}</li>
                                 <c:if test="${guiDaemonJob.multiple}">                        
                                   <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['grouperDaemonConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2Admin.deleteDaemon&jobName=${guiDaemonJob.jobName}');}">${textContainer.text['grouperDaemonConfigDeleteJob'] }</a></li>
+                                </c:if>
+                                <c:if test="${guiDaemonJob.showMoreActionsDisable}" >
+                                  <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=disable&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsDisable'] }</a></li>
+                                </c:if>
+                                <c:if test="${guiDaemonJob.showMoreActionsEnable}" >
+                                  <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=enable&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId, daemonJobsPagingFormPageNumberId'}); return false;" >${textContainer.text['adminDaemonJobsMoreActionsEnable'] }</a></li>
                                 </c:if>
                               </ul>
                             </div>

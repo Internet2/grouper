@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperCacheConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -33,6 +34,7 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 
@@ -251,17 +253,37 @@ public enum ConfigFileName {
     return true;
   }
   
+  private static ExpirableCache<ConfigFileName, ConfigFileMetadata> configFileNameToConfigFileMetadataCache = new ExpirableCache<ConfigFileName, ConfigFileMetadata>(10);
+  
   /**
    * 
    * @return config file metadata
    */
   public ConfigFileMetadata configFileMetadata() {
     if (this.isUseBaseForConfigFileMetadata()) {
-      String contents = this.fileContents();
-      if (StringUtils.isBlank(contents)) {
-        return null;
+      
+      // cache this since its heavyweight
+      ConfigFileMetadata configFileMetadata = configFileNameToConfigFileMetadataCache.get(this);
+      if (GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("configuration.cacheJsonMetadata", true)) {
+        configFileMetadata = null;
       }
-      ConfigFileMetadata configFileMetadata = ConfigFileMetadata.generateMetadataForConfigFile(this, contents);
+      if (configFileMetadata == null) {
+        synchronized(this) {
+          configFileMetadata = configFileNameToConfigFileMetadataCache.get(this);
+          if (GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("configuration.cacheJsonMetadata", true)) {
+            configFileMetadata = null;
+          }
+          if (configFileMetadata == null) {
+            
+            String contents = this.fileContents();
+            if (!StringUtils.isBlank(contents)) {
+              configFileMetadata = ConfigFileMetadata.generateMetadataForConfigFile(this, contents);
+            }
+            configFileNameToConfigFileMetadataCache.put(this, configFileMetadata);
+          }          
+        }
+      }
+      
       return configFileMetadata;
     }
     // lets just make metadata on whats in the database and non base config file

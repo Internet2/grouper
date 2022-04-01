@@ -882,7 +882,7 @@ public class UiV2Membership {
       Date startDate = null;
       try {
         String startDateString = request.getParameter("startDate");
-        startDate = GrouperUtil.stringToTimestamp(startDateString);
+        startDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(startDateString);
       } catch (Exception e) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#member-start-date",
@@ -893,7 +893,7 @@ public class UiV2Membership {
       Date endDate = null;
       try {
         String endDateString = request.getParameter("endDate");
-        endDate = GrouperUtil.stringToTimestamp(endDateString);
+        endDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(endDateString);
       } catch (Exception e) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#member-end-date",

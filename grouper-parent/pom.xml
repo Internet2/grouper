@@ -97,7 +97,8 @@
         <c3p0.version>0.9.5.4</c3p0.version>
         <c3p0.oracle.thin.extras.version>0.9.5</c3p0.oracle.thin.extras.version>
         <mchange.commons.version>0.2.15</mchange.commons.version>
-        <cglib.version>3.1</cglib.version>
+        <cglib.version>3.3.0</cglib.version>
+        <felix.version>7.0.3</felix.version>
         <jamon.version>2.81</jamon.version>
         <xstream.version>1.4.9</xstream.version>
         <jsch.version>0.1.55</jsch.version>
@@ -166,8 +167,8 @@
         <groovyall.version>2.5.0-beta-2</groovyall.version>
         <jline.version>2.14.5</jline.version>
         <p6spy.version>3.6.0</p6spy.version>
-        <postgresql.version>42.2.19</postgresql.version>
-        <mysql.connector.java.version>8.0.23</mysql.connector.java.version>
+        <postgresql.version>42.3.2</postgresql.version>
+        <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
         <ldaptive.version>1.1.2</ldaptive.version>
         <xml.apis.version>1.4.01</xml.apis.version>
         <aws.java.sdk.core>1.11.529</aws.java.sdk.core>
@@ -324,6 +325,11 @@
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
                 <version>${cglib.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>org.apache.felix.framework</artifactId>
+              <version>${felix.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>

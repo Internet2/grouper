@@ -433,7 +433,12 @@ public class GrouperNonDbAccessAdapter extends BaseAccessAdapter implements Acce
       copiedMembership.setCreateTimeLong(new Date().getTime());
       copiedMembership.setImmediateMembershipId(GrouperUuid.getUuid());
       copiedMembership.setHibernateVersionNumber(-1L);
-      GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
+      
+      try {
+        GrouperDAOFactory.getFactory().getMembership().save(copiedMembership);
+      } catch (MembershipAlreadyExistsException e) {
+        // this is okay
+      }
     }
     
   }

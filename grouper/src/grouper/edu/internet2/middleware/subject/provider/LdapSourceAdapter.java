@@ -160,7 +160,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     }
     
 
-    Map<String, String> virtualAttributes = SubjectUtils.nonNull(SubjectImpl.virtualAttributesForSource(this));
+    Map<String, String> virtualAttributes = SubjectUtils.nonNull(BaseSourceAdapter.virtualAttributesForSourceLegacy(this));
 
     // GRP-1669: grouper sends virtual attribute names to ldap
     //take out dupes and virtuals

@@ -5,10 +5,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
-public class DuoProvisionerConfiguration extends ProvisionerConfiguration {
+public class DuoProvisionerConfiguration extends ProvisioningConfiguration {
 
   @Override
   public ConfigFileName getConfigFileName() {
@@ -44,16 +44,16 @@ public class DuoProvisionerConfiguration extends ProvisionerConfiguration {
   
   @Override
   public void insertConfig(boolean fromUi, StringBuilder message,
-      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
     assignCacheConfig();
-    super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
+    super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
   }
 
   @Override
   public void editConfig(boolean fromUi, StringBuilder message,
-      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
     assignCacheConfig();
-    super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay);
+    super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
   }
   
   

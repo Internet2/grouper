@@ -16,6 +16,18 @@
                     <%@ include file="externalSystemsMoreActionsButtonContents.jsp"%>
                   </div>
                 </div>
+                
+                <div class="row-fluid">
+                  <div class="span12">
+                    <p style="margin-top: -1em; margin-bottom: 1em">
+                      ${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.description}
+                    </p>
+                    <p style="margin-top: -1em; margin-bottom: 1em">
+                      ${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem.grouperExternalSystem.documentation}
+                    </p>
+                  </div>
+                </div>
+        
               </div>
             </div>
               

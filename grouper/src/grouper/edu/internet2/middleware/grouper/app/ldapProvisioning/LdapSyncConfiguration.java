@@ -9,14 +9,14 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationBase;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * an instance of this class focuses on the configuration for ldap sync
  * create an instance, set the key, and call configure
  */
-public class LdapSyncConfiguration extends GrouperProvisioningConfigurationBase {
+public class LdapSyncConfiguration extends GrouperProvisioningConfiguration {
 
   private String ldapExternalSystemConfigId;
   private String userSearchBaseDn;

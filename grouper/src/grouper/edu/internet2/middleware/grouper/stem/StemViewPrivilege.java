@@ -71,6 +71,115 @@ public class StemViewPrivilege implements Serializable {
     this.objectType = objectType;
   }
 
+  /**
+   * 
+   * @param debugMap
+   * @param memberIdsList
+   * @return the list of member ids to reprocess
+   */
+  public static List<String> recalculateStemViewPrivilegesLastLoginInsert(
+      Map<String, Object> debugMap, final List<String> memberIdsList, String logPrefix) {
+    List<String> memberIdsToProcessAgain = new ArrayList<String>();
+    if (GrouperUtil.length(memberIdsList) == 0) {
+      return memberIdsToProcessAgain;
+    }
+    long groupStemStartNanos = System.nanoTime();
+    
+    // update last login
+    int rowsLastLoginInsert = 0;
+    
+    StringBuilder sql = new StringBuilder("insert into grouper_last_login (member_uuid, last_stem_view_compute) values (?, ?)");
+    
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    
+    List<List<Object>> batchBindVariables = new ArrayList<List<Object>>();
+    long nowMillis = System.currentTimeMillis();
+    for (String memberId : memberIdsList) {
+      batchBindVariables.add(GrouperUtil.toList(memberId, nowMillis));
+    }
+    try {
+      int[] rowsInserted = gcDbAccess.batchBindVars(batchBindVariables).sql(sql.toString()).executeBatchSql();
+      
+    
+      for (int i=0;i<memberIdsList.size(); i++) {
+        if (rowsInserted[i] != 1) {
+          memberIdsToProcessAgain.add(memberIdsList.get(i));
+        } else {
+          rowsLastLoginInsert++;
+        }
+      }
+    } catch (RuntimeException re) {
+      
+      // try again
+      for (String memberId : memberIdsList) {
+        try {
+          
+          gcDbAccess = new GcDbAccess().sql(sql.toString()).addBindVar(memberId).addBindVar(nowMillis);
+          int rowCount = gcDbAccess.executeSql();
+          if (rowCount != 1) {
+            memberIdsList.add(memberId);
+          } else {
+            rowsLastLoginInsert++;
+          }
+        } catch (RuntimeException re2) {
+          
+          memberIdsToProcessAgain.add(memberId);
+        }
+      }      
+    }
+    debugMap.put(logPrefix + "rowsLastLoginInsert", rowsLastLoginInsert);
+    debugMap.put(logPrefix + "rowsLastLoginInsertTookMs", (System.nanoTime()-groupStemStartNanos) / 1000000);
+    debugMap.put(logPrefix + "lastLoginInsertProcessAgainCount", GrouperUtil.length(memberIdsToProcessAgain));
+    return memberIdsToProcessAgain;
+  }
+
+
+  /**
+   * 
+   * @param debugMap
+   * @param memberIdsList
+   * @return the list of member ids to reprocess
+   */
+  public static List<String> recalculateStemViewPrivilegesLastLoginUpdate(
+      Map<String, Object> debugMap, final List<String> memberIdsList, String logPrefix) {
+    List<String> memberIdsToProcessAgain = new ArrayList<String>();
+    if (GrouperUtil.length(memberIdsList) == 0) {
+      return memberIdsToProcessAgain;
+    }
+    long groupStemStartNanos;
+    groupStemStartNanos = System.nanoTime();
+    
+    // update last login
+    int rowsLastLoginUpdate = 0;
+    
+    StringBuilder sql = new StringBuilder("update grouper_last_login set last_stem_view_compute = ? where member_uuid = ?");
+    
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    
+    List<List<Object>> batchBindVariables = new ArrayList<List<Object>>();
+  
+    long nowMillis = System.currentTimeMillis();
+  
+    for (String memberId : memberIdsList) {
+      batchBindVariables.add(GrouperUtil.toList(nowMillis, memberId));
+    }
+    
+    int[] rowsUpdated = gcDbAccess.batchBindVars(batchBindVariables).sql(sql.toString()).executeBatchSql();
+    
+    for (int i=0;i<memberIdsList.size(); i++) {
+      if (rowsUpdated[i] != 1) {
+        memberIdsToProcessAgain.add(memberIdsList.get(i));
+      } else {
+        rowsLastLoginUpdate++;
+      }
+    }
+  
+    debugMap.put(logPrefix + "rowsLastLoginUpdate", rowsLastLoginUpdate);
+    debugMap.put(logPrefix+ "rowsLastLoginUpdateTookMs", (System.nanoTime()-groupStemStartNanos) / 1000000);
+    debugMap.put(logPrefix+ "lastLoginUpdateProcessAgainCount", GrouperUtil.length(memberIdsToProcessAgain));
+    return memberIdsToProcessAgain;
+  }
+
   static final int BATCH_SIZE = 200;
 
   public static void main(String[] args) {
@@ -195,7 +304,7 @@ public class StemViewPrivilege implements Serializable {
       List<String> memberIdsToProcessAgain = recalculateStemViewPrivilegesLastLoginUpdate(debugMap, memberIdsList, "pass1_");
       
       // if it wasnt there, insert
-      memberIdsToProcessAgain = recalculateStemViewPrivilegesLastLoginInsert(debugMap, memberIdsToProcessAgain);
+      memberIdsToProcessAgain = recalculateStemViewPrivilegesLastLoginInsert(debugMap, memberIdsToProcessAgain, "");
       
       // if had problem with insert, update one more time
       recalculateStemViewPrivilegesLastLoginUpdate(debugMap, memberIdsToProcessAgain, "pass2_");
@@ -334,11 +443,10 @@ public class StemViewPrivilege implements Serializable {
    * @param memberIdsList
    * @return the list of member ids to reprocess
    */
-  private static List<String> recalculateStemViewPrivilegesLastLoginUpdate(
+  public static void recalculateStemViewPrivilegesLastStemViewNeedUpdate(
       Map<String, Object> debugMap, final List<String> memberIdsList, String logPrefix) {
-    List<String> memberIdsToProcessAgain = new ArrayList<String>();
     if (GrouperUtil.length(memberIdsList) == 0) {
-      return memberIdsToProcessAgain;
+      return;
     }
     long groupStemStartNanos;
     groupStemStartNanos = System.nanoTime();
@@ -346,7 +454,7 @@ public class StemViewPrivilege implements Serializable {
     // update last login
     int rowsLastLoginUpdate = 0;
     
-    StringBuilder sql = new StringBuilder("update grouper_last_login set last_stem_view_compute = ? where member_uuid = ?");
+    StringBuilder sql = new StringBuilder("update grouper_last_login set last_stem_view_need = ? where member_uuid = ?");
     
     GcDbAccess gcDbAccess = new GcDbAccess();
     
@@ -361,37 +469,31 @@ public class StemViewPrivilege implements Serializable {
     int[] rowsUpdated = gcDbAccess.batchBindVars(batchBindVariables).sql(sql.toString()).executeBatchSql();
     
     for (int i=0;i<memberIdsList.size(); i++) {
-      if (rowsUpdated[i] != 1) {
-        memberIdsToProcessAgain.add(memberIdsList.get(i));
-      } else {
+      if (rowsUpdated[i] == 1) {
         rowsLastLoginUpdate++;
       }
     }
 
-    debugMap.put(logPrefix + "rowsLastLoginUpdate", rowsLastLoginUpdate);
-    debugMap.put(logPrefix+ "rowsLastLoginUpdateTookMs", (System.nanoTime()-groupStemStartNanos) / 1000000);
-    debugMap.put(logPrefix+ "lastLoginUpdateProcessAgainCount", GrouperUtil.length(memberIdsToProcessAgain));
-    return memberIdsToProcessAgain;
+    debugMap.put(logPrefix + "rowsStemViewNeedUpdate", rowsLastLoginUpdate);
+    debugMap.put(logPrefix+ "rowsStemViewNeedTookMs", (System.nanoTime()-groupStemStartNanos) / 1000000);
   }
 
   /**
    * 
    * @param debugMap
    * @param memberIdsList
-   * @return the list of member ids to reprocess
    */
-  private static List<String> recalculateStemViewPrivilegesLastLoginInsert(
-      Map<String, Object> debugMap, final List<String> memberIdsList) {
-    List<String> memberIdsToProcessAgain = new ArrayList<String>();
+  public static void recalculateStemViewPrivilegesLastStemViewNeedInsert(
+      Map<String, Object> debugMap, final List<String> memberIdsList, String logPrefix) {
     if (GrouperUtil.length(memberIdsList) == 0) {
-      return memberIdsToProcessAgain;
+      return;
     }
     long groupStemStartNanos = System.nanoTime();
     
     // update last login
     int rowsLastLoginInsert = 0;
     
-    StringBuilder sql = new StringBuilder("insert into grouper_last_login (member_uuid, last_stem_view_compute) values (?, ?)");
+    StringBuilder sql = new StringBuilder("insert into grouper_last_login (member_uuid, last_stem_view_need) values (?, ?)");
     
     GcDbAccess gcDbAccess = new GcDbAccess();
     
@@ -400,40 +502,16 @@ public class StemViewPrivilege implements Serializable {
     for (String memberId : memberIdsList) {
       batchBindVariables.add(GrouperUtil.toList(memberId, nowMillis));
     }
-    try {
-      int[] rowsInserted = gcDbAccess.batchBindVars(batchBindVariables).sql(sql.toString()).executeBatchSql();
-      
+    int[] rowsInserted = gcDbAccess.batchBindVars(batchBindVariables).sql(sql.toString()).executeBatchSql();
     
-      for (int i=0;i<memberIdsList.size(); i++) {
-        if (rowsInserted[i] != 1) {
-          memberIdsToProcessAgain.add(memberIdsList.get(i));
-        } else {
-          rowsLastLoginInsert++;
-        }
+  
+    for (int i=0;i<memberIdsList.size(); i++) {
+      if (rowsInserted[i] == 1) {
+        rowsLastLoginInsert++;
       }
-    } catch (RuntimeException re) {
-      
-      // try again
-      for (String memberId : memberIdsList) {
-        try {
-          
-          gcDbAccess = new GcDbAccess().sql(sql.toString()).addBindVar(memberId).addBindVar(nowMillis);
-          int rowCount = gcDbAccess.executeSql();
-          if (rowCount != 1) {
-            memberIdsList.add(memberId);
-          } else {
-            rowsLastLoginInsert++;
-          }
-        } catch (RuntimeException re2) {
-          
-          memberIdsToProcessAgain.add(memberId);
-        }
-      }      
     }
-    debugMap.put("rowsLastLoginInsert", rowsLastLoginInsert);
-    debugMap.put("rowsLastLoginInsertTookMs", (System.nanoTime()-groupStemStartNanos) / 1000000);
-    debugMap.put("lastLoginInsertProcessAgainCount", GrouperUtil.length(memberIdsToProcessAgain));
-    return memberIdsToProcessAgain;
+    debugMap.put(logPrefix + "rowsStemViewNeedInsert", rowsLastLoginInsert);
+    debugMap.put(logPrefix + "rowsStemViewNeedInsertTookMs", (System.nanoTime()-groupStemStartNanos) / 1000000);
   }
 
   /**

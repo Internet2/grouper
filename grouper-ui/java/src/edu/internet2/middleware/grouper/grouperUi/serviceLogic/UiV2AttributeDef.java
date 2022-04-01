@@ -43,6 +43,8 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
+import edu.internet2.middleware.grouper.attr.AttributeDefScope;
+import edu.internet2.middleware.grouper.attr.AttributeDefScopeType;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -1206,6 +1208,91 @@ public class UiV2AttributeDef {
   }
   
   /**
+   * when the attribute def assign to is changed. This method is only called when attribute assignment is checked/unchecked  
+   * @param request
+   * @param response
+   */
+  public void attributeDefAssignToChanged(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      boolean showMarkerScopeSection = false;
+      String attributeAssignChecked = request.getParameter("attributeDefToEditAssignToAttributeDefAssign");
+      if (GrouperUtil.booleanValue(attributeAssignChecked, false)) {
+        showMarkerScopeSection = true;
+      }
+      if (showMarkerScopeSection || GrouperUtil.booleanValue(request.getParameter("attributeDefToEditAssignToStemAssign"), false)) {
+        showMarkerScopeSection = true;
+      }
+      if (showMarkerScopeSection || GrouperUtil.booleanValue(request.getParameter("attributeDefToEditAssignToGroupAssign"), false)) {
+        showMarkerScopeSection = true;
+      }
+      if (showMarkerScopeSection || GrouperUtil.booleanValue(request.getParameter("attributeDefToEditAssignToMemberAssign"), false)) {
+        showMarkerScopeSection = true;
+      }
+      if (showMarkerScopeSection || GrouperUtil.booleanValue(request.getParameter("attributeDefToEditAssignToMembership"), false)) {
+        showMarkerScopeSection = true;
+      }
+      if (showMarkerScopeSection || GrouperUtil.booleanValue(request.getParameter("attributeDefToEditAssignToImmediateMembership"), false)) {
+        showMarkerScopeSection = true;
+      }
+      
+      if (showMarkerScopeSection) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('.markerScopeSection').show('slow')"));
+        
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('.markerScopeSection').hide('slow')"));
+      }
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * when the attribute def marker checkbox is checked/unchecked. 
+   * @param request
+   * @param response
+   */
+  public void attributeDefManageMarkerScopeChanged(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    GrouperSession grouperSession = null;
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      boolean showMarkerAttributeDefNameField = false;
+      String manageMarkerScopeChecked = request.getParameter("attributeDefManageMarkerScope");
+      if (GrouperUtil.booleanValue(manageMarkerScopeChecked, false)) {
+        showMarkerAttributeDefNameField = true;
+      }
+      
+      if (showMarkerAttributeDefNameField) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('.markerAttributeDefNameClass').show('slow')"));
+        
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newScript("$('.markerAttributeDefNameClass').hide('slow')"));
+      }
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
    * new attributeDef submit
    * @param request
    * @param response
@@ -1462,6 +1549,38 @@ public class UiV2AttributeDef {
           //do nothing
           break;
       }
+      
+      if (attributeDefToEditAssignToAttributeDefAssignBoolean || attributeDefToEditAssignToStemAssignBoolean
+          || attributeDefToEditAssignToGroupAssignBoolean || attributeDefToEditAssignToMemberAssignBoolean
+          || attributeDefToEditAssignToMembershipAssignBoolean || attributeDefToEditAssignToImmediateMembershipAssignBoolean) {
+        
+        String manageMarkerScopeChecked = request.getParameter("attributeDefManageMarkerScope");
+        if (GrouperUtil.booleanValue(manageMarkerScopeChecked, false)) {
+          String markerAttributeDefName = request.getParameter("markerAttributeDefName");
+          
+          if (StringUtils.isNotBlank(markerAttributeDefName)) {
+            AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(markerAttributeDefName, false);
+            if (attributeDefName == null) {
+              guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                  "#markerAttributeDefNameId",
+                  TextContainer.retrieveFromRequest().getText().get("attributeDefCreateErrorMarkerAttributeDefNameInvalid")));
+              return;
+            }
+            
+            AttributeDef markerAttributeDef = attributeDefName.getAttributeDef();
+            
+            if (!markerAttributeDef.getPrivilegeDelegate().canAttrRead(loggedInSubject) || 
+                !markerAttributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+              guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                  "#markerAttributeDefNameId",
+                  TextContainer.retrieveFromRequest().getText().get("attributeDefCreateErrorMarkerAttributeDefNotCorrectPermissions")));
+              return;
+            }
+           
+          }
+          
+        }
+      }
 
       try {
   
@@ -1488,6 +1607,22 @@ public class UiV2AttributeDef {
             .assignToImmMembership(attributeDefToEditAssignToImmediateMembershipBoolean)
             .assignToImmMembershipAssn(attributeDefToEditAssignToImmediateMembershipAssignBoolean)
             .save();
+        
+        if (attributeDefToEditAssignToAttributeDefAssignBoolean || attributeDefToEditAssignToStemAssignBoolean
+            || attributeDefToEditAssignToGroupAssignBoolean || attributeDefToEditAssignToMemberAssignBoolean
+            || attributeDefToEditAssignToMembershipAssignBoolean || attributeDefToEditAssignToImmediateMembershipAssignBoolean) {
+          
+          String manageMarkerScopeChecked = request.getParameter("attributeDefManageMarkerScope");
+          if (GrouperUtil.booleanValue(manageMarkerScopeChecked, false)) {
+            String markerAttributeDefName = request.getParameter("markerAttributeDefName");
+            
+            if (StringUtils.isNotBlank(markerAttributeDefName)) {
+              AttributeDefScope defScope = attributeDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(markerAttributeDefName);
+              defScope.saveOrUpdate();
+            }
+            
+          }
+        }
   
       } catch (GrouperValidationException gve) {
         handleGrouperValidationException(guiResponseJs, gve);
@@ -1552,6 +1687,44 @@ public class UiV2AttributeDef {
       
       if (attributeDef == null) {
         return;
+      }
+      
+      boolean showMarkerScopeSection = false;
+      if (attributeDef.isAssignToAttributeDefAssn()) {
+        showMarkerScopeSection = true;
+      } else if (attributeDef.isAssignToStemAssn()) {
+        showMarkerScopeSection = true;
+      } else if (attributeDef.isAssignToGroupAssn()) {
+        showMarkerScopeSection = true;
+      } else if (attributeDef.isAssignToMemberAssn()) {
+        showMarkerScopeSection = true;
+      } else if (attributeDef.isAssignToEffMembershipAssn()) {
+        showMarkerScopeSection = true;
+      } else if (attributeDef.isAssignToImmMembershipAssn()) {
+        showMarkerScopeSection = true;
+      }
+      
+      if (showMarkerScopeSection) {
+        
+        GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+        AttributeDefContainer attributeDefContainer = grouperRequestContainer.getAttributeDefContainer();
+        
+        attributeDefContainer.setShowAttributeDefMarkerSection(true);
+        
+        AttributeDefScope attributeDefScopeForAttributeDef = null;
+        Set<AttributeDefScope> attributeDefScopes = attributeDef.getAttributeDefScopeDelegate().retrieveAttributeDefScopes();
+        for (AttributeDefScope attributeDefScope: GrouperUtil.nonNull(attributeDefScopes)) {
+          if (attributeDefScope.getAttributeDefScopeType() == AttributeDefScopeType.nameEquals
+              && StringUtils.isNotBlank(attributeDefScope.getScopeString()) ) {
+            attributeDefScopeForAttributeDef = attributeDefScope;
+            break;
+          }
+        }
+        
+        if (attributeDefScopeForAttributeDef != null) {
+          
+          attributeDefContainer.setAttributeDefScope(attributeDefScopeForAttributeDef);
+        }
       }
   
       GrouperRequestContainer.retrieveFromRequestOrCreate().getAttributeDefContainer().getGuiAttributeDef().setShowBreadcrumbLink(true);
@@ -1801,7 +1974,53 @@ public class UiV2AttributeDef {
           //do nothing
           break;
       }
-
+      
+      boolean savedDefScope = false;
+      
+      if (attributeDefToEditAssignToAttributeDefAssignBoolean || attributeDefToEditAssignToStemAssignBoolean
+          || attributeDefToEditAssignToGroupAssignBoolean || attributeDefToEditAssignToMemberAssignBoolean
+          || attributeDefToEditAssignToMembershipAssignBoolean || attributeDefToEditAssignToImmediateMembershipAssignBoolean) {
+        
+        String manageMarkerScopeChecked = request.getParameter("attributeDefManageMarkerScope");
+        if (GrouperUtil.booleanValue(manageMarkerScopeChecked, false)) {
+          String markerAttributeDefName = request.getParameter("markerAttributeDefName");
+          
+          if (StringUtils.isNotBlank(markerAttributeDefName)) {
+            AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(markerAttributeDefName, false);
+            if (attributeDefName == null) {
+              guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                  "#markerAttributeDefNameId",
+                  TextContainer.retrieveFromRequest().getText().get("attributeDefCreateErrorMarkerAttributeDefNameInvalid")));
+              return;
+            }
+            
+            AttributeDef markerAttributeDef = attributeDefName.getAttributeDef();
+            
+            if (!markerAttributeDef.getPrivilegeDelegate().canAttrRead(loggedInSubject) || 
+                !markerAttributeDef.getPrivilegeDelegate().canAttrUpdate(loggedInSubject)) {
+              guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+                  "#markerAttributeDefNameId",
+                  TextContainer.retrieveFromRequest().getText().get("attributeDefCreateErrorMarkerAttributeDefNotCorrectPermissions")));
+              return;
+            }
+            
+          }
+          
+          Set<AttributeDefScope> attributeDefScopes = attributeDef.getAttributeDefScopeDelegate().retrieveAttributeDefScopes();
+          for (AttributeDefScope attributeDefScope: attributeDefScopes) {
+            attributeDefScope.delete();
+          }
+          
+          if (StringUtils.isNotBlank(markerAttributeDefName)) {
+            AttributeDefScope defScope = attributeDef.getAttributeDefScopeDelegate().assignOwnerNameEquals(markerAttributeDefName);
+            defScope.saveOrUpdate();
+          }
+          savedDefScope = true;
+          
+        }
+        
+      }
+      
       try {
   
         //create the attribute def
@@ -1835,7 +2054,7 @@ public class UiV2AttributeDef {
         guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=" + attributeDef.getId() + "')"));
     
         //lets show a success message on the new screen
-        if (attributeDefSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        if (attributeDefSave.getSaveResultType() == SaveResultType.NO_CHANGE && !savedDefScope) {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
               TextContainer.retrieveFromRequest().getText().get("attributeDefEditNoChangeNote")));
         } else {

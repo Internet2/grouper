@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
@@ -163,9 +164,21 @@ public class GrouperProvisioningLogicIncremental {
       }
       
       if (gcGrouperSyncGroup.isProvisionable() || gcGrouperSyncGroup.isInTarget()) {
+        
         validGroupIds.add(gcGrouperSyncGroup.getGroupId());
-      }
+        continue; 
+      } 
       
+      int count = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().
+          internal_membershipRetrieveFromDbCountInTargetByGroupSyncId(gcGrouperSyncGroup.getId());
+        
+      // if we're doing entity attributes and a group is deleted, it's not provisionable but if there are still memberships for this group
+      // we need to address them
+      if (count > 0) {
+        validGroupIds.add(gcGrouperSyncGroup.getGroupId());
+        continue;
+      }
+        
     }
     
     Iterator<GrouperIncrementalDataItem> iterator = grouperIncrementalDataToProcessWithoutRecalc.getGroupUuidsForGroupOnly().iterator();
@@ -209,7 +222,7 @@ public class GrouperProvisioningLogicIncremental {
 
 
   /**
-     * filter events that happened after the last full sync
+     * filter events that happened before the last full sync
      * @param esbEventContainers
      * @param gcGrouperSync
      */
@@ -288,10 +301,12 @@ public class GrouperProvisioningLogicIncremental {
     while (iterator.hasNext()) {
       
       GrouperIncrementalDataItem grouperIncrementalDataItem = iterator.next();
-      
       if (grouperIncrementalDataItem.getMillisSince1970() != null && grouperIncrementalDataItem.getMillisSince1970() < lastFullSyncMillis) {
         skippedEventsDueToFullSync[0]++;
         iterator.remove();
+        //System.out.println(new Timestamp(GrouperUtil.longValue(grouperIncrementalDataItem.getMillisSince1970(), -1)) + " < " + new Timestamp(lastFullSyncMillis) + " ? true");
+      } else {
+        //System.out.println(new Timestamp(GrouperUtil.longValue(grouperIncrementalDataItem.getMillisSince1970(), -1)) + " < " + new Timestamp(lastFullSyncMillis) + " ? false");
       }
       
     }
@@ -916,11 +931,22 @@ public class GrouperProvisioningLogicIncremental {
     
     Set<String> queriedPITAttributeAssignIds = new HashSet<String>();
     
+    List<String> memberIdsToFetchProvisioningAttributesFor = new ArrayList<String>();
+    
+    boolean shouldCheckForMemberSyncsToDelete = false;
+    
+    
     for (EsbEventContainer esbEventContainer : esbEventContainers) {
       EsbEvent esbEvent = esbEventContainer.getEsbEvent();
       EsbEventType esbEventType = esbEventContainer.getEsbEventType();
-
-      if (esbEventType == EsbEventType.GROUP_ADD) {
+      
+      if (esbEventType == EsbEventType.MEMBERSHIP_ADD) {
+        
+        memberIdsToFetchProvisioningAttributesFor.add(esbEvent.getMemberId());
+        
+      } else if (esbEventType == EsbEventType.MEMBERSHIP_DELETE) {
+        shouldCheckForMemberSyncsToDelete = true;
+      } else if (esbEventType == EsbEventType.GROUP_ADD) {
         
         GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningGroupAttributesByGroup(esbEvent.getGroupId());
         if (grouperProvisioningObjectAttributes == null) {
@@ -959,9 +985,14 @@ public class GrouperProvisioningLogicIncremental {
         grouperProvisioningObjectAttributes.setOwnedByGroup(true);
         grouperProvisioningObjectAttributes.setDeleted(true);
         grouperProvisioningGroupAttributesToProcess.put(esbEvent.getGroupId(), grouperProvisioningObjectAttributes);
+        shouldCheckForMemberSyncsToDelete = true;
       } else if ((esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_ADD || esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) &&
           esbEvent.getAttributeDefNameName().startsWith(GrouperProvisioningSettings.provisioningConfigStemName())) {
 
+        if (esbEventType == EsbEventType.ATTRIBUTE_ASSIGN_VALUE_DELETE) {
+          shouldCheckForMemberSyncsToDelete = true;
+        }
+        
         PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(esbEvent.getAttributeAssignId(), false);
 
         if (pitAttributeAssign != null) {
@@ -1031,6 +1062,33 @@ public class GrouperProvisioningLogicIncremental {
       }
     }
     
+    Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesForMembers = this.grouperProvisioner.retrieveGrouperDao().retrieveProvisioningMemberAttributes(false, memberIdsToFetchProvisioningAttributesFor);
+    
+    Set<String> syncMemberIdsToRetrieve = new HashSet<String>();
+    
+    for (GrouperProvisioningObjectAttributes objectAttributes : grouperProvisioningObjectAttributesForMembers.values()) {
+      syncMemberIdsToRetrieve.add(objectAttributes.getId());
+    }
+    
+    Map<String, GcGrouperSyncMember> grouperSyncMemberIdToSyncMember = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(syncMemberIdsToRetrieve);
+    
+    ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
+    this.getGrouperProvisioner().setProvisioningSyncResult(provisioningSyncResult);
+    
+    ProvisioningSyncIntegration.fullSyncMembers(this.grouperProvisioner, provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(), 
+        new ArrayList<GcGrouperSyncMember>(grouperSyncMemberIdToSyncMember.values()),
+        grouperProvisioningObjectAttributesForMembers);
+    
+    this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
+    
+//    if (shouldCheckForMemberSyncsToDelete) {
+//      List<GcGrouperSyncMember> memberRetrieveFromDbDeletables = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMemberDao()
+//          .internal_memberRetrieveFromDbDeletables();
+//      if (GrouperUtil.length(memberRetrieveFromDbDeletables) > 0) {
+//        this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMemberDao().memberDelete(memberRetrieveFromDbDeletables, true, false);
+//      }
+//    }
+    
     Set<GrouperProvisioningObjectAttributes> grouperProvisioningObjectAttributesToProcess = new HashSet<GrouperProvisioningObjectAttributes>();
     grouperProvisioningObjectAttributesToProcess.addAll(grouperProvisioningGroupAttributesToProcess.values());
     
@@ -1056,12 +1114,11 @@ public class GrouperProvisioningLogicIncremental {
 
       Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToSyncGroup = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(syncGroupIdsToRetrieve);
 
-      ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
-      this.getGrouperProvisioner().setProvisioningSyncResult(provisioningSyncResult);
       ProvisioningSyncIntegration.fullSyncGroups(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
           new ArrayList<GcGrouperSyncGroup>(grouperSyncGroupIdToSyncGroup.values()),
           calculatedProvisioningAttributes);
-
+      
+      
       Set<String> groupIdsToTriggerSync = new HashSet<String>();
       for (GcGrouperSyncGroup gcGrouperSyncGroup : this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().retrieveUpdatedCacheSyncGroups()) {
         groupIdsToTriggerSync.add(gcGrouperSyncGroup.getGroupId());
@@ -1109,9 +1166,10 @@ public class GrouperProvisioningLogicIncremental {
     
     int changeLogCount = 0;
     
-    if (changeLogCount > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("changeLogRawCount", GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
-    }
+    this.getGrouperProvisioner().getDebugMap().put("changeLogRawCount", GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
+
+    this.grouperProvisioner.retrieveGrouperProvisioningOutput().setTotalCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
+    
     Set<String> sourceIdsToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision();
     
     // these events are already filtered
@@ -1666,8 +1724,8 @@ public class GrouperProvisioningLogicIncremental {
     //    return;
     //  }
     
-    boolean convertAllMembershipChangesToGroupSync = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
-        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
+    boolean convertAllMembershipChangesToGroupSync = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
     
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithoutRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc();
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc();
@@ -2209,21 +2267,6 @@ public class GrouperProvisioningLogicIncremental {
             }
            
           }
-        } else if (attributeValue != null && attributeValue.getClass().isArray()){
-          // array
-          
-          List<Object> recalcMemberships = new ArrayList<Object>();
-          
-          for (int i=0;i<GrouperUtil.length(attributeValue);i++) {
-            Object value = Array.get(attributeValue, i);
-            ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
-            if (provisioningMembershipWrapper.isRecalc()) {
-              recalcMemberships.add(value);
-            }
-            
-          }
-          
-          grouperAttribute.setValue(GrouperUtil.toArray(recalcMemberships, Object.class));
         }
         
         requestGrouperTargetGroups.add(clonedGrouperTargetGroup);
@@ -2232,11 +2275,11 @@ public class GrouperProvisioningLogicIncremental {
       
       targetDaoRetrieveMembershipsRequest.setTargetMemberships(requestGrouperTargetGroups);
       
-      TargetDaoRetrieveMembershipsResponse membershipsResponse = this.getGrouperProvisioner().retrieveGrouperTargetDaoAdapter().retrieveMemberships(targetDaoRetrieveMembershipsRequest);
+      TargetDaoRetrieveMembershipsResponse membershipsResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(targetDaoRetrieveMembershipsRequest);
 
       List<Object> targetGroupsWithMemberships = membershipsResponse.getTargetMemberships();
       
-      this.grouperProvisioner.retrieveGrouperTranslator().idTargetGroups((List<ProvisioningGroup>)(Object)targetGroupsWithMemberships);
+      this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups((List<ProvisioningGroup>)(Object)targetGroupsWithMemberships);
       
       for (Object provisioningGroupObject: GrouperUtil.nonNull(targetGroupsWithMemberships)) { // because memberships are stored in group attributes, so we receive groups for memberships call
         
@@ -2271,10 +2314,13 @@ public class GrouperProvisioningLogicIncremental {
       List<ProvisioningGroup> grouperTargetGroupsRecalcForMembershipSync = new ArrayList<ProvisioningGroup>();
       List<ProvisioningGroup> grouperTargetGroupsRecalcForGroupOnly = new ArrayList<ProvisioningGroup>();
 
+      boolean canRetrieveMembershipsByGroup = this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningBehavior().canSelectMembershipsForGroup(); 
+      
       for (ProvisioningGroupWrapper provisioningGroupWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
         if (provisioningGroupWrapper.getGrouperTargetGroup() != null) {
           if (provisioningGroupWrapper.isRecalc()) {
-            if (provisioningGroupWrapper.isIncrementalSyncMemberships()) {
+            if (provisioningGroupWrapper.isIncrementalSyncMemberships() && canRetrieveMembershipsByGroup) {
               grouperTargetGroupsRecalcForMembershipSync.add(provisioningGroupWrapper.getGrouperTargetGroup());
             } else {
               grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
@@ -2312,10 +2358,13 @@ public class GrouperProvisioningLogicIncremental {
       List<ProvisioningEntity> grouperTargetEntitiesRecalcForMembershipSync = new ArrayList<ProvisioningEntity>();
       List<ProvisioningEntity> grouperTargetEntitiesRecalcForEntityOnly = new ArrayList<ProvisioningEntity>();
 
+      boolean canRetrieveMembershipsByEntity = this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningBehavior().canSelectMembershipsForEntity();
+      
       for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
         if (provisioningEntityWrapper.getGrouperTargetEntity() != null) {
           if (provisioningEntityWrapper.isRecalc()) {
-            if (provisioningEntityWrapper.isIncrementalSyncMemberships()) {
+            if (provisioningEntityWrapper.isIncrementalSyncMemberships() && canRetrieveMembershipsByEntity) {
               grouperTargetEntitiesRecalcForMembershipSync.add(provisioningEntityWrapper.getGrouperTargetEntity());
             } else {
               grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
@@ -2507,7 +2556,7 @@ public class GrouperProvisioningLogicIncremental {
     targetDaoRetrieveIncrementalDataRequest.ensureAllMembershipRequestsAreInTheOnlyRequestsAlso();
     
     TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
-      = this.grouperProvisioner.retrieveGrouperTargetDaoAdapter().retrieveIncrementalData(targetDaoRetrieveIncrementalDataRequest);
+      = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveIncrementalData(targetDaoRetrieveIncrementalDataRequest);
     
     GrouperProvisioningLists result = this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects();
 

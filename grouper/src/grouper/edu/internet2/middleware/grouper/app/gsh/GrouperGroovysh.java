@@ -33,6 +33,7 @@ import org.codehaus.groovy.tools.shell.Interpreter;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -393,8 +394,37 @@ public class GrouperGroovysh extends Groovysh {
       GrouperGroovyRuntime.removeThreadLocalGrouperGroovyRuntime();
     }
     if (throwable != null) {
+      maskPasswordValues(grouperGroovyInput);
       GrouperUtil.injectInException(throwable, "Inputs:\n" + GrouperUtil.mapToString(grouperGroovyInput.getInputNameToValue()) + "\nScript (100k max):\n" + GrouperUtil.abbreviate(grouperGroovyInput.getScript(), 100000) + "\n, Output (1000k max):\n" + GrouperUtil.abbreviate(grouperGroovyResult.fullOutput(), 1000000));
     }
+  }
+  
+  /**
+   * mask password values in the input
+   * @param grouperGroovyInput
+   */
+  private static void maskPasswordValues(GrouperGroovyInput grouperGroovyInput) {
+    
+    for (String inputName: grouperGroovyInput.getInputNameToValue().keySet()) {
+      
+      if (grouperGroovyInput.getInputNameToFormElement().containsKey(inputName)) {
+        ConfigItemFormElement configItemFormElement = grouperGroovyInput.getInputNameToFormElement().get(inputName);
+        if (configItemFormElement != null && configItemFormElement == ConfigItemFormElement.PASSWORD) {
+          Object value = grouperGroovyInput.getInputNameToValue().get(inputName);
+          if (value != null) {
+            if (value instanceof String) {
+              value = "******";
+              grouperGroovyInput.getInputNameToValue().put(inputName, value);
+            } else if (value instanceof Integer) {
+              value = -1;
+              grouperGroovyInput.getInputNameToValue().put(inputName, value);
+            }
+          }
+        }
+      }
+    }
+    
+    
   }
   
   private boolean exitOnError;

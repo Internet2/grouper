@@ -388,7 +388,7 @@ public class GshTemplateConfig {
           gshTemplateFolderShowType = GshTemplateFolderShowType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderShowType"), true);
           
           if(gshTemplateFolderShowType == GshTemplateFolderShowType.certainFolders) {
-            String folderUuidsToShow = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderUuidsToShow");
+            String folderUuidsToShow = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderUuidToShow");
             
             String[] folderUuids = GrouperUtil.splitTrim(folderUuidsToShow, ",");
             for (String folderUuid: folderUuids) {

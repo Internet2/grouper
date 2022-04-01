@@ -10,7 +10,9 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleSubSection;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -82,11 +84,8 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.user", "cn=admin,dc=example,dc=edu");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.pass", "secret");
     
-    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.fieldName");
+    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.name");
     attribute.setValue("name");
-    
-    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.isFieldElseAttribute");
-    attribute.setValue("true");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.insert");
     attribute.setValue("true");
@@ -97,11 +96,8 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.insert", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
     
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
     
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.fieldName", "name");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.isFieldElseAttribute", "true");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "string");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.name", "name");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.insert", "true");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.update", "true");
@@ -114,7 +110,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
     
     // insert config into db
-    provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
     
     assertEquals(0, validationErrorsToDisplay.size());
     assertEquals(0, errorsToDisplay.size());
@@ -145,7 +141,9 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute = provisionerConfiguration.retrieveAttributes().get("groupDnType");
     attribute.setValue("flat");
      
-    provisionerConfiguration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    List<String> actionsPerformed = new ArrayList<String>();
+
+    provisionerConfiguration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
     assertEquals(0, validationErrorsToDisplay.size());
     
     // retrieve values and confirm the updated values are coming back from the db
@@ -193,7 +191,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     provisionerConfiguration.setConfigId("myLdapProvisioner");
     
     // verify first that values were actually stored in the database
-    ProvisionerConfigSyncDetails syncDetails = provisionerConfiguration.getSyncDetails();
+    ProvisioningConfigSyncDetails syncDetails = provisionerConfiguration.getSyncDetails();
     
     assertEquals(20, syncDetails.getGroupCount());
     assertEquals(10, syncDetails.getUserCount());
@@ -295,7 +293,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
     
     // insert config into db
-    provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
     
     assertEquals(0, validationErrorsToDisplay.size());
     assertEquals(0, errorsToDisplay.size());
@@ -327,7 +325,9 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute = provisionerConfiguration.retrieveAttributes().get("membershipTableName");
     attribute.setValue("membership_table_updated");
     
-    provisionerConfiguration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay);
+    List<String> actionsPerformed = new ArrayList<String>();
+
+    provisionerConfiguration.editConfig(false, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
     assertEquals(0, validationErrorsToDisplay.size());
     
     // retrieve values and confirm the updated values are coming back from the db
@@ -374,7 +374,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     provisionerConfiguration.setConfigId("mySqlProvisioner");
     
     // verify first that values were actually stored in the database
-    ProvisionerConfigSyncDetails syncDetails = provisionerConfiguration.getSyncDetails();
+    ProvisioningConfigSyncDetails syncDetails = provisionerConfiguration.getSyncDetails();
     
     assertEquals(10, syncDetails.getUserCount());
     assertEquals(15, syncDetails.getGroupCount());

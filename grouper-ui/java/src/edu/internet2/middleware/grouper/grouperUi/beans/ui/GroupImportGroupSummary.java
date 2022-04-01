@@ -37,6 +37,10 @@ public class GroupImportGroupSummary {
     this.groupCountAdded++;
   }
   
+  public void groupCountUpdatedIncrement() {
+    this.groupCountUpdated++;
+  }
+  
   public void groupCountDeletedIncrement() {
     this.groupCountDeleted++;
   }
@@ -45,6 +49,10 @@ public class GroupImportGroupSummary {
     this.groupCountErrors++;
   }
   
+  /**
+   * count of updated members
+   */
+  private int groupCountUpdated;
 
   /**
    * count of deleted members
@@ -72,6 +80,14 @@ public class GroupImportGroupSummary {
    */
   public int getGroupCountAdded() {
     return this.groupCountAdded;
+  }
+  
+  /**
+   * count of updated members
+   * @return the groupCountUpdated
+   */
+  public int getGroupCountUpdated() {
+    return this.groupCountUpdated;
   }
 
   /**

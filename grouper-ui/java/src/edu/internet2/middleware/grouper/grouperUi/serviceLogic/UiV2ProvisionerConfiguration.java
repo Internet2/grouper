@@ -2,9 +2,11 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
@@ -22,7 +25,8 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningServ
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperSyncLogWithOwner;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
@@ -116,6 +120,11 @@ public class UiV2ProvisionerConfiguration {
       final GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
       
       grouperRequestContainer.setGrouperProvisioningDiagnosticsContainer(grouperProvisioningDiagnosticsContainer);
+
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
 
       String initted = request.getParameter("provisionerInitted");
       if (!GrouperUtil.booleanValue(initted, false)) {
@@ -406,9 +415,9 @@ public class UiV2ProvisionerConfiguration {
         diagnosticsThreadProgress.put(diagnosticsMultiKey, null);
       }
       
-      List<ProvisionerConfiguration> provisionerConfigurations = ProvisionerConfiguration.retrieveAllProvisionerConfigurations();
+      List<ProvisioningConfiguration> provisionerConfigurations = ProvisioningConfiguration.retrieveAllProvisioningConfigurations();
       
-      List<GuiProvisionerConfiguration> guiProvisionerConfigurations = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfigurations);
+      List<GuiProvisionerConfiguration> guiProvisionerConfigurations = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfigurations);
       
       provisionerConfigurationContainer.setGuiProvisionerConfigurations(guiProvisionerConfigurations);
       
@@ -447,27 +456,14 @@ public class UiV2ProvisionerConfiguration {
       
       String provisionerConfigId = request.getParameter("provisionerConfigId");
       
-      String provisionerConfigType = request.getParameter("provisionerConfigType");
-            
       if (StringUtils.isBlank(provisionerConfigId)) {
         throw new RuntimeException("provisionerConfigId cannot be blank");
       }
       
-      if (StringUtils.isBlank(provisionerConfigType)) {
-        throw new RuntimeException("provisionerConfigType cannot be blank");
-      }
-      
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
-        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
-      }
-      
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
-      
-      provisionerConfiguration.setConfigId(provisionerConfigId);
-      
-      GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
-      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigDetails.jsp"));
@@ -504,31 +500,18 @@ public class UiV2ProvisionerConfiguration {
       
       String provisionerConfigId = request.getParameter("provisionerConfigId");
       
-      String provisionerConfigType = request.getParameter("provisionerConfigType");
-            
       if (StringUtils.isBlank(provisionerConfigId)) {
         throw new RuntimeException("provisionerConfigId cannot be blank");
       }
-      
-      if (StringUtils.isBlank(provisionerConfigType)) {
-        throw new RuntimeException("provisionerConfigType cannot be blank");
-      }
-      
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
-        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
-      }
-      
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
-      
-      provisionerConfiguration.setConfigId(provisionerConfigId);
-      
+
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+
       List<GcGrouperSyncJob> grouperSyncJobs = GrouperProvisioningService.retrieveGcGroupSyncJobs(provisionerConfigId);
       
       provisionerConfigurationContainer.setProvisionerJobs(grouperSyncJobs);
-      
-      GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
-      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigJobs.jsp"));
@@ -563,31 +546,20 @@ public class UiV2ProvisionerConfiguration {
       
       String provisionerConfigId = request.getParameter("provisionerConfigId");
       
-      String provisionerConfigType = request.getParameter("provisionerConfigType");
-
       String provisionerJobId = request.getParameter("provisionerJobId");
             
       if (StringUtils.isBlank(provisionerConfigId)) {
         throw new RuntimeException("provisionerConfigId cannot be blank");
       }
       
-      if (StringUtils.isBlank(provisionerConfigType)) {
-        throw new RuntimeException("provisionerConfigType cannot be blank");
-      }
-      
       if (StringUtils.isBlank(provisionerJobId)) {
         throw new RuntimeException("provisionerJobId cannot be blank");
       }
       
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
-        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
-      }
-      
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
-      
-      provisionerConfiguration.setConfigId(provisionerConfigId);
-      
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       
       GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerConfigId);
       
@@ -601,9 +573,6 @@ public class UiV2ProvisionerConfiguration {
       }
       
       provisionerConfigurationContainer.setGrouperSyncJob(grouperSyncJob);
-      
-      GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
-      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigJobDetails.jsp"));
@@ -638,27 +607,14 @@ public class UiV2ProvisionerConfiguration {
       
       String provisionerConfigId = request.getParameter("provisionerConfigId");
       
-      String provisionerConfigType = request.getParameter("provisionerConfigType");
-            
       if (StringUtils.isBlank(provisionerConfigId)) {
         throw new RuntimeException("provisionerConfigId cannot be blank");
       }
-      
-      if (StringUtils.isBlank(provisionerConfigType)) {
-        throw new RuntimeException("provisionerConfigType cannot be blank");
-      }
-      
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
-        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
-      }
-      
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
-      
-      provisionerConfiguration.setConfigId(provisionerConfigId);
-      
-      GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
-      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
+
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigViewActivity.jsp"));
@@ -693,33 +649,20 @@ public class UiV2ProvisionerConfiguration {
       
       String provisionerConfigId = request.getParameter("provisionerConfigId");
       
-      String provisionerConfigType = request.getParameter("provisionerConfigType");
-      
       String provisionerConfigObjectType = request.getParameter("provisionerConfigObjectType");
             
       if (StringUtils.isBlank(provisionerConfigId)) {
         throw new RuntimeException("provisionerConfigId cannot be blank");
       }
       
-      if (StringUtils.isBlank(provisionerConfigType)) {
-        throw new RuntimeException("provisionerConfigType cannot be blank");
-      }
-      
       if (StringUtils.isBlank(provisionerConfigObjectType)) {
         throw new RuntimeException("provisionerConfigObjectType cannot be blank");
       }
       
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
-        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
-      }
-      
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
-      
-      provisionerConfiguration.setConfigId(provisionerConfigId);
-      
-      GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
-      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       
       if (provisionerConfigObjectType.equals("group")) {
         List<GcGrouperSyncGroup> activityForGroup = GrouperProvisioningService.retrieveRecentActivityForGroup(provisionerConfigId);
@@ -769,25 +712,15 @@ public class UiV2ProvisionerConfiguration {
       
       String provisionerConfigId = request.getParameter("provisionerConfigId");
       
-      String provisionerConfigType = request.getParameter("provisionerConfigType");
-            
       if (StringUtils.isBlank(provisionerConfigId)) {
         throw new RuntimeException("provisionerConfigId cannot be blank");
       }
       
-      if (StringUtils.isBlank(provisionerConfigType)) {
-        throw new RuntimeException("provisionerConfigType cannot be blank");
-      }
-      
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
-        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
-      }
-      
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
-      
-      provisionerConfiguration.setConfigId(provisionerConfigId);
-      
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+
       GuiPaging guiPaging = provisionerConfigurationContainer.getGuiPaging();
       QueryOptions queryOptions = new QueryOptions();
 
@@ -798,9 +731,6 @@ public class UiV2ProvisionerConfiguration {
       List<GuiProvisionerLog> guiProvisionerLogs = GuiProvisionerLog.convertFromGcGrouperSyncWithOwner(grouperSyncLogsWithOwner);
       
       provisionerConfigurationContainer.setGuiProvisionerLogs(guiProvisionerLogs);
-      
-      GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
-      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
       
       guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -837,15 +767,17 @@ public class UiV2ProvisionerConfiguration {
       String provisionerConfigId = request.getParameter("provisionerConfigId");
       
       String provisionerConfigType = request.getParameter("provisionerConfigType");
+
+      String provisionerStartWithClass = request.getParameter("provisionerStartWithClass");
       
       if (StringUtils.isNotBlank(provisionerConfigType)) {
         
-        if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
+        if (!ProvisioningConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
           throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
         }
 
-        Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-        ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
+        Class<ProvisioningConfiguration> klass = (Class<ProvisioningConfiguration>) GrouperUtil.forName(provisionerConfigType);
+        ProvisioningConfiguration provisionerConfiguration = (ProvisioningConfiguration) GrouperUtil.newInstance(klass);
         
         if (StringUtils.isBlank(provisionerConfigId)) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
@@ -863,20 +795,157 @@ public class UiV2ProvisionerConfiguration {
           return;
         }
         
+        List<ProvisionerStartWithBase> startWithConfigClasses = provisionerConfiguration.getStartWithConfigClasses();
+        
+        if(startWithConfigClasses.size() > 0 && StringUtils.equals("empty", provisionerStartWithClass)) {
+          GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+          provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+          
+          provisionerConfigurationContainer.setShowStartWithSection(true);
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigAdd.jsp"));
+          return;
+        }
+        
+        String previousProvisionerStartWithClass = request.getParameter("previousProvisionerStartWithClass");
+        
+        boolean skipStartWith = false;
+        if (StringUtils.isNotBlank(provisionerStartWithClass) && StringUtils.equals(provisionerStartWithClass, "blank")) {
+          skipStartWith = true;
+        }
+        
+        if (!skipStartWith && StringUtils.isNotBlank(provisionerStartWithClass)) {
+          Class<ProvisionerStartWithBase> startWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(provisionerStartWithClass);
+          ProvisionerStartWithBase provisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(startWithKlass);
+          provisionerStartWith.setConfigId(provisionerConfigId);
+          
+          provisionerStartWith.populateConfigurationValuesFromUi(request);
+          
+          provisionerConfigurationContainer.setProvisionerStartWith(provisionerStartWith);
+          provisionerConfigurationContainer.setShowStartWithSection(true);
+          
+          
+          String sessionId = request.getParameter("startWithSessionId");
+          if (StringUtils.isBlank(sessionId)) {
+            String newSessionId = GrouperUtil.uniqueId();
+            provisionerConfigurationContainer.setStartWithSessionId(newSessionId);
+            
+            Map<String, GrouperConfigurationModuleAttribute> startWithAttributes = provisionerStartWith.retrieveAttributes();
+            
+            Map<String, String> configSuffixToValues = new HashMap<>();
+            for (String key: startWithAttributes.keySet()) {
+              String startWithValue = startWithAttributes.get(key).getValue();
+              configSuffixToValues.put(key, startWithValue);
+            }
+            
+            provisionerStartWith.populateCache(newSessionId, configSuffixToValues);
+            
+          } else {
+            provisionerConfigurationContainer.setStartWithSessionId(sessionId);
+            
+            Map<String, GrouperConfigurationModuleAttribute> startWithAttributes = provisionerStartWith.retrieveAttributes();
+            
+            Map<String, String> configSuffixToValues = new HashMap<>();
+            for (String key: startWithAttributes.keySet()) {
+              String startWithValue = startWithAttributes.get(key).getValue();
+              configSuffixToValues.put(key, startWithValue);
+            }
+            
+            //Set<String> newKeys = configSuffixToValues.keySet();
+            Set<String> suffixesUserJustChanged = new HashSet<>();
+            Map<String, String> oldSuffixToValue = provisionerStartWith.getCachedConfigKeyToValue(sessionId);
+            if (oldSuffixToValue != null) {
+              
+//              Set<String> oldKeys = oldSuffixToValue.keySet();
+//              newKeys.removeAll(oldKeys);
+              //now newKeys only have the keys that have been added since the last trip to the server
+              
+              // compare old values with new values and build suffixesUserJustChanged
+              
+              for (String key: startWithAttributes.keySet()) {
+                String startWithNewValue = startWithAttributes.get(key).getValue();
+                String startWithOldValue = oldSuffixToValue.get(key);
+                
+                if (!StringUtils.equals(startWithOldValue, startWithNewValue)) {
+                  suffixesUserJustChanged.add(key);
+                }
+                
+              }
+              
+            }
+            
+            provisionerStartWith.populateCache(sessionId, configSuffixToValues);
+            
+            Map<String, String> suffixToValueThatShouldChange = provisionerStartWith.screenRedraw(configSuffixToValues, suffixesUserJustChanged);
+            if (suffixToValueThatShouldChange != null) {
+              for (String key: suffixToValueThatShouldChange.keySet()) {
+                String valueToSet = suffixToValueThatShouldChange.get(key);
+                
+                if (startWithAttributes.containsKey(key)) {
+                  startWithAttributes.get(key).setValue(GrouperUtil.stringValue(valueToSet));
+                }
+              }
+            }
+            
+          }
+          
+          
+          
+          
+          
+          
+          
+        }
+        
+        // once the start with submit is done
+        if (!skipStartWith && StringUtils.isNotBlank(previousProvisionerStartWithClass) && StringUtils.isBlank(provisionerStartWithClass)) {
+          
+          Class<ProvisionerStartWithBase> previousStartWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(previousProvisionerStartWithClass);
+          ProvisionerStartWithBase previousProvisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(previousStartWithKlass);
+          
+          provisionerConfigurationContainer.setProvisionerStartWith(previousProvisionerStartWith);
+          
+          
+        }
+        
+        if (!skipStartWith && ((GrouperUtil.nonNull(startWithConfigClasses).size() > 0
+            && StringUtils.isBlank(provisionerStartWithClass)
+            && StringUtils.isBlank(previousProvisionerStartWithClass))
+            || (StringUtils.isNotBlank(provisionerStartWithClass)
+                && StringUtils.isNotBlank(previousProvisionerStartWithClass)
+                && !StringUtils.equals(provisionerStartWithClass, previousProvisionerStartWithClass)))) {
+          GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+          provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+          provisionerConfigurationContainer.setShowStartWithSection(true);
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+              "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigAdd.jsp"));
+          
+          String focusOnElementName = request.getParameter("focusOnElementName");
+          if (!StringUtils.isBlank(focusOnElementName)) {
+            guiResponseJs.addAction(GuiScreenAction.newScript("$(\"[name='" + focusOnElementName + "']\").focus()"));
+          }
+          
+          return;
+        }
+        
         String previousProvisionerConfigId = request.getParameter("previousProvisionerConfigId");
         String previousProvisionerConfigType = request.getParameter("previousProvisionerConfigType");
-        if (StringUtils.isBlank(previousProvisionerConfigId) 
+        
+        if (StringUtils.isBlank(previousProvisionerConfigId)
             || !StringUtils.equals(provisionerConfigType, previousProvisionerConfigType)) {
           // first time loading the screen or
           // provisioner config type changed
           // let's get values from config files/database
+          // let's also clear start with
+          provisionerConfigurationContainer.setProvisionerStartWith(null);
         } else {
+          
+          
           provisionerConfiguration.populateConfigurationValuesFromUi(request);
         }
         
-        GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
-        provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
-        
+        GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+        provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -926,26 +995,97 @@ public class UiV2ProvisionerConfiguration {
         throw new RuntimeException("provisionerConfigType cannot be blank");
       }
       
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
+      if (!ProvisioningConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
         throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
       }
       
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
+      Class<ProvisioningConfiguration> klass = (Class<ProvisioningConfiguration>) GrouperUtil.forName(provisionerConfigType);
+      ProvisioningConfiguration provisionerConfiguration = (ProvisioningConfiguration) GrouperUtil.newInstance(klass);
       provisionerConfiguration.setConfigId(provisionerConfigId);
+      
+      String provisionerStartWithClass = request.getParameter("provisionerStartWithClass");
+      
+      if (StringUtils.isNotBlank(provisionerStartWithClass)) {
+        Class<ProvisionerStartWithBase> startWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(provisionerStartWithClass);
+        ProvisionerStartWithBase provisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(startWithKlass);
+        provisionerStartWith.setConfigId(provisionerConfigId);
+        
+        provisionerStartWith.populateConfigurationValuesFromUi(request);
+        provisionerConfigurationContainer.setProvisionerStartWith(provisionerStartWith);
+        
+        String sessionId = request.getParameter("startWithSessionId");
+        if (StringUtils.isNotBlank(sessionId)) {
+          provisionerConfigurationContainer.setStartWithSessionId(sessionId);
+        }
+        
+        List<String> errorsToDisplay = new ArrayList<String>();
+        Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+        
+        provisionerStartWith.validatePreSave(false, errorsToDisplay, validationErrorsToDisplay);
+        
+        if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+          provisionerConfigurationContainer.setShowStartWithSection(true);
+          for (String errorToDisplay: errorsToDisplay) {
+            guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
+          }
+          for (String validationKey: validationErrorsToDisplay.keySet()) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+                validationErrorsToDisplay.get(validationKey)));
+          }
+        } else {
+          
+          provisionerStartWith.populateConfigurationValuesFromUi(request);
+          Map<String, GrouperConfigurationModuleAttribute> startWithAttributes = provisionerStartWith.retrieveAttributes();
+          
+          Map<String, String> configSuffixToValues = new HashMap<>();
+          Map<String, Object> provisionerSuffixToValue = new HashMap<>();
+          Map<String, GrouperConfigurationModuleAttribute> attributes = provisionerConfiguration.retrieveAttributes();
+          for (String key: startWithAttributes.keySet()) {
+            String startWithValue = startWithAttributes.get(key).getValue();
+            configSuffixToValues.put(key, startWithValue);
+            
+            if (attributes.containsKey(key)) {
+              provisionerSuffixToValue.put(key, startWithValue);
+            }
+          }
+          
+          
+          provisionerStartWith.populateProvisionerConfigurationValuesFromStartWith(configSuffixToValues, provisionerSuffixToValue);
+          
+          for (String key: provisionerSuffixToValue.keySet()) {
+            Object valueToSet = provisionerSuffixToValue.get(key);
+            
+            if (attributes.containsKey(key)) {
+              attributes.get(key).setValue(GrouperUtil.stringValue(valueToSet));
+            }
+          }
+          
+          provisionerConfigurationContainer.setShowStartWithSection(false);
+        }
+        
+        GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+        provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+      
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigAdd.jsp"));
+        
+        return;
+        
+      }
       
       provisionerConfiguration.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
-      
-      provisionerConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      List<String> actionsPerformed = new ArrayList<String>();
+
+      provisionerConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
       
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -959,9 +1099,23 @@ public class UiV2ProvisionerConfiguration {
       GrouperProvisioningSettings.clearTargetsCache();
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
+      StringBuilder messageBuilder = new StringBuilder();
+
+      if (actionsPerformed.size() > 0) {
+        for (String actionPerformed: actionsPerformed) {
+          if (messageBuilder.length() > 0) {
+            messageBuilder.append("<br />");
+          }
+          messageBuilder.append(actionPerformed);
+        }
+      }
+      if (messageBuilder.length() > 0) {
+        messageBuilder.append("<br />");
+      }
+      messageBuilder.append(TextContainer.retrieveFromRequest().getText().get("provisionerConfigAddEditSuccess"));
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, messageBuilder.toString()));
+
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("provisionerConfigAddEditSuccess")));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1000,15 +1154,17 @@ public class UiV2ProvisionerConfiguration {
       }
       
       if (StringUtils.isBlank(provisionerConfigType)) {
-        throw new RuntimeException("provisionerConfigType cannot be blank");
+        GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+        ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+        provisionerConfigType = provisionerConfiguration.getClass().getName();
       }
       
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
+      if (!ProvisioningConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
         throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
       }
       
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
+      Class<ProvisioningConfiguration> klass = (Class<ProvisioningConfiguration>) GrouperUtil.forName(provisionerConfigType);
+      ProvisioningConfiguration provisionerConfiguration = (ProvisioningConfiguration) GrouperUtil.newInstance(klass);
       
       provisionerConfiguration.setConfigId(provisionerConfigId);
       
@@ -1016,13 +1172,13 @@ public class UiV2ProvisionerConfiguration {
       
       if (StringUtils.isBlank(previousProvisionerConfigId)) {
         // first time loading the screen. let's get values from config files/database
-        GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
-        provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
+        GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+        provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       } else {
         // change was made on the form
         provisionerConfiguration.populateConfigurationValuesFromUi(request);
-        GuiProvisionerConfiguration guiProvisionerConfiguration = GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration);
-        provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisionerConfiguration);
+        GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+        provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -1073,26 +1229,27 @@ public class UiV2ProvisionerConfiguration {
         throw new RuntimeException("provisionerConfigType cannot be blank");
       }
       
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
+      if (!ProvisioningConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
         throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
       }
       
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
+      Class<ProvisioningConfiguration> klass = (Class<ProvisioningConfiguration>) GrouperUtil.forName(provisionerConfigType);
+      ProvisioningConfiguration provisionerConfiguration = (ProvisioningConfiguration) GrouperUtil.newInstance(klass);
       provisionerConfiguration.setConfigId(provisionerConfigId);
       
       provisionerConfiguration.populateConfigurationValuesFromUi(request);
       
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
+      List<String> actionsPerformed = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       
-      provisionerConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay);
+      provisionerConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
 
       if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
 
         for (String errorToDisplay: errorsToDisplay) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
@@ -1106,9 +1263,21 @@ public class UiV2ProvisionerConfiguration {
       GrouperProvisioningSettings.clearTargetsCache();
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
+      StringBuilder messageBuilder = new StringBuilder();
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("provisionerConfigAddEditSuccess")));
+      if (actionsPerformed.size() > 0) {
+        for (String actionPerformed: actionsPerformed) {
+          if (messageBuilder.length() > 0) {
+            messageBuilder.append("<br />");
+          }
+          messageBuilder.append(actionPerformed);
+        }
+      }
+      if (messageBuilder.length() > 0) {
+        messageBuilder.append("<br />");
+      }
+      messageBuilder.append(TextContainer.retrieveFromRequest().getText().get("provisionerConfigAddEditSuccess"));
+      guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, messageBuilder.toString()));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1140,24 +1309,14 @@ public class UiV2ProvisionerConfiguration {
       
       String provisionerConfigId = request.getParameter("provisionerConfigId");
       
-      String provisionerConfigType = request.getParameter("provisionerConfigType");
-            
       if (StringUtils.isBlank(provisionerConfigId)) {
         throw new RuntimeException("provisionerConfigId cannot be blank");
       }
       
-      if (StringUtils.isBlank(provisionerConfigType)) {
-        throw new RuntimeException("provisionerConfigType cannot be blank");
-      }
-      
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
-        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
-      }
-      
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
-      
-      provisionerConfiguration.setConfigId(provisionerConfigId);
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       
       provisionerConfiguration.deleteConfig(true);
       
@@ -1207,26 +1366,14 @@ public class UiV2ProvisionerConfiguration {
       
       String provisionerConfigId = request.getParameter("provisionerConfigId");
       
-      String provisionerConfigType = request.getParameter("provisionerConfigType");
-            
       if (StringUtils.isBlank(provisionerConfigId)) {
         throw new RuntimeException("provisionerConfigId cannot be blank");
       }
-      
-      if (StringUtils.isBlank(provisionerConfigType)) {
-        throw new RuntimeException("provisionerConfigType cannot be blank");
-      }
-      
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
-        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
-      }
-      
-      Class<ProvisionerConfiguration> klass = (Class<ProvisionerConfiguration>) GrouperUtil.forName(provisionerConfigType);
-      ProvisionerConfiguration provisionerConfiguration = (ProvisionerConfiguration) GrouperUtil.newInstance(klass);
-      
-      provisionerConfiguration.setConfigId(provisionerConfigId);
-      
-      provisionerConfigurationContainer.setGuiProvisionerConfiguration(GuiProvisionerConfiguration.convertFromProvisionerConfiguration(provisionerConfiguration));
+            
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigRunFullSync.jsp"));
@@ -1260,16 +1407,11 @@ public class UiV2ProvisionerConfiguration {
       }
       
       String provisionerConfigId = request.getParameter("provisionerConfigId");
-      String provisionerConfigType = request.getParameter("provisionerConfigType");
       String synchronous = request.getParameter("provisionerConfigSynchoronous");
       String readOnly = request.getParameter("provisionerConfigReadOnly");
             
       if (StringUtils.isBlank(provisionerConfigId)) {
         throw new RuntimeException("provisionerConfigId cannot be blank");
-      }
-      
-      if (StringUtils.isBlank(provisionerConfigType)) {
-        throw new RuntimeException("provisionerConfigType cannot be blank");
       }
       
       if (StringUtils.isBlank(synchronous)) {
@@ -1278,10 +1420,6 @@ public class UiV2ProvisionerConfiguration {
       
       if (StringUtils.isBlank(readOnly)) {
         throw new RuntimeException("provisionerConfigReadOnly cannot be blank");
-      }
-      
-      if (!ProvisionerConfiguration.provisionerConfigClassNames.contains(provisionerConfigType)) {            
-        throw new RuntimeException("Invalid provisionerConfigType "+provisionerConfigType);
       }
       
       ProvisioningMessage provisioningMessage = new ProvisioningMessage();

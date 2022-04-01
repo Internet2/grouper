@@ -99,6 +99,23 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
 @SuppressWarnings({ "serial", "unchecked" })
 public class GrouperClientCommonUtils  {
 
+  /**
+   * add a value to a log entry
+   * @param debugMap
+   * @param key
+   * @param incrementBy any number
+   */
+  public static void debugMapIncrementLogEntry(Map<String, Object> debugMap, String key, Object incrementBy) {
+    long incrementByLong = GrouperClientUtils.longValue(incrementBy, 0);
+    
+    Long currentValue = GrouperClientUtils.longObjectValue(debugMap.get(key), true);
+    if (currentValue == null) {
+      currentValue = 0L;
+    }
+    currentValue += incrementByLong;
+    debugMap.put(key, currentValue);
+  }
+
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new InheritableThreadLocal<Map<String, Map<String, String>>>();
 
@@ -883,25 +900,58 @@ public class GrouperClientCommonUtils  {
    * @param count is size of set
    * @param batchSize
    * @return the number of batches
+   * @param haveAtLeastOne is true if there should be at least one run even if the collection is empty (e.g. for queries based on other things)
    */
-  public static int batchNumberOfBatches(int count, int batchSize) {
+  public static int batchNumberOfBatches(int count, int batchSize, boolean haveAtLeastOne) {
+    if (!haveAtLeastOne && count == 0) {
+      return 0;
+    }
+
+    //not sure why this would be 0...
+    if (batchSize == 0) {
+      return 0;
+    }
     int batches = 1 + ((count - 1) / batchSize);
     return batches;
 
   }
 
   /**
-   * If batching this is the number of batches
+   * If batching this is the number of batches.  Will return at least 1
+   * @param count is size of set
+   * @param batchSize
+   * @return the number of batches
+   * @deprecated use batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne)
+   */
+  @Deprecated
+  public static int batchNumberOfBatches(int count, int batchSize) {
+    return batchNumberOfBatches(count, batchSize, true);
+  }
+
+  /**
+   * If batching this is the number of batches, will return at least 1
    * @param collection
    * @param batchSize
    * @return the number of batches
+   * @deprecated use batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne)
    */
+  @Deprecated
   public static int batchNumberOfBatches(Collection<?> collection, int batchSize) {
-    int arrraySize = length(collection);
-    return batchNumberOfBatches(arrraySize, batchSize);
-
+    return batchNumberOfBatches(collection, batchSize, true);
   }
 
+  /**
+   * If batching this is the number of batches, will return at least 1
+   * @param collection
+   * @param batchSize
+   * @param haveAtLeastOne is true if there should be at least one run even if the collection is empty (e.g. for queries based on other things)
+   * @return the number of batches
+   */
+  public static int batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne) {
+    int arrraySize = length(collection);
+    return batchNumberOfBatches(arrraySize, batchSize, haveAtLeastOne);
+
+  }
   /**
    * retrieve a batch by 0 index. Will return an array of size batchSize or
    * the remainder. the array will be full of elements. Note, this requires an

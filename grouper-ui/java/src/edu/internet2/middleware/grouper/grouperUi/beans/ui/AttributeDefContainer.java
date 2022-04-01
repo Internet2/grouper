@@ -19,6 +19,7 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.AttributeDefScope;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -536,6 +537,10 @@ public class AttributeDefContainer {
    */
   private GuiAttributeAssignFinderResults guiAttributeAssignFinderResults;
 
+  private AttributeDefScope attributeDefScope;
+
+  private boolean showAttributeDefMarkerSection;
+
   /**
    * owners of this attribute def
    * @return
@@ -561,4 +566,30 @@ public class AttributeDefContainer {
                 .propertyValueBoolean(UiV2AttributeDef.PROPERTY_PREVENT_DELETE_IN_UI, false);
     }
 
+    /**
+     * set marker attribute def scope.
+     * @param attributeDefScope
+     */
+    public void setAttributeDefScope(AttributeDefScope attributeDefScope) {
+      this.attributeDefScope = attributeDefScope;
+    }
+
+    /**
+     * get marker attribute def scope
+     * @return
+     */
+    public AttributeDefScope getAttributeDefScope() {
+      return this.attributeDefScope;
+    }
+
+    public void setShowAttributeDefMarkerSection(boolean showAttributeDefMarkerSection) {
+      this.showAttributeDefMarkerSection = showAttributeDefMarkerSection;
+    }
+
+    
+    public boolean isShowAttributeDefMarkerSection() {
+      return showAttributeDefMarkerSection;
+    }
+    
+    
 }

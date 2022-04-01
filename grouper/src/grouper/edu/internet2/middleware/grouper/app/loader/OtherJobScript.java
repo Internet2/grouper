@@ -20,6 +20,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class OtherJobScript extends OtherJobBase {
 
+  /**
+   * get the current hib3 loader log or if called from non daemon, just return an instance so there is no null pointer
+   * @return the hib loader log
+   */
+  public static Hib3GrouperLoaderLog retrieveHib3GrouperLoaderLogNotNull() {
+    OtherJobScript otherJobScript = OtherJobScript.retrieveFromThreadLocal();
+    otherJobScript = otherJobScript == null ? new OtherJobScript() : otherJobScript;
+    OtherJobInput otherJobInput = otherJobScript.getOtherJobInput();
+    otherJobInput = otherJobInput == null ? new OtherJobInput() : otherJobInput;
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = otherJobInput.getHib3GrouperLoaderLog();
+    hib3GrouperLoaderLog = hib3GrouperLoaderLog == null ? new Hib3GrouperLoaderLog() : hib3GrouperLoaderLog;
+    return hib3GrouperLoaderLog;
+  }
+  
   private static ThreadLocal<OtherJobScript> threadLocalOtherJobScript = new InheritableThreadLocal();
   
   private OtherJobInput otherJobInput;
@@ -60,6 +74,10 @@ public class OtherJobScript extends OtherJobBase {
    */
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInputParam) {
+    
+    
+    OtherJobScript originalOtherJobScript = threadLocalOtherJobScript.get();
+    
     threadLocalOtherJobScript.set(this);
     try {
       this.otherJobInput = otherJobInputParam;
@@ -150,6 +168,9 @@ public class OtherJobScript extends OtherJobBase {
       otherJobInputParam.getHib3GrouperLoaderLog().setJobMessage(message);
     } finally {
       threadLocalOtherJobScript.remove();
+      if (originalOtherJobScript != null) {
+        threadLocalOtherJobScript.set(originalOtherJobScript);
+      }
     }
     return this.otherJobOutput;
   }

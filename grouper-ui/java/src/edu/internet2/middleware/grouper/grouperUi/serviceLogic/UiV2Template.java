@@ -341,7 +341,11 @@ public class UiV2Template {
       
       if (stem != null) {
         exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
-        exec.assignOwnerStemName(stem.getName());
+        if (stem.isRootStem()) {
+          exec.assignOwnerStemName(":");
+        } else {
+          exec.assignOwnerStemName(stem.getName());
+        }
       } else {
         exec.assignGshTemplateOwnerType(GshTemplateOwnerType.group);
         exec.assignOwnerGroupName(group.getName());
@@ -487,9 +491,13 @@ public class UiV2Template {
       if (StringUtils.isNotBlank(gshTemplateExec.getOwnerStemName())) {
         stem = StemFinder.findByName(GrouperSession.staticGrouperSession(), gshTemplateExec.getOwnerStemName(), true);
         GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().setGuiStem(new GuiStem(stem));      
-      } else {
+      } else if (StringUtils.isNotBlank(gshTemplateExec.getOwnerGroupName())) {
         group = GroupFinder.findByName(gshTemplateExec.getOwnerGroupName(), true);
         GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setGuiGroup(new GuiGroup(group));
+      }
+      
+      if (stem == null && group == null) {
+        stem = StemFinder.findRootStem(GrouperSession.staticGrouperSession());
       }
 
 
@@ -640,7 +648,7 @@ public class UiV2Template {
                 } 
                 currentName = GrouperUtil.parentStemNameFromName(currentName);
               }
-            } else {
+            } else if (group != null) {
               String currentName = group.getName();
               //lets see if group exists, maybe template deleted it
               Group currentGroup = GroupFinder.findByName(currentName, false);

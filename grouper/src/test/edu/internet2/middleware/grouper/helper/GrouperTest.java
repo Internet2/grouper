@@ -78,6 +78,7 @@ import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
@@ -1536,6 +1537,7 @@ public class GrouperTest extends TestCase {
   protected void tearDown () {
     LOG.debug("tearDown");
     GrouperLoader.shutdownIfStarted();
+    GrouperPluginManager.shutdownIfStarted();
   } 
 
 

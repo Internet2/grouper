@@ -107,7 +107,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_option_to_disable_last_imm_membership_change"));
+    TestRunner.run(new Test_api_Group("test_copy_name_exists"));
   }
   
   private Group           top_group, child_group;
@@ -526,7 +526,7 @@ public class Test_api_Group extends GrouperTest {
     Group newGroup = child_group.copy(top);
     
     // verify that the copied group name is top:child group.2
-    assertTrue(newGroup.getName().equals("top:child group.2"));
+    assertTrue(newGroup.getName().equals("top:child group_2"));
   }
   
   /**
@@ -1076,11 +1076,11 @@ public class Test_api_Group extends GrouperTest {
     assertTrue(newGroup.getDisplayName().equals("top display name:child group display name"));
     
     newGroup = new GroupCopy(child_group, top).setExtension("new extension").save();
-    assertTrue(newGroup.getName().equals("top:new extension.2"));
+    assertTrue(newGroup.getName().equals("top:new extension_2"));
     assertTrue(newGroup.getDisplayName().equals("top display name:child group display name"));
 
     newGroup = new GroupCopy(child_group, top).setExtension("new extension").save();
-    assertTrue(newGroup.getName().equals("top:new extension.3"));
+    assertTrue(newGroup.getName().equals("top:new extension_3"));
     assertTrue(newGroup.getDisplayName().equals("top display name:child group display name"));
   }
   
@@ -1093,11 +1093,11 @@ public class Test_api_Group extends GrouperTest {
     assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
     
     newGroup = new GroupCopy(child_group, top).setDisplayExtension("new display extension").save();
-    assertTrue(newGroup.getName().equals("top:child group.2"));
+    assertTrue(newGroup.getName().equals("top:child group_2"));
     assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
 
     newGroup = new GroupCopy(child_group, top).setDisplayExtension("new display extension").save();
-    assertTrue(newGroup.getName().equals("top:child group.3"));
+    assertTrue(newGroup.getName().equals("top:child group_3"));
     assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
   }
   
@@ -1110,11 +1110,11 @@ public class Test_api_Group extends GrouperTest {
     assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
     
     newGroup = new GroupCopy(child_group, top).setExtension("new extension").setDisplayExtension("new display extension").save();
-    assertTrue(newGroup.getName().equals("top:new extension.2"));
+    assertTrue(newGroup.getName().equals("top:new extension_2"));
     assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
 
     newGroup = new GroupCopy(child_group, top).setExtension("new extension").setDisplayExtension("new display extension").save();
-    assertTrue(newGroup.getName().equals("top:new extension.3"));
+    assertTrue(newGroup.getName().equals("top:new extension_3"));
     assertTrue(newGroup.getDisplayName().equals("top display name:new display extension"));
   }
   
@@ -1123,7 +1123,7 @@ public class Test_api_Group extends GrouperTest {
    */
   public void test_copy_same_stem() {
     Group newGroup = new GroupCopy(child_group, child).save();
-    assertTrue(newGroup.getName().equals("top:child:child group.2"));
+    assertTrue(newGroup.getName().equals("top:child:child group_2"));
     assertTrue(newGroup.getDisplayName().equals("top display name:child:child group display name"));
     
     newGroup = new GroupCopy(child_group, child).setExtension("new extension").save();
@@ -1280,12 +1280,12 @@ public class Test_api_Group extends GrouperTest {
     group_copy_setup(r, false);
     Group newGroup = child_group.copy(top);
     assertTrue(newGroup.getTypes().size() == 2);
-    assertGroupName(newGroup, "top:child group.2");
+    assertGroupName(newGroup, "top:child group_2");
     assertGroupDisplayName(newGroup, "top display name:child group display name");  
     
     Group newGroup2 = child_group.copy(top);
     assertTrue(newGroup2.getTypes().size() == 2);
-    assertGroupName(newGroup2, "top:child group.3");
+    assertGroupName(newGroup2, "top:child group_3");
     assertGroupDisplayName(newGroup2, "top display name:child group display name");  
     
     r.rs.stop();

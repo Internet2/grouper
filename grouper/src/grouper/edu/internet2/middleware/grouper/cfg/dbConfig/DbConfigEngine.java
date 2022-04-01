@@ -43,7 +43,8 @@ public class DbConfigEngine {
   public static boolean configurationFileAddEditHelper2(ConfigFileName configFileName, String configFileString, ConfigFileMetadata configFileMetadata, String propertyNameString,
       String expressionLanguageString, String valueString, Boolean userSelectedPassword,
       StringBuilder message, Boolean[] added, Boolean[] error, boolean fromUi, String comment, 
-      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, final boolean clearCache) {
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, final boolean clearCache, List<String> actionsPerformed,
+      final Set<GrouperConfigHibernate> grouperConfigHibernates, Set<GrouperConfigHibernate> grouperConfigHibernatesEl) {
     
     try {
       
@@ -103,7 +104,8 @@ public class DbConfigEngine {
   
       // standard validation
       if (!validateConfigEdit(configFileName, propertyNameString, 
-          valueString, isExpressionLanguage, message, grouperConfigHibernateToReturn, textReplaceMap)) {
+          valueString, isExpressionLanguage, message, grouperConfigHibernateToReturn, textReplaceMap,
+          grouperConfigHibernates, grouperConfigHibernatesEl)) {
         
         if (fromUi) {
           errorsToDisplay.add(message.toString());
@@ -159,6 +161,21 @@ public class DbConfigEngine {
           }
         }
     
+        valueString = GrouperUtil.whitespaceNormalizeNewLines(valueString);
+
+        String valueForScreen = GrouperUtil.trimToEmpty(valueString);
+        if (isPassword || isAlreadyEncrypted) {
+          valueForScreen = "*******";
+        } else {
+          valueForScreen = GrouperUtil.abbreviate(valueForScreen, 30);
+          if (valueForScreen.contains("\n")) {
+            // just show a newline
+            valueForScreen = StringUtils.replace(valueForScreen, "\n", " \\n ");
+          }
+          valueForScreen = GrouperUtil.escapeHtml(valueForScreen, true);
+        }
+        textReplaceMap.put("currentConfigValueTruncatedEscaped", valueForScreen);
+        
         grouperConfigHibernate.setConfigEncrypted(isPassword || isAlreadyEncrypted);
         grouperConfigHibernate.setConfigFileHierarchyDb("INSTITUTION");
         grouperConfigHibernate.setConfigFileNameDb(configFileName.getConfigFileName());
@@ -166,7 +183,6 @@ public class DbConfigEngine {
         grouperConfigHibernate.setConfigKey(propertyNameToUse);
         
     //    grouperConfigHibernate.setConfigComment(comment);
-        valueString = GrouperUtil.whitespaceNormalizeNewLines(valueString);
         grouperConfigHibernate.setValueToSave(valueString);
         if (added[0] != null) {
           grouperConfigHibernate.saveOrUpdate(added[0]);
@@ -180,9 +196,13 @@ public class DbConfigEngine {
       if (added[0] == null) {
         message.append(GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesEditedNotChanged")).append(fromUi ? "<br />" : "\n");
       } else if (added[0]) {
-        message.append(GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesAdded")).append(fromUi ? "<br />" : "\n");
+        String configAddedAction = GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesAdded");
+        message.append(configAddedAction).append(fromUi ? "<br />" : "\n");
+        actionsPerformed.add(configAddedAction);
       } else {
-        message.append(GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesEdited")).append(fromUi ? "<br />" : "\n");
+        String configActionEdited = GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesEdited");
+        message.append(configActionEdited).append(fromUi ? "<br />" : "\n");
+        actionsPerformed.add(configActionEdited);
       }
   
     } finally {
@@ -197,9 +217,12 @@ public class DbConfigEngine {
    * @param configFileString
    * @param propertyNameStringInput 
    * @param clearCache should be true unless doing multiple, in which case clear at end
+   * @param grouperConfigHibernates are the configs from the database
+   * @param grouperConfigHibernatesEl are the EL configs from the database
    */
   public static String configurationFileItemDeleteHelper(final String configFileString, 
-      final String propertyNameStringInput, final boolean fromUi, final boolean clearCache) {
+      final String propertyNameStringInput, final boolean fromUi, final boolean clearCache, final List<String> actionsPerformed, 
+      final Set<GrouperConfigHibernate> grouperConfigHibernates, Set<GrouperConfigHibernate> grouperConfigHibernatesEl) {
     
     try {
     
@@ -228,28 +251,28 @@ public class DbConfigEngine {
           }
           
           String propertyNameString = GrouperUtil.stripSuffix(propertyNameStringInput, ".elConfig");
-          
-          Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(configFileName, null, propertyNameString);
-          Set<GrouperConfigHibernate> grouperConfigHibernatesEl = GrouperDAOFactory.getFactory().getConfig().findAll(null, null, propertyNameString + ".elConfig");
-          
+          String propertyNameStringEl = propertyNameString + ".elConfig";
+                    
           GrouperConfigHibernate grouperConfigHibernate = null;
           GrouperConfigHibernate grouperConfigHibernateEl = null;
           
           for (GrouperConfigHibernate current : GrouperUtil.nonNull(grouperConfigHibernates)) {
-            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())) {
+            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())
+                && StringUtils.equals(propertyNameString, current.getConfigKey())) {
               if (grouperConfigHibernate != null) {
                 // why are there two???
                 LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
                   + ", " + current.getConfigKey() + ", " + current.retrieveValue());
                 current.delete();
-                configurationFileItemDeleteHelper(current, configFileName, fromUi);
+                configurationFileItemDeleteHelper(current, configFileName, fromUi, actionsPerformed);
               }
               grouperConfigHibernate = current;
             }
           }
           
           for (GrouperConfigHibernate current : GrouperUtil.nonNull(grouperConfigHibernatesEl)) {
-            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())) {
+            if (configFileName.getConfigFileName().equals(current.getConfigFileNameDb()) && "INSTITUTION".equals(current.getConfigFileHierarchyDb())
+                && StringUtils.equals(propertyNameStringEl, current.getConfigKey())) {
               if (grouperConfigHibernate != null) {
                 // why are there two???
                 LOG.error("Why are there two configs in db with same key and config file???? " + current.getConfigFileNameDb() 
@@ -263,7 +286,7 @@ public class DbConfigEngine {
           String message = null;
           if (grouperConfigHibernate != null) {
             textReplaceMap.put("currentConfigPropertyName", grouperConfigHibernate.getConfigKey());
-            message = configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi);
+            message = configurationFileItemDeleteHelper(grouperConfigHibernate, configFileName, fromUi, actionsPerformed);
             deleted = true;
           }
           if (grouperConfigHibernateEl != null) {
@@ -273,7 +296,7 @@ public class DbConfigEngine {
             if (message!=null) {
               message += "<br />";
             }
-            message = configurationFileItemDeleteHelper(grouperConfigHibernateEl, configFileName, fromUi);
+            message = configurationFileItemDeleteHelper(grouperConfigHibernateEl, configFileName, fromUi, actionsPerformed);
             deleted = true;
           }
           if (!deleted) {
@@ -302,7 +325,7 @@ public class DbConfigEngine {
    * @param configFileName 
    */
   public static String configurationFileItemDeleteHelper(GrouperConfigHibernate grouperConfigHibernate, 
-      ConfigFileName configFileName, boolean fromUi) {
+      ConfigFileName configFileName, boolean fromUi, List<String> actionsPerformed) {
 
     // see if we are creating a new one
     if (grouperConfigHibernate == null) {
@@ -311,7 +334,13 @@ public class DbConfigEngine {
 
     grouperConfigHibernate.delete();
     
-    final String message = GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesDeleted");
+    String message = null;
+    if (configFileName.getConfig().configExistsNotInBaseOrDatabase(grouperConfigHibernate.getConfigKey())) {
+      message = GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesDeletedButStillExists");
+    } else {
+      message = GrouperTextContainer.retrieveFromRequest().getText().get("configurationFilesDeleted");
+    }
+    actionsPerformed.add(message);
     if (!fromUi) {
       System.out.println(message);
     }
@@ -329,11 +358,9 @@ public class DbConfigEngine {
    */
   public static boolean validateConfigEdit(ConfigFileName configFileName, 
       String propertyNameString, String valueString, boolean isExpressionLanguage, 
-      StringBuilder message, GrouperConfigHibernate[] grouperConfigHibernateToReturn, Map<String, Object> textReplaceMap) {
+      StringBuilder message, GrouperConfigHibernate[] grouperConfigHibernateToReturn, Map<String, Object> textReplaceMap,
+      final Set<GrouperConfigHibernate> grouperConfigHibernates, Set<GrouperConfigHibernate> grouperConfigHibernatesEl) {
   
-    Set<GrouperConfigHibernate> grouperConfigHibernates = GrouperDAOFactory.getFactory().getConfig().findAll(null, null, propertyNameString);
-    Set<GrouperConfigHibernate> grouperConfigHibernatesEl = GrouperDAOFactory.getFactory().getConfig().findAll(null, null, propertyNameString + ".elConfig");
-    
     GrouperConfigHibernate grouperConfigHibernate = null;
     GrouperConfigHibernate grouperConfigHibernateEl = null;
     

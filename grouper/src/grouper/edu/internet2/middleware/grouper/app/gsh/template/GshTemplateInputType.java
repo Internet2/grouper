@@ -17,6 +17,7 @@ public enum GshTemplateInputType {
      Integer valueToUseInteger = GrouperUtil.intObjectValue(valueToUse, true);
      
      grouperGroovyInput.assignInputValueInteger(gshTemplateInputConfig.getName(), valueToUseInteger);
+     grouperGroovyInput.assignInputFormElement(gshTemplateInputConfig.getName(), gshTemplateInputConfig.getConfigItemFormElement());
 
      return "Integer "+gshTemplateInputConfig.getName() + " = grouperGroovyRuntime.retrieveInputValueInteger(\"" + gshTemplateInputConfig.getName() + "\");\n";
     }
@@ -51,6 +52,8 @@ public enum GshTemplateInputType {
 
       grouperGroovyInput.assignInputValueString(gshTemplateInputConfig.getName(), valueToUse);
 
+      grouperGroovyInput.assignInputFormElement(gshTemplateInputConfig.getName(), gshTemplateInputConfig.getConfigItemFormElement());
+      
       return "String "+gshTemplateInputConfig.getName() + " = grouperGroovyRuntime.retrieveInputValueString(\"" + gshTemplateInputConfig.getName() + "\");\n";
     }
     
@@ -76,6 +79,7 @@ public enum GshTemplateInputType {
      Boolean valueToUseBoolean = GrouperUtil.booleanObjectValue(valueToUse);
 
      grouperGroovyInput.assignInputValueBoolean(gshTemplateInputConfig.getName(), valueToUseBoolean);
+     grouperGroovyInput.assignInputFormElement(gshTemplateInputConfig.getName(), gshTemplateInputConfig.getConfigItemFormElement());
      return "Boolean "+gshTemplateInputConfig.getName() + " = grouperGroovyRuntime.retrieveInputValueBoolean(\"" + gshTemplateInputConfig.getName() + "\");\n";
     }
     

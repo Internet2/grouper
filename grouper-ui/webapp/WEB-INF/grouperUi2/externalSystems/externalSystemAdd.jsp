@@ -1,5 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+  <c:set  value="${grouperRequestContainer.externalSystemContainer.guiGrouperExternalSystem}" var="guiGrouperExternalSystem"/>
+
 	 <div class="bread-header-container">
        <ul class="breadcrumb">
            <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
@@ -16,6 +18,19 @@
              <%@ include file="externalSystemsMoreActionsButtonContents.jsp"%>
            </div>
          </div>
+         
+         <div class="row-fluid">
+          <div class="span12">
+            <p style="margin-top: -1em; margin-bottom: 1em">
+              ${guiGrouperExternalSystem.grouperExternalSystem.description}
+            </p>
+            <p style="margin-top: -1em; margin-bottom: 1em">
+              ${guiGrouperExternalSystem.grouperExternalSystem.documentation}
+            </p>
+          </div>
+        </div>
+        
+        
        </div>
      </div>
      

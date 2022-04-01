@@ -19,9 +19,8 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
    */
   public boolean isEmpty() {
     if (StringUtils.isBlank(this.provisioningEntityId)
-        && StringUtils.isBlank(this.id)
         && StringUtils.isBlank(this.provisioningGroupId)
-        && this.isEmptyUpdatable()
+        && super.isEmpty()
         && this.provisioningEntity == null 
         && this.provisioningGroup == null) {
       return true;
@@ -29,11 +28,6 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     return false;
   }
 
-  /**
-   * id of membership (optional)
-   */
-  private String id;
-  
   private String provisioningGroupId;
   
   private String provisioningEntityId;
@@ -72,7 +66,7 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
    * @return id
    */
   public String getId() {
-    return this.id;
+    return this.retrieveAttributeValueString("id");
   }
   
   /**
@@ -80,7 +74,7 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
    * @param id1
    */
   public void setId(String id1) {
-    this.id = id1;
+    this.assignAttributeValue("id", id1);
   }
   
   public ProvisioningGroup getProvisioningGroup() {
@@ -262,9 +256,9 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
    * @param name
    * @param value
    */
-  public String retrieveFieldOrAttributeValueString(GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String retrieveAttributeValueString(GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     
-    return GrouperUtil.stringValue(this.retrieveFieldOrAttributeValue(grouperProvisioningConfigurationAttribute));
+    return GrouperUtil.stringValue(this.retrieveAttributeValue(grouperProvisioningConfigurationAttribute));
     
   }
 
@@ -274,25 +268,12 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
    * @param grouperProvisioningConfigurationAttribute
    * @return the value
    */
-  public Object retrieveFieldOrAttributeValue(
+  public Object retrieveAttributeValue(
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     if (grouperProvisioningConfigurationAttribute == null) {
       throw new NullPointerException("attribute is null: " + this);
     }
-    if (grouperProvisioningConfigurationAttribute.isAttribute()) {
-      return this.retrieveAttributeValueString(grouperProvisioningConfigurationAttribute.getName());
-    } else {
-      if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getId();
-      }
-      if ("provisioningEntityId".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getProvisioningEntityId();
-      }
-      if ("provisioningGroupId".equals(grouperProvisioningConfigurationAttribute.getName())) {
-        return this.getProvisioningGroupId();
-      }
-      throw new RuntimeException("Invalid field name '" + grouperProvisioningConfigurationAttribute.getName() + "': " + this);
-    }
+    return this.retrieveAttributeValueString(grouperProvisioningConfigurationAttribute.getName());
   }
 
   public String toString() {
@@ -324,7 +305,6 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     
     firstField = toStringAppendField(result, firstField, "groupId", this.provisioningGroupId);
     firstField = toStringAppendField(result, firstField, "entityId", this.provisioningEntityId);
-    firstField = toStringAppendField(result, firstField, "id", this.id);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     if (this.provisioningMembershipWrapper != null) {
       if (this.provisioningMembershipWrapper.isRecalc()) {
@@ -356,7 +336,6 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     ProvisioningMembership provisioningMembership = new ProvisioningMembership();
 
     this.cloneUpdatable(provisioningMembership);
-    provisioningMembership.id = this.id;
     provisioningMembership.provisioningEntityId = this.provisioningEntityId;
     // set this later
     provisioningMembership.provisioningEntity = this.provisioningEntity != null ? this.provisioningEntity.clone(): null;

@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -348,6 +349,23 @@ public class GcDbAccess {
     }
 
     this.bindVars.add(_bindVar);
+
+    return this;
+  }
+
+  /**
+   * Add to the list of bind variable objects, leaving any that exist there - if you use this in a transaction callback
+   * you will have to clear bindvars between calls or they will accumulate.
+   * @param _bindVar is the variable to add to the list.
+   * @return this.
+   */
+  public GcDbAccess addBindVars(Collection<?> _bindVar){
+
+    if (this.bindVars == null){
+      this.bindVars = new ArrayList<Object>();
+    }
+
+    this.bindVars.addAll(_bindVar);
 
     return this;
   }

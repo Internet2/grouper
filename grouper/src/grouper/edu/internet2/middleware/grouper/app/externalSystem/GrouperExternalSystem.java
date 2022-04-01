@@ -8,22 +8,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
-import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.google.GoogleGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.messaging.GrouperInternalMessagingExternalSystem;
 import edu.internet2.middleware.grouper.app.oidc.OidcGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.smtp.SmtpGrouperExternalSystem;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
-import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBase implements OptionValueDriver {
   
@@ -67,53 +60,6 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
   }
 
   /**
-   * is the config enabled or not
-   * @return
-   */
-  @Override
-  public boolean isEnabled() {
-   try {
-     GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
-     String enabledString = enabledAttribute.getValue();
-     if (StringUtils.isBlank(enabledString)) {
-       enabledString = enabledAttribute.getDefaultValue();
-     }
-     return GrouperUtil.booleanValue(enabledString, true);
-   } catch (Exception e) {
-     return false;
-   }
-    
-  }
-  
-  /**
-   * change status of config to disable/enable
-   * @param enable
-   * @param message
-   * @param errorsToDisplay
-   * @param validationErrorsToDisplay
-   */
-  public void changeStatus(boolean enable, StringBuilder message, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
-    
-    GrouperConfigurationModuleAttribute enabledAttribute = this.retrieveAttributes().get("enabled");
-    if (enabledAttribute == null) {
-      errorsToDisplay.add(GrouperTextContainer.textOrNull("grouperExternalSystemCannotEnableDisable"));
-      return;
-    }
-    enabledAttribute.setValue(enable? "true": "false");
-    
-    ConfigFileName configFileName = this.getConfigFileName();
-    ConfigFileMetadata configFileMetadata = configFileName.configFileMetadata();
-
-    DbConfigEngine.configurationFileAddEditHelper2(configFileName, this.getConfigFileName().getConfigFileName(), configFileMetadata,
-        enabledAttribute.getFullPropertyName(), 
-        enabledAttribute.isExpressionLanguage() ? "true" : "false", 
-        enabledAttribute.isExpressionLanguage() ? enabledAttribute.getExpressionLanguageScript() : enabledAttribute.getValue(),
-        enabledAttribute.isPassword(), message, new Boolean[] {false},
-        new Boolean[] {false}, true, "Added from external system editor", errorsToDisplay, validationErrorsToDisplay, false);    
-    ConfigPropertiesCascadeBase.clearCache();
-  }
-  
-  /**
    * get value for one property
    * @param attributeName
    * @return
@@ -127,7 +73,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
   static {
     externalTypeClassNames.add(AzureGrouperExternalSystem.class.getName());
     externalTypeClassNames.add(LdapGrouperExternalSystem.class.getName());
-    externalTypeClassNames.add("edu.internet2.middleware.changelogconsumer.googleapps.GoogleGrouperExternalSystem");
+    externalTypeClassNames.add(GoogleGrouperExternalSystem.class.getName());
     externalTypeClassNames.add("edu.internet2.middleware.grouper.o365.Office365GrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouperBox.BoxGrouperExternalSystem");
     externalTypeClassNames.add("edu.internet2.middleware.grouperDuo.DuoGrouperExternalSystem");
@@ -169,8 +115,11 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     
     for (GrouperExternalSystem externalSystem: externalSystems) {
       
-      String configId = externalSystem.getConfigId();
-      keysAndLabels.add(new MultiKey(configId, configId));
+      if (externalSystem.isEnabled()) {
+        String configId = externalSystem.getConfigId();
+        keysAndLabels.add(new MultiKey(configId, configId));
+      }
+      
     }
     
     Collections.sort(keysAndLabels, new Comparator<MultiKey>() {

@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportGsh;
 import edu.internet2.middleware.grouper.xml.importXml.XmlImportGsh;
@@ -246,6 +247,11 @@ private static boolean handleSpecialCase(String[] args) {
 	      } catch (Exception e) {
 	        LOG.error("error shutting down loader", e);
 	      }
+        try {
+          GrouperPluginManager.shutdownIfStarted();
+        } catch (Exception e) {
+          LOG.error("error shutting down plugins", e);
+        }
 	    }
 	  }
 	  

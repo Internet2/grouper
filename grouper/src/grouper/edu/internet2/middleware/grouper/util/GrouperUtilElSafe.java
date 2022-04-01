@@ -51,6 +51,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -906,8 +907,13 @@ public class GrouperUtilElSafe {
    * @param count is size of set
    * @param batchSize
    * @return the number of batches
+   * @param haveAtLeastOne is true if there should be at least one run even if the collection is empty (e.g. for queries based on other things)
    */
-  public static int batchNumberOfBatches(int count, int batchSize) {
+  public static int batchNumberOfBatches(int count, int batchSize, boolean haveAtLeastOne) {
+    if (!haveAtLeastOne && count == 0) {
+      return 0;
+    }
+
     //not sure why this would be 0...
     if (batchSize == 0) {
       return 0;
@@ -918,17 +924,41 @@ public class GrouperUtilElSafe {
   }
 
   /**
-   * If batching this is the number of batches
+   * If batching this is the number of batches.  Will return at least 1
+   * @param count is size of set
+   * @param batchSize
+   * @return the number of batches
+   * @deprecated use batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne)
+   */
+  @Deprecated
+  public static int batchNumberOfBatches(int count, int batchSize) {
+    return batchNumberOfBatches(count, batchSize, true);
+  }
+
+  /**
+   * If batching this is the number of batches, will return at least 1
    * @param collection
    * @param batchSize
    * @return the number of batches
+   * @deprecated use batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne)
    */
+  @Deprecated
   public static int batchNumberOfBatches(Collection<?> collection, int batchSize) {
-    int arrraySize = length(collection);
-    return batchNumberOfBatches(arrraySize, batchSize);
-
+    return batchNumberOfBatches(collection, batchSize, true);
   }
 
+  /**
+   * If batching this is the number of batches, will return at least 1
+   * @param collection
+   * @param batchSize
+   * @param haveAtLeastOne is true if there should be at least one run even if the collection is empty (e.g. for queries based on other things)
+   * @return the number of batches
+   */
+  public static int batchNumberOfBatches(Collection<?> collection, int batchSize, boolean haveAtLeastOne) {
+    int arrraySize = length(collection);
+    return batchNumberOfBatches(arrraySize, batchSize, haveAtLeastOne);
+
+  }
   /**
    * retrieve a batch by 0 index. Will return an array of size batchSize or
    * the remainder. the array will be full of elements. Note, this requires an
@@ -6569,5 +6599,57 @@ public class GrouperUtilElSafe {
     }
     
     return results;
+  }
+  
+  private static String friendlyTimezoneStringForInputDescription;
+  
+  /**
+   * Return a string that combines the standard and daylight timezones of the server
+   * into one string separated by a slash that can be used in an input description
+   * to inform the user of the server timezone.  For the main US timezones, the following
+   * is returned instead:  ET, CT, MT, PT. 
+   * @return string
+   * 
+   */
+  public static String getFriendlyTimezoneStringForInputDescription() {
+    if (friendlyTimezoneStringForInputDescription == null) {
+      synchronized(GrouperUtil.class) {
+        Calendar now = Calendar.getInstance();
+        TimeZone timeZone = now.getTimeZone();
+        
+        String tzWithoutDaylight = timeZone.getDisplayName(false, TimeZone.SHORT);
+        String tzWithDaylight = timeZone.observesDaylightTime() ? timeZone.getDisplayName(true, TimeZone.SHORT) : null;
+        
+        if (isBlank(tzWithoutDaylight) && isBlank(tzWithDaylight)) {
+          friendlyTimezoneStringForInputDescription = "Unknown";
+        } else if (isBlank(tzWithoutDaylight)) {
+          friendlyTimezoneStringForInputDescription = tzWithDaylight;
+        } else if (isBlank(tzWithDaylight)) {
+          friendlyTimezoneStringForInputDescription = tzWithoutDaylight;
+        } else {
+          String temp;
+          
+          if (equals(tzWithoutDaylight, tzWithDaylight)) {
+            temp = tzWithoutDaylight;
+          } else {
+            temp = tzWithoutDaylight + "/" + tzWithDaylight;
+          }
+          
+          if (temp.equals("EST/EDT")) {
+            friendlyTimezoneStringForInputDescription = "ET";
+          } else if (temp.equals("CST/CDT")) {
+            friendlyTimezoneStringForInputDescription = "CT";
+          } else if (temp.equals("MST/MDT")) {
+            friendlyTimezoneStringForInputDescription = "MT";
+          } else if (temp.equals("PST/PDT")) {
+            friendlyTimezoneStringForInputDescription = "PT";
+          } else {
+            friendlyTimezoneStringForInputDescription = temp;
+          }          
+        }
+      }
+    }
+    
+    return friendlyTimezoneStringForInputDescription;
   }
 }

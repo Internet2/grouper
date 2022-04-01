@@ -11,6 +11,18 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperProvisioningConfigurationAttribute {
 
+  private GrouperProvisioner grouperProvisioner;
+  
+  
+  
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
+  }
+
+  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    this.grouperProvisioner = grouperProvisioner;
+  }
+
   /**
    * for validation messages
    */
@@ -118,6 +130,8 @@ public class GrouperProvisioningConfigurationAttribute {
     
     Set<String> fieldNames = GrouperUtil.fieldNames(GrouperProvisioningConfigurationAttribute.class, null, false);
         
+    fieldNames.remove("grouperProvisioner");
+    
     fieldNames = new TreeSet<String>(fieldNames);
     boolean firstField = true;
     for (String fieldName : fieldNames) {
@@ -220,6 +234,50 @@ public class GrouperProvisioningConfigurationAttribute {
   }
 
   /**
+   * grouper provisioning group field create only
+   */
+  private String translateFromGrouperProvisioningGroupFieldCreateOnly;
+  
+  /**
+   * grouper provisioning group field create only
+   * @return value
+   */
+  public String getTranslateFromGrouperProvisioningGroupFieldCreateOnly() {
+    return this.translateFromGrouperProvisioningGroupFieldCreateOnly;
+  }
+
+  /**
+   * grouper provisioning group field create only
+   * @param translateFromGrouperProvisioningGroupFieldCreateOnly1
+   */
+  public void setTranslateFromGrouperProvisioningGroupFieldCreateOnly(
+      String translateFromGrouperProvisioningGroupFieldCreateOnly1) {
+    this.translateFromGrouperProvisioningGroupFieldCreateOnly = translateFromGrouperProvisioningGroupFieldCreateOnly1;
+  }
+
+  /**
+   * grouper provisioning entity field create only
+   */
+  private String translateFromGrouperProvisioningEntityFieldCreateOnly;
+  
+  /**
+   * grouper provisioning entity field create only
+   * @return grouper provisioning entity field create only
+   */
+  public String getTranslateFromGrouperProvisioningEntityFieldCreateOnly() {
+    return this.translateFromGrouperProvisioningEntityFieldCreateOnly;
+  }
+
+  /**
+   * grouper provisioning entity field create only
+   * @param translateFromGrouperProvisioningEntityFieldCreateOnly1
+   */
+  public void setTranslateFromGrouperProvisioningEntityFieldCreateOnly(
+      String translateFromGrouperProvisioningEntityFieldCreateOnly1) {
+    this.translateFromGrouperProvisioningEntityFieldCreateOnly = translateFromGrouperProvisioningEntityFieldCreateOnly1;
+  }
+
+  /**
    * grouper provisioning group field
    */
   private String translateFromGrouperProvisioningGroupField;
@@ -272,14 +330,9 @@ public class GrouperProvisioningConfigurationAttribute {
   private String name;
   
   /**
-   * true for attribute, false for field
-   */
-  private boolean attribute;
-  
-  /**
    * value type
    */
-  private GrouperProvisioningConfigurationAttributeValueType valueType;
+  private GrouperProvisioningConfigurationAttributeValueType valueType = GrouperProvisioningConfigurationAttributeValueType.STRING;
   
   /**
    * Validate value with jexl to see if valid for provisioning, the variable 'value' represents the current value.  return true if valid and false if invalid
@@ -347,7 +400,7 @@ public class GrouperProvisioningConfigurationAttribute {
   /**
    * insert this attribute
    */
-  private boolean insert;
+  private boolean insert = true;
   
   /**
    * 
@@ -373,12 +426,12 @@ public class GrouperProvisioningConfigurationAttribute {
   /**
    * select this attribute for normal selects
    */
-  private boolean select;
+  private boolean select = true;
   
   /**
    * update this attribute in normal updates
    */
-  private boolean update;
+  private boolean update = true;
   
   /**
    * if this is a multivalued attribute (Set)
@@ -459,22 +512,6 @@ public class GrouperProvisioningConfigurationAttribute {
   }
 
   /**
-   * true for attribute, false for field
-   * @return
-   */
-  public boolean isAttribute() {
-    return attribute;
-  }
-
-  /**
-   * true for attribute, false for field
-   * @param attribute
-   */
-  public void setAttribute(boolean attribute) {
-    this.attribute = attribute;
-  }
-
-  /**
    * value type
    * @return
    */
@@ -528,6 +565,25 @@ public class GrouperProvisioningConfigurationAttribute {
    */
   public boolean isUpdate() {
     return update;
+  }
+
+
+  /**
+   * update this attribute in normal updates
+   * @return true if update this attribute
+   */
+  public boolean isUpdateConsiderMemberships() {
+    if (this.update) {
+      return true;
+    }
+    GrouperProvisioningBehavior grouperProvisioningBehavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
+    if ((grouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        || grouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes)
+        && this.isMembershipAttribute() && (grouperProvisioningBehavior.isInsertMemberships() 
+            || grouperProvisioningBehavior.isDeleteMemberships() || grouperProvisioningBehavior.isUpdateMemberships())) {
+      return true;
+    }
+    return false;
   }
 
   /**

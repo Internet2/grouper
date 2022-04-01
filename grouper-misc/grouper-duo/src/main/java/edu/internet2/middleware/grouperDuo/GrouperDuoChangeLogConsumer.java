@@ -219,7 +219,7 @@ public class GrouperDuoChangeLogConsumer extends ChangeLogConsumerBase {
 	                    GrouperDuoCommands.retrieveAdminAccounts()
 	            );
             }catch (Exception e) {
-            	GrouperDuoLog.logError(String.format("Failed to create administrator for subject: %s (%s) from %s, removing member from group.", subject.getName(), subject.getId(), subject.getSource()));
+            	GrouperDuoLog.logError(String.format("Failed to create administrator for subject: %s (%s) from %s, removing member from group.", subject.getName(), subject.getId(), subject.getSourceId()));
             	GrouperDuoUtils.removeSubjectFromDuoAdminGroups(grouperSession, subject);
             	
             	if (GrouperDuoUtils.configEmailRecipientsGroupName().length() > 0) {

@@ -16,14 +16,9 @@ public class LdapSyncCompare extends GrouperProvisioningCompare {
   private static final Log LOG = GrouperUtil.getLog(LdapSyncCompare.class);
   
   @Override
-  public boolean attributeValueEquals(Object first, Object second) {
-    return super.attributeValueEquals(first, second);
-  }
-
-  @Override
-  public boolean compareFieldValueEquals(String fieldName, Object grouperValue,
+  public boolean attributeValueEquals(String attributeName, Object grouperValue,
       Object targetValue, ProvisioningUpdatable grouperTargetUpdatable) {
-    boolean originalCheck = super.compareFieldValueEquals(fieldName, grouperValue, targetValue,
+    boolean originalCheck = super.attributeValueEquals(attributeName, grouperValue, targetValue,
         grouperTargetUpdatable);
     
     // if it's equal, return
@@ -32,7 +27,7 @@ public class LdapSyncCompare extends GrouperProvisioningCompare {
     }
     
     // if this isn't the dn, return
-    if (!"name".equals(fieldName)) {
+    if (!LdapProvisioningTargetDao.ldap_dn.equals(attributeName)) {
       return originalCheck;
     }
     
