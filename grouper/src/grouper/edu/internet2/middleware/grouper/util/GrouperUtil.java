@@ -1803,6 +1803,35 @@ public class GrouperUtil {
     RDN rdn = new RDN("cn", rdnValue);
     return rdn.toMinimallyEncodedString().substring("cn=".length());
   }
+
+  /**
+   * active directory date from millis 1970 date
+  * @return the AD date
+   */
+  public static long ldapAdDateCurrent() {
+    return ldapAdDateFromMillis1970(System.currentTimeMillis());
+  }
+
+  /**
+   * active directory date from millis 1970 date
+   * @param millisSince1970
+   * @return the AD date
+   */
+  public static long ldapAdDateFromMillis1970(long millisSince1970) {
+    
+    //  Calendar calendar = java.util.Calendar.getInstance();
+    //
+    //  calendar.setTime(new Date("1/1/1601"));
+    //  long base_1601_time = calendar.getTimeInMillis();
+    //
+    //  calendar.setTime(new Date("1/1/1970"));
+    //  long base_1970_time = calendar.getTimeInMillis();
+    //
+    //  // 11644473600000
+    //  long ms_offset = base_1970_time - base_1601_time;
+
+    return (millisSince1970 + 11644473600000L) * 10000;
+  }
   
   /**
    * 
@@ -10960,7 +10989,9 @@ public class GrouperUtil {
       }
 
       //allow utility methods
-      jc.set("grouperUtil", new GrouperUtilElSafe());
+      if (!variableMap.containsKey("grouperUtil")) {
+        jc.set("grouperUtil", new GrouperUtilElSafe());
+      }
       //if you add another one here, add it in the logs below
 
       // matching ${ exp }   (non-greedy)
@@ -11146,7 +11177,9 @@ public class GrouperUtil {
       }
 
       //allow utility methods
-      jc.set("grouperUtil", new GrouperUtilElSafe());
+      if (!variableMap.containsKey("grouperUtil")) {
+        jc.set("grouperUtil", new GrouperUtilElSafe());
+      }
       //if you add another one here, add it in the logs below
 
       script = script.trim();
@@ -14122,7 +14155,9 @@ public class GrouperUtil {
       }
   
       //allow utility methods
-      jc.set("grouperUtil", new GrouperUtilElSafe());
+      if (!variableMap.containsKey("grouperUtil")) {
+        jc.set("grouperUtil", new GrouperUtilElSafe());
+      }
       //if you add another one here, add it in the logs below
 
       script = script.trim();
