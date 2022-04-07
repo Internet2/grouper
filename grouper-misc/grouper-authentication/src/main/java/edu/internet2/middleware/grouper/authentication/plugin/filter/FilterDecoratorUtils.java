@@ -1,8 +1,6 @@
-package edu.internet2.middleware.grouper.plugins.authentication.filter;
+package edu.internet2.middleware.grouper.authentication.plugin.filter;
 
-import edu.internet2.middleware.grouper.authentication.ConfigUtils;
-
-import java.util.Map;
+import edu.internet2.middleware.grouper.authentication.plugin.ConfigUtils;
 
 public class FilterDecoratorUtils {
     protected static boolean isExternalAuthenticationEnabled() {

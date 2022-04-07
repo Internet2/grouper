@@ -1,6 +1,6 @@
-package edu.internet2.middleware.grouper.plugins.authentication.filter;
+package edu.internet2.middleware.grouper.authentication.plugin.filter;
 
-import edu.internet2.middleware.grouper.authentication.ConfigUtils;
+import edu.internet2.middleware.grouper.authentication.plugin.ConfigUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import org.pac4j.jee.filter.CallbackFilter;
 

@@ -16,9 +16,8 @@
     limitations under the License.
 
 -->
-<!-- This POM is to register this jar in maven.  Note, the jar in maven will NOT have all the dependencies embedded.
-     Note this jar will not be in the grouper container anywhere, it is just stored in maven central (or your institution's maven)
-     so there is a snapshot of it.
+<!-- This POM specifies which jars are included in the bundle.
+     This artifact is not stored in maven central (for space reasons), and is only used in container
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
@@ -36,7 +35,7 @@
     <description>Authentication Library</description>
     <artifactId>grouper-authentication</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
 
     <properties>
         <pac4j.version>4.3.1</pac4j.version>
@@ -59,13 +58,13 @@
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
-            <artifactId>jee-pac4j</artifactId>
-            <version>${jee-pac4j.version}</version>
+            <artifactId>pac4j-cas</artifactId>
+            <version>${pac4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
-            <artifactId>pac4j-cas</artifactId>
-            <version>${pac4j.version}</version>
+            <artifactId>jee-pac4j</artifactId>
+            <version>${jee-pac4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
@@ -116,32 +115,22 @@
                     </archive>
                 </configuration>
             </plugin>
-        </plugins>
-    </build>
-
-<!--
-    <build>
-        <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.1.2</version>
-                <executions>
-                    <execution>
-                        <id>copy-dependencies</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <includeScope>runtime</includeScope>
-                            <excludeScope>provided</excludeScope>
-                            <excludeGroupIds>edu.internet2.middleware.grouper,org.apache.tomcat</excludeGroupIds>
-                        </configuration>
-                    </execution>
-                </executions>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Bundle-Version>${pom.version}</Bundle-Version>
+                        <Export-Package>edu.internet2.middleware.grouper.authentication.plugin.filter</Export-Package>
+                        <Private-Package>edu.internet2.middleware.grouper.authentication.plugin.*</Private-Package>
+                        <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
+                    </instructions>
+                </configuration>
             </plugin>
         </plugins>
     </build>
--->
 </project>

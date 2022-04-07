@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.authentication.config;
+package edu.internet2.middleware.grouper.authentication.plugin.config;
 
 import org.pac4j.core.client.Client;
 

@@ -1,6 +1,6 @@
-package edu.internet2.middleware.grouper.authentication.oidc.profile;
+package edu.internet2.middleware.grouper.authentication.plugin.oidc.profile;
 
-import edu.internet2.middleware.grouper.authentication.oidc.config.ClaimAsUsernameOidcConfiguration;
+import edu.internet2.middleware.grouper.authentication.plugin.oidc.config.ClaimAsUsernameOidcConfiguration;
 import org.pac4j.core.util.CommonHelper;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;

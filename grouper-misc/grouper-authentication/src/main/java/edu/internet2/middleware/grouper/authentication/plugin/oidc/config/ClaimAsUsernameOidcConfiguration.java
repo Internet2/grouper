@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.authentication.oidc.config;
+package edu.internet2.middleware.grouper.authentication.plugin.oidc.config;
 
 import org.pac4j.oidc.config.OidcConfiguration;
 

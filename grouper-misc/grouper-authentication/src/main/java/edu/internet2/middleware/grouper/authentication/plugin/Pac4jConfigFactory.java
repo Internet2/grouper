@@ -1,7 +1,7 @@
-package edu.internet2.middleware.grouper.authentication;
+package edu.internet2.middleware.grouper.authentication.plugin;
 
-import edu.internet2.middleware.grouper.authentication.config.ClientProvider;
-import edu.internet2.middleware.grouper.authentication.config.ClientProviders;
+import edu.internet2.middleware.grouper.authentication.plugin.config.ClientProvider;
+import edu.internet2.middleware.grouper.authentication.plugin.config.ClientProviders;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;

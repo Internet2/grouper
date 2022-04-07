@@ -1,7 +1,7 @@
-package edu.internet2.middleware.grouper.plugins.authentication.filter;
+package edu.internet2.middleware.grouper.authentication.plugin.filter;
 
-import edu.internet2.middleware.grouper.authentication.ConfigUtils;
-import edu.internet2.middleware.grouper.authentication.Pac4jConfigFactory;
+import edu.internet2.middleware.grouper.authentication.plugin.ConfigUtils;
+import edu.internet2.middleware.grouper.authentication.plugin.Pac4jConfigFactory;
 import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.core.config.ConfigBuilder;
 import org.pac4j.core.util.Pac4jConstants;

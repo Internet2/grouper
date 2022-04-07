@@ -1,6 +1,6 @@
-package edu.internet2.middleware.grouper.authentication.config;
+package edu.internet2.middleware.grouper.authentication.plugin.config;
 
-import edu.internet2.middleware.grouper.authentication.ConfigUtils;
+import edu.internet2.middleware.grouper.authentication.plugin.ConfigUtils;
 import org.pac4j.cas.client.CasClient;
 import org.pac4j.cas.config.CasConfiguration;
 import org.pac4j.core.client.Client;

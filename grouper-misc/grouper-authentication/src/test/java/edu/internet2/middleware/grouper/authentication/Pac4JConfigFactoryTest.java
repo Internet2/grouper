@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.authentication;
 
+import edu.internet2.middleware.grouper.authentication.plugin.Pac4jConfigFactory;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;
@@ -252,7 +253,7 @@ public class Pac4JConfigFactoryTest extends TestCase {
         GrouperUiConfig.retrieveConfig().properties().clear();
         GrouperUiConfig.retrieveConfig().propertiesOverrideMap().clear();
         Map<String,String> overrides = GrouperUiConfig.retrieveConfig().propertiesOverrideMap();
-        overrides.put("external.authentication.provider", "edu.internet2.middleware.grouper.authentication.config.SAML2ClientProvider");
+        overrides.put("external.authentication.provider", "edu.internet2.middleware.grouper.authentication.plugin.config.SAML2ClientProvider");
 
         Pac4jConfigFactory pac4jConfigFactory = new Pac4jConfigFactory();
         Config config = pac4jConfigFactory.build();

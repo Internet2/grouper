@@ -1,7 +1,7 @@
-package edu.internet2.middleware.grouper.authentication.oidc.client;
+package edu.internet2.middleware.grouper.authentication.plugin.oidc.client;
 
-import edu.internet2.middleware.grouper.authentication.oidc.config.ClaimAsUsernameOidcConfiguration;
-import edu.internet2.middleware.grouper.authentication.oidc.profile.ClaimAsUsernameProfileCreator;
+import edu.internet2.middleware.grouper.authentication.plugin.oidc.config.ClaimAsUsernameOidcConfiguration;
+import edu.internet2.middleware.grouper.authentication.plugin.oidc.profile.ClaimAsUsernameProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 
 public class ClaimAsUsernameOidcClient extends OidcClient<ClaimAsUsernameOidcConfiguration> {

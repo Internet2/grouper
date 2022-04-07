@@ -1,9 +1,8 @@
-package edu.internet2.middleware.grouper.authentication.config;
+package edu.internet2.middleware.grouper.authentication.plugin.config;
 
-import edu.internet2.middleware.grouper.authentication.ConfigUtils;
-import edu.internet2.middleware.grouper.authentication.oidc.client.ClaimAsUsernameOidcClient;
-import edu.internet2.middleware.grouper.authentication.oidc.config.ClaimAsUsernameOidcConfiguration;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import edu.internet2.middleware.grouper.authentication.plugin.ConfigUtils;
+import edu.internet2.middleware.grouper.authentication.plugin.oidc.client.ClaimAsUsernameOidcClient;
+import edu.internet2.middleware.grouper.authentication.plugin.oidc.config.ClaimAsUsernameOidcConfiguration;
 import org.apache.log4j.Logger;
 import org.pac4j.core.client.Client;
 import org.pac4j.oidc.client.OidcClient;

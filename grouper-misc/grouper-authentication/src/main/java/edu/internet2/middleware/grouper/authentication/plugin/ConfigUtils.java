@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.authentication;
+package edu.internet2.middleware.grouper.authentication.plugin;
 
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;

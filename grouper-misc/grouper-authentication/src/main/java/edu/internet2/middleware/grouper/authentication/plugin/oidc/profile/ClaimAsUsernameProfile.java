@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.authentication.oidc.profile;
+package edu.internet2.middleware.grouper.authentication.plugin.oidc.profile;
 
 import org.pac4j.oidc.profile.OidcProfile;
 

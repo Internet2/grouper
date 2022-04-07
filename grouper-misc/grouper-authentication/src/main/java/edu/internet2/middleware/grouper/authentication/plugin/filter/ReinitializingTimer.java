@@ -1,6 +1,6 @@
-package edu.internet2.middleware.grouper.plugins.authentication.filter;
+package edu.internet2.middleware.grouper.authentication.plugin.filter;
 
-import edu.internet2.middleware.grouper.authentication.ConfigUtils;
+import edu.internet2.middleware.grouper.authentication.plugin.ConfigUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
