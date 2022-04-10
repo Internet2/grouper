@@ -12,10 +12,7 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAtt
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
-import edu.internet2.middleware.subject.Source;
-import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  */
@@ -144,6 +141,8 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
           result.put("membershipStructure", "entityAttributes");
           result.put("membershipValueDn", "false");
           result.put("membershipValueForEntities", "name");
+        } else if (StringUtils.equals(valueUserEnteredOnScreen, "other")) {
+          result.clear();
         }
       }
       

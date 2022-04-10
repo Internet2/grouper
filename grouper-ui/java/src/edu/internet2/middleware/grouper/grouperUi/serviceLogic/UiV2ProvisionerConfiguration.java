@@ -851,17 +851,11 @@ public class UiV2ProvisionerConfiguration {
               configSuffixToValues.put(key, startWithValue);
             }
             
-            //Set<String> newKeys = configSuffixToValues.keySet();
             Set<String> suffixesUserJustChanged = new HashSet<>();
             Map<String, String> oldSuffixToValue = provisionerStartWith.getCachedConfigKeyToValue(sessionId);
             if (oldSuffixToValue != null) {
               
-//              Set<String> oldKeys = oldSuffixToValue.keySet();
-//              newKeys.removeAll(oldKeys);
-              //now newKeys only have the keys that have been added since the last trip to the server
-              
               // compare old values with new values and build suffixesUserJustChanged
-              
               for (String key: startWithAttributes.keySet()) {
                 String startWithNewValue = startWithAttributes.get(key).getValue();
                 String startWithOldValue = oldSuffixToValue.get(key);
@@ -888,11 +882,6 @@ public class UiV2ProvisionerConfiguration {
             }
             
           }
-          
-          
-          
-          
-          
           
           
         }
