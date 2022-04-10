@@ -4,13 +4,12 @@ import java.io.File;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -23,6 +22,8 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class LdapProvisionerTestUtils {
   
   public static void main(String args[]) throws Exception {
+    GrouperSession.startRootSession();
+    setupSubjectSource();
   }
   
   private static String dockerPath = null;

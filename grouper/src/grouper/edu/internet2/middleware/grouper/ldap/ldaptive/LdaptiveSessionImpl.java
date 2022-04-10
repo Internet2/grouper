@@ -749,6 +749,21 @@ public class LdaptiveSessionImpl implements LdapSession {
   private SearchResult processSearchRequest(String ldapServerId, Connection ldap, String searchDn, LdapSearchScope ldapSearchScope, String filter, String[] attributeNames, Long sizeLimit) throws LdapException {
 
     SearchRequest searchRequest = new SearchRequest();
+    
+    if (filter != null) {
+      filter = filter.trim();
+      if (filter.startsWith("${") && filter.endsWith("}")) {
+        
+        if (this.debug) {
+          this.debugLog.append("Ldaptive filterJexl '").append(filter).append("'\n");
+        }
+        filter = StringUtils.replace(filter, "$newline$", "\n");
+        Map<String, Object> variableMap = new HashMap<String, Object>();
+        variableMap.put("grouperUtil", new GrouperUtil());
+        filter = (String)GrouperUtil.substituteExpressionLanguageScript(filter, variableMap, true, false, false);
+      }
+    }
+    
     searchRequest.setSearchFilter(new SearchFilter(filter));
     searchRequest.setReturnAttributes(attributeNames);
     
