@@ -168,7 +168,7 @@ public class UiV2AttributeDefName {
    * @param request
    * @param response
    */
-  public void deleteAttributeDefNamesSubmit(HttpServletRequest request, HttpServletResponse response) {
+  public void deleteAttributeDefNames(HttpServletRequest request, HttpServletResponse response) {
   
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
@@ -236,6 +236,9 @@ public class UiV2AttributeDefName {
       GrouperRequestContainer.retrieveFromRequestOrCreate().getAttributeDefContainer().setSuccessCount(successes);
       GrouperRequestContainer.retrieveFromRequestOrCreate().getAttributeDefContainer().setFailureCount(failures);
   
+      UiV2AttributeDef.filterHelper(request, response, attributeDef);
+      //guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2AttributeDef.viewAttributeDef&attributeDefId=" + attributeDef.getId() + "')"));
+      
       if (failures > 0) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("attributeDefDeleteAttributeDefNamesErrors")));
@@ -244,9 +247,6 @@ public class UiV2AttributeDefName {
             TextContainer.retrieveFromRequest().getText().get("attributeDefDeleteAttributeDefNamesSuccesses")));
       }
       
-      
-      //filterHelper(request, response, attributeDef);
-  
       GrouperUserDataApi.recentlyUsedAttributeDefAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, attributeDef);
   
@@ -1805,39 +1805,6 @@ public class UiV2AttributeDefName {
   
   }
 
-  /**
-   * delete an attribute def name (show confirm screen)
-   * @param request
-   * @param response
-   */
-  public void deleteAttributeDefNames(HttpServletRequest request, HttpServletResponse response) {
-    
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    GrouperSession grouperSession = null;
-  
-    try {
-  
-      grouperSession = GrouperSession.start(loggedInSubject);
-  
-      AttributeDefName attributeDefName = null;
-      
-      attributeDefName = retrieveAttributeDefNameHelper(request, AttributeDefPrivilege.ATTR_ADMIN, true).getAttributeDefName();
-      
-      if (attributeDefName == null) {
-        return;
-      }
-  
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/attributeDefName/attributeDefNamesDelete.jsp"));
-  
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
-  }
-  
   /**
    * show attribute def name inheritance screen
    * @param request
