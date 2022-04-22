@@ -35,6 +35,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
+import edu.internet2.middleware.grouper.j2ee.Authentication;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -83,15 +84,6 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
   private static final Log LOG = LogFactory.getLog(WsGrouperKerberosAuthentication.class);
 
   /**
-   * this should be something like: Basic QWxhZGRabcdefGVuIHNlc2FtZQ==
-   * ^\\s*Basic\\s+([^\\s]+)$
-   * "^\\s*       Start of string and optional whitespace
-   * Basic\\s+    Must be basic auth, and have some whitespace after this
-   * ([^\\s]+)$   Capture the next non-whitespace string, then end of input
-   */
-  private static Pattern regexPattern = Pattern.compile("^\\s*Basic\\s+([^\\s]+)$");
-  
-  /**
    * cache the logins in a hash cache
    */
   private static GrouperCache<String, String> loginCache = new GrouperCache<String, String>(
@@ -122,28 +114,8 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
     }
     LOG.debug("Login not in cache");
     
-    Matcher matcher = regexPattern.matcher(authHeader);
-    String authHeaderBase64Part = null;
-    if (matcher.matches()) {
-      authHeaderBase64Part = matcher.group(1);
-    }
-    
-    //either not basic or something else wrong
-    if (StringUtils.isBlank(authHeaderBase64Part)) {
-      //dont log password
-      LOG.error("Cant find base64 part in auth header");
-      return null;
-    }
-    
-    //unencrypt this
-    byte[] base64Bytes = authHeaderBase64Part.getBytes();
-    byte[] unencodedBytes = Base64.decodeBase64(base64Bytes);
-    
-    String unencodedString = new String(unencodedBytes);
-    
-    //split based on user/pass
-    String user = GrouperUtil.prefixOrSuffix(unencodedString, ":", true);
-    String pass = GrouperUtil.prefixOrSuffix(unencodedString, ":", false);
+    String user = Authentication.retrieveUsername(authHeader);
+    String pass = Authentication.retrievePassword(authHeader);
     
     if (authenticateKerberos(user, pass)) {
       
