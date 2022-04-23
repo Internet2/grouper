@@ -118,7 +118,7 @@ public class GrouperConfigurationModuleSubSection {
     if (StringUtils.isNotBlank(documentation)) {
       String id = GrouperUtil.uniqueId();
       String documentationLink = GrouperTextContainer.textOrNull("provisioning.documentationLink");
-      return "<a href='#' onclick=$('#"+id+"').toggle('slow'); return false;>"+documentationLink+"</a> <div id='"+id+"' style='display:none;font-weight:normal;'>"+documentation+"</div>"; 
+      return "<a href='#' onclick=\"$('#"+id+"').toggle('slow'); return false;\">"+documentationLink+"</a> <div id='"+id+"' style='display:none;font-weight:normal;'>"+documentation+"</div>"; 
     }
     
     return documentation;

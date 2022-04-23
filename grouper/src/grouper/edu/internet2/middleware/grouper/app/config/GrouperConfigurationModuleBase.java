@@ -1519,7 +1519,7 @@ public abstract class GrouperConfigurationModuleBase {
     if (StringUtils.isNotBlank(documentation)) {
       String id = GrouperUtil.uniqueId();
       String documentationLink = GrouperTextContainer.textOrNull("provisioning.documentationLink");
-      return "<div><a href='#' onclick=$('#"+id+"').toggle('slow'); return false;>"+documentationLink+"</a> <div id='"+id+"' style='display:none;font-weight:normal;'>"+documentation+"</div></div>"; 
+      return "<div><a href='#' onclick=\"$('#"+id+"').toggle('slow'); return false;\">"+documentationLink+"</a> <div id='"+id+"' style='display:none;font-weight:normal;'>"+documentation+"</div></div>"; 
     }
     
     return "";
@@ -1548,7 +1548,7 @@ public abstract class GrouperConfigurationModuleBase {
     if (StringUtils.isNotBlank(documentation)) {
       String id = GrouperUtil.uniqueId();
       String documentationLink = GrouperTextContainer.textOrNull("provisioning.documentationLink");
-      return "<div><a href='#' onclick=$('#"+id+"').toggle('slow'); return false;>"+documentationLink+"</a> <div id='"+id+"' style='display:none;font-weight:normal;'>"+documentation+"</div></div>"; 
+      return "<div><a href='#' onclick=\"$('#"+id+"').toggle('slow'); return false;\">"+documentationLink+"</a> <div id='"+id+"' style='display:none;font-weight:normal;'>"+documentation+"</div></div>"; 
     }
     
     return "";
