@@ -809,7 +809,7 @@ public class UiV2ProvisionerConfiguration {
         
         String previousProvisionerStartWithClass = request.getParameter("previousProvisionerStartWithClass");
         
-        boolean skipStartWith = false;
+        boolean skipStartWith = StringUtils.isBlank(provisionerStartWithClass);
         if (StringUtils.isNotBlank(provisionerStartWithClass) && StringUtils.equals(provisionerStartWithClass, "blank")) {
           skipStartWith = true;
         }
