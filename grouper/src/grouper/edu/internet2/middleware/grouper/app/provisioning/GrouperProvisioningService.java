@@ -9,7 +9,6 @@ import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvision
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings.provisioningConfigStemName;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,6 +48,7 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -64,8 +64,8 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperProvisioningService {
   
   
-  private static final ExpirableCache<String, Set<Subject>> viewableGroupToSubject = new ExpirableCache<String, Set<Subject>>(5);
-  private static final ExpirableCache<String, Set<Subject>> editableGroupToSubject = new ExpirableCache<String, Set<Subject>>(5);
+  private static final ExpirableCache<MultiKey, Boolean> viewableGroupToSubject = new ExpirableCache<MultiKey, Boolean>(5);
+  private static final ExpirableCache<MultiKey, Boolean> editableGroupToSubject = new ExpirableCache<MultiKey, Boolean>(5);
   
         
   /**
@@ -1544,9 +1544,11 @@ public class GrouperProvisioningService {
       return PrivilegeHelper.isWheelOrRoot(subject); // only grouper system admin is allowed when no specific group is allowed to assign the given target
     }
     
-    Set<Subject> cachedSubjects = editableGroupToSubject.get(groupAllowedToAssign);
-    if (cachedSubjects != null && cachedSubjects.contains(subject)) {
-      return true;
+    MultiKey multiKey = new MultiKey(groupAllowedToAssign, subject.getId());
+    
+    Boolean isEditable = viewableGroupToSubject.get(multiKey);
+    if (isEditable != null) {
+      return isEditable;
     }
     
     Boolean isMember = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -1570,13 +1572,7 @@ public class GrouperProvisioningService {
       
     });
     
-    if (isMember) {
-      if (cachedSubjects == null) {
-        cachedSubjects = new HashSet<>();
-      }
-      cachedSubjects.add(subject);
-      editableGroupToSubject.put(groupAllowedToAssign, cachedSubjects);
-    }
+    editableGroupToSubject.put(multiKey, isMember);
     
     return isMember;
 
@@ -1595,13 +1591,16 @@ public class GrouperProvisioningService {
     }
     
     String groupAllowedToView = target.getGroupAllowedToView();
+    
     if (StringUtils.isBlank(groupAllowedToView)) {
       return false;
     }
     
-    Set<Subject> cachedSubjects = viewableGroupToSubject.get(groupAllowedToView);
-    if (cachedSubjects != null && cachedSubjects.contains(subject)) {
-      return true;
+    MultiKey multiKey = new MultiKey(groupAllowedToView, subject.getId());
+    
+    Boolean isViewable = viewableGroupToSubject.get(multiKey);
+    if (isViewable != null) {
+      return isViewable;
     }
     
     Boolean isMember = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -1624,13 +1623,7 @@ public class GrouperProvisioningService {
       
     });
     
-    if (isMember) {
-      if (cachedSubjects == null) {
-        cachedSubjects = new HashSet<>();
-      }
-      cachedSubjects.add(subject);
-      viewableGroupToSubject.put(groupAllowedToView, cachedSubjects);
-    }
+    viewableGroupToSubject.put(multiKey, isMember);
     
     return isMember;
 
