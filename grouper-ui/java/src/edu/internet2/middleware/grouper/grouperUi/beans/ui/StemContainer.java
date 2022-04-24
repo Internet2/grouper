@@ -279,6 +279,11 @@ public class StemContainer {
   private Boolean canAdminPrivileges;
 
   /**
+   * if the logged in user can view privileges, lazy loaded
+   */
+  private Boolean canViewPrivileges;
+
+  /**
    * if the logged in user can read attributes, lazy loaded
    * @return if can read attributes
    */
@@ -350,6 +355,30 @@ public class StemContainer {
     }
     
     return this.canAdminPrivileges;
+  }
+  
+  /**
+   * if the logged in user can view privileges, lazy loaded
+   * @return if can view privileges
+   */
+  public boolean isCanViewPrivileges() {
+    
+    if (this.canViewPrivileges == null) {
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      this.canViewPrivileges = (Boolean)GrouperSession.callbackGrouperSession(
+          GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_VIEW.getName(), false);
+            }
+          });
+      
+    }
+    
+    return this.canViewPrivileges;
   }
 
   /**

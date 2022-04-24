@@ -12,15 +12,29 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -291,4 +305,61 @@ public class GuiMembershipSubjectContainer {
   public void setAllGuiMemberships(Map<String, List<GuiMembership>> allGuiMemberships) {
     this.allGuiMemberships = allGuiMemberships;
   }
+  
+  public boolean isCanReadProvisioningForMembership() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    if (guiGroup != null && guiMember != null) {
+//      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanRead()) {
+//        return false;
+//      }
+//      
+//      Member member = (Member)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+//        
+//        @Override
+//        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+//          return MemberFinder.findBySubject(theGrouperSession, loggedInSubject, true);
+//          
+//        }
+//      });
+//      
+      List<GrouperProvisioningAttributeValue> provisioningAttributeValues =  GrouperProvisioningService.getProvisioningAttributeValues(guiGroup.getGroup(), guiMember.getMember());
+      
+      boolean canViewProvisioningMenu = canViewProvisioningMenu(provisioningAttributeValues, loggedInSubject, null);
+      if (canViewProvisioningMenu) {
+        return true;
+      }
+      
+      return false;
+    }
+    
+    return false;
+    
+  }
+  
+  private boolean canViewProvisioningMenu(List<GrouperProvisioningAttributeValue> provisioningAttributeValues, Subject loggedInSubject, GrouperObject grouperObject) {
+
+    Map<String, GrouperProvisioningTarget> targets = GrouperProvisioningSettings.getTargets(true);
+    
+    // out of all the provisioners that have been configured on this group/stem/subject/membership, if one of them is viewable by the logged in user
+    // we need to show the Provisioning option in the menu item
+    
+    for(GrouperProvisioningAttributeValue provisioningAttributeValue: provisioningAttributeValues) {
+      
+      String localTargetName = provisioningAttributeValue.getTargetName();
+      GrouperProvisioningTarget provisioningTarget = targets.get(localTargetName);
+      if (provisioningTarget != null && GrouperProvisioningService.isTargetViewable(provisioningTarget, loggedInSubject, grouperObject)) {
+        return true;
+      }
+      
+    }
+    
+    return false;
+  }
+  
 }

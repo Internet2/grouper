@@ -86,7 +86,7 @@
                           </c:if>
                           
                           <c:if test="${isWheelGroupMember || grouperRequestContainer.stemContainer.canAdminPrivileges || grouperRequestContainer.stemContainer.canReadAttributes
-                               || grouperRequestContainer.deprovisioningContainer.canReadDeprovisioning || grouperRequestContainer.provisioningContainer.canReadProvisioning
+                               || grouperRequestContainer.deprovisioningContainer.canReadDeprovisioning || grouperRequestContainer.provisioningContainer.canReadProvisioningForStem
                                || grouperRequestContainer.grouperReportContainer.reportingEnabled || grouperRequestContainer.objectTypeContainer.canReadObjectType }">
                             <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Attestation.stemAttestation&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['attestationButton'] }</a></li>
@@ -108,10 +108,10 @@
                             <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnFolderReport&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['deprovisioningMoreActionsMenuLabel'] }</a></li>
                           </c:if>         
-                          <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioning}">
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioningForStem}">
                             <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></li>
-                          </c:if>
                         </c:if>
                         <c:if test="${grouperRequestContainer.grouperReportContainer.reportingEnabled}">
                           <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"

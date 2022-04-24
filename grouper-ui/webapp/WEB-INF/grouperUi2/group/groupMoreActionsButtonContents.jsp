@@ -116,7 +116,7 @@
                             || grouperRequestContainer.deprovisioningContainer.canReadDeprovisioning
                             || (grouperRequestContainer.groupContainer.canView && grouperRequestContainer.workflowContainer.canViewElectronicForm)
                             || grouperRequestContainer.grouperLoaderContainer.canSeeLoader
-                            || grouperRequestContainer.provisioningContainer.canReadProvisioning
+                            || grouperRequestContainer.provisioningContainer.canReadProvisioningForGroup
                             || grouperRequestContainer.objectTypeContainer.canReadObjectType
                             || grouperRequestContainer.grouperReportContainer.reportingEnabled
                             }">
@@ -151,7 +151,7 @@
                               >${textContainer.text['groupViewPermissionsButton'] }</a></li>
                         </c:if>
                         
-                        <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioning}">
+                        <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioningForGroup}">
                           <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></li>
                         </c:if>

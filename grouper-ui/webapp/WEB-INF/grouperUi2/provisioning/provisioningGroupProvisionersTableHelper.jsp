@@ -16,10 +16,11 @@
           <tbody>
           
           <c:forEach items="${grouperRequestContainer.provisioningContainer.guiGrouperProvisioningAttributeValues}" var="guiGrouperProvisioningAttributeValue" >
-	        <c:set var="grouperProvisioningAttributeValue" 
+	        
+          <c:set var="grouperProvisioningAttributeValue" 
 	            value="${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue}" />
 	            
-                  <c:if test="${grouperProvisioningAttributeValue.directAssignment || 
+          <c:if test="${grouperProvisioningAttributeValue.directAssignment || 
                   		not empty grouperProvisioningAttributeValue.ownerStemId }">
                     
               <tr>

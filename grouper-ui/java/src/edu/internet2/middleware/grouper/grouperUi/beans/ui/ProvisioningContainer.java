@@ -12,18 +12,28 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperSyncObject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -214,52 +224,163 @@ public class ProvisioningContainer {
   public void setGuiGrouperProvisioningAttributeValues(List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues) {
     this.guiGrouperProvisioningAttributeValues = guiGrouperProvisioningAttributeValues;
   }
+  
+  private boolean canViewProvisioningMenu(List<GrouperProvisioningAttributeValue> provisioningAttributeValues, Subject loggedInSubject, GrouperObject grouperObject) {
 
-  /**
-   * 
-   * @return true if can read
-   */
-  public boolean isCanReadProvisioning() {
+    Map<String, GrouperProvisioningTarget> targets = GrouperProvisioningSettings.getTargets(true);
     
-    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-      return true;
+    // out of all the provisioners that have been configured on this group/stem/subject/membership, if one of them is viewable by the logged in user
+    // we need to show the Provisioning option in the menu item
+    
+    for(GrouperProvisioningAttributeValue provisioningAttributeValue: provisioningAttributeValues) {
+      
+      String localTargetName = provisioningAttributeValue.getTargetName();
+      GrouperProvisioningTarget provisioningTarget = targets.get(localTargetName);
+      if (provisioningTarget != null && GrouperProvisioningService.isTargetViewable(provisioningTarget, loggedInSubject, grouperObject)) {
+        return true;
+      }
+      
     }
-
-//    Boolean allowedInProvisioningGroup = null;
-//    if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.provisioning.must.be.in.group"))) {
-//      String error = GrouperUiFilter.requireUiGroup("uiV2.provisioning.must.be.in.group", loggedInSubject, false);
-//      //null error means allow
-//      allowedInProvisioningGroup = ( error == null );
-//    }
-//
-//    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
-//    
-//    if (guiGroup != null) {
-//      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanRead()) {
-//        return false;
-//      }
-//      if (allowedInProvisioningGroup != null) {
-//        return allowedInProvisioningGroup;
-//      }
-//      return true;
-//    }
-//
-//    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
-//    
-//    if (guiStem != null) {
-//      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
-//        return false;
-//      }
-//      if (allowedInProvisioningGroup != null) {
-//        return allowedInProvisioningGroup;
-//      }
-//      return true;
-//    }
     
     return false;
   }
   
+  
+  public boolean isCanReadProvisioningForMembership() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    GuiSubject guiSubject = GrouperRequestContainer.retrieveFromRequestOrCreate().getSubjectContainer().getGuiSubject();
+
+    if (guiGroup != null && guiSubject != null) {
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanRead()) {
+        return false;
+      }
+      
+      Member member = (Member)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          return MemberFinder.findBySubject(theGrouperSession, guiSubject.getSubject(), true);
+          
+        }
+      });
+      
+      List<GrouperProvisioningAttributeValue> provisioningAttributeValues =  GrouperProvisioningService.getProvisioningAttributeValues(guiGroup.getGroup(), member);
+      
+      boolean canViewProvisioningMenu = canViewProvisioningMenu(provisioningAttributeValues, loggedInSubject, null);
+      if (canViewProvisioningMenu) {
+        return true;
+      }
+      
+      return false;
+    }
+    
+    return false;
+    
+  }
+  
+  public boolean isCanReadProvisioningForGroup() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    
+    if (guiGroup != null) {
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanView()) {
+        return false;
+      }
+      
+      List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(guiGroup.getGroup());
+      boolean canViewProvisioningMenu = canViewProvisioningMenu(provisioningAttributeValues, loggedInSubject, null);
+      if (canViewProvisioningMenu) {
+        return true;
+      }
+      
+      return false;
+    }
+    
+    return false;
+    
+  }
+  
+  public boolean isCanReadProvisioningForSubject() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    GuiSubject guiSubject = GrouperRequestContainer.retrieveFromRequestOrCreate().getSubjectContainer().getGuiSubject();
+    
+    if (guiSubject != null) {
+      
+      Member member = (Member)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          return MemberFinder.findBySubject(theGrouperSession, guiSubject.getSubject(), true);
+          
+        }
+      });
+      
+      if (member != null) {
+        List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(member);
+        boolean canViewProvisioningMenu = canViewProvisioningMenu(provisioningAttributeValues, loggedInSubject, null);
+        
+        if (canViewProvisioningMenu) {
+          return true;
+        }
+      }
+      
+      
+      return false;
+    }
+    
+    return false;
+    
+  }
+  
+  public boolean isCanReadProvisioningForStem() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    
+    if (guiStem != null) {
+      
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanViewPrivileges()) {
+        return false;
+      }
+      
+      List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(guiStem.getStem());
+      boolean canViewProvisioningMenu = canViewProvisioningMenu(provisioningAttributeValues, loggedInSubject, guiStem.getStem());
+      if (canViewProvisioningMenu) {
+        return true;
+      }
+      
+      return false;
+    }
+    
+    return false;
+    
+  }
+
   /**
    * 
    * @return true if can write
@@ -381,6 +502,38 @@ public class ProvisioningContainer {
     return editableTargets;
   }
 
+  /**
+   * get viewable targets for current group/stem and logged in subject
+   * @return
+   */
+  public Set<GrouperProvisioningTarget> getViewableTargets() {
+    
+    GrouperObject grouperObject = null;
+    
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    
+    if (guiGroup != null) {
+      grouperObject = guiGroup.getGrouperObject();
+    }
+    if (guiStem != null) {
+      grouperObject = guiStem.getGrouperObject();
+    }
+    
+    Map<String, GrouperProvisioningTarget> targets = GrouperProvisioningSettings.getTargets(true);
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    Set<GrouperProvisioningTarget> viewableTargets = new HashSet<GrouperProvisioningTarget>();
+    
+    for (GrouperProvisioningTarget target: targets.values()) {
+      if (GrouperProvisioningService.isTargetViewable(target, loggedInSubject, grouperObject)) {
+        viewableTargets.add(target);
+      }
+    }
+    
+    return viewableTargets;
+  }
+  
   /**
    * number of groups in a folder for a provisioner target 
    * @return
