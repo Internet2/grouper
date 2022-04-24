@@ -57,11 +57,13 @@ public class GrouperProvisioningSettings {
         String name = matcher.group(1);
         
         String groupAllowedToAssign = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner."+name+".groupAllowedToAssign", null);
+        String groupAllowedToView = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner."+name+".groupAllowedToView", null);
         boolean allowAssignmentsOnlyOnOneStem = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner."+name+".allowAssignmentsOnlyOnOneStem", false);
         boolean readOnly = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner."+name+".readOnly", false);
         
         GrouperProvisioningTarget target = new GrouperProvisioningTarget(name, name);
         target.setGroupAllowedToAssign(groupAllowedToAssign);
+        target.setGroupAllowedToView(groupAllowedToView);
         target.setAllowAssignmentsOnlyOnOneStem(allowAssignmentsOnlyOnOneStem);
         target.setReadOnly(readOnly);
         result.put(name, target);

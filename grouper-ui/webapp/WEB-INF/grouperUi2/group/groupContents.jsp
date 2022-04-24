@@ -83,6 +83,7 @@
                               <c:if test="${grouperRequestContainer.groupContainer.canRead
                                   || (guiMembershipContainer.membershipContainer.membershipAssignType.immediate && grouperRequestContainer.groupContainer.canUpdate)
                                   || guiMembershipContainer.membershipContainer.membershipAssignType.nonImmediate
+                                  || guiMembershipSubjectContainer.canReadProvisioningForMembership
                                   || guiMembershipSubjectContainer.guiSubject.group}">
                                 <div class="btn-group"><a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreMembershipActions']}" href="#" class="btn btn-mini dropdown-toggle"
                                 	aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
@@ -105,7 +106,7 @@
                                     <c:if test="${grouperRequestContainer.groupContainer.canAdmin || grouperRequestContainer.groupContainer.canReadAttributes || grouperRequestContainer.groupContainer.canUpdateAttributes}">
                                       <li><a href="#" onclick="return guiV2link('operation=UiV2MembershipAttributeAssignment.viewAttributeAssignments&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&subjectId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['groupViewMembershipAttributeAssignments'] }</a></li>
                                     </c:if>
-                                    <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioning}">
+                                    <c:if test="${guiMembershipSubjectContainer.canReadProvisioningForMembership}">
                                       <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroupMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&subjectId=${guiMembershipSubjectContainer.guiSubject.subject.id}');">${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></li>
                                     </c:if>
                                   </ul>
