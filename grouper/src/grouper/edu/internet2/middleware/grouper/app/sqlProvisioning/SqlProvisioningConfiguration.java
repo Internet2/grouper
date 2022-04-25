@@ -258,6 +258,7 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     this.entityAttributesLastModifiedColumn = this.retrieveConfigString("entityAttributesLastModifiedColumn", false);
     this.entityAttributesLastModifiedColumnType = this.retrieveConfigString("entityAttributesLastModifiedColumnType", false);
     
+    // TODO is this used????
     this.membershipTableIdColumn = this.retrieveConfigString("membershipPrimaryKey", false);
     
     //setMembershipMatchingIdExpression("${new edu.internet2.middleware.grouperClient.collections.MultiKey(targetMembership.getProvisioningGroup().retrieveAttributeValueString('"+groupTableIdColumn+"'), targetMembership.getProvisioningEntity().retrieveAttributeValueString('"+entityTableIdColumn+"'))}");
