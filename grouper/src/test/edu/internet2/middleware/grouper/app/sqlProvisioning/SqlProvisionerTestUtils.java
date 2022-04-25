@@ -180,7 +180,7 @@ public class SqlProvisionerTestUtils {
       
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "dn");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.storageType", "separateAttributesTable");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "memberToId2");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache2");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "employeeID");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.storageType", "separateAttributesTable");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
@@ -202,7 +202,7 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.storageType", "entityTableColumn");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpression", "${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateGrouperToMemberSyncField", "memberFromId2");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateGrouperToMemberSyncField", "entityAttributeValueCache0");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.matchingId", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "name");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.searchAttribute", "true");
@@ -277,7 +277,7 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.storageType", "groupTableColumn");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpression", "${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateGrouperToGroupSyncField", "groupFromId2");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateGrouperToGroupSyncField", "groupAttributeValueCache0");
 
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "description");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.storageType", "separateAttributesTable");
@@ -324,7 +324,7 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.storageType", "separateAttributesTable");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpression", "${'cn=' + grouperProvisioningGroup.getName() + ',OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu'}");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateGrouperToGroupSyncField", "groupToId2");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateGrouperToGroupSyncField", "groupAttributeValueCache2");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.matchingId", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "gidNumber");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.searchAttribute", "true");
@@ -342,7 +342,7 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.multiValued", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "member");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.storageType", "separateAttributesTable");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateFromMemberSyncField", "memberToId2");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateFromMemberSyncField", "entityAttributeValueCache2");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.name", "uuid");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.storageType", "groupTableColumn");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateExpressionType", "grouperProvisioningGroupField");
@@ -379,10 +379,10 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.translateExpressionType", "translationScript");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.name", "group_uuid");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateExpressionType", "groupSyncField");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateFromGroupSyncField", "groupFromId2");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateFromGroupSyncField", "groupAttributeValueCache0");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.2.name", "entity_uuid");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.2.translateExpressionType", "memberSyncField");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.2.translateFromMemberSyncField", "memberFromId2");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.2.translateFromMemberSyncField", "entityAttributeValueCache0");
     }
     
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");

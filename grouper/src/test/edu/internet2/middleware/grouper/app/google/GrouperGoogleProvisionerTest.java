@@ -136,7 +136,7 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
       GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
       assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
       assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
-      assertEquals(grouperGoogleGroup.getId(), gcGrouperSyncGroup.getGroupToId2());
+      assertEquals(grouperGoogleGroup.getId(), gcGrouperSyncGroup.getGroupAttributeValueCache2());
       
       
       //now remove one of the subjects from the testGroup
@@ -283,7 +283,7 @@ public class GrouperGoogleProvisionerTest extends GrouperTest {
       GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
       assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
       assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
-      assertEquals(grouperGoogleGroup.getId(), gcGrouperSyncGroup.getGroupToId2());
+      assertEquals(grouperGoogleGroup.getId(), gcGrouperSyncGroup.getGroupAttributeValueCache2());
       
       
       //now remove one of the subjects from the testGroup

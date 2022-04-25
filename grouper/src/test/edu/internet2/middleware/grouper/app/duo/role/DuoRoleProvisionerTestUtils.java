@@ -71,10 +71,10 @@ public class DuoRoleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateToMemberSyncField", "memberToId2");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateToMemberSyncField", "entityAttributeValueCache2");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "id");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.select", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateToGroupSyncField", "groupAttributeValueCache2");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.showAttributeCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "true");

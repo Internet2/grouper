@@ -2626,10 +2626,10 @@ public class SqlProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncGroup.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastUpdated().getTime());
-    assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupToId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId3());
-    assertNull(gcGrouperSyncGroup.getGroupToId3());
+    assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupAttributeValueCache2());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
     assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
     assertNull(gcGrouperSyncGroup.getErrorMessage());
     assertNull(gcGrouperSyncGroup.getErrorTimestamp());
@@ -2653,10 +2653,10 @@ public class SqlProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() > gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getMemberFromId2());
-    assertNull(gcGrouperSyncMember.getMemberFromId3());
-    assertEquals("dn_test.subject.0", gcGrouperSyncMember.getMemberToId2());
-    assertNull(gcGrouperSyncMember.getMemberToId3());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
+    assertEquals("dn_test.subject.0", gcGrouperSyncMember.getEntityAttributeValueCache2());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
     assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
     assertNull(gcGrouperSyncMember.getErrorMessage());
     assertNull(gcGrouperSyncMember.getErrorTimestamp());
@@ -2921,7 +2921,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getInTargetStart().getTime());
     assertNull(gcGrouperSyncGroup.getInTargetEnd());
     assertTrue(started < gcGrouperSyncGroup.getProvisionableStart().getTime());
-    assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupToId2());
+    assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupAttributeValueCache2());
     
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
     

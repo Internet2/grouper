@@ -472,24 +472,24 @@ public class GrouperProvisioningGrouperSyncDao {
     }
 
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
-    String subjectLinkMemberFromId2 = this.grouperProvisioner
-        .retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberFromId2();
-    boolean hasSubjectLinkMemberFromId2 = !StringUtils.isBlank(subjectLinkMemberFromId2);
+    String subjectLinkEntityAttributeValueCache0 = this.grouperProvisioner
+        .retrieveGrouperProvisioningConfiguration().getSubjectLinkEntityAttributeValueCache0();
+    boolean hasSubjectLinkEntityAttributeValueCache0 = !StringUtils.isBlank(subjectLinkEntityAttributeValueCache0);
 
-    String subjectLinkMemberFromId3 = this.grouperProvisioner
-        .retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberFromId3();
-    boolean hasSubjectLinkMemberFromId3 = !StringUtils.isBlank(subjectLinkMemberFromId3);
+    String subjectLinkEntityAttributeValueCache1 = this.grouperProvisioner
+        .retrieveGrouperProvisioningConfiguration().getSubjectLinkEntityAttributeValueCache1();
+    boolean hasSubjectLinkEntityAttributeValueCache1 = !StringUtils.isBlank(subjectLinkEntityAttributeValueCache1);
 
-    String subjectLinkMemberToId2 = this.grouperProvisioner
-        .retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberToId2();
-    boolean hasSubjectLinkMemberToId2 = !StringUtils.isBlank(subjectLinkMemberToId2);
+    String subjectLinkEntityAttributeValueCache2 = this.grouperProvisioner
+        .retrieveGrouperProvisioningConfiguration().getSubjectLinkEntityAttributeValueCache2();
+    boolean hasSubjectLinkEntityAttributeValueCache2 = !StringUtils.isBlank(subjectLinkEntityAttributeValueCache2);
 
-    String subjectLinkMemberToId3 = this.grouperProvisioner
-        .retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberToId3();
-    boolean hasSubjectLinkMemberToId3 = !StringUtils.isBlank(subjectLinkMemberToId3);
+    String subjectLinkEntityAttributeValueCache3 = this.grouperProvisioner
+        .retrieveGrouperProvisioningConfiguration().getSubjectLinkEntityAttributeValueCache3();
+    boolean hasSubjectLinkEntityAttributeValueCache3 = !StringUtils.isBlank(subjectLinkEntityAttributeValueCache3);
 
-    if (!hasSubjectLinkMemberFromId2 && !hasSubjectLinkMemberFromId3
-        && !hasSubjectLinkMemberToId2 && !hasSubjectLinkMemberToId3) {
+    if (!hasSubjectLinkEntityAttributeValueCache0 && !hasSubjectLinkEntityAttributeValueCache1
+        && !hasSubjectLinkEntityAttributeValueCache2 && !hasSubjectLinkEntityAttributeValueCache3) {
       return;
     }
 
@@ -523,28 +523,28 @@ public class GrouperProvisioningGrouperSyncDao {
       Map<String, Object> variableMap = new HashMap<String, Object>();
       variableMap.put("subject", subject);
 
-      if (hasSubjectLinkMemberFromId2) {
-        String memberFromId2Value = GrouperUtil
-            .substituteExpressionLanguage(subjectLinkMemberFromId2, variableMap);
-        gcGrouperSyncMember.setMemberFromId2(memberFromId2Value);
+      if (hasSubjectLinkEntityAttributeValueCache0) {
+        String entityAttributeValueCache0Value = GrouperUtil
+            .substituteExpressionLanguage(subjectLinkEntityAttributeValueCache0, variableMap);
+        gcGrouperSyncMember.setEntityAttributeValueCache0(entityAttributeValueCache0Value);
       }
 
-      if (hasSubjectLinkMemberFromId3) {
-        String memberFromId3Value = GrouperUtil
-            .substituteExpressionLanguage(subjectLinkMemberFromId3, variableMap);
-        gcGrouperSyncMember.setMemberFromId3(memberFromId3Value);
+      if (hasSubjectLinkEntityAttributeValueCache1) {
+        String entityAttributeValueCache1Value = GrouperUtil
+            .substituteExpressionLanguage(subjectLinkEntityAttributeValueCache1, variableMap);
+        gcGrouperSyncMember.setEntityAttributeValueCache1(entityAttributeValueCache1Value);
       }
 
-      if (hasSubjectLinkMemberToId2) {
-        String memberToId2Value = GrouperUtil
-            .substituteExpressionLanguage(subjectLinkMemberToId2, variableMap);
-        gcGrouperSyncMember.setMemberToId2(memberToId2Value);
+      if (hasSubjectLinkEntityAttributeValueCache2) {
+        String entityAttributeValueCache2Value = GrouperUtil
+            .substituteExpressionLanguage(subjectLinkEntityAttributeValueCache2, variableMap);
+        gcGrouperSyncMember.setEntityAttributeValueCache2(entityAttributeValueCache2Value);
       }
 
-      if (hasSubjectLinkMemberFromId3) {
-        String memberToId3Value = GrouperUtil
-            .substituteExpressionLanguage(subjectLinkMemberToId3, variableMap);
-        gcGrouperSyncMember.setMemberToId3(memberToId3Value);
+      if (hasSubjectLinkEntityAttributeValueCache1) {
+        String entityAttributeValueCache3Value = GrouperUtil
+            .substituteExpressionLanguage(subjectLinkEntityAttributeValueCache3, variableMap);
+        gcGrouperSyncMember.setEntityAttributeValueCache3(entityAttributeValueCache3Value);
       }
 
     }

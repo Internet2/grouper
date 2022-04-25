@@ -529,17 +529,17 @@ public class GrouperProvisioningTranslator {
     if (StringUtils.equals("groupName", field)) {
       return gcGrouperSyncGroup.getGroupName();
     }
-    if (StringUtils.equals("groupFromId2", field)) {
-      return gcGrouperSyncGroup.getGroupFromId2();
+    if (StringUtils.equals("groupAttributeValueCache0", field)) {
+      return gcGrouperSyncGroup.getGroupAttributeValueCache0();
     }
-    if (StringUtils.equals("groupFromId3", field)) {
-      return gcGrouperSyncGroup.getGroupFromId3();
+    if (StringUtils.equals("groupAttributeValueCache1", field)) {
+      return gcGrouperSyncGroup.getGroupAttributeValueCache1();
     }
-    if (StringUtils.equals("groupToId2", field)) {
-      return gcGrouperSyncGroup.getGroupToId2();
+    if (StringUtils.equals("groupAttributeValueCache2", field)) {
+      return gcGrouperSyncGroup.getGroupAttributeValueCache2();
     }
-    if (StringUtils.equals("groupToId3", field)) {
-      return gcGrouperSyncGroup.getGroupToId3();
+    if (StringUtils.equals("groupAttributeValueCache3", field)) {
+      return gcGrouperSyncGroup.getGroupAttributeValueCache3();
     }
     throw new RuntimeException("Not expecting groupSyncField: '" + field + "'");
   }
@@ -603,17 +603,17 @@ public class GrouperProvisioningTranslator {
     if (StringUtils.equals("subjectIdentifier", field)) {
       return gcGrouperSyncMember.getSubjectIdentifier();
     }
-    if (StringUtils.equals("memberFromId2", field)) {
-      return gcGrouperSyncMember.getMemberFromId2();
+    if (StringUtils.equals("entityAttributeValueCache0", field)) {
+      return gcGrouperSyncMember.getEntityAttributeValueCache0();
     }
-    if (StringUtils.equals("memberFromId3", field)) {
-      return gcGrouperSyncMember.getMemberFromId3();
+    if (StringUtils.equals("entityAttributeValueCache1", field)) {
+      return gcGrouperSyncMember.getEntityAttributeValueCache1();
     }
-    if (StringUtils.equals("memberToId2", field)) {
-      return gcGrouperSyncMember.getMemberToId2();
+    if (StringUtils.equals("entityAttributeValueCache2", field)) {
+      return gcGrouperSyncMember.getEntityAttributeValueCache2();
     }
-    if (StringUtils.equals("memberToId3", field)) {
-      return gcGrouperSyncMember.getMemberToId3();
+    if (StringUtils.equals("entityAttributeValueCache3", field)) {
+      return gcGrouperSyncMember.getEntityAttributeValueCache3();
     }
     throw new RuntimeException("Not expecting memberSyncField: '" + field + "'");
   }

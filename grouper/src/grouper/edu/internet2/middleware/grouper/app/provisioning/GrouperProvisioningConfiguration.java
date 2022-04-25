@@ -1023,66 +1023,66 @@ public abstract class GrouperProvisioningConfiguration {
   private Set<String> subjectSourcesToProvision = null;
   
   
-  private String subjectLinkMemberFromId2;
+  private String subjectLinkEntityAttributeValueCache0;
 
-  private String subjectLinkMemberFromId3;
+  private String subjectLinkEntityAttributeValueCache1;
 
-  private String subjectLinkMemberToId2;
+  private String subjectLinkEntityAttributeValueCache2;
 
-  private String subjectLinkMemberToId3;
+  private String subjectLinkEntityAttributeValueCache3;
 
   
-  public String getSubjectLinkMemberFromId2() {
-    return subjectLinkMemberFromId2;
+  public String getSubjectLinkEntityAttributeValueCache0() {
+    return subjectLinkEntityAttributeValueCache0;
   }
 
 
 
   
-  public void setSubjectLinkMemberFromId2(String subjectLinkMemberFromId2) {
-    this.subjectLinkMemberFromId2 = subjectLinkMemberFromId2;
+  public void setSubjectLinkEntityAttributeValueCache0(String subjectLinkEntityAttributeValueCache0) {
+    this.subjectLinkEntityAttributeValueCache0 = subjectLinkEntityAttributeValueCache0;
   }
 
 
 
   
-  public String getSubjectLinkMemberFromId3() {
-    return subjectLinkMemberFromId3;
+  public String getSubjectLinkEntityAttributeValueCache1() {
+    return subjectLinkEntityAttributeValueCache1;
   }
 
 
 
   
-  public void setSubjectLinkMemberFromId3(String subjectLinkMemberFromId3) {
-    this.subjectLinkMemberFromId3 = subjectLinkMemberFromId3;
+  public void setSubjectLinkEntityAttributeValueCache1(String subjectLinkEntityAttributeValueCache1) {
+    this.subjectLinkEntityAttributeValueCache1 = subjectLinkEntityAttributeValueCache1;
   }
 
 
 
   
-  public String getSubjectLinkMemberToId2() {
-    return subjectLinkMemberToId2;
+  public String getSubjectLinkEntityAttributeValueCache2() {
+    return subjectLinkEntityAttributeValueCache2;
   }
 
 
 
   
-  public void setSubjectLinkMemberToId2(String subjectLinkMemberToId2) {
-    this.subjectLinkMemberToId2 = subjectLinkMemberToId2;
+  public void setSubjectLinkEntityAttributeValueCache2(String subjectLinkEntityAttributeValueCache2) {
+    this.subjectLinkEntityAttributeValueCache2 = subjectLinkEntityAttributeValueCache2;
   }
 
 
 
   
-  public String getSubjectLinkMemberToId3() {
-    return subjectLinkMemberToId3;
+  public String getSubjectLinkEntityAttributeValueCache3() {
+    return subjectLinkEntityAttributeValueCache3;
   }
 
 
 
   
-  public void setSubjectLinkMemberToId3(String subjectLinkMemberToId3) {
-    this.subjectLinkMemberToId3 = subjectLinkMemberToId3;
+  public void setSubjectLinkEntityAttributeValueCache3(String subjectLinkEntityAttributeValueCache3) {
+    this.subjectLinkEntityAttributeValueCache3 = subjectLinkEntityAttributeValueCache3;
   }
   
   /**
@@ -2328,20 +2328,20 @@ public abstract class GrouperProvisioningConfiguration {
     }
     this.debugMap.put("subjectSourcesToProvision", GrouperUtil.join(this.subjectSourcesToProvision.iterator(), ','));
 
-    this.subjectLinkMemberFromId2 = this.retrieveConfigString("common.subjectLink.memberFromId2", false);
-    this.subjectLinkMemberFromId3 = this.retrieveConfigString("common.subjectLink.memberFromId3", false);
-    this.subjectLinkMemberToId2 = this.retrieveConfigString("common.subjectLink.memberToId2", false);
-    this.subjectLinkMemberToId3 = this.retrieveConfigString("common.subjectLink.memberToId3", false);
+    this.subjectLinkEntityAttributeValueCache0 = this.retrieveConfigString("common.subjectLink.entityAttributeValueCache0", false);
+    this.subjectLinkEntityAttributeValueCache1 = this.retrieveConfigString("common.subjectLink.entityAttributeValueCache1", false);
+    this.subjectLinkEntityAttributeValueCache2 = this.retrieveConfigString("common.subjectLink.entityAttributeValueCache2", false);
+    this.subjectLinkEntityAttributeValueCache3 = this.retrieveConfigString("common.subjectLink.entityAttributeValueCache3", false);
 
-    this.groupLinkGroupFromId2 = this.retrieveConfigString("common.groupLink.groupFromId2", false);
-    this.groupLinkGroupFromId3 = this.retrieveConfigString("common.groupLink.groupFromId3", false);
-    this.groupLinkGroupToId2 = this.retrieveConfigString("common.groupLink.groupToId2", false);
-    this.groupLinkGroupToId3 = this.retrieveConfigString("common.groupLink.groupToId3", false);
+    this.groupLinkGroupAttributeValueCache0 = this.retrieveConfigString("common.groupLink.groupAttributeValueCache0", false);
+    this.groupLinkGroupAttributeValueCache1 = this.retrieveConfigString("common.groupLink.groupAttributeValueCache1", false);
+    this.groupLinkGroupAttributeValueCache2 = this.retrieveConfigString("common.groupLink.groupAttributeValueCache2", false);
+    this.groupLinkGroupAttributeValueCache3 = this.retrieveConfigString("common.groupLink.groupAttributeValueCache3", false);
 
-    this.entityLinkMemberFromId2 = this.retrieveConfigString("common.entityLink.memberFromId2", false);
-    this.entityLinkMemberFromId3 = this.retrieveConfigString("common.entityLink.memberFromId3", false);
-    this.entityLinkMemberToId2 = this.retrieveConfigString("common.entityLink.memberToId2", false);
-    this.entityLinkMemberToId3 = this.retrieveConfigString("common.entityLink.memberToId3", false);
+    this.entityLinkEntityAttributeValueCache0 = this.retrieveConfigString("common.entityLink.entityAttributeValueCache0", false);
+    this.entityLinkEntityAttributeValueCache1 = this.retrieveConfigString("common.entityLink.entityAttributeValueCache1", false);
+    this.entityLinkEntityAttributeValueCache2 = this.retrieveConfigString("common.entityLink.entityAttributeValueCache2", false);
+    this.entityLinkEntityAttributeValueCache3 = this.retrieveConfigString("common.entityLink.entityAttributeValueCache3", false);
 
     this.refreshSubjectLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshSubjectLinkIfLessThanAmount", false), 20);
     this.refreshGroupLinkIfLessThanAmount = GrouperUtil.intValue(this.retrieveConfigInt("refreshGroupLinkIfLessThanAmount", false), 20);
@@ -2818,76 +2818,76 @@ public abstract class GrouperProvisioningConfiguration {
    */
   private boolean configured = false;
 
-  private String entityLinkMemberFromId2;
+  private String entityLinkEntityAttributeValueCache0;
 
-  private String entityLinkMemberFromId3;
+  private String entityLinkEntityAttributeValueCache1;
 
-  private String entityLinkMemberToId2;
+  private String entityLinkEntityAttributeValueCache2;
 
-  private String entityLinkMemberToId3;
+  private String entityLinkEntityAttributeValueCache3;
   
   
   
-  public String getEntityLinkMemberFromId2() {
-    return entityLinkMemberFromId2;
+  public String getEntityLinkEntityAttributeValueCache0() {
+    return entityLinkEntityAttributeValueCache0;
   }
 
 
 
   
-  public void setEntityLinkMemberFromId2(String entityLinkMemberFromId2) {
-    this.entityLinkMemberFromId2 = entityLinkMemberFromId2;
+  public void setEntityLinkEntityAttributeValueCache0(String entityLinkEntityAttributeValueCache0) {
+    this.entityLinkEntityAttributeValueCache0 = entityLinkEntityAttributeValueCache0;
   }
 
 
 
   
-  public String getEntityLinkMemberFromId3() {
-    return entityLinkMemberFromId3;
+  public String getEntityLinkEntityAttributeValueCache1() {
+    return entityLinkEntityAttributeValueCache1;
   }
 
 
 
   
-  public void setEntityLinkMemberFromId3(String entityLinkMemberFromId3) {
-    this.entityLinkMemberFromId3 = entityLinkMemberFromId3;
+  public void setEntityLinkEntityAttributeValueCache1(String entityLinkEntityAttributeValueCache1) {
+    this.entityLinkEntityAttributeValueCache1 = entityLinkEntityAttributeValueCache1;
   }
 
 
 
   
-  public String getEntityLinkMemberToId2() {
-    return entityLinkMemberToId2;
+  public String getEntityLinkEntityAttributeValueCache2() {
+    return entityLinkEntityAttributeValueCache2;
   }
 
 
 
   
-  public void setEntityLinkMemberToId2(String entityLinkMemberToId2) {
-    this.entityLinkMemberToId2 = entityLinkMemberToId2;
+  public void setEntityLinkEntityAttributeValueCache2(String entityLinkEntityAttributeValueCache2) {
+    this.entityLinkEntityAttributeValueCache2 = entityLinkEntityAttributeValueCache2;
   }
 
 
 
   
-  public String getEntityLinkMemberToId3() {
-    return entityLinkMemberToId3;
+  public String getEntityLinkEntityAttributeValueCache3() {
+    return entityLinkEntityAttributeValueCache3;
   }
 
 
 
   
-  public void setEntityLinkMemberToId3(String entityLinkMemberToId3) {
-    this.entityLinkMemberToId3 = entityLinkMemberToId3;
+  public void setEntityLinkEntityAttributeValueCache3(String entityLinkEntityAttributeValueCache3) {
+    this.entityLinkEntityAttributeValueCache3 = entityLinkEntityAttributeValueCache3;
   }
 
-  private String groupLinkGroupFromId2;
+  private String groupLinkGroupAttributeValueCache0;
 
-  private String groupLinkGroupFromId3;
+  private String groupLinkGroupAttributeValueCache1;
 
-  private String groupLinkGroupToId2;
+  private String groupLinkGroupAttributeValueCache2;
 
-  private String groupLinkGroupToId3;
+  private String groupLinkGroupAttributeValueCache3;
 
   /**
    * attribute name to config
@@ -2909,57 +2909,57 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   
-  public String getGroupLinkGroupFromId2() {
-    return groupLinkGroupFromId2;
+  public String getGroupLinkGroupAttributeValueCache0() {
+    return groupLinkGroupAttributeValueCache0;
   }
 
 
 
   
-  public void setGroupLinkGroupFromId2(String groupLinkGroupFromId2) {
-    this.groupLinkGroupFromId2 = groupLinkGroupFromId2;
+  public void setGroupLinkGroupAttributeValueCache0(String groupLinkGroupAttributeValueCache0) {
+    this.groupLinkGroupAttributeValueCache0 = groupLinkGroupAttributeValueCache0;
   }
 
 
 
   
-  public String getGroupLinkGroupFromId3() {
-    return groupLinkGroupFromId3;
+  public String getGroupLinkGroupAttributeValueCache1() {
+    return groupLinkGroupAttributeValueCache1;
   }
 
 
 
   
-  public void setGroupLinkGroupFromId3(String groupLinkGroupFromId3) {
-    this.groupLinkGroupFromId3 = groupLinkGroupFromId3;
+  public void setGroupLinkGroupAttributeValueCache1(String groupLinkGroupAttributeValueCache1) {
+    this.groupLinkGroupAttributeValueCache1 = groupLinkGroupAttributeValueCache1;
   }
 
 
 
   
-  public String getGroupLinkGroupToId2() {
-    return groupLinkGroupToId2;
+  public String getGroupLinkGroupAttributeValueCache2() {
+    return groupLinkGroupAttributeValueCache2;
   }
 
 
 
   
-  public void setGroupLinkGroupToId2(String groupLinkGroupToId2) {
-    this.groupLinkGroupToId2 = groupLinkGroupToId2;
+  public void setGroupLinkGroupAttributeValueCache2(String groupLinkGroupAttributeValueCache2) {
+    this.groupLinkGroupAttributeValueCache2 = groupLinkGroupAttributeValueCache2;
   }
 
 
 
   
-  public String getGroupLinkGroupToId3() {
-    return groupLinkGroupToId3;
+  public String getGroupLinkGroupAttributeValueCache3() {
+    return groupLinkGroupAttributeValueCache3;
   }
 
 
 
   
-  public void setGroupLinkGroupToId3(String groupLinkGroupToId3) {
-    this.groupLinkGroupToId3 = groupLinkGroupToId3;
+  public void setGroupLinkGroupAttributeValueCache3(String groupLinkGroupAttributeValueCache3) {
+    this.groupLinkGroupAttributeValueCache3 = groupLinkGroupAttributeValueCache3;
   }
 
 

@@ -736,19 +736,19 @@ public class GrouperProvisioningConfigurationValidation {
       }
       
       // check scripts
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupFromId2"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupAttributeValueCache0"))) {
         return;
       }
       
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupFromId3"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupAttributeValueCache1"))) {
         return;
       }
 
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupToId2"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupAttributeValueCache2"))) {
         return;
       }
 
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupToId3"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupAttributeValueCache3"))) {
         return;
       }
       this.addErrorMessage(new ProvisioningValidationIssue()
@@ -789,15 +789,15 @@ public class GrouperProvisioningConfigurationValidation {
       }
       
       // check scripts
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.memberFromId2"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.entityAttributeValueCache0"))) {
         return;
       }
       
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.memberFromId3"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.entityAttributeValueCache1"))) {
         return;
       }
   
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.memberToId2"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.entityAttributeValueCache2"))) {
         return;
       }
   
@@ -826,7 +826,7 @@ public class GrouperProvisioningConfigurationValidation {
 
     String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket");
     
-    for (String bucket : new String[] {"groupFromId2", "groupFromId3", "groupToId2", "groupToId3"}) {
+    for (String bucket : new String[] {"groupAttributeValueCache0", "groupAttributeValueCache1", "groupAttributeValueCache2", "groupAttributeValueCache3"}) {
       
       List<ProvisioningValidationIssue> currentErrors = new ArrayList<ProvisioningValidationIssue>();
 
@@ -944,7 +944,7 @@ public class GrouperProvisioningConfigurationValidation {
   
     String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket");
     
-    for (String bucket : new String[] {"memberFromId2", "memberFromId3", "memberToId2", "memberToId3"}) {
+    for (String bucket : new String[] {"entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3"}) {
       
       List<ProvisioningValidationIssue> currentErrors = new ArrayList<ProvisioningValidationIssue>();
   

@@ -24,10 +24,10 @@
              <th>${textContainer.text['provisionerActivityTableHeaderLastGroupSync']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderLastGroupMetadataSyncStart']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderLastGroupMetadataSync']}</th>
-             <th>${textContainer.text['provisionerActivityTableHeaderGroupFromId2']}</th>
-             <th>${textContainer.text['provisionerActivityTableHeaderGroupFromId3']}</th>
-             <th>${textContainer.text['provisionerActivityTableHeaderGroupToId2']}</th>
-             <th>${textContainer.text['provisionerActivityTableHeaderGroupToId3']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderGroupAttributeValueCache0']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderGroupAttributeValueCache1']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderGroupAttributeValueCache2']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderGroupAttributeValueCache3']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderMetadataUpdated']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderErrorMessage']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderErrorTimestamp']}</th>
@@ -123,19 +123,19 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncGroup.groupFromId2}
+                    ${grouperSyncGroup.groupAttributeValueCache0}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncGroup.groupFromId3}
+                    ${grouperSyncGroup.groupAttributeValueCache1}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncGroup.groupToId2}
+                    ${grouperSyncGroup.groupAttributeValueCache2}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncGroup.groupToId3}
+                    ${grouperSyncGroup.groupAttributeValueCache3}
                   </td>
                   
                   <td style="white-space: nowrap;">

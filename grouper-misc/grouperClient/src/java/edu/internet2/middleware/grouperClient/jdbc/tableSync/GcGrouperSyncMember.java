@@ -86,11 +86,11 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     gcGrouperSyncMember.lastUserMetadataSync = this.lastUserMetadataSync;
     gcGrouperSyncMember.lastUserSyncStart = this.lastUserSyncStart;
     gcGrouperSyncMember.lastUserSync = this.lastUserSync;
-    gcGrouperSyncMember.memberFromId2 = this.memberFromId2;
-    gcGrouperSyncMember.memberFromId3 = this.memberFromId3;
+    gcGrouperSyncMember.entityAttributeValueCache0 = this.entityAttributeValueCache0;
+    gcGrouperSyncMember.entityAttributeValueCache1 = this.entityAttributeValueCache1;
     gcGrouperSyncMember.memberId = this.memberId;
-    gcGrouperSyncMember.memberToId2 = this.memberToId2;
-    gcGrouperSyncMember.memberToId3 = this.memberToId3;
+    gcGrouperSyncMember.entityAttributeValueCache2 = this.entityAttributeValueCache2;
+    gcGrouperSyncMember.entityAttributeValueCache3 = this.entityAttributeValueCache3;
     gcGrouperSyncMember.metadataUpdated = this.metadataUpdated;
     gcGrouperSyncMember.provisionableDb = this.provisionableDb;
     gcGrouperSyncMember.provisionableEnd = this.provisionableEnd;
@@ -144,11 +144,11 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
         .append(this.lastUserMetadataSyncStart, other.lastUserMetadataSyncStart)
         .append(this.lastUserSync, other.lastUserSync)
         .append(this.lastUserSyncStart, other.lastUserSyncStart)
-        .append(this.memberFromId2, other.memberFromId2)
-        .append(this.memberFromId3, other.memberFromId3)
+        .append(this.entityAttributeValueCache0, other.entityAttributeValueCache0)
+        .append(this.entityAttributeValueCache1, other.entityAttributeValueCache1)
         .append(this.memberId, other.memberId)
-        .append(this.memberToId2, other.memberToId2)
-        .append(this.memberToId3, other.memberToId3)
+        .append(this.entityAttributeValueCache2, other.entityAttributeValueCache2)
+        .append(this.entityAttributeValueCache3, other.entityAttributeValueCache3)
         .append(this.metadataUpdated, other.metadataUpdated)
         .append(this.provisionableDb, other.provisionableDb)
         .append(this.provisionableEnd, other.provisionableEnd)
@@ -610,10 +610,10 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     gcGrouperSyncMember.sourceId = "sourceId";
     gcGrouperSyncMember.subjectId = "subjectId";
     gcGrouperSyncMember.subjectIdentifier = "subjectIdentifier";
-    gcGrouperSyncMember.memberFromId2 = "from2";
-    gcGrouperSyncMember.memberFromId3 = "from3";
-    gcGrouperSyncMember.memberToId2 = "toId2";
-    gcGrouperSyncMember.memberToId3 = "toId3";
+    gcGrouperSyncMember.entityAttributeValueCache0 = "from2";
+    gcGrouperSyncMember.entityAttributeValueCache1 = "from3";
+    gcGrouperSyncMember.entityAttributeValueCache2 = "toId2";
+    gcGrouperSyncMember.entityAttributeValueCache3 = "toId3";
     gcGrouperSyncMember.inTargetDb = "T";
     gcGrouperSyncMember.inTargetInsertOrExistsDb = "T";
     gcGrouperSyncMember.inTargetEnd = new Timestamp(123L);
@@ -629,7 +629,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId("memId");
     System.out.println(gcGrouperSyncMember);
     
-    gcGrouperSyncMember.setMemberToId2("from2a");
+    gcGrouperSyncMember.setEntityAttributeValueCache2("from2a");
     gcGrouperSync.getGcGrouperSyncMemberDao().internal_memberStore(gcGrouperSyncMember);
 
     System.out.println("updated");
@@ -957,74 +957,80 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
   /**
    * for users this is the group idIndex
    */
-  private String memberFromId2;
+  @GcPersistableField(columnName = "member_from_id2")
+  private String entityAttributeValueCache0;
 
   /**
    * for users this is the group idIndex
    * @return group from id 2
    */
-  public String getMemberFromId2() {
-    return this.memberFromId2;
+  public String getEntityAttributeValueCache0() {
+    return this.entityAttributeValueCache0;
   }
 
   /**
    * for users this is the group idIndex
-   * @param groupFromId2_1
+   * @param groupAttributeValueCache0_1
    */
-  public void setMemberFromId2(String groupFromId2_1) {
-    this.memberFromId2 = groupFromId2_1;
+  public void setEntityAttributeValueCache0(String groupAttributeValueCache0_1) {
+    this.entityAttributeValueCache0 = groupAttributeValueCache0_1;
   }
 
   /**
    * other metadata on users
    */
-  private String memberFromId3;
+  @GcPersistableField(columnName = "member_from_id3")
+  private String entityAttributeValueCache1;
 
   /**
    * other metadata on users
    * @return id3
    */
-  public String getMemberFromId3() {
-    return this.memberFromId3;
+  public String getEntityAttributeValueCache1() {
+    return this.entityAttributeValueCache1;
   }
 
   /**
    * other metadata on users
-   * @param groupFromId3_1
+   * @param groupAttributeValueCache1_1
    */
-  public void setMemberFromId3(String groupFromId3_1) {
-    this.memberFromId3 = groupFromId3_1;
+  public void setEntityAttributeValueCache1(String groupAttributeValueCache1_1) {
+    this.entityAttributeValueCache1 = groupAttributeValueCache1_1;
   }
 
   /**
    * other metadata on users
    */
-  private String memberToId2;
+  @GcPersistableField(columnName = "member_to_id2")
+  private String entityAttributeValueCache2;
   
   /**
    * other metadata on users
    * @return metadata
    */
-  public String getMemberToId2() {
-    return this.memberToId2;
+  public String getEntityAttributeValueCache2() {
+    return this.entityAttributeValueCache2;
   }
 
   /**
    * other metadata on users
-   * @param groupToId2_1
+   * @param groupAttributeValueCache2_1
    */
-  public void setMemberToId2(String groupToId2_1) {
-    this.memberToId2 = groupToId2_1;
+  public void setEntityAttributeValueCache2(String groupAttributeValueCache2_1) {
+    this.entityAttributeValueCache2 = groupAttributeValueCache2_1;
   }
 
   /**
    * other metadata on users
    */
-  private String memberToId3;
+  @GcPersistableField(columnName = "member_to_id3")
+  private String entityAttributeValueCache3;
+  
   /**
    * when this group was removed from target
    */
   private Timestamp inTargetEnd;
+  
   /**
    * when this group was provisioned to target
    */
@@ -1034,16 +1040,16 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    * other metadata on users
    * @return group id
    */
-  public String getMemberToId3() {
-    return this.memberToId3;
+  public String getEntityAttributeValueCache3() {
+    return this.entityAttributeValueCache3;
   }
 
   /**
    * other metadata on users
-   * @param groupToId3_1
+   * @param groupAttributeValueCache3_1
    */
-  public void setMemberToId3(String groupToId3_1) {
-    this.memberToId3 = groupToId3_1;
+  public void setEntityAttributeValueCache3(String groupAttributeValueCache3_1) {
+    this.entityAttributeValueCache3 = groupAttributeValueCache3_1;
   }
 
   /**
@@ -1135,14 +1141,14 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    * @param result
    */
   public void assignField(String syncField, Object result) {
-    if (GrouperClientUtils.equals("memberFromId2", syncField)) {
-      this.setMemberFromId2(GrouperClientUtils.stringValue(result));
-    } else if (GrouperClientUtils.equals("memberFromId3", syncField)) {
-      this.setMemberFromId3(GrouperClientUtils.stringValue(result));
-    } else if (GrouperClientUtils.equals("memberToId2", syncField)) {
-      this.setMemberToId2(GrouperClientUtils.stringValue(result));
-    } else if (GrouperClientUtils.equals("memberToId3", syncField)) {
-      this.setMemberToId3(GrouperClientUtils.stringValue(result));
+    if (GrouperClientUtils.equals("entityAttributeValueCache0", syncField)) {
+      this.setEntityAttributeValueCache0(GrouperClientUtils.stringValue(result));
+    } else if (GrouperClientUtils.equals("entityAttributeValueCache1", syncField)) {
+      this.setEntityAttributeValueCache1(GrouperClientUtils.stringValue(result));
+    } else if (GrouperClientUtils.equals("entityAttributeValueCache2", syncField)) {
+      this.setEntityAttributeValueCache2(GrouperClientUtils.stringValue(result));
+    } else if (GrouperClientUtils.equals("entityAttributeValueCache3", syncField)) {
+      this.setEntityAttributeValueCache3(GrouperClientUtils.stringValue(result));
     } else {
       throw new RuntimeException("Not expecting groupSyncField: '" + syncField + "'");
     }
@@ -1155,14 +1161,14 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    * @param result
    */
   public String retrieveField(String syncField) {
-    if (GrouperClientUtils.equals("memberFromId2", syncField)) {
-      return this.getMemberFromId2();
-    } else if (GrouperClientUtils.equals("memberFromId3", syncField)) {
-      return this.getMemberFromId3();
-    } else if (GrouperClientUtils.equals("memberToId2", syncField)) {
-      return this.getMemberToId2();
-    } else if (GrouperClientUtils.equals("memberToId3", syncField)) {
-      return this.getMemberToId3();
+    if (GrouperClientUtils.equals("entityAttributeValueCache0", syncField)) {
+      return this.getEntityAttributeValueCache0();
+    } else if (GrouperClientUtils.equals("entityAttributeValueCache1", syncField)) {
+      return this.getEntityAttributeValueCache1();
+    } else if (GrouperClientUtils.equals("entityAttributeValueCache2", syncField)) {
+      return this.getEntityAttributeValueCache2();
+    } else if (GrouperClientUtils.equals("entityAttributeValueCache3", syncField)) {
+      return this.getEntityAttributeValueCache3();
     } else {
       throw new RuntimeException("Not expecting memberSyncField: '" + syncField + "'");
     }

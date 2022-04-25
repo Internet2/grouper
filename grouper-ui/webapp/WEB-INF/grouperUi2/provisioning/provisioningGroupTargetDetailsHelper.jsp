@@ -162,38 +162,38 @@
                           </tr>
                           
                           <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsGroupFromId2'] }</strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsGroupAttributeValueCache0'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.groupFromId2}
+                            ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.groupAttributeValueCache0}
                             <br />
-                            <span class="description">${textContainer.text['privsioningConfigDetailsGroupFromId2Description']}</span>
+                            <span class="description">${textContainer.text['privsioningConfigDetailsGroupAttributeValueCache0Description']}</span>
                             </td>
                           </tr>
                           
                           <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsGroupFromId3'] }</strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsGroupAttributeValueCache1'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.groupFromId3}
+                            ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.groupAttributeValueCache1}
                             <br />
-                            <span class="description">${textContainer.text['privsioningConfigDetailsGroupFromId3Description']}</span>
+                            <span class="description">${textContainer.text['privsioningConfigDetailsGroupAttributeValueCache1Description']}</span>
                             </td>
                           </tr>
                           
                           <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsGroupToId2'] }</strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsGroupAttributeValueCache2'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.groupToId2}
+                            ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.groupAttributeValueCache2}
                             <br />
-                            <span class="description">${textContainer.text['privsioningConfigDetailsGroupToId2Description']}</span>
+                            <span class="description">${textContainer.text['privsioningConfigDetailsGroupAttributeValueCache2Description']}</span>
                             </td>
                           </tr>
                           
                           <tr>
-                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsGroupToId3'] }</strong></td>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['privsioningConfigDetailsGroupAttributeValueCache3'] }</strong></td>
                             <td>
-                            ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.groupToId3}
+                            ${grouperRequestContainer.provisioningContainer.gcGrouperSyncGroup.groupAttributeValueCache3}
                             <br />
-                            <span class="description">${textContainer.text['privsioningConfigDetailsGroupToId3Description']}</span>
+                            <span class="description">${textContainer.text['privsioningConfigDetailsGroupAttributeValueCache3Description']}</span>
                             </td>
                           </tr>
                           

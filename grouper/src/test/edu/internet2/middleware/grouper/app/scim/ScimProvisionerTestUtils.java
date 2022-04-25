@@ -151,7 +151,7 @@ public class ScimProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "memberToId2");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache2");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.matchingId", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "userName");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.searchAttribute", "true");
@@ -169,7 +169,7 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateFromGrouperProvisioningEntityField", "name");
     } else if (StringUtils.equals(provisioningTestConfigInput.getEntityAttribute4name(), "emailValue")) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpression", "${gcGrouperSyncMember.memberFromId2}");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpression", "${gcGrouperSyncMember.entityAttributeValueCache0}");
     } else {
       throw new RuntimeException("Not value entityAttribute5Name: '" + provisioningTestConfigInput.getEntityAttribute4name() + "'");
     }
@@ -180,7 +180,7 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "extension");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "id");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateToGroupSyncField", "groupToId2");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateToGroupSyncField", "groupAttributeValueCache2");
     }
     configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "false");

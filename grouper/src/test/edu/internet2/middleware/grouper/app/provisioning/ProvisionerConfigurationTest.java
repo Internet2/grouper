@@ -77,7 +77,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute = provisionerConfiguration.retrieveAttributes().get("insertGroups");
     attribute.setValue("true");
     
-    attribute = provisionerConfiguration.retrieveAttributes().get("common.groupLink.groupFromId2");
+    attribute = provisionerConfiguration.retrieveAttributes().get("common.groupLink.groupAttributeValueCache0");
     attribute.setValue("test");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.url", "ldap://localhost:389");
@@ -103,7 +103,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.update", "true");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupAttributeValueCache2");
     
     StringBuilder message = new StringBuilder();
     List<String> errorsToDisplay = new ArrayList<String>();
@@ -272,7 +272,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute = provisionerConfiguration.retrieveAttributes().get("dbExternalSystemConfigId");
     attribute.setValue("Database External System");
     
-    attribute = provisionerConfiguration.retrieveAttributes().get("common.entityLink.memberFromId2");
+    attribute = provisionerConfiguration.retrieveAttributes().get("common.entityLink.entityAttributeValueCache0");
     attribute.setValue("test");
     
     // set the following two values so that we can test that some internal attributes are also being saved correctly in the db.
