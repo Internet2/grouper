@@ -26,7 +26,7 @@ public class DojoTreeItem {
    * @param args
    */
   public static void main(String[] args) {
-    DojoTreeItem root = new DojoTreeItem("Root", "root", DojoTreeItemType.stem);
+    DojoTreeItem root = new DojoTreeItem("Root", "root", DojoTreeItemType.stem, true);
     DojoTreeItemChild child1 = new DojoTreeItemChild("Child1", "child1", DojoTreeItemType.group, true);
     DojoTreeItemChild child2 = new DojoTreeItemChild("Child2", "child2", DojoTreeItemType.stem, null);
     root.setChildren(new DojoTreeItemChild[]{child1, child2});
@@ -42,12 +42,14 @@ public class DojoTreeItem {
    * @param hasChildren
    * @param children
    * @param dojoTreeItemType
+   * @param root
    */
-  public DojoTreeItem(String name, String id, DojoTreeItemType dojoTreeItemType) {
+  public DojoTreeItem(String name, String id, DojoTreeItemType dojoTreeItemType, boolean root) {
     super();
     this.name = name;
     this.id = id;
     this.assignTheTypeEnum(dojoTreeItemType);
+    this.root = root;
   }
 
   /**
@@ -75,6 +77,9 @@ public class DojoTreeItem {
 
   /** if group or folder */
   private String theType = null;
+  
+  /** if this is the root in the tree */
+  private boolean root = false;
 
   /**
    * what displays on the screen, display extension
@@ -148,6 +153,17 @@ public class DojoTreeItem {
     this.theType = dojoTreeItemChildType1 == null ? null : dojoTreeItemChildType1.name();
   }
 
-  
-  
+  /**
+   * @return if this is the root folder
+   */
+  public boolean isRoot() {
+    return root;
+  }
+
+  /**
+   * @param root
+   */
+  public void setRoot(boolean root) {
+    this.root = root;
+  }
 }
