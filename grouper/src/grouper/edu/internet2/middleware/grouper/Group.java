@@ -47,6 +47,7 @@ import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncl
 import static edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook.systemOfRecordExtensionSuffix;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -1436,7 +1437,37 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             }
             //if a date didnt match up, then save the membership
             if (hasChange) {
-              GrouperDAOFactory.getFactory().getMembership().update(membership);
+              HibernateSession.callbackHibernateSession(
+                  GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
+                  new HibernateHandler() {
+            
+                    public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                        throws GrouperDAOException {
+                      GrouperDAOFactory.getFactory().getMembership().update(membership);
+                      
+                      if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                        
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd h:mm a");
+                        String enabledTimeString = membership.getEnabledTime() == null ? null : sdf.format(membership.getEnabledTime());
+                        String disabledTimeString = membership.getDisabledTime() == null ? null : sdf.format(membership.getDisabledTime());
+                        
+                        AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.MEMBERSHIP_GROUP_UPDATE, "id", 
+                            membership.getUuid(), "fieldId", field.getUuid(),
+                                "fieldName", field.getName(), "memberId",  membership.getMemberUuid(),
+                                "membershipType", membership.getType(), 
+                                "groupId", Group.this.getUuid(), "groupName", Group.this.getName());
+                                
+                        auditEntry.setDescription("Updated membership: group: " + Group.this.getName()
+                            + ", subject: " + subject.getSource().getId() + "." + subject.getId() + ", field: "
+                            + field.getName()
+                            + ", enabledTime: " + enabledTimeString
+                            + ", disabledTime: " + disabledTimeString);
+                        auditEntry.saveOrUpdate(true);
+                      }
+                      
+                      return null;
+                    }
+                  });
             }
             return hasChange;
           }
