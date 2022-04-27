@@ -49,7 +49,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>grouper-ui</artifactId>
             <version>${grouper.version}</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
@@ -80,12 +79,10 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
             <version>8.5.60</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -122,8 +119,8 @@
                 <configuration>
                     <instructions>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>${project.artifactId}</Bundle-Name>
-                        <Bundle-Version>${pom.version}</Bundle-Version>
+                        <Bundle-Name>${project.artifactId}-bundle</Bundle-Name>
+                        <Bundle-Version>0.0.1-SNAPSHOT</Bundle-Version>
                         <Export-Package>edu.internet2.middleware.grouper.authentication.plugin.filter</Export-Package>
                         <Private-Package>edu.internet2.middleware.grouper.authentication.plugin.*</Private-Package>
                         <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
