@@ -57,7 +57,17 @@
          <form class="form-inline form-small form-filter" id="provisionerConfigDetails">
          	<input type="hidden" name="previousProvisionerConfigId" value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId}" />
          	<input type="hidden" name="previousProvisionerConfigType" value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration['class'].name}" />
-         	<input type="hidden" name="previousProvisionerStartWithClass" value="${grouperRequestContainer.provisionerConfigurationContainer.provisionerStartWith['class'].name}" />
+         	
+          <c:choose>
+            <c:when test="${grouperRequestContainer.provisionerConfigurationContainer.blankStartWithSelected}">
+              <input type="hidden" name="previousProvisionerStartWithClass" value="blank" />
+            </c:when>
+            <c:otherwise>
+              <input type="hidden" name="previousProvisionerStartWithClass" value="${grouperRequestContainer.provisionerConfigurationContainer.provisionerStartWith['class'].name}" />
+            </c:otherwise>
+          </c:choose>
+          
+          
             <table class="table table-condensed table-striped">
               <tbody>
                 <%@ include file="provisionerConfigAddHelper.jsp" %>

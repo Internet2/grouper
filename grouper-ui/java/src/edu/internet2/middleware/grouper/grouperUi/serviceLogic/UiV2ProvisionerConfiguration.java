@@ -809,9 +809,11 @@ public class UiV2ProvisionerConfiguration {
         
         String previousProvisionerStartWithClass = request.getParameter("previousProvisionerStartWithClass");
         
-        boolean skipStartWith = StringUtils.isBlank(provisionerStartWithClass);
-        if (StringUtils.isNotBlank(provisionerStartWithClass) && StringUtils.equals(provisionerStartWithClass, "blank")) {
+        boolean skipStartWith = false;
+        if ( (StringUtils.isNotBlank(provisionerStartWithClass) && StringUtils.equals(provisionerStartWithClass, "blank")) || 
+            (StringUtils.equals(previousProvisionerStartWithClass, "blank"))  ) {
           skipStartWith = true;
+          provisionerConfigurationContainer.setBlankStartWithSelected(true);
         }
         
         if (!skipStartWith && StringUtils.isNotBlank(provisionerStartWithClass)) {
@@ -1169,6 +1171,8 @@ public class UiV2ProvisionerConfiguration {
         GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
         provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       }
+      
+      provisionerConfiguration.correctFormFieldsForExpressionLanguageValues();
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigEdit.jsp"));

@@ -3,14 +3,11 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
-
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -273,9 +270,9 @@ public class ProvisionerConfigurationContainer {
 
   private ProvisionerStartWithBase provisionerStartWith;
   
+  private boolean blankStartWithSelected;
+  
   private boolean showStartWithSection;
-
-  private ProvisionerStartWithBase previousProvisionerStartWith;
 
   private String startWithSessionId;
 
@@ -326,15 +323,6 @@ public class ProvisionerConfigurationContainer {
     this.showStartWithSection = showStartWithSection;
   }
 
-  public void setPreviousProvisionerStartWith(ProvisionerStartWithBase previousProvisionerStartWith) {
-    this.previousProvisionerStartWith = previousProvisionerStartWith;
-  }
-
-  
-  public ProvisionerStartWithBase getPreviousProvisionerStartWith() {
-    return previousProvisionerStartWith;
-  }
-
   public void setStartWithSessionId(String startWithSessionId) {
     this.startWithSessionId = startWithSessionId;
   }
@@ -343,6 +331,17 @@ public class ProvisionerConfigurationContainer {
   public String getStartWithSessionId() {
     return startWithSessionId;
   }
+
+  
+  public boolean isBlankStartWithSelected() {
+    return blankStartWithSelected;
+  }
+
+  
+  public void setBlankStartWithSelected(boolean blankStartWithSelected) {
+    this.blankStartWithSelected = blankStartWithSelected;
+  }
+  
   
   
   

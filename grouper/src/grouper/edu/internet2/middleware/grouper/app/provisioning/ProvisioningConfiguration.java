@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -283,6 +284,18 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
       }
     } finally {
       inValidateThreadLocal.remove();
+    }
+    
+  }
+
+  public void correctFormFieldsForExpressionLanguageValues() {
+    
+    for (GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute : GrouperUtil.nonNull(this.retrieveAttributes()).values()) {
+      
+      if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
+        grouperConfigurationModuleAttribute.setFormElement(ConfigItemFormElement.TEXT);
+      }
+      
     }
     
   }
