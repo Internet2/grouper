@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.cfg.dbConfig.CheckboxValueDriver;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
@@ -1630,21 +1631,21 @@ public abstract class GrouperConfigurationModuleBase {
 
   public String getCacheAttributePrefix() {
     if (this.cacheAttributePrefix == null) {
-      this.cacheAttributePrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.attributePrefix");
+      this.cacheAttributePrefix = this.retrieveText("attribute.option.targetGroupAttribute.i.attributePrefix");
     }
     return cacheAttributePrefix;
   }
 
   public String getCacheEntityAttributePrefix() {
     if (this.cacheEntityAttributePrefix == null) {
-      this.cacheEntityAttributePrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetEntityAttribute.i.entityAttributePrefix");
+      this.cacheEntityAttributePrefix = this.retrieveText("attribute.option.targetEntityAttribute.i.entityAttributePrefix");
     }
     return cacheEntityAttributePrefix;
   }
   
   public String getCacheMembershipAttributePrefix() {
     if (this.cacheMembershipAttributePrefix == null) {
-      this.cacheMembershipAttributePrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetMembershipAttribute.i.membershipAttributePrefix");
+      this.cacheMembershipAttributePrefix = this.retrieveText("attribute.option.targetMembershipAttribute.i.membershipAttributePrefix");
     }
     return cacheMembershipAttributePrefix;
   }
@@ -1652,10 +1653,18 @@ public abstract class GrouperConfigurationModuleBase {
   public String getCacheGroupAttributePrefix() {
     
     if (this.cacheGroupAttributePrefix == null) {
-      this.cacheGroupAttributePrefix = GrouperTextContainer.textOrNull("config.GenericConfiguration.attribute.option.targetGroupAttribute.i.groupAttributePrefix");
+      this.cacheGroupAttributePrefix = this.retrieveText("attribute.option.targetGroupAttribute.i.groupAttributePrefix");
     }
     
     return cacheGroupAttributePrefix;
   }
   
+  public String retrieveText(String suffix) {
+    String label = GrouperTextContainer.textOrNull("config." + this.getClass().getSimpleName() + "." + suffix);
+
+    if (StringUtils.isBlank(label)) {
+      label = GrouperTextContainer.textOrNull("config.GenericConfiguration." + suffix);
+    }
+    return label;
+  }
 }
