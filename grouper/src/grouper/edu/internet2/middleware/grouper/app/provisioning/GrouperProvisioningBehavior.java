@@ -265,291 +265,42 @@ public class GrouperProvisioningBehavior {
 
 
   public boolean isHasSubjectLink() {
-    if (hasSubjectLink != null) {
-      return hasSubjectLink;
+    if (hasSubjectLink == null) {
+      GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache0 = 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGrouperProvisioningConfigurationEntityAttributeDbCaches()[0];
+      boolean hasSubjectLinkEntityAttributeValueCache0 = grouperProvisioningConfigurationAttributeDbCache0 != null
+          && grouperProvisioningConfigurationAttributeDbCache0.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript
+          && !StringUtils.isBlank(grouperProvisioningConfigurationAttributeDbCache0.getTranslationScript());
+      
+      GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache1 = 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGrouperProvisioningConfigurationEntityAttributeDbCaches()[1];
+      boolean hasSubjectLinkEntityAttributeValueCache1 = grouperProvisioningConfigurationAttributeDbCache1 != null
+          && grouperProvisioningConfigurationAttributeDbCache1.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript
+          && !StringUtils.isBlank(grouperProvisioningConfigurationAttributeDbCache1.getTranslationScript());
+
+      GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache2 = 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGrouperProvisioningConfigurationEntityAttributeDbCaches()[2];
+      boolean hasSubjectLinkEntityAttributeValueCache2 = grouperProvisioningConfigurationAttributeDbCache2 != null
+          && grouperProvisioningConfigurationAttributeDbCache2.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript
+          && !StringUtils.isBlank(grouperProvisioningConfigurationAttributeDbCache2.getTranslationScript());
+
+      GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache3 = 
+          this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGrouperProvisioningConfigurationEntityAttributeDbCaches()[3];
+      boolean hasSubjectLinkEntityAttributeValueCache3 = grouperProvisioningConfigurationAttributeDbCache3 != null
+          && grouperProvisioningConfigurationAttributeDbCache3.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript
+          && !StringUtils.isBlank(grouperProvisioningConfigurationAttributeDbCache3.getTranslationScript());
+      this.hasSubjectLink = hasSubjectLinkEntityAttributeValueCache0 || hasSubjectLinkEntityAttributeValueCache1
+          || hasSubjectLinkEntityAttributeValueCache2 || hasSubjectLinkEntityAttributeValueCache3;
     }
-    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isHasSubjectLink();
+    
+    return hasSubjectLink;
+    
   }
 
 
   
   public void setHasSubjectLink(Boolean hasSubjectLink) {
     this.hasSubjectLink = hasSubjectLink;
-  }
-
-  /**
-   * 
-   * @return true if has script or an attribute mapped
-   */
-  public boolean isHasGroupLinkGroupAttributeValueCache0() {
-    
-    if (StringUtils.isNotBlank(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupLinkGroupAttributeValueCache0())) {
-      return true;
-    }
-
-    if (null != getGroupLinkGroupAttributeValueCache0Attribute()) {
-      return true;
-    }
-    
-    return false;
-    
-  }
-  
-  public GrouperProvisioningConfigurationAttribute getEntityLinkEntityAttributeValueCache2Attribute() {
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
-      if (StringUtils.equals("entityAttributeValueCache2", grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
-      if (StringUtils.equals("entityAttributeValueCache2", grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    return null;
-  }
-  
-  public GrouperProvisioningConfigurationAttribute getEntityLinkEntityAttributeValueCache0Attribute() {
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
-      if (StringUtils.equals("entityAttributeValueCache0", grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
-      if (StringUtils.equals("entityAttributeValueCache0", grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    return null;
-  }
-  
-  public GrouperProvisioningConfigurationAttribute getEntityLinkEntityAttributeValueCache1Attribute() {
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
-      if (StringUtils.equals("entityAttributeValueCache1", grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
-      if (StringUtils.equals("entityAttributeValueCache1", grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    return null;
-  }
-  
-  public GrouperProvisioningConfigurationAttribute getEntityLinkEntityAttributeValueCache3Attribute() {
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
-      if (StringUtils.equals("entityAttributeValueCache3", grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
-      if (StringUtils.equals("entityAttributeValueCache3", grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    return null;
-  }
-  
-  public GrouperProvisioningConfigurationAttribute getGroupLinkGroupAttributeValueCache2Attribute() {
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
-      if (StringUtils.equals("groupAttributeValueCache2", grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
-      if (StringUtils.equals("groupAttributeValueCache2", grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    return null;
-  }
-  
-  public GrouperProvisioningConfigurationAttribute getGroupLinkGroupAttributeValueCache3Attribute() {
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
-      if (StringUtils.equals("groupAttributeValueCache3", grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
-      if (StringUtils.equals("groupAttributeValueCache3", grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    return null;
-  }
-
-  public GrouperProvisioningConfigurationAttribute getGroupLinkGroupAttributeValueCache0Attribute() {
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
-      if (StringUtils.equals("groupAttributeValueCache0", grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
-      if (StringUtils.equals("groupAttributeValueCache0", grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    return null;
-  }
-
-  public GrouperProvisioningConfigurationAttribute getGroupLinkGroupAttributeValueCache1Attribute() {
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
-      if (StringUtils.equals("groupAttributeValueCache1", grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
-      if (StringUtils.equals("groupAttributeValueCache1", grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
-        return grouperProvisioningConfigurationAttribute;
-      }
-    }
-    return null;
-  }
-
-  /**
-   * 
-   * @return true if has script or an attribute mapped
-   */
-  public boolean isHasGroupLinkGroupAttributeValueCache1() {
-    
-    if (StringUtils.isNotBlank(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupLinkGroupAttributeValueCache1())) {
-      return true;
-    }
-
-    if (null != getGroupLinkGroupAttributeValueCache1Attribute()) {
-      return true;
-    }
-    
-    return false;
-    
-  }
-
-  /**
-   * 
-   * @return true if has script or an attribute mapped
-   */
-  public boolean isHasGroupLinkGroupAttributeValueCache2() {
-    
-    if (StringUtils.isNotBlank(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupLinkGroupAttributeValueCache2())) {
-      return true;
-    }
-
-    if (null != getGroupLinkGroupAttributeValueCache2Attribute()) {
-      return true;
-    }
-    
-    return false;
-    
-  }
-  
-
-  /**
-   * 
-   * @return true if has script or an attribute mapped
-   */
-  public boolean isHasGroupLinkGroupAttributeValueCache3() {
-    
-    if (StringUtils.isNotBlank(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupLinkGroupAttributeValueCache3())) {
-      return true;
-    }
-
-    if (null != getGroupLinkGroupAttributeValueCache3Attribute()) {
-      return true;
-    }
-    
-    return false;
-    
-  }
-
-
-  /**
-   * 
-   * @return true if has script or an attribute mapped
-   */
-  public boolean isHasEntityLinkEntityAttributeValueCache2() {
-    
-    if (StringUtils.isNotBlank(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityLinkEntityAttributeValueCache2())) {
-      return true;
-    }
-
-    if (null != getEntityLinkEntityAttributeValueCache2Attribute()) {
-      return true;
-    }
-    
-    return false;
-    
-  }
-
-  /**
-   * 
-   * @return true if has script or an attribute mapped
-   */
-  public boolean isHasEntityLinkEntityAttributeValueCache0() {
-    
-    if (StringUtils.isNotBlank(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityLinkEntityAttributeValueCache0())) {
-      return true;
-    }
-
-    if (null != getEntityLinkEntityAttributeValueCache0Attribute()) {
-      return true;
-    }
-    
-    return false;
-    
-  }
-
-  /**
-   * 
-   * @return true if has script or an attribute mapped
-   */
-  public boolean isHasEntityLinkEntityAttributeValueCache1() {
-    
-    if (StringUtils.isNotBlank(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityLinkEntityAttributeValueCache1())) {
-      return true;
-    }
-
-    if (null != getEntityLinkEntityAttributeValueCache1Attribute()) {
-      return true;
-    }
-    
-    return false;
-    
-  }
-
-
-  /**
-   * 
-   * @return true if has script or an attribute mapped
-   */
-  public boolean isHasEntityLinkEntityAttributeValueCache3() {
-    
-    if (StringUtils.isNotBlank(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityLinkEntityAttributeValueCache3())) {
-      return true;
-    }
-
-    if (null != getEntityLinkEntityAttributeValueCache3Attribute()) {
-      return true;
-    }
-    
-    return false;
-    
   }
 
   public boolean isHasTargetGroupLink() {

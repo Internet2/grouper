@@ -9092,13 +9092,13 @@ public class GrouperUtil {
    * @param <E> generic type
    *
    * @param string
-   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @param exceptionOnBlank true if exception should be thrown on not found
    * @return the enum or null or exception if not found
    * @throws RuntimeException if there is a problem
    */
   public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string,
-      boolean exceptionOnNotFound) throws RuntimeException {
-    return enumValueOfIgnoreCase(theEnumClass, string, exceptionOnNotFound, true);
+      boolean exceptionOnBlank) throws RuntimeException {
+    return enumValueOfIgnoreCase(theEnumClass, string, exceptionOnBlank, true);
   }
 
 
@@ -9108,15 +9108,15 @@ public class GrouperUtil {
    * @param <E> generic type
    *
    * @param string
-   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @param exceptionOnBlank true if exception should be thrown on not found
    * @param exceptionIfInvalid if there is a string, but it is invalid, if should throw exception
    * @return the enum or null or exception if not found
    * @throws RuntimeException if there is a problem
    */
   public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string,
-      boolean exceptionOnNotFound, boolean exceptionIfInvalid) throws RuntimeException {
+      boolean exceptionOnBlank, boolean exceptionIfInvalid) throws RuntimeException {
 
-    if (!exceptionOnNotFound && isBlank(string)) {
+    if (!exceptionOnBlank && isBlank(string)) {
       return null;
     }
     for (E e : theEnumClass.getEnumConstants()) {
