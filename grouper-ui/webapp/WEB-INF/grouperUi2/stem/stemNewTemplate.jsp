@@ -122,6 +122,8 @@
 				hasExpressionLanguage="false"
 				ajaxCallback="ajax('../app/UiV2Template.newTemplate?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}', {formIds: 'newStemTemplateFormId'}); return false;"
 				valuesAndLabels="${guiGshTemplateInputConfig.gshTemplateInputConfig.dropdownKeysAndLabels}"
+        indent="${attribute.configItemMetadata.indent}"
+        
 			/>
   				
   			</c:forEach>

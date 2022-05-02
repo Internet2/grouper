@@ -72,6 +72,7 @@
                       ajaxCallback="ajax('../app/UiV2GlobalAttributeResolverConfig.editGlobalAttributeResolverConfig?globalAttributeResolverConfigId=${grouperRequestContainer.globalAttributeResolverConfigContainer.guiGlobalAttributeResolverConfiguration.globalAttributeResolverConfiguration.configId}', {formIds: 'globalAttributeResolverConfigDetails'}); return false;"
                       valuesAndLabels="${attribute.dropdownValuesAndLabels }"
                       checkboxAttributes="${attribute.checkboxAttributes}"
+                      indent="${attribute.configItemMetadata.indent}"
                     />
                     
                   </c:forEach>

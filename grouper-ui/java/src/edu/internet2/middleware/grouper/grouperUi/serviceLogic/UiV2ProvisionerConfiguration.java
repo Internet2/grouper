@@ -996,7 +996,7 @@ public class UiV2ProvisionerConfiguration {
       
       String provisionerStartWithClass = request.getParameter("provisionerStartWithClass");
       
-      if (StringUtils.isNotBlank(provisionerStartWithClass)) {
+      if (StringUtils.isNotBlank(provisionerStartWithClass) && !StringUtils.equals("empty", provisionerStartWithClass)) {
         Class<ProvisionerStartWithBase> startWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(provisionerStartWithClass);
         ProvisionerStartWithBase provisionerStartWith = (ProvisionerStartWithBase) GrouperUtil.newInstance(startWithKlass);
         provisionerStartWith.setConfigId(provisionerConfigId);

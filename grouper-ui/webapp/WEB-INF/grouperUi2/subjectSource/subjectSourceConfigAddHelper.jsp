@@ -86,6 +86,7 @@
   					ajaxCallback="ajax('../app/UiV2SubjectSource.addSubjectSource?focusOnElementName=config_${attribute.configSuffix}&sourceConfigId=${guiSubjectSourceConfiguration.subjectSourceConfiguration.configId}&sourceConfigType=${guiSubjectSourceConfiguration.subjectSourceConfiguration['class'].name}', {formIds: 'sourceConfigDetails'}); return false;"
   					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
   					checkboxAttributes="${attribute.checkboxAttributes}"
+            indent="${attribute.configItemMetadata.indent}"
   				/>
   				
   			</c:forEach>

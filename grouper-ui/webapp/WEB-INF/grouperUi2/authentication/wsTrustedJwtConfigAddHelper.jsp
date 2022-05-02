@@ -75,6 +75,7 @@
             ajaxCallback="ajax('../app/UiV2AuthenticationConfig.addWsTrustedJwt', {formIds: 'wsTrustedJwtConfigDetails'}); return false;"
             valuesAndLabels="${attribute.dropdownValuesAndLabels }"
             checkboxAttributes="${attribute.checkboxAttributes}"
+            indent="${attribute.configItemMetadata.indent}"
           />
           
         </c:forEach>

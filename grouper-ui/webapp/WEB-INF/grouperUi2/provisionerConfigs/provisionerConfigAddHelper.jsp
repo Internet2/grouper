@@ -112,6 +112,7 @@
             ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?focusOnElementName=config_${attribute.configSuffix}&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;"
             valuesAndLabels="${attribute.dropdownValuesAndLabels }"
             checkboxAttributes="${attribute.checkboxAttributes}"
+            indent="${attribute.configItemMetadata.indent}"
           />
           
         </c:forEach>
@@ -164,6 +165,7 @@
     					ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?focusOnElementName=config_${attribute.configSuffix}&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;"
     					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
     					checkboxAttributes="${attribute.checkboxAttributes}"
+              indent="${attribute.configItemMetadata.indent}"
     				/>
     				
     			</c:forEach>

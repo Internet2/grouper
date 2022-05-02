@@ -103,6 +103,7 @@
                                 ajaxCallback="ajax('../app/UiV2Admin.editDaemon?daemonConfigId=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId}&daemonConfigType=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration['class'].name}', {formIds: 'editDaemonFormId'}); return false;"
                                 valuesAndLabels="${attribute.dropdownValuesAndLabels }"
                                 checkboxAttributes="${attribute.checkboxAttributes}"
+                                indent="${attribute.configItemMetadata.indent}"
                               />
                               
                             </c:forEach>

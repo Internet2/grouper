@@ -64,6 +64,7 @@
 					  					ajaxCallback="ajax('../app/UiV2SqlSyncConfiguration.editSqlSyncConfig?sqlSyncConfigId=${grouperRequestContainer.sqlSyncConfigurationContainer.guiSqlSyncConfiguration.sqlSyncConfiguration.configId}', {formIds: 'sqlSyncConfigDetails'}); return false;"
 					  					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
 					  					checkboxAttributes="${attribute.checkboxAttributes}"
+                      indent="${attribute.configItemMetadata.indent}"
 					  				/>
 					  				
 					  			</c:forEach>
