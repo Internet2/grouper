@@ -879,6 +879,7 @@ public class UiV2ProvisionerConfiguration {
                 
                 if (startWithAttributes.containsKey(key)) {
                   startWithAttributes.get(key).setValue(GrouperUtil.stringValue(valueToSet));
+                  startWithAttributes.get(key).setShow(true);
                 }
               }
             }
@@ -995,6 +996,28 @@ public class UiV2ProvisionerConfiguration {
       provisionerConfiguration.setConfigId(provisionerConfigId);
       
       String provisionerStartWithClass = request.getParameter("provisionerStartWithClass");
+      String previousProvisionerStartWithClass = request.getParameter("previousProvisionerStartWithClass");
+      
+      List<ProvisionerStartWithBase> startWithConfigClasses = provisionerConfiguration.getStartWithConfigClasses();
+      
+      if(startWithConfigClasses.size() > 0 && StringUtils.isBlank(previousProvisionerStartWithClass)) {
+        
+        GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+        provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#provisionerConfigStartWithId",
+            TextContainer.retrieveFromRequest().getText().get("provisionerConfigStartWithIdRequired")));  
+        
+        provisionerConfigurationContainer.setShowStartWithSection(true);
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigAdd.jsp"));
+        
+        
+        return;
+        
+      }
+      
       
       if (StringUtils.isNotBlank(provisionerStartWithClass) && !StringUtils.equals("empty", provisionerStartWithClass)) {
         Class<ProvisionerStartWithBase> startWithKlass = (Class<ProvisionerStartWithBase>) GrouperUtil.forName(provisionerStartWithClass);
