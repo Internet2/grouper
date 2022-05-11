@@ -354,6 +354,7 @@ public class GcTableSyncTableMetadata {
               case Types.LONGVARCHAR:
               case Types.NCHAR:
               case Types.NVARCHAR:
+              case Types.LONGNVARCHAR:
   
                 gcTableSyncColumnMetadata.setColumnType(ColumnType.STRING);
                 {
