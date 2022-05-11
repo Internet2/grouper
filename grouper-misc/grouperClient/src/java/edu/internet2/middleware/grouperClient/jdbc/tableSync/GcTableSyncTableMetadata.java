@@ -349,6 +349,15 @@ public class GcTableSyncTableMetadata {
                 }
                 break;
                 
+              case Types.BIT:
+              case Types.BOOLEAN:
+  
+                gcTableSyncColumnMetadata.setColumnType(ColumnType.BOOLEAN);
+                {
+                  int columnDisplaySize = resultSetMetaData.getColumnDisplaySize(i+1);
+                  gcTableSyncColumnMetadata.setColumnDisplaySize(columnDisplaySize);
+                }
+                break;
               case Types.CHAR:
               case Types.VARCHAR:
               case Types.LONGVARCHAR:
