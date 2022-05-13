@@ -386,14 +386,14 @@
                           <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['grouperLoaderRecentIncludeCurrent']}</strong></td>
                           <td style="vertical-align: top;">
                             <c:choose>
-                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent ? grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent : false}">
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent == 'T'}">
                                 ${textContainer.text['grouperLoaderRecentIncludeCurrentTrue']}
                               </c:when>
-                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent ? !grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent : true}">
+                              <c:when test="${grouperRequestContainer.grouperLoaderContainer.recentIncludeCurrent == 'F'}">
                                 ${textContainer.text['grouperLoaderRecentIncludeCurrentFalse']}
                               </c:when>
                             </c:choose>
-                            <br /><span class="description">${textContainer.text['grouperLoaderIncludeInternalSourcesTrue']}</span>
+                            <br /><span class="description">${textContainer.text['grouperLoaderRecentIncludeCurrentDescription']}</span>
                           
                           </td>
                         </tr>
