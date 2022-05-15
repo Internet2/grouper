@@ -1303,7 +1303,7 @@ public class GroupFinder {
             this.subjectNotInGroup, this.groupIds, this.groupNames, this.compositeOwner, 
             this.attributeDefNameId, this.attributeValue, this.attributeValuesOnAssignment, 
             this.attributeCheckReadOnAttributeDef, this.attributeDefNameId2, this.attributeValue2, 
-            this.attributeValuesOnAssignment2, this.attributeNotAssigned);
+            this.attributeValuesOnAssignment2, this.attributeNotAssigned, this.excludeAlternateNames);
     
   }
 
@@ -1428,6 +1428,11 @@ public class GroupFinder {
   private Set<Object> attributeValuesOnAssignment2;
 
   /**
+   * whether to exclude alternate names from name/scope search
+   */
+  private boolean excludeAlternateNames = false;
+
+  /**
    * if we are looking up a group, only look by uuid or name
    * @param theFindByUuidOrName
    * @return the group finder
@@ -1506,6 +1511,16 @@ public class GroupFinder {
    */
   public GroupFinder assignAttributeValuesOnAssignment2(Set<Object> theValues) {
     this.attributeValuesOnAssignment2 = theValues;
+    return this;
+  }
+
+  /**
+   * whether to exclude alternate names from name/scope search
+   * @param excludeAlternateNames
+   * @return
+   */
+  public GroupFinder assignExcludeAlternateNames(boolean excludeAlternateNames) {
+    this.excludeAlternateNames = excludeAlternateNames;
     return this;
   }
 

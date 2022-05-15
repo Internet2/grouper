@@ -747,12 +747,17 @@ public class StemFinder {
    * find groups with this value
    */
   private Object attributeValue2;
-  
+
   /**
    * find stems that don't have a certain type assigned
    */
   private boolean attributeNotAssigned = false;
-  
+
+  /**
+   * whether to exclude alternate names from name/scope search
+   */
+  private boolean excludeAlternateNames = false;
+
   /**
    * find stems that don't have a certain type assigned
    * @param attributeNotAssigned
@@ -760,6 +765,16 @@ public class StemFinder {
    */
   public StemFinder assignAttributeNotAssigned(boolean attributeNotAssigned) {
     this.attributeNotAssigned = attributeNotAssigned;
+    return this;
+  }
+
+  /**
+   * whether to exclude alternate names from name/scope search
+   * @param excludeAlternateNames
+   * @return
+   */
+  public StemFinder assignExcludeAlternateNames(boolean excludeAlternateNames) {
+    this.excludeAlternateNames = excludeAlternateNames;
     return this;
   }
 
@@ -903,7 +918,7 @@ public class StemFinder {
             this.attributeDefNameId, this.attributeValue, this.attributeCheckReadOnAttributeDef,
             this.attributeValuesOnAssignment, 
             this.attributeDefNameId2, this.attributeValue2, this.attributeValuesOnAssignment2,
-            this.attributeNotAssigned);
+            this.attributeNotAssigned, this.excludeAlternateNames);
    
     for (Stem stem : GrouperUtil.nonNull(stems)) {
       stemFlashCacheAddIfSupposedTo(stem);

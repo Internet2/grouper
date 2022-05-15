@@ -278,6 +278,32 @@ public class TestGroupFinder extends GrouperTest {
     
   }
 
+  public void testChainingGroupFinderExcludingAlternateNames() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group group = new GroupSave(grouperSession).assignName("test-a:group-a").assignCreateParentStemsIfNotExist(true).save();
+    group.addAlternateName("test-b:group-b");
+    group.store();
+
+    Set<Group> foundGroups = new GroupFinder().assignScope("test-a:group%").findGroups();
+    assertEquals("find 1 group by name with scope", foundGroups.size(), 1);
+    assertContainsGroup(foundGroups, group, "Found correct group by name with scope");
+
+    foundGroups = new GroupFinder().assignScope("test-b:group%").findGroups();
+    assertEquals("find 1 group by alternate name with scope", foundGroups.size(), 1);
+    assertContainsGroup(foundGroups, group, "Found correct group by name with scope");
+
+    foundGroups = new GroupFinder().assignScope("bogus:%").findGroups();
+    assertEquals("find 0 groups with non-existent name with scope", foundGroups.size(), 0);
+
+    /* When excluding alternate name in finder, should find by name but not alternate name */
+    foundGroups = new GroupFinder().assignScope("test-a:group%").assignExcludeAlternateNames(true).findGroups();
+    assertEquals("find 1 group by name with scope excluding alternate name", foundGroups.size(), 1);
+    assertContainsGroup(foundGroups, group, "Found correct group by name with scope excluding alternate name");
+
+    foundGroups = new GroupFinder().assignScope("test-b:group%").assignExcludeAlternateNames(true).findGroups();
+    assertEquals("find 0 groups by alternate name with scope excluding alternate name", foundGroups.size(), 0);
+  }
+
   public void testFailToFindGroupByAttributeNullSession() {
     LOG.info("testFailToFindGroupByAttributeNullSession");
     try {
@@ -805,7 +831,7 @@ public class TestGroupFinder extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(TestGroupFinder.class);
-    TestRunner.run(new TestGroupFinder("testFindByAttributeDefName"));
+    TestRunner.run(new TestGroupFinder("testChainingGroupFinderExcludingAlternateNames"));
   }
 
   /**
