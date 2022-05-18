@@ -41,12 +41,14 @@
                         
                         <grouper:performanceTimingGate label="StemUiMoreActions" key="post_templates" />
                         
-                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
+                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges || grouperRequestContainer.stemContainer.canCreateGroups }">
 
                           <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['stemViewMoreActionsManage']}</li>
 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemCopy&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                              >${textContainer.text['stemViewCopyStemButton'] }</a></li>
+                          <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemCopy&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                                >${textContainer.text['stemViewCopyStemButton'] }</a></li>
+                          </c:if>
 
                           <c:if test="${grouperRequestContainer.stemContainer.canCreateStems}">
                             <li><a href="#" 
@@ -73,13 +75,15 @@
   
                           </c:if>
 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                              >${textContainer.text['stemViewEditStemButton'] }</a></li>
+                          <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                                >${textContainer.text['stemViewEditStemButton'] }</a></li>
+  
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemMove&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                                >${textContainer.text['stemViewMoveStemButton'] }</a></li>
+                          </c:if>
 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemMove&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                              >${textContainer.text['stemViewMoveStemButton'] }</a></li>
-
-                        <grouper:performanceTimingGate label="StemUiMoreActions" key="post_manage" />
+                          <grouper:performanceTimingGate label="StemUiMoreActions" key="post_manage" />
 
                           <c:if test="${isWheelGroupMember || grouperRequestContainer.stemContainer.canAdminPrivileges}">
                             <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['stemViewMoreActionsAdministration']}</li>
