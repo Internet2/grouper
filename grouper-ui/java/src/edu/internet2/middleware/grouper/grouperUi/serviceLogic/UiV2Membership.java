@@ -784,7 +784,9 @@ public class UiV2Membership {
             membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
             
             if (factor != null) {
-              groupIdsForTimeline.add(factor.getId());
+              if (factor.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), "read", false)) {
+                groupIdsForTimeline.add(factor.getId());
+              }
             }
             
             switch(membershipPathNode.getCompositeType()) {
