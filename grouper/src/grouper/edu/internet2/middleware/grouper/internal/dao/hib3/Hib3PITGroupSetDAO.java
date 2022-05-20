@@ -320,6 +320,26 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
   }
   
   /**
+   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllImmediateByPITOwnerAndPITMemberAndPITField(java.lang.String, java.lang.String, java.lang.String)
+   */
+  public Set<PITGroupSet> findAllImmediateByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId) {
+    Set<PITGroupSet> pitGroupSets = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitGroupSet from PITGroupSet as pitGroupSet " +
+          "where ownerId = :ownerId " +
+          "and memberId = :memberId " +
+          "and fieldId = :fieldId " +
+          "and depth = '1'")
+      .setCacheable(false).setCacheRegion(KLASS + ".FindAllImmediateByPITOwnerAndPITMemberAndPITField")
+      .setString("ownerId", ownerId)
+      .setString("memberId", memberId)
+      .setString("fieldId", fieldId)
+      .listSet(PITGroupSet.class);
+    
+    return pitGroupSets;
+  }
+  
+  /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findAllActiveByPITGroupOwnerAndPITField(java.lang.String, edu.internet2.middleware.grouper.pit.PITField)
    */
   public Set<PITGroupSet> findAllActiveByPITGroupOwnerAndPITField(String groupId, PITField field) {
