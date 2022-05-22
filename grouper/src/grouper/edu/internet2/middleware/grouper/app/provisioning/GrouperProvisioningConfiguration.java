@@ -1003,11 +1003,6 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
-   * If the subject API is needed to resolve attribute on subject  required, drives requirements of other configurations. defaults to false.
-   */
-  private boolean hasSubjectLink = false;
-  
-  /**
    * If groups need to be resolved in the target before provisioning
    */
   private boolean hasTargetGroupLink = false;
@@ -2221,11 +2216,6 @@ public abstract class GrouperProvisioningConfiguration {
           throw new RuntimeException("Invalid object type: '" + objectType + "'");
         }
       }
-    }
-    
-    this.hasSubjectLink = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("hasSubjectLink", false), false);
-    if (this.hasSubjectLink) {
-      this.debugMap.put("hasSubjectLink", this.hasSubjectLink);
     }
     
     this.hasTargetGroupLink = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("hasTargetGroupLink", false), false);

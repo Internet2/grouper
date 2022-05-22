@@ -38,14 +38,17 @@ public class SqlProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
     
     if (!StringUtils.isBlank(provisioningTestConfigInput.getEntityDeleteType())) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getEntityDeleteType(), "true");
     }
-    if (!StringUtils.isBlank(provisioningTestConfigInput.getEntityDeleteType())) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getEntityDeleteType(), "true");
+    if (!StringUtils.isBlank(provisioningTestConfigInput.getGroupDeleteType())) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getGroupDeleteType(), "true");
     }
     if (!StringUtils.isBlank(provisioningTestConfigInput.getMembershipDeleteType())) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getMembershipDeleteType(), "true");
     }
@@ -111,15 +114,16 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributesTableName", "testgrouper_pro_dap_entity_attr");
     }
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "showFailsafe", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxOverallPercentGroupsRemove", "-1");
-    configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxOverallPercentMembershipsRemove", "-1");
-    configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxPercentRemove", "-1");
-    configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinGroupSize", "-1");
-    configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinManagedGroups", "-1");
-    configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinOverallNumberOfMembers", "-1");
-    configureProvisionerSuffix(provisioningTestConfigInput, "failsafeSendEmail", "false");
-    configureProvisionerSuffix(provisioningTestConfigInput, "failsafeUse", "true");
+    //  configureProvisionerSuffix(provisioningTestConfigInput, "showFailsafe", "true");
+    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxOverallPercentGroupsRemove", "-1");
+    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxOverallPercentMembershipsRemove", "-1");
+    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxPercentRemove", "-1");
+    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinGroupSize", "-1");
+    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinManagedGroups", "-1");
+    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinOverallNumberOfMembers", "-1");
+    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeSendEmail", "false");
+    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeUse", "true");
+    
     if (provisioningTestConfigInput.isGroupAttributesTable()) {
       
       configureProvisionerSuffix(provisioningTestConfigInput, "useSeparateTableForGroupAttributes", "true");
@@ -145,7 +149,6 @@ public class SqlProvisionerTestUtils {
     }
     
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     if (!StringUtils.isBlank(provisioningTestConfigInput.getMembershipEntityForeignKeyColumn())) {
       configureProvisionerSuffix(provisioningTestConfigInput, "membershipEntityForeignKeyColumn", provisioningTestConfigInput.getMembershipEntityForeignKeyColumn());
@@ -160,19 +163,19 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "membershipTableName", provisioningTestConfigInput.getMembershipTableName());
     }
     
-    
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
 
     if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "" + provisioningTestConfigInput.getEntityAttributeCount());
-      configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
       if (provisioningTestConfigInput.getEntityAttributeCount() != 3) {
-        configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
       }      
+    } else {
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "false");
     }
     
     if (provisioningTestConfigInput.getEntityAttributeCount() == 3) {
@@ -360,7 +363,6 @@ public class SqlProvisionerTestUtils {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".showAttributeCrud", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".select", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".insert", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".update", "true");
         
       }
       
@@ -388,8 +390,6 @@ public class SqlProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", provisioningTestConfigInput.getProvisioningType());
-    configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
 
     
@@ -412,7 +412,7 @@ public class SqlProvisionerTestUtils {
     }
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.class").value("edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.quartzCron").value("0 0 4 * * 2000").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.quartzCron").value("0 0 4 * * 2099").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.provisionerConfigId").value("sqlProvTest").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.class").value("edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer").store();

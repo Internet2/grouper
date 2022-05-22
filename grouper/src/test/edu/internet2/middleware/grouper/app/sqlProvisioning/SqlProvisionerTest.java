@@ -213,8 +213,8 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
         .assignMembershipTableName("testgrouper_prov_mship0")
         .assignMembershipTableIdColumn("group_name, subject_id")
-        .assignMembershipGroupForeignKeyColumn("group_name")
-        .assignMembershipEntityForeignKeyColumn("subject_id")
+//        .assignMembershipGroupForeignKeyColumn("group_name")
+//        .assignMembershipEntityForeignKeyColumn("subject_id")
         .assignMembershipAttributeCount(2)
     );
 
