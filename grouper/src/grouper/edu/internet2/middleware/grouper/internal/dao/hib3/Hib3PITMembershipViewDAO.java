@@ -273,6 +273,64 @@ public class Hib3PITMembershipViewDAO extends Hib3DAO implements PITMembershipVi
       .setString("fieldId", fieldId)
       .listSet(PITMembershipView.class);
   }
+  
+  public Set<PITMembershipView> findAllByPITMemberAndPITFieldAndStartTimeRange(String memberId, String fieldId, 
+      Timestamp startTimeFrom, Timestamp startTimeTo) {
+
+    Long startTimeFromLong = startTimeFrom.getTime() * 1000;
+    Long startTimeToLong = startTimeTo.getTime() * 1000;
+
+    StringBuilder sql = new StringBuilder("select pitms "
+        + "from PITMembershipView pitms where "
+        + "pitms.memberId = :memberId "
+        + "and pitms.fieldId = :fieldId");
+    
+    sql.append(" and ((pitms.membershipStartTimeDb > '" + startTimeFromLong + "' and pitms.membershipStartTimeDb < '" + startTimeToLong +  "' and pitms.groupSetStartTimeDb < '" + startTimeToLong + "')");
+    sql.append("   or (pitms.groupSetStartTimeDb > '" + startTimeFromLong + "' and pitms.groupSetStartTimeDb < '" + startTimeToLong +  "' and pitms.membershipStartTimeDb < '" + startTimeToLong + "'))");
+    
+    // make sure membership object didn't end before group set object started
+    sql.append(" and (pitms.membershipEndTimeDb is null or pitms.membershipEndTimeDb > pitms.groupSetStartTimeDb) ");
+    
+    // make sure group set object didn't end before membership object started
+    sql.append(" and (pitms.groupSetEndTimeDb is null or pitms.groupSetEndTimeDb > pitms.membershipStartTimeDb) ");
+    
+    return HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllByPITMemberAndPITFieldAndStartTimeRange")
+      .setString("memberId", memberId) 
+      .setString("fieldId", fieldId)
+      .listSet(PITMembershipView.class);
+  }
+  
+  public Set<PITMembershipView> findAllByPITMemberAndPITFieldAndEndTimeRange(String memberId, String fieldId, 
+      Timestamp endTimeFrom, Timestamp endTimeTo) {
+
+    Long endTimeFromLong = endTimeFrom.getTime() * 1000;
+    Long endTimeToLong = endTimeTo.getTime() * 1000;
+
+    StringBuilder sql = new StringBuilder("select pitms "
+        + "from PITMembershipView pitms where "
+        + "pitms.memberId = :memberId "
+        + "and pitms.fieldId = :fieldId");
+    
+    sql.append(" and ((pitms.membershipEndTimeDb > '" + endTimeFromLong + "' and pitms.membershipEndTimeDb < '" + endTimeToLong +  "' and (pitms.groupSetEndTimeDb is null or pitms.groupSetEndTimeDb > '" + endTimeFromLong + "'))");
+    sql.append("   or (pitms.groupSetEndTimeDb > '" + endTimeFromLong + "' and pitms.groupSetEndTimeDb < '" + endTimeToLong +  "' and (pitms.membershipEndTimeDb is null or pitms.membershipEndTimeDb > '" + endTimeFromLong + "')))");
+    
+    // make sure membership object didn't end before group set object started
+    sql.append(" and (pitms.membershipEndTimeDb is null or pitms.membershipEndTimeDb > pitms.groupSetStartTimeDb) ");
+    
+    // make sure group set object didn't end before membership object started
+    sql.append(" and (pitms.groupSetEndTimeDb is null or pitms.groupSetEndTimeDb > pitms.membershipStartTimeDb) ");
+    
+    return HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllByPITMemberAndPITFieldAndEndTimeRange")
+      .setString("memberId", memberId) 
+      .setString("fieldId", fieldId)
+      .listSet(PITMembershipView.class);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipViewDAO#findAllByGroupOwnerOptions(java.util.Collection, java.util.Collection, java.util.Collection, java.util.Set, java.lang.Boolean, edu.internet2.middleware.grouper.FieldType, edu.internet2.middleware.grouper.internal.dao.QueryOptions, java.lang.String, boolean, boolean, java.sql.Timestamp, java.sql.Timestamp)

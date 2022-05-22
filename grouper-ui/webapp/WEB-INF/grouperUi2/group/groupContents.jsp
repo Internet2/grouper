@@ -4,7 +4,12 @@
                   <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                     <thead>
                       <tr>
-                        <td colspan="${grouperRequestContainer.groupContainer.showEnabledStatus ? 7 : 4}" class="table-toolbar gradient-background">
+                        <c:choose>
+                          <c:when test="${grouperRequestContainer.groupContainer.showEnabledStatus}"><c:set var="colspan" value="7" /></c:when>
+                          <c:when test="${grouperRequestContainer.groupContainer.showPointInTimeAudit}"><c:set var="colspan" value="5" /></c:when>
+                          <c:otherwise><c:set var="colspan" value="4" /></c:otherwise>
+                        </c:choose>
+                        <td colspan="${colspan}" class="table-toolbar gradient-background">
                           <c:if test="${grouperRequestContainer.groupContainer.canUpdate && !grouperRequestContainer.groupContainer.showPointInTimeAudit}">
                             <a href="#" onclick="ajax('../app/UiV2Group.removeMembers?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn" role="button">${textContainer.text['groupRemoveSelectedMembersButton'] }</a>
                           </c:if>
@@ -30,8 +35,8 @@
                         </c:if>
                         <c:if test="${!grouperRequestContainer.groupContainer.showPointInTimeAudit}">
                           <th data-hide="phone">${textContainer.text['groupViewDetailsHeaderMembership']}</th>
-                          <th style="width:100px;">${textContainer.text['headerChooseAction']}</th>
                         </c:if>
+                        <th style="width:100px;">${textContainer.text['headerChooseAction']}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -46,6 +51,14 @@
                             </td>
                             <td>${guiPITMembershipView.getStartTimeLabel()}</td>
                             <td>${guiPITMembershipView.getEndTimeLabel()}</td>
+                            <td>
+                              <div class="btn-group">
+                                <a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreMembershipActions']}" href="#" class="btn btn-mini dropdown-toggle" aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">${textContainer.text['groupViewActionsButton'] }<span class="caret"></span></a>
+                                <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
+                                   <li><a href="#"  onclick="return guiV2link('operation=UiV2Membership.traceMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&memberId=${guiPITMembershipView.memberId}&field=members');" class="actions-revoke-membership">${textContainer.text['groupViewTraceMembershipButton'] }</a></li>
+                                </ul>
+                              </div>
+                            </td>
                           </tr>
                           <c:set var="i" value="${i+1}" />
                         </c:forEach>

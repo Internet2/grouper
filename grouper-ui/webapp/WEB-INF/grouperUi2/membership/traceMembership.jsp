@@ -23,17 +23,30 @@
             </div>
             <div class="row-fluid">
               <div class="span12">
-                <p class="lead">${textContainer.text['membershipTracePageLead'] }</p>
+                <c:if test="${grouperRequestContainer.membershipGuiContainer.traceMembershipsString != null}">
+                  <p class="lead">${textContainer.text['membershipTracePageLead'] }</p>
                 
-                <%-- 
-                  <p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
-                  <p style="margin-left:20px;"><i class="fa fa-arrow-circle-o-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>
-                  <p style="margin-left:40px;"><i class="fa fa-arrow-circle-o-right"></i> which is a <a href="#"><span class="label label-info">direct member</span></a> of</p>
-                  <p style="margin-left:60px"><i class="fa fa-arrow-circle-o-right"></i> Root : Applications : Wiki : Editors</p><a href="#" class="pull-right btn btn-primary btn-cancel">Back to previous page</a>
-                  <hr />
-                --%>
-                <%-- note, this is generated in Java in UiV2Membership.traceMembership --%>
-                ${grouperRequestContainer.membershipGuiContainer.traceMembershipsString }
+                  <%-- 
+                    <p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
+                    <p style="margin-left:20px;"><i class="fa fa-arrow-circle-o-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>
+                    <p style="margin-left:40px;"><i class="fa fa-arrow-circle-o-right"></i> which is a <a href="#"><span class="label label-info">direct member</span></a> of</p>
+                    <p style="margin-left:60px"><i class="fa fa-arrow-circle-o-right"></i> Root : Applications : Wiki : Editors</p><a href="#" class="pull-right btn btn-primary btn-cancel">Back to previous page</a>
+                    <hr />
+                  --%>
+                  <%-- note, this is generated in Java in UiV2Membership.traceMembership --%>
+                  ${grouperRequestContainer.membershipGuiContainer.traceMembershipsString }
+                </c:if>
+                <c:if test="${grouperRequestContainer.membershipGuiContainer.tracePITMembershipString != null}">
+                  <p class="lead">${textContainer.text['pitMembershipTracePageLead'] }</p>
+
+                  ${grouperRequestContainer.membershipGuiContainer.tracePITMembershipString }
+                </c:if>
+                <c:if test="${grouperRequestContainer.membershipGuiContainer.traceMembershipTimelineString != null}">
+                  <p class="lead">${textContainer.text['membershipTraceTimelinePageLead'] }</p>
+                  <p>${textContainer.text['membershipTraceTimelineDescription'] }</p>
+
+                  ${grouperRequestContainer.membershipGuiContainer.traceMembershipTimelineString}
+                </c:if>
 
                 <c:choose>
                   <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject}">

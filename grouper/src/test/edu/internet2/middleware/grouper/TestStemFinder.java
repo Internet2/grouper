@@ -74,7 +74,7 @@ public class TestStemFinder extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemFinder("testFindByNameSecure"));
+    TestRunner.run(new TestStemFinder("testChainingStemFinderExcludingAlternateNames"));
   }
   
   // Private Class Constants
@@ -843,6 +843,32 @@ public class TestStemFinder extends GrouperTest {
       unexpectedException(e);
     }
   } // public void testFindAllByApproximateName_whenUpperCaseInRegistry
+
+  public void testChainingStemFinderExcludingAlternateNames() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem stem = new StemSave(grouperSession).assignName("stem-name").assignCreateParentStemsIfNotExist(true).save();
+    stem.addAlternateName("stem-alternate");
+    stem.store();
+
+    Set<Stem> foundStems = new StemFinder().assignScope("stem-n%").findStems();
+    assertEquals("find 1 stem by name with scope", foundStems.size(), 1);
+    assertContainsStem(foundStems, stem, "Found correct stem by name with scope");
+
+    foundStems = new StemFinder().assignScope("stem-a%").findStems();
+    assertEquals("find 1 stem by alternate name with scope", foundStems.size(), 1);
+    assertContainsStem(foundStems, stem, "Found correct stem by name with scope");
+
+    foundStems = new StemFinder().assignScope("bogus%").findStems();
+    assertEquals("find 0 stems with non-existent name with scope", foundStems.size(), 0);
+
+    /* When excluding alternate name in finder, should find by name but not alternate name */
+    foundStems = new StemFinder().assignScope("stem-n%").assignExcludeAlternateNames(true).findStems();
+    assertEquals("find 1 stem by name with scope excluding alternate name", foundStems.size(), 1);
+    assertContainsStem(foundStems, stem, "Found correct stem by name with scope excluding alternate name");
+
+    foundStems = new StemFinder().assignScope("stem-a%").assignExcludeAlternateNames(true).findStems();
+    assertEquals("find 0 stems by alternate name with scope excluding alternate name", foundStems.size(), 0);
+  }
 
 }
 

@@ -637,6 +637,7 @@ public class UiV2Group {
         String memberId = pitMembershipView.getPITMember().getSourceId();
         Subject subject = memberIdToSubject.get(memberId);
         guiPITMembershipView.setGuiSubject(new GuiSubject(subject));
+        guiPITMembershipView.setMemberId(memberId);
         guiPITMembershipViews.add(guiPITMembershipView);
       }
 

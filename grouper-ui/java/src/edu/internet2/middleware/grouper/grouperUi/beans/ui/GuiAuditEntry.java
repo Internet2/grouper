@@ -360,6 +360,17 @@ public class GuiAuditEntry {
   }
   
   /**
+   * audit date string, format based on ui property uiV2.audit.dateFormatWithSeconds
+   * @return formatted audit entry date
+   */
+  public String getGuiDateWithSeconds() {
+    String dateFormat = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.audit.dateFormatWithSeconds", "yyyy/MM/dd h:mm:ss aa");
+    SimpleDateFormat guiDateFormat = new SimpleDateFormat(dateFormat);
+
+    return guiDateFormat.format(this.auditEntry.getCreatedOn());
+  }
+  
+  /**
    * underlying audit entry
    */
   private AuditEntry auditEntry;
@@ -1259,6 +1270,20 @@ public class GuiAuditEntry {
     Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, false);
     GuiMember guiMember = new GuiMember(member);
     this.setGuiMember(guiMember);
+  }
+  
+  /**
+   * 
+   */
+  public void internal_setupMember() {
+    setupMember();
+  }
+  
+  /**
+   * 
+   */
+  public void internal_setupGroup() {
+    setupGroup();
   }
   
   /**

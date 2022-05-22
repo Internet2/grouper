@@ -1757,7 +1757,11 @@ public class UiV2GrouperLoader {
 
           grouperLoaderContainer.setEditLoaderRecentGroupUuidFrom(grouperLoaderContainer.getRecentGroupUuidFrom());
           grouperLoaderContainer.setEditLoaderRecentDays(grouperLoaderContainer.getRecentDays());
-          grouperLoaderContainer.setEditLoaderRecentIncludeCurrent(grouperLoaderContainer.getEditLoaderRecentIncludeCurrent());
+          if (GrouperUtil.booleanValue(grouperLoaderContainer.getRecentIncludeCurrent(), true)) {
+            grouperLoaderContainer.setEditLoaderRecentIncludeCurrent("true");
+          } else {
+            grouperLoaderContainer.setEditLoaderRecentIncludeCurrent("false");
+          }
           
         } else if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
 

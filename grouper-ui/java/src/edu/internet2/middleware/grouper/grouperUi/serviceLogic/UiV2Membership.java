@@ -15,19 +15,29 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -36,17 +46,26 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditType;
+import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
+import edu.internet2.middleware.grouper.audit.UserAuditQuery;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembership;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.MembershipGuiContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.membership.MembershipContainer;
 import edu.internet2.middleware.grouper.membership.MembershipPath;
 import edu.internet2.middleware.grouper.membership.MembershipPathGroup;
@@ -54,10 +73,20 @@ import edu.internet2.middleware.grouper.membership.MembershipPathNode;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.pit.PITField;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITGroupSet;
+import edu.internet2.middleware.grouper.pit.PITMember;
+import edu.internet2.middleware.grouper.pit.PITMembership;
+import edu.internet2.middleware.grouper.pit.PITMembershipView;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -147,10 +176,6 @@ public class UiV2Membership {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = null;
-  
-    Group group = null;
-    Subject subject = null;
-    Field field = null;
 
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     
@@ -160,13 +185,13 @@ public class UiV2Membership {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
 
       if (group == null) {
         return;
       }
   
-      subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
 
       if (subject == null) {
         return;
@@ -182,7 +207,7 @@ public class UiV2Membership {
         return;
       }
       
-      field = UiV2Membership.retrieveFieldHelper(request, true);
+      Field field = UiV2Membership.retrieveFieldHelper(request, true);
       
       if (field == null) {
         return;
@@ -202,120 +227,27 @@ public class UiV2Membership {
       grouperRequestContainer.getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
       grouperRequestContainer.getSubjectContainer().getGuiSubject().setShowBreadcrumbLink(true);
 
+      // point in time objects
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group.getId(), false);
+      PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(member.getId(), false);
+      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(field.getId(), true);
+      
+      Set<PITGroup> pitGroupsForTimelineStates = new LinkedHashSet<PITGroup>();
+      Set<String> memberIdsForTimelineAuditQuery = new LinkedHashSet<String>();
+      memberIdsForTimelineAuditQuery.add(pitMember.getSourceId());
+      
       MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyze(group, member, field);
-      
-      StringBuilder result = new StringBuilder();
-      
-      //massage the paths to only consider the ones that are allowed
-      int membershipUnallowedCount = 0;
-      List<MembershipPath> membershipPathsAllowed = new ArrayList<MembershipPath>();
-      for (MembershipPath membershipPath : GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths())) {
-        if (membershipPath.isPathAllowed()) {
-          membershipPathsAllowed.add(membershipPath);
-        } else {
-          membershipUnallowedCount++;
-        }
-      }
+      traceMembershipHelperCurrent(membershipPathGroup, subject, memberIdsForTimelineAuditQuery, pitGroupsForTimelineStates);
 
-      if (membershipUnallowedCount > 0) {
-        membershipGuiContainer.setPathCountNotAllowed(membershipUnallowedCount);
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info,
-            TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupPathsNotAllowed")));
-      }
-
-      if (GrouperUtil.length(membershipPathsAllowed) == 0) {
-
-        if (membershipUnallowedCount > 0) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupNoPathsAllowed")));
-          
-        } else {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
-              TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupNoPaths")));
-          
-        }
-      }
-      
-      //<p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
-      //<p style="margin-left:20px;"><i class="icon-circle-arrow-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>
-      //<p style="margin-left:40px;"><i class="icon-circle-arrow-right"></i> which is a <a href="#"><span class="label label-info">direct member</span></a> of</p>
-      //<p style="margin-left:60px"><i class="icon-circle-arrow-right"></i> Root : Applications : Wiki : Editors</p><a href="#" class="pull-right btn btn-primary btn-cancel">Back to previous page</a>
-      //<hr />
-      boolean firstPath = true;
-      // loop through each membership path
-      for (MembershipPath membershipPath : membershipPathsAllowed) {
+      // this should always be the members field, but check just in case
+      if (field.getId().equals(Group.getDefaultList().getUuid())) {
         
-        if (!firstPath) {
-          result.append("<hr />\n");
+        if (GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths()).size() == 0) {
+          traceMembershipsHelperFormer(pitGroup, pitMember, pitField, memberIdsForTimelineAuditQuery, pitGroupsForTimelineStates);
         }
         
-        int pathLineNumber = 0;
-        membershipGuiContainer.setLineNumber(pathLineNumber);
-        result.append(TextContainer.retrieveFromRequest().getText().get("membershipTracePathFirstLine")).append("\n");
-        pathLineNumber++;
-        membershipGuiContainer.setLineNumber(pathLineNumber);
-        
-        boolean firstNode = true;
-        
-        Subject currentSubject = subject;
-
-        //loop through each node in the path
-        for (MembershipPathNode membershipPathNode : membershipPath.getMembershipPathNodes()) {
-          
-          Group ownerGroup = membershipPathNode.getOwnerGroup();
-
-          if (!firstNode) {
-
-            if (membershipPathNode.isComposite()) {
-              
-              //dont know what branch of the composite we are on... so 
-              Group factor = membershipPathNode.getOtherFactor();
-              membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
-              switch(membershipPathNode.getCompositeType()) {
-                case UNION:
-                  
-                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfUnion")).append("\n");
-                  break;
-                case INTERSECTION:
-
-                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfIntersection")).append("\n");
-                  break;
-                case COMPLEMENT:
-                  
-                  result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfMinus")).append("\n");
-                  break;
-                default:
-                  throw new RuntimeException("Not expecting composite type: " + membershipPathNode.getCompositeType());  
-              }
-              
-            } else {
-              result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupMemberOf")).append("\n");
-              
-            }
-
-            pathLineNumber++;
-            membershipGuiContainer.setLineNumber(pathLineNumber);
-
-          }
-          
-          membershipGuiContainer.setGuiGroupCurrent(new GuiGroup(ownerGroup));
-          
-          Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), ownerGroup, currentSubject, false);
-          membershipGuiContainer.setGuiMembershipCurrent(new GuiMembership(membership));
-          
-          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupLine")).append("\n");
-          
-          firstNode = false;
-          pathLineNumber++;
-          membershipGuiContainer.setLineNumber(pathLineNumber);
-          
-          currentSubject = ownerGroup.toSubject();
-        }
-        
-        firstPath = false;
+        traceMembershipsHelperTimeline(pitMember, pitField, memberIdsForTimelineAuditQuery, pitGroupsForTimelineStates);
       }
-      
-      grouperRequestContainer.getMembershipGuiContainer().setTraceMembershipsString(result.toString());
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/membership/traceMembership.jsp"));
@@ -324,6 +256,592 @@ public class UiV2Membership {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+  }
+  
+  private void traceMembershipsHelperFormer(PITGroup pitGroup, PITMember pitMember, PITField pitField, Set<String> memberIdsForTimelineAuditQuery, Set<PITGroup> pitGroupsForTimelineStates) {
+    
+    if (pitGroup == null || pitMember == null) {
+      // not in pit (yet?)
+      return;
+    }
+    
+    GrouperSession loggedInGrouperSession = GrouperSession.staticGrouperSession();
+
+    List<Timestamp> endTimes = new ArrayList<Timestamp>();
+    List<PITGroup> memberPITGroups = new ArrayList<PITGroup>();
+    
+    boolean proceed = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+
+        Set<PITMembershipView> pitMemberships = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITOwnerAndPITMemberAndPITField(pitGroup.getId(), pitMember.getId(), pitField.getId(), null, null, null);
+        PITMembershipView latestPITMembership = null;
+        
+        for (PITMembershipView pitMembership : pitMemberships) {
+          if (pitMembership.getEndTime() != null) {
+            if (latestPITMembership == null || latestPITMembership.getEndTime().getTime() < pitMembership.getEndTime().getTime()) {
+              latestPITMembership = pitMembership;
+            }
+          }
+        }
+        
+        if (latestPITMembership == null) {
+          // nothing to show
+          return false;
+        }
+        
+        boolean isWheelOrRoot = PrivilegeHelper.isWheelOrRoot(loggedInGrouperSession.getSubject());
+        
+        String pitGroupSetId = latestPITMembership.getGroupSetId();
+        PITGroup previousMemberPITGroup = null;
+        
+        boolean firstNode = true;
+
+        while (true) {
+          PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findById(pitGroupSetId, true);
+          PITGroup memberPITGroup = pitGroupSet.getMemberPITGroup();
+                
+          // check access
+          if (!isWheelOrRoot) {
+            Group memberGroup = GroupFinder.findByUuid(memberPITGroup.getSourceId(), false);
+            if (memberGroup == null || !memberGroup.canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
+              // no access so return
+              return false;
+            }
+          }
+                      
+          if (firstNode) {
+            Set<PITMembership> immediatePITMemberships = GrouperDAOFactory.getFactory().getPITMembership().findAllByPITOwnerAndPITMemberAndPITField(memberPITGroup.getId(), pitMember.getId(), pitField.getId());
+            PITMembership mostRecentImmediatePITMembership = null;
+            for (PITMembership immediatePITMembership : immediatePITMemberships) {
+              if (mostRecentImmediatePITMembership == null || 
+                  immediatePITMembership.getEndTime() == null ||
+                  (mostRecentImmediatePITMembership.getEndTime() != null && immediatePITMembership.getEndTime().getTime() > mostRecentImmediatePITMembership.getEndTime().getTime())) {
+                mostRecentImmediatePITMembership = immediatePITMembership;
+              }
+            }
+            
+            endTimes.add(mostRecentImmediatePITMembership.getEndTime());
+          } else {
+            Set<PITGroupSet> immediatePITGroupSets = GrouperDAOFactory.getFactory().getPITGroupSet().findAllImmediateByPITOwnerAndPITMemberAndPITField(memberPITGroup.getId(), previousMemberPITGroup.getId(), pitField.getId());
+            PITGroupSet mostRecentImmediatePITGroupSet = null;
+            for (PITGroupSet immediatePITGroupSet : immediatePITGroupSets) {
+              if (mostRecentImmediatePITGroupSet == null || 
+                  immediatePITGroupSet.getEndTime() == null ||
+                  (mostRecentImmediatePITGroupSet.getEndTime() != null && immediatePITGroupSet.getEndTime().getTime() > mostRecentImmediatePITGroupSet.getEndTime().getTime())) {
+                mostRecentImmediatePITGroupSet = immediatePITGroupSet;
+              }
+            }
+            
+            endTimes.add(mostRecentImmediatePITGroupSet.getEndTime());
+          }
+
+          memberPITGroups.add(memberPITGroup);
+         
+          firstNode = false;
+         
+          if (pitGroupSet.getDepth() < 1) {
+            break;
+          }
+          
+          pitGroupSetId = pitGroupSet.getParentId();
+          previousMemberPITGroup = memberPITGroup;
+        }
+
+        return true;
+      }
+    });
+    
+    if (!proceed) {
+      return;
+    }
+    
+    // text should be rendered as the logged in user to ensure subject privacy
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+    
+    StringBuilder result = new StringBuilder();
+    
+    int pathLineNumber = 0;
+    membershipGuiContainer.setLineNumber(pathLineNumber);
+    
+    for (int i = 0; i < memberPITGroups.size(); i++) {
+      PITGroup memberPITGroup = memberPITGroups.get(i);
+      Timestamp endTime = endTimes.get(i);
+      
+      pitGroupsForTimelineStates.add(memberPITGroup);
+      
+      for (PITMember currPITMember : GrouperDAOFactory.getFactory().getPITMember().findPITMembersBySubjectIdSourceAndType(memberPITGroup.getSourceId(), "g:gsa", "group")) {
+        memberIdsForTimelineAuditQuery.add(currPITMember.getSourceId());
+      }
+                  
+      if (i == 0) {
+        if (endTime == null) {
+          result.append(TextContainer.retrieveFromRequest().getText().get("pitMembershipTracePathFirstLineCurrentMembership")).append("\n");
+        } else {
+          membershipGuiContainer.setGuiAuditDateCurrent(endTime);
+          result.append(TextContainer.retrieveFromRequest().getText().get("pitMembershipTracePathFirstLinePreviousMembership")).append("\n");
+        }
+      } else {
+        if (endTime == null) {
+          result.append(TextContainer.retrieveFromRequest().getText().get("pitMembershipTraceGroupMemberOfCurrentMembership")).append("\n");
+        } else {
+          membershipGuiContainer.setGuiAuditDateCurrent(endTime);
+          result.append(TextContainer.retrieveFromRequest().getText().get("pitMembershipTraceGroupMemberOfPreviousMembership")).append("\n");
+        }
+      }
+      
+      pathLineNumber++;
+      membershipGuiContainer.setLineNumber(pathLineNumber);
+
+      membershipGuiContainer.setGuiPITGroupCurrent(new GuiPITGroup(memberPITGroup));
+      
+      result.append(TextContainer.retrieveFromRequest().getText().get("pitMembershipTraceGroupLine")).append("\n");
+      
+      pathLineNumber++;
+      membershipGuiContainer.setLineNumber(pathLineNumber);
+    }
+    
+    if (result.length() > 0) {
+      grouperRequestContainer.getMembershipGuiContainer().setTracePITMembershipString(result.toString());
+    }
+  }
+  
+  private void traceMembershipsHelperTimeline(PITMember pitMember, PITField pitField, Set<String> memberIdsForTimelineAuditQuery, Set<PITGroup> pitGroupsForTimelineStates) {
+    
+    GrouperSession loggedInGrouperSession = GrouperSession.staticGrouperSession();
+
+    AuditType addGroupMembershipAuditType = AuditTypeFinder.find("membership", "addGroupMembership", true);
+    AuditType updateGroupMembershipAuditType = AuditTypeFinder.find("membership", "updateGroupMembership", true);
+    AuditType deleteGroupMembershipAuditType = AuditTypeFinder.find("membership", "deleteGroupMembership", true);
+     
+    // refactor these into separate classes
+    List<Timestamp> momentsOfInterest = new ArrayList<Timestamp>();
+    Map<Timestamp, List<GuiAuditEntry>> eventsUserAudits = new LinkedHashMap<Timestamp, List<GuiAuditEntry>>();
+    Map<Timestamp, List<PITGroup>> eventsPITAddMembershipGroup = new LinkedHashMap<Timestamp, List<PITGroup>>();
+    Map<Timestamp, List<PITMembershipView>> eventsPITAddMembership = new LinkedHashMap<Timestamp, List<PITMembershipView>>();
+    Map<Timestamp, List<PITGroup>> eventsPITDeleteMembershipGroup = new LinkedHashMap<Timestamp, List<PITGroup>>();
+    Map<Timestamp, List<PITMembershipView>> eventsPITDeleteMembership = new LinkedHashMap<Timestamp, List<PITMembershipView>>();
+    Map<Timestamp, Map<PITGroup, Boolean>> states = new LinkedHashMap<Timestamp, Map<PITGroup, Boolean>>();
+       
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+
+
+        boolean isWheelOrRoot = PrivilegeHelper.isWheelOrRoot(loggedInGrouperSession.getSubject());
+
+        TreeSet<Long> preliminaryMomentsOfInterest = new TreeSet<Long>();
+        
+        // moments of interest in the timeline are whenever the user was added or removed from any of these groups in the membership path
+        for (PITGroup pitGroup : pitGroupsForTimelineStates) {
+          Set<PITMembershipView> currentPITMemberships = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITOwnerAndPITMemberAndPITField(pitGroup.getId(), pitMember.getId(), pitField.getId(), null, null, null);
+          for (PITMembershipView currentPITMembership : currentPITMemberships) {
+            if (currentPITMembership.getEndTime() != null) {
+              if (currentPITMembership.getStartTime().getTime() > currentPITMembership.getEndTime().getTime()) {
+                // no overlap in membership and group set so ignoring as not useful
+                continue;
+              }
+              
+              long roundedEndTimeToSecond = ((currentPITMembership.getEndTime().getTime() + 500) / 1000) * 1000;
+              preliminaryMomentsOfInterest.add(roundedEndTimeToSecond);
+            }
+            
+            {
+              long roundedStartTimeToSecond = ((currentPITMembership.getStartTime().getTime() + 500) / 1000) * 1000;
+              preliminaryMomentsOfInterest.add(roundedStartTimeToSecond);
+            }
+          }
+        }
+        
+        if (preliminaryMomentsOfInterest.size() == 0) {
+          return null;
+        }
+            
+        int traceEventsTimeRangeInSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.membership.traceEventsTimeRangeInSeconds", 90);
+        List<Long> preliminaryMomentsOfInterestDescList = new ArrayList<Long>(preliminaryMomentsOfInterest.descendingSet());
+
+        int count = 0;
+        for (int i = 0; i < preliminaryMomentsOfInterestDescList.size(); i++) {
+          if (count > 50) {
+            break;
+          }
+          
+          count++;
+          
+          long momentOfInterest = preliminaryMomentsOfInterestDescList.get(i);
+          long fromLong = momentOfInterest - (traceEventsTimeRangeInSeconds * 1000L);
+          long toLong = momentOfInterest + (traceEventsTimeRangeInSeconds * 1000L);
+          
+          while (true) {
+            if ((i+1) >= preliminaryMomentsOfInterestDescList.size()) {
+              break;
+            }
+            
+            long nextMomentOfInterest = preliminaryMomentsOfInterestDescList.get(i + 1);
+            long nextToLong = nextMomentOfInterest + (traceEventsTimeRangeInSeconds * 1000L);
+
+            if (nextToLong >= fromLong) {
+              // if there's overlap, then combine
+              fromLong = nextMomentOfInterest - (traceEventsTimeRangeInSeconds * 1000L);
+              i++;
+            } else {
+              break;
+            }
+          }
+          
+          Timestamp momentOfInterestTimestamp = new Timestamp(momentOfInterest);
+          momentsOfInterest.add(momentOfInterestTimestamp);
+          eventsUserAudits.put(momentOfInterestTimestamp, new ArrayList<GuiAuditEntry>());
+          eventsPITAddMembership.put(momentOfInterestTimestamp, new ArrayList<PITMembershipView>());
+          eventsPITAddMembershipGroup.put(momentOfInterestTimestamp, new ArrayList<PITGroup>());
+          eventsPITDeleteMembership.put(momentOfInterestTimestamp, new ArrayList<PITMembershipView>());
+          eventsPITDeleteMembershipGroup.put(momentOfInterestTimestamp, new ArrayList<PITGroup>());
+          states.put(momentOfInterestTimestamp, new LinkedHashMap<PITGroup, Boolean>());
+                
+          Timestamp fromDate = new Timestamp(fromLong);
+          Timestamp toDate = new Timestamp(toLong);
+                
+          UserAuditQuery userAuditQuery = new UserAuditQuery();
+          userAuditQuery.setQueryOptions(new QueryOptions().sortAsc("lastUpdatedDb"));
+          userAuditQuery.setFromDate(fromDate);
+          userAuditQuery.setToDate(toDate);
+
+          List<Criterion> memberIdCriterions = new ArrayList<Criterion>();
+          
+          for (AuditType auditType : GrouperUtil.toList(addGroupMembershipAuditType, updateGroupMembershipAuditType, deleteGroupMembershipAuditType)) {
+            Criterion auditTypeCriterion = Restrictions.eq(AuditEntry.FIELD_AUDIT_TYPE_ID, auditType.getId());
+            String auditEntryField = auditType.retrieveAuditEntryFieldForLabel("memberId");
+            Criterion auditEntryFieldCriterion = Restrictions.in(auditEntryField, memberIdsForTimelineAuditQuery);
+            Criterion andCriterion = HibUtils.listCrit(auditTypeCriterion, auditEntryFieldCriterion);
+            memberIdCriterions.add(andCriterion);
+          }
+          
+          userAuditQuery.setExtraCriterion(HibUtils.listCritOr(memberIdCriterions));
+                
+          List<AuditEntry> userAuditEntries = userAuditQuery.execute();
+          for (AuditEntry userAudit : userAuditEntries) {
+
+            GuiAuditEntry guiUserAudit = new GuiAuditEntry(userAudit);
+            guiUserAudit.internal_setupMember();
+            guiUserAudit.internal_setupGroup();
+            
+            if (guiUserAudit.getGuiGroup().getGroup() == null) {
+              continue;
+            }
+            
+            if (!isWheelOrRoot && !guiUserAudit.getGuiGroup().getGroup().canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
+              // no access so return
+              continue;
+            }
+      
+            eventsUserAudits.get(momentOfInterestTimestamp).add(guiUserAudit);
+          }
+          
+          Set<PITMembershipView> pitMembershipsStarted = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITMemberAndPITFieldAndStartTimeRange(pitMember.getId(), pitField.getId(), fromDate, toDate);
+          for (PITMembershipView pitMembershipStarted : pitMembershipsStarted) {
+            
+            PITGroup currentPITGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitMembershipStarted.getOwnerGroupId(), true);
+            
+            if (!isWheelOrRoot) {
+              Group currentGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currentPITGroup.getSourceId(), false);
+
+              if (currentGroup == null || !currentGroup.canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
+                // no access so return
+                continue;
+              }
+            }
+            
+            eventsPITAddMembership.get(momentOfInterestTimestamp).add(pitMembershipStarted);
+            eventsPITAddMembershipGroup.get(momentOfInterestTimestamp).add(currentPITGroup);
+          }
+          
+          Set<PITMembershipView> pitMembershipsEnded = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITMemberAndPITFieldAndEndTimeRange(pitMember.getId(), pitField.getId(), fromDate, toDate);
+          for (PITMembershipView pitMembershipEnded : pitMembershipsEnded) {
+            
+            PITGroup currentPITGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitMembershipEnded.getOwnerGroupId(), true);
+            
+            if (!isWheelOrRoot) {
+              Group currentGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currentPITGroup.getSourceId(), false);
+
+              if (currentGroup == null || !currentGroup.canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
+                // no access so return
+                continue;
+              }
+            }
+            
+            eventsPITDeleteMembership.get(momentOfInterestTimestamp).add(pitMembershipEnded);
+            eventsPITDeleteMembershipGroup.get(momentOfInterestTimestamp).add(currentPITGroup);
+          }
+          
+          for (PITGroup pitGroupForState : pitGroupsForTimelineStates) {
+            
+            Set<PITMembershipView> pitMembershipsForState = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITOwnerAndPITMemberAndPITField(pitGroupForState.getId(), pitMember.getId(), pitField.getId(), toDate, toDate, null);
+            if (pitMembershipsForState.size() > 0) {
+              states.get(momentOfInterestTimestamp).put(pitGroupForState, true);
+            } else {
+              states.get(momentOfInterestTimestamp).put(pitGroupForState, false);
+            }
+          }
+        }
+        
+        return null;
+      }
+    });
+    
+    if (momentsOfInterest.size() == 0) {
+      return;
+    }
+    
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+    
+    StringBuilder result = new StringBuilder();
+    result.append("<ul>\n");
+    
+    for (int i = 0; i < momentsOfInterest.size(); i++) {
+      
+      Timestamp momentOfInterestTimestamp = momentsOfInterest.get(i);
+      List<GuiAuditEntry> currEventsUserAudits = eventsUserAudits.get(momentOfInterestTimestamp);
+      List<PITMembershipView> currEventsPITAddMembership = eventsPITAddMembership.get(momentOfInterestTimestamp);
+      List<PITGroup> currEventsPITAddMembershipGroup = eventsPITAddMembershipGroup.get(momentOfInterestTimestamp);
+      List<PITMembershipView> currEventsPITDeleteMembership = eventsPITDeleteMembership.get(momentOfInterestTimestamp);
+      List<PITGroup> currEventsPITDeleteMembershipGroup = eventsPITDeleteMembershipGroup.get(momentOfInterestTimestamp);
+      Map<PITGroup, Boolean> currStates = states.get(momentOfInterestTimestamp);
+      
+      membershipGuiContainer.setGuiAuditDateCurrent(momentOfInterestTimestamp);
+      result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineMomentOfInterest")).append("\n");
+      
+      result.append("<ul><li>" + TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineMomentOfInterestEventsLabel") + "</li>");
+      result.append("<ul>");
+      
+      Map<Long, TreeSet<String>> sortedEvents = new TreeMap<Long, TreeSet<String>>();
+      
+      for (GuiAuditEntry guiUserAudit : currEventsUserAudits) {
+        boolean isAddMembership = false;
+        boolean isUpdateMembership = false;
+        boolean isDeleteMembership = false;
+        if (guiUserAudit.getAuditEntry().getAuditType().equals(addGroupMembershipAuditType)) {
+          isAddMembership = true;
+        } else if (guiUserAudit.getAuditEntry().getAuditType().equals(deleteGroupMembershipAuditType)) {
+          isDeleteMembership = true;
+        } else if (guiUserAudit.getAuditEntry().getAuditType().equals(updateGroupMembershipAuditType)) {
+          isUpdateMembership = true;
+        } else {
+          continue;
+        }
+        
+        membershipGuiContainer.setGuiAuditEntryCurrent(guiUserAudit);
+        long timestamp = guiUserAudit.getAuditEntry().getCreatedOn().getTime();
+        
+        if (sortedEvents.get(timestamp) == null) {
+          sortedEvents.put(timestamp, new TreeSet<String>());
+        }
+        
+        if (isAddMembership) {
+          sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineUserAuditAddMembership"));
+        } else if (isUpdateMembership) {
+          sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineUserAuditUpdateMembership"));
+        } else if (isDeleteMembership) {
+          sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineUserAuditDeleteMembership"));
+        }
+      }
+      
+      for (int j = 0; j < currEventsPITAddMembership.size(); j++) {
+        PITMembershipView pitMembershipStarted = currEventsPITAddMembership.get(j);
+        PITGroup currentPITGroup = currEventsPITAddMembershipGroup.get(j);
+        
+        membershipGuiContainer.setGuiPITGroupCurrent(new GuiPITGroup(currentPITGroup));
+        membershipGuiContainer.setGuiAuditDateCurrent(pitMembershipStarted.getStartTime());
+        
+        long timestamp = pitMembershipStarted.getStartTime().getTime();
+        
+        if (sortedEvents.get(timestamp) == null) {
+          sortedEvents.put(timestamp, new TreeSet<String>());
+        }
+        
+        sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelinePITAuditAddMembership"));
+      }
+      
+      for (int j = 0; j < currEventsPITDeleteMembership.size(); j++) {
+        PITMembershipView pitMembershipEnded = currEventsPITDeleteMembership.get(j);
+        PITGroup currentPITGroup = currEventsPITDeleteMembershipGroup.get(j);
+        
+        membershipGuiContainer.setGuiPITGroupCurrent(new GuiPITGroup(currentPITGroup));
+        membershipGuiContainer.setGuiAuditDateCurrent(pitMembershipEnded.getEndTime());
+        
+        long timestamp = pitMembershipEnded.getEndTime().getTime();
+        
+        if (sortedEvents.get(timestamp) == null) {
+          sortedEvents.put(timestamp, new TreeSet<String>());
+        }
+        
+        sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelinePITAuditDeleteMembership"));
+      }
+      
+      for (long timestamp : sortedEvents.keySet()) {
+        for (String event : sortedEvents.get(timestamp)) {
+          result.append(event + "\n");
+        }
+      }
+      
+      result.append("</ul>");
+      result.append("<li>" + TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineMomentOfInterestStateLabel") + "</li>");
+      result.append("<ul>");
+      
+      for (PITGroup currState : currStates.keySet()) {
+        membershipGuiContainer.setGuiPITGroupCurrent(new GuiPITGroup(currState));
+        
+        if (currStates.get(currState)) {
+          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineStateMembershipYes")).append("\n");
+        } else {
+          result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineStateMembershipNo")).append("\n");
+        }
+      }
+      
+      result.append("</ul>");
+      
+      result.append("</ul>");
+    }
+    
+    result.append("</ul>\n");
+
+    grouperRequestContainer.getMembershipGuiContainer().setTraceMembershipTimelineString(result.toString());
+  }
+  
+  private void traceMembershipHelperCurrent(MembershipPathGroup membershipPathGroup, Subject subject, Set<String> memberIdsForTimelineAuditQuery, Set<PITGroup> pitGroupsForTimelineStates) {
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+
+    Set<MembershipPath> membershipPaths = GrouperUtil.nonNull(membershipPathGroup.getMembershipPaths());
+    
+    StringBuilder result = new StringBuilder();
+    
+    //massage the paths to only consider the ones that are allowed
+    int membershipUnallowedCount = 0;
+    List<MembershipPath> membershipPathsAllowed = new ArrayList<MembershipPath>();
+    
+    for (MembershipPath membershipPath : membershipPaths) {
+      if (membershipPath.isPathAllowed()) {
+        membershipPathsAllowed.add(membershipPath);
+      } else {
+        membershipUnallowedCount++;
+      }
+    }
+
+    if (GrouperUtil.length(membershipPathsAllowed) == 0) {
+
+      if (membershipUnallowedCount > 0) {
+        result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupNoPathsAllowed")).append("<br /><br />\n");
+        
+      } else {
+        result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupNoPaths")).append("<br /><br />\n");
+      }
+    } else if (membershipUnallowedCount > 0) {
+      membershipGuiContainer.setPathCountNotAllowed(membershipUnallowedCount);
+      result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupPathsNotAllowed")).append("<br /><br />\n");
+    }
+    
+    Set<String> groupIdsForTimeline = new LinkedHashSet<String>();
+    
+    //<p>Danielle Knotts is an <a href="#"><span class="label label-inverse">indirect member</span></a> of</p>
+    //<p style="margin-left:20px;"><i class="icon-circle-arrow-right"></i> <a href="#">Root : Departments : Information Technology : Staff</a></p>
+    //<p style="margin-left:40px;"><i class="icon-circle-arrow-right"></i> which is a <a href="#"><span class="label label-info">direct member</span></a> of</p>
+    //<p style="margin-left:60px"><i class="icon-circle-arrow-right"></i> Root : Applications : Wiki : Editors</p><a href="#" class="pull-right btn btn-primary btn-cancel">Back to previous page</a>
+    //<hr />
+    boolean firstPath = true;
+    // loop through each membership path
+    for (MembershipPath membershipPath : membershipPathsAllowed) {
+      
+      if (!firstPath) {
+        result.append("<hr />\n");
+      }
+      
+      int pathLineNumber = 0;
+      membershipGuiContainer.setLineNumber(pathLineNumber);
+      result.append(TextContainer.retrieveFromRequest().getText().get("membershipTracePathFirstLine")).append("\n");
+      pathLineNumber++;
+      membershipGuiContainer.setLineNumber(pathLineNumber);
+      
+      boolean firstNode = true;
+      
+      Subject currentSubject = subject;
+
+      //loop through each node in the path
+      for (MembershipPathNode membershipPathNode : membershipPath.getMembershipPathNodes()) {
+        
+        Group ownerGroup = membershipPathNode.getOwnerGroup();
+        groupIdsForTimeline.add(ownerGroup.getId());
+
+        if (!firstNode) {
+
+          if (membershipPathNode.isComposite()) {
+            
+            //dont know what branch of the composite we are on... so 
+            Group factor = membershipPathNode.getOtherFactor();
+            membershipGuiContainer.setGuiGroupFactor(new GuiGroup(factor));
+            
+            if (factor != null) {
+              if (factor.canHavePrivilege(GrouperSession.staticGrouperSession().getSubject(), "read", false)) {
+                groupIdsForTimeline.add(factor.getId());
+              }
+            }
+            
+            switch(membershipPathNode.getCompositeType()) {
+              case UNION:
+                
+                result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfUnion")).append("\n");
+                break;
+              case INTERSECTION:
+
+                result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfIntersection")).append("\n");
+                break;
+              case COMPLEMENT:
+                
+                result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupCompositeOfMinus")).append("\n");
+                break;
+              default:
+                throw new RuntimeException("Not expecting composite type: " + membershipPathNode.getCompositeType());  
+            }
+            
+          } else {
+            result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupMemberOf")).append("\n");
+            
+          }
+
+          pathLineNumber++;
+          membershipGuiContainer.setLineNumber(pathLineNumber);
+
+        }
+        
+        membershipGuiContainer.setGuiGroupCurrent(new GuiGroup(ownerGroup));
+        
+        Membership membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), ownerGroup, currentSubject, false);
+        membershipGuiContainer.setGuiMembershipCurrent(new GuiMembership(membership));
+        
+        result.append(TextContainer.retrieveFromRequest().getText().get("membershipTraceGroupLine")).append("\n");
+        
+        firstNode = false;
+        pathLineNumber++;
+        membershipGuiContainer.setLineNumber(pathLineNumber);
+        
+        currentSubject = ownerGroup.toSubject();
+      }
+      
+      firstPath = false;
+    }
+    
+    if (result.length() > 0) {
+      grouperRequestContainer.getMembershipGuiContainer().setTraceMembershipsString(result.toString());
+    }
+    
+    pitGroupsForTimelineStates.addAll(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdsActive(groupIdsForTimeline));
+    
+    for (Member member : GrouperDAOFactory.getFactory().getMember().findBySubjectIds(groupIdsForTimeline, "g:gsa")) {
+      memberIdsForTimelineAuditQuery.add(member.getId());
+    }
   }
 
   /**
