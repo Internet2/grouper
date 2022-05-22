@@ -29,6 +29,8 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBas
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
+import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
@@ -1063,7 +1065,6 @@ public class UiV2ProvisionerConfiguration {
             }
           }
           
-          
           provisionerStartWith.populateProvisionerConfigurationValuesFromStartWith(configSuffixToValues, provisionerSuffixToValue);
           
           for (String key: provisionerSuffixToValue.keySet()) {
@@ -1071,6 +1072,21 @@ public class UiV2ProvisionerConfiguration {
             
             if (attributes.containsKey(key)) {
               attributes.get(key).setValue(GrouperUtil.stringValue(valueToSet));
+              
+            }
+          }
+          
+          for (String key: provisionerSuffixToValue.keySet()) {
+            
+            if (attributes.containsKey(key)) {
+              
+              if (attributes.get(key).getFormElement() == ConfigItemFormElement.DROPDOWN) {
+                
+                attributes.get(key).getGrouperConfigModule()
+                  .populateValuesLabelsFromOptionValueClass(attributes, attributes.get(key));
+                
+              }
+              
             }
           }
           

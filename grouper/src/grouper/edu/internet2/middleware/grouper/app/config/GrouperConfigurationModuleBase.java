@@ -1170,7 +1170,7 @@ public abstract class GrouperConfigurationModuleBase {
     return grouperConfigModuleAttribute;
   }
 
-  protected void populateValuesLabelsFromOptionValueClass(
+  public void populateValuesLabelsFromOptionValueClass(
       Map<String, GrouperConfigurationModuleAttribute> attributesSoFar,
       GrouperConfigurationModuleAttribute grouperConfigModuleAttribute) {
     
