@@ -157,6 +157,7 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "membershipGroupForeignKeyColumn", provisioningTestConfigInput.getMembershipGroupForeignKeyColumn());
     }
     if (!StringUtils.isBlank(provisioningTestConfigInput.getMembershipTableIdColumn())) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "membership2AdvancedOptions", provisioningTestConfigInput.getMembershipTableIdColumn());
       configureProvisionerSuffix(provisioningTestConfigInput, "membershipPrimaryKey", provisioningTestConfigInput.getMembershipTableIdColumn());
     }
     if (!StringUtils.isBlank(provisioningTestConfigInput.getMembershipTableName())) {
@@ -358,13 +359,14 @@ public class SqlProvisionerTestUtils {
     if (provisioningTestConfigInput.getMembershipAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfMembershipAttributes", "" + provisioningTestConfigInput.getMembershipAttributeCount());
       
-      for (int i=0;i<provisioningTestConfigInput.getMembershipAttributeCount();i++) {
-        // note, we dont really need these...
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".showAttributeCrud", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".select", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".insert", "true");
-        
-      }
+//      for (int i=0;i<provisioningTestConfigInput.getMembershipAttributeCount();i++) {
+//        // note, we dont really need these...
+//        configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".showAdvancedAttribute", "true");
+//        configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".showAttributeCrud", "true");
+//        configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".select", "true");
+//        configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute." + i + ".insert", "true");
+//        
+//      }
       
     }
     if (provisioningTestConfigInput.getMembershipAttributeCount() == 2) {
