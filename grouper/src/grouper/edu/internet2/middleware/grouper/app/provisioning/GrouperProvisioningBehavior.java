@@ -433,6 +433,10 @@ public class GrouperProvisioningBehavior {
       selectEntities = false;
       return selectEntities;
     }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeEntityCrud()) {
+      selectEntities = true;
+      return selectEntities;
+    }
 
     this.selectEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities();
     return this.selectEntities;
@@ -468,7 +472,10 @@ public class GrouperProvisioningBehavior {
       selectMemberships = false;
       return selectMemberships;
     }
-
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      selectMemberships = true;
+      return selectMemberships;
+    }
     this.selectMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships();
     return this.selectMemberships;
   }
@@ -558,6 +565,10 @@ public class GrouperProvisioningBehavior {
       selectGroups = false;
       return selectGroups;
     }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeGroupCrud()) {
+      selectGroups = true;
+      return selectGroups;
+    }
 
     this.selectGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups();
     return this.selectGroups;
@@ -605,6 +616,16 @@ public class GrouperProvisioningBehavior {
       return deleteEntitiesIfGrouperCreated;
     }
     
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isMakeChangesToEntities()) {
+      deleteEntitiesIfGrouperCreated = false;
+      return deleteEntitiesIfGrouperCreated;
+    }
+
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeEntityCrud()) {
+      deleteEntitiesIfGrouperCreated = true;
+      return deleteEntitiesIfGrouperCreated;
+    }
+
     // is it configured to?
     deleteEntitiesIfGrouperCreated = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntitiesIfGrouperCreated();
     return deleteEntitiesIfGrouperCreated;
@@ -630,6 +651,10 @@ public class GrouperProvisioningBehavior {
       deleteGroupsIfGrouperCreated = false;
       return deleteGroupsIfGrouperCreated;
     }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeGroupCrud()) {
+      deleteGroupsIfGrouperCreated = true;
+      return deleteGroupsIfGrouperCreated;
+    }
 
     // is it configured to?
     deleteGroupsIfGrouperCreated = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteGroupsIfGrouperCreated();
@@ -653,6 +678,10 @@ public class GrouperProvisioningBehavior {
     }
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships()) {
       deleteMembershipsIfGrouperCreated = false;
+      return deleteMembershipsIfGrouperCreated;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      deleteMembershipsIfGrouperCreated = true;
       return deleteMembershipsIfGrouperCreated;
     }
 
@@ -708,7 +737,11 @@ public class GrouperProvisioningBehavior {
       deleteGroups = false;
       return deleteGroups;
     }
-    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeGroupCrud()) {
+      deleteGroups = true;
+      return deleteGroups;
+    }
+
     // is it configured to?
     deleteGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteGroups();
     return deleteGroups;
@@ -747,6 +780,11 @@ public class GrouperProvisioningBehavior {
     
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isMakeChangesToEntities()) {
       deleteEntities = false;
+      return deleteEntities;
+    }
+
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeEntityCrud()) {
+      deleteEntities = true;
       return deleteEntities;
     }
 
@@ -848,6 +886,10 @@ public class GrouperProvisioningBehavior {
       deleteMemberships = false;
       return deleteMemberships;
     }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      deleteMemberships = true;
+      return deleteMemberships;
+    }
 
     // is it configured to?
     this.deleteMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMemberships();
@@ -917,6 +959,10 @@ public class GrouperProvisioningBehavior {
       updateGroups = false;
       return updateGroups;
     }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeGroupCrud()) {
+      updateGroups = true;
+      return updateGroups;
+    }
 
     // is it configured to?
     updateGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateGroups();
@@ -951,6 +997,10 @@ public class GrouperProvisioningBehavior {
     }
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperGroups()) {
       insertGroups = false;
+      return insertGroups;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeGroupCrud()) {
+      insertGroups = true;
       return insertGroups;
     }
 
@@ -1079,6 +1129,11 @@ public class GrouperProvisioningBehavior {
       return updateEntities;
     }
 
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeEntityCrud()) {
+      updateEntities = true;
+      return updateEntities;
+    }
+
     // is it configured to?
     updateEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateEntities();
     return updateEntities;
@@ -1120,6 +1175,11 @@ public class GrouperProvisioningBehavior {
 
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isMakeChangesToEntities()) {
       insertEntities = false;
+      return insertEntities;
+    }
+
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeEntityCrud()) {
+      insertEntities = true;
       return insertEntities;
     }
 
@@ -1257,6 +1317,10 @@ public class GrouperProvisioningBehavior {
       updateMemberships = false;
       return updateMemberships;
     }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      updateMemberships = true;
+      return updateMemberships;
+    }
 
     // is it configured to?  theres not a lot of use cases for updating memberships, so lets sort of ignore this for now
     this.updateMemberships = this.isInsertMemberships();
@@ -1294,6 +1358,10 @@ public class GrouperProvisioningBehavior {
     }
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships()) {
       insertMemberships = false;
+      return insertMemberships;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      insertMemberships = true;
       return insertMemberships;
     }
 

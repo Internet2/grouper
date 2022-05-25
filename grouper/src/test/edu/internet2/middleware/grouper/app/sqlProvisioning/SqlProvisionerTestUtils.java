@@ -418,7 +418,7 @@ public class SqlProvisionerTestUtils {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.provisionerConfigId").value("sqlProvTest").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.class").value("edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.quartzCron").value("0 0 5 * * 2000").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.quartzCron").value("0 0 5 * * 2099").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.provisionerConfigId").value("sqlProvTest").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.publisher.class").value("edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.publisher.debug").value("true").store();

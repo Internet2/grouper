@@ -2219,7 +2219,7 @@ public class GrouperProvisioningLogicIncremental {
   }
 
   
-  public void retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc() {
+  public void retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc() {
     
     if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMemberships()) {
       return;
@@ -2272,7 +2272,9 @@ public class GrouperProvisioningLogicIncremental {
         requestGrouperTargetGroups.add(clonedGrouperTargetGroup);
         
       }
-      
+      if (GrouperUtil.length(requestGrouperTargetGroups) == 0) {
+        return;
+      }
       targetDaoRetrieveMembershipsRequest.setTargetMemberships(requestGrouperTargetGroups);
       
       TargetDaoRetrieveMembershipsResponse membershipsResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(targetDaoRetrieveMembershipsRequest);
@@ -2300,8 +2302,115 @@ public class GrouperProvisioningLogicIncremental {
         
       }
       
+    } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+        
+      Set<ProvisioningEntityWrapper> entityWrappersFromMembershipsWithoutRecalc = new HashSet<ProvisioningEntityWrapper>();
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        
+        ProvisioningEntityWrapper entityWrapper = provisioningMembershipWrapper.getGrouperProvisioningMembership().getProvisioningEntity().getProvisioningEntityWrapper();
+        if (!entityWrapper.isRecalc() && provisioningMembershipWrapper.isRecalc()) {
+          entityWrappersFromMembershipsWithoutRecalc.add(entityWrapper);
+        }
+      }
+      
+      // we need to send this list to the target dao and ask about certain memberships
+      List<Object> requestGrouperTargetEntities = new ArrayList<Object>();
+      
+      String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+      
+      for (ProvisioningEntityWrapper entityWrapperFromMembership: entityWrappersFromMembershipsWithoutRecalc) {
+        
+        ProvisioningEntity clonedGrouperTargetEntity = entityWrapperFromMembership.getGrouperTargetEntity().clone();
+        
+        Object attributeValue = clonedGrouperTargetEntity.retrieveAttributeValue(attributeForMemberships);
+        
+        ProvisioningAttribute grouperAttribute = GrouperUtil.nonNull(clonedGrouperTargetEntity.getAttributes()).get(attributeForMemberships);
+        
+        if (attributeValue instanceof Collection) {
+          
+          Iterator valueIterator = ((Collection) attributeValue).iterator();
+          
+          while (valueIterator.hasNext()) {
+            Object value = valueIterator.next();
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
+            if (!provisioningMembershipWrapper.isRecalc()) {
+              valueIterator.remove();
+            }
+           
+          }
+        }
+        
+        requestGrouperTargetEntities.add(clonedGrouperTargetEntity);
+        
+      }
+      
+      if (GrouperUtil.length(requestGrouperTargetEntities) == 0) {
+        return;
+      }
+
+      targetDaoRetrieveMembershipsRequest.setTargetMemberships(requestGrouperTargetEntities);
+      
+      TargetDaoRetrieveMembershipsResponse membershipsResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(targetDaoRetrieveMembershipsRequest);
+
+      List<Object> targetEntitiesWithMemberships = membershipsResponse.getTargetMemberships();
+      
+      this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities((List<ProvisioningEntity>)(Object)targetEntitiesWithMemberships);
+      
+      for (Object provisioningEntityObject: GrouperUtil.nonNull(targetEntitiesWithMemberships)) { // because memberships are stored in group attributes, so we receive groups for memberships call
+        
+        ProvisioningEntity provisioningEntityFromTarget = (ProvisioningEntity) provisioningEntityObject;
+        
+        Set<Object> attributeValueSet = (Set<Object>)provisioningEntityFromTarget.retrieveAttributeValueSet(attributeForMemberships);
+        
+        ProvisioningEntityWrapper originalTargetEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+            .getEntityMatchingIdToProvisioningEntityWrapper().get(provisioningEntityFromTarget.getMatchingId());
+        
+        ProvisioningEntity originalTargetEntity = originalTargetEntityWrapper.getTargetProvisioningEntity();
+        
+        for (Object value: GrouperUtil.nonNull(attributeValueSet)) {
+          
+          originalTargetEntity.addAttributeValue(attributeForMemberships, value);
+          
+        }
+        
+      }
+      
+    } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      
+      List<ProvisioningMembership> membershipsWithRecalc = new ArrayList<ProvisioningMembership>();
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        
+        if (provisioningMembershipWrapper.isRecalc() && provisioningMembershipWrapper.getGrouperProvisioningMembership() != null) {
+          membershipsWithRecalc.add(provisioningMembershipWrapper.getGrouperTargetMembership());
+        }
+      }
+      
+      if (GrouperUtil.length(membershipsWithRecalc) == 0) {
+        return;
+      }
+
+      targetDaoRetrieveMembershipsRequest.setTargetMemberships((List<Object>)(Object)membershipsWithRecalc);
+      
+      TargetDaoRetrieveMembershipsResponse membershipsResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(targetDaoRetrieveMembershipsRequest);
+
+      List<Object> targetMemberships = membershipsResponse.getTargetMemberships();
+      
+      this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetMemberships((List<ProvisioningMembership>)(Object)targetMemberships);
+      
+      for (Object provisioningMembershipObject: GrouperUtil.nonNull(targetMemberships)) {
+        
+        ProvisioningMembership targetProvisioningMembership = (ProvisioningMembership) provisioningMembershipObject;
+        
+        ProvisioningMembershipWrapper originalTargetMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+            .getMembershipMatchingIdToProvisioningMembershipWrapper().get(targetProvisioningMembership.getMatchingId());
+        
+        originalTargetMembershipWrapper.setTargetProvisioningMembership(targetProvisioningMembership);
+        
+      }
+      
+    } else {
+      throw new RuntimeException("Not expecting membership type: " + this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType());
     }
-    
     
   }
   

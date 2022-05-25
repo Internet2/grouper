@@ -265,7 +265,7 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     
     if (!StringUtils.isBlank(this.membershipTableName) && StringUtils.isBlank(this.getMembershipMatchingIdExpression())) {
       //setMembershipMatchingIdExpression("${new edu.internet2.middleware.grouperClient.collections.MultiKey(targetMembership.getProvisioningGroup().retrieveAttributeValueString('"+groupTableIdColumn+"'), targetMembership.getProvisioningEntity().retrieveAttributeValueString('"+entityTableIdColumn+"'))}");
-      setMembershipMatchingIdExpression("${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('"+findMembershipGroupMatchingIdAttribute()+"'), targetMembership.retrieveAttributeValueString('"+findMembershipEntityMatchingIdAttribute()+"'))}");
+      setMembershipMatchingIdExpression("${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('"+getMembershipGroupMatchingIdAttribute()+"'), targetMembership.retrieveAttributeValueString('"+getMembershipEntityMatchingIdAttribute()+"'))}");
     }
 //    this.groupAttributeTableForeignKeyToGroup = this.retrieveConfigString("groupAttributeTableForeignKeyToGroup", false);
 //    this.groupAttributeTableIdColumn = this.retrieveConfigString("groupAttributeTableIdColumn", false);
@@ -302,9 +302,17 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
    * find the matching ID part for membership table that goes to the group
    * @return the column which is the matching ID in memberships for group
    */
-  public String findMembershipGroupMatchingIdAttribute() {
+  public String getMembershipGroupMatchingIdAttribute() {
+    if (StringUtils.isBlank(this.membershipTableName)) {
+      return null;
+    }
+    if (!StringUtils.isBlank(membershipGroupMatchingIdAttribute)) {
+      return this.membershipGroupMatchingIdAttribute;
+    }
+
     if (!StringUtils.isBlank(this.membershipGroupForeignKeyColumn)) {
-      return this.membershipGroupForeignKeyColumn;
+      membershipGroupMatchingIdAttribute = membershipGroupForeignKeyColumn;
+      return this.membershipGroupMatchingIdAttribute;
     }
 
     // "id", "idIndex", "idIndexString", "displayExtension", "displayName", "extension", "groupAttributeValueCache0", "groupAttributeValueCache1", "groupAttributeValueCache2", "groupAttributeValueCache3", "name", "description"
@@ -318,7 +326,8 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
         SqlGrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) this.getTargetMembershipAttributeNameToConfig().get(name);
         
         if (StringUtils.equals(groupMapping, grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
-          return name;
+          membershipGroupMatchingIdAttribute = name;
+          return this.membershipGroupMatchingIdAttribute;
         }
         
       }
@@ -327,13 +336,25 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     throw new RuntimeException("Cant find membership column to use for matching when it involves groups");
   }
 
+  private String membershipEntityMatchingIdAttribute;
+  
+  private String membershipGroupMatchingIdAttribute;
+  
   /**
    * find the matching ID part for membership table that goes to the entity
    * @return the column which is the matching ID in memberships for entity
    */
-  public String findMembershipEntityMatchingIdAttribute() {
+  public String getMembershipEntityMatchingIdAttribute() {
+    if (StringUtils.isBlank(this.membershipTableName)) {
+      return null;
+    }
+    if (!StringUtils.isBlank(membershipEntityMatchingIdAttribute)) {
+      return this.membershipEntityMatchingIdAttribute;
+    }
+    
     if (!StringUtils.isBlank(this.membershipEntityForeignKeyColumn)) {
-      return this.membershipEntityForeignKeyColumn;
+      membershipEntityMatchingIdAttribute = membershipEntityForeignKeyColumn;
+      return this.membershipEntityMatchingIdAttribute;
     }
 
     // "id", "email", "loginid", "memberId", "entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "name", "subjectId", "subjectSourceId", "description", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2"
@@ -347,7 +368,8 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
         SqlGrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) this.getTargetMembershipAttributeNameToConfig().get(name);
         
         if (StringUtils.equals(entityMapping, grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
-          return name;
+          membershipEntityMatchingIdAttribute = name;
+          return this.membershipEntityMatchingIdAttribute;
         }
         
       }

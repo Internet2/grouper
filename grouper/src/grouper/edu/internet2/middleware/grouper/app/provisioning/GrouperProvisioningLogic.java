@@ -987,13 +987,13 @@ public class GrouperProvisioningLogic {
           
           // ######## Retrieve memberships from target that are recalc where the group is not recalc
           try {
-            debugMap.put("state", "retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc");
+            debugMap.put("state", "retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc");
             long start = System.currentTimeMillis();
-            grouperProvisioningLogicIncremental.retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc();
+            grouperProvisioningLogicIncremental.retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc();
             long retrieveTargetDataMillis = System.currentTimeMillis()-start;
-            debugMap.put("retrieveTargetDataMillis", retrieveTargetDataMillis);
+            debugMap.put("retrieveTargetIncrementalMembershipsMillis", retrieveTargetDataMillis);
           } finally {
-            this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc);
           }
           
           {

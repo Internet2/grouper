@@ -548,6 +548,7 @@ public class GrouperProvisioningOutput {
     hib3GrouperLoaderLog.setInsertCount(this.insert);
     hib3GrouperLoaderLog.setUpdateCount(this.update);
     hib3GrouperLoaderLog.setTotalCount(this.totalCount);
+    hib3GrouperLoaderLog.appendJobMessage(this.message);
   }
 
   public GrouperProvisioner getGrouperProvisioner() {

@@ -55,6 +55,7 @@ public class GrouperProvisioningFullSyncJob extends OtherJobBase {
 
     grouperProvisioner.setJobName(hib3GrouperLoaderLog.getJobName());
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+    grouperProvisioningOutput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
     grouperProvisioningOutput.copyToHib3LoaderLog();
     hib3GrouperLoaderLog.store();
   }

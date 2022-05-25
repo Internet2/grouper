@@ -295,7 +295,7 @@ public enum GrouperProvisioningObjectLogType {
     }
   }, 
   
-  retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc {
+  retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc {
   
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,

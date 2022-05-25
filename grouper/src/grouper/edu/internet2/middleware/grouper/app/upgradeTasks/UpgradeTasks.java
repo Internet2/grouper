@@ -207,35 +207,35 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     @Override
     public void updateVersionFromPrevious() {
         
-      v8_provisioningLdapDnAttributeChange();
-     
-      v8_provisioningFieldNameToAttributeChange();
-      
-      v8_provisioningSelectAllEntitiesDefault();
-      
-      v8_provisioningEntityResolverRefactor();
-      
-      v8_provisioningCustomizeMembershipCrud();
-
-      v8_provisioningCustomizeGroupCrud();
-
-      v8_provisioningCustomizeEntityCrud();
-      
-      v8_provisioningMembershipShowValidation();
-
-      v8_provisioningGroupShowValidation();
-
-      v8_provisioningEntityShowValidation();
-
-      v8_provisioningMembershipShowAttributeCrud();
-
-      v8_provisioningGroupShowAttributeCrud();
-      
-      v8_provisioningEntityShowAttributeCrud();
-      
-      v8_provisioningMembershipShowAttributeValueSettings();
-      
-      v8_provisioningGroupShowAttributeValueSettings();
+      //  v8_provisioningLdapDnAttributeChange();
+      // 
+      //  v8_provisioningFieldNameToAttributeChange();
+      //  
+      //  v8_provisioningSelectAllEntitiesDefault();
+      //  
+      //  v8_provisioningEntityResolverRefactor();
+      //  
+      //  v8_provisioningCustomizeMembershipCrud();
+      //
+      //  v8_provisioningCustomizeGroupCrud();
+      //
+      //  v8_provisioningCustomizeEntityCrud();
+      //  
+      //  v8_provisioningMembershipShowValidation();
+      //
+      //  v8_provisioningGroupShowValidation();
+      //
+      //  v8_provisioningEntityShowValidation();
+      //
+      //  v8_provisioningMembershipShowAttributeCrud();
+      //
+      //  v8_provisioningGroupShowAttributeCrud();
+      //  
+      //  v8_provisioningEntityShowAttributeCrud();
+      //  
+      //  v8_provisioningMembershipShowAttributeValueSettings();
+      //  
+      //  v8_provisioningGroupShowAttributeValueSettings();
     }
   };
   

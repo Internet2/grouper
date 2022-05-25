@@ -61,7 +61,7 @@
             <c:forEach items="${guiProvisionerConfiguration.provisionerConfiguration.startWithConfigClasses}" var="startWithConfigClass">
               <option value="${startWithConfigClass['class'].name}"
                   ${grouperRequestContainer.provisionerConfigurationContainer.provisionerStartWith['class'].name == startWithConfigClass['class'].name ? 'selected="selected"' : '' }
-                  >${startWithConfigClass['class'].name}</option>
+                  >${textContainer.text['provisionerStartWithOption_' += startWithConfigClass['class'].name]}</option>
             </c:forEach>
           </select>
           <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 

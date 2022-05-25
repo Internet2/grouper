@@ -434,10 +434,11 @@ public class GrouperProvisioningConfigurationValidation {
   public void validateOperateOnEntitiesIfSubjectSourcesToProvision() {
     
     boolean operateOnGrouperEntities = GrouperUtil.booleanValue(this.suffixToConfigValue.get("operateOnGrouperEntities"), false);
+    boolean operateOnGrouperMemberships = GrouperUtil.booleanValue(this.suffixToConfigValue.get("operateOnGrouperMemberships"), false);
 
     String subjectSourcesToProvision = this.suffixToConfigValue.get("subjectSourcesToProvision");
     
-    if (!StringUtils.isBlank(subjectSourcesToProvision) && !operateOnGrouperEntities) {
+    if (!StringUtils.isBlank(subjectSourcesToProvision) && !operateOnGrouperEntities && !operateOnGrouperMemberships) {
       this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("grouperProvisioningSubjectSourcesToProvisionRequiresEntitiesInvalid")));
     }
     
