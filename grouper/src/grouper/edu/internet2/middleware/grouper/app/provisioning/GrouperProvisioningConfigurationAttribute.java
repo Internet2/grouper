@@ -166,51 +166,6 @@ public class GrouperProvisioningConfigurationAttribute {
   private String translateFromMemberSyncField;
 
   /**
-   * take this value from target and copy into the sync field
-   */
-  private String translateToGroupSyncField;
-
-  
-  
-  /**
-   * take this value from target and copy into the sync field
-   * @return
-   */
-  public String getTranslateToGroupSyncField() {
-    return translateToGroupSyncField;
-  }
-
-  /**
-   * take this value from target and copy into the sync field
-   * @param translateToGroupSyncField
-   */
-  public void setTranslateToGroupSyncField(String translateToGroupSyncField) {
-    this.translateToGroupSyncField = translateToGroupSyncField;
-  }
-
-  /**
-   * take this value from target and copy into the sync field
-   */
-  private String translateToMemberSyncField;
-
-  
-  /**
-   * take this value from target and copy into the sync field
-   * @return
-   */
-  public String getTranslateToMemberSyncField() {
-    return translateToMemberSyncField;
-  }
-
-  /**
-   * take this value from target and copy into the sync field
-   * @param translateToEntitySyncField
-   */
-  public void setTranslateToMemberSyncField(String translateToEntitySyncField) {
-    this.translateToMemberSyncField = translateToEntitySyncField;
-  }
-
-  /**
    * grouper provisioning entity field
    */
   private String translateFromGrouperProvisioningEntityField;
