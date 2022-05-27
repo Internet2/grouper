@@ -2113,16 +2113,6 @@ public abstract class GrouperProvisioningConfiguration {
         }
         
         {
-          String translateToGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateToGroupSyncField" , false);
-          attributeConfig.setTranslateToGroupSyncField(translateToGroupSyncField);
-        }
-        
-        {
-          String translateToMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateToMemberSyncField" , false);
-          attributeConfig.setTranslateToMemberSyncField(translateToMemberSyncField);
-        }
-        
-        {
           String translateGrouperToGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateGrouperToGroupSyncField" , false);
           attributeConfig.setTranslateGrouperToGroupSyncField(translateGrouperToGroupSyncField);
         }
@@ -2258,58 +2248,58 @@ public abstract class GrouperProvisioningConfiguration {
 
     this.groupAttributeValueCacheHas = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttributeValueCacheHas", false), false);
     if (this.groupAttributeValueCacheHas) {
-      this.grouperProvisioningConfigurationGroupAttributeDbCaches = new GrouperProvisioningConfigurationAttributeDbCache[4];
+      this.groupAttributeDbCaches = new GrouperProvisioningConfigurationAttributeDbCache[4];
 
       for (int i=0;i<4;i++) {
         boolean theGroupAttributeValueCacheHas = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttributeValueCache" + i + "has", false), false);
         if (!theGroupAttributeValueCacheHas) {
           continue;
         }
-        this.grouperProvisioningConfigurationGroupAttributeDbCaches[i] = new GrouperProvisioningConfigurationAttributeDbCache(this.grouperProvisioner, i, "group");
+        this.groupAttributeDbCaches[i] = new GrouperProvisioningConfigurationAttributeDbCache(this.grouperProvisioner, i, "group");
         String theGroupAttributeValueCache0source = this.retrieveConfigString("groupAttributeValueCache" + i + "source", true);
-        this.grouperProvisioningConfigurationGroupAttributeDbCaches[i].setSource(
+        this.groupAttributeDbCaches[i].setSource(
             GrouperProvisioningConfigurationAttributeDbCacheSource.valueOfIgnoreCase(theGroupAttributeValueCache0source, true));
 
         String theGroupAttributeValueCache0type = this.retrieveConfigString("groupAttributeValueCache" + i + "type", true);
-        this.grouperProvisioningConfigurationGroupAttributeDbCaches[i].setType(
+        this.groupAttributeDbCaches[i].setType(
             GrouperProvisioningConfigurationAttributeDbCacheType.valueOfIgnoreCase(theGroupAttributeValueCache0type, true));
 
-        if (this.grouperProvisioningConfigurationGroupAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
-          this.grouperProvisioningConfigurationGroupAttributeDbCaches[i].setAttributeName(this.retrieveConfigString("groupAttributeValueCache" + i + "groupAttribute", true));
-        } else if (this.grouperProvisioningConfigurationGroupAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.translationScript) {
-          this.grouperProvisioningConfigurationGroupAttributeDbCaches[i].setTranslationScript(this.retrieveConfigString("groupAttributeValueCache" + i + "translationScript", true));
+        if (this.groupAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
+          this.groupAttributeDbCaches[i].setAttributeName(this.retrieveConfigString("groupAttributeValueCache" + i + "groupAttribute", true));
+        } else if (this.groupAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.translationScript) {
+          this.groupAttributeDbCaches[i].setTranslationScript(this.retrieveConfigString("groupAttributeValueCache" + i + "translationScript", true));
         } else {
           throw new RuntimeException("Invalid attribute cache type: " + "groupAttributeValueCache" + i + "type" + ", " 
-              + this.grouperProvisioningConfigurationGroupAttributeDbCaches[i].getType());
+              + this.groupAttributeDbCaches[i].getType());
         }
       }
     }
     
     this.entityAttributeValueCacheHas = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityAttributeValueCacheHas", false), false);
     if (this.entityAttributeValueCacheHas) {
-      this.grouperProvisioningConfigurationEntityAttributeDbCaches = new GrouperProvisioningConfigurationAttributeDbCache[4];
+      this.entityAttributeDbCaches = new GrouperProvisioningConfigurationAttributeDbCache[4];
 
       for (int i=0;i<4;i++) {
         boolean theEntityAttributeValueCacheHas = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityAttributeValueCache" + i + "has", false), false);
         if (!theEntityAttributeValueCacheHas) {
           continue;
         }
-        this.grouperProvisioningConfigurationEntityAttributeDbCaches[i] = new GrouperProvisioningConfigurationAttributeDbCache(this.grouperProvisioner, i, "entity");
+        this.entityAttributeDbCaches[i] = new GrouperProvisioningConfigurationAttributeDbCache(this.grouperProvisioner, i, "entity");
         String theEntityAttributeValueCache0source = this.retrieveConfigString("entityAttributeValueCache" + i + "source", true);
-        this.grouperProvisioningConfigurationEntityAttributeDbCaches[i].setSource(
+        this.entityAttributeDbCaches[i].setSource(
             GrouperProvisioningConfigurationAttributeDbCacheSource.valueOfIgnoreCase(theEntityAttributeValueCache0source, true));
 
         String theEntityAttributeValueCache0type = this.retrieveConfigString("entityAttributeValueCache" + i + "type", true);
-        this.grouperProvisioningConfigurationEntityAttributeDbCaches[i].setType(
+        this.entityAttributeDbCaches[i].setType(
             GrouperProvisioningConfigurationAttributeDbCacheType.valueOfIgnoreCase(theEntityAttributeValueCache0type, true));
 
-        if (this.grouperProvisioningConfigurationEntityAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
-          this.grouperProvisioningConfigurationEntityAttributeDbCaches[i].setAttributeName(this.retrieveConfigString("entityAttributeValueCache" + i + "entityAttribute", true));
-        } else if (this.grouperProvisioningConfigurationEntityAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.translationScript) {
-          this.grouperProvisioningConfigurationEntityAttributeDbCaches[i].setTranslationScript(this.retrieveConfigString("entityAttributeValueCache" + i + "translationScript", true));
+        if (this.entityAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
+          this.entityAttributeDbCaches[i].setAttributeName(this.retrieveConfigString("entityAttributeValueCache" + i + "entityAttribute", true));
+        } else if (this.entityAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.translationScript) {
+          this.entityAttributeDbCaches[i].setTranslationScript(this.retrieveConfigString("entityAttributeValueCache" + i + "translationScript", true));
         } else {
           throw new RuntimeException("Invalid attribute cache type: " + "entityAttributeValueCache" + i + "type" + ", " 
-              + this.grouperProvisioningConfigurationEntityAttributeDbCaches[i].getType());
+              + this.entityAttributeDbCaches[i].getType());
         }
       }
     }
@@ -2592,16 +2582,16 @@ public abstract class GrouperProvisioningConfiguration {
     return entityAttributeValueCacheHas;
   }
 
-  private GrouperProvisioningConfigurationAttributeDbCache[] grouperProvisioningConfigurationGroupAttributeDbCaches = new GrouperProvisioningConfigurationAttributeDbCache[4];
+  private GrouperProvisioningConfigurationAttributeDbCache[] groupAttributeDbCaches = new GrouperProvisioningConfigurationAttributeDbCache[4];
   
-  public GrouperProvisioningConfigurationAttributeDbCache[] getGrouperProvisioningConfigurationGroupAttributeDbCaches() {
-    return grouperProvisioningConfigurationGroupAttributeDbCaches;
+  public GrouperProvisioningConfigurationAttributeDbCache[] getGroupAttributeDbCaches() {
+    return groupAttributeDbCaches;
   }
 
-  private GrouperProvisioningConfigurationAttributeDbCache[] grouperProvisioningConfigurationEntityAttributeDbCaches = new GrouperProvisioningConfigurationAttributeDbCache[4];
+  private GrouperProvisioningConfigurationAttributeDbCache[] entityAttributeDbCaches = new GrouperProvisioningConfigurationAttributeDbCache[4];
   
-  public GrouperProvisioningConfigurationAttributeDbCache[] getGrouperProvisioningConfigurationEntityAttributeDbCaches() {
-    return grouperProvisioningConfigurationEntityAttributeDbCaches;
+  public GrouperProvisioningConfigurationAttributeDbCache[] getEntityAttributeDbCaches() {
+    return entityAttributeDbCaches;
   }
 
   

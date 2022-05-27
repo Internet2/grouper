@@ -39,17 +39,14 @@ public class SqlProvisionerTestUtils {
     
     if (!StringUtils.isBlank(provisioningTestConfigInput.getEntityDeleteType())) {
       configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getEntityDeleteType(), "true");
     }
     if (!StringUtils.isBlank(provisioningTestConfigInput.getGroupDeleteType())) {
       configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getGroupDeleteType(), "true");
     }
     if (!StringUtils.isBlank(provisioningTestConfigInput.getMembershipDeleteType())) {
       configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getMembershipDeleteType(), "true");
     }
     if (provisioningTestConfigInput.isEntityResolverGlobal()) {
@@ -109,9 +106,11 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributesAttributeNameColumn", "entity_attribute_name");
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributesAttributeValueColumn", "entity_attribute_value");
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributesEntityForeignKeyColumn", "entity_uuid");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributesTableName", "testgrouper_pro_dap_entity_attr");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entity2advanced", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributesLastModifiedColumn", "last_modified");
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributesLastModifiedColumnType", "timestamp");
-      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributesTableName", "testgrouper_pro_dap_entity_attr");
+      
     }
     
     //  configureProvisionerSuffix(provisioningTestConfigInput, "showFailsafe", "true");
@@ -131,9 +130,10 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributesAttributeNameColumn", "attribute_name");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributesAttributeValueColumn", "attribute_value");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributesGroupForeignKeyColumn", "group_uuid");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributesTableName", "testgrouper_pro_ldap_group_attr");
+      configureProvisionerSuffix(provisioningTestConfigInput, "group2advanced", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributesLastModifiedColumn", "last_modified");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributesLastModifiedColumnType", "timestamp");
-      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributesTableName", "testgrouper_pro_ldap_group_attr");
     }
     if (!StringUtils.isBlank(provisioningTestConfigInput.getGroupTableIdColumn())) {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupTableIdColumn", provisioningTestConfigInput.getGroupTableIdColumn());
@@ -183,18 +183,26 @@ public class SqlProvisionerTestUtils {
       
       
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "dn");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.storageType", "separateAttributesTable");
+      if (provisioningTestConfigInput.isEntityAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.storageType", "separateAttributesTable");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache2");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "employeeID");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.storageType", "separateAttributesTable");
+      if (provisioningTestConfigInput.isEntityAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.storageType", "separateAttributesTable");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.searchAttribute", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.matchingId", "true");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "employeeID");
+      
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "entity_uuid");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "id");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.storageType", "entityTableColumn");
+      if (provisioningTestConfigInput.isEntityAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.storageType", "entityTableColumn");
+      }
 
 
       
@@ -203,32 +211,51 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");
 
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "uuid");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.storageType", "entityTableColumn");
+      if (provisioningTestConfigInput.isEntityAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.storageType", "entityTableColumn");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpression", "${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateGrouperToMemberSyncField", "entityAttributeValueCache0");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.matchingId", "true");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "entityAttribute");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0entityAttribute", "uuid");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "name");
+      
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "name");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.searchAttribute", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.storageType", "entityTableColumn");
+      if (provisioningTestConfigInput.isEntityAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.storageType", "entityTableColumn");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "name");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "subject_id_or_identifier");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.storageType", "entityTableColumn");
+      if (provisioningTestConfigInput.isEntityAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.storageType", "entityTableColumn");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "subjectId");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.name", "email");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.storageType", "entityTableColumn");
+      if (provisioningTestConfigInput.isEntityAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.storageType", "entityTableColumn");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "email");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "description");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.storageType", "separateAttributesTable");
+      if (provisioningTestConfigInput.isEntityAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.storageType", "separateAttributesTable");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "grouperProvisioningEntityField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateFromGrouperProvisioningEntityField", "description");
 
       if (provisioningTestConfigInput.getEntityAttributeCount() == 6) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.name", "school");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.storageType", "separateAttributesTable");
+        if (provisioningTestConfigInput.isEntityAttributesTable()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.storageType", "separateAttributesTable");
+        }
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.translateExpressionType", "translationScript");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.translateExpression", "${grouperProvisioningEntity.retrieveAttributeValueString('entityAttributeResolverLdap__givenname')}");
         
@@ -246,30 +273,41 @@ public class SqlProvisionerTestUtils {
     }
     if (provisioningTestConfigInput.getGroupAttributeCount() == 1) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "uuid");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.storageType", "groupTableColumn");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.matchingId", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.searchAttribute", "true");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.storageType", "groupTableColumn");
+      }
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "uuid");
+      
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
     }
 
     
     if (provisioningTestConfigInput.getGroupAttributeCount() == 3) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.matchingId", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "uuid");
+
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "uuid");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.searchAttribute", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.storageType", "groupTableColumn");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.storageType", "groupTableColumn");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "false");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.membershipAttribute", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.showAttributeValueSettings", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.multiValued", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "subjectId");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.storageType", "separateAttributesTable");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateFromMemberSyncField", "subjectId");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.storageType", "separateAttributesTable");
+      }
+
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeName", "subjectId");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", "subjectId");
+
+      
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "groupName");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.storageType", "separateAttributesTable");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.storageType", "separateAttributesTable");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "name");
 
@@ -278,25 +316,47 @@ public class SqlProvisionerTestUtils {
     
     if (provisioningTestConfigInput.getGroupAttributeCount() == 4) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "uuid");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.storageType", "groupTableColumn");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.storageType", "groupTableColumn");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpression", "${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateGrouperToGroupSyncField", "groupAttributeValueCache0");
+
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "grouper");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupAttribute");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0groupAttribute", "uuid");
+
 
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "description");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.storageType", "separateAttributesTable");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.storageType", "separateAttributesTable");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", "description");
 
       if (provisioningTestConfigInput.isPosixId()) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "name");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.searchAttribute", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.storageType", "groupTableColumn");
+        
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeSameAsSearchAttribute", "false");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchAttributeCount", "1");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchAttribute0name", "name");
+
+        
+        if (provisioningTestConfigInput.isGroupAttributesTable()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.storageType", "groupTableColumn");
+        }
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "name");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.matchingId", "true");
+
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "posix_id");
+        
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "posix_id");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.storageType", "groupTableColumn");
+        if (provisioningTestConfigInput.isGroupAttributesTable()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.storageType", "groupTableColumn");
+        }
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "grouperProvisioningGroupField");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateFromGrouperProvisioningGroupField", "idIndex");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeValueSettings", "true");
@@ -304,51 +364,77 @@ public class SqlProvisionerTestUtils {
         
       } else {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "name");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.matchingId", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.searchAttribute", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.storageType", "separateAttributesTable");
+        
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "name");
+
+        if (provisioningTestConfigInput.isGroupAttributesTable()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.storageType", "separateAttributesTable");
+        }
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "name");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.membershipAttribute", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeValueSettings", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.multiValued", "true");
+        
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeName", "subjectId");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", "subjectId");
+
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "subjectId");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.storageType", "separateAttributesTable");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateFromMemberSyncField", "subjectId");
+        if (provisioningTestConfigInput.isGroupAttributesTable()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.storageType", "separateAttributesTable");
+        }
 
       }
     }
     
     if (provisioningTestConfigInput.getGroupAttributeCount() == 6) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "cn");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.storageType", "separateAttributesTable");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.storageType", "separateAttributesTable");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "dn");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.storageType", "separateAttributesTable");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.storageType", "separateAttributesTable");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpression", "${'cn=' + grouperProvisioningGroup.getName() + ',OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu'}");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateGrouperToGroupSyncField", "groupAttributeValueCache2");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.matchingId", "true");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2source", "grouper");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2type", "groupAttribute");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2entityAttribute", "dn");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "gidNumber");
+
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "gidNumber");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.searchAttribute", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.storageType", "separateAttributesTable");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.storageType", "separateAttributesTable");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "idIndex");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeValueSettings", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.multiValued", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "objectClass");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.storageType", "separateAttributesTable");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.storageType", "separateAttributesTable");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpression", "${grouperUtil.toSet('group')}");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.membershipAttribute", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAttributeValueSettings", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.multiValued", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "member");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.storageType", "separateAttributesTable");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateFromMemberSyncField", "entityAttributeValueCache2");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.storageType", "separateAttributesTable");
+      }
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeName", "member");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", "entityAttributeValueCache2");
+      
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.name", "uuid");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.storageType", "groupTableColumn");
+      if (provisioningTestConfigInput.isGroupAttributesTable()) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.storageType", "groupTableColumn");
+      }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateExpressionType", "grouperProvisioningGroupField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateFromGrouperProvisioningGroupField", "name");
 
@@ -383,10 +469,10 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.translateExpressionType", "translationScript");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.name", "group_uuid");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateExpressionType", "groupSyncField");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateFromGroupSyncField", "groupAttributeValueCache0");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateFromGrouperProvisioningGroupField", "groupAttributeValueCache0");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.2.name", "entity_uuid");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.2.translateExpressionType", "memberSyncField");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.2.translateFromMemberSyncField", "entityAttributeValueCache0");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.2.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache0");
     }
     
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
@@ -414,11 +500,11 @@ public class SqlProvisionerTestUtils {
     }
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.class").value("edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.quartzCron").value("0 0 4 * * 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.quartzCron").value("9 59 23 31 12 ? 2099").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.sqlProvisionerFull.provisionerConfigId").value("sqlProvTest").store();
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.class").value("edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.quartzCron").value("0 0 5 * * 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.quartzCron").value("9 59 23 31 12 ? 2099").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.provisionerConfigId").value("sqlProvTest").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.publisher.class").value("edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.sqlProvisionerIncremental.publisher.debug").value("true").store();

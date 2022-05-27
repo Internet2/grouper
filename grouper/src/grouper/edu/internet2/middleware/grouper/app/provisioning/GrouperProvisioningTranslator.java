@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -361,7 +361,7 @@ public class GrouperProvisioningTranslator {
             String grouperProvisioningEntityField = getTranslateFromGrouperProvisioningEntityField(forCreate, grouperProvisioningConfigurationAttribute);
 
             if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningEntityField)
-                || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
+                || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isEntityAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())) {
 
               Object result = attributeTranslation( 
                   grouperTargetEntity.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
@@ -461,7 +461,7 @@ public class GrouperProvisioningTranslator {
             String grouperProvisioningGroupField = getTranslateFromGrouperProvisioningGroupField(forCreate, grouperProvisioningConfigurationAttribute);
 
             if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningGroupField)
-                || !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
+                || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isGroupAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())) { 
               Object result = attributeTranslation( 
                   grouperTargetGroup.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
                   grouperProvisioningConfigurationAttribute, grouperProvisioningGroup.getProvisioningGroupWrapper(), null);
@@ -546,42 +546,90 @@ public class GrouperProvisioningTranslator {
   
   /**
    * translate from gc grouper sync entity and field name to the value
-   * @param gcGrouperSyncEntity
+   * @param provisioningEntityWrapper
    * @param field
    * @return the value
    */
-  public Object translateFromGrouperProvisioningEntityField(ProvisioningEntity provisioningEntity, String field) {
+  public Object translateFromGrouperProvisioningEntityField(ProvisioningEntityWrapper provisioningEntityWrapper, String field) {
     
-    if (StringUtils.equals("id", field)) {
-      return provisioningEntity.getId();
+    // "id", "email", "loginid", "memberId", "entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "name", "subjectId", "subjectSourceId", "description", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2"
+    if (provisioningEntityWrapper == null) { 
+      return null;
     }
-    if (StringUtils.equals("email", field)) {
-      return provisioningEntity.getEmail();
+    
+    ProvisioningEntity provisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
+    
+    if (provisioningEntity != null) {
+
+      if (StringUtils.equals("id", field) && !StringUtils.isBlank(provisioningEntity.getId())) {
+        return provisioningEntity.getId();
+      }
+      if (StringUtils.equals("email", field)) {
+        return provisioningEntity.getEmail();
+      }
+      if (StringUtils.equals("loginid", field)) {
+        return provisioningEntity.getLoginId();
+      }
+      if (StringUtils.equals("name", field)) {
+        return provisioningEntity.getName();
+      }
+      if (StringUtils.equals("subjectId", field) && !StringUtils.isBlank(provisioningEntity.getSubjectId())) {
+        return provisioningEntity.getSubjectId();
+      }
+      if (StringUtils.equals("subjectSourceId", field) && !StringUtils.isBlank(provisioningEntity.getSubjectSourceId())) {
+        return provisioningEntity.getSubjectSourceId();
+      }
+      if (StringUtils.equals("description", field)) {
+        return provisioningEntity.getDescription();
+      }
+      if (StringUtils.equals("subjectIdentifier0", field) && !StringUtils.isBlank(provisioningEntity.getSubjectIdentifier0())) {
+        return provisioningEntity.getSubjectIdentifier0();
+      }
+      if (StringUtils.equals("subjectIdentifier1", field)) {
+        return provisioningEntity.getSubjectIdentifier1();
+      }
+      if (StringUtils.equals("subjectIdentifier2", field)) {
+        return provisioningEntity.getSubjectIdentifier2();
+      }
     }
-    if (StringUtils.equals("loginid", field)) {
-      return GrouperUtil.stringValue(provisioningEntity.getLoginId());
+    
+    GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+    
+    if (gcGrouperSyncMember != null) {
+      if (StringUtils.equals("id", field)) {
+        return gcGrouperSyncMember.getId();
+      }
+      if (StringUtils.equals("subjectId", field)) {
+        return gcGrouperSyncMember.getSubjectId();
+      }
+      if (StringUtils.equals("subjectSourceId", field)) {
+        return gcGrouperSyncMember.getSourceId();
+      }
+      // TODO which identifier is it?
+//      if (StringUtils.equals("subjectIdentifier0", field)) {
+//        return gcGrouperSyncMember.getSubjectIdentifier();
+//      }
+      if (StringUtils.equals("entityAttributeValueCache0", field)) {
+        return gcGrouperSyncMember.getEntityAttributeValueCache0();
+      }
+      if (StringUtils.equals("entityAttributeValueCache1", field)) {
+        return gcGrouperSyncMember.getEntityAttributeValueCache1();
+      }
+      if (StringUtils.equals("entityAttributeValueCache2", field)) {
+        return gcGrouperSyncMember.getEntityAttributeValueCache2();
+      }
+      if (StringUtils.equals("entityAttributeValueCache3", field)) {
+        return gcGrouperSyncMember.getEntityAttributeValueCache3();
+      }
     }
-    if (StringUtils.equals("name", field)) {
-      return GrouperUtil.stringValue(provisioningEntity.getName());
+
+    //if we couldnt find the data but the field was ok, its just null
+    if (StringUtils.equalsAny(field, "id", "email", "loginid", "memberId", "entityAttributeValueCache0", 
+        "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "name", 
+        "subjectId", "subjectSourceId", "description", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2")) {
+      return null;
     }
-    if (StringUtils.equals("subjectId", field)) {
-      return GrouperUtil.stringValue(provisioningEntity.getSubjectId());
-    }
-    if (StringUtils.equals("subjectSourceId", field)) {
-      return GrouperUtil.stringValue(provisioningEntity.retrieveAttributeValueString("subjectSourceId"));
-    }
-    if (StringUtils.equals("description", field)) {
-      return GrouperUtil.stringValue(provisioningEntity.retrieveAttributeValueString("description"));
-    }
-    if (StringUtils.equals("subjectIdentifier0", field)) {
-      return GrouperUtil.stringValue(provisioningEntity.retrieveAttributeValueString("subjectIdentifier0"));
-    }
-    if (StringUtils.equals("subjectIdentifier1", field)) {
-      return GrouperUtil.stringValue(provisioningEntity.retrieveAttributeValueString("subjectIdentifier1"));
-    }
-    if (StringUtils.equals("subjectIdentifier2", field)) {
-      return GrouperUtil.stringValue(provisioningEntity.retrieveAttributeValueString("subjectIdentifier2"));
-    }
+    
     throw new RuntimeException("Not expecting grouperProvisioningEntityField: '" + field + "'");
   }
   
@@ -645,11 +693,11 @@ public class GrouperProvisioningTranslator {
       
       translate = true;
     } else if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGrouperProvisioningGroup() != null && !StringUtils.isBlank(grouperProvisioningGroupField)) {
-      result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper.getGrouperProvisioningGroup(), 
+      result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, 
           grouperProvisioningGroupField);
       translate = true;
     } else if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGrouperProvisioningEntity() != null && !StringUtils.isBlank(grouperProvisioningEntityField)) {
-      result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper.getGrouperProvisioningEntity(), 
+      result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper, 
           grouperProvisioningEntityField);
       translate = true;
     } else if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())) {
@@ -660,43 +708,57 @@ public class GrouperProvisioningTranslator {
       result = translateFromMemberSyncField(provisioningEntityWrapper.getGcGrouperSyncMember(), 
           grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField());
       translate = true;
-    } else if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField())) {
-      result = translateFromGroupSyncField(provisioningGroupWrapper.getGcGrouperSyncGroup(), 
-          grouperProvisioningConfigurationAttribute.getTranslateToGroupSyncField());
-      translate = true;
-    } else if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGcGrouperSyncMember() != null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-      result = translateFromMemberSyncField(provisioningEntityWrapper.getGcGrouperSyncMember(), 
-          grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField());
-      translate = true;
+    } else {
+      if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGcGrouperSyncGroup() != null) {
+        // look for grouper source first, then target
+        for (GrouperProvisioningConfigurationAttributeDbCache groupCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
+          if (groupCache != null && StringUtils.equals(groupCache.getAttributeName(), grouperProvisioningConfigurationAttribute.getName()) 
+              && groupCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
+            result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, 
+                "groupAttributeValueCache" + groupCache.getIndex());
+            translate = true;
+            break;
+          }
+        }
+      }
+      if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGcGrouperSyncMember() != null) {
+        // look for grouper source first, then target
+        for (GrouperProvisioningConfigurationAttributeDbCache entityCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
+          if (entityCache != null && StringUtils.equals(entityCache.getAttributeName(), grouperProvisioningConfigurationAttribute.getName()) 
+              && entityCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
+            result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper, 
+                "entityAttributeValueCache" + entityCache.getIndex());
+            translate = true;
+            break;
+          }
+        }
+      }
     }
     
+    // TODO still translate if in cache, maybe have both values?
     if (translate) {
       if (GrouperUtil.isBlank(result) && provisioningEntityWrapper != null && provisioningEntityWrapper.isDelete() && provisioningEntityWrapper.getGcGrouperSyncMember() != null) {
-        if (StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField())) {
-          result = provisioningEntityWrapper.getGcGrouperSyncMember().retrieveField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField());
-        }
-        
-        if (StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-          result = provisioningEntityWrapper.getGcGrouperSyncMember().retrieveField(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField());
+
+        for (GrouperProvisioningConfigurationAttributeDbCache entityCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
+          if (entityCache != null && StringUtils.equals(entityCache.getAttributeName(), grouperProvisioningConfigurationAttribute.getName()) 
+              && entityCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
+            result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper, 
+                "entityAttributeValueCache" + entityCache.getIndex());
+            break;
+          }
         }
         
       }
       
       if (GrouperUtil.isBlank(result) && provisioningGroupWrapper != null && provisioningGroupWrapper.isDelete() && provisioningGroupWrapper.getGcGrouperSyncGroup() != null) {
-        if (StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField())) {
-          result = provisioningGroupWrapper.getGcGrouperSyncGroup().retrieveField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField());
+        for (GrouperProvisioningConfigurationAttributeDbCache groupCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
+          if (groupCache != null && StringUtils.equals(groupCache.getAttributeName(), grouperProvisioningConfigurationAttribute.getName()) 
+              && groupCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
+            result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, 
+                "groupAttributeValueCache" + groupCache.getIndex());
+            break;
+          }
         }
-        
-        if (StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField())) {
-          result = provisioningGroupWrapper.getGcGrouperSyncGroup().retrieveField(grouperProvisioningConfigurationAttribute.getTranslateToMemberSyncField());
-        }
-      }
-      
-      if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField())) {
-        provisioningGroupWrapper.getGcGrouperSyncGroup().assignField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToGroupSyncField(), result);
-      }
-      if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField())) {
-        provisioningEntityWrapper.getGcGrouperSyncMember().assignField(grouperProvisioningConfigurationAttribute.getTranslateGrouperToMemberSyncField(), result);
       }
       
       return result;
@@ -958,37 +1020,89 @@ public class GrouperProvisioningTranslator {
   
   /**
    * translate from gc grouper sync group and field name to the value
-   * @param gcGrouperSyncGroup
+   * @param provisioningGroupWrapper
    * @param field
    * @return the value
    */
-  public Object translateFromGrouperProvisioningGroupField(ProvisioningGroup provisioningGroup, String field) {
+  public Object translateFromGrouperProvisioningGroupField(ProvisioningGroupWrapper provisioningGroupWrapper, String field) {
     
-    if (StringUtils.equals("id", field)) {
-      return provisioningGroup.getId();
+    // "id", "idIndex", "idIndexString", "displayExtension", "displayName", "extension", "groupAttributeValueCache0", "groupAttributeValueCache1", "groupAttributeValueCache2", "groupAttributeValueCache3", "name", "description"
+    if (provisioningGroupWrapper == null) { 
+      return null;
     }
-    if (StringUtils.equals("idIndex", field)) {
-      return provisioningGroup.getIdIndex();
+    
+    ProvisioningGroup provisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
+    
+    if (provisioningGroup != null) {
+      if (StringUtils.equals("id", field) && !StringUtils.isBlank(provisioningGroup.getId())) {
+        return provisioningGroup.getId();
+      }
+      if (StringUtils.equals("idIndex", field) && provisioningGroup.getIdIndex() != null) {
+        return provisioningGroup.getIdIndex();
+      }
+      if (StringUtils.equals("idIndexString", field) && provisioningGroup.getIdIndex() != null) {
+        return GrouperUtil.stringValue(provisioningGroup.getIdIndex());
+      }
+      if (StringUtils.equals("displayExtension", field)) {
+        return GrouperUtil.stringValue(provisioningGroup.getDisplayExtension());
+      }
+      if (StringUtils.equals("displayName", field)) {
+        return GrouperUtil.stringValue(provisioningGroup.getDisplayName());
+      }
+      if (StringUtils.equals("extension", field) && !StringUtils.isBlank(provisioningGroup.getExtension())) {
+        return GrouperUtil.stringValue(provisioningGroup.getExtension());
+      }
+      if (StringUtils.equals("name", field) && !StringUtils.isBlank(provisioningGroup.getName())) {
+        return GrouperUtil.stringValue(provisioningGroup.getName());
+      }
+      if (StringUtils.equals("description", field)) {
+        return GrouperUtil.stringValue(provisioningGroup.retrieveAttributeValueString("description"));
+      }
+      
     }
-    if (StringUtils.equals("idIndexString", field)) {
-      return GrouperUtil.stringValue(provisioningGroup.getIdIndex());
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+    
+    if (gcGrouperSyncGroup != null) {
+      if (StringUtils.equals("id", field)) {
+        return gcGrouperSyncGroup.getGroupId();
+      }
+      if (StringUtils.equals("idIndex", field)) {
+        return gcGrouperSyncGroup.getGroupIdIndex();
+      }
+      if (StringUtils.equals("idIndexString", field)) {
+        return GrouperUtil.stringValue(gcGrouperSyncGroup.getGroupIdIndex());
+      }
+      if (StringUtils.equals("extension", field)) {
+        return GrouperUtil.extensionFromName(gcGrouperSyncGroup.getGroupName());
+      }
+      if (StringUtils.equals("name", field)) {
+        return gcGrouperSyncGroup.getGroupName();
+      }
+      if (StringUtils.equals("groupAttributeValueCache0", field)) {
+        return gcGrouperSyncGroup.getGroupAttributeValueCache0();
+      }
+      if (StringUtils.equals("groupAttributeValueCache1", field)) {
+        return gcGrouperSyncGroup.getGroupAttributeValueCache1();
+      }
+      if (StringUtils.equals("groupAttributeValueCache2", field)) {
+        return gcGrouperSyncGroup.getGroupAttributeValueCache2();
+      }
+      if (StringUtils.equals("groupAttributeValueCache3", field)) {
+        return gcGrouperSyncGroup.getGroupAttributeValueCache3();
+      }
+      
     }
-    if (StringUtils.equals("displayExtension", field)) {
-      return GrouperUtil.stringValue(provisioningGroup.getDisplayExtension());
+    
+    //if we couldnt find the data but the field was ok, its just null
+    if (StringUtils.equalsAny(field, "id", "idIndex", "idIndexString", "displayExtension", "displayName", "extension", 
+        "groupAttributeValueCache0", "groupAttributeValueCache1", "groupAttributeValueCache2", "groupAttributeValueCache3", 
+        "name", "description")) {
+      return null;
     }
-    if (StringUtils.equals("displayName", field)) {
-      return GrouperUtil.stringValue(provisioningGroup.getDisplayName());
-    }
-    if (StringUtils.equals("extension", field)) {
-      return GrouperUtil.stringValue(provisioningGroup.getExtension());
-    }
-    if (StringUtils.equals("name", field)) {
-      return GrouperUtil.stringValue(provisioningGroup.getName());
-    }
-    if (StringUtils.equals("description", field)) {
-      return GrouperUtil.stringValue(provisioningGroup.retrieveAttributeValueString("description"));
-    }
+    
     throw new RuntimeException("Not expecting grouperProvisioningGroupField: '" + field + "'");
+
   }
 
   private boolean translateGrouperToTargetAutomatically;

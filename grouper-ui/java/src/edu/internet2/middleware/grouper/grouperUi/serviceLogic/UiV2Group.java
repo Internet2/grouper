@@ -442,7 +442,11 @@ public class UiV2Group {
       Subject groupSubject = group.toSubject();
       for (String membershipId : membershipsIds) {
         try {
-          Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(true);
+          Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(false);
+          
+          if (membership == null) {
+            continue;
+          }
           Group ownerGroup = membership.getOwnerGroup();
           //dont worry about if no change, thats a success
           ownerGroup.deleteMember(groupSubject, false);
@@ -3026,8 +3030,11 @@ public class UiV2Group {
         public Object callback(GrouperSession grouperSession2) throws GrouperSessionException {
           for (String membershipId : membershipsIds) {
             try {
-              Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(true);
-
+              Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(false);
+              
+              if (membership == null) {
+                continue;
+              }
               Member member = membership.getMember();
               group.deleteMember(member, false);
               
