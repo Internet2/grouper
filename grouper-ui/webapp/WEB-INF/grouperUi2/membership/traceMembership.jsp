@@ -3,6 +3,15 @@
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
 
+            <script language="javascript">
+              $('#membershipTimelineForm input[type="checkbox"]').on('change', function(e) {
+                if($(this).prop('checked')) {
+                  $(this).val("true");
+                 } else {
+                  $(this).val("false");
+                 }
+              });
+            </script>
 
             <div class="bread-header-container">
               <ul class="breadcrumb">
@@ -41,11 +50,43 @@
 
                   ${grouperRequestContainer.membershipGuiContainer.tracePITMembershipString }
                 </c:if>
-                <c:if test="${grouperRequestContainer.membershipGuiContainer.traceMembershipTimelineString != null}">
+                <c:if test="${grouperRequestContainer.membershipGuiContainer.traceMembershipsString != null || grouperRequestContainer.membershipGuiContainer.tracePITMembershipString != null}">
                   <p class="lead">${textContainer.text['membershipTraceTimelinePageLead'] }</p>
-                  <p>${textContainer.text['membershipTraceTimelineDescription'] }</p>
 
-                  ${grouperRequestContainer.membershipGuiContainer.traceMembershipTimelineString}
+                  <form class="form-inline form-small form-filter" action="#" id="membershipTimelineForm" onsubmit="return guiV2link('operation=UiV2Membership.traceMembership', {optionalFormElementNamesToSend: 'groupId,memberId,field,showTimeline,showUserAudit,showPITAudit,backTo', dontScrollTop: true});">
+                    <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
+                    <input type="hidden" name="memberId" value="${grouperRequestContainer.subjectContainer.guiSubject.memberId}" />
+                    <input type="hidden" name="field" value="members" />
+                    <input type="hidden" name="showTimeline" value="true" />
+
+                    <c:choose>
+                      <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromSubject}">
+                        <input type="hidden" name="backTo" value="subject" />
+                      </c:when>
+                      <c:when test="${grouperRequestContainer.membershipGuiContainer.traceMembershipFromMembership}">
+                        <input type="hidden" name="backTo" value="membership" />
+                      </c:when>
+                      <c:otherwise>
+                        <input type="hidden" name="backTo" value="group" />
+                      </c:otherwise>
+                    </c:choose>
+
+                    <input type="checkbox" name="showUserAudit" id="membership-timeline-show-user-audit" ${grouperRequestContainer.membershipGuiContainer.traceMembershipTimelineShowUserAudit? 'value="true" checked="checked"' : 'value="false"'} />
+                    <label for="membership-timeline-show-user-audit">${textContainer.text['membershipTraceTimelineShowUserAudit']}</label>
+                    <br />
+                    <input type="checkbox" name="showPITAudit" id="membership-timeline-show-pit-audit" ${grouperRequestContainer.membershipGuiContainer.traceMembershipTimelineShowPITAudit? 'value="true" checked="checked"' : 'value="false"'} />
+                    <label for="membership-timeline-show-pit-audit">${textContainer.text['membershipTraceTimelineShowPITAudit']}</label>
+
+                    <br /><br />
+                    <input type="submit" class="btn" value="${textContainer.text['membershipTraceTimelineButton'] }" />
+                    <br /><br />
+
+                    <c:if test="${grouperRequestContainer.membershipGuiContainer.traceMembershipTimelineString != null}">
+                      <p>${textContainer.text['membershipTraceTimelineDescription'] }</p>
+
+                      ${grouperRequestContainer.membershipGuiContainer.traceMembershipTimelineString}
+                    </c:if>
+                  </form>
                 </c:if>
 
                 <c:choose>

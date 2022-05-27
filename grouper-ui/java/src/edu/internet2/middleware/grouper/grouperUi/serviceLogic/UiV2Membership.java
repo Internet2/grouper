@@ -222,6 +222,9 @@ public class UiV2Membership {
       if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "membership")) {
         membershipGuiContainer.setTraceMembershipFromMembership(true);
       }
+      
+      membershipGuiContainer.setTraceMembershipTimelineShowUserAudit(GrouperUtil.booleanValue(request.getParameter("showUserAudit"), true));
+      membershipGuiContainer.setTraceMembershipTimelineShowPITAudit(GrouperUtil.booleanValue(request.getParameter("showPITAudit"), true));
 
       //this is a subobject
       grouperRequestContainer.getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
@@ -246,7 +249,9 @@ public class UiV2Membership {
           traceMembershipsHelperFormer(pitGroup, pitMember, pitField, memberIdsForTimelineAuditQuery, pitGroupsForTimelineStates);
         }
         
-        traceMembershipsHelperTimeline(pitMember, pitField, memberIdsForTimelineAuditQuery, pitGroupsForTimelineStates);
+        if (GrouperUtil.booleanValue(request.getParameter("showTimeline"), false)) {
+          traceMembershipsHelperTimeline(pitMember, pitField, memberIdsForTimelineAuditQuery, pitGroupsForTimelineStates);
+        }
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -410,6 +415,9 @@ public class UiV2Membership {
   
   private void traceMembershipsHelperTimeline(PITMember pitMember, PITField pitField, Set<String> memberIdsForTimelineAuditQuery, Set<PITGroup> pitGroupsForTimelineStates) {
     
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
+    
     GrouperSession loggedInGrouperSession = GrouperSession.staticGrouperSession();
 
     AuditType addGroupMembershipAuditType = AuditTypeFinder.find("membership", "addGroupMembership", true);
@@ -465,7 +473,7 @@ public class UiV2Membership {
 
         int count = 0;
         for (int i = 0; i < preliminaryMomentsOfInterestDescList.size(); i++) {
-          if (count > 50) {
+          if (count > 10) {
             break;
           }
           
@@ -504,76 +512,80 @@ public class UiV2Membership {
           Timestamp fromDate = new Timestamp(fromLong);
           Timestamp toDate = new Timestamp(toLong);
                 
-          UserAuditQuery userAuditQuery = new UserAuditQuery();
-          userAuditQuery.setQueryOptions(new QueryOptions().sortAsc("lastUpdatedDb"));
-          userAuditQuery.setFromDate(fromDate);
-          userAuditQuery.setToDate(toDate);
-
-          List<Criterion> memberIdCriterions = new ArrayList<Criterion>();
-          
-          for (AuditType auditType : GrouperUtil.toList(addGroupMembershipAuditType, updateGroupMembershipAuditType, deleteGroupMembershipAuditType)) {
-            Criterion auditTypeCriterion = Restrictions.eq(AuditEntry.FIELD_AUDIT_TYPE_ID, auditType.getId());
-            String auditEntryField = auditType.retrieveAuditEntryFieldForLabel("memberId");
-            Criterion auditEntryFieldCriterion = Restrictions.in(auditEntryField, memberIdsForTimelineAuditQuery);
-            Criterion andCriterion = HibUtils.listCrit(auditTypeCriterion, auditEntryFieldCriterion);
-            memberIdCriterions.add(andCriterion);
-          }
-          
-          userAuditQuery.setExtraCriterion(HibUtils.listCritOr(memberIdCriterions));
-                
-          List<AuditEntry> userAuditEntries = userAuditQuery.execute();
-          for (AuditEntry userAudit : userAuditEntries) {
-
-            GuiAuditEntry guiUserAudit = new GuiAuditEntry(userAudit);
-            guiUserAudit.internal_setupMember();
-            guiUserAudit.internal_setupGroup();
+          if (membershipGuiContainer.isTraceMembershipTimelineShowUserAudit()) {
+            UserAuditQuery userAuditQuery = new UserAuditQuery();
+            userAuditQuery.setQueryOptions(new QueryOptions().sortAsc("lastUpdatedDb"));
+            userAuditQuery.setFromDate(fromDate);
+            userAuditQuery.setToDate(toDate);
+  
+            List<Criterion> memberIdCriterions = new ArrayList<Criterion>();
             
-            if (guiUserAudit.getGuiGroup().getGroup() == null) {
-              continue;
+            for (AuditType auditType : GrouperUtil.toList(addGroupMembershipAuditType, updateGroupMembershipAuditType, deleteGroupMembershipAuditType)) {
+              Criterion auditTypeCriterion = Restrictions.eq(AuditEntry.FIELD_AUDIT_TYPE_ID, auditType.getId());
+              String auditEntryField = auditType.retrieveAuditEntryFieldForLabel("memberId");
+              Criterion auditEntryFieldCriterion = Restrictions.in(auditEntryField, memberIdsForTimelineAuditQuery);
+              Criterion andCriterion = HibUtils.listCrit(auditTypeCriterion, auditEntryFieldCriterion);
+              memberIdCriterions.add(andCriterion);
             }
             
-            if (!isWheelOrRoot && !guiUserAudit.getGuiGroup().getGroup().canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
-              // no access so return
-              continue;
-            }
-      
-            eventsUserAudits.get(momentOfInterestTimestamp).add(guiUserAudit);
-          }
-          
-          Set<PITMembershipView> pitMembershipsStarted = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITMemberAndPITFieldAndStartTimeRange(pitMember.getId(), pitField.getId(), fromDate, toDate);
-          for (PITMembershipView pitMembershipStarted : pitMembershipsStarted) {
-            
-            PITGroup currentPITGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitMembershipStarted.getOwnerGroupId(), true);
-            
-            if (!isWheelOrRoot) {
-              Group currentGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currentPITGroup.getSourceId(), false);
-
-              if (currentGroup == null || !currentGroup.canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
+            userAuditQuery.setExtraCriterion(HibUtils.listCritOr(memberIdCriterions));
+                  
+            List<AuditEntry> userAuditEntries = userAuditQuery.execute();
+            for (AuditEntry userAudit : userAuditEntries) {
+  
+              GuiAuditEntry guiUserAudit = new GuiAuditEntry(userAudit);
+              guiUserAudit.internal_setupMember();
+              guiUserAudit.internal_setupGroup();
+              
+              if (guiUserAudit.getGuiGroup().getGroup() == null) {
+                continue;
+              }
+              
+              if (!isWheelOrRoot && !guiUserAudit.getGuiGroup().getGroup().canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
                 // no access so return
                 continue;
               }
+        
+              eventsUserAudits.get(momentOfInterestTimestamp).add(guiUserAudit);
             }
-            
-            eventsPITAddMembership.get(momentOfInterestTimestamp).add(pitMembershipStarted);
-            eventsPITAddMembershipGroup.get(momentOfInterestTimestamp).add(currentPITGroup);
           }
           
-          Set<PITMembershipView> pitMembershipsEnded = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITMemberAndPITFieldAndEndTimeRange(pitMember.getId(), pitField.getId(), fromDate, toDate);
-          for (PITMembershipView pitMembershipEnded : pitMembershipsEnded) {
-            
-            PITGroup currentPITGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitMembershipEnded.getOwnerGroupId(), true);
-            
-            if (!isWheelOrRoot) {
-              Group currentGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currentPITGroup.getSourceId(), false);
-
-              if (currentGroup == null || !currentGroup.canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
-                // no access so return
-                continue;
+          if (membershipGuiContainer.isTraceMembershipTimelineShowPITAudit()) {
+            Set<PITMembershipView> pitMembershipsStarted = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITMemberAndPITFieldAndStartTimeRange(pitMember.getId(), pitField.getId(), fromDate, toDate);
+            for (PITMembershipView pitMembershipStarted : pitMembershipsStarted) {
+              
+              PITGroup currentPITGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitMembershipStarted.getOwnerGroupId(), true);
+              
+              if (!isWheelOrRoot) {
+                Group currentGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currentPITGroup.getSourceId(), false);
+  
+                if (currentGroup == null || !currentGroup.canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
+                  // no access so return
+                  continue;
+                }
               }
+              
+              eventsPITAddMembership.get(momentOfInterestTimestamp).add(pitMembershipStarted);
+              eventsPITAddMembershipGroup.get(momentOfInterestTimestamp).add(currentPITGroup);
             }
             
-            eventsPITDeleteMembership.get(momentOfInterestTimestamp).add(pitMembershipEnded);
-            eventsPITDeleteMembershipGroup.get(momentOfInterestTimestamp).add(currentPITGroup);
+            Set<PITMembershipView> pitMembershipsEnded = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITMemberAndPITFieldAndEndTimeRange(pitMember.getId(), pitField.getId(), fromDate, toDate);
+            for (PITMembershipView pitMembershipEnded : pitMembershipsEnded) {
+              
+              PITGroup currentPITGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitMembershipEnded.getOwnerGroupId(), true);
+              
+              if (!isWheelOrRoot) {
+                Group currentGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currentPITGroup.getSourceId(), false);
+  
+                if (currentGroup == null || !currentGroup.canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
+                  // no access so return
+                  continue;
+                }
+              }
+              
+              eventsPITDeleteMembership.get(momentOfInterestTimestamp).add(pitMembershipEnded);
+              eventsPITDeleteMembershipGroup.get(momentOfInterestTimestamp).add(currentPITGroup);
+            }
           }
           
           for (PITGroup pitGroupForState : pitGroupsForTimelineStates) {
@@ -594,9 +606,6 @@ public class UiV2Membership {
     if (momentsOfInterest.size() == 0) {
       return;
     }
-    
-    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-    MembershipGuiContainer membershipGuiContainer = grouperRequestContainer.getMembershipGuiContainer();
     
     StringBuilder result = new StringBuilder();
     result.append("<ul>\n");
