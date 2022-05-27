@@ -1099,6 +1099,8 @@ public class UiV2ProvisionerConfiguration {
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigAdd.jsp"));
         
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiScrollTop()"));
+        
         return;
         
       }
@@ -1144,7 +1146,6 @@ public class UiV2ProvisionerConfiguration {
       }
       messageBuilder.append(TextContainer.retrieveFromRequest().getText().get("provisionerConfigAddEditSuccess"));
       guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, messageBuilder.toString()));
-
       
       
     } finally {

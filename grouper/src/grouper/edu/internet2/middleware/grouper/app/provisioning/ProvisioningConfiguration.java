@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -412,8 +413,12 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
           attributes.get("class").setValue("edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob");
           attributes.get("provisionerConfigId").setValue(this.getConfigId());
           
-          //TODO what should be the cron expression
-          attributes.get("quartzCron").setValue("0 0 4 * * ?");
+          int hour = RandomUtils.nextInt(3, 8);
+          int minute = RandomUtils.nextInt(0, 60);
+          
+          String cronExpression = "0 "+minute + " " + hour + " * * ?";
+          
+          attributes.get("quartzCron").setValue(cronExpression);
           
           fullSyncConfig.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
           

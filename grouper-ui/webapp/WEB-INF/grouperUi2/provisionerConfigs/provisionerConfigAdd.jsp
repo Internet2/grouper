@@ -44,7 +44,6 @@
             </div>
           </div>
         </c:if>
-        
          
        </div>
      </div>
@@ -67,7 +66,6 @@
             </c:otherwise>
           </c:choose>
           
-          
             <table class="table table-condensed table-striped">
               <tbody>
                 <%@ include file="provisionerConfigAddHelper.jsp" %>
@@ -79,16 +77,31 @@
                   
                     <td
                       style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;">
-                    <input type="submit" class="btn btn-primary"
-                      aria-controls="provisionerConfigSubmitId" id="submitId"
-                      value="${textContainer.text['provisionerConfigAddFormSubmitButton'] }"
-                      onclick="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfigurationSubmit', {formIds: 'provisionerConfigDetails'}); return false;">
+                      
+                      
+                      <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.showStartWithSection}">
+                      
+                        <input type="submit" class="btn btn-primary"
+                        aria-controls="provisionerConfigSubmitId" id="submitId"
+                        value="${textContainer.text['provisionerConfigAddFormContinueButton'] }"
+                        onclick="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfigurationSubmit', {formIds: 'provisionerConfigDetails'}); return false;">
+      
+                      </c:if>
+                      
+                      <c:if test="${!grouperRequestContainer.provisionerConfigurationContainer.showStartWithSection}">
+                      
+                        <input type="submit" class="btn btn-primary"
+                        aria-controls="provisionerConfigSubmitId" id="submitId"
+                        value="${textContainer.text['provisionerConfigAddFormSubmitButton'] }"
+                        onclick="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfigurationSubmit', {formIds: 'provisionerConfigDetails'}); return false;">
+      
+                      </c:if>
+                    
                       &nbsp;
                     <a class="btn btn-cancel" role="button"
                         onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations'); return false;"
                     >${textContainer.text['provisionerConfigAddFormCancelButton'] }</a>
                     </td>
-                  
                   
                 </tr>
 
