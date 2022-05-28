@@ -186,7 +186,14 @@ public class SqlProvisionerTestUtils {
       if (provisioningTestConfigInput.isEntityAttributesTable()) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.storageType", "separateAttributesTable");
       }
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache2");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2source", "target");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2type", "entityAttribute");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2entityAttribute", "dn");
+
+      
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "employeeID");
       if (provisioningTestConfigInput.isEntityAttributesTable()) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.storageType", "separateAttributesTable");

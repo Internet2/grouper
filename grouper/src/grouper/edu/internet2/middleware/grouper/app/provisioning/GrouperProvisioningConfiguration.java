@@ -2083,11 +2083,6 @@ public abstract class GrouperProvisioningConfiguration {
         }
         
         {
-          String translateFromGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromGroupSyncField" , false);
-          attributeConfig.setTranslateFromGroupSyncField(translateFromGroupSyncField);
-        }
-
-        {
           String translateFromGrouperProvisioningGroupField = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperProvisioningGroupField" , false);
           attributeConfig.setTranslateFromGrouperProvisioningGroupField(translateFromGrouperProvisioningGroupField);
         }
@@ -2107,20 +2102,6 @@ public abstract class GrouperProvisioningConfiguration {
           attributeConfig.setTranslateFromGrouperProvisioningEntityFieldCreateOnly(translateFromGrouperProvisioningEntityFieldCreateOnly);
         }
         
-        {
-          String translateFromMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateFromMemberSyncField" , false);
-          attributeConfig.setTranslateFromMemberSyncField(translateFromMemberSyncField);
-        }
-        
-        {
-          String translateGrouperToGroupSyncField = this.retrieveConfigString(objectType+"."+i+".translateGrouperToGroupSyncField" , false);
-          attributeConfig.setTranslateGrouperToGroupSyncField(translateGrouperToGroupSyncField);
-        }
-        
-        {
-          String translateGrouperToMemberSyncField = this.retrieveConfigString(objectType+"."+i+".translateGrouperToMemberSyncField" , false);
-          attributeConfig.setTranslateGrouperToMemberSyncField(translateGrouperToMemberSyncField);
-        }
         {
           boolean showAttributeCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeCrud" , false), false);
           if (showAttributeCrud) {

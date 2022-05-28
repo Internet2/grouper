@@ -7,14 +7,105 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
 public class GrouperProvisioningConfigurationAttribute {
 
   private GrouperProvisioner grouperProvisioner;
   
+  private GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache;
+
+  private boolean grouperProvisioningConfigurationAttributeDbCacheRetrieved = false;
   
+  /**
+   * 
+   * @return if this is a member cache attribute
+   */
+  public GrouperProvisioningConfigurationAttributeDbCache getSyncMemberCacheAttribute() {
+
+    // this is only for entities
+    if (this.grouperProvisioningConfigurationAttributeType !=  GrouperProvisioningConfigurationAttributeType.entity) {
+      return null;
+    }
+
+    // cache this
+    if (this.grouperProvisioningConfigurationAttributeDbCacheRetrieved) {
+      return this.grouperProvisioningConfigurationAttributeDbCache;
+    }
+
+    this.grouperProvisioningConfigurationAttributeDbCacheRetrieved = true;
+    
+    for (GrouperProvisioningConfigurationAttributeDbCache theGrouperProvisioningConfigurationAttributeDbCache 
+        : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
+      if (StringUtils.equals(this.name, theGrouperProvisioningConfigurationAttributeDbCache.getAttributeName())) {
+        this.grouperProvisioningConfigurationAttributeDbCache = theGrouperProvisioningConfigurationAttributeDbCache;
+        break;
+      }
+    }
+    return this.grouperProvisioningConfigurationAttributeDbCache;
+  }
   
+  /**
+   * 
+   * @return if this is a group cache attribute
+   */
+  public GrouperProvisioningConfigurationAttributeDbCache getSyncGroupCacheAttribute() {
+    
+    // this is only for groups
+    if (this.grouperProvisioningConfigurationAttributeType !=  GrouperProvisioningConfigurationAttributeType.group) {
+      return null;
+    }
+
+    // cache this
+    if (this.grouperProvisioningConfigurationAttributeDbCacheRetrieved) {
+      return this.grouperProvisioningConfigurationAttributeDbCache;
+    }
+
+    this.grouperProvisioningConfigurationAttributeDbCacheRetrieved = true;
+    
+    for (GrouperProvisioningConfigurationAttributeDbCache theGrouperProvisioningConfigurationAttributeDbCache 
+        : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
+      if (StringUtils.equals(this.name, theGrouperProvisioningConfigurationAttributeDbCache.getAttributeName())) {
+        this.grouperProvisioningConfigurationAttributeDbCache = theGrouperProvisioningConfigurationAttributeDbCache;
+        break;
+      }
+    }
+    return this.grouperProvisioningConfigurationAttributeDbCache;
+  }
+
+  /**
+   * 
+   * @return if this is a translatable attribute from sync member
+   */
+  public boolean isSyncMemberAttribute() {
+    return StringUtils.equals("memberId", this.translateFromGrouperProvisioningEntityField)
+        || StringUtils.equals("subjectId", this.translateFromGrouperProvisioningEntityField)
+        || StringUtils.equals("subjectIdentifier", this.translateFromGrouperProvisioningEntityField)
+        || StringUtils.equals("entityAttributeValueCache0", this.translateFromGrouperProvisioningEntityField)
+        || StringUtils.equals("entityAttributeValueCache1", this.translateFromGrouperProvisioningEntityField)
+        || StringUtils.equals("entityAttributeValueCache2", this.translateFromGrouperProvisioningEntityField)
+        || StringUtils.equals("entityAttributeValueCache3", this.translateFromGrouperProvisioningEntityField);
+        
+  }
+  
+  /**
+   * 
+   * @return if this is a translatable attribute from sync group
+   */
+  public boolean isSyncGroupAttribute() {
+    return StringUtils.equals("groupId", this.translateFromGrouperProvisioningGroupField)
+        || StringUtils.equals("groupIdIndex", this.translateFromGrouperProvisioningGroupField)
+        || StringUtils.equals("groupExtension", this.translateFromGrouperProvisioningGroupField)
+        || StringUtils.equals("groupName", this.translateFromGrouperProvisioningGroupField)
+        || StringUtils.equals("groupAttributeValueCache0", this.translateFromGrouperProvisioningGroupField)
+        || StringUtils.equals("groupAttributeValueCache1", this.translateFromGrouperProvisioningGroupField)
+        || StringUtils.equals("groupAttributeValueCache2", this.translateFromGrouperProvisioningGroupField)
+        || StringUtils.equals("groupAttributeValueCache3", this.translateFromGrouperProvisioningGroupField);
+  }
+    
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
   }
@@ -78,51 +169,6 @@ public class GrouperProvisioningConfigurationAttribute {
   public GrouperProvisioningConfigurationAttribute() {
   }
 
-  /**
-   * After calculating the Grouper value store that in a sync field
-   */
-  private String translateGrouperToMemberSyncField;
-  
-  /**
-   * After calculating the Grouper value store that in a sync field
-   * @return
-   */
-  public String getTranslateGrouperToMemberSyncField() {
-    return translateGrouperToMemberSyncField;
-  }
-
-  /**
-   * After calculating the Grouper value store that in a sync field
-   * @param translateGrouperToMemberSyncField
-   */
-  public void setTranslateGrouperToMemberSyncField(
-      String translateGrouperToMemberSyncField) {
-    this.translateGrouperToMemberSyncField = translateGrouperToMemberSyncField;
-  }
-
-  /**
-   * After calculating the Grouper value store that in a sync field
-   */
-  private String translateGrouperToGroupSyncField;
-  
-  
-  
-  /**
-   * After calculating the Grouper value store that in a sync field
-   * @return
-   */
-  public String getTranslateGrouperToGroupSyncField() {
-    return translateGrouperToGroupSyncField;
-  }
-
-  /**
-   * After calculating the Grouper value store that in a sync field
-   * @param translateGrouperToGroupSyncField
-   */
-  public void setTranslateGrouperToGroupSyncField(String translateGrouperToGroupSyncField) {
-    this.translateGrouperToGroupSyncField = translateGrouperToGroupSyncField;
-  }
-
   @Override
   public String toString() {
     
@@ -159,11 +205,6 @@ public class GrouperProvisioningConfigurationAttribute {
     
     return result.toString();
   }
-
-  /**
-   * 
-   */
-  private String translateFromMemberSyncField;
 
   /**
    * grouper provisioning entity field
@@ -252,31 +293,6 @@ public class GrouperProvisioningConfigurationAttribute {
   public void setTranslateFromGrouperProvisioningGroupField(
       String translateFromGrouperProvisioningGroupField) {
     this.translateFromGrouperProvisioningGroupField = translateFromGrouperProvisioningGroupField;
-  }
-
-  /**
-   * 
-   */
-  private String translateFromGroupSyncField;
-  
-  
-  public String getTranslateFromMemberSyncField() {
-    return translateFromMemberSyncField;
-  }
-
-  
-  public void setTranslateFromMemberSyncField(String translateFromMemberSyncField) {
-    this.translateFromMemberSyncField = translateFromMemberSyncField;
-  }
-
-  
-  public String getTranslateFromGroupSyncField() {
-    return translateFromGroupSyncField;
-  }
-
-  
-  public void setTranslateFromGroupSyncField(String translateFromGroupSyncField) {
-    this.translateFromGroupSyncField = translateFromGroupSyncField;
   }
 
   /**

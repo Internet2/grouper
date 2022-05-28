@@ -255,8 +255,12 @@ public class LdapProvisionerTestUtils {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField",
               provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
         }
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateToGroupSyncField", "groupAttributeValueCache2");
-      
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2has", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2source", "target");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2type", "groupAttribute");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2groupAttribute", "ldap_dn");
+
   
       
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name",
@@ -296,10 +300,9 @@ public class LdapProvisionerTestUtils {
         if (StringUtils.equals(provisioningTestConfigInput.getMembershipAttribute(), "member")) {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAttributeValueSettings", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.defaultValue", "cn=admin,dc=example,dc=edu");
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAttributeValueSettings", "true");
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.multiValued", "true");
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.membershipAttribute", "true");
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateFromMemberSyncField", provisioningTestConfigInput.getEntityAttributeCount() > 0 ? "entityAttributeValueCache2" : "subjectId");
+          
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeName", "member");
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", provisioningTestConfigInput.getEntityAttributeCount() > 0 ? "entityAttributeValueCache2" : "subjectId");
         } else {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpressionType", "translationScript");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpression", "'cn' + '=' + 'somethingbogussincethisisrequired'");
@@ -307,10 +310,8 @@ public class LdapProvisionerTestUtils {
         
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.name", "description");
         if (StringUtils.equals(provisioningTestConfigInput.getMembershipAttribute(), "description")) {
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAttributeValueSettings", "true");
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.multiValued", "true");
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.membershipAttribute", "true");
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateFromMemberSyncField", provisioningTestConfigInput.getEntityAttributeCount() > 0 ? "entityAttributeValueCache2" : "subjectId");
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeName", "description");
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", provisioningTestConfigInput.getEntityAttributeCount() > 0 ? "entityAttributeValueCache2" : "subjectId");
         } else {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateExpressionType", "grouperProvisioningGroupField");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateFromGrouperProvisioningGroupField", "description");
@@ -327,7 +328,12 @@ public class LdapProvisionerTestUtils {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionCreateOnly", "${'uid=' + grouperProvisioningEntity.retrieveAttributeValueString('" 
             + provisioningTestConfigInput.getEntityUidTranslateFromGrouperProvisioningEntityField() + "') + ',ou=People,dc=example,dc=edu'}");
       }
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache2");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2source", "target");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2type", "entityAttribute");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2entityAttribute", "ldap_dn");
 
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "uid");
       if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
@@ -370,10 +376,10 @@ public class LdapProvisionerTestUtils {
       }
       if (provisioningTestConfigInput.isMembershipStructureEntityAttributes()) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".name", "eduPersonEntitlement");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".translateFromGroupSyncField", provisioningTestConfigInput.getGroupAttributeCount() == 1 ? "groupAttributeValueCache0" : "groupExtension");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".membershipAttribute", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".showAttributeValueSettings", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute." + (provisioningTestConfigInput.getEntityAttributeCount()-1) + ".multiValued", "true");
+
+        configureProvisionerSuffix(provisioningTestConfigInput, "entityMembershipAttributeName", "eduPersonEntitlement");
+        configureProvisionerSuffix(provisioningTestConfigInput, "entityMembershipAttributeValue", provisioningTestConfigInput.getGroupAttributeCount() == 1 ? "groupAttributeValueCache0" : "extension");
+
       }
 
     }

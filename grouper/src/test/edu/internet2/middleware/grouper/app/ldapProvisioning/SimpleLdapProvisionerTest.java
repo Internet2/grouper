@@ -325,7 +325,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
         .assignSubjectSourcesToProvision("jdbc"));
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.subjectIdentifierForMemberSyncTable").value("subjectIdentifier2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.translateFromMemberSyncField").value("subjectIdentifier").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.groupMembershipAttributeValue").value("subjectIdentifier").store();
 
 
     long started = System.currentTimeMillis();
