@@ -1478,11 +1478,13 @@ public class GrouperProvisioningBehavior {
     Set<String> fieldNames = GrouperUtil.fieldNames(GrouperProvisioningBehavior.class, null, false);
         
     fieldNames = new TreeSet<String>(fieldNames);
+    
+    fieldNames.remove("grouperProvisioner");
+    fieldNames.remove("entityAttributeNamesWithCache");
+    fieldNames.remove("groupAttributeNamesWithCache");
+    
     boolean firstField = true;
     for (String fieldName : fieldNames) {
-      if ("grouperProvisioner".equals(fieldName)) {
-        continue;
-      }
       // call getter
       Object value = GrouperUtil.propertyValue(this, fieldName);
       if (!GrouperUtil.isBlank(value)) {

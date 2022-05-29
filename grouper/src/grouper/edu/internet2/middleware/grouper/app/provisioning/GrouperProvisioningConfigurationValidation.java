@@ -707,7 +707,7 @@ public class GrouperProvisioningConfigurationValidation {
       // check attributes
       for (GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
         
-        if (grouperProvisioningConfigurationAttributeDbCache != null && grouperProvisioningConfigurationAttributeDbCache.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target) {
+        if (grouperProvisioningConfigurationAttributeDbCache != null) {
           return;
         }
   
@@ -750,7 +750,7 @@ public class GrouperProvisioningConfigurationValidation {
       // check attributes
       for (GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
         
-        if (grouperProvisioningConfigurationAttributeDbCache != null && grouperProvisioningConfigurationAttributeDbCache.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target) {
+        if (grouperProvisioningConfigurationAttributeDbCache != null) {
           return;
         }
   
@@ -769,7 +769,7 @@ public class GrouperProvisioningConfigurationValidation {
         return;
       }
   
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.mmeberToId3"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.entityAttributeValueCache3"))) {
         return;
       }
       this.addErrorMessage(new ProvisioningValidationIssue()

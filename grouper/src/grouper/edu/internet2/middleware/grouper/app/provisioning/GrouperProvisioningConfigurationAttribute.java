@@ -40,7 +40,9 @@ public class GrouperProvisioningConfigurationAttribute {
     
     for (GrouperProvisioningConfigurationAttributeDbCache theGrouperProvisioningConfigurationAttributeDbCache 
         : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
-      if (StringUtils.equals(this.name, theGrouperProvisioningConfigurationAttributeDbCache.getAttributeName())) {
+      
+      if (theGrouperProvisioningConfigurationAttributeDbCache != null 
+          && StringUtils.equals(this.name, theGrouperProvisioningConfigurationAttributeDbCache.getAttributeName())) {
         this.grouperProvisioningConfigurationAttributeDbCache = theGrouperProvisioningConfigurationAttributeDbCache;
         break;
       }
@@ -68,7 +70,9 @@ public class GrouperProvisioningConfigurationAttribute {
     
     for (GrouperProvisioningConfigurationAttributeDbCache theGrouperProvisioningConfigurationAttributeDbCache 
         : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
-      if (StringUtils.equals(this.name, theGrouperProvisioningConfigurationAttributeDbCache.getAttributeName())) {
+      
+      if (theGrouperProvisioningConfigurationAttributeDbCache != null 
+          && StringUtils.equals(this.name, theGrouperProvisioningConfigurationAttributeDbCache.getAttributeName())) {
         this.grouperProvisioningConfigurationAttributeDbCache = theGrouperProvisioningConfigurationAttributeDbCache;
         break;
       }
@@ -177,6 +181,8 @@ public class GrouperProvisioningConfigurationAttribute {
     Set<String> fieldNames = GrouperUtil.fieldNames(GrouperProvisioningConfigurationAttribute.class, null, false);
         
     fieldNames.remove("grouperProvisioner");
+    fieldNames.remove("grouperProvisioningConfigurationAttributeDbCache");
+    fieldNames.remove("grouperProvisioningConfigurationAttributeDbCacheRetrieved");
     
     fieldNames = new TreeSet<String>(fieldNames);
     boolean firstField = true;

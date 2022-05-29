@@ -8,6 +8,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperProvisioningConfigurationAttributeDbCache {
 
+  private String cacheName = null;
+  
+  public String getCacheName() {
+    if (this.cacheName == null) {
+      this.cacheName = this.objectType + "AttributeValueCache" + this.index;
+    }
+    return this.cacheName;
+  }
+  
   public GrouperProvisioningConfigurationAttributeDbCache(GrouperProvisioner grouperProvisioner1, int index1, String objectType1) {
     this.grouperProvisioner = grouperProvisioner1;
     this.index = index1;

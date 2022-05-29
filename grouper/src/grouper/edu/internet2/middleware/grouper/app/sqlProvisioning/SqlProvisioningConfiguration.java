@@ -86,8 +86,6 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
    */
   private String groupTableIdColumn;
 
-  private String membershipTableIdColumn;
-  
   /**
    * single column in group attribute table that links back to group pk
    */
@@ -260,9 +258,6 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     this.entityAttributesLastModifiedColumn = this.retrieveConfigString("entityAttributesLastModifiedColumn", false);
     this.entityAttributesLastModifiedColumnType = this.retrieveConfigString("entityAttributesLastModifiedColumnType", false);
     
-    // TODO is this used????
-    this.membershipTableIdColumn = this.retrieveConfigString("membershipPrimaryKey", false);
-    
     if (!StringUtils.isBlank(this.membershipTableName) && StringUtils.isBlank(this.getMembershipMatchingIdExpression())) {
       //setMembershipMatchingIdExpression("${new edu.internet2.middleware.grouperClient.collections.MultiKey(targetMembership.getProvisioningGroup().retrieveAttributeValueString('"+groupTableIdColumn+"'), targetMembership.getProvisioningEntity().retrieveAttributeValueString('"+entityTableIdColumn+"'))}");
       setMembershipMatchingIdExpression("${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('"+getMembershipGroupMatchingIdAttribute()+"'), targetMembership.retrieveAttributeValueString('"+getMembershipEntityMatchingIdAttribute()+"'))}");
@@ -402,15 +397,6 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   }
 
   
-  public String getMembershipTableIdColumn() {
-    return membershipTableIdColumn;
-  }
-
-  
-  public void setMembershipTableIdColumn(String membershipTableIdColumn) {
-    this.membershipTableIdColumn = membershipTableIdColumn;
-  }
-
   
   public String getGroupAttributesTableName() {
     return groupAttributesTableName;

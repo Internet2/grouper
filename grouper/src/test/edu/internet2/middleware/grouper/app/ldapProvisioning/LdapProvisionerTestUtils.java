@@ -263,19 +263,21 @@ public class LdapProvisionerTestUtils {
 
   
       
+        String attributeName = provisioningTestConfigInput.isPosixGroup() ? "gidNumber" : "businessCategory";
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name",
-            provisioningTestConfigInput.isPosixGroup() ? "gidNumber" : "businessCategory");
+            attributeName);
         
         if (StringUtils.equals(provisioningTestConfigInput.getBusinessCategoryTranslateFromGrouperProvisioningGroupField(), "idIndex")) {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.showAttributeValueSettings", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.valueType", "long");
         }
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.searchAttribute", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", 
             provisioningTestConfigInput.getBusinessCategoryTranslateFromGrouperProvisioningGroupField());
       
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", attributeName);
+
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "cn");
     
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", provisioningTestConfigInput.isDnOverrideScript() ? "translationScript" : "grouperProvisioningGroupField");
@@ -340,11 +342,12 @@ public class LdapProvisionerTestUtils {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.showAttributeValidation", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.required", "true");
       }
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.matchingId", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.searchAttribute", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", provisioningTestConfigInput.getEntityUidTranslateFromGrouperProvisioningEntityField());
       
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "uid");
+
       if (provisioningTestConfigInput.getEntityAttributeCount() > 2) {
         
         if (!provisioningTestConfigInput.isMembershipStructureEntityAttributes() || provisioningTestConfigInput.getEntityAttributeCount() > 3) {

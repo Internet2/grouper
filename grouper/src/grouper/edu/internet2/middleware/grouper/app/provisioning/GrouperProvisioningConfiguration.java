@@ -1994,7 +1994,7 @@ public abstract class GrouperProvisioningConfiguration {
                   multiValued = true;
                 }
               }
-              attributeConfig.setMultiValued(multiValued);
+              attributeConfig.setMultiValued(multiValued == null ? false: multiValued);
             }
 
             {
@@ -2280,7 +2280,6 @@ public abstract class GrouperProvisioningConfiguration {
     }
 
     this.groupSelectAttributes = new HashSet<String>();
-    this.groupSearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
 
     for (String targetGroupAttributeName : this.targetGroupAttributeNameToConfig.keySet()) {
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = targetGroupAttributeNameToConfig.get(targetGroupAttributeName);
@@ -2360,7 +2359,6 @@ public abstract class GrouperProvisioningConfiguration {
     }
 
     this.entitySelectAttributes = new HashSet<String>();
-    this.entitySearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
     for (String targetEntityAttributeName : this.targetEntityAttributeNameToConfig.keySet()) {
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = targetEntityAttributeNameToConfig.get(targetEntityAttributeName);
       if (grouperProvisioningConfigurationAttribute.isSelect()) {
