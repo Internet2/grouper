@@ -174,7 +174,7 @@ public class GrouperProvisioningBehavior {
       return true;
     }
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
-        && StringUtils.equals(name, this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupAttributeNameForMemberships())) {
+        && StringUtils.equals(name, this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName())) {
       return this.isInsertMemberships();
     }
     return false;
@@ -187,7 +187,7 @@ public class GrouperProvisioningBehavior {
       return true;
     }
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
-        && StringUtils.equals(name, this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupAttributeNameForMemberships())) {
+        && StringUtils.equals(name, this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName())) {
       return this.isUpdateMemberships();
     }
     return false;
@@ -202,7 +202,7 @@ public class GrouperProvisioningBehavior {
     }
     
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
-        && StringUtils.equals(name, this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityAttributeNameForMemberships())) {
+        && StringUtils.equals(name, this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName())) {
       return this.isInsertMemberships();
     }
     return false;
@@ -215,7 +215,7 @@ public class GrouperProvisioningBehavior {
       return true;
     }
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
-        && StringUtils.equals(name, this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityAttributeNameForMemberships())) {
+        && StringUtils.equals(name, this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName())) {
       return this.isUpdateMemberships();
     }
     return false;
@@ -1572,12 +1572,16 @@ public class GrouperProvisioningBehavior {
     }
     
     if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable)) {
-      GrouperProvisioningConfigurationAttribute matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveEntityAttributeMatching();
-      if (matchingAttribute != null) {
-        String value = matchingAttribute.getTranslateFromGrouperProvisioningEntityField();
-        if (value != null && value.startsWith("subjectIdentifier")) {
-          currSubjectIdentifierForMemberSyncTable = value.substring(11);
+      // TODO handle multiple matching attributes
+      if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) > 0) {
+        GrouperProvisioningConfigurationAttribute matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes().get(0);
+        if (matchingAttribute != null) {
+          String value = matchingAttribute.getTranslateFromGrouperProvisioningEntityField();
+          if (value != null && value.startsWith("subjectIdentifier")) {
+            currSubjectIdentifierForMemberSyncTable = value.substring(11);
+          }
         }
+        
       }
     }
     

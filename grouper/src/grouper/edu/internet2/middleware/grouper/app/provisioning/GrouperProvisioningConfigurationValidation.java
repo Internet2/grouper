@@ -517,37 +517,30 @@ public class GrouperProvisioningConfigurationValidation {
     boolean hasGroupMembershipId = false;
     boolean hasMemberMembershipId = false;
 
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
-      //validate the matching attributes come from gcSync objects
-      
-      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
-
-        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
-          hasMemberMatchingId = true;
-        }
-        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
-          hasGroupMatchingId = true;
-        }
-        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.membership) {
-          hasMembershipMatchingId = true;
-        }
-        
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(grouperProvisioningConfiguration.getGroupMatchingAttributes())) {
+      if (grouperProvisioningConfigurationAttribute != null) {
+        hasGroupMatchingId = true;
       }
-      
-      
-      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
-        
-        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
-          hasMemberMembershipId = true;
-        }
-        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
-          hasGroupMembershipId = true;
-        }
-        
-      }
-      
     }
-
+    
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(grouperProvisioningConfiguration.getEntityMatchingAttributes())) {
+      if (grouperProvisioningConfigurationAttribute != null) {
+        hasMemberMatchingId = true;
+      }
+    }
+    
+    if (!StringUtils.isBlank(grouperProvisioningConfiguration.getGroupMembershipAttributeName())) {
+      if (grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().get(grouperProvisioningConfiguration.getGroupMembershipAttributeName()) != null) {
+        hasGroupMembershipId = true;
+      }
+    }
+    
+    if (!StringUtils.isBlank(grouperProvisioningConfiguration.getEntityMembershipAttributeName())) {
+      if (grouperProvisioningConfiguration.getTargetEntityAttributeNameToConfig().get(grouperProvisioningConfiguration.getEntityMembershipAttributeName()) != null) {
+        hasMemberMembershipId = true;
+      }
+    }
+    
     if (grouperProvisioningConfiguration.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       if (!hasGroupMatchingId) {
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMatchingId")));

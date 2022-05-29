@@ -172,7 +172,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       //groupSearchAttributeNames.add("objectClass");
       groupAttributesMultivalued.add("objectClass");
       
-      String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+      String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupMembershipAttributeName();
       if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
         if (includeAllMembershipsIfApplicable) {
           groupSearchAttributeNames.add(groupAttributeNameForMemberships);
@@ -511,7 +511,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     groupAttributesMultivalued.add("objectClass");
     
-    String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+    String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupMembershipAttributeName();
     if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
       if (includeAllMemberships) {
         groupSearchAttributeNames.add(groupAttributeNameForMemberships);
@@ -596,7 +596,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     //groupSearchAttributeNames.add("objectClass");
     groupAttributesMultivalued.add("objectClass");
     
-    String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+    String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupMembershipAttributeName();
     if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
       if (includeAllMembershipsIfApplicable) {
         groupSearchAttributeNames.add(groupAttributeNameForMemberships);
@@ -712,7 +712,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       //entitySearchAttributeNames.add("objectClass");
       userAttributesMultivalued.add("objectClass");
       
-      String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
+      String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityMembershipAttributeName();
       if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
         if (includeAllMembershipsIfApplicable) {
           entitySearchAttributeNames.add(userAttributeNameForMemberships);
@@ -775,7 +775,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     //entitySelectAttributeNames.add("objectClass");
     userAttributesMultivalued.add("objectClass");
     
-    String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
+    String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityMembershipAttributeName();
     if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
       if (includeAllMembershipsIfApplicable) {
         entitySelectAttributeNames.add(userAttributeNameForMemberships);
@@ -962,10 +962,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     String dn;
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      membershipAttributeName = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+      membershipAttributeName = ldapSyncConfiguration.getGroupMembershipAttributeName();
       dn = ((ProvisioningGroup)targetDaoRetrieveMembershipRequest.getTargetMembership()).retrieveAttributeValueString(ldap_dn);
     } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-      membershipAttributeName = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
+      membershipAttributeName = ldapSyncConfiguration.getEntityMembershipAttributeName();
       dn = ((ProvisioningEntity)targetDaoRetrieveMembershipRequest.getTargetMembership()).retrieveAttributeValueString(ldap_dn);
     } else {
       throw new RuntimeException("Unexpected grouperProvisioningBehaviorMembershipType: " + this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType());

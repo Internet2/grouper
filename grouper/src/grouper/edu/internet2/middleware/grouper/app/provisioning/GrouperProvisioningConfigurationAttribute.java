@@ -430,43 +430,6 @@ public class GrouperProvisioningConfigurationAttribute {
   private String translateFromStaticValuesCreateOnly;
   
   /**
-   * NOTE: CURRENTLY NOT USED
-   * expression when translating a group or entity membership attribute
-   */
-  private String translateExpressionFromMembership;
-  
-  /**
-   * if this attribute is used as the matching id
-   */
-  private boolean matchingId;
-
-  /**
-   * if this attribute is the membership attribute
-   */
-  private boolean membershipAttribute;
-
-  /**
-   * if this is the attribute used to search for objects in the target
-   */
-  private boolean searchAttribute;
-  
-  /**
-   * if this is the attribute used to search for objects in the target
-   * @return
-   */
-  public boolean isSearchAttribute() {
-    return searchAttribute;
-  }
-
-  /**
-   * if this is the attribute used to search for objects in the target
-   * @param searchAttribute
-   */
-  public void setSearchAttribute(boolean searchAttribute) {
-    this.searchAttribute = searchAttribute;
-  }
-
-  /**
    * attribute or field name
    * @return
    */
@@ -548,12 +511,26 @@ public class GrouperProvisioningConfigurationAttribute {
       return true;
     }
     GrouperProvisioningBehavior grouperProvisioningBehavior = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior();
-    if ((grouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
-        || grouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes)
-        && this.isMembershipAttribute() && (grouperProvisioningBehavior.isInsertMemberships() 
+    
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    if (grouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        && this.grouperProvisioningConfigurationAttributeType == GrouperProvisioningConfigurationAttributeType.group
+        && !StringUtils.isBlank(grouperProvisioningConfiguration.getGroupMembershipAttributeName())
+        && StringUtils.equals(grouperProvisioningConfiguration.getGroupMembershipAttributeName(), this.name)
+        && (grouperProvisioningBehavior.isInsertMemberships() 
             || grouperProvisioningBehavior.isDeleteMemberships() || grouperProvisioningBehavior.isUpdateMemberships())) {
       return true;
     }
+    if (grouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
+        && this.grouperProvisioningConfigurationAttributeType == GrouperProvisioningConfigurationAttributeType.entity
+        && !StringUtils.isBlank(grouperProvisioningConfiguration.getEntityMembershipAttributeName())
+        && StringUtils.equals(grouperProvisioningConfiguration.getEntityMembershipAttributeName(), this.name)
+        && (grouperProvisioningBehavior.isInsertMemberships() 
+            || grouperProvisioningBehavior.isDeleteMemberships() || grouperProvisioningBehavior.isUpdateMemberships())) {
+      return true;
+    }
+    
     return false;
   }
 
@@ -611,56 +588,6 @@ public class GrouperProvisioningConfigurationAttribute {
    */
   public void setTranslateExpressionCreateOnly(String translateExpressionCreateOnly) {
     this.translateExpressionCreateOnly = translateExpressionCreateOnly;
-  }
-
-  /**
-   * if this attribute is used as the matching id
-   * @return
-   */
-  public boolean isMatchingId() {
-    return matchingId;
-  }
-
-  /**
-   * if this attribute is used as the matching id
-   * @param matchingId
-   */
-  public void setMatchingId(boolean matchingId) {
-    this.matchingId = matchingId;
-  }
-
-  /**
-   * if this attribute is the membership attribute
-   * @return
-   */
-  public boolean isMembershipAttribute() {
-    return membershipAttribute;
-  }
-
-  /**
-   * if this attribute is the membership attribute
-   * @param membershipAttribute
-   */
-  public void setMembershipAttribute(boolean membershipAttribute) {
-    this.membershipAttribute = membershipAttribute;
-  }
-
-  
-  /**
-   * NOTE: CURRENTLY NOT USED
-   * @return expression when translating a group or entity membership attribute
-   */
-  public String getTranslateExpressionFromMembership() {
-    return translateExpressionFromMembership;
-  }
-
-  /**
-   * expression when translating a group or entity membership attribute
-   * @param translateExpressionFromMembership
-   */
-  public void setTranslateExpressionFromMembership(
-      String translateExpressionFromMembership) {
-    this.translateExpressionFromMembership = translateExpressionFromMembership;
   }
 
   /**

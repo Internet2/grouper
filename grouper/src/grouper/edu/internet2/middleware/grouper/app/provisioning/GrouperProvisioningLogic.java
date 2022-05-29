@@ -1332,7 +1332,7 @@ public class GrouperProvisioningLogic {
 
   /**
    * 
-   * @param grouperTargetGroupsToInsert
+   * @param grouperTargetGroups
    * @param targetProvisioningGroups
    */
   public void registerRetrievedGroups(
@@ -1340,26 +1340,10 @@ public class GrouperProvisioningLogic {
       List<ProvisioningGroup> targetProvisioningGroups) {
     
     GrouperProvisioningConfigurationAttribute searchAttribute = null;
-    
-    for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
-      new Collection[] {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values(),
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()}) {
-    
-      // look for required fields
-      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-          grouperProvisioningConfigurationAttributes) {
-        
-        if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
-          searchAttribute = grouperProvisioningConfigurationAttribute;
-          break;
-        }
-        
-        //default is id I guess
-        if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
-          searchAttribute = grouperProvisioningConfigurationAttribute;
-        }
-      }
+
+    // TODO handle multiple search attributes
+    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes()) > 0) {
+      searchAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes().get(0);
     }
     
     if (searchAttribute == null) {
@@ -1402,25 +1386,9 @@ public class GrouperProvisioningLogic {
     
     GrouperProvisioningConfigurationAttribute searchAttribute = null;
     
-    for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
-      new Collection[] {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values(),
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()}) {
-    
-      // look for required fields
-      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-          grouperProvisioningConfigurationAttributes) {
-        
-        if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
-          searchAttribute = grouperProvisioningConfigurationAttribute;
-          break;
-        }
-        
-        //default is id I guess
-        if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
-          searchAttribute = grouperProvisioningConfigurationAttribute;
-        }
-      }
+    // TODO handle multiple search attributes
+    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes()) > 0) {
+      searchAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes().get(0);
     }
     
     if (searchAttribute == null) {
