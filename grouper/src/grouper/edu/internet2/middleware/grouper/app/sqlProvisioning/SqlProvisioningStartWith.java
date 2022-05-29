@@ -351,7 +351,7 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       
       provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
       provisionerSuffixToValue.put("entityAttributeValueCache0has", "true");
-      provisionerSuffixToValue.put("entityAttributeValueCache0source", "grouper");
+      provisionerSuffixToValue.put("entityAttributeValueCache0source", "target");
       provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
       
       //TODO debug why this is not getting populated

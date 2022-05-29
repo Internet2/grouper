@@ -28,20 +28,23 @@ public class ProvisioningEntityAttributeDropdownOptions implements OptionValueDr
   @Override
   public List<MultiKey> retrieveKeysAndLabels() {
     
-    GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = configSuffixToConfigModuleAttribute.get("numberOfEntityAttributes");
-    int countOfAttributes = GrouperUtil.intValue(grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation(), 0);
-    
     List<MultiKey> result = new ArrayList<MultiKey>();
-    
-    for (int i=0; i<countOfAttributes; i++) {
-      GrouperConfigurationModuleAttribute nameAttribute = configSuffixToConfigModuleAttribute.get("targetEntityAttribute."+i+".name");
-      String name = nameAttribute == null ? null : nameAttribute.getValueOrExpressionEvaluation();
-      if (nameAttribute == null || StringUtils.isBlank(name)) {
-        continue;
-      }
+
+    GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = configSuffixToConfigModuleAttribute.get("numberOfEntityAttributes");
+    if (grouperConfigurationModuleAttribute != null) {
       
-      if (StringUtils.isNotBlank(name)) {
-        result.add(new MultiKey(name, name));
+      int countOfAttributes = GrouperUtil.intValue(grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation(), 0);
+      
+      for (int i=0; i<countOfAttributes; i++) {
+        GrouperConfigurationModuleAttribute nameAttribute = configSuffixToConfigModuleAttribute.get("targetEntityAttribute."+i+".name");
+        String name = nameAttribute == null ? null : nameAttribute.getValueOrExpressionEvaluation();
+        if (nameAttribute == null || StringUtils.isBlank(name)) {
+          continue;
+        }
+        
+        if (StringUtils.isNotBlank(name)) {
+          result.add(new MultiKey(name, name));
+        }
       }
     }
     
