@@ -1384,18 +1384,18 @@ public class GrouperProvisioningGrouperSyncDao {
       {
         String groupAttributeNameForMemberships = this.grouperProvisioner
             .retrieveGrouperProvisioningConfiguration()
-            .getGroupAttributeNameForMemberships();
+            .getGroupMembershipAttributeName();
 
         // get the attribute that holds members
         GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner
             .retrieveGrouperProvisioningConfiguration()
             .getTargetGroupAttributeNameToConfig().get(groupAttributeNameForMemberships);
 
-        String translateFromMemberSyncField = grouperProvisioningConfigurationAttribute == null
+        String translateFromMemberAttribute = grouperProvisioningConfigurationAttribute == null
             ? null
-            : grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField();
+            : grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField();
 
-        if (StringUtils.isBlank(translateFromMemberSyncField)) {
+        if (StringUtils.isBlank(translateFromMemberAttribute)) {
           this.grouperProvisioner.getDebugMap()
               .put("processResultsSelectMembershipsFullCantUnresolveMemberships", true);
 
@@ -1412,8 +1412,8 @@ public class GrouperProvisioningGrouperSyncDao {
                 .getGcGrouperSyncMember();
             if (gcGrouperSyncMember != null) {
               Object provisioningAttribute = this.getGrouperProvisioner()
-                  .retrieveGrouperProvisioningTranslator().translateFromMemberSyncField(
-                      gcGrouperSyncMember, translateFromMemberSyncField);
+                  .retrieveGrouperProvisioningTranslator().translateFromGrouperProvisioningEntityField(
+                      provisioningEntityWrapper, translateFromMemberAttribute);
               String provisioningAttributeString = GrouperUtil
                   .stringValue(provisioningAttribute);
               provisioningAttributeToMember.put(provisioningAttributeString,
@@ -1509,18 +1509,18 @@ public class GrouperProvisioningGrouperSyncDao {
       case entityAttributes: {
         String entityAttributeNameForMemberships = this.grouperProvisioner
             .retrieveGrouperProvisioningConfiguration()
-            .getEntityAttributeNameForMemberships();
+            .getEntityMembershipAttributeName();
 
         // get the attribute that holds members
         GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner
             .retrieveGrouperProvisioningConfiguration()
             .getTargetGroupAttributeNameToConfig().get(entityAttributeNameForMemberships);
 
-        String translateFromGroupSyncField = grouperProvisioningConfigurationAttribute == null
+        String translateFromGroupAttribute = grouperProvisioningConfigurationAttribute == null
             ? null
-            : grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField();
+            : grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField();
 
-        if (StringUtils.isBlank(translateFromGroupSyncField)) {
+        if (StringUtils.isBlank(translateFromGroupAttribute)) {
           this.grouperProvisioner.getDebugMap()
               .put("processResultsSelectMembershipsFullCantUnresolveMemberships", true);
 
@@ -1538,10 +1538,9 @@ public class GrouperProvisioningGrouperSyncDao {
             if (gcGrouperSyncGroup != null) {
 
               Object provisioningAttribute = this.getGrouperProvisioner()
-                  .retrieveGrouperProvisioningTranslator().translateFromGroupSyncField(
-                      gcGrouperSyncGroup, translateFromGroupSyncField);
-              String provisioningAttributeString = GrouperUtil
-                  .stringValue(provisioningAttribute);
+                  .retrieveGrouperProvisioningTranslator()
+                  .translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, translateFromGroupAttribute);
+              String provisioningAttributeString = GrouperUtil.stringValue(provisioningAttribute);
 
               provisioningAttributeToGroup.put(provisioningAttributeString,
                   gcGrouperSyncGroup);

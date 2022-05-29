@@ -1083,10 +1083,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         continue;
       }
 
+      boolean isMembershipAttribute = false;
+      if (isGroupAttributes && !StringUtils.isBlank(sqlProvisioningConfiguration.getGroupMembershipAttributeName()) && StringUtils.equals(sqlProvisioningConfiguration.getGroupMembershipAttributeName(), attributeName)) {
+        isMembershipAttribute = true;
+      }
+      
       // maybe we dont want memberships
       if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
         
-        if (!configurationAttribute.isMembershipAttribute() || (isGroupAttributes && includeMemberships)) {
+        if (!isMembershipAttribute || (isGroupAttributes && includeMemberships)) {
 
           attributeTableAttributesNamesList.add(attributeName);
 
@@ -1347,10 +1352,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         continue;
       }
       
+      boolean isMembershipAttribute = false;
+      if (isGroupAttributes && !StringUtils.isBlank(sqlProvisioningConfiguration.getGroupMembershipAttributeName()) && StringUtils.equals(sqlProvisioningConfiguration.getGroupMembershipAttributeName(), attributeName)) {
+        isMembershipAttribute = true;
+      }
+
       // maybe we dont want memberships
       if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
         
-        if (!configurationAttribute.isMembershipAttribute() || (isGroupAttributes && includeMemberships)) {
+        if (!isMembershipAttribute || (isGroupAttributes && includeMemberships)) {
 
           attributeTableAttributesNamesList.add(attributeName);
 
@@ -1490,10 +1500,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         continue;
       }
       
+      boolean isMembershipAttribute = false;
+      if (isEntityAttributes && !StringUtils.isBlank(sqlProvisioningConfiguration.getGroupMembershipAttributeName()) && StringUtils.equals(sqlProvisioningConfiguration.getGroupMembershipAttributeName(), attributeName)) {
+        isMembershipAttribute = true;
+      }
+
       // maybe we dont want memberships
       if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
         
-        if (!configurationAttribute.isMembershipAttribute() || (isEntityAttributes && includeMemberships)) {
+        if (!isMembershipAttribute || (isEntityAttributes && includeMemberships)) {
 
           attributeTableAttributesNamesList.add(attributeName);
 
@@ -1599,10 +1614,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         continue;
       }
       
+      boolean isMembershipAttribute = false;
+      if (isEntityAttributes && !StringUtils.isBlank(sqlProvisioningConfiguration.getGroupMembershipAttributeName()) && StringUtils.equals(sqlProvisioningConfiguration.getGroupMembershipAttributeName(), attributeName)) {
+        isMembershipAttribute = true;
+      }
+
       // maybe we dont want memberships
       if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
         
-        if (!configurationAttribute.isMembershipAttribute() || (isEntityAttributes && includeMemberships)) {
+        if (!isMembershipAttribute || (isEntityAttributes && includeMemberships)) {
 
           attributeTableAttributesNamesList.add(attributeName);
 

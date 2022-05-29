@@ -248,6 +248,50 @@ public class MembershipGuiContainer {
   public void setTraceMembershipFromSubject(boolean traceMembershipFromSubject1) {
     this.traceMembershipFromSubject = traceMembershipFromSubject1;
   }
+  
+  /**
+   * if should show user audit
+   */
+  private boolean traceMembershipTimelineShowUserAudit = true;
+
+  /**
+   * if should show pit audit
+   */
+  private boolean traceMembershipTimelineShowPITAudit = true;
+
+  /**
+   * if should show user audit
+   * @return traceMembershipTimelineShowUserAudit
+   */
+  public boolean isTraceMembershipTimelineShowUserAudit() {
+    return traceMembershipTimelineShowUserAudit;
+  }
+
+  /**
+   * if should show user audit
+   * @param traceMembershipTimelineShowUserAudit
+   */
+  public void setTraceMembershipTimelineShowUserAudit(
+      boolean traceMembershipTimelineShowUserAudit) {
+    this.traceMembershipTimelineShowUserAudit = traceMembershipTimelineShowUserAudit;
+  }
+
+  /**
+   * if should show pit audit
+   * @return traceMembershipTimelineShowPITAudit
+   */
+  public boolean isTraceMembershipTimelineShowPITAudit() {
+    return traceMembershipTimelineShowPITAudit;
+  }
+
+  /**
+   * if should show pit audit
+   * @param traceMembershipTimelineShowPITAudit
+   */
+  public void setTraceMembershipTimelineShowPITAudit(
+      boolean traceMembershipTimelineShowPITAudit) {
+    this.traceMembershipTimelineShowPITAudit = traceMembershipTimelineShowPITAudit;
+  }
 
   /**
    * line number of trace starting with 0

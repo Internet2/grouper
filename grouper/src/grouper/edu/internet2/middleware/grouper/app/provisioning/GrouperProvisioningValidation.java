@@ -66,7 +66,7 @@ public class GrouperProvisioningValidation {
     
     String membershipAttributeName =  null;
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      membershipAttributeName =  this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupAttributeNameForMemberships();
+      membershipAttributeName =  this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName();
     }
     
     //check for required attributes
@@ -151,7 +151,7 @@ public class GrouperProvisioningValidation {
     
     String membershipAttributeName =  null;
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-      membershipAttributeName =  this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityAttributeNameForMemberships();
+      membershipAttributeName =  this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName();
     }
     
     //check for required attributes

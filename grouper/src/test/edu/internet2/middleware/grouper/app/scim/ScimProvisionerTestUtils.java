@@ -151,7 +151,13 @@ public class ScimProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache2");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2source", "target");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2type", "entityAttribute");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2entityAttribute", "id");
+
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.matchingId", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "userName");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.searchAttribute", "true");
@@ -180,7 +186,12 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "extension");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "id");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateToGroupSyncField", "groupAttributeValueCache2");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2source", "target");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2type", "groupAttribute");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2groupAttribute", "id");
     }
     configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "false");

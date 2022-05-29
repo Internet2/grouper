@@ -52,6 +52,11 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
 import junit.textui.TestRunner;
 
+/**
+ * TODO refactor tests for 2.6.9 configs
+ * @author mchyzer
+ *
+ */
 public class GrouperProvisioningServiceTest extends GrouperTest {
   
   public GrouperProvisioningServiceTest(String name) {
@@ -771,7 +776,12 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetGroupAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetGroupAttribute.0.translateToGroupSyncField", "groupAttributeValueCache2");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.groupAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.groupAttributeValueCache2has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.groupAttributeValueCache2source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.groupAttributeValueCache2type", "groupAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.groupAttributeValueCache2groupAttribute", "name");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetGroupAttribute.1.name", "businessCategory");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetGroupAttribute.1.insert", "true");
@@ -812,7 +822,12 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetEntityAttribute.0.name", "name");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetEntityAttribute.0.select", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache2");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.entityAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.entityAttributeValueCache2has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.entityAttributeValueCache2source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.entityAttributeValueCache2type", "entityAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.entityAttributeValueCache2entityAttribute", "name");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetEntityAttribute.1.name", "uid");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.junitProvisioningAttributePropagationTest.targetEntityAttribute.1.select", "true");

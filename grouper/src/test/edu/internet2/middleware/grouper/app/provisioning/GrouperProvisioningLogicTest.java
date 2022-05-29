@@ -11,6 +11,11 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import junit.textui.TestRunner;
 
+/**
+ * TODO refactor tests for 2.6.9 config
+ * @author mchyzer
+ *
+ */
 public class GrouperProvisioningLogicTest extends GrouperTest {
   
   /**
@@ -73,7 +78,12 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupAttributeValueCache2");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2type", "groupAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2groupAttribute", "name");
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     
@@ -112,7 +122,12 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache2");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityAttributeValueCache2has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityAttributeValueCache2source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityAttributeValueCache2type", "entityAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityAttributeValueCache2entityAttribute", "name");
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     
@@ -151,7 +166,13 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupAttributeValueCache2");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2type", "groupAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2groupAttribute", "name");
+
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.showAttributeValueSettings", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.defaultValue", "cn=admin,dc=example,dc=edu");
@@ -195,12 +216,19 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache2");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityAttributeValueCache2has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityAttributeValueCache2source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityAttributeValueCache2type", "entityAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityAttributeValueCache2entityAttribute", "name");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.1.defaultValue", "cn=admin,dc=example,dc=edu");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.1.multiValued", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.1.name", "member");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetEntityAttribute.1.translateFromGroupSyncField", "groupAttributeValueCache2");
+    
+    // TODO fix this
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityMembershipAttributeName", "member");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entityMembershipAttributeValue", "groupAttributeValueCache0");
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     
@@ -240,7 +268,12 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupAttributeValueCache2");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2type", "groupAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupAttributeValueCache2groupAttribute", "name");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.defaultValue", "cn=admin,dc=example,dc=edu");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.1.multiValued", "true");
@@ -337,82 +370,6 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     assertTrue(errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.doSomething"))));
 
-    //  provisioner.ldapProvTest.class = edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync
-    //  provisioner.ldapProvTest.deleteGroups = true
-    //  provisioner.ldapProvTest.deleteGroupsIfNotExistInGrouper = true
-    //  provisioner.ldapProvTest.deleteMemberships = true
-    //  provisioner.ldapProvTest.deleteMembershipsIfNotExistInGrouper = true
-    //  provisioner.ldapProvTest.groupDnType = bushy
-    //  provisioner.ldapProvTest.groupSearchAllFilter = (objectClass=groupOfNames)
-    //  provisioner.ldapProvTest.groupSearchBaseDn = ou=Groups,dc=example,dc=edu
-    //  provisioner.ldapProvTest.groupSearchFilter = (&(objectClass=groupOfNames)(businessCategory=${targetGroup.retrieveAttributeValue('businessCategory')}))
-    //  provisioner.ldapProvTest.hasTargetEntityLink = true
-    //  provisioner.ldapProvTest.hasTargetGroupLink = true
-    //  provisioner.ldapProvTest.insertGroups = true
-    //  provisioner.ldapProvTest.insertMemberships = true
-    //  provisioner.ldapProvTest.logAllObjectsVerbose = true
-    //  provisioner.ldapProvTest.numberOfGroupAttributes = 6
-    //  provisioner.ldapProvTest.operateOnGrouperEntities = true
-    //  provisioner.ldapProvTest.operateOnGrouperGroups = true
-    //  provisioner.ldapProvTest.operateOnGrouperMemberships = true
-    //  provisioner.ldapProvTest.provisioningType = groupAttributes
-    //  provisioner.ldapProvTest.selectEntities = true
-    //  provisioner.ldapProvTest.selectGroups = true
-    //  provisioner.ldapProvTest.selectMemberships = true
-    //  provisioner.ldapProvTest.subjectSourcesToProvision = personLdapSource
-    //  provisioner.ldapProvTest.targetEntityAttribute.0.fieldName = name
-    //  provisioner.ldapProvTest.targetEntityAttribute.0.select = true
-    //  provisioner.ldapProvTest.targetEntityAttribute.0.translateToMemberSyncField = entityAttributeValueCache2
-    //  provisioner.ldapProvTest.targetEntityAttribute.1.matchingId = true
-    //  provisioner.ldapProvTest.targetEntityAttribute.1.name = uid
-    //  provisioner.ldapProvTest.targetEntityAttribute.1.searchAttribute = true
-    //  provisioner.ldapProvTest.targetEntityAttribute.1.select = true
-    //  provisioner.ldapProvTest.targetEntityAttribute.1.translateExpressionType = grouperProvisioningEntityField
-    //  provisioner.ldapProvTest.targetEntityAttribute.1.translateFromGrouperProvisioningEntityField = subjectId
-    //  provisioner.ldapProvTest.numberOfEntityAttributes = 2
-    //  provisioner.ldapProvTest.targetGroupAttribute.0.fieldName = name
-    //  provisioner.ldapProvTest.targetGroupAttribute.0.insert = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.0.select = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.0.translateExpressionType = grouperProvisioningGroupField
-    //  provisioner.ldapProvTest.targetGroupAttribute.0.translateFromGrouperProvisioningGroupField = name
-    //  provisioner.ldapProvTest.targetGroupAttribute.0.translateToGroupSyncField = groupAttributeValueCache2
-    //  provisioner.ldapProvTest.targetGroupAttribute.0.update = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.1.insert = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.1.matchingId = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.1.name = businessCategory
-    //  provisioner.ldapProvTest.targetGroupAttribute.1.searchAttribute = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.1.select = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.1.translateExpressionType = grouperProvisioningGroupField
-    //  provisioner.ldapProvTest.targetGroupAttribute.1.translateFromGrouperProvisioningGroupField = idIndex
-    //  provisioner.ldapProvTest.targetGroupAttribute.1.valueType = long
-    //  provisioner.ldapProvTest.targetGroupAttribute.2.insert = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.2.name = cn
-    //  provisioner.ldapProvTest.targetGroupAttribute.2.select = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.2.translateExpressionType = grouperProvisioningGroupField
-    //  provisioner.ldapProvTest.targetGroupAttribute.2.translateFromGrouperProvisioningGroupField = extension
-    //  provisioner.ldapProvTest.targetGroupAttribute.2.valueType = string
-    //  provisioner.ldapProvTest.targetGroupAttribute.3.insert = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.3.multiValued = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.3.name = objectClass
-    //  provisioner.ldapProvTest.targetGroupAttribute.3.select = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.3.translateExpression = ${grouperUtil.toSet('top', 'groupOfNames')}
-    //  provisioner.ldapProvTest.targetGroupAttribute.3.translateExpressionType = translationScript
-    //  provisioner.ldapProvTest.targetGroupAttribute.4.defaultValue = cn=admin,dc=example,dc=edu
-    //  provisioner.ldapProvTest.targetGroupAttribute.4.membershipAttribute = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.4.multiValued = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.4.name = member
-    //  provisioner.ldapProvTest.targetGroupAttribute.4.translateFromMemberSyncField = entityAttributeValueCache2
-    //  provisioner.ldapProvTest.targetGroupAttribute.5.delete = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.5.insert = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.5.name = description
-    //  provisioner.ldapProvTest.targetGroupAttribute.5.select = true
-    //  provisioner.ldapProvTest.targetGroupAttribute.5.translateExpressionType = grouperProvisioningGroupField
-    //  provisioner.ldapProvTest.targetGroupAttribute.5.translateFromGrouperProvisioningGroupField = description
-    //  provisioner.ldapProvTest.targetGroupAttribute.5.update = true
-    //  provisioner.ldapProvTest.updateGroups = true
-    //  provisioner.ldapProvTest.userSearchAllFilter = (&(objectClass=person)(uid=*))
-    //  provisioner.ldapProvTest.userSearchBaseDn = ou=People,dc=example,dc=edu
-    //  provisioner.ldapProvTest.userSearchFilter = (&(objectClass=person)(uid=${targetEntity.retrieveAttributeValue('uid')}))
 
     
   }
@@ -643,33 +600,57 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetEntityAttribute.0.name", "name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache0");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0type", "entityAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0entityAttribute", "name");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
     assertFalse(errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.targetEntityAttribute.0.translateToMemberSyncField");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.entityAttributeValueCacheHas");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.entityAttributeValueCache0has");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.entityAttributeValueCache0source");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.entityAttributeValueCache0type");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.entityAttributeValueCache0entityAttribute");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
     assertTrue(errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.common.entityLink.entityAttributeValueCache0", "${targetEntity.name}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0type", "translationScript");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0translationScript", "${targetEntity.name}");
 
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
     assertFalse(errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetEntityAttribute.0.translateToMemberSyncField", "entityAttributeValueCache0");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0type", "entityAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache0entityAttribute", "name");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache1has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache1source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache1type", "entityAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityAttributeValueCache1entityAttribute", "name");
+
+    
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
     assertFalse(errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
     assertTrue(errorsAndSuffixes.contains(
-        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_targetEntityAttribute.0.translateToMemberSyncField_spanid")));
-    assertTrue(errorsAndSuffixes.contains(
-        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_common.entityLink.entityAttributeValueCache0_spanid")));
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleFromSameAttribute")).assignJqueryHandle("#config_entityAttributeValueCache0entityAttribute_spanid")));
 
+    //TODO fix this
+    
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.common.entityLink.entityAttributeValueCache0");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.hasTargetEntityLink");
 
@@ -677,7 +658,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     assertFalse(errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetEntityLink_spanid")));
     assertFalse(errorsAndSuffixes.contains(
-        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_targetEntityAttribute.0.translateToMemberSyncField_spanid")));
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_entityAttributeValueCache0entityAttribute_spanid")));
     assertFalse(errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket")).assignJqueryHandle("#config_common.entityLink.entityAttributeValueCache0_spanid")));
 
@@ -798,33 +779,54 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.name", "name");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupAttributeValueCache0");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0type", "groupAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0groupAttribute", "name");
 
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
     assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.targetGroupAttribute.0.translateToGroupSyncField");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.groupAttributeValueCacheHas");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.groupAttributeValueCache0has");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.groupAttributeValueCache0source");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.groupAttributeValueCache0type");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.groupAttributeValueCache0groupAttribute");
 
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
     assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.common.groupLink.groupAttributeValueCache0", "${targetGroup.name}");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0type", "translationScript");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0groupAttribute", "${targetGroup.name}");
 
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
     assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
 
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.targetGroupAttribute.0.translateToGroupSyncField", "groupAttributeValueCache0");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCacheHas", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0type", "groupAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache0groupAttribute", "name");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache1has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache1source", "target");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache1type", "groupAttribute");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupAttributeValueCache1groupAttribute", "name");
+
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();
     assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
     assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
-        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket")).assignJqueryHandle("#config_targetGroupAttribute.0.translateToGroupSyncField_spanid")));
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
-        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket")).assignJqueryHandle("#config_common.groupLink.groupAttributeValueCache0_spanid")));
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleFromSameAttribute")).assignJqueryHandle("#config_groupAttributeValueCache0groupAttribute_spanid")));
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.common.groupLink.groupAttributeValueCache0");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().remove("provisioner.sqlProvTest.hasTargetGroupLink");
@@ -833,9 +835,7 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
     assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
         new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkNeedsConfig")).assignJqueryHandle("#config_hasTargetGroupLink_spanid")));
     assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
-        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket")).assignJqueryHandle("#config_targetGroupAttribute.0.translateToGroupSyncField_spanid")));
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
-        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket")).assignJqueryHandle("#config_common.groupLink.groupAttributeValueCache0_spanid")));
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleFromSameAttribute")).assignJqueryHandle("#config_common.groupLink.groupAttributeValueCache0_spanid")));
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.abc123", "def456");
     errorsAndSuffixes = GrouperProvisioner.retrieveProvisioner("sqlProvTest").retrieveGrouperProvisioningConfigurationValidation().validate();

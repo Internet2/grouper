@@ -317,7 +317,12 @@ public class GrouperProvisioningDiagnosticsContainer {
             
             if (GrouperUtil.isBlank(grouperTargetGroup.getMatchingId())) {
               
-              GrouperProvisioningConfigurationAttribute matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveGroupAttributeMatching();
+              // TODO handle multiple matching IDs
+              GrouperProvisioningConfigurationAttribute matchingAttribute = null;
+              if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) > 0) {
+                matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes().get(0);
+              }
+
               if (matchingAttribute == null) {
                 
                 if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isUpdateGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
@@ -437,7 +442,12 @@ public class GrouperProvisioningDiagnosticsContainer {
               
               if (GrouperUtil.isBlank(grouperTargetEntity.getMatchingId())) {
                 
-                GrouperProvisioningConfigurationAttribute matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveEntityAttributeMatching();
+                // TODO handle multiple matching IDs
+                GrouperProvisioningConfigurationAttribute matchingAttribute = null;
+                if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) > 0) {
+                  matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes().get(0);
+                }
+
                 if (matchingAttribute == null) {
                   if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isUpdateEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteEntities()) {
                     this.report.append("<font color='red'><b>Error:</b></font> Cannot find the entity matching attribute/field\n");
