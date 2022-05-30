@@ -126,7 +126,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapDao"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFull_1_LocalResolvers"));
     
   }
   

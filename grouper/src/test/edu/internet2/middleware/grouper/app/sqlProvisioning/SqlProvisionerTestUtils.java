@@ -98,7 +98,9 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.sqlMappingType", "entityAttribute");
       configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.subjectSearchMatchingColumn", "subject_id_or_identifier");
       configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.tableOrViewName", "testgrouper_prov_entity1");
-
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.columnNames", "subject_id_or_identifier, school, subject_source_id");
+      
+      
     }
     
     if (provisioningTestConfigInput.isEntityAttributesTable()) {
