@@ -126,7 +126,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisionerFailsafe"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapDao"));
     
   }
   
@@ -2135,6 +2135,7 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignGroupAttributesTable(true)
         .assignGroupTableName("testgrouper_prov_ldap_group")
         .assignGroupTableIdColumn("uuid")
+        .assignEntityAttributesTable(true)
         .assignEntityTableName("testgrouper_prov_ldap_entity")
         .assignEntityTableIdColumn("entity_uuid")
         .assignEntityAttributeCount(3)
@@ -2519,7 +2520,7 @@ public class SqlProvisionerTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
-        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+        .addBindVar(uuid).addBindVar("employeeId").addBindVar("test.subject." + i).executeSql();
     }
     
     
@@ -2745,7 +2746,7 @@ public class SqlProvisionerTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
-        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+        .addBindVar(uuid).addBindVar("employeeId").addBindVar("test.subject." + i).executeSql();
     }
     
     
@@ -2884,7 +2885,7 @@ public class SqlProvisionerTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
-        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+        .addBindVar(uuid).addBindVar("employeeId").addBindVar("test.subject." + i).executeSql();
     }
     
     
@@ -3581,7 +3582,7 @@ public class SqlProvisionerTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
-        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+        .addBindVar(uuid).addBindVar("employeeId").addBindVar("test.subject." + i).executeSql();
     }
     
     

@@ -195,7 +195,7 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2entityAttribute", "dn");
 
       
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "employeeID");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "employeeId");
       if (provisioningTestConfigInput.isEntityAttributesTable()) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.storageType", "separateAttributesTable");
       }
@@ -203,7 +203,7 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
       
       configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
-      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "employeeID");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "employeeId");
       
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "entity_uuid");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
