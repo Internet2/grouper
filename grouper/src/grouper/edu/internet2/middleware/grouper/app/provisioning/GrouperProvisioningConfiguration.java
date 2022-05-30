@@ -1978,25 +1978,24 @@ public abstract class GrouperProvisioningConfiguration {
 
         {
           boolean showAttributeValueSettings = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".showAttributeValueSettings" , false), false);
+          Boolean multiValued = null;
           if (showAttributeValueSettings) {
-
-            {
-              Boolean multiValued = this.retrieveConfigBoolean(objectType + "."+i+".multiValued" , false);
-              
-              // default multivalued to true for membership attribute if nothing set already
-              if (multiValued == null) {
-                if (StringUtils.equals(objectType, "targetGroupAttribute") && !StringUtils.isBlank(this.groupMembershipAttributeName)
-                    && StringUtils.equals(this.groupMembershipAttributeName, name)) {
-                  multiValued = true;
-                }
-                if (StringUtils.equals(objectType, "targetEntityAttribute") && !StringUtils.isBlank(this.entityMembershipAttributeName)
-                    && StringUtils.equals(this.entityMembershipAttributeName, name)) {
-                  multiValued = true;
-                }
-              }
-              attributeConfig.setMultiValued(multiValued == null ? false: multiValued);
+            multiValued = this.retrieveConfigBoolean(objectType + "."+i+".multiValued" , false);
+          }
+          // default multivalued to true for membership attribute if nothing set already
+          if (multiValued == null) {
+            if (StringUtils.equals(objectType, "targetGroupAttribute") && !StringUtils.isBlank(this.groupMembershipAttributeName)
+                && StringUtils.equals(this.groupMembershipAttributeName, name)) {
+              multiValued = true;
             }
-
+            if (StringUtils.equals(objectType, "targetEntityAttribute") && !StringUtils.isBlank(this.entityMembershipAttributeName)
+                && StringUtils.equals(this.entityMembershipAttributeName, name)) {
+              multiValued = true;
+            }
+          }
+          attributeConfig.setMultiValued(multiValued == null ? false: multiValued);
+          
+          if (showAttributeValueSettings) {
             {
               String defaultValue = this.retrieveConfigString(objectType + "."+i+".defaultValue" , false);
               attributeConfig.setDefaultValue(defaultValue);
@@ -2299,7 +2298,7 @@ public abstract class GrouperProvisioningConfiguration {
     }
 
     boolean entityMatchingAttributeSameAsSearchAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityMatchingAttributeSameAsSearchAttribute", false), true);
-    int entityMatchingAttributeCount = this.retrieveConfigInt("entityMatchingAttributeCount", true);
+    int entityMatchingAttributeCount = GrouperUtil.intValue(this.retrieveConfigInt("entityMatchingAttributeCount", false), 0);
     this.entityMatchingAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
     this.entitySearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
     for (int i=0;i<entityMatchingAttributeCount;i++) {
@@ -2329,7 +2328,7 @@ public abstract class GrouperProvisioningConfiguration {
     }
 
     boolean groupMatchingAttributeSameAsSearchAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupMatchingAttributeSameAsSearchAttribute", false), true);
-    int groupMatchingAttributeCount = this.retrieveConfigInt("groupMatchingAttributeCount", true);
+    int groupMatchingAttributeCount = GrouperUtil.intValue(this.retrieveConfigInt("groupMatchingAttributeCount", false), 0);
     this.groupMatchingAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
     this.groupSearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
     for (int i=0;i<groupMatchingAttributeCount;i++) {

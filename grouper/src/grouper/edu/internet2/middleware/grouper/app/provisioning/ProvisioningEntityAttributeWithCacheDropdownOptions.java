@@ -36,6 +36,8 @@ public class ProvisioningEntityAttributeWithCacheDropdownOptions implements Opti
     options.add("entityAttributeValueCache1");
     options.add("entityAttributeValueCache2");
     options.add("entityAttributeValueCache3");
+    options.add("subjectId");
+    options.add("subjectIdentifier");
         
     GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = configSuffixToConfigModuleAttribute.get("numberOfEntityAttributes");
     if (grouperConfigurationModuleAttribute != null) {

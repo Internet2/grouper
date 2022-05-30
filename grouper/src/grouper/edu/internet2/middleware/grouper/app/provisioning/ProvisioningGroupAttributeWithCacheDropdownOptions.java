@@ -36,7 +36,11 @@ public class ProvisioningGroupAttributeWithCacheDropdownOptions implements Optio
     options.add("groupAttributeValueCache1");
     options.add("groupAttributeValueCache2");
     options.add("groupAttributeValueCache3");
-        
+    options.add("id");
+    options.add("idIndexString");
+    options.add("name");
+    options.add("extension");
+
     GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = configSuffixToConfigModuleAttribute.get("numberOfGroupAttributes");
     if (grouperConfigurationModuleAttribute != null) {
       
