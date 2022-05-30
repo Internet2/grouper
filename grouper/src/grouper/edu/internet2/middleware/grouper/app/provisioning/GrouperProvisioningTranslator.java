@@ -158,9 +158,9 @@ public class GrouperProvisioningTranslator {
               
               Object result = null;
               
-              if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
+              if (!StringUtils.isBlank(this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeValue())) {
                 result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper, 
-                    grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField());
+                    this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeValue());
               }
               if (result != null) {
                 
@@ -196,10 +196,11 @@ public class GrouperProvisioningTranslator {
               
               Object result = null;
               
-              if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
+              if (!StringUtils.isBlank(this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeValue())) {
                 result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, 
-                    grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField());
+                    this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeValue());
               }
+
               if (result != null) {
                 if (!grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper().isDelete()) {
                   MultiKey validationError = this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validFieldOrAttributeValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, result);

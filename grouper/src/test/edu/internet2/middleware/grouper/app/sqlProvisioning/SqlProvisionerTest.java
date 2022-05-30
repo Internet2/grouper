@@ -126,7 +126,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisioner"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
     
   }
   
@@ -2680,7 +2680,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
   public void configureLdapPaTestCase() {
     SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
-        .assignGroupDeleteType("deleteGroupsDeletedGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
         .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
         .assignEntityAttributesTable(true)
         .assignGroupAttributesTable(true)

@@ -2287,7 +2287,7 @@ public abstract class GrouperProvisioningConfiguration {
         this.groupSelectAttributes.add(targetGroupAttributeName);
       }
       
-      if (!StringUtils.isBlank(this.groupMembershipAttributeName) && StringUtils.equals(targetGroupAttributeName, grouperProvisioningConfigurationAttribute.getName())) {
+      if (!StringUtils.isBlank(this.groupMembershipAttributeName) && StringUtils.equals(this.groupMembershipAttributeName, grouperProvisioningConfigurationAttribute.getName())) {
         this.attributeNameForMemberships = targetGroupAttributeName;
         grouperProvisioningConfigurationAttribute.setSelect(this.isSelectMemberships());
         grouperProvisioningConfigurationAttribute.setInsert(this.isInsertMemberships());

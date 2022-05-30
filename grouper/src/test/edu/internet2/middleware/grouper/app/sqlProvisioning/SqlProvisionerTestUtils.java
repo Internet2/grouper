@@ -39,6 +39,7 @@ public class SqlProvisionerTestUtils {
     
     if (!StringUtils.isBlank(provisioningTestConfigInput.getEntityDeleteType())) {
       configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getEntityDeleteType(), "true");
     }
     if (!StringUtils.isBlank(provisioningTestConfigInput.getGroupDeleteType())) {
@@ -170,6 +171,8 @@ public class SqlProvisionerTestUtils {
       if (provisioningTestConfigInput.getEntityAttributeCount() != 3) {
         configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
       }      
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");
+
     } else {
       configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "false");
@@ -210,8 +213,6 @@ public class SqlProvisionerTestUtils {
 
       
     } else if (provisioningTestConfigInput.getEntityAttributeCount() >= 5) {
-
-      configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");
 
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "uuid");
       if (provisioningTestConfigInput.isEntityAttributesTable()) {
@@ -410,7 +411,7 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2has", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2source", "grouper");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2type", "groupAttribute");
-      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2entityAttribute", "dn");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2groupAttribute", "dn");
       
       configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "gidNumber");
