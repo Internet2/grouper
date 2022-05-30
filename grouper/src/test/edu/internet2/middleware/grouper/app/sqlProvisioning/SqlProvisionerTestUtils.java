@@ -114,15 +114,17 @@ public class SqlProvisionerTestUtils {
       
     }
     
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "showFailsafe", "true");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxOverallPercentGroupsRemove", "-1");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxOverallPercentMembershipsRemove", "-1");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxPercentRemove", "-1");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinGroupSize", "-1");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinManagedGroups", "-1");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinOverallNumberOfMembers", "-1");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeSendEmail", "false");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "failsafeUse", "true");
+    if (provisioningTestConfigInput.isFailsafeDefaults()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "showFailsafe", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxOverallPercentGroupsRemove", "-1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxOverallPercentMembershipsRemove", "-1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMaxPercentRemove", "-1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinGroupSize", "-1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinManagedGroups", "-1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "failsafeMinOverallNumberOfMembers", "-1");
+      configureProvisionerSuffix(provisioningTestConfigInput, "failsafeSendEmail", "false");
+      configureProvisionerSuffix(provisioningTestConfigInput, "failsafeUse", "true");
+    }
     
     if (provisioningTestConfigInput.isGroupAttributesTable()) {
       
@@ -220,7 +222,7 @@ public class SqlProvisionerTestUtils {
       }
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionCreateOnly", "${edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid()}");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionTypeCreateOnly", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "showAdvancedAttribute");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.showAdvancedAttribute", "true");
       
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");

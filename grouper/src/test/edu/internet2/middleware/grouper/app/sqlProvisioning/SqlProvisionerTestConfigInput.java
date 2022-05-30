@@ -13,6 +13,20 @@ import edu.internet2.middleware.grouper.app.scim.ScimProvisionerTestConfigInput;
  */
 public class SqlProvisionerTestConfigInput {
 
+  private boolean failsafeDefaults;
+  
+  
+  
+  public boolean isFailsafeDefaults() {
+    return failsafeDefaults;
+  }
+
+
+  public SqlProvisionerTestConfigInput assignFailsafeDefaults(boolean failsafeDefaults) {
+    this.failsafeDefaults = failsafeDefaults;
+    return this;
+  }
+
   /**
    * if has target entity link
    */

@@ -126,7 +126,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
+    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisionerFailsafe"));
     
   }
   
@@ -3068,6 +3068,7 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignEntityAttributeCount(5)
         .assignGroupAttributeCount(4)
         .assignMembershipAttributeCount(3)
+        .assignFailsafeDefaults(true)
         );
     
     // this closes the grouper session
