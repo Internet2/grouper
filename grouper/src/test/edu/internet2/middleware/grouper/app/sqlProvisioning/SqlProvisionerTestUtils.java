@@ -153,7 +153,10 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     }
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+    if (provisioningTestConfigInput.isOperateOnGrouperMemberships()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+    }
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     if (!StringUtils.isBlank(provisioningTestConfigInput.getMembershipEntityForeignKeyColumn())) {
       configureProvisionerSuffix(provisioningTestConfigInput, "membershipEntityForeignKeyColumn", provisioningTestConfigInput.getMembershipEntityForeignKeyColumn());
@@ -165,9 +168,12 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "membershipTableName", provisioningTestConfigInput.getMembershipTableName());
     }
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
+    if (provisioningTestConfigInput.isOperateOnGrouperMemberships()) {
 
+      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
+    }
+    
     if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "" + provisioningTestConfigInput.getEntityAttributeCount());
@@ -178,8 +184,11 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");
 
     } else {
-      configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "false");
+      if (provisioningTestConfigInput.isOperateOnGrouperMemberships()) {
+
+        configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "false");
+      }
     }
     
     if (provisioningTestConfigInput.getEntityAttributeCount() == 3) {
@@ -451,7 +460,9 @@ public class SqlProvisionerTestUtils {
 
     }
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+    if (provisioningTestConfigInput.isOperateOnGrouperMemberships()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+    }
     
     if (provisioningTestConfigInput.getMembershipAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfMembershipAttributes", "" + provisioningTestConfigInput.getMembershipAttributeCount());
@@ -488,10 +499,11 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.2.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache0");
     }
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    
-    configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", provisioningTestConfigInput.getProvisioningType());
+    if (!StringUtils.isBlank(provisioningTestConfigInput.getProvisioningType())) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", provisioningTestConfigInput.getProvisioningType());
+    }
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
 
     
     configureProvisionerSuffix(provisioningTestConfigInput, "showProvisioningDiagnostics", "true");

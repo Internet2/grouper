@@ -552,7 +552,6 @@ public class GrouperProvisioningValidation {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupsRequireMembers()) {
       return;
     }
-     
 
     Map<String, ProvisioningGroupWrapper> groupIdToGroupWrapperToCheck = new HashMap<String, ProvisioningGroupWrapper>();
     
@@ -588,6 +587,7 @@ public class GrouperProvisioningValidation {
     for (int i=0;i<numberOfBatches;i++) { 
       
       List<String> groupIdsBatch = GrouperUtil.batchList(groupIdsList, 900, i);
+      //TODO make this more efficient
       List<Object[]> groupIdCounts = new GcDbAccess().sql("select gmlv.group_id, count(*) from grouper_memberships_lw_v gmlv where gmlv.list_name = 'members' " 
           + " and gmlv.group_id in (" + GrouperClientUtils.appendQuestions(groupIdsBatch.size()) + ") group by group_id").addBindVars(groupIdsBatch).selectList(Object[].class);
 
@@ -604,11 +604,16 @@ public class GrouperProvisioningValidation {
       ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroup.getProvisioningGroupWrapper();
       ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
       Integer count = groupIdToCount.get(grouperProvisioningGroup.getId());
-      if (count != null && count == 0) {
+      if (count == null || count == 0) {
+        groupsMissingMembers++;
         assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.MEM, "Group has no members and members are required");
         if (removeInvalid) {
           iterator.remove();
-          
+        } else {
+          // remove the target group
+          if (provisioningGroupWrapper != null) {
+            provisioningGroupWrapper.setDelete(true);
+          }
         }
       }
     }    

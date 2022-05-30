@@ -2062,7 +2062,11 @@ public abstract class GrouperProvisioningConfiguration {
     if (this.hasTargetEntityLink) {
       this.debugMap.put("hasTargetEntityLink", this.hasTargetEntityLink);
     }
-
+    
+    if (GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("group2advanced", false), false)) {
+      this.groupsRequireMembers = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("groupsRequireMembers", false), false);
+    }
+    
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
 
     this.membershipMatchingIdExpression = this.retrieveConfigString("membershipMatchingIdExpression", false);
@@ -2227,7 +2231,6 @@ public abstract class GrouperProvisioningConfiguration {
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
     
-    this.groupsRequireMembers = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupsRequireMembers", false), false);
     this.loadEntitiesToGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGrouperTable", false), false);
     this.allowBlankMatchingIds = GrouperUtil.booleanValue(this.retrieveConfigBoolean("allowBlankMatchingIds", false), false);
     

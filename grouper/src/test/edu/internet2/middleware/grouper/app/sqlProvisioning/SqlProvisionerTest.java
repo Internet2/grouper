@@ -126,7 +126,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFull_1_LocalResolvers"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFullWithAttributesTableRequiredMembers"));
     
   }
   
@@ -3188,7 +3188,10 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignGroupTableName("testgrouper_prov_group")
         .assignGroupTableIdColumn("uuid")
         .assignGroupAttributeCount(1)
+        .addExtraConfig("group2advanced", "true")
         .addExtraConfig("groupsRequireMembers", "true")
+        .assignOperateOnGrouperMemberships(false)
+        .assignProvisioningType(null)
         );
 
     // this closes the grouper session
