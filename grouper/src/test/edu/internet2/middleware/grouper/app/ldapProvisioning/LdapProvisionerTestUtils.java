@@ -209,6 +209,7 @@ public class LdapProvisionerTestUtils {
    *    .assignSubjectSourcesToProvision("jdbc")
    *    .assignEntitlementMetadata(true)
    *    .addExtraConfig("allowProvisionableRegexOverride", "true")
+   *    .addExtraConfig("logCommandsAlways", "true")
    *
    */
   public static void configureLdapProvisioner(LdapProvisionerTestConfigInput provisioningTestConfigInput) {
@@ -289,7 +290,7 @@ public class LdapProvisionerTestUtils {
                   + provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField() + ") + ',ou=Groups,dc=example,dc=edu'))}");
         } else {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", 
-              provisioningTestConfigInput.isGroupDnTypeBushy() ? "extension" : provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
+              provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
         }
     
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "objectClass");

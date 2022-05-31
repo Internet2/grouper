@@ -350,6 +350,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       boolean hasRenameFailure = false;
       List<Exception> exceptions = new ArrayList<Exception>();
 
+      String dn = targetGroup.retrieveAttributeValueString(ldap_dn);
+      if (targetGroup.getProvisioningGroupWrapper() != null && targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup() != null
+          && !GrouperUtil.isBlank(targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueString(ldap_dn))) {
+        dn = targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueString(ldap_dn);
+      }
+
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
         String attributeName = provisionObjectChange.getAttributeName();
@@ -374,6 +380,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             
             try {
               ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
+              dn = (String)newValue;
             } catch (Exception e) {
               if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
                 createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, (String)newValue);
@@ -435,11 +442,6 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
   
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
-      String dn = targetGroup.retrieveAttributeValueString(ldap_dn);
-      if (targetGroup.getProvisioningGroupWrapper() != null && targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup() != null
-          && !GrouperUtil.isBlank(targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueString(ldap_dn))) {
-        dn = targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueString(ldap_dn);
-      }
       LdapModificationResult result = ldapSyncDaoForLdap.modify(ldapConfigId, dn, new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
       
       if (!hasRenameFailure) {
