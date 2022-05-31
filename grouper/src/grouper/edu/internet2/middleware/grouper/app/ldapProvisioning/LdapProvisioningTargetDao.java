@@ -365,7 +365,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           oldValue = GrouperUtil.stringValue(oldValue);
         }
         
-        if (attributeName == null && LdapProvisioningTargetDao.ldap_dn.equals(attributeName) && action == ProvisioningObjectChangeAction.update) {
+        if (attributeName != null && LdapProvisioningTargetDao.ldap_dn.equals(attributeName) && action == ProvisioningObjectChangeAction.update) {
           // this is a rename
           try {
             checkParentFolderCaseChanges(ldapSyncConfiguration, (String)oldValue, (String)newValue);
@@ -435,7 +435,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
   
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
-      LdapModificationResult result = ldapSyncDaoForLdap.modify(ldapConfigId, targetGroup.retrieveAttributeValueString(ldap_dn), new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
+      String dn = targetGroup.retrieveAttributeValueString(ldap_dn);
+      if (targetGroup.getProvisioningGroupWrapper() != null && targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup() != null
+          && !GrouperUtil.isBlank(targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueString(ldap_dn))) {
+        dn = targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueString(ldap_dn);
+      }
+      LdapModificationResult result = ldapSyncDaoForLdap.modify(ldapConfigId, dn, new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
       
       if (!hasRenameFailure) {
         targetGroup.setProvisioned(true);  // assume true to start with

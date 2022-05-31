@@ -335,7 +335,7 @@ public class GrouperProvisioningTranslator {
       // do the required's first
       for (boolean required : new boolean[] {true, false}) {
         // attribute translations
-        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
+        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : entityTargetAttributesInTranslationOrder()) {
           if (grouperProvisioningConfigurationAttribute.isRequired() == required) {
             
             if (!grouperProvisioningConfigurationAttribute.isUpdate() && StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())
@@ -406,6 +406,10 @@ public class GrouperProvisioningTranslator {
     return grouperTargetEntities;
   }
 
+  public Collection<GrouperProvisioningConfigurationAttribute> entityTargetAttributesInTranslationOrder() {
+    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values();
+  }
+
   public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups, boolean includeDelete, boolean forCreate) {
 
     List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(
@@ -437,7 +441,7 @@ public class GrouperProvisioningTranslator {
       // do the required's first
       for (boolean required : new boolean[] {true, false}) {
         // attribute translations
-        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
+        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : groupAttributesInTranslationOrder()) {
           if (grouperProvisioningConfigurationAttribute.isRequired() == required) {
             
             if (!grouperProvisioningConfigurationAttribute.isUpdate() && StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
@@ -503,6 +507,10 @@ public class GrouperProvisioningTranslator {
         
     }
     return grouperTargetGroups;
+  }
+
+  public Collection<GrouperProvisioningConfigurationAttribute> groupAttributesInTranslationOrder() {
+    return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values();
   }
 
   /**

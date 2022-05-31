@@ -40,7 +40,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerBushyTest("testIncrementalLdapBushyWithCNName"));    
+    TestRunner.run(new LdapProvisionerBushyTest("testFullLdapBushy"));    
   }
   
   public LdapProvisionerBushyTest() {
@@ -122,8 +122,11 @@ public class LdapProvisionerBushyTest extends GrouperTest {
   public void testFullLdapBushy() {
       
     LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisionerTestConfigInput()        
+        new LdapProvisionerTestConfigInput()   
+        .assignGroupAttributeCount(6)
+        .assignEntityAttributeCount(2)
         .assignGroupDnTypeBushy(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignUpdateGroupsAndDn(true));
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
