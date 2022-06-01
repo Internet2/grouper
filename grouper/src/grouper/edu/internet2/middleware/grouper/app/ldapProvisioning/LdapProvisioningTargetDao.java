@@ -380,7 +380,6 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             
             try {
               ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
-              dn = (String)newValue;
             } catch (Exception e) {
               if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
                 createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, (String)newValue);
@@ -389,7 +388,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
                 throw e;
               }
             }
-            
+
+            dn = (String)newValue;
             deleteEmptyParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, (String)oldValue);
             
             provisionObjectChange.setProvisioned(true);
