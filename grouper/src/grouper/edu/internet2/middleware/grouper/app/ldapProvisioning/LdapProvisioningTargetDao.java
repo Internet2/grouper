@@ -356,6 +356,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         dn = targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueString(ldap_dn);
       }
 
+      boolean movedDn = false;
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
         String attributeName = provisionObjectChange.getAttributeName();
@@ -389,6 +390,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               }
             }
 
+            movedDn = true;
             dn = (String)newValue;
             deleteEmptyParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, (String)oldValue);
             
@@ -416,6 +418,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             ldapModificationItems.put(item, provisionObjectChange);
           }
         } else if (action == ProvisioningObjectChangeAction.update) {
+
+          // the rdn was already changed
+          if (movedDn && dn.startsWith(attributeName+"=")) {
+            continue;
+          }
+          
           if (oldValue != null) {
             LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName, oldValue));
             ldapModificationItems.put(item, provisionObjectChange);
@@ -1061,7 +1069,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           
       boolean hasRenameFailure = false;
       List<Exception> exceptions = new ArrayList<Exception>();
-      
+      boolean movedDn = false;
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
         String attributeName = provisionObjectChange.getAttributeName();
@@ -1081,6 +1089,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           // this is a rename
           try {
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
+            newValue = GrouperUtil.stringValue(newValue);
+            oldValue = GrouperUtil.stringValue(oldValue);
+            movedDn = true;
             ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
             provisionObjectChange.setProvisioned(true);
           } catch (Exception e) {

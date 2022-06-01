@@ -371,6 +371,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
         .assignGroupDnTypeBushy(true)
         .assignTranslateFromGrouperProvisioningGroupField("extension")
         .assignExplicitFilters(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignUpdateGroupsAndDn(true));
     
     ConfigPropertiesCascadeBase.clearCache();
@@ -622,6 +623,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true)
         .addExtraConfig("logCommandsAlways", "true")
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         );
 
     ConfigPropertiesCascadeBase.clearCache();
@@ -868,6 +870,7 @@ public class LdapProvisionerBushyTest extends GrouperTest {
         .assignGroupDnTypeBushy(true)
         .assignTranslateFromGrouperProvisioningGroupField("name")
         .assignExplicitFilters(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignUpdateGroupsAndDn(true));
     
     ConfigPropertiesCascadeBase.clearCache();

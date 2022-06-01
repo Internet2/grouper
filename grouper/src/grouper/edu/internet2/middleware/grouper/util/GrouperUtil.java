@@ -7469,7 +7469,9 @@ public class GrouperUtil {
       return decimalFormat.format(((Number) input).doubleValue());
 
     }
-
+    if (input instanceof byte[]) {
+      return new String((byte[])input, StandardCharsets.UTF_8);
+    }
     return input.toString();
   }
 

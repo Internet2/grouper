@@ -409,6 +409,7 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", provisioningTestConfigInput.getSubjectSourcesToProvision());
   
     if (!StringUtils.isBlank(provisioningTestConfigInput.getGroupDeleteType())) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getGroupDeleteType(), "true");
     } else {
