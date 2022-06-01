@@ -412,8 +412,11 @@ public class LdapProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getGroupDeleteType(), "true");
     } else {
-      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "false");
+      if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
+
+        configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "false");
+      }
     }
   
     if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
@@ -441,12 +444,6 @@ public class LdapProvisionerTestUtils {
     if (provisioningTestConfigInput.getGroupAttributeCount() > 1) {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupDnType", provisioningTestConfigInput.isGroupDnTypeBushy() ? "bushy" : "flat");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchBaseDn", "ou=Groups,dc=example,dc=edu");
-    }
-    if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
-      if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
-        configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
-      }
     }
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");

@@ -66,7 +66,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapEntityMetadataProvisionerFull"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapEntityProvisionerFull"));    
 //    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLegacyConfig_1"));    
   }
   
@@ -1070,6 +1070,8 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
           .assignConfigId("eduPersonEntitlement")
+          .assignMembershipStructureEntityAttributes(true)
+          .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
           .assignGroupAttributeCount(0)
           .assignEntityAttributeCount(3)
           .assignExplicitFilters(true)
