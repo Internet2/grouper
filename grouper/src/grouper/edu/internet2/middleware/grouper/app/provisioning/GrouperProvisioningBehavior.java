@@ -625,8 +625,6 @@ public class GrouperProvisioningBehavior {
 
   private Boolean insertGroups;
 
-  private Set<String> insertGroupsAttributes;
-
   private Boolean deleteGroupsIfNotExistInGrouper;
   
   private Boolean deleteGroupsIfGrouperDeleted;
@@ -1051,14 +1049,6 @@ public class GrouperProvisioningBehavior {
   }
 
   
-  public Set<String> getInsertGroupsAttributes() {
-    return insertGroupsAttributes;
-  }
-
-  public void setInsertGroupsAttributes(Set<String> groupsInsertAttributes) {
-    this.insertGroupsAttributes = groupsInsertAttributes;
-  }
-
   
   public boolean isDeleteGroupsIfNotExistInGrouper() {
     if (this.deleteGroupsIfNotExistInGrouper != null) {

@@ -226,7 +226,11 @@ public class LdapProvisionerTestUtils {
     }
 
     if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "" + provisioningTestConfigInput.getGroupAttributeCount() + "");
+      if (provisioningTestConfigInput.getGroupAttributeCount() == 6 && StringUtils.equals(provisioningTestConfigInput.getMembershipAttribute(), "description")) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "5");
+      } else {
+        configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "" + provisioningTestConfigInput.getGroupAttributeCount() + "");
+      }
       
       if (provisioningTestConfigInput.getGroupAttributeCount() == 1) {
 
