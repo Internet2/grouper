@@ -247,7 +247,11 @@ public class LdapProvisionerTestUtils {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
           
         }
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateGrouperToGroupSyncField", "groupAttributeValueCache0");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "grouper");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupAttribute");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0groupAttribute", "entitlement");
         
       } else {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "ldap_dn");
@@ -418,33 +422,36 @@ public class LdapProvisionerTestUtils {
   
     if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
+      if (provisioningTestConfigInput.getGroupAttributeCount() > 1) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
+      }
     }
     
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", provisioningTestConfigInput.isMembershipStructureEntityAttributes() ? "entityAttributes" : "groupAttributes");
     configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "true");
   
-    if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
+    if (provisioningTestConfigInput.getGroupAttributeCount() == 1) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "false");
+      configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "false");
+      configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "false");
+      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "false");
+      
+    }
+    if (provisioningTestConfigInput.getGroupAttributeCount() > 1) {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupDnType", provisioningTestConfigInput.isGroupDnTypeBushy() ? "bushy" : "flat");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchBaseDn", "ou=Groups,dc=example,dc=edu");
-      configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
     }
     if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
       if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
         configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
       }
     }
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsIfNotExistInGrouper", "true");
-    if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "true");
-      if (provisioningTestConfigInput.isUpdateGroupsAndDn()) {
-        configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
-      }
+    if (!StringUtils.isBlank(provisioningTestConfigInput.getMembershipDeleteType())) {
+      configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getMembershipDeleteType(), "true");
     }
     
     if (provisioningTestConfigInput.isExplicitFilters()) {
