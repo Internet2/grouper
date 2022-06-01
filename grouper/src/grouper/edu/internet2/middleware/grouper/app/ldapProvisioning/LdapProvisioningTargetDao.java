@@ -1069,6 +1069,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           
       boolean hasRenameFailure = false;
       List<Exception> exceptions = new ArrayList<Exception>();
+      
+      String dn = targetEntity.retrieveAttributeValueString(ldap_dn);
+      if (targetEntity.getProvisioningEntityWrapper() != null && targetEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity() != null
+          && !GrouperUtil.isBlank(targetEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity().retrieveAttributeValueString(ldap_dn))) {
+        dn = targetEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity().retrieveAttributeValueString(ldap_dn);
+      }
+
       boolean movedDn = false;
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
@@ -1091,8 +1098,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             newValue = GrouperUtil.stringValue(newValue);
             oldValue = GrouperUtil.stringValue(oldValue);
-            movedDn = true;
             ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
+            movedDn = true;
+            dn = (String)newValue;
             provisionObjectChange.setProvisioned(true);
           } catch (Exception e) {
             provisionObjectChange.setProvisioned(false);
@@ -1117,6 +1125,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             ldapModificationItems.put(item, provisionObjectChange);
           }
         } else if (action == ProvisioningObjectChangeAction.update) {
+          // the rdn was already changed
+          if (movedDn && dn.startsWith(attributeName+"=")) {
+            continue;
+          }
+
           if (oldValue != null) {
             LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName, oldValue));
             ldapModificationItems.put(item, provisionObjectChange);
