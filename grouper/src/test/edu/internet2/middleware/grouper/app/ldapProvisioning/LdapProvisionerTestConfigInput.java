@@ -136,6 +136,52 @@ public class LdapProvisionerTestConfigInput {
   }
 
   /**
+   * set to false to have grouper auto translate the dn
+   */
+  private boolean entityDnTranslate = true;
+  
+  /**
+   * set to false to have grouper auto translate the dn
+   * @return
+   */
+  public boolean isEntityDnTranslate() {
+    return entityDnTranslate;
+  }
+
+  /**
+   * set to false to have grouper auto translate the dn
+   * @param entityDnTranslate
+   * @return
+   */
+  public LdapProvisionerTestConfigInput assignEntityDnTranslate(boolean entityDnTranslate) {
+    this.entityDnTranslate = entityDnTranslate;
+    return this;
+  }
+
+  /**
+   * set to false to have grouper auto translate the dn
+   */
+  private boolean groupDnTranslate = true;
+
+  /**
+   * set to false to have grouper auto translate the dn
+   * @return
+   */
+  public boolean isGroupDnTranslate() {
+    return groupDnTranslate;
+  }
+
+  /**
+   * set to false to have grouper auto translate the dn
+   * @param groupDnTranslate
+   * @return
+   */
+  public LdapProvisionerTestConfigInput assignGroupDnTranslate(boolean groupDnTranslate) {
+    this.groupDnTranslate = groupDnTranslate;
+    return this;
+  }
+
+  /**
    * groupDnType flat (default) or bushy
    */
   private boolean groupDnTypeBushy = false;
