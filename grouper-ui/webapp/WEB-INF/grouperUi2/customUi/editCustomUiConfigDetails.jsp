@@ -72,6 +72,7 @@
 					  					ajaxCallback="ajax('../app/UiV2CustomUiConfig.editCustomUiConfig?customUiConfigId=${grouperRequestContainer.customUiContainer.guiCustomUiConfiguration.customUiConfiguration.configId}', {formIds: 'customUiConfigDetails'}); return false;"
 					  					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
 					  					checkboxAttributes="${attribute.checkboxAttributes}"
+                      indent="${attribute.configItemMetadata.indent}"
 					  				/>
 					  				
 					  			</c:forEach>

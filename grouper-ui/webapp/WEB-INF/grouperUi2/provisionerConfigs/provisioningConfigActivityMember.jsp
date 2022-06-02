@@ -25,10 +25,10 @@
              <th>${textContainer.text['provisionerActivityTableHeaderLastUserSync']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderLastUserMetadataSyncStart']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderLastUserMetadataSync']}</th>
-             <th>${textContainer.text['provisionerActivityTableHeaderMemberFromId2']}</th>
-             <th>${textContainer.text['provisionerActivityTableHeaderMemberFromId3']}</th>
-             <th>${textContainer.text['provisionerActivityTableHeaderMemberToId2']}</th>
-             <th>${textContainer.text['provisionerActivityTableHeaderMemberToId3']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderEntityAttributeValueCache0']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderEntityAttributeValueCache1']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderEntityAttributeValueCache2']}</th>
+             <th>${textContainer.text['provisionerActivityTableHeaderEntityAttributeValueCache3']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderMetadataUpdated']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderErrorMessage']}</th>
              <th>${textContainer.text['provisionerActivityTableHeaderErrorTimestamp']}</th>
@@ -128,19 +128,19 @@
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.memberFromId2}
+                    ${grouperSyncMember.entityAttributeValueCache0}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncGroup.memberFromId3}
+                    ${grouperSyncGroup.entityAttributeValueCache1}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.memberToId2}
+                    ${grouperSyncMember.entityAttributeValueCache2}
                   </td>
                   
                   <td style="white-space: nowrap;">
-                    ${grouperSyncMember.memberToId3}
+                    ${grouperSyncMember.entityAttributeValueCache3}
                   </td>
                   
                   <td style="white-space: nowrap;">

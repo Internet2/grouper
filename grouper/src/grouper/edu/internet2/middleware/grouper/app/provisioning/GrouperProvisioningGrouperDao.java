@@ -248,10 +248,11 @@ public class GrouperProvisioningGrouperDao {
     for (int j = 0; j < (GrouperUtil.length(subjectSources) + GrouperUtil.length(fieldIds)); j++) {
       typesInitial.add(StringType.INSTANCE);
     }
-    
-    sqlInitial.append(" and gm.subject_source in (");
-    sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
-    sqlInitial.append(") ");
+    if (GrouperUtil.length(subjectSources) > 0) {
+      sqlInitial.append(" and gm.subject_source in (");
+      sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
+      sqlInitial.append(") ");
+    }
     
     sqlInitial.append(" and gs.field_id in (");
     sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(fieldIds));
@@ -470,9 +471,11 @@ public class GrouperProvisioningGrouperDao {
       typesInitial.add(StringType.INSTANCE);
     }
     
-    sqlInitial.append(" and gm.subject_source in (");
-    sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
-    sqlInitial.append(") ");
+    if (GrouperUtil.length(subjectSources) > 0) {
+      sqlInitial.append(" and gm.subject_source in (");
+      sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
+      sqlInitial.append(") ");
+    }
     
     sqlInitial.append(" and gs.field_id in (");
     sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(fieldIds));

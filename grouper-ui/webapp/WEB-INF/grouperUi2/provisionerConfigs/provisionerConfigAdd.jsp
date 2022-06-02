@@ -44,7 +44,6 @@
             </div>
           </div>
         </c:if>
-        
          
        </div>
      </div>
@@ -57,7 +56,16 @@
          <form class="form-inline form-small form-filter" id="provisionerConfigDetails">
          	<input type="hidden" name="previousProvisionerConfigId" value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId}" />
          	<input type="hidden" name="previousProvisionerConfigType" value="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration['class'].name}" />
-         	<input type="hidden" name="previousProvisionerStartWithClass" value="${grouperRequestContainer.provisionerConfigurationContainer.provisionerStartWith['class'].name}" />
+         	
+          <c:choose>
+            <c:when test="${grouperRequestContainer.provisionerConfigurationContainer.blankStartWithSelected}">
+              <input type="hidden" name="previousProvisionerStartWithClass" value="blank" />
+            </c:when>
+            <c:otherwise>
+              <input type="hidden" name="previousProvisionerStartWithClass" value="${grouperRequestContainer.provisionerConfigurationContainer.provisionerStartWith['class'].name}" />
+            </c:otherwise>
+          </c:choose>
+          
             <table class="table table-condensed table-striped">
               <tbody>
                 <%@ include file="provisionerConfigAddHelper.jsp" %>
@@ -69,16 +77,31 @@
                   
                     <td
                       style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;">
-                    <input type="submit" class="btn btn-primary"
-                      aria-controls="provisionerConfigSubmitId" id="submitId"
-                      value="${textContainer.text['provisionerConfigAddFormSubmitButton'] }"
-                      onclick="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfigurationSubmit', {formIds: 'provisionerConfigDetails'}); return false;">
+                      
+                      
+                      <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.showStartWithSection}">
+                      
+                        <input type="submit" class="btn btn-primary"
+                        aria-controls="provisionerConfigSubmitId" id="submitId"
+                        value="${textContainer.text['provisionerConfigAddFormContinueButton'] }"
+                        onclick="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfigurationSubmit', {formIds: 'provisionerConfigDetails'}); return false;">
+      
+                      </c:if>
+                      
+                      <c:if test="${!grouperRequestContainer.provisionerConfigurationContainer.showStartWithSection}">
+                      
+                        <input type="submit" class="btn btn-primary"
+                        aria-controls="provisionerConfigSubmitId" id="submitId"
+                        value="${textContainer.text['provisionerConfigAddFormSubmitButton'] }"
+                        onclick="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfigurationSubmit', {formIds: 'provisionerConfigDetails'}); return false;">
+      
+                      </c:if>
+                    
                       &nbsp;
                     <a class="btn btn-cancel" role="button"
                         onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations'); return false;"
                     >${textContainer.text['provisionerConfigAddFormCancelButton'] }</a>
                     </td>
-                  
                   
                 </tr>
 

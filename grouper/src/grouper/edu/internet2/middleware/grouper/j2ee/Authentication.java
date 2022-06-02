@@ -134,6 +134,37 @@ public class Authentication {
     return null;
   }
   
+  public static final String retrievePassword(final String authHeader) {
+    
+    if (StringUtils.isBlank(authHeader)) {
+      return null;
+    }
+    
+    try {
+      StringTokenizer st = new StringTokenizer(authHeader);
+      
+      if (st.hasMoreTokens()) {
+        String basic = st.nextToken();
+        if (basic.equalsIgnoreCase("Basic")) {
+          
+          String credentials = new String(Base64.getDecoder().decode(st.nextToken()), "UTF-8");
+          int p = colonIndexOf(credentials);
+          if (p != -1) {
+            String password = credentials.substring(p + 1).trim();
+            password = unescapeColons(password);
+            return password;
+          }
+          
+        }
+        
+      }
+    } catch (Exception e) {
+      LOG.error("Error retrieving username from authHeader");
+      return null;
+    }
+    return null;
+  }
+  
   /**
    * system enum, user, and encrypted password
    */

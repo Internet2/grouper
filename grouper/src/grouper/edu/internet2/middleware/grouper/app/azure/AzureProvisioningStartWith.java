@@ -45,6 +45,8 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
           result.put("manageEntitiesInAzure", "true");
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "manageGroupsReadonlyEntities")) {
           result.put("manageEntitiesInAzure", "false");
+        } else if (StringUtils.equals(valueUserEnteredOnScreen, "other")) {
+          result.clear();
         }
       }
     }

@@ -118,6 +118,15 @@ public interface PITMembershipDAO extends GrouperDAO {
   public Set<PITMembership> findAllByPITMember(String memberId);
   
   /**
+   * Get memberships by owner, member, field
+   * @param ownerId
+   * @param memberId
+   * @param fieldId
+   * @return set of pit memberships
+   */
+  public Set<PITMembership> findAllByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId);
+  
+  /**
    * @return active memberships that are missing in point in time
    */
   public Set<Membership> findMissingActivePITMemberships();

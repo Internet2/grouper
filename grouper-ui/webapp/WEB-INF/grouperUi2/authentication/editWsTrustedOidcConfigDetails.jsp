@@ -73,6 +73,7 @@
                       ajaxCallback="ajax('../app/UiV2OidcConfig.editOidcConfig?oidcConfigId=${grouperRequestContainer.oidcConfigContainer.guiOidcConfiguration.oidcConfiguration.configId}', {formIds: 'wsTrustedJwtConfigDetails'}); return false;"
                       valuesAndLabels="${attribute.dropdownValuesAndLabels }"
                       checkboxAttributes="${attribute.checkboxAttributes}"
+                      indent="${attribute.configItemMetadata.indent}"
                     />
                     
                   </c:forEach>

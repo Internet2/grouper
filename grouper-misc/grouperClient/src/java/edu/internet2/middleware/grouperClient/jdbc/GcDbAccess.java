@@ -2594,6 +2594,10 @@ public class GcDbAccess {
         // if we want to go down this path, need to check to see if has decimal and convert to long
         return bigDecimal;
         
+      case Types.BIT:
+      case Types.BOOLEAN:
+        return resultSet.getBoolean(columnNumberOneIndexed);
+        
       case Types.CHAR:
       case Types.VARCHAR:
       case Types.LONGVARCHAR:

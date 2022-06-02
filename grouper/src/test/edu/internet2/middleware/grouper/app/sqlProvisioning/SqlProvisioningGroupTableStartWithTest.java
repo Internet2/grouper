@@ -14,7 +14,7 @@ public class SqlProvisioningGroupTableStartWithTest extends GrouperTest {
    * 
    */
   public void testPopulateProvisionerConfigurationValuesFromStartWith() {
-    SqlProvisioningGroupTableStartWith sqlProvisioningGroupTableStartWith = new SqlProvisioningGroupTableStartWith();
+    SqlProvisioningStartWith sqlProvisioningGroupTableStartWith = new SqlProvisioningStartWith();
     
     Map<String, String> startWithSuffixToValue = new HashMap<>();
     

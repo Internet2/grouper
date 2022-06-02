@@ -71,167 +71,167 @@ public class UsduJobProvisionerSyncTest extends GrouperTest {
     gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveOrCreateByMemberId("bogus");
     gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberFromId2", "test1 ${subject.name} fromid2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberFromId3", "test1 ${subject.name} fromid3");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberToId2", "test1 ${subject.name} toid2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberToId3", "test1 ${subject.name} toid3");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache0", "test1 ${subject.name} fromid2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache1", "test1 ${subject.name} fromid3");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache2", "test1 ${subject.name} toid2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache3", "test1 ${subject.name} toid3");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test2.common.enabled", "false");
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.common.subjectLink.memberFromId2", "test3 ${subject.name} fromid2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.common.subjectLink.memberFromId3", "test3 ${subject.name} fromid3");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.common.subjectLink.autoMemberFromId3", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.common.subjectLink.entityAttributeValueCache0", "test3 ${subject.name} fromid2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.common.subjectLink.entityAttributeValueCache1", "test3 ${subject.name} fromid3");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.common.subjectLink.autoEntityAttributeValueCache1", "false");
 
     UsduJob.runDaemonStandalone();
     
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test1");
-    assertEquals("test1 my name is test.subject.0 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberFromId2());
-    assertEquals("test1 my name is test.subject.0 fromid3", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberFromId3());
-    assertEquals("test1 my name is test.subject.0 toid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberToId2());
-    assertEquals("test1 my name is test.subject.0 toid3", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberToId3());
-    assertEquals("test1 my name is test.subject.1 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId2());
-    assertEquals("test1 my name is test.subject.1 fromid3", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId3());
-    assertEquals("test1 my name is test.subject.1 toid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId2());
-    assertEquals("test1 my name is test.subject.1 toid3", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId3());
+    assertEquals("test1 my name is test.subject.0 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache0());
+    assertEquals("test1 my name is test.subject.0 fromid3", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache1());
+    assertEquals("test1 my name is test.subject.0 toid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache2());
+    assertEquals("test1 my name is test.subject.0 toid3", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache3());
+    assertEquals("test1 my name is test.subject.1 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache0());
+    assertEquals("test1 my name is test.subject.1 fromid3", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache1());
+    assertEquals("test1 my name is test.subject.1 toid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2());
+    assertEquals("test1 my name is test.subject.1 toid3", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache3());
 
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test2");
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId3());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache3());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache3());
     
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test3");
-    assertEquals("test3 my name is test.subject.2 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId3());
-    assertEquals("test3 my name is test.subject.3 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberToId3());
+    assertEquals("test3 my name is test.subject.2 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache3());
+    assertEquals("test3 my name is test.subject.3 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache3());
     
     // now test an update for test1
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberFromId2", "test1 ${subject.name} fromid2 update");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberFromId3", "test1 ${subject.name} fromid3 update");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberToId2", "test1 ${subject.name} toid2 update");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberToId3", "test1 ${subject.name} toid3 update");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache0", "test1 ${subject.name} fromid2 update");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache1", "test1 ${subject.name} fromid3 update");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache2", "test1 ${subject.name} toid2 update");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache3", "test1 ${subject.name} toid3 update");
     
     UsduJob.runDaemonStandalone();
     
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test1");
-    assertEquals("test1 my name is test.subject.0 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberFromId2());
-    assertEquals("test1 my name is test.subject.0 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberFromId3());
-    assertEquals("test1 my name is test.subject.0 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberToId2());
-    assertEquals("test1 my name is test.subject.0 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberToId3());
-    assertEquals("test1 my name is test.subject.1 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId2());
-    assertEquals("test1 my name is test.subject.1 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId3());
-    assertEquals("test1 my name is test.subject.1 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId2());
-    assertEquals("test1 my name is test.subject.1 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId3());
+    assertEquals("test1 my name is test.subject.0 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache0());
+    assertEquals("test1 my name is test.subject.0 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache1());
+    assertEquals("test1 my name is test.subject.0 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache2());
+    assertEquals("test1 my name is test.subject.0 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache3());
+    assertEquals("test1 my name is test.subject.1 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache0());
+    assertEquals("test1 my name is test.subject.1 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache1());
+    assertEquals("test1 my name is test.subject.1 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2());
+    assertEquals("test1 my name is test.subject.1 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache3());
 
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test2");
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId3());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache3());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache3());
     
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test3");
-    assertEquals("test3 my name is test.subject.2 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId3());
-    assertEquals("test3 my name is test.subject.3 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberToId3());
+    assertEquals("test3 my name is test.subject.2 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache3());
+    assertEquals("test3 my name is test.subject.3 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache3());
     
     // disable sync for test1
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoMemberFromId2", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoMemberFromId3", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoMemberToId2", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoMemberToId3", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache0", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache1", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache2", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache3", "false");
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberFromId2", "test1 ${subject.name} fromid2 update2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberFromId3", "test1 ${subject.name} fromid3 update2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberToId2", "test1 ${subject.name} toid2 update2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.memberToId3", "test1 ${subject.name} toid3 update2");    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache0", "test1 ${subject.name} fromid2 update2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache1", "test1 ${subject.name} fromid3 update2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache2", "test1 ${subject.name} toid2 update2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache3", "test1 ${subject.name} toid3 update2");    
     
     UsduJob.runDaemonStandalone();
     
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test1");
-    assertEquals("test1 my name is test.subject.0 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberFromId2());
-    assertEquals("test1 my name is test.subject.0 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberFromId3());
-    assertEquals("test1 my name is test.subject.0 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberToId2());
-    assertEquals("test1 my name is test.subject.0 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberToId3());
-    assertEquals("test1 my name is test.subject.1 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId2());
-    assertEquals("test1 my name is test.subject.1 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId3());
-    assertEquals("test1 my name is test.subject.1 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId2());
-    assertEquals("test1 my name is test.subject.1 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId3());
+    assertEquals("test1 my name is test.subject.0 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache0());
+    assertEquals("test1 my name is test.subject.0 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache1());
+    assertEquals("test1 my name is test.subject.0 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache2());
+    assertEquals("test1 my name is test.subject.0 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache3());
+    assertEquals("test1 my name is test.subject.1 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache0());
+    assertEquals("test1 my name is test.subject.1 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache1());
+    assertEquals("test1 my name is test.subject.1 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2());
+    assertEquals("test1 my name is test.subject.1 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache3());
 
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test2");
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId3());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache3());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache3());
     
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test3");
-    assertEquals("test3 my name is test.subject.2 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId3());
-    assertEquals("test3 my name is test.subject.3 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberToId3());
+    assertEquals("test3 my name is test.subject.2 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache3());
+    assertEquals("test3 my name is test.subject.3 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache3());
     
     // disable provisioner for test1
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.enabled", "false");
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoMemberFromId2", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoMemberToId2", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache0", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache2", "true");
 
     UsduJob.runDaemonStandalone();
     
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test1");
-    assertEquals("test1 my name is test.subject.0 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberFromId2());
-    assertEquals("test1 my name is test.subject.0 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberFromId3());
-    assertEquals("test1 my name is test.subject.0 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberToId2());
-    assertEquals("test1 my name is test.subject.0 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberToId3());
-    assertEquals("test1 my name is test.subject.1 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId2());
-    assertEquals("test1 my name is test.subject.1 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId3());
-    assertEquals("test1 my name is test.subject.1 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId2());
-    assertEquals("test1 my name is test.subject.1 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId3());
+    assertEquals("test1 my name is test.subject.0 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache0());
+    assertEquals("test1 my name is test.subject.0 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache1());
+    assertEquals("test1 my name is test.subject.0 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache2());
+    assertEquals("test1 my name is test.subject.0 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache3());
+    assertEquals("test1 my name is test.subject.1 fromid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache0());
+    assertEquals("test1 my name is test.subject.1 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache1());
+    assertEquals("test1 my name is test.subject.1 toid2 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2());
+    assertEquals("test1 my name is test.subject.1 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache3());
 
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test2");
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId3());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache3());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache3());
     
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test3");
-    assertEquals("test3 my name is test.subject.2 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId3());
-    assertEquals("test3 my name is test.subject.3 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberToId3());
+    assertEquals("test3 my name is test.subject.2 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache3());
+    assertEquals("test3 my name is test.subject.3 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache3());
     
     // enable provisioner for test1
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.enabled", "true");
@@ -239,33 +239,33 @@ public class UsduJobProvisionerSyncTest extends GrouperTest {
     UsduJob.runDaemonStandalone();
     
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test1");
-    assertEquals("test1 my name is test.subject.0 fromid2 update2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberFromId2());
-    assertEquals("test1 my name is test.subject.0 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberFromId3());
-    assertEquals("test1 my name is test.subject.0 toid2 update2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberToId2());
-    assertEquals("test1 my name is test.subject.0 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getMemberToId3());
-    assertEquals("test1 my name is test.subject.1 fromid2 update2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId2());
-    assertEquals("test1 my name is test.subject.1 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId3());
-    assertEquals("test1 my name is test.subject.1 toid2 update2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId2());
-    assertEquals("test1 my name is test.subject.1 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId3());    
+    assertEquals("test1 my name is test.subject.0 fromid2 update2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache0());
+    assertEquals("test1 my name is test.subject.0 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache1());
+    assertEquals("test1 my name is test.subject.0 toid2 update2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache2());
+    assertEquals("test1 my name is test.subject.0 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member0.getId()).getEntityAttributeValueCache3());
+    assertEquals("test1 my name is test.subject.1 fromid2 update2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache0());
+    assertEquals("test1 my name is test.subject.1 fromid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache1());
+    assertEquals("test1 my name is test.subject.1 toid2 update2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2());
+    assertEquals("test1 my name is test.subject.1 toid3 update", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache3());    
 
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test2");
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getMemberToId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId3());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member1.getId()).getEntityAttributeValueCache3());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache3());
     
     gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "test3");
-    assertEquals("test3 my name is test.subject.2 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getMemberToId3());
-    assertEquals("test3 my name is test.subject.3 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberFromId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberFromId3());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberToId2());
-    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getMemberToId3());
+    assertEquals("test3 my name is test.subject.2 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member2.getId()).getEntityAttributeValueCache3());
+    assertEquals("test3 my name is test.subject.3 fromid2", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache0());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache1());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache2());
+    assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache3());
   }
 }

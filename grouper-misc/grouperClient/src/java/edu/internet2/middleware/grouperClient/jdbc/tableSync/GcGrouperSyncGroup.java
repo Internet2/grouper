@@ -69,13 +69,13 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
     gcGrouperSyncGroup.errorCodeDb = this.errorCodeDb;
     gcGrouperSyncGroup.errorMessage = this.errorMessage;
     gcGrouperSyncGroup.errorTimestamp = this.errorTimestamp;
-    gcGrouperSyncGroup.groupFromId2 = this.groupFromId2;
-    gcGrouperSyncGroup.groupFromId3 = this.groupFromId3;
+    gcGrouperSyncGroup.groupAttributeValueCache0 = this.groupAttributeValueCache0;
+    gcGrouperSyncGroup.groupAttributeValueCache1 = this.groupAttributeValueCache1;
     gcGrouperSyncGroup.groupId = this.groupId;
     gcGrouperSyncGroup.groupIdIndex = this.groupIdIndex;
     gcGrouperSyncGroup.groupName = this.groupName;
-    gcGrouperSyncGroup.groupToId2 = this.groupToId2;
-    gcGrouperSyncGroup.groupToId3 = this.groupToId3;
+    gcGrouperSyncGroup.groupAttributeValueCache2 = this.groupAttributeValueCache2;
+    gcGrouperSyncGroup.groupAttributeValueCache3 = this.groupAttributeValueCache3;
     //grouperSync  DONT CLONE
   
     gcGrouperSyncGroup.grouperSyncId = this.grouperSyncId;
@@ -129,13 +129,13 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
       .append(this.errorMessage, other.errorMessage)
       .append(this.errorTimestamp, other.errorTimestamp)
 
-      .append(this.groupFromId2, other.groupFromId2)
-      .append(this.groupFromId3, other.groupFromId3)
+      .append(this.groupAttributeValueCache0, other.groupAttributeValueCache0)
+      .append(this.groupAttributeValueCache1, other.groupAttributeValueCache1)
       .append(this.groupId, other.groupId)
       .append(this.groupIdIndex, other.groupIdIndex)
       .append(this.groupName, other.groupName)
-      .append(this.groupToId2, other.groupToId2)
-      .append(this.groupToId3, other.groupToId3)
+      .append(this.groupAttributeValueCache2, other.groupAttributeValueCache2)
+      .append(this.groupAttributeValueCache3, other.groupAttributeValueCache3)
       //grouperSync  DONT EQUALS
 
       .append(this.grouperSyncId, other.grouperSyncId)
@@ -835,70 +835,74 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
   /**
    * metadata on groups
    */
-  private String groupFromId2;
+  @GcPersistableField(columnName = "group_from_id2")
+  private String groupAttributeValueCache0;
 
   /**
    * metadata on groups
    * @return group from id 2
    */
-  public String getGroupFromId2() {
-    return this.groupFromId2;
+  public String getGroupAttributeValueCache0() {
+    return this.groupAttributeValueCache0;
   }
 
   /**
    * metadata on groups
-   * @param groupFromId2_1
+   * @param groupAttributeValueCache0_1
    */
-  public void setGroupFromId2(String groupFromId2_1) {
-    this.groupFromId2 = groupFromId2_1;
+  public void setGroupAttributeValueCache0(String groupAttributeValueCache0_1) {
+    this.groupAttributeValueCache0 = groupAttributeValueCache0_1;
   }
 
   /**
    * other metadata on groups
    */
-  private String groupFromId3;
+  @GcPersistableField(columnName = "group_from_id3")
+  private String groupAttributeValueCache1;
 
   /**
    * other metadata on groups
    * @return id3
    */
-  public String getGroupFromId3() {
-    return this.groupFromId3;
+  public String getGroupAttributeValueCache1() {
+    return this.groupAttributeValueCache1;
   }
 
   /**
    * other metadata on groups
-   * @param groupFromId3_1
+   * @param groupAttributeValueCache1_1
    */
-  public void setGroupFromId3(String groupFromId3_1) {
-    this.groupFromId3 = groupFromId3_1;
+  public void setGroupAttributeValueCache1(String groupAttributeValueCache1_1) {
+    this.groupAttributeValueCache1 = groupAttributeValueCache1_1;
   }
 
   /**
    * other metadata on groups
    */
-  private String groupToId2;
+  @GcPersistableField(columnName = "group_to_id2")
+  private String groupAttributeValueCache2;
   
   /**
    * other metadata on groups
    * @return metadata
    */
-  public String getGroupToId2() {
-    return this.groupToId2;
+  public String getGroupAttributeValueCache2() {
+    return this.groupAttributeValueCache2;
   }
 
   /**
    * other metadata on groups
-   * @param groupToId2_1
+   * @param groupAttributeValueCache2_1
    */
-  public void setGroupToId2(String groupToId2_1) {
-    this.groupToId2 = groupToId2_1;
+  public void setGroupAttributeValueCache2(String groupAttributeValueCache2_1) {
+    this.groupAttributeValueCache2 = groupAttributeValueCache2_1;
   }
 
   /**
    * other metadata on groups
    */
-  private String groupToId3;
+  @GcPersistableField(columnName = "group_to_id3")
+  private String groupAttributeValueCache3;
 
 //  /**
 //   * T if inserted on the in_grouper_start date, or F if it existed then and not sure when inserted
@@ -1030,16 +1034,16 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    * other metadata on groups
    * @return group id
    */
-  public String getGroupToId3() {
-    return this.groupToId3;
+  public String getGroupAttributeValueCache3() {
+    return this.groupAttributeValueCache3;
   }
 
   /**
    * other metadata on groups
-   * @param groupToId3_1
+   * @param groupAttributeValueCache3_1
    */
-  public void setGroupToId3(String groupToId3_1) {
-    this.groupToId3 = groupToId3_1;
+  public void setGroupAttributeValueCache3(String groupAttributeValueCache3_1) {
+    this.groupAttributeValueCache3 = groupAttributeValueCache3_1;
   }
 
   /**
@@ -1060,14 +1064,14 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    * @param result
    */
   public void assignField(String syncField, Object result) {
-    if (GrouperClientUtils.equals("groupFromId2", syncField)) {
-      this.setGroupFromId2(GrouperClientUtils.stringValue(result));
-    } else if (GrouperClientUtils.equals("groupFromId3", syncField)) {
-      this.setGroupFromId3(GrouperClientUtils.stringValue(result));
-    } else if (GrouperClientUtils.equals("groupToId2", syncField)) {
-      this.setGroupToId2(GrouperClientUtils.stringValue(result));
-    } else if (GrouperClientUtils.equals("groupToId3", syncField)) {
-      this.setGroupToId3(GrouperClientUtils.stringValue(result));
+    if (GrouperClientUtils.equals("groupAttributeValueCache0", syncField)) {
+      this.setGroupAttributeValueCache0(GrouperClientUtils.stringValue(result));
+    } else if (GrouperClientUtils.equals("groupAttributeValueCache1", syncField)) {
+      this.setGroupAttributeValueCache1(GrouperClientUtils.stringValue(result));
+    } else if (GrouperClientUtils.equals("groupAttributeValueCache2", syncField)) {
+      this.setGroupAttributeValueCache2(GrouperClientUtils.stringValue(result));
+    } else if (GrouperClientUtils.equals("groupAttributeValueCache3", syncField)) {
+      this.setGroupAttributeValueCache3(GrouperClientUtils.stringValue(result));
     } else {
       throw new RuntimeException("Not expecting groupSyncField: '" + syncField + "'");
     }
@@ -1080,14 +1084,14 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
    * @param result
    */
   public String retrieveField(String syncField) {
-    if (GrouperClientUtils.equals("groupFromId2", syncField)) {
-      return this.getGroupFromId2();
-    } else if (GrouperClientUtils.equals("groupFromId3", syncField)) {
-      return this.getGroupFromId3();
-    } else if (GrouperClientUtils.equals("groupToId2", syncField)) {
-      return this.getGroupToId2();
-    } else if (GrouperClientUtils.equals("groupToId3", syncField)) {
-      return this.getGroupToId3();
+    if (GrouperClientUtils.equals("groupAttributeValueCache0", syncField)) {
+      return this.getGroupAttributeValueCache0();
+    } else if (GrouperClientUtils.equals("groupAttributeValueCache1", syncField)) {
+      return this.getGroupAttributeValueCache1();
+    } else if (GrouperClientUtils.equals("groupAttributeValueCache2", syncField)) {
+      return this.getGroupAttributeValueCache2();
+    } else if (GrouperClientUtils.equals("groupAttributeValueCache3", syncField)) {
+      return this.getGroupAttributeValueCache3();
     } else {
       throw new RuntimeException("Not expecting groupSyncField: '" + syncField + "'");
     }

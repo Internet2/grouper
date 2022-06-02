@@ -406,12 +406,22 @@ public class GrouperConfigurationModuleAttribute {
     
   }
   
+  private boolean show;
+  
+  
+  public void setShow(boolean show) {
+    this.show = show;
+  }
+
   /**
    * 
    * @return if show
    */
   public boolean isShow() {
-
+    
+    if (this.show) {
+      return true;
+    }
 
     {
       Boolean showOverride = this.grouperConfigModule.showAttributeOverride(this.configSuffix);

@@ -21,8 +21,7 @@ public class SqlProvisionerConfiguration extends ProvisioningConfiguration {
   public final static Set<String> startWithConfigClassNames = new LinkedHashSet<String>();
   
   static {
-    startWithConfigClassNames.add(SqlProvisioningGroupTableStartWith.class.getName());
-    startWithConfigClassNames.add(SqlProvisioningEntityTableStartWith.class.getName());
+    startWithConfigClassNames.add(SqlProvisioningStartWith.class.getName());
   }
   
   @Override

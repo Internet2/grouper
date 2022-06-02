@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
@@ -23,6 +25,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembership;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 
 
@@ -245,6 +248,50 @@ public class MembershipGuiContainer {
   public void setTraceMembershipFromSubject(boolean traceMembershipFromSubject1) {
     this.traceMembershipFromSubject = traceMembershipFromSubject1;
   }
+  
+  /**
+   * if should show user audit
+   */
+  private boolean traceMembershipTimelineShowUserAudit = true;
+
+  /**
+   * if should show pit audit
+   */
+  private boolean traceMembershipTimelineShowPITAudit = true;
+
+  /**
+   * if should show user audit
+   * @return traceMembershipTimelineShowUserAudit
+   */
+  public boolean isTraceMembershipTimelineShowUserAudit() {
+    return traceMembershipTimelineShowUserAudit;
+  }
+
+  /**
+   * if should show user audit
+   * @param traceMembershipTimelineShowUserAudit
+   */
+  public void setTraceMembershipTimelineShowUserAudit(
+      boolean traceMembershipTimelineShowUserAudit) {
+    this.traceMembershipTimelineShowUserAudit = traceMembershipTimelineShowUserAudit;
+  }
+
+  /**
+   * if should show pit audit
+   * @return traceMembershipTimelineShowPITAudit
+   */
+  public boolean isTraceMembershipTimelineShowPITAudit() {
+    return traceMembershipTimelineShowPITAudit;
+  }
+
+  /**
+   * if should show pit audit
+   * @param traceMembershipTimelineShowPITAudit
+   */
+  public void setTraceMembershipTimelineShowPITAudit(
+      boolean traceMembershipTimelineShowPITAudit) {
+    this.traceMembershipTimelineShowPITAudit = traceMembershipTimelineShowPITAudit;
+  }
 
   /**
    * line number of trace starting with 0
@@ -406,6 +453,48 @@ public class MembershipGuiContainer {
   public void setTraceMembershipsString(String traceMembershipsString1) {
     this.traceMembershipsString = traceMembershipsString1;
   }
+  
+  /**
+   * string of membership timeline
+   */
+  private String traceMembershipTimelineString;
+  
+  
+  /**
+   * @return string of membership timeline
+   */
+  public String getTraceMembershipTimelineString() {
+    return traceMembershipTimelineString;
+  }
+
+  /**
+   * string of membership timeline
+   * @param traceMembershipTimelineString
+   */
+  public void setTraceMembershipTimelineString(String traceMembershipTimelineString) {
+    this.traceMembershipTimelineString = traceMembershipTimelineString;
+  }
+
+  /**
+   * string of trace pit membership
+   */
+  private String tracePITMembershipString;
+  
+  /**
+   * string of trace pit membership
+   * @return trace pit membership
+   */
+  public String getTracePITMembershipString() {
+    return this.tracePITMembershipString;
+  }
+
+  /**
+   * string of trace pit membership
+   * @param tracePITMembershipString1
+   */
+  public void setTracePITMembershipString(String tracePITMembershipString1) {
+    this.tracePITMembershipString = tracePITMembershipString1;
+  }
 
 
   /**
@@ -471,4 +560,77 @@ public class MembershipGuiContainer {
     this.guiAttributeAssigns = guiAttributeAssigns;
   }
   
+  /**
+   * current gui pit group e.g. when tracing memberships
+   */
+  private GuiPITGroup guiPITGroupCurrent;
+  
+
+  /**
+   * current gui pit group e.g. when tracing memberships
+   * @return gui pit group
+   */
+  public GuiPITGroup getGuiPITGroupCurrent() {
+    return this.guiPITGroupCurrent;
+  }
+
+  /**
+   * current gui pit group e.g. when tracing memberships
+   * @param guiPITGroupCurrent1
+   */
+  public void setGuiPITGroupCurrent(GuiPITGroup guiPITGroupCurrent1) {
+    this.guiPITGroupCurrent = guiPITGroupCurrent1;
+  }
+  
+  /**
+   * current gui audit date
+   */
+  private Timestamp guiAuditDateCurrent;
+
+  /**
+   * current gui audit date
+   * @return timestamp
+   */
+  public Timestamp getGuiAuditDateCurrent() {
+    return guiAuditDateCurrent;
+  }
+
+  /**
+   * current gui audit date
+   * @param guiAuditDateCurrent
+   */
+  public void setGuiAuditDateCurrent(Timestamp guiAuditDateCurrent) {
+    this.guiAuditDateCurrent = guiAuditDateCurrent;
+  }
+  
+  /**
+   * audit label string yyyy/MM/dd h:mm a
+   * @return the audit label string yyyy/MM/dd h:mm:ss a
+   */
+  public String getGuiAuditDateLabelCurrent() {
+
+    if (this.guiAuditDateCurrent == null) {
+      return null;
+    }
+
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd h:mm:ss a");
+
+    return simpleDateFormat.format(guiAuditDateCurrent);
+  }
+  
+  private GuiAuditEntry guiAuditEntryCurrent;
+
+  /**
+   * @return current gui audit entry
+   */
+  public GuiAuditEntry getGuiAuditEntryCurrent() {
+    return guiAuditEntryCurrent;
+  }
+
+  /**
+   * @param guiAuditEntryCurrent
+   */
+  public void setGuiAuditEntryCurrent(GuiAuditEntry guiAuditEntryCurrent) {
+    this.guiAuditEntryCurrent = guiAuditEntryCurrent;
+  }
 }

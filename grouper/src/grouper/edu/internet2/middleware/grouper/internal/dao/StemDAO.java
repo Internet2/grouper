@@ -642,7 +642,44 @@ public interface StemDAO extends GrouperDAO {
       Set<Object> attributeValuesOnAssignment, String idOfAttributeDefName2, Object attributeValue2, 
       Set<Object> attributeValuesOnAssignment2, boolean attributeNotAssigned)
     throws  GrouperDAOException;
-    
+
+  /**
+   *
+   * @param scope is blank for no scope
+   * @param grouperSession
+   * @param subject
+   * @param queryOptions
+   * @param inPrivSet means that each row must have a matching priv in this set to user or GrouperAll.
+   * There are some constants in NamingPrivilege of pre-canned sets
+   * @param splitScope true to split scopes by whitespace
+   * @param parentStemId true if filtering by parent of ancestor
+   * @param stemScope ONE or SUB
+   * @param findByUuidOrName if we are looking up a stem, only look by uuid or name
+   * @param userHasInGroupFields find stems where the user has these fields in a group
+   * @param userHasInAttributeFields find stems where the user has these fields in an attribute
+   * @param stemIds
+   * @param idOfAttributeDefName if looking for groups that have this attribute def name
+   * @param attributeValue if looking for groups that have this attribute value on the attribute def name
+   * @param attributeCheckReadOnAttributeDef if check read on attribute for attribute on stem
+   * @param attributeValuesOnAssignment if looking for an attribute value on an assignment, could be multiple values
+   * @param idOfAttributeDefName2 if looking for groups that have this attribute def name2
+   * @param attributeValue2 if looking for groups that have this attribute value2 on the attribute def name2
+   * @param attributeValuesOnAssignment2 if looking for an attribute value on an assignment2, could be multiple values
+   * @param attributeNotAssigned find stems that don't have the given type assigned
+   * @param excludeAlternateNames whether to exclude alternate names from name or scope search
+   * @return the stems
+   * @throws GrouperDAOException
+   * @since v2.4.0
+   */
+  Set<Stem> getAllStemsSecure(String scope, GrouperSession grouperSession,
+                              Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
+                              boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
+                              Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
+                              Collection<String> stemIds, String idOfAttributeDefName, Object attributeValue,
+                              Boolean attributeCheckReadOnAttributeDef,
+                              Set<Object> attributeValuesOnAssignment, String idOfAttributeDefName2, Object attributeValue2,
+                              Set<Object> attributeValuesOnAssignment2, boolean attributeNotAssigned, boolean excludeAlternateNames)
+          throws  GrouperDAOException;
 
   
   

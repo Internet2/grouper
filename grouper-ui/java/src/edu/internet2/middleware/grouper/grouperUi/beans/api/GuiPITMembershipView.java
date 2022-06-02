@@ -26,7 +26,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITMembershipView;
-import edu.internet2.middleware.grouper.pit.finder.PITGroupFinder;
 
 
 /**
@@ -86,6 +85,8 @@ public class GuiPITMembershipView {
   private PITMembershipView membership;
   
   private GuiSubject guiSubject;
+  
+  private String memberId;
 
   /**
    * membership
@@ -135,5 +136,19 @@ public class GuiPITMembershipView {
    */
   public void setGuiSubject(GuiSubject guiSubject) {
     this.guiSubject = guiSubject;
+  }
+
+  /**
+   * @return memberId
+   */
+  public String getMemberId() {
+    return memberId;
+  }
+
+  /**
+   * @param memberId
+   */
+  public void setMemberId(String memberId) {
+    this.memberId = memberId;
   }
 }

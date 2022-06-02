@@ -66,7 +66,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLatestConfig_1"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullSubjectIdentifier2"));    
 //    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLegacyConfig_1"));    
   }
   
@@ -237,10 +237,10 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncGroup.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getLastUpdated().getTime());
-    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", gcGrouperSyncGroup.getGroupToId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId3());
-    assertNull(gcGrouperSyncGroup.getGroupToId3());
+    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", gcGrouperSyncGroup.getGroupAttributeValueCache2());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
     assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
     assertNull(gcGrouperSyncGroup.getErrorMessage());
     assertNull(gcGrouperSyncGroup.getErrorTimestamp());
@@ -263,10 +263,10 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getMemberFromId2());
-    assertNull(gcGrouperSyncMember.getMemberFromId3());
-    assertNull(gcGrouperSyncMember.getMemberToId2());
-    assertNull(gcGrouperSyncMember.getMemberToId3());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
     assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
     assertNull(gcGrouperSyncMember.getErrorMessage());
     assertNull(gcGrouperSyncMember.getErrorTimestamp());
@@ -322,11 +322,11 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
-        .assignSubjectSourcesToProvision("jdbc"));
-
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.subjectIdentifierForMemberSyncTable").value("subjectIdentifier2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.targetGroupAttribute.4.translateFromMemberSyncField").value("subjectIdentifier").store();
-
+        .assignGroupAttributeValueCache2dn(false)
+        .assignSubjectSourcesToProvision("jdbc")
+        .addExtraConfig("subjectIdentifierForMemberSyncTable", "subjectIdentifier2")
+        .addExtraConfig("groupMembershipAttributeValue", "subjectIdentifier")
+        );
 
     long started = System.currentTimeMillis();
     
@@ -437,10 +437,10 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncGroup.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncGroup.getGroupToId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId3());
-    assertNull(gcGrouperSyncGroup.getGroupToId3());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache2());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
     assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
     assertNull(gcGrouperSyncGroup.getErrorMessage());
     assertNull(gcGrouperSyncGroup.getErrorTimestamp());
@@ -463,10 +463,10 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getMemberFromId2());
-    assertNull(gcGrouperSyncMember.getMemberFromId3());
-    assertNull(gcGrouperSyncMember.getMemberToId2());
-    assertNull(gcGrouperSyncMember.getMemberToId3());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
     assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
     assertNull(gcGrouperSyncMember.getErrorMessage());
     assertNull(gcGrouperSyncMember.getErrorTimestamp());
@@ -941,36 +941,52 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.name", "displayName");
 
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
+    // init the config
+    grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
     List<ProvisioningValidationIssue> errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
 
     GrouperTextContainer.assignThreadLocalVariable("type", "group");
     // provisioning.configuration.validation.dnRequired = Error: ${type} field 'name' is required.  It represents the LDAP DN
     // provisioning.configuration.validation.dnString = Error: ${type} field 'name' is must be value type 'string'.  It represents the LDAP DN
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnRequired"), null)));
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString"), "targetGroupAttribute.0.name")));
-    GrouperTextContainer.resetThreadLocalVariableMap();
-
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnRequired"))));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString")).assignJqueryHandle("targetGroupAttribute.0.name")));
+        
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.name", "ldap_dn");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.showAttributeValueSettings", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "int");
 
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
+    // init the config
+    grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
     
     GrouperTextContainer.assignThreadLocalVariable("type", "group");
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnRequired")})));
-    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString"), "#config_targetGroupAttribute.0.fieldName_spanid")));
+
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnRequired"))));
+    assertTrue(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString")).assignJqueryHandle("targetGroupAttribute.0.name")));
+
     GrouperTextContainer.resetThreadLocalVariableMap();
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.showAttributeValueSettings", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.valueType", "string");
 
     grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
+    // init the config
+    grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
     errorsAndSuffixes = grouperProvisioner.retrieveGrouperProvisioningConfigurationValidation().validate();
     
     GrouperTextContainer.assignThreadLocalVariable("type", "group");
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(new Object[] {GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnRequired")})));
-    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(new MultiKey(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString"), "#config_targetGroupAttribute.0.fieldName_spanid")));
+
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnRequired"))));
+    assertFalse(GrouperUtil.toStringForLog(errorsAndSuffixes, true), errorsAndSuffixes.contains(
+        new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.dnString")).assignJqueryHandle("targetGroupAttribute.0.name")));
+
     GrouperTextContainer.resetThreadLocalVariableMap();
     // end test some config
     
@@ -1054,6 +1070,8 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
           .assignConfigId("eduPersonEntitlement")
+          .assignMembershipStructureEntityAttributes(true)
+          .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
           .assignGroupAttributeCount(0)
           .assignEntityAttributeCount(3)
           .assignExplicitFilters(true)
@@ -1185,6 +1203,8 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
         new LdapProvisionerTestConfigInput()
           .assignConfigId("eduPersonEntitlement")
           .assignTranslateFromGrouperProvisioningGroupField("extension")
+          .assignMembershipStructureEntityAttributes(true)
+          .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
           .assignGroupAttributeCount(1)
           .assignEntityAttributeCount(3)
           .assignExplicitFilters(true)
@@ -1244,10 +1264,10 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
-    // see that the entitlement value is on groupFromId2
+    // see that the entitlement value is on groupAttributeValueCache0
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "eduPersonEntitlement");
     GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
-    assertEquals("student", gcGrouperSyncGroup.getGroupFromId2());
+    assertEquals("student", gcGrouperSyncGroup.getGroupAttributeValueCache0());
 
     
     List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=banderson)", new String[] {"eduPersonEntitlement"}, null);
@@ -1458,10 +1478,10 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncGroup.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncGroup.getGroupToId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId3());
-    assertNull(gcGrouperSyncGroup.getGroupToId3());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache2());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
     assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
     assertNull(gcGrouperSyncGroup.getErrorMessage());
     assertNull(gcGrouperSyncGroup.getErrorTimestamp());
@@ -1484,10 +1504,10 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getMemberFromId2());
-    assertNull(gcGrouperSyncMember.getMemberFromId3());
-    assertNull(gcGrouperSyncMember.getMemberToId2());
-    assertNull(gcGrouperSyncMember.getMemberToId3());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
     assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
     assertNull(gcGrouperSyncMember.getErrorMessage());
     assertNull(gcGrouperSyncMember.getErrorTimestamp());
@@ -1538,6 +1558,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
+        .assignGroupAttributeValueCache2dn(false)
         .assignSubjectSourcesToProvision("jdbc"));
     
     long started = System.currentTimeMillis();
@@ -1648,10 +1669,10 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncGroup.getProvisionableEnd());
     assertTrue(started <= gcGrouperSyncGroup.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncGroup.getGroupToId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId3());
-    assertNull(gcGrouperSyncGroup.getGroupToId3());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache2());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
     assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
     assertNull(gcGrouperSyncGroup.getErrorMessage());
     assertNull(gcGrouperSyncGroup.getErrorTimestamp());
@@ -1674,10 +1695,10 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started <= gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getMemberFromId2());
-    assertNull(gcGrouperSyncMember.getMemberFromId3());
-    assertNull(gcGrouperSyncMember.getMemberToId2());
-    assertNull(gcGrouperSyncMember.getMemberToId3());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
     assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
     assertNull(gcGrouperSyncMember.getErrorMessage());
     assertNull(gcGrouperSyncMember.getErrorTimestamp());

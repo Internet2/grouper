@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -61,6 +62,10 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperProvisioningService {
+  
+  
+  private static final ExpirableCache<MultiKey, Boolean> viewableGroupToSubject = new ExpirableCache<MultiKey, Boolean>(5);
+  private static final ExpirableCache<MultiKey, Boolean> editableGroupToSubject = new ExpirableCache<MultiKey, Boolean>(5);
   
         
   /**
@@ -387,6 +392,7 @@ public class GrouperProvisioningService {
     
     GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName); 
     provisioner.retrieveGrouperProvisioningConfiguration().configureProvisionableSettings();
+    
 
     GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes;
     String parentStemId;
@@ -824,12 +830,6 @@ public class GrouperProvisioningService {
    */
   public static boolean isTargetEditable(GrouperProvisioningTarget target, Subject subject, GrouperObject grouperObject) {
     
-    boolean readOnly = target.isReadOnly();
-    
-    if(readOnly) {
-      return false;
-    }
-    
     boolean isEditable = true;
     
     if (grouperObject != null) {
@@ -841,6 +841,22 @@ public class GrouperProvisioningService {
     }
     
     return isEditable && isTargetEditableBySubject(target, subject);
+  }
+  
+  /**
+   * is given target viewable for given subject and grouper object
+   * @param target
+   * @param subject
+   * @param grouperObject
+   * @return
+   */
+  public static boolean isTargetViewable(GrouperProvisioningTarget target, Subject subject, GrouperObject grouperObject) {
+    
+    if (isTargetEditable(target, subject, grouperObject)) {
+      return true;
+    }
+    
+    return isTargetViewableBySubject(target, subject);
   }
   
   /**
@@ -1528,28 +1544,88 @@ public class GrouperProvisioningService {
       return PrivilegeHelper.isWheelOrRoot(subject); // only grouper system admin is allowed when no specific group is allowed to assign the given target
     }
     
-    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupAllowedToAssign, false);
-    if (group == null) {
-      try { // try looking up group by id
-        Long groupId = Long.valueOf(groupAllowedToAssign);
-        group = GroupFinder.findByIdIndexSecure(groupId, false, new QueryOptions());
+    MultiKey multiKey = new MultiKey(groupAllowedToAssign, subject.getId());
+    
+    Boolean isEditable = viewableGroupToSubject.get(multiKey);
+    if (isEditable != null) {
+      return isEditable;
+    }
+    
+    Boolean isMember = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+       
+        
+        Group group = GroupFinder.findByName(grouperSession, groupAllowedToAssign, false);
         if (group == null) {
-          throw new RuntimeException(groupAllowedToAssign+" is not a valid group id or group name");
+          group = GroupFinder.findByUuid(grouperSession, groupAllowedToAssign, false);
+          if (group == null) {
+            throw new RuntimeException(groupAllowedToAssign+" is not a valid group id or group name");
+          }
         }
-      } catch (NumberFormatException e) {
-        throw new RuntimeException(groupAllowedToAssign+" is not a valid group id or group name");
+        
+        return group.hasMember(subject);
+        
       }
-     
+      
+    });
+    
+    editableGroupToSubject.put(multiKey, isMember);
+    
+    return isMember;
+
+  }
+  
+  /**
+   * can the given subject view the given target
+   * @param target
+   * @param subject
+   * @return
+   */
+  private static boolean isTargetViewableBySubject(GrouperProvisioningTarget target, Subject subject) {
+    
+    if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(subject)) {
+      return true;
     }
     
-    for (Member member: group.getMembers()) {
-      Subject groupSubject = member.getSubject();
-      if (subject.getId().equals(groupSubject.getId())) {
-        return true;
-      }
+    String groupAllowedToView = target.getGroupAllowedToView();
+    
+    if (StringUtils.isBlank(groupAllowedToView)) {
+      return false;
     }
     
-    return false;
+    MultiKey multiKey = new MultiKey(groupAllowedToView, subject.getId());
+    
+    Boolean isViewable = viewableGroupToSubject.get(multiKey);
+    if (isViewable != null) {
+      return isViewable;
+    }
+    
+    Boolean isMember = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession)
+          throws GrouperSessionException {
+        
+        Group group = GroupFinder.findByName(grouperSession, groupAllowedToView, false);
+        if (group == null) {
+          group = GroupFinder.findByUuid(grouperSession, groupAllowedToView, false);
+          if (group == null) {
+            throw new RuntimeException(groupAllowedToView+" is not a valid group id or group name");
+          }
+        }
+        
+        return group.hasMember(subject);
+        
+      }
+      
+    });
+    
+    viewableGroupToSubject.put(multiKey, isMember);
+    
+    return isMember;
 
   }
   

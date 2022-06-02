@@ -295,7 +295,7 @@ public enum GrouperProvisioningObjectLogType {
     }
   }, 
   
-  retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc {
+  retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc {
   
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
@@ -305,6 +305,17 @@ public enum GrouperProvisioningObjectLogType {
     
   },
   matchingIdGrouperGroupsEntities {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
+      
+    }
+  }, 
+  
+  validateGrouperGroupsEntities {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,

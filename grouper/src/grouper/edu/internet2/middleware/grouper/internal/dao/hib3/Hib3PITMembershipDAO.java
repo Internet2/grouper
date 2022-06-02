@@ -285,6 +285,27 @@ public class Hib3PITMembershipDAO extends Hib3DAO implements PITMembershipDAO {
       .setString("memberId", memberId)
       .listSet(PITMembership.class);
   }
+  
+  /**
+   * 
+   */
+  public Set<PITMembership> findAllByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId) {
+
+    StringBuilder sql = new StringBuilder("select ms "
+        + "from PITMembership ms where "
+        + "ms.ownerId = :ownerId "
+        + "and ms.memberId = :memberId "
+        + "and ms.fieldId = :fieldId");
+    
+    return HibernateSession.byHqlStatic()
+      .createQuery(sql.toString())
+      .setCacheable(false)
+      .setCacheRegion(KLASS + ".FindAllByPITOwnerAndPITMemberAndPITField")
+      .setString("ownerId", ownerId)
+      .setString("memberId", memberId)
+      .setString("fieldId", fieldId)
+      .listSet(PITMembership.class);
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITMembershipDAO#findMissingActivePITMemberships()

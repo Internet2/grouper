@@ -93,6 +93,7 @@
 			  					ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.editProvisionerConfiguration?focusOnElementName=config_${attribute.configSuffix}&provisionerConfigId=${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;"
 			  					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
 			  					checkboxAttributes="${attribute.checkboxAttributes}"
+                  indent="${attribute.configItemMetadata.indent}"
 			  				/>
 			  				
 			  			</c:forEach>

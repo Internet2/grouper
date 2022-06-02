@@ -43,11 +43,14 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsBulkRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsBulkResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsResponse;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  * 
@@ -94,6 +97,38 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   }
 
   /**
+   * bulk retrieve target provisioning Memberships, generally use the matching Ids in the targetMemberships
+   * @param targetDaoRetrieveMembershipsRequest
+   * @return the target provisioning Memberships
+   */
+  public TargetDaoRetrieveMembershipsResponse retrieveMemberships(TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest) {
+    TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = new TargetDaoRetrieveMembershipsResponse();
+    if (GrouperUtil.length(targetDaoRetrieveMembershipsRequest.getTargetMemberships()) == 0) {
+      return targetDaoRetrieveMembershipsResponse;
+    }
+    
+    List<ProvisioningGroup> grouperTargetGroups = new ArrayList<ProvisioningGroup>();
+    List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
+    List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
+    
+    for (Object object : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
+      if (object instanceof ProvisioningGroup) {
+        grouperTargetGroups.add((ProvisioningGroup)object);
+      }
+      if (object instanceof ProvisioningEntity) {
+        grouperTargetEntities.add((ProvisioningEntity)object);
+      }
+      if (object instanceof ProvisioningMembership) {
+        grouperTargetMemberships.add((ProvisioningMembership)object);
+      }
+    }
+    
+    List<ProvisioningMembership> memberships = retrieveMemberships(grouperTargetGroups, grouperTargetEntities, (List<Object>)(Object)grouperTargetMemberships);
+    targetDaoRetrieveMembershipsResponse.setTargetMemberships((List<Object>)(Object)memberships);
+    return targetDaoRetrieveMembershipsResponse;
+  }
+
+  /**
    * 
    * @param grouperTargetGroups
    * @param grouperTargetEntities
@@ -107,9 +142,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
 
-    String membershipGroupColumn = sqlProvisioningConfiguration.getMembershipGroupForeignKeyColumn();
-    String membershipEntityColumn = sqlProvisioningConfiguration.getMembershipEntityForeignKeyColumn();
-
+    String membershipGroupColumn = sqlProvisioningConfiguration.getMembershipGroupMatchingIdAttribute();
+    String membershipEntityColumn = sqlProvisioningConfiguration.getMembershipEntityMatchingIdAttribute();
+    
     String entityTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
     String groupTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
 
@@ -701,19 +736,18 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     GrouperUtil.assertion(!StringUtils.isBlank(objectTableName), "Need membership table name");
     
-    String entityIdForeignKeyColumn = sqlProvisioningConfiguration.getMembershipEntityForeignKeyColumn();
-    String groupIdForeignKeyColumn = sqlProvisioningConfiguration.getMembershipGroupForeignKeyColumn();
+    String groupIdColumn = sqlProvisioningConfiguration.getMembershipGroupMatchingIdAttribute();
+    String entityIdColumn = sqlProvisioningConfiguration.getMembershipEntityMatchingIdAttribute();
 
     List<Object[]> ownerIds = new ArrayList<Object[]>();
     
     for (ProvisioningMembership targetMembership: targetMemberships) {
-      String groupIdValue = targetMembership.retrieveAttributeValueString(groupIdForeignKeyColumn);
-      String entityIdValue = targetMembership.retrieveAttributeValueString(entityIdForeignKeyColumn);
-      ownerIds.add(new Object[] {groupIdValue, entityIdValue});
+      MultiKey membershipMatchingId = new MultiKey(targetMembership.retrieveAttributeValueString(groupIdColumn), targetMembership.retrieveAttributeValueString(entityIdColumn));
+      ownerIds.add(membershipMatchingId.getKeys());
     }
         
     SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, objectTableName, 
-        GrouperUtil.toList(groupIdForeignKeyColumn, entityIdForeignKeyColumn), null, null);
+        GrouperUtil.toList(groupIdColumn, entityIdColumn), null, null);
     
     for (ProvisioningMembership targetMembership: targetMemberships) {
       
@@ -1049,10 +1083,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         continue;
       }
 
+      boolean isMembershipAttribute = false;
+      if (isGroupAttributes && !StringUtils.isBlank(sqlProvisioningConfiguration.getGroupMembershipAttributeName()) && StringUtils.equals(sqlProvisioningConfiguration.getGroupMembershipAttributeName(), attributeName)) {
+        isMembershipAttribute = true;
+      }
+      
       // maybe we dont want memberships
       if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
         
-        if (!configurationAttribute.isMembershipAttribute() || (isGroupAttributes && includeMemberships)) {
+        if (!isMembershipAttribute || (isGroupAttributes && includeMemberships)) {
 
           attributeTableAttributesNamesList.add(attributeName);
 
@@ -1313,10 +1352,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         continue;
       }
       
+      boolean isMembershipAttribute = false;
+      if (isGroupAttributes && !StringUtils.isBlank(sqlProvisioningConfiguration.getGroupMembershipAttributeName()) && StringUtils.equals(sqlProvisioningConfiguration.getGroupMembershipAttributeName(), attributeName)) {
+        isMembershipAttribute = true;
+      }
+
       // maybe we dont want memberships
       if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
         
-        if (!configurationAttribute.isMembershipAttribute() || (isGroupAttributes && includeMemberships)) {
+        if (!isMembershipAttribute || (isGroupAttributes && includeMemberships)) {
 
           attributeTableAttributesNamesList.add(attributeName);
 
@@ -1456,10 +1500,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         continue;
       }
       
+      boolean isMembershipAttribute = false;
+      if (isEntityAttributes && !StringUtils.isBlank(sqlProvisioningConfiguration.getGroupMembershipAttributeName()) && StringUtils.equals(sqlProvisioningConfiguration.getGroupMembershipAttributeName(), attributeName)) {
+        isMembershipAttribute = true;
+      }
+
       // maybe we dont want memberships
       if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
         
-        if (!configurationAttribute.isMembershipAttribute() || (isEntityAttributes && includeMemberships)) {
+        if (!isMembershipAttribute || (isEntityAttributes && includeMemberships)) {
 
           attributeTableAttributesNamesList.add(attributeName);
 
@@ -1565,10 +1614,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         continue;
       }
       
+      boolean isMembershipAttribute = false;
+      if (isEntityAttributes && !StringUtils.isBlank(sqlProvisioningConfiguration.getGroupMembershipAttributeName()) && StringUtils.equals(sqlProvisioningConfiguration.getGroupMembershipAttributeName(), attributeName)) {
+        isMembershipAttribute = true;
+      }
+
       // maybe we dont want memberships
       if (StringUtils.equals(configurationAttribute.getStorageType(), "separateAttributesTable")) {
         
-        if (!configurationAttribute.isMembershipAttribute() || (isEntityAttributes && includeMemberships)) {
+        if (!isMembershipAttribute || (isEntityAttributes && includeMemberships)) {
 
           attributeTableAttributesNamesList.add(attributeName);
 

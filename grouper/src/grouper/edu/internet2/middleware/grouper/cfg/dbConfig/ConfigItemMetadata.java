@@ -330,6 +330,28 @@ public class ConfigItemMetadata {
   }
 
   /**
+   * number of levels to indent in hide/show
+   */
+  private int indent = 0;
+  
+  
+  /**
+   * number of levels to indent in hide/show
+   * @return
+   */
+  public int getIndent() {
+    return indent;
+  }
+
+  /**
+   * number of levels to indent in hide/show
+   * @param indent
+   */
+  public void setIndent(int indent) {
+    this.indent = indent;
+  }
+
+  /**
    * replace $i$ with repeat index
    * @param repeatIndex
    * @return
@@ -354,6 +376,7 @@ public class ConfigItemMetadata {
     copy.subSection = GrouperUtil.replace(this.subSection, "$i$", GrouperUtil.stringValue(repeatIndex));
     
     copy.formElement = this.formElement;
+    copy.indent = this.indent;
     copy.multiple = this.multiple;
     copy.optionValues = this.optionValues;
     copy.order = this.order;
@@ -375,6 +398,7 @@ public class ConfigItemMetadata {
    */
   public void processMetadata() {
     
+    this.indent = 0;
     this.multiple = false;
     this.mustExtendClass = null;
     this.mustImplementInterface = null;
@@ -420,6 +444,11 @@ public class ConfigItemMetadata {
       if (jsonNode.has("order")) {
         this.order = GrouperUtil.jsonJacksonGetInteger(jsonNode, "order");
         jsonNode.remove("order");
+      }
+      
+      if (jsonNode.has("indent")) {
+        this.indent = GrouperUtil.jsonJacksonGetInteger(jsonNode, "indent");
+        jsonNode.remove("indent");
       }
       
       if (jsonNode.has("mustExtendClass")) {

@@ -288,11 +288,11 @@ public class ProvisioningToSyncTest extends GrouperTest {
     assertEquals("abc", gcGrouperSyncGroup.getGroupId());
 
     //try to store an update
-    gcGrouperSyncGroup.setGroupFromId2("def");
+    gcGrouperSyncGroup.setGroupAttributeValueCache0("def");
     gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
 
     gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup.getId());
-    assertEquals("def", gcGrouperSyncGroup.getGroupFromId2());
+    assertEquals("def", gcGrouperSyncGroup.getGroupAttributeValueCache0());
 
     //try to store a delete
     gcGrouperSync.getGcGrouperSyncGroupDao().groupDelete(gcGrouperSyncGroup, false, false);
@@ -326,8 +326,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
     assertEquals("def", gcGrouperSyncGroup2.getGroupId());
 
     //try to store an update
-    gcGrouperSyncGroup1.setGroupFromId2("mno");
-    gcGrouperSyncGroup2.setGroupFromId2("pqr");
+    gcGrouperSyncGroup1.setGroupAttributeValueCache0("mno");
+    gcGrouperSyncGroup2.setGroupAttributeValueCache0("pqr");
 
     gcGrouperSyncGroups = new ArrayList<GcGrouperSyncGroup>();
     gcGrouperSyncGroups.add(gcGrouperSyncGroup1);
@@ -338,8 +338,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
     gcGrouperSyncGroup1 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup1.getId());
     gcGrouperSyncGroup2 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup2.getId());
 
-    assertEquals("mno", gcGrouperSyncGroup1.getGroupFromId2());
-    assertEquals("pqr", gcGrouperSyncGroup2.getGroupFromId2());
+    assertEquals("mno", gcGrouperSyncGroup1.getGroupAttributeValueCache0());
+    assertEquals("pqr", gcGrouperSyncGroup2.getGroupAttributeValueCache0());
 
     gcGrouperSyncGroups = new ArrayList<GcGrouperSyncGroup>();
     gcGrouperSyncGroups.add(gcGrouperSyncGroup1);
@@ -372,8 +372,8 @@ public class ProvisioningToSyncTest extends GrouperTest {
     GcGrouperSyncGroup gcGrouperSyncGroup6 = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveOrCreateByGroupId("vwx");
 
     //try to store an update
-    gcGrouperSyncGroup3.setGroupFromId2("mno");
-    gcGrouperSyncGroup4.setGroupFromId2("pqr");
+    gcGrouperSyncGroup3.setGroupAttributeValueCache0("mno");
+    gcGrouperSyncGroup4.setGroupAttributeValueCache0("pqr");
 
     changes = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects() + gcGrouperSync.getInternalObjectsCreatedCount();
 
@@ -382,11 +382,11 @@ public class ProvisioningToSyncTest extends GrouperTest {
     gcGrouperSyncGroup3 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup3.getId());
     gcGrouperSyncGroup4 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbById(gcGrouperSyncGroup4.getId());
 
-    assertEquals("mno", gcGrouperSyncGroup3.getGroupFromId2());
-    assertEquals("pqr", gcGrouperSyncGroup4.getGroupFromId2());
+    assertEquals("mno", gcGrouperSyncGroup3.getGroupAttributeValueCache0());
+    assertEquals("pqr", gcGrouperSyncGroup4.getGroupAttributeValueCache0());
 
     gcGrouperSyncGroup3 = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbByGroupId(gcGrouperSyncGroup3.getGroupId());
-    assertEquals("mno", gcGrouperSyncGroup3.getGroupFromId2());
+    assertEquals("mno", gcGrouperSyncGroup3.getGroupAttributeValueCache0());
     
     gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupRetrieveFromDbAll();
     assertEquals(6, gcGrouperSyncGroups.size());
@@ -476,13 +476,13 @@ public class ProvisioningToSyncTest extends GrouperTest {
     //  GcGrouperSyncGroup gcGrouperSyncGroup = new GcGrouperSyncGroup();
     //  gcGrouperSyncGroup.setGrouperSync(gcGrouperSync);
     //  gcGrouperSyncGroup.setLastTimeWorkWasDone(new Timestamp(System.currentTimeMillis() + 2000));
-    //  gcGrouperSyncGroup.groupFromId2 = "from2";
-    //  gcGrouperSyncGroup.groupFromId3 = "from3";
+    //  gcGrouperSyncGroup.groupAttributeValueCache0 = "from2";
+    //  gcGrouperSyncGroup.groupAttributeValueCache1 = "from3";
     //  gcGrouperSyncGroup.groupId = "myId";
     //  gcGrouperSyncGroup.groupIdIndex = 123L;
     //  gcGrouperSyncGroup.groupName = "myName";
-    //  gcGrouperSyncGroup.groupToId2 = "toId2";
-    //  gcGrouperSyncGroup.groupToId3 = "toId3";
+    //  gcGrouperSyncGroup.groupAttributeValueCache2 = "toId2";
+    //  gcGrouperSyncGroup.groupAttributeValueCache3 = "toId3";
     //  gcGrouperSyncGroup.inTargetDb = "T";
     //  gcGrouperSyncGroup.inTargetInsertOrExistsDb = "T";
     //  gcGrouperSyncGroup.inTargetEnd = new Timestamp(123L);
@@ -498,7 +498,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     //  gcGrouperSyncGroup = gcGrouperSync.groupRetrieveByGroupId("myId");
     //  System.out.println(gcGrouperSyncGroup);
     //  
-    //  gcGrouperSyncGroup.setGroupToId2("toId2a");
+    //  gcGrouperSyncGroup.setGroupAttributeValueCache2("toId2a");
     //  gcGrouperSync.internal_groupStore(gcGrouperSyncGroup);
     //
     //  System.out.println("updated");

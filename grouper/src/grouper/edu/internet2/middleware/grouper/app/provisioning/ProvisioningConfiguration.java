@@ -5,20 +5,32 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.RandomUtils;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonOtherJobProvisioningFullSyncConfiguration;
+import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonProvisioningIncrementalSyncConfiguration;
 import edu.internet2.middleware.grouper.app.duo.DuoProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.google.GoogleProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -118,6 +130,69 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     }
     
     grouperSync.getGcGrouperSyncDao().delete();
+    
+    // delete full sync and incremental sync daemon
+    boolean foundConfig = false;
+    
+    Pattern pattern = Pattern.compile("^otherJob\\.(.*)\\.provisionerConfigId$");
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(pattern);
+    
+    for (String configId: configIds) {
+      String className = "otherJob."+configId+".class";
+      String provisionerConfigId = "otherJob."+configId+".provisionerConfigId";
+      if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), GrouperProvisioningFullSyncJob.class.getName()) && 
+          StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), getConfigId() )) {
+        foundConfig = true;
+      }
+    }
+    
+    if (foundConfig) {
+      
+      GrouperDaemonOtherJobProvisioningFullSyncConfiguration fullSyncConfig = new GrouperDaemonOtherJobProvisioningFullSyncConfiguration();
+      fullSyncConfig.setConfigId("provisioner_full_"+getConfigId());
+      
+      fullSyncConfig.deleteConfig(true);
+
+      try {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        
+        JobKey jobKey = new JobKey(fullSyncConfig.getDaemonJobPrefix()+fullSyncConfig.getConfigId());
+        scheduler.deleteJob(jobKey);
+      } catch (Exception e) {
+        throw new RuntimeException("Could not delete full sync daemon with job key "+fullSyncConfig.getDaemonJobPrefix()+fullSyncConfig.getConfigId());
+      }
+      
+    }
+    
+    pattern = Pattern.compile("^changeLog\\.consumer\\.(.*)\\.provisionerConfigId$");
+    configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(pattern);
+    foundConfig = false;
+    
+    for (String configId: configIds) {
+      String className = "changeLog.consumer."+configId+".publisher.class";
+      String provisionerConfigId = "changeLog.consumer."+configId+".provisionerConfigId";
+      if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), ProvisioningConsumer.class.getName()) && 
+          StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), getConfigId() )) {
+        foundConfig = true;
+      }
+    }
+    
+    if (foundConfig) {
+      GrouperDaemonProvisioningIncrementalSyncConfiguration incrementalSyncConfig = new GrouperDaemonProvisioningIncrementalSyncConfiguration();
+      incrementalSyncConfig.setConfigId("provisioner_incremental_"+getConfigId());
+      incrementalSyncConfig.deleteConfig(true);
+
+      try {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        
+        JobKey jobKey = new JobKey(incrementalSyncConfig.getDaemonJobPrefix()+incrementalSyncConfig.getConfigId());
+        scheduler.deleteJob(jobKey);
+      } catch (Exception e) {
+        throw new RuntimeException("Could not delete incremental sync daemon with job key "+incrementalSyncConfig.getDaemonJobPrefix()+incrementalSyncConfig.getConfigId());
+      }
+    }
+    
+    
   }
 
   /**
@@ -286,6 +361,153 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     }
     
   }
+
+  public void correctFormFieldsForExpressionLanguageValues() {
+    
+    for (GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute : GrouperUtil.nonNull(this.retrieveAttributes()).values()) {
+      
+      if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
+        grouperConfigurationModuleAttribute.setFormElement(ConfigItemFormElement.TEXT);
+      }
+      
+    }
+    
+  }
+
+  @Override
+  public void insertConfig(boolean fromUi, StringBuilder message,
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay,
+      List<String> actionsPerformed) {
+    
+    super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay,
+        actionsPerformed);
+    
+    if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) {
+      
+      GrouperConfigurationModuleAttribute disabledFullSyncAttribute = this.retrieveAttributes().get("addDisabledFullSyncDaemon");
+      
+      if (disabledFullSyncAttribute != null && GrouperUtil.booleanValue(disabledFullSyncAttribute.getValueOrExpressionEvaluation(), false)) {
+        
+        boolean foundConfig = false;
+        
+        Pattern pattern = Pattern.compile("^otherJob\\.(.*)\\.provisionerConfigId$");
+        Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(pattern);
+        
+        for (String configId: configIds) {
+          String className = "otherJob."+configId+".class";
+          String provisionerConfigId = "otherJob."+configId+".provisionerConfigId";
+          if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), GrouperProvisioningFullSyncJob.class.getName()) && 
+              StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), getConfigId() )) {
+            foundConfig = true;
+          }
+        }
+        
+       
+        if (!foundConfig) {
+          
+          GrouperDaemonOtherJobProvisioningFullSyncConfiguration fullSyncConfig = new GrouperDaemonOtherJobProvisioningFullSyncConfiguration();
+          fullSyncConfig.setConfigId("provisioner_full_"+getConfigId());
+          
+          Map<String, GrouperConfigurationModuleAttribute> attributes = fullSyncConfig.retrieveAttributes();
+          
+          attributes.get("class").setValue("edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob");
+          attributes.get("provisionerConfigId").setValue(this.getConfigId());
+          
+          int hour = RandomUtils.nextInt(3, 8);
+          int minute = RandomUtils.nextInt(0, 60);
+          
+          String cronExpression = "0 "+minute + " " + hour + " * * ?";
+          
+          attributes.get("quartzCron").setValue(cronExpression);
+          
+          fullSyncConfig.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
+          
+          if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+            return;
+          }
+          
+          try {
+            GrouperLoader.scheduleJobs();
+            Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+            JobKey jobKey = new JobKey(fullSyncConfig.getDaemonJobPrefix()+fullSyncConfig.getConfigId());
+            scheduler.pauseJob(jobKey);
+          } catch (SchedulerException e) {
+            throw new RuntimeException("Could not pause the job successfully");
+          }
+          
+        }
+        
+      }
+      
+      GrouperConfigurationModuleAttribute disabledIncrementalSyncAttribute = this.retrieveAttributes().get("addDisabledIncrementalSyncDaemon");
+      
+      if (disabledIncrementalSyncAttribute != null && GrouperUtil.booleanValue(disabledIncrementalSyncAttribute.getValueOrExpressionEvaluation(), false)) {
+        
+        
+        boolean foundConfig = false;
+        
+        Pattern pattern = Pattern.compile("^changeLog\\.consumer\\.(.*)\\.provisionerConfigId$");
+        Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(pattern);
+        
+        for (String configId: configIds) {
+          String className = "changeLog.consumer."+configId+".publisher.class";
+          String provisionerConfigId = "changeLog.consumer."+configId+".provisionerConfigId";
+          if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), ProvisioningConsumer.class.getName()) && 
+              StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), getConfigId() )) {
+            foundConfig = true;
+          }
+        }
+        
+        
+        if (!foundConfig) {
+          
+          GrouperDaemonProvisioningIncrementalSyncConfiguration incrementalSyncConfig = new GrouperDaemonProvisioningIncrementalSyncConfiguration();
+          incrementalSyncConfig.setConfigId("provisioner_incremental_"+getConfigId());
+          
+          Map<String, GrouperConfigurationModuleAttribute> attributes = incrementalSyncConfig.retrieveAttributes();
+          
+          attributes.get("class").setValue("edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer");
+          attributes.get("provisionerConfigId").setValue(this.getConfigId());
+          
+          attributes.get("quartzCron").setValue("0 * * * * ?");
+          attributes.get("publisher.class").setValue("edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer");
+          
+          GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              incrementalSyncConfig.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
+              return null;
+            }
+          });
+          
+          if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+            return;
+          }
+          
+          try {
+            GrouperLoader.scheduleJobs();
+            Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+            JobKey jobKey = new JobKey(incrementalSyncConfig.getDaemonJobPrefix()+incrementalSyncConfig.getConfigId());
+            scheduler.pauseJob(jobKey);
+          } catch (SchedulerException e) {
+            throw new RuntimeException("Could not pause the job successfully");
+          }
+          
+        }
+        
+        
+      }
+      
+      
+    }
+    
+    
+  }
+  
+  
+  
+  
   
 
 }

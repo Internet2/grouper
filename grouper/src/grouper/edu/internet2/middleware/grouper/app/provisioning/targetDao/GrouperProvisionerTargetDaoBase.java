@@ -236,7 +236,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
   
   /**
    * bulk retrieve target provisioning Memberships, generally use the matching Ids in the targetMemberships
-   * @ptouperTargetMemberships
+   * @param targetDaoRetrieveMembershipsRequest
    * @return the target provisioning Memberships
    */
   public TargetDaoRetrieveMembershipsResponse retrieveMemberships(TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest) {

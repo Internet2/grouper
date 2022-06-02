@@ -172,7 +172,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       //groupSearchAttributeNames.add("objectClass");
       groupAttributesMultivalued.add("objectClass");
       
-      String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+      String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupMembershipAttributeName();
       if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
         if (includeAllMembershipsIfApplicable) {
           groupSearchAttributeNames.add(groupAttributeNameForMemberships);
@@ -350,6 +350,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       boolean hasRenameFailure = false;
       List<Exception> exceptions = new ArrayList<Exception>();
 
+      String dn = targetGroup.retrieveAttributeValueString(ldap_dn);
+      if (targetGroup.getProvisioningGroupWrapper() != null && targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup() != null
+          && !GrouperUtil.isBlank(targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueString(ldap_dn))) {
+        dn = targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueString(ldap_dn);
+      }
+
+      boolean movedDn = false;
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
         String attributeName = provisionObjectChange.getAttributeName();
@@ -365,7 +372,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           oldValue = GrouperUtil.stringValue(oldValue);
         }
         
-        if (attributeName == null && LdapProvisioningTargetDao.ldap_dn.equals(attributeName) && action == ProvisioningObjectChangeAction.update) {
+        if (attributeName != null && LdapProvisioningTargetDao.ldap_dn.equals(attributeName) && action == ProvisioningObjectChangeAction.update) {
           // this is a rename
           try {
             checkParentFolderCaseChanges(ldapSyncConfiguration, (String)oldValue, (String)newValue);
@@ -382,7 +389,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
                 throw e;
               }
             }
-            
+
+            movedDn = true;
+            dn = (String)newValue;
             deleteEmptyParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, (String)oldValue);
             
             provisionObjectChange.setProvisioned(true);
@@ -409,6 +418,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             ldapModificationItems.put(item, provisionObjectChange);
           }
         } else if (action == ProvisioningObjectChangeAction.update) {
+
+          // the rdn was already changed
+          if (movedDn && dn.startsWith(attributeName+"=")) {
+            continue;
+          }
+          
           if (oldValue != null) {
             LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName, oldValue));
             ldapModificationItems.put(item, provisionObjectChange);
@@ -435,7 +450,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
   
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
-      LdapModificationResult result = ldapSyncDaoForLdap.modify(ldapConfigId, targetGroup.retrieveAttributeValueString(ldap_dn), new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
+      LdapModificationResult result = ldapSyncDaoForLdap.modify(ldapConfigId, dn, new ArrayList<LdapModificationItem>(ldapModificationItems.keySet()));
       
       if (!hasRenameFailure) {
         targetGroup.setProvisioned(true);  // assume true to start with
@@ -511,7 +526,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     groupAttributesMultivalued.add("objectClass");
     
-    String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+    String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupMembershipAttributeName();
     if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
       if (includeAllMemberships) {
         groupSearchAttributeNames.add(groupAttributeNameForMemberships);
@@ -596,7 +611,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     //groupSearchAttributeNames.add("objectClass");
     groupAttributesMultivalued.add("objectClass");
     
-    String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+    String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupMembershipAttributeName();
     if (!StringUtils.isBlank(groupAttributeNameForMemberships)) {
       if (includeAllMembershipsIfApplicable) {
         groupSearchAttributeNames.add(groupAttributeNameForMemberships);
@@ -712,7 +727,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       //entitySearchAttributeNames.add("objectClass");
       userAttributesMultivalued.add("objectClass");
       
-      String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
+      String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityMembershipAttributeName();
       if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
         if (includeAllMembershipsIfApplicable) {
           entitySearchAttributeNames.add(userAttributeNameForMemberships);
@@ -775,7 +790,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     //entitySelectAttributeNames.add("objectClass");
     userAttributesMultivalued.add("objectClass");
     
-    String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
+    String userAttributeNameForMemberships = ldapSyncConfiguration.getEntityMembershipAttributeName();
     if (!StringUtils.isBlank(userAttributeNameForMemberships)) {
       if (includeAllMembershipsIfApplicable) {
         entitySelectAttributeNames.add(userAttributeNameForMemberships);
@@ -962,10 +977,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     String dn;
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      membershipAttributeName = ldapSyncConfiguration.getGroupAttributeNameForMemberships();
+      membershipAttributeName = ldapSyncConfiguration.getGroupMembershipAttributeName();
       dn = ((ProvisioningGroup)targetDaoRetrieveMembershipRequest.getTargetMembership()).retrieveAttributeValueString(ldap_dn);
     } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-      membershipAttributeName = ldapSyncConfiguration.getEntityAttributeNameForMemberships();
+      membershipAttributeName = ldapSyncConfiguration.getEntityMembershipAttributeName();
       dn = ((ProvisioningEntity)targetDaoRetrieveMembershipRequest.getTargetMembership()).retrieveAttributeValueString(ldap_dn);
     } else {
       throw new RuntimeException("Unexpected grouperProvisioningBehaviorMembershipType: " + this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType());
@@ -1055,6 +1070,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       boolean hasRenameFailure = false;
       List<Exception> exceptions = new ArrayList<Exception>();
       
+      String dn = targetEntity.retrieveAttributeValueString(ldap_dn);
+      if (targetEntity.getProvisioningEntityWrapper() != null && targetEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity() != null
+          && !GrouperUtil.isBlank(targetEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity().retrieveAttributeValueString(ldap_dn))) {
+        dn = targetEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity().retrieveAttributeValueString(ldap_dn);
+      }
+
+      boolean movedDn = false;
       for (ProvisioningObjectChange provisionObjectChange : provisionObjectChanges) {
         
         String attributeName = provisionObjectChange.getAttributeName();
@@ -1074,7 +1096,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           // this is a rename
           try {
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
+            newValue = GrouperUtil.stringValue(newValue);
+            oldValue = GrouperUtil.stringValue(oldValue);
             ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
+            movedDn = true;
+            dn = (String)newValue;
             provisionObjectChange.setProvisioned(true);
           } catch (Exception e) {
             provisionObjectChange.setProvisioned(false);
@@ -1099,6 +1125,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             ldapModificationItems.put(item, provisionObjectChange);
           }
         } else if (action == ProvisioningObjectChangeAction.update) {
+          // the rdn was already changed
+          if (movedDn && dn.startsWith(attributeName+"=")) {
+            continue;
+          }
+
           if (oldValue != null) {
             LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName, oldValue));
             ldapModificationItems.put(item, provisionObjectChange);

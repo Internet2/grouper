@@ -140,7 +140,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
       assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
       assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
-      assertEquals(grouperAzureGroup.getId(), gcGrouperSyncGroup.getGroupToId2());
+      assertEquals(grouperAzureGroup.getId(), gcGrouperSyncGroup.getGroupAttributeValueCache2());
       
       
       //now remove one of the subjects from the testGroup

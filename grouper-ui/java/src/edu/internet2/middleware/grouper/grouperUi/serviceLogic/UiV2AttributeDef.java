@@ -390,7 +390,7 @@ public class UiV2AttributeDef {
    * @param request
    * @param response
    */
-  private void filterHelper(HttpServletRequest request, HttpServletResponse response, AttributeDef attributeDef) {
+  public static void filterHelper(HttpServletRequest request, HttpServletResponse response, AttributeDef attributeDef) {
     
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();

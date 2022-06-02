@@ -240,10 +240,15 @@ public class GrouperProvisioningLogic {
       this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.linkData);
     }
 
-    // validate
-    debugMap.put("state", "validateGroupsAndEntities");
-    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, false);
-    this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, false);
+    try {
+      // validate
+      debugMap.put("state", "validateGroupsAndEntities");
+      this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, false);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroupsHaveMembers(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, false);
+    } finally {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.validateGrouperGroupsEntities);
+    }
     
     try {
   
@@ -843,12 +848,17 @@ public class GrouperProvisioningLogic {
             
           }
           
-          // ######### STEP 26: take all the matching ids of grouper groups/entities and index those for quick lookups
-          // validate
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, false);
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, false);
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false), false);
-          
+          // ######### STEP 26: validate groups
+          try {
+            // validate
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, false);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroupsHaveMembers(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, false);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false), false);
+          } finally {
+            this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.validateGrouperGroupsEntities);
+          }
+
           // ######### STEP 27: recalc retrieve data from target
           try {
             debugMap.put("state", "retrieveIncrementalTargetData");
@@ -987,13 +997,13 @@ public class GrouperProvisioningLogic {
           
           // ######## Retrieve memberships from target that are recalc where the group is not recalc
           try {
-            debugMap.put("state", "retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc");
+            debugMap.put("state", "retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc");
             long start = System.currentTimeMillis();
-            grouperProvisioningLogicIncremental.retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc();
+            grouperProvisioningLogicIncremental.retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc();
             long retrieveTargetDataMillis = System.currentTimeMillis()-start;
-            debugMap.put("retrieveTargetDataMillis", retrieveTargetDataMillis);
+            debugMap.put("retrieveTargetIncrementalMembershipsMillis", retrieveTargetDataMillis);
           } finally {
-            this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetIncrementalMembershipsWithRecalcWhereGroupIsNotRecalc);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc);
           }
           
           {
@@ -1332,7 +1342,7 @@ public class GrouperProvisioningLogic {
 
   /**
    * 
-   * @param grouperTargetGroupsToInsert
+   * @param grouperTargetGroups
    * @param targetProvisioningGroups
    */
   public void registerRetrievedGroups(
@@ -1340,26 +1350,10 @@ public class GrouperProvisioningLogic {
       List<ProvisioningGroup> targetProvisioningGroups) {
     
     GrouperProvisioningConfigurationAttribute searchAttribute = null;
-    
-    for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
-      new Collection[] {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values(),
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()}) {
-    
-      // look for required fields
-      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-          grouperProvisioningConfigurationAttributes) {
-        
-        if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
-          searchAttribute = grouperProvisioningConfigurationAttribute;
-          break;
-        }
-        
-        //default is id I guess
-        if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
-          searchAttribute = grouperProvisioningConfigurationAttribute;
-        }
-      }
+
+    // TODO handle multiple search attributes
+    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes()) > 0) {
+      searchAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes().get(0);
     }
     
     if (searchAttribute == null) {
@@ -1402,25 +1396,9 @@ public class GrouperProvisioningLogic {
     
     GrouperProvisioningConfigurationAttribute searchAttribute = null;
     
-    for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
-      new Collection[] {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values(),
-        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()}) {
-    
-      // look for required fields
-      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-          grouperProvisioningConfigurationAttributes) {
-        
-        if (grouperProvisioningConfigurationAttribute.isSearchAttribute()) {
-          searchAttribute = grouperProvisioningConfigurationAttribute;
-          break;
-        }
-        
-        //default is id I guess
-        if ("id".equals(grouperProvisioningConfigurationAttribute.getName())) {
-          searchAttribute = grouperProvisioningConfigurationAttribute;
-        }
-      }
+    // TODO handle multiple search attributes
+    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes()) > 0) {
+      searchAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes().get(0);
     }
     
     if (searchAttribute == null) {

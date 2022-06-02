@@ -72,6 +72,7 @@
                       ajaxCallback="ajax('../app/UiV2AuthenticationConfig.editWsTrustedJwtConfig?wsTrustedJwtConfigId=${grouperRequestContainer.authenticationContainer.guiWsTrustedJwtConfiguration.wsTrustedJwtConfiguration.configId}', {formIds: 'wsTrustedJwtConfigDetails'}); return false;"
                       valuesAndLabels="${attribute.dropdownValuesAndLabels }"
                       checkboxAttributes="${attribute.checkboxAttributes}"
+                      indent="${attribute.configItemMetadata.indent}"
                     />
                     
                   </c:forEach>

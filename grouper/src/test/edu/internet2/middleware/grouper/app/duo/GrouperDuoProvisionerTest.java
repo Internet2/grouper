@@ -349,7 +349,7 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
       GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
       assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
       assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
-      assertEquals(grouperDuoGroup.getGroup_id(), gcGrouperSyncGroup.getGroupToId2());
+      assertEquals(grouperDuoGroup.getGroup_id(), gcGrouperSyncGroup.getGroupAttributeValueCache2());
       
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);

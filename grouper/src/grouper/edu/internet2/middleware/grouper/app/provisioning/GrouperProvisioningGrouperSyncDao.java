@@ -472,24 +472,36 @@ public class GrouperProvisioningGrouperSyncDao {
     }
 
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
-    String subjectLinkMemberFromId2 = this.grouperProvisioner
-        .retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberFromId2();
-    boolean hasSubjectLinkMemberFromId2 = !StringUtils.isBlank(subjectLinkMemberFromId2);
+    GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache0 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[0];
+    boolean hasSubjectLinkAttributeValueCache0 = grouperProvisioningConfigurationAttributeDbCache0 != null
+        && grouperProvisioningConfigurationAttributeDbCache0.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.grouper
+        && grouperProvisioningConfigurationAttributeDbCache0.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript
+        && !StringUtils.isBlank(grouperProvisioningConfigurationAttributeDbCache0.getTranslationScript());
 
-    String subjectLinkMemberFromId3 = this.grouperProvisioner
-        .retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberFromId3();
-    boolean hasSubjectLinkMemberFromId3 = !StringUtils.isBlank(subjectLinkMemberFromId3);
+    GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache1 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[1];
+    boolean hasSubjectLinkAttributeValueCache1 = grouperProvisioningConfigurationAttributeDbCache1 != null
+        && grouperProvisioningConfigurationAttributeDbCache1.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.grouper
+        && grouperProvisioningConfigurationAttributeDbCache1.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript
+        && !StringUtils.isBlank(grouperProvisioningConfigurationAttributeDbCache1.getTranslationScript());
 
-    String subjectLinkMemberToId2 = this.grouperProvisioner
-        .retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberToId2();
-    boolean hasSubjectLinkMemberToId2 = !StringUtils.isBlank(subjectLinkMemberToId2);
+    GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache2 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[2];
+    boolean hasSubjectLinkAttributeValueCache2 = grouperProvisioningConfigurationAttributeDbCache2 != null
+        && grouperProvisioningConfigurationAttributeDbCache2.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.grouper
+        && grouperProvisioningConfigurationAttributeDbCache2.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript
+        && !StringUtils.isBlank(grouperProvisioningConfigurationAttributeDbCache2.getTranslationScript());
 
-    String subjectLinkMemberToId3 = this.grouperProvisioner
-        .retrieveGrouperProvisioningConfiguration().getSubjectLinkMemberToId3();
-    boolean hasSubjectLinkMemberToId3 = !StringUtils.isBlank(subjectLinkMemberToId3);
+    GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache3 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[3];
+    boolean hasSubjectLinkAttributeValueCache3 = grouperProvisioningConfigurationAttributeDbCache3 != null
+        && grouperProvisioningConfigurationAttributeDbCache3.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.grouper
+        && grouperProvisioningConfigurationAttributeDbCache3.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript
+        && !StringUtils.isBlank(grouperProvisioningConfigurationAttributeDbCache3.getTranslationScript());
 
-    if (!hasSubjectLinkMemberFromId2 && !hasSubjectLinkMemberFromId3
-        && !hasSubjectLinkMemberToId2 && !hasSubjectLinkMemberToId3) {
+    if (!hasSubjectLinkAttributeValueCache0 && !hasSubjectLinkAttributeValueCache1
+        && !hasSubjectLinkAttributeValueCache2 && !hasSubjectLinkAttributeValueCache3) {
       return;
     }
 
@@ -523,28 +535,28 @@ public class GrouperProvisioningGrouperSyncDao {
       Map<String, Object> variableMap = new HashMap<String, Object>();
       variableMap.put("subject", subject);
 
-      if (hasSubjectLinkMemberFromId2) {
-        String memberFromId2Value = GrouperUtil
-            .substituteExpressionLanguage(subjectLinkMemberFromId2, variableMap);
-        gcGrouperSyncMember.setMemberFromId2(memberFromId2Value);
+      if (hasSubjectLinkAttributeValueCache0) {
+        String entityAttributeValueCache0Value = GrouperUtil
+            .substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache0.getTranslationScript(), variableMap);
+        gcGrouperSyncMember.setEntityAttributeValueCache0(entityAttributeValueCache0Value);
       }
 
-      if (hasSubjectLinkMemberFromId3) {
-        String memberFromId3Value = GrouperUtil
-            .substituteExpressionLanguage(subjectLinkMemberFromId3, variableMap);
-        gcGrouperSyncMember.setMemberFromId3(memberFromId3Value);
+      if (hasSubjectLinkAttributeValueCache1) {
+        String entityAttributeValueCache1Value = GrouperUtil
+            .substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache1.getTranslationScript(), variableMap);
+        gcGrouperSyncMember.setEntityAttributeValueCache1(entityAttributeValueCache1Value);
       }
 
-      if (hasSubjectLinkMemberToId2) {
-        String memberToId2Value = GrouperUtil
-            .substituteExpressionLanguage(subjectLinkMemberToId2, variableMap);
-        gcGrouperSyncMember.setMemberToId2(memberToId2Value);
+      if (hasSubjectLinkAttributeValueCache2) {
+        String entityAttributeValueCache2Value = GrouperUtil
+            .substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache2.getTranslationScript(), variableMap);
+        gcGrouperSyncMember.setEntityAttributeValueCache2(entityAttributeValueCache2Value);
       }
 
-      if (hasSubjectLinkMemberFromId3) {
-        String memberToId3Value = GrouperUtil
-            .substituteExpressionLanguage(subjectLinkMemberToId3, variableMap);
-        gcGrouperSyncMember.setMemberToId3(memberToId3Value);
+      if (hasSubjectLinkAttributeValueCache1) {
+        String entityAttributeValueCache3Value = GrouperUtil
+            .substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache3.getTranslationScript(), variableMap);
+        gcGrouperSyncMember.setEntityAttributeValueCache3(entityAttributeValueCache3Value);
       }
 
     }
@@ -1372,18 +1384,18 @@ public class GrouperProvisioningGrouperSyncDao {
       {
         String groupAttributeNameForMemberships = this.grouperProvisioner
             .retrieveGrouperProvisioningConfiguration()
-            .getGroupAttributeNameForMemberships();
+            .getGroupMembershipAttributeName();
 
         // get the attribute that holds members
         GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner
             .retrieveGrouperProvisioningConfiguration()
             .getTargetGroupAttributeNameToConfig().get(groupAttributeNameForMemberships);
 
-        String translateFromMemberSyncField = grouperProvisioningConfigurationAttribute == null
+        String translateFromMemberAttribute = grouperProvisioningConfigurationAttribute == null
             ? null
-            : grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField();
+            : grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField();
 
-        if (StringUtils.isBlank(translateFromMemberSyncField)) {
+        if (StringUtils.isBlank(translateFromMemberAttribute)) {
           this.grouperProvisioner.getDebugMap()
               .put("processResultsSelectMembershipsFullCantUnresolveMemberships", true);
 
@@ -1400,8 +1412,8 @@ public class GrouperProvisioningGrouperSyncDao {
                 .getGcGrouperSyncMember();
             if (gcGrouperSyncMember != null) {
               Object provisioningAttribute = this.getGrouperProvisioner()
-                  .retrieveGrouperProvisioningTranslator().translateFromMemberSyncField(
-                      gcGrouperSyncMember, translateFromMemberSyncField);
+                  .retrieveGrouperProvisioningTranslator().translateFromGrouperProvisioningEntityField(
+                      provisioningEntityWrapper, translateFromMemberAttribute);
               String provisioningAttributeString = GrouperUtil
                   .stringValue(provisioningAttribute);
               provisioningAttributeToMember.put(provisioningAttributeString,
@@ -1497,18 +1509,18 @@ public class GrouperProvisioningGrouperSyncDao {
       case entityAttributes: {
         String entityAttributeNameForMemberships = this.grouperProvisioner
             .retrieveGrouperProvisioningConfiguration()
-            .getEntityAttributeNameForMemberships();
+            .getEntityMembershipAttributeName();
 
         // get the attribute that holds members
         GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner
             .retrieveGrouperProvisioningConfiguration()
             .getTargetGroupAttributeNameToConfig().get(entityAttributeNameForMemberships);
 
-        String translateFromGroupSyncField = grouperProvisioningConfigurationAttribute == null
+        String translateFromGroupAttribute = grouperProvisioningConfigurationAttribute == null
             ? null
-            : grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField();
+            : grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField();
 
-        if (StringUtils.isBlank(translateFromGroupSyncField)) {
+        if (StringUtils.isBlank(translateFromGroupAttribute)) {
           this.grouperProvisioner.getDebugMap()
               .put("processResultsSelectMembershipsFullCantUnresolveMemberships", true);
 
@@ -1526,10 +1538,9 @@ public class GrouperProvisioningGrouperSyncDao {
             if (gcGrouperSyncGroup != null) {
 
               Object provisioningAttribute = this.getGrouperProvisioner()
-                  .retrieveGrouperProvisioningTranslator().translateFromGroupSyncField(
-                      gcGrouperSyncGroup, translateFromGroupSyncField);
-              String provisioningAttributeString = GrouperUtil
-                  .stringValue(provisioningAttribute);
+                  .retrieveGrouperProvisioningTranslator()
+                  .translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, translateFromGroupAttribute);
+              String provisioningAttributeString = GrouperUtil.stringValue(provisioningAttribute);
 
               provisioningAttributeToGroup.put(provisioningAttributeString,
                   gcGrouperSyncGroup);

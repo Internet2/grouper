@@ -7,6 +7,19 @@ import java.util.Map;
 
 public class LdapProvisionerTestConfigInput {
 
+  private boolean groupAttributeValueCache2dn = true;
+  
+  
+  
+  public boolean isGroupAttributeValueCache2dn() {
+    return groupAttributeValueCache2dn;
+  }
+
+  public LdapProvisionerTestConfigInput assignGroupAttributeValueCache2dn(boolean groupAttributeValueCache2dn) {
+    this.groupAttributeValueCache2dn = groupAttributeValueCache2dn;
+    return this;
+  }
+
   /**
    * if allow dn override with config (default false)
    */
@@ -192,14 +205,34 @@ public class LdapProvisionerTestConfigInput {
   /**
    * groupDeleteType e.g. deleteGroupsIfNotExistInGrouper or deleteGroupsIfGrouperDeleted or deleteGroupsIfGrouperCreated or null (default)
    */
-  private String groupDeleteType; 
+  private String groupDeleteType;
+
+  /**
+   * membershipDeleteType e.g. deleteMembershipsIfNotExistInGrouper (default) or deleteMembershipsIfGrouperDeleted or deleteMembershipsIfGrouperCreated or null
+   */
+  private String membershipDeleteType = "deleteMembershipsIfNotExistInGrouper"; 
   
+
+  public String getMembershipDeleteType() {
+    return membershipDeleteType;
+  }
 
   /**
    * groupDeleteType e.g. deleteGroupsIfNotExistInGrouper or deleteGroupsIfGrouperDeleted or deleteGroupsIfGrouperCreated or null (default)
    */
   public String getGroupDeleteType() {
     return groupDeleteType;
+  }
+  
+  
+  /**
+   * membershipDeleteType e.g. deleteMembershipsIfNotExistInGrouper or deleteMembershipsIfGrouperDeleted or deleteMembershipsIfGrouperCreated or null (default)
+   * @param membershipDeleteType
+   * @return this for chaining
+   */
+  public LdapProvisionerTestConfigInput assignMembershipDeleteType(String membershipDeleteType) {
+    this.membershipDeleteType = membershipDeleteType;
+    return this;
   }
 
   /**

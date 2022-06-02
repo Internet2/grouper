@@ -80,20 +80,36 @@ public class DuoProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.matchingId", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "loginId");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.searchAttribute", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "loginId");
+
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateToMemberSyncField", "memberToId2");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2source", "target");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2type", "entityAttribute");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2entityAttribute", "id");
+
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateToGroupSyncField", "groupToId2");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.matchingId", "true");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2source", "target");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2type", "groupAttribute");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2groupAttribute", "id");
+
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "name");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.searchAttribute", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", "extension");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "name");
+
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "description");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "description");

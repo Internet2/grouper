@@ -131,12 +131,12 @@ public class ScimProvisionerTestConfigInput {
   }
   
   /**
-   * e.g. memberFromId2 -> ${subject.getAttributeValue('email')}
+   * e.g. entityAttributeValueCache0 -> ${subject.getAttributeValue('email')}
    */
   private Map<String, String> subjectLink = new TreeMap<String, String>();
 
   /**
-   * e.g. memberFromId2 -> ${subject.getAttributeValue('email')}
+   * e.g. entityAttributeValueCache0 -> ${subject.getAttributeValue('email')}
    * @return
    */
   public Map<String, String> getSubjectLink() {
@@ -144,7 +144,7 @@ public class ScimProvisionerTestConfigInput {
   }
 
   /**
-   * e.g. memberFromId2 -> ${subject.getAttributeValue('email')}
+   * e.g. entityAttributeValueCache0 -> ${subject.getAttributeValue('email')}
    * @return
    */
   public ScimProvisionerTestConfigInput addSubjectLink(String cacheBucket, String value) {

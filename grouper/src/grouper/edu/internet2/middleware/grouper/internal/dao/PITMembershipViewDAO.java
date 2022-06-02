@@ -120,4 +120,24 @@ public interface PITMembershipViewDAO extends GrouperDAO {
       Set<Source> sources, Stem stem, Scope stemScope, Boolean checkSecurity, FieldType fieldType,
       QueryOptions queryOptionsForMember, String filterForMember, boolean splitScopeForMember, 
       boolean hasFieldForMember, Timestamp pointInTimeFrom, Timestamp pointInTimeTo);
+  
+  /**
+   * @param memberId
+   * @param fieldId
+   * @param endTimeFrom
+   * @param endTimeTo
+   * @return set of PITMembershipView
+   */
+  public Set<PITMembershipView> findAllByPITMemberAndPITFieldAndEndTimeRange(String memberId, String fieldId, 
+      Timestamp endTimeFrom, Timestamp endTimeTo);
+  
+  /**
+   * @param memberId
+   * @param fieldId
+   * @param startTimeFrom
+   * @param startTimeTo
+   * @returnset of PITMembershipView
+   */
+  public Set<PITMembershipView> findAllByPITMemberAndPITFieldAndStartTimeRange(String memberId, String fieldId, 
+      Timestamp startTimeFrom, Timestamp startTimeTo);
 }

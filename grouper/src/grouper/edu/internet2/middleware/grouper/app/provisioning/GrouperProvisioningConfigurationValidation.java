@@ -434,10 +434,11 @@ public class GrouperProvisioningConfigurationValidation {
   public void validateOperateOnEntitiesIfSubjectSourcesToProvision() {
     
     boolean operateOnGrouperEntities = GrouperUtil.booleanValue(this.suffixToConfigValue.get("operateOnGrouperEntities"), false);
+    boolean operateOnGrouperMemberships = GrouperUtil.booleanValue(this.suffixToConfigValue.get("operateOnGrouperMemberships"), false);
 
     String subjectSourcesToProvision = this.suffixToConfigValue.get("subjectSourcesToProvision");
     
-    if (!StringUtils.isBlank(subjectSourcesToProvision) && !operateOnGrouperEntities) {
+    if (!StringUtils.isBlank(subjectSourcesToProvision) && !operateOnGrouperEntities && !operateOnGrouperMemberships) {
       this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("grouperProvisioningSubjectSourcesToProvisionRequiresEntitiesInvalid")));
     }
     
@@ -516,45 +517,30 @@ public class GrouperProvisioningConfigurationValidation {
     boolean hasGroupMembershipId = false;
     boolean hasMemberMembershipId = false;
 
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
-      //validate the matching attributes come from gcSync objects
-      
-      if (grouperProvisioningConfigurationAttribute.isMatchingId()) {
-
-        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
-          hasMemberMatchingId = true;
-        }
-        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
-          hasGroupMatchingId = true;
-        }
-        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.membership) {
-          hasMembershipMatchingId = true;
-        }
-        
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(grouperProvisioningConfiguration.getGroupMatchingAttributes())) {
+      if (grouperProvisioningConfigurationAttribute != null) {
+        hasGroupMatchingId = true;
       }
-      
-      
-      if (grouperProvisioningConfigurationAttribute.isMembershipAttribute()) {
-        
-        if (StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGroupSyncField())
-            && StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromMemberSyncField())) {
-
-//          throw new RuntimeException(grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
-//              + " " + (grouperProvisioningConfigurationAttribute.isAttribute() ? "attribute" : "field") + " '" + grouperProvisioningConfigurationAttribute.getName() 
-//              + "' is a membership attribute but does not have a translation from a sync field.  It must have a translation from a sync field! " + grouperProvisioningConfigurationAttribute);
-        }
-
-        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
-          hasMemberMembershipId = true;
-        }
-        if (grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
-          hasGroupMembershipId = true;
-        }
-        
-      }
-      
     }
-
+    
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(grouperProvisioningConfiguration.getEntityMatchingAttributes())) {
+      if (grouperProvisioningConfigurationAttribute != null) {
+        hasMemberMatchingId = true;
+      }
+    }
+    
+    if (!StringUtils.isBlank(grouperProvisioningConfiguration.getGroupMembershipAttributeName())) {
+      if (grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().get(grouperProvisioningConfiguration.getGroupMembershipAttributeName()) != null) {
+        hasGroupMembershipId = true;
+      }
+    }
+    
+    if (!StringUtils.isBlank(grouperProvisioningConfiguration.getEntityMembershipAttributeName())) {
+      if (grouperProvisioningConfiguration.getTargetEntityAttributeNameToConfig().get(grouperProvisioningConfiguration.getEntityMembershipAttributeName()) != null) {
+        hasMemberMembershipId = true;
+      }
+    }
+    
     if (grouperProvisioningConfiguration.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       if (!hasGroupMatchingId) {
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveGroupMatchingId")));
@@ -719,36 +705,28 @@ public class GrouperProvisioningConfigurationValidation {
     if (hasTargetGroupLink) {
       
       // check attributes
-      for (int i=0; i< 20; i++) {
-  
-        String name = suffixToConfigValue.get("targetGroupAttribute."+i+".name");
-        if (StringUtils.isBlank(name)) {
-          break;
-        }
+      for (GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
         
-        // there is an attribute here
-        String translateToGroupSyncField = suffixToConfigValue.get("targetGroupAttribute."+i+".translateToGroupSyncField");
-        
-        if (!StringUtils.isBlank(translateToGroupSyncField)) {
+        if (grouperProvisioningConfigurationAttributeDbCache != null) {
           return;
         }
-        
+  
       }
       
       // check scripts
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupFromId2"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupAttributeValueCache0"))) {
         return;
       }
       
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupFromId3"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupAttributeValueCache1"))) {
         return;
       }
 
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupToId2"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupAttributeValueCache2"))) {
         return;
       }
 
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupToId3"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.groupLink.groupAttributeValueCache3"))) {
         return;
       }
       this.addErrorMessage(new ProvisioningValidationIssue()
@@ -763,8 +741,6 @@ public class GrouperProvisioningConfigurationValidation {
   
   /**
    * if there is a entity delete, then there must be one delete type
-   * @param suffixToConfigValue
-   * @return 
    */
   public void validateEntityLinkHasConfiguration() {
     
@@ -772,36 +748,28 @@ public class GrouperProvisioningConfigurationValidation {
     if (hasTargetEntityLink) {
       
       // check attributes
-      for (int i=0; i< 20; i++) {
-  
-        String name = suffixToConfigValue.get("targetEntityAttribute."+i+".name");
-        if (StringUtils.isBlank(name)) {
-          break;
-        }
+      for (GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
         
-        // there is an attribute here
-        String translateToEntitySyncField = suffixToConfigValue.get("targetEntityAttribute."+i+".translateToMemberSyncField");
-        
-        if (!StringUtils.isBlank(translateToEntitySyncField)) {
+        if (grouperProvisioningConfigurationAttributeDbCache != null) {
           return;
         }
-        
+  
       }
       
       // check scripts
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.memberFromId2"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.entityAttributeValueCache0"))) {
         return;
       }
       
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.memberFromId3"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.entityAttributeValueCache1"))) {
         return;
       }
   
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.memberToId2"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.entityAttributeValueCache2"))) {
         return;
       }
   
-      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.mmeberToId3"))) {
+      if (!StringUtils.isBlank(suffixToConfigValue.get("common.entityLink.entityAttributeValueCache3"))) {
         return;
       }
       this.addErrorMessage(new ProvisioningValidationIssue()
@@ -823,41 +791,26 @@ public class GrouperProvisioningConfigurationValidation {
     if (!hasTargetGroupLink) {
       return;
     }
-
-    String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleToSameBucket");
-    
-    for (String bucket : new String[] {"groupFromId2", "groupFromId3", "groupToId2", "groupToId3"}) {
-      
-      List<ProvisioningValidationIssue> currentErrors = new ArrayList<ProvisioningValidationIssue>();
-
-      // check attributes
-      for (int i=0; i< 20; i++) {
   
-        String name = suffixToConfigValue.get("targetGroupAttribute."+i+".name");
-        if (StringUtils.isBlank(name)) {
-          break;
-        }
-        
-        // there is an attribute here
-        String suffix = "targetGroupAttribute."+i+".translateToGroupSyncField";
-        String translateToGroupSyncField = suffixToConfigValue.get(suffix);
-        
-        if (StringUtils.equals(bucket, translateToGroupSyncField)) {
-          currentErrors.add(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(suffix));
-        }
-        
-      }
-
-      String suffix = "common.groupLink." + bucket;
-      if (!StringUtils.isBlank(suffixToConfigValue.get(suffix))) {
-        currentErrors.add(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(suffix));
+    String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetGroupLinkMultipleFromSameAttribute");
+    
+    Set<String> attributeNames = new HashSet<String>();
+    
+    for (GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
+      
+      if (grouperProvisioningConfigurationAttributeDbCache == null || StringUtils.isBlank(grouperProvisioningConfigurationAttributeDbCache.getAttributeName())) {
+        continue;
       }
       
-      if (currentErrors.size() > 1) {
-        this.addErrorMessages(currentErrors);
+      if (attributeNames.contains(grouperProvisioningConfigurationAttributeDbCache.getAttributeName())) {
+        String suffix = "groupAttributeValueCache" + grouperProvisioningConfigurationAttributeDbCache.getIndex() + "groupAttribute";
+        this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(suffix));
       }
+      
+      attributeNames.add(grouperProvisioningConfigurationAttributeDbCache.getAttributeName());
+      
     }
-    
+
   }
 
   /**
@@ -942,40 +895,24 @@ public class GrouperProvisioningConfigurationValidation {
       return;
     }
   
-    String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleToSameBucket");
+    String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.targetEntityLinkMultipleFromSameAttribute");
     
-    for (String bucket : new String[] {"memberFromId2", "memberFromId3", "memberToId2", "memberToId3"}) {
+    Set<String> attributeNames = new HashSet<String>();
+    
+    for (GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
       
-      List<ProvisioningValidationIssue> currentErrors = new ArrayList<ProvisioningValidationIssue>();
-  
-      // check attributes
-      for (int i=0; i< 20; i++) {
-  
-        String name = suffixToConfigValue.get("targetEntityAttribute."+i+".name");
-        if (StringUtils.isBlank(name)) {
-          break;
-        }
-        
-        // there is an attribute here
-        String suffix = "targetEntityAttribute."+i+".translateToMemberSyncField";
-        String translateToGroupSyncField = suffixToConfigValue.get(suffix);
-        
-        if (StringUtils.equals(bucket, translateToGroupSyncField)) {
-          currentErrors.add(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(suffix));
-        }
-        
-      }
-  
-      String suffix = "common.entityLink." + bucket;
-      if (!StringUtils.isBlank(suffixToConfigValue.get(suffix))) {
-        currentErrors.add(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(suffix));
+      if (grouperProvisioningConfigurationAttributeDbCache == null || StringUtils.isBlank(grouperProvisioningConfigurationAttributeDbCache.getAttributeName())) {
+        continue;
       }
       
-      if (currentErrors.size() > 1) {
-        this.addErrorMessages(currentErrors);
+      if (attributeNames.contains(grouperProvisioningConfigurationAttributeDbCache.getAttributeName())) {
+        String suffix = "entityAttributeValueCache" + grouperProvisioningConfigurationAttributeDbCache.getIndex() + "entityAttribute";
+        this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(suffix));
       }
+      
+      attributeNames.add(grouperProvisioningConfigurationAttributeDbCache.getAttributeName());
+      
     }
-    
   }
 
   /**

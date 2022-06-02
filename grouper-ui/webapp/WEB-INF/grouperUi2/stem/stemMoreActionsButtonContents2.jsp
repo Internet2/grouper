@@ -41,12 +41,14 @@
                         
                         <grouper:performanceTimingGate label="StemUiMoreActions" key="post_templates" />
                         
-                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
+                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges || grouperRequestContainer.stemContainer.canCreateGroups }">
 
                           <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['stemViewMoreActionsManage']}</li>
 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemCopy&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                              >${textContainer.text['stemViewCopyStemButton'] }</a></li>
+                          <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemCopy&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                                >${textContainer.text['stemViewCopyStemButton'] }</a></li>
+                          </c:if>
 
                           <c:if test="${grouperRequestContainer.stemContainer.canCreateStems}">
                             <li><a href="#" 
@@ -73,20 +75,22 @@
   
                           </c:if>
 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                              >${textContainer.text['stemViewEditStemButton'] }</a></li>
+                          <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                                >${textContainer.text['stemViewEditStemButton'] }</a></li>
+  
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemMove&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                                >${textContainer.text['stemViewMoveStemButton'] }</a></li>
+                          </c:if>
 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemMove&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
-                              >${textContainer.text['stemViewMoveStemButton'] }</a></li>
-
-                        <grouper:performanceTimingGate label="StemUiMoreActions" key="post_manage" />
+                          <grouper:performanceTimingGate label="StemUiMoreActions" key="post_manage" />
 
                           <c:if test="${isWheelGroupMember || grouperRequestContainer.stemContainer.canAdminPrivileges}">
                             <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['stemViewMoreActionsAdministration']}</li>
                           </c:if>
                           
                           <c:if test="${isWheelGroupMember || grouperRequestContainer.stemContainer.canAdminPrivileges || grouperRequestContainer.stemContainer.canReadAttributes
-                               || grouperRequestContainer.deprovisioningContainer.canReadDeprovisioning || grouperRequestContainer.provisioningContainer.canReadProvisioning
+                               || grouperRequestContainer.deprovisioningContainer.canReadDeprovisioning || grouperRequestContainer.provisioningContainer.canReadProvisioningForStem
                                || grouperRequestContainer.grouperReportContainer.reportingEnabled || grouperRequestContainer.objectTypeContainer.canReadObjectType }">
                             <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Attestation.stemAttestation&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['attestationButton'] }</a></li>
@@ -108,10 +112,10 @@
                             <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningOnFolderReport&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['deprovisioningMoreActionsMenuLabel'] }</a></li>
                           </c:if>         
-                          <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioning}">
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioningForStem}">
                             <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></li>
-                          </c:if>
                         </c:if>
                         <c:if test="${grouperRequestContainer.grouperReportContainer.reportingEnabled}">
                           <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"

@@ -80,6 +80,7 @@
 			  					ajaxCallback="ajax('../app/UiV2SubjectSource.editSubjectSource?focusOnElementName=config_${attribute.configSuffix}&subjectSourceId=${grouperRequestContainer.subjectSourceContainer.subjectSourceId}', {formIds: 'sourceConfigDetails'}); return false;"
 			  					valuesAndLabels="${attribute.dropdownValuesAndLabels }"
 			  					checkboxAttributes="${attribute.checkboxAttributes}"
+                  indent="${attribute.configItemMetadata.indent}"
 			  				/>
 			  				
 			  			</c:forEach>

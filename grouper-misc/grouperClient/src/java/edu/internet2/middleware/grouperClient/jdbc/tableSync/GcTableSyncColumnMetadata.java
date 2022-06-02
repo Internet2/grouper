@@ -104,6 +104,30 @@ public class GcTableSyncColumnMetadata {
     /**
      * 
      */
+    BOOLEAN {
+
+      @Override
+      public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
+        return resultSet.getBoolean(gcTableSyncColumnMetadata.getColumnName());
+      }
+      
+      /**
+       * convert to type
+       */
+      @Override
+      public Object convertToType(Object input) {
+        
+        if (GrouperClientUtils.isBlank(input)) {
+          return null;
+        }
+        return GrouperClientUtils.booleanValue(input);
+      }
+
+    },
+    
+    /**
+     * 
+     */
     STRING {
 
       @Override

@@ -56,11 +56,11 @@
     <!-- version helps hibernate know when insert/update, and makes sure optimistic locking -->
     <version name="lastUpdated" column="last_updated" type="timestamp" />
 
-    <property name="memberFromId2" column="member_from_id2"/>
-    <property name="memberFromId3" column="member_from_id3"/>
+    <property name="entityAttributeValueCache0" column="member_from_id2"/>
+    <property name="entityAttributeValueCache1" column="member_from_id3"/>
     <property name="memberId" column="member_id"/>
-    <property name="memberToId2" column="member_to_id2"/>
-    <property name="memberToId3" column="member_to_id3"/>
+    <property name="entityAttributeValueCache2" column="member_to_id2"/>
+    <property name="entityAttributeValueCache3" column="member_to_id3"/>
 
     <property name="errorCodeDb" column="error_code"/>
     <property name="errorMessage" column="error_message"/>

@@ -590,17 +590,22 @@ function dojoInitMenu(autoSelectNode) {
       return "children" in object;
     },
     getChildren: function(object, onComplete, onError){
-      // retrieve the full copy of the object
-      this.get(object.id).then(function(fullObject){
-        // copy to the original object so it has the children array as well.
-        object.children = fullObject.children;
-        // now that full object, we should have an array of children
-        onComplete(fullObject.children);
-      }, function(error){
-        // an error occurred, log it, and indicate no children
-        console.error(error);
-        onComplete([]);
-      });
+      if (object.root && Array.isArray(object.children)) {
+        // already have children
+        onComplete(object.children);
+      } else {
+        // retrieve the full copy of the object
+        this.get(object.id).then(function(fullObject){
+          // copy to the original object so it has the children array as well.
+          object.children = fullObject.children;
+          // now that full object, we should have an array of children
+          onComplete(fullObject.children);
+        }, function(error){
+          // an error occurred, log it, and indicate no children
+          console.error(error);
+          onComplete([]);
+        });
+      }
     },
     getRoot: function(onItem, onError){
       // get the root object, we will do a get() and callback the result

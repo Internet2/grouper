@@ -17,6 +17,87 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
 
   /**
    * 
+   * @return subjectIdentifier0
+   */
+  public String getSubjectIdentifier0() {
+    return this.retrieveAttributeValueString("subjectIdentifier0");
+  }
+  
+  /**
+   * 
+   * @param subjectIdentifier0
+   */
+  public void setSubjectIdentifier0(String subjectIdentifier0) {
+    this.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
+  }
+  
+  /**
+   * 
+   * @return subjectIdentifier1
+   */
+  public String getSubjectIdentifier1() {
+    return this.retrieveAttributeValueString("subjectIdentifier1");
+  }
+  
+  /**
+   * 
+   * @param subjectIdentifier1
+   */
+  public void setSubjectIdentifier1(String subjectIdentifier1) {
+    this.assignAttributeValue("subjectIdentifier1", subjectIdentifier1);
+  }
+  
+  /**
+   * 
+   * @return subjectIdentifier2
+   */
+  public String getSubjectIdentifier2() {
+    return this.retrieveAttributeValueString("subjectIdentifier2");
+  }
+  
+  /**
+   * 
+   * @param subjectIdentifier2
+   */
+  public void setSubjectIdentifier2(String subjectIdentifier2) {
+    this.assignAttributeValue("subjectIdentifier2", subjectIdentifier2);
+  }
+  
+  
+  /**
+   * 
+   * @return description
+   */
+  public String getDescription() {
+    return this.retrieveAttributeValueString("description");
+  }
+
+  /**
+   * 
+   * @param description
+   */
+  public void setDescription(String description) {
+    this.assignAttributeValue("description", description);
+  }
+
+  /**
+   * 
+   * @return subject source id
+   */
+  public String getSubjectSourceId() {
+    return this.retrieveAttributeValueString("subjectSourceId");
+  }
+
+  /**
+   * 
+   * @param subjectSourceId
+   */
+  public void setSubjectSourceId(String subjectSourceId) {
+    this.assignAttributeValue("subjectSourceId", subjectSourceId);
+  }
+
+  /**
+   * 
    * @return
    */
   public String getSubjectId() {

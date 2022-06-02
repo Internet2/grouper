@@ -43,8 +43,6 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
-import org.quartz.Trigger.TriggerState;
-import org.quartz.TriggerKey;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -648,15 +646,16 @@ public class GrouperLoaderIncrementalJob implements Job {
     Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
     List<? extends Trigger> currentTriggers = scheduler.getTriggersOfJob(new JobKey(jobName));
     boolean alreadyScheduled = false;
-    for (Trigger currentTrigger : currentTriggers) {
-      TriggerKey currentTriggerKey = currentTrigger.getKey();
-      if (TriggerState.BLOCKED == scheduler.getTriggerState(currentTriggerKey)) {
+    for (Trigger currentTrigger : currentTriggers) {      
+      // currentTrigger.getNextFireTime() seems to be null if currently executing
+      // so this should mean that there's already a trigger that should fire at any time now
+      if (currentTrigger.getNextFireTime() != null && currentTrigger.getNextFireTime().getTime() <= System.currentTimeMillis()) {
         alreadyScheduled = true;
         break;
       }
     }
     
-    // what if it doesn't get moved to the blocked state quick enough.  there really shouldn't be more than 3 triggers.  look at this again later.
+    // there really shouldn't be more than 3 triggers.
     if (currentTriggers.size() > 2) {
       alreadyScheduled = true;
     }

@@ -91,18 +91,20 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false).getStem();
      
       if (stem == null) {
         return;
       }
+      
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanViewPrivileges()) {
+        return;
+      }
+      
+      
       final Stem STEM = stem;
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-            
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
       
       final ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
       
@@ -243,10 +245,6 @@ public class UiV2Provisioning {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
-      
       final Group GROUP = group;
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -267,7 +265,7 @@ public class UiV2Provisioning {
             return null;
           }
             
-          setGrouperProvisioningAttributeValues(GROUP, targetName);
+          setGrouperProvisioningAttributeValues(GROUP, targetName, loggedInSubject);
           
           GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
           addProvisioningBreadcrumbs(guiGroup, targetName, "viewProvisioningOnGroup", "groupId", GROUP.getId());
@@ -308,10 +306,6 @@ public class UiV2Provisioning {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
-      
       final Group GROUP = group;
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -326,7 +320,7 @@ public class UiV2Provisioning {
             return null;
           }
             
-          setGrouperProvisioningAttributeValues(GROUP, null);
+          setGrouperProvisioningAttributeValues(GROUP, null, loggedInSubject);
           
           GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
           addProvisioningBreadcrumbs(guiGroup, null, null, null, null);
@@ -359,10 +353,6 @@ public class UiV2Provisioning {
     
     try {
   
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
-      
       grouperSession = GrouperSession.start(loggedInSubject);
   
       subject = UiV2Subject.retrieveSubjectHelper(request, true);
@@ -473,10 +463,6 @@ public class UiV2Provisioning {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
-      
       final String targetName = request.getParameter("provisioningTargetName");
       
       if (StringUtils.isBlank(targetName)) {
@@ -575,10 +561,6 @@ public class UiV2Provisioning {
 
       if (subject == null) {
         return;
-      }
-      
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
       }
       
       final Group GROUP = group;
@@ -690,10 +672,6 @@ public class UiV2Provisioning {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
-      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
             
       final ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
@@ -800,10 +778,6 @@ public class UiV2Provisioning {
 
       if (subject == null) {
         return;
-      }
-      
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
       }
       
       final String targetName = request.getParameter("provisioningTargetName");
@@ -917,10 +891,6 @@ public class UiV2Provisioning {
         return;
       }
 
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
-      
       final Group GROUP = group;
       final Subject SUBJECT = subject;
       
@@ -1003,7 +973,7 @@ public class UiV2Provisioning {
     
   }
   
-  private final void setGrouperProvisioningAttributeValues(Group group, String targetName) {
+  private final void setGrouperProvisioningAttributeValues(Group group, String targetName, Subject loggedInSubject) {
     
     List<GrouperProvisioningAttributeValue> provisioningAttributeValues = new ArrayList<GrouperProvisioningAttributeValue>();
     
@@ -1014,8 +984,23 @@ public class UiV2Provisioning {
       provisioningAttributeValues.add(grouperProvisioningAttributeValue);
     }
     
+    
+    Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+    
+    List<GrouperProvisioningAttributeValue> provisioningAttributeValuesViewable = new ArrayList<GrouperProvisioningAttributeValue>();
+    
+    for (GrouperProvisioningAttributeValue grouperProvisioningAttributeValue: provisioningAttributeValues) {
+     
+      String localTargetName = grouperProvisioningAttributeValue.getTargetName();
+      GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(localTargetName);
+      if (grouperProvisioningTarget != null && GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, group)) {
+        provisioningAttributeValuesViewable.add(grouperProvisioningAttributeValue);
+      }
+     
+   }
+    
     // convert from raw to gui
-    List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(provisioningAttributeValues);
+    List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(provisioningAttributeValuesViewable);
     
     for (GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue: guiGrouperProvisioningAttributeValues) {
       String provisionerName = guiGrouperProvisioningAttributeValue.getGrouperProvisioningAttributeValue().getTargetName();
@@ -2679,14 +2664,14 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false).getStem();
       
       if (stem == null) {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanViewPrivileges()) {
+        return;
       }
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -2703,12 +2688,6 @@ public class UiV2Provisioning {
             return false;
           }
           
-          if (!provisioningContainer.isCanWriteProvisioning()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteStem")));
-            return false;
-          }
-  
           return true;
         }
       });
@@ -2863,14 +2842,10 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
       if (group == null) {
         return;
-      }
-      
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
       }
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -2887,12 +2862,6 @@ public class UiV2Provisioning {
             return false;
           }
           
-          if (!provisioningContainer.isCanWriteProvisioning()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteGroup")));
-            return false;
-          }
-  
           return true;
         }
       });
@@ -2924,7 +2893,7 @@ public class UiV2Provisioning {
           List<GcGrouperSyncLog> gcGrouperSyncLogs = GrouperProvisioningService.retrieveGcGrouperSyncLogs(targetName, GROUP.getUuid(), queryOptions);
           provisioningContainer.setGcGrouperSyncLogs(gcGrouperSyncLogs);
           
-          setGrouperProvisioningAttributeValues(GROUP, targetName);
+          setGrouperProvisioningAttributeValues(GROUP, targetName, loggedInSubject);
           
           guiPaging.setTotalRecordCount(queryOptions.getQueryPaging().getTotalRecordCount());
           return null;
@@ -2971,14 +2940,10 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
       if (group == null) {
         return;
-      }
-      
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
       }
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -2995,12 +2960,6 @@ public class UiV2Provisioning {
             return false;
           }
           
-          if (!provisioningContainer.isCanWriteProvisioning()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteGroup")));
-            return false;
-          }
-  
           return true;
         }
       });
@@ -3029,7 +2988,7 @@ public class UiV2Provisioning {
           provisioningContainer.setUsersCount(usersCount);
           provisioningContainer.setGcGrouperSyncGroup(gcGrouperSyncGroup);
           
-          setGrouperProvisioningAttributeValues(GROUP, targetName);
+          setGrouperProvisioningAttributeValues(GROUP, targetName, loggedInSubject);
           
           return null;
           

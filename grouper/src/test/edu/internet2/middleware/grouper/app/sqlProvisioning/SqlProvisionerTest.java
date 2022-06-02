@@ -212,9 +212,9 @@ public class SqlProvisionerTest extends GrouperTest {
     SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
         .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
         .assignMembershipTableName("testgrouper_prov_mship0")
-        .assignMembershipTableIdColumn("group_name, subject_id")
-        .assignMembershipGroupForeignKeyColumn("group_name")
-        .assignMembershipEntityForeignKeyColumn("subject_id")
+//        .assignMembershipTableIdColumn("group_name, subject_id")
+//        .assignMembershipGroupForeignKeyColumn("group_name")
+//        .assignMembershipEntityForeignKeyColumn("subject_id")
         .assignMembershipAttributeCount(2)
     );
 
@@ -2135,6 +2135,7 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignGroupAttributesTable(true)
         .assignGroupTableName("testgrouper_prov_ldap_group")
         .assignGroupTableIdColumn("uuid")
+        .assignEntityAttributesTable(true)
         .assignEntityTableName("testgrouper_prov_ldap_entity")
         .assignEntityTableIdColumn("entity_uuid")
         .assignEntityAttributeCount(3)
@@ -2519,7 +2520,7 @@ public class SqlProvisionerTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
-        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+        .addBindVar(uuid).addBindVar("employeeId").addBindVar("test.subject." + i).executeSql();
     }
     
     
@@ -2626,10 +2627,10 @@ public class SqlProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncGroup.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getLastUpdated().getTime());
-    assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupToId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId2());
-    assertNull(gcGrouperSyncGroup.getGroupFromId3());
-    assertNull(gcGrouperSyncGroup.getGroupToId3());
+    assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupAttributeValueCache2());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
     assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
     assertNull(gcGrouperSyncGroup.getErrorMessage());
     assertNull(gcGrouperSyncGroup.getErrorTimestamp());
@@ -2653,10 +2654,10 @@ public class SqlProvisionerTest extends GrouperTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() > gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getMemberFromId2());
-    assertNull(gcGrouperSyncMember.getMemberFromId3());
-    assertEquals("dn_test.subject.0", gcGrouperSyncMember.getMemberToId2());
-    assertNull(gcGrouperSyncMember.getMemberToId3());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
+    assertEquals("dn_test.subject.0", gcGrouperSyncMember.getEntityAttributeValueCache2());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
     assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
     assertNull(gcGrouperSyncMember.getErrorMessage());
     assertNull(gcGrouperSyncMember.getErrorTimestamp());
@@ -2680,7 +2681,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
   public void configureLdapPaTestCase() {
     SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
-        .assignGroupDeleteType("deleteGroupsDeletedGrouper")
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
         .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
         .assignEntityAttributesTable(true)
         .assignGroupAttributesTable(true)
@@ -2745,7 +2746,7 @@ public class SqlProvisionerTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
-        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+        .addBindVar(uuid).addBindVar("employeeId").addBindVar("test.subject." + i).executeSql();
     }
     
     
@@ -2884,7 +2885,7 @@ public class SqlProvisionerTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
-        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+        .addBindVar(uuid).addBindVar("employeeId").addBindVar("test.subject." + i).executeSql();
     }
     
     
@@ -2921,7 +2922,7 @@ public class SqlProvisionerTest extends GrouperTest {
     assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getInTargetStart().getTime());
     assertNull(gcGrouperSyncGroup.getInTargetEnd());
     assertTrue(started < gcGrouperSyncGroup.getProvisionableStart().getTime());
-    assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupToId2());
+    assertEquals("cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu", gcGrouperSyncGroup.getGroupAttributeValueCache2());
     
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
     
@@ -3068,6 +3069,7 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignEntityAttributeCount(5)
         .assignGroupAttributeCount(4)
         .assignMembershipAttributeCount(3)
+        .assignFailsafeDefaults(true)
         );
     
     // this closes the grouper session
@@ -3186,7 +3188,10 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignGroupTableName("testgrouper_prov_group")
         .assignGroupTableIdColumn("uuid")
         .assignGroupAttributeCount(1)
+        .addExtraConfig("group2advanced", "true")
         .addExtraConfig("groupsRequireMembers", "true")
+        .assignOperateOnGrouperMemberships(false)
+        .assignProvisioningType(null)
         );
 
     // this closes the grouper session
@@ -3580,7 +3585,7 @@ public class SqlProvisionerTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("dn").addBindVar(dn).executeSql();
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
-        .addBindVar(uuid).addBindVar("employeeID").addBindVar("test.subject." + i).executeSql();
+        .addBindVar(uuid).addBindVar("employeeId").addBindVar("test.subject." + i).executeSql();
     }
     
     

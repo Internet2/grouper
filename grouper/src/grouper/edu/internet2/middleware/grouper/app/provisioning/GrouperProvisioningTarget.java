@@ -20,6 +20,11 @@ public class GrouperProvisioningTarget {
   private String groupAllowedToAssign;
   
   /**
+   * group whose members are allowed to view this target
+   */
+  private String groupAllowedToView;
+  
+  /**
    * should the target be assignable to only one stem
    */
   private boolean allowAssignmentsOnlyOnOneStem;
@@ -90,6 +95,22 @@ public class GrouperProvisioningTarget {
    */
   public String getGroupAllowedToAssign() {
     return groupAllowedToAssign;
+  }
+  
+  /**
+   * group whose members are allowed to view this target
+   * @return
+   */
+  public String getGroupAllowedToView() {
+    return groupAllowedToView;
+  }
+
+  /**
+   * group whose members are allowed to view this target
+   * @param groupAllowedToView
+   */
+  public void setGroupAllowedToView(String groupAllowedToView) {
+    this.groupAllowedToView = groupAllowedToView;
   }
 
   /**

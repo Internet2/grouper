@@ -19,7 +19,7 @@ public class GrouperDaemonOtherJobTableSyncConfiguration extends GrouperDaemonCo
   //  ## tableSync jobs should use class: edu.internet2.middleware.grouper.app.tableSync.TableSyncOtherJob
   //  ## and include a setting to point to the grouperClient config, if not same: otherJob.<otherJobName>.grouperClientTableSyncConfigKey = key
   //  ## this is the subtype of job to run: otherJob.<otherJobName>.syncType = fullSyncFull    
-  //  ## (can be: fullSyncFull, fullSyncGroupings, fullSyncChangeFlag, incrementalAllColumns, incrementalPrimaryKey)
+  //  ## (can be: fullSyncFull, fullSyncGroups, fullSyncChangeFlag, incrementalAllColumns, incrementalPrimaryKey)
   //  ################################
   //
   //  # Object Type Job class
@@ -34,7 +34,7 @@ public class GrouperDaemonOtherJobTableSyncConfiguration extends GrouperDaemonCo
   //  # {valueType: "string"}
   //  # otherJob.membershipSync.grouperClientTableSyncConfigKey = memberships
   //
-  //  # fullSyncFull, fullSyncGroupings, fullSyncChangeFlag, incrementalAllColumns, incrementalPrimaryKey
+  //  # fullSyncFull, fullSyncGroups, fullSyncChangeFlag, incrementalAllColumns, incrementalPrimaryKey
   //  # {valueType: "string"}
   //  # otherJob.membershipSync.syncType = fullSyncFull
 

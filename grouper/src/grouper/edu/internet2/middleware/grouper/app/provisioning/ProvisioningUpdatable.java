@@ -499,7 +499,7 @@ public abstract class ProvisioningUpdatable {
           firstField = false;
         }
 
-        result.append(provisioningObjectChange.getProvisioningObjectChangeAction()).append(" ");
+        result.append(provisioningObjectChange.getProvisioningObjectChangeAction().name().substring(0, 3)).append(" ").append(provisioningObjectChange.getAttributeName()).append(" ");
         switch(provisioningObjectChange.getProvisioningObjectChangeAction()) {
           case insert:
             result.append(stringValueWithType(provisioningObjectChange.getNewValue()));

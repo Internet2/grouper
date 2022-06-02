@@ -262,9 +262,9 @@ public class GrouperTemplatePolicyGroupLogic extends GrouperTemplateLogicBase {
     String baseGroupFriendlyName = templateContainer.getTemplateFriendlyName();
 
     // GRP-3559: Refactor UI templates to not depend on the UI
-    // Mystery how this works. Adding an EL variable stemTemplateContainer makes ${grouperRequestContainer.stemTemplateContainer}
-    // evaluate to stemTemplateContainer, even when grouperRequestContainer is null
-    GrouperTextContainer.assignThreadLocalVariable("stemTemplateContainer", templateContainer);
+    // Mystery how this works. Adding an EL variable groupStemTemplateContainer makes ${grouperRequestContainer.groupStemTemplateContainer}
+    // evaluate to groupStemTemplateContainer, even when grouperRequestContainer is null
+    GrouperTextContainer.assignThreadLocalVariable("groupStemTemplateContainer", templateContainer);
 
     if (StringUtils.isBlank(baseGroupFriendlyName)) {
       baseGroupFriendlyName = baseGroup;

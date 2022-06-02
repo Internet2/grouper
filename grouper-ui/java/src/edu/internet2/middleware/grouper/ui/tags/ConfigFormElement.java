@@ -318,6 +318,27 @@ public class ConfigFormElement extends SimpleTagSupport {
   }
 
   /**
+   * number of levels to indent
+   */
+  private Integer indent;
+  
+  /**
+   * number of levels to indent
+   * @return
+   */
+  public Integer getIndent() {
+    return indent;
+  }
+
+  /**
+   * number of levels to indent
+   * @param indent
+   */
+  public void setIndent(Integer indent) {
+    this.indent = indent;
+  }
+
+  /**
    * html to render
    */
   @Override
@@ -330,7 +351,11 @@ public class ConfigFormElement extends SimpleTagSupport {
     }
     
     field.append("<tr id='configRow_"+configId+"_id' " + (shouldShow ? "" : " style='display:none' ") + ">");
-    field.append("<td style='vertical-align: top; white-space: nowrap;'>");
+    field.append("<td style='vertical-align: top; white-space: nowrap;");
+    if (this.indent != null && this.indent > 0) {
+      field.append("padding-left: " + (2*this.indent) + "em;");
+    }
+    field.append("'>");
     field.append("<strong><label for='config_"+configId+"_id'>");
     field.append(label);
     field.append("</label></strong></td>");

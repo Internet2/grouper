@@ -292,7 +292,7 @@ public class UsduJob extends OtherJobBase {
 
     int totalObjectsStored = 0;
     
-    Pattern provisionerPatternWithMemberInfo = Pattern.compile("^provisioner\\.(\\w+)\\.common\\.subjectLink\\.(memberFromId2|memberFromId3|memberToId2|memberToId3)$");    
+    Pattern provisionerPatternWithMemberInfo = Pattern.compile("^provisioner\\.(\\w+)\\.common\\.subjectLink\\.(entityAttributeValueCache0|entityAttributeValueCache1|entityAttributeValueCache2|entityAttributeValueCache3)$");    
     Map<String, String> provisionerPropsWithMemberInfo = GrouperLoaderConfig.retrieveConfig().propertiesMap(provisionerPatternWithMemberInfo);
     Set<String> configNames = new HashSet<String>();
     for (String property : provisionerPropsWithMemberInfo.keySet()) {
@@ -310,20 +310,20 @@ public class UsduJob extends OtherJobBase {
         continue;
       }
       
-      String memberFromId2 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.memberFromId2");
-      String memberFromId3 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.memberFromId3");
-      String memberToId2 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.memberToId2");
-      String memberToId3 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.memberToId3");
+      String entityAttributeValueCache0 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.entityAttributeValueCache0");
+      String entityAttributeValueCache1 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.entityAttributeValueCache1");
+      String entityAttributeValueCache2 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.entityAttributeValueCache2");
+      String entityAttributeValueCache3 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.entityAttributeValueCache3");
 
-      boolean autoMemberFromId2 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoMemberFromId2", true);
-      boolean autoMemberFromId3 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoMemberFromId3", true);
-      boolean autoMemberToId2 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoMemberToId2", true);
-      boolean autoMemberToId3 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoMemberToId3", true);
+      boolean autoEntityAttributeValueCache0 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoEntityAttributeValueCache0", true);
+      boolean autoEntityAttributeValueCache1 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoEntityAttributeValueCache1", true);
+      boolean autoEntityAttributeValueCache2 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoEntityAttributeValueCache2", true);
+      boolean autoEntityAttributeValueCache3 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoEntityAttributeValueCache3", true);
 
-      if ((!autoMemberFromId2 || GrouperUtil.isBlank(memberFromId2)) &&
-          (!autoMemberFromId3 || GrouperUtil.isBlank(memberFromId3)) &&
-          (!autoMemberToId2 || GrouperUtil.isBlank(memberToId2)) &&
-          (!autoMemberToId3 || GrouperUtil.isBlank(memberToId3))) {
+      if ((!autoEntityAttributeValueCache0 || GrouperUtil.isBlank(entityAttributeValueCache0)) &&
+          (!autoEntityAttributeValueCache1 || GrouperUtil.isBlank(entityAttributeValueCache1)) &&
+          (!autoEntityAttributeValueCache2 || GrouperUtil.isBlank(entityAttributeValueCache2)) &&
+          (!autoEntityAttributeValueCache3 || GrouperUtil.isBlank(entityAttributeValueCache3))) {
         // nothing to do
         continue;
       }
@@ -366,24 +366,24 @@ public class UsduJob extends OtherJobBase {
           Map<String, Object> variableMap = new HashMap<String, Object>();
           variableMap.put("subject", subject);
           
-          if (autoMemberFromId2 && !StringUtils.isBlank(memberFromId2)) {
-            String memberFromId2Value = GrouperUtil.substituteExpressionLanguage(memberFromId2, variableMap);
-            gcGrouperSyncMember.setMemberFromId2(memberFromId2Value);
+          if (autoEntityAttributeValueCache0 && !StringUtils.isBlank(entityAttributeValueCache0)) {
+            String entityAttributeValueCache0Value = GrouperUtil.substituteExpressionLanguage(entityAttributeValueCache0, variableMap);
+            gcGrouperSyncMember.setEntityAttributeValueCache0(entityAttributeValueCache0Value);
           }
           
-          if (autoMemberFromId3 && !StringUtils.isBlank(memberFromId3)) {
-            String memberFromId3Value = GrouperUtil.substituteExpressionLanguage(memberFromId3, variableMap);
-            gcGrouperSyncMember.setMemberFromId3(memberFromId3Value);
+          if (autoEntityAttributeValueCache1 && !StringUtils.isBlank(entityAttributeValueCache1)) {
+            String entityAttributeValueCache1Value = GrouperUtil.substituteExpressionLanguage(entityAttributeValueCache1, variableMap);
+            gcGrouperSyncMember.setEntityAttributeValueCache1(entityAttributeValueCache1Value);
           }
           
-          if (autoMemberToId2 && !StringUtils.isBlank(memberToId2)) {
-            String memberToId2Value = GrouperUtil.substituteExpressionLanguage(memberToId2, variableMap);
-            gcGrouperSyncMember.setMemberToId2(memberToId2Value);
+          if (autoEntityAttributeValueCache2 && !StringUtils.isBlank(entityAttributeValueCache2)) {
+            String entityAttributeValueCache2Value = GrouperUtil.substituteExpressionLanguage(entityAttributeValueCache2, variableMap);
+            gcGrouperSyncMember.setEntityAttributeValueCache2(entityAttributeValueCache2Value);
           }
           
-          if (autoMemberToId3 && !StringUtils.isBlank(memberToId3)) {
-            String memberToId3Value = GrouperUtil.substituteExpressionLanguage(memberToId3, variableMap);
-            gcGrouperSyncMember.setMemberToId3(memberToId3Value);
+          if (autoEntityAttributeValueCache3 && !StringUtils.isBlank(entityAttributeValueCache3)) {
+            String entityAttributeValueCache3Value = GrouperUtil.substituteExpressionLanguage(entityAttributeValueCache3, variableMap);
+            gcGrouperSyncMember.setEntityAttributeValueCache3(entityAttributeValueCache3Value);
           }
         }
         

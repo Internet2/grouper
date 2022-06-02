@@ -352,6 +352,8 @@ public class GrouperUtil {
 //    
 //    System.out.println(GrouperUtil.toStringForLog(listObjectArray));
     
+
+  
   }
 
   /**
@@ -1802,6 +1804,35 @@ public class GrouperUtil {
     //add a sample prefix, and then strip it off
     RDN rdn = new RDN("cn", rdnValue);
     return rdn.toMinimallyEncodedString().substring("cn=".length());
+  }
+
+  /**
+   * active directory date from millis 1970 date
+  * @return the AD date
+   */
+  public static long ldapAdDateCurrent() {
+    return ldapAdDateFromMillis1970(System.currentTimeMillis());
+  }
+
+  /**
+   * active directory date from millis 1970 date
+   * @param millisSince1970
+   * @return the AD date
+   */
+  public static long ldapAdDateFromMillis1970(long millisSince1970) {
+    
+    //  Calendar calendar = java.util.Calendar.getInstance();
+    //
+    //  calendar.setTime(new Date("1/1/1601"));
+    //  long base_1601_time = calendar.getTimeInMillis();
+    //
+    //  calendar.setTime(new Date("1/1/1970"));
+    //  long base_1970_time = calendar.getTimeInMillis();
+    //
+    //  // 11644473600000
+    //  long ms_offset = base_1970_time - base_1601_time;
+
+    return (millisSince1970 + 11644473600000L) * 10000;
   }
   
   /**
@@ -7438,7 +7469,9 @@ public class GrouperUtil {
       return decimalFormat.format(((Number) input).doubleValue());
 
     }
-
+    if (input instanceof byte[]) {
+      return new String((byte[])input, StandardCharsets.UTF_8);
+    }
     return input.toString();
   }
 
@@ -9063,13 +9096,13 @@ public class GrouperUtil {
    * @param <E> generic type
    *
    * @param string
-   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @param exceptionOnBlank true if exception should be thrown on not found
    * @return the enum or null or exception if not found
    * @throws RuntimeException if there is a problem
    */
   public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string,
-      boolean exceptionOnNotFound) throws RuntimeException {
-    return enumValueOfIgnoreCase(theEnumClass, string, exceptionOnNotFound, true);
+      boolean exceptionOnBlank) throws RuntimeException {
+    return enumValueOfIgnoreCase(theEnumClass, string, exceptionOnBlank, true);
   }
 
 
@@ -9079,15 +9112,15 @@ public class GrouperUtil {
    * @param <E> generic type
    *
    * @param string
-   * @param exceptionOnNotFound true if exception should be thrown on not found
+   * @param exceptionOnBlank true if exception should be thrown on not found
    * @param exceptionIfInvalid if there is a string, but it is invalid, if should throw exception
    * @return the enum or null or exception if not found
    * @throws RuntimeException if there is a problem
    */
   public static <E extends Enum<?>> E enumValueOfIgnoreCase(Class<E> theEnumClass, String string,
-      boolean exceptionOnNotFound, boolean exceptionIfInvalid) throws RuntimeException {
+      boolean exceptionOnBlank, boolean exceptionIfInvalid) throws RuntimeException {
 
-    if (!exceptionOnNotFound && isBlank(string)) {
+    if (!exceptionOnBlank && isBlank(string)) {
       return null;
     }
     for (E e : theEnumClass.getEnumConstants()) {
@@ -10960,7 +10993,9 @@ public class GrouperUtil {
       }
 
       //allow utility methods
-      jc.set("grouperUtil", new GrouperUtilElSafe());
+      if (!variableMap.containsKey("grouperUtil")) {
+        jc.set("grouperUtil", new GrouperUtilElSafe());
+      }
       //if you add another one here, add it in the logs below
 
       // matching ${ exp }   (non-greedy)
@@ -11146,7 +11181,9 @@ public class GrouperUtil {
       }
 
       //allow utility methods
-      jc.set("grouperUtil", new GrouperUtilElSafe());
+      if (!variableMap.containsKey("grouperUtil")) {
+        jc.set("grouperUtil", new GrouperUtilElSafe());
+      }
       //if you add another one here, add it in the logs below
 
       script = script.trim();
@@ -14122,7 +14159,9 @@ public class GrouperUtil {
       }
   
       //allow utility methods
-      jc.set("grouperUtil", new GrouperUtilElSafe());
+      if (!variableMap.containsKey("grouperUtil")) {
+        jc.set("grouperUtil", new GrouperUtilElSafe());
+      }
       //if you add another one here, add it in the logs below
 
       script = script.trim();

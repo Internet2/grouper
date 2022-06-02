@@ -131,6 +131,14 @@ public interface PITGroupSetDAO extends GrouperDAO {
   public PITGroupSet findActiveImmediateByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId);
   
   /**
+   * @param ownerId
+   * @param memberId
+   * @param fieldId
+   * @return pit group sets
+   */
+  public Set<PITGroupSet> findAllImmediateByPITOwnerAndPITMemberAndPITField(String ownerId, String memberId, String fieldId);
+  
+  /**
    * @param groupId
    * @param field
    * @return pit group sets

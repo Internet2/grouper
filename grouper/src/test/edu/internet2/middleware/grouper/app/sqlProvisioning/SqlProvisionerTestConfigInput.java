@@ -13,6 +13,34 @@ import edu.internet2.middleware.grouper.app.scim.ScimProvisionerTestConfigInput;
  */
 public class SqlProvisionerTestConfigInput {
 
+  private boolean operateOnGrouperMemberships = true;
+  
+  
+  
+  public boolean isOperateOnGrouperMemberships() {
+    return operateOnGrouperMemberships;
+  }
+
+
+  public SqlProvisionerTestConfigInput assignOperateOnGrouperMemberships(boolean operateOnGrouperMemberships) {
+    this.operateOnGrouperMemberships = operateOnGrouperMemberships;
+    return this;
+  }
+
+  private boolean failsafeDefaults;
+  
+  
+  
+  public boolean isFailsafeDefaults() {
+    return failsafeDefaults;
+  }
+
+
+  public SqlProvisionerTestConfigInput assignFailsafeDefaults(boolean failsafeDefaults) {
+    this.failsafeDefaults = failsafeDefaults;
+    return this;
+  }
+
   /**
    * if has target entity link
    */

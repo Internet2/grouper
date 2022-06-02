@@ -135,6 +135,7 @@
                                 ajaxCallback="ajax('../app/UiV2Admin.addDaemon?daemonConfigId=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration.configId}&daemonConfigType=${guiGrouperDaemonConfiguration.grouperDaemonConfiguration['class'].name}', {formIds: 'addDaemonFormId'}); return false;"
                                 valuesAndLabels="${attribute.dropdownValuesAndLabels }"
                                 checkboxAttributes="${attribute.checkboxAttributes}"
+                                indent="${attribute.configItemMetadata.indent}"
                               />
                               
                             </c:forEach>

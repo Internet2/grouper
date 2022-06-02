@@ -321,7 +321,7 @@ public class UiV2Main extends UiServiceLogicBase {
         //the id has to be root or it will make another request
         String id = stem.isRootStem() ? "root" : stem.getUuid();
 
-        DojoTreeItem dojoTreeItem = new DojoTreeItem(displayExtension, id, DojoTreeItemType.stem);
+        DojoTreeItem dojoTreeItem = new DojoTreeItem(displayExtension, id, DojoTreeItemType.stem, StringUtils.equals("root", folderQueryString));
 
         DojoTreeItemChild[] childrenDojoTreeItems = new DojoTreeItemChild[GrouperUtil.length(childrenStems) + GrouperUtil.length(childrenGroups)
                   + GrouperUtil.length(childrenAttributeDefs) + GrouperUtil.length(childrenAttributeDefNames)];
