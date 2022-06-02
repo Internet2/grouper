@@ -264,13 +264,13 @@ public class LdapProvisionerTestUtils {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField",
               provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField());
         }
-        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2has", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2source", "target");
-        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2type", "groupAttribute");
-        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2groupAttribute", "ldap_dn");
-
-  
+        if (provisioningTestConfigInput.isGroupAttributeValueCache2dn()) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2has", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2source", "target");
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2type", "groupAttribute");
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2groupAttribute", "ldap_dn");
+        }
       
         String attributeName = provisioningTestConfigInput.isPosixGroup() ? "gidNumber" : "businessCategory";
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name",

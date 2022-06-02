@@ -7,6 +7,19 @@ import java.util.Map;
 
 public class LdapProvisionerTestConfigInput {
 
+  private boolean groupAttributeValueCache2dn = true;
+  
+  
+  
+  public boolean isGroupAttributeValueCache2dn() {
+    return groupAttributeValueCache2dn;
+  }
+
+  public LdapProvisionerTestConfigInput assignGroupAttributeValueCache2dn(boolean groupAttributeValueCache2dn) {
+    this.groupAttributeValueCache2dn = groupAttributeValueCache2dn;
+    return this;
+  }
+
   /**
    * if allow dn override with config (default false)
    */

@@ -66,7 +66,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerRestrictGroup"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullOverrideDn"));    
 //    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLegacyConfig_1"));    
   }
   
@@ -1558,6 +1558,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
+        .assignGroupAttributeValueCache2dn(false)
         .assignSubjectSourcesToProvision("jdbc"));
     
     long started = System.currentTimeMillis();
