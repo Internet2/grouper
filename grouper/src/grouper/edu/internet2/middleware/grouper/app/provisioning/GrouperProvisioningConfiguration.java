@@ -68,8 +68,14 @@ public abstract class GrouperProvisioningConfiguration {
 
 
 
+  private String subjectIdentifierForMemberSyncTable;
+  
+  
 
 
+  public String getSubjectIdentifierForMemberSyncTable() {
+    return subjectIdentifierForMemberSyncTable;
+  }
 
   public void setCustomizeMembershipCrud(boolean customizeMembershipCrud) {
     this.customizeMembershipCrud = customizeMembershipCrud;
@@ -2417,6 +2423,8 @@ public abstract class GrouperProvisioningConfiguration {
       
     }
     
+    this.subjectIdentifierForMemberSyncTable = this.retrieveConfigString("subjectIdentifierForMemberSyncTable", false);
+        
     // diagnostics settings
     this.diagnosticsGroupsAllSelect = this.retrieveConfigBoolean("selectAllGroupsDuringDiagnostics", false);
     this.diagnosticsEntitiesAllSelect = this.retrieveConfigBoolean("selectAllEntitiesDuringDiagnostics", false);

@@ -66,7 +66,7 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullOverrideDn"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullSubjectIdentifier2"));    
 //    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLegacyConfig_1"));    
   }
   
@@ -322,11 +322,11 @@ public class SimpleLdapProvisionerTest extends GrouperTest {
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
-        .assignSubjectSourcesToProvision("jdbc"));
-
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.subjectIdentifierForMemberSyncTable").value("subjectIdentifier2").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.groupMembershipAttributeValue").value("subjectIdentifier").store();
-
+        .assignGroupAttributeValueCache2dn(false)
+        .assignSubjectSourcesToProvision("jdbc")
+        .addExtraConfig("subjectIdentifierForMemberSyncTable", "subjectIdentifier2")
+        .addExtraConfig("groupMembershipAttributeValue", "subjectIdentifier")
+        );
 
     long started = System.currentTimeMillis();
     
