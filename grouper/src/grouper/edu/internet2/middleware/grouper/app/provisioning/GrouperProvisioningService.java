@@ -9,6 +9,7 @@ import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvision
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings.provisioningConfigStemName;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1748,5 +1749,79 @@ public class GrouperProvisioningService {
     }
     
     return grouperProvisioner.retrieveGrouperProvisioningConfiguration().getProvisionableRegex();
+  }
+  
+  public static List<GcGrouperSyncMembership> retrieveGcGrouperSyncMembershipsByMemberIdAndInTargetStartTimeRange(String memberId, Timestamp inTargetStartTimeFrom, Timestamp inTargetStartTimeTo) {
+    String grouperSyncMembershipQuery = "select gsm.* from grouper_sync_membership gsm, grouper_sync_group gsg, grouper_sync_member gsmem " + 
+        "where gsm.grouper_sync_group_id =  gsg.id " + 
+        " and gsm.grouper_sync_member_id = gsmem.id " +
+        " and gsmem.member_id = ? " +
+        " and gsm.in_target_start is not null " +
+        " and gsm.in_target_start > ? " +
+        " and gsm.in_target_start < ? ";
+    
+    String grouperSyncQuery = "select * from grouper_sync gs where id = ? ";
+    
+    List<GcGrouperSyncMembership> grouperSyncMemberships = new GcDbAccess().sql(grouperSyncMembershipQuery)
+        .addBindVar(memberId)
+        .addBindVar(inTargetStartTimeFrom)
+        .addBindVar(inTargetStartTimeTo)
+        .selectList(GcGrouperSyncMembership.class);
+
+    for (GcGrouperSyncMembership grouperSyncMembership : GrouperUtil.nonNull(grouperSyncMemberships)) {
+      String grouperSyncId = grouperSyncMembership.getGrouperSyncId();
+
+      GcGrouperSync gcGrouperSync = new GcDbAccess().sql(grouperSyncQuery)
+          .addBindVar(grouperSyncId)
+          .select(GcGrouperSync.class);
+      grouperSyncMembership.setGrouperSync(gcGrouperSync);
+
+      GcGrouperSyncMember grouperSyncMember = GcGrouperSyncDao.retrieveById(null, grouperSyncId)
+          .getGcGrouperSyncMemberDao().memberRetrieveById(grouperSyncMembership.getGrouperSyncMemberId());
+      grouperSyncMembership.setGrouperSyncMember(grouperSyncMember);
+
+      GcGrouperSyncGroup grouperSyncGroup = GcGrouperSyncDao.retrieveById(null, grouperSyncId)
+          .getGcGrouperSyncGroupDao().groupRetrieveById(grouperSyncMembership.getGrouperSyncGroupId());
+      grouperSyncMembership.setGrouperSyncGroup(grouperSyncGroup);
+    }
+    
+    return grouperSyncMemberships;
+  }
+  
+  public static List<GcGrouperSyncMembership> retrieveGcGrouperSyncMembershipsByMemberIdAndInTargetEndTimeRange(String memberId, Timestamp inTargetEndTimeFrom, Timestamp inTargetEndTimeTo) {
+    String grouperSyncMembershipQuery = "select gsm.* from grouper_sync_membership gsm, grouper_sync_group gsg, grouper_sync_member gsmem " + 
+        "where gsm.grouper_sync_group_id =  gsg.id " + 
+        " and gsm.grouper_sync_member_id = gsmem.id " +
+        " and gsmem.member_id = ? " +
+        " and gsm.in_target_end is not null " +
+        " and gsm.in_target_end > ? " +
+        " and gsm.in_target_end < ? ";
+    
+    String grouperSyncQuery = "select * from grouper_sync gs where id = ? ";
+    
+    List<GcGrouperSyncMembership> grouperSyncMemberships = new GcDbAccess().sql(grouperSyncMembershipQuery)
+        .addBindVar(memberId)
+        .addBindVar(inTargetEndTimeFrom)
+        .addBindVar(inTargetEndTimeTo)
+        .selectList(GcGrouperSyncMembership.class);
+
+    for (GcGrouperSyncMembership grouperSyncMembership : GrouperUtil.nonNull(grouperSyncMemberships)) {
+      String grouperSyncId = grouperSyncMembership.getGrouperSyncId();
+
+      GcGrouperSync gcGrouperSync = new GcDbAccess().sql(grouperSyncQuery)
+          .addBindVar(grouperSyncId)
+          .select(GcGrouperSync.class);
+      grouperSyncMembership.setGrouperSync(gcGrouperSync);
+
+      GcGrouperSyncMember grouperSyncMember = GcGrouperSyncDao.retrieveById(null, grouperSyncId)
+          .getGcGrouperSyncMemberDao().memberRetrieveById(grouperSyncMembership.getGrouperSyncMemberId());
+      grouperSyncMembership.setGrouperSyncMember(grouperSyncMember);
+
+      GcGrouperSyncGroup grouperSyncGroup = GcGrouperSyncDao.retrieveById(null, grouperSyncId)
+          .getGcGrouperSyncGroupDao().groupRetrieveById(grouperSyncMembership.getGrouperSyncGroupId());
+      grouperSyncMembership.setGrouperSyncGroup(grouperSyncGroup);
+    }
+    
+    return grouperSyncMemberships;
   }
 }
