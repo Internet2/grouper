@@ -95,12 +95,15 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
         String fieldValueString = GrouperUtil.stringValue(attributeValue);
 
         if (StringUtils.isBlank(fieldValueString)) {
-          throw new RuntimeException("Not expecting null DN part! " + provisioningEntityWrapper.getGrouperProvisioningEntity());
-        }
+          //throw new RuntimeException("Not expecting null DN part! " + provisioningEntityWrapper.getGrouperProvisioningEntity());
+          // allow this so a validation can happen not exception
+          attributeValue = null;
+        } else {
         
-        String dn = GrouperUtil.ldapEscapeRdn(userRdnAttributeName + "=" + fieldValueString) + "," + ldapSyncConfiguration.getUserSearchBaseDn();
-  
-        attributeValue = dn;
+          String dn = GrouperUtil.ldapEscapeRdn(userRdnAttributeName + "=" + fieldValueString) + "," + ldapSyncConfiguration.getUserSearchBaseDn();
+    
+          attributeValue = dn;
+        }
       }
     }
 
