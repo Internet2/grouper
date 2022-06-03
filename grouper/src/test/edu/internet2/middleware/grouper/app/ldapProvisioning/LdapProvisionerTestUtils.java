@@ -425,9 +425,12 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", provisioningTestConfigInput.getSubjectSourcesToProvision());
   
     if (!StringUtils.isBlank(provisioningTestConfigInput.getGroupDeleteType())) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getGroupDeleteType(), "true");
+      // this is the default
+      if (!StringUtils.equals(provisioningTestConfigInput.getGroupDeleteType(), "deleteGroupsIfGrouperCreated")) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getGroupDeleteType(), "true");
+      }
     } else {
       if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
 

@@ -53,7 +53,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalBushyOUCaseChange"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideBushy"));    
   }
   
   public LdapProvisionerWithGroupAndEntityLinksTest() {
@@ -644,7 +644,6 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
         .assignUpdateGroupsAndDn(true)
-        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true));
 
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();    
@@ -705,7 +704,6 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
           .assignUpdateGroupsAndDn(true)
-          .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
           .assignExplicitFilters(true));
 
     // initialize
@@ -1203,6 +1201,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
         .assignDnOverrideScript(true));
     
     new StemSave(this.grouperSession).assignName("test").save();
@@ -1290,6 +1289,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
           .addExtraConfig("groupSearchAllFilter", null)
+          .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
           .assignDnOverrideConfig(true)
         );
             
@@ -1555,9 +1555,12 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
         new LdapProvisionerTestConfigInput()
           .addExtraConfig("groupSearchAllFilter", null)
           .assignDnOverrideConfig(true)
+          .assignGroupDeleteType("deleteGroupsIfGrouperCreated")
         );
 
     // initialize
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
+    grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     runIncrementalJobs(true, true);
     
     new StemSave(this.grouperSession).assignName("test").save();
@@ -1816,6 +1819,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
           .addExtraConfig("groupSearchAllFilter", null)
           );
 
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
 
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
     
@@ -1854,7 +1858,6 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperTest {
     
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory"}, null).size());
 
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
