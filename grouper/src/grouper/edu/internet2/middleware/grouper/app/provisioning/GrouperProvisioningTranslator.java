@@ -574,10 +574,9 @@ public class GrouperProvisioningTranslator {
       if (StringUtils.equals("subjectSourceId", field)) {
         return gcGrouperSyncMember.getSourceId();
       }
-      // TODO which identifier is it?
-//      if (StringUtils.equals("subjectIdentifier0", field)) {
-//        return gcGrouperSyncMember.getSubjectIdentifier();
-//      }
+      if (StringUtils.equals("subjectIdentifier", field)) {
+        return gcGrouperSyncMember.getSubjectIdentifier();
+      }
       if (StringUtils.equals("entityAttributeValueCache0", field)) {
         return gcGrouperSyncMember.getEntityAttributeValueCache0();
       }
@@ -595,7 +594,7 @@ public class GrouperProvisioningTranslator {
     //if we couldnt find the data but the field was ok, its just null
     if (StringUtils.equalsAny(field, "id", "email", "loginid", "memberId", "entityAttributeValueCache0", 
         "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "name", 
-        "subjectId", "subjectSourceId", "description", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2")) {
+        "subjectId", "subjectSourceId", "description", "subjectIdentifier", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2")) {
       return null;
     }
     
@@ -1026,7 +1025,7 @@ public class GrouperProvisioningTranslator {
     return translateGrouperToTargetAutomatically;
   }
 
-  private String getTranslateFromGrouperProvisioningGroupField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String getTranslateFromGrouperProvisioningGroupField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     String expression = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField();
     boolean hasExpression = !StringUtils.isBlank(expression);
     String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupFieldCreateOnly();
@@ -1041,7 +1040,7 @@ public class GrouperProvisioningTranslator {
     return expressionToUse;
   }
 
-  private String getTranslateFromGrouperProvisioningEntityField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String getTranslateFromGrouperProvisioningEntityField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     String expression = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField();
     boolean hasExpression = !StringUtils.isBlank(expression);
     String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityFieldCreateOnly();
@@ -1057,7 +1056,7 @@ public class GrouperProvisioningTranslator {
   }
   
 
-  private String getTargetExpressionToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String getTargetExpressionToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
     boolean hasExpression = !StringUtils.isBlank(expression);
     String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
@@ -1072,7 +1071,7 @@ public class GrouperProvisioningTranslator {
     return expressionToUse;
   }
   
-  private String getTranslateFromStaticValuesToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String getTranslateFromStaticValuesToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     String staticValues = grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues();
     boolean hasStaticValues = !StringUtils.isBlank(staticValues);
     String staticValuesCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateFromStaticValuesCreateOnly();

@@ -53,7 +53,7 @@
                 <c:if test="${grouperRequestContainer.membershipGuiContainer.traceMembershipsString != null || grouperRequestContainer.membershipGuiContainer.tracePITMembershipString != null}">
                   <p class="lead">${textContainer.text['membershipTraceTimelinePageLead'] }</p>
 
-                  <form class="form-inline form-small form-filter" action="#" id="membershipTimelineForm" onsubmit="return guiV2link('operation=UiV2Membership.traceMembership', {optionalFormElementNamesToSend: 'groupId,memberId,field,showTimeline,showUserAudit,showPITAudit,backTo', dontScrollTop: true});">
+                  <form class="form-inline form-small form-filter" action="#" id="membershipTimelineForm" onsubmit="return guiV2link('operation=UiV2Membership.traceMembership', {optionalFormElementNamesToSend: 'groupId,memberId,field,showTimeline,showUserAudit,showPITAudit,showProvisioningEvents,backTo', dontScrollTop: true});">
                     <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
                     <input type="hidden" name="memberId" value="${grouperRequestContainer.subjectContainer.guiSubject.memberId}" />
                     <input type="hidden" name="field" value="members" />
@@ -76,6 +76,9 @@
                     <br />
                     <input type="checkbox" name="showPITAudit" id="membership-timeline-show-pit-audit" ${grouperRequestContainer.membershipGuiContainer.traceMembershipTimelineShowPITAudit? 'value="true" checked="checked"' : 'value="false"'} />
                     <label for="membership-timeline-show-pit-audit">${textContainer.text['membershipTraceTimelineShowPITAudit']}</label>
+                    <br />
+                    <input type="checkbox" name="showProvisioningEvents" id="membership-timeline-show-provisioning-events" ${grouperRequestContainer.membershipGuiContainer.traceMembershipTimelineShowProvisioningEvents ? 'value="true" checked="checked"' : 'value="false"'} />
+                    <label for="membership-timeline-show-provisioning-events">${textContainer.text['membershipTraceTimelineShowProvisioningEvents']}</label>
 
                     <br /><br />
                     <input type="submit" class="btn" value="${textContainer.text['membershipTraceTimelineButton'] }" />

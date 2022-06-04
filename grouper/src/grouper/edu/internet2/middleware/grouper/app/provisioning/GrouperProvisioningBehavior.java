@@ -1550,12 +1550,12 @@ public class GrouperProvisioningBehavior {
       return this.subjectIdentifierForMemberSyncTable;
     }
     
-    String currSubjectIdentifierForMemberSyncTable = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().retrieveConfigString("subjectIdentifierForMemberSyncTable", false);
+    String currSubjectIdentifierForMemberSyncTable = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectIdentifierForMemberSyncTable();
 
     // no override, try to compute it
     if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable)) {
       List<GrouperProvisioningConfigurationAttribute> searchAttributes = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes();
-      for (GrouperProvisioningConfigurationAttribute searchAttribute : searchAttributes) {
+      for (GrouperProvisioningConfigurationAttribute searchAttribute : GrouperUtil.nonNull(searchAttributes)) {
         String value = searchAttribute.getTranslateFromGrouperProvisioningEntityField();
         if (value != null && value.startsWith("subjectIdentifier")) {
           currSubjectIdentifierForMemberSyncTable = value;
@@ -1564,17 +1564,14 @@ public class GrouperProvisioningBehavior {
     }
     
     if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable)) {
-      // TODO handle multiple matching attributes
-      if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) > 0) {
-        GrouperProvisioningConfigurationAttribute matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes().get(0);
-        if (matchingAttribute != null) {
-          String value = matchingAttribute.getTranslateFromGrouperProvisioningEntityField();
-          if (value != null && value.startsWith("subjectIdentifier")) {
-            currSubjectIdentifierForMemberSyncTable = value.substring(11);
-          }
+      List<GrouperProvisioningConfigurationAttribute> matchingAttributes = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes();
+      for (GrouperProvisioningConfigurationAttribute matchingAttribute : GrouperUtil.nonNull(matchingAttributes)) {
+        String value = matchingAttribute.getTranslateFromGrouperProvisioningEntityField();
+        if (value != null && value.startsWith("subjectIdentifier")) {
+          currSubjectIdentifierForMemberSyncTable = value; //value.substring(11);
         }
-        
       }
+      
     }
     
     if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable)) {

@@ -55,7 +55,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullCreateUsersSubjectIdentifier2"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullCreateUsers"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
@@ -415,6 +415,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
         .assignMembershipAttribute("description")
         .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
         .assignInsertEntityAndAttributes(true)
+        .assignEntityDnTranslate(false)
         .assignExplicitFilters(true)
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignBusinessCategoryTranslateFromGrouperProvisioningGroupField("id")

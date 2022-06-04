@@ -7,6 +7,19 @@ import java.util.Map;
 
 public class LdapProvisionerTestConfigInput {
 
+  private boolean groupAttributeValueCache2dn = true;
+  
+  
+  
+  public boolean isGroupAttributeValueCache2dn() {
+    return groupAttributeValueCache2dn;
+  }
+
+  public LdapProvisionerTestConfigInput assignGroupAttributeValueCache2dn(boolean groupAttributeValueCache2dn) {
+    this.groupAttributeValueCache2dn = groupAttributeValueCache2dn;
+    return this;
+  }
+
   /**
    * if allow dn override with config (default false)
    */
@@ -119,6 +132,52 @@ public class LdapProvisionerTestConfigInput {
    */
   public LdapProvisionerTestConfigInput assignMembershipStructureEntityAttributes(boolean membershipStructureEntityAttributes1) {
     this.membershipStructureEntityAttributes = membershipStructureEntityAttributes1;
+    return this;
+  }
+
+  /**
+   * set to false to have grouper auto translate the dn
+   */
+  private boolean entityDnTranslate = true;
+  
+  /**
+   * set to false to have grouper auto translate the dn
+   * @return
+   */
+  public boolean isEntityDnTranslate() {
+    return entityDnTranslate;
+  }
+
+  /**
+   * set to false to have grouper auto translate the dn
+   * @param entityDnTranslate
+   * @return
+   */
+  public LdapProvisionerTestConfigInput assignEntityDnTranslate(boolean entityDnTranslate) {
+    this.entityDnTranslate = entityDnTranslate;
+    return this;
+  }
+
+  /**
+   * set to false to have grouper auto translate the dn
+   */
+  private boolean groupDnTranslate = true;
+
+  /**
+   * set to false to have grouper auto translate the dn
+   * @return
+   */
+  public boolean isGroupDnTranslate() {
+    return groupDnTranslate;
+  }
+
+  /**
+   * set to false to have grouper auto translate the dn
+   * @param groupDnTranslate
+   * @return
+   */
+  public LdapProvisionerTestConfigInput assignGroupDnTranslate(boolean groupDnTranslate) {
+    this.groupDnTranslate = groupDnTranslate;
     return this;
   }
 
