@@ -131,27 +131,21 @@ public class ScimProvisionerTestConfigInput {
   }
   
   /**
-   * e.g. entityAttributeValueCache0 -> ${subject.getAttributeValue('email')}
+   * e.g. ${subject.getAttributeValue('email')}
    */
-  private Map<String, String> subjectLink = new TreeMap<String, String>();
+  private String subjectLinkCache0;
 
-  /**
-   * e.g. entityAttributeValueCache0 -> ${subject.getAttributeValue('email')}
-   * @return
-   */
-  public Map<String, String> getSubjectLink() {
-    return subjectLink;
-  }
-
-  /**
-   * e.g. entityAttributeValueCache0 -> ${subject.getAttributeValue('email')}
-   * @return
-   */
-  public ScimProvisionerTestConfigInput addSubjectLink(String cacheBucket, String value) {
-    this.subjectLink.put(cacheBucket,  value);
-    return this;
+  
+  public String getSubjectLinkCache0() {
+    return subjectLinkCache0;
   }
   
+
+  public ScimProvisionerTestConfigInput assignSubjectLinkCache0(String subjectLinkCache0) {
+    this.subjectLinkCache0 = subjectLinkCache0;
+    return this;
+  }
+
   /**
    * groupDeleteType e.g. deleteGroupsIfNotExistInGrouper or deleteGroupsIfGrouperDeleted or deleteGroupsIfGrouperCreated or null (default)
    */

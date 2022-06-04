@@ -2141,6 +2141,8 @@ public abstract class GrouperProvisioningConfiguration {
           this.entityAttributeDbCaches[i].setAttributeName(this.retrieveConfigString("entityAttributeValueCache" + i + "entityAttribute", true));
         } else if (this.entityAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.translationScript) {
           this.entityAttributeDbCaches[i].setTranslationScript(this.retrieveConfigString("entityAttributeValueCache" + i + "translationScript", true));
+        } else if (this.entityAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript) {
+          this.entityAttributeDbCaches[i].setTranslationScript(this.retrieveConfigString("entityAttributeValueCache" + i + "translationScript", true));
         } else {
           throw new RuntimeException("Invalid attribute cache type: " + "entityAttributeValueCache" + i + "type" + ", " 
               + this.entityAttributeDbCaches[i].getType());

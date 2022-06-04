@@ -74,7 +74,6 @@ public class GoogleProvisionerTestUtils {
 
     configureProvisionerSuffix(provisioningTestConfigInput, "allowWebPosting", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "class", "edu.internet2.middleware.grouper.app.google.GrouperGoogleProvisioner");
-    configureProvisionerSuffix(provisioningTestConfigInput, "common.subjectLink.entityAttributeValueCache0", "${subject.getAttributeValue('email')}");
     configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntitiesIfGrouperDeleted", "true");
@@ -114,6 +113,12 @@ public class GoogleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "id");
 
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "subjectTranslationScript");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0translationScript", "${subject.getAttributeValue('email')}");
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2has", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2source", "target");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2type", "entityAttribute");

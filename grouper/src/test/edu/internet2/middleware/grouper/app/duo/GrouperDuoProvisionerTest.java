@@ -43,7 +43,7 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
   
   public static void main(String[] args) {
     GrouperStartup.startup();
-    TestRunner.run(new GrouperDuoProvisionerTest("testFullProvisionGroupAndThenDeleteTheGroup"));
+    TestRunner.run(new GrouperDuoProvisionerTest("testIncrementalProvisionDuo"));
   }
   
   public GrouperDuoProvisionerTest(String name) {
@@ -358,7 +358,7 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
-      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoMembership").list(GrouperDuoMembership.class).size());
       
       //now delete the group and sync again
@@ -369,7 +369,7 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
       
       //assertEquals(1, grouperProvisioningOutput.getDelete());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
-      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoMembership").list(GrouperDuoMembership.class).size());
       
     } finally {
@@ -550,7 +550,7 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
       runJobs(true, true);
       
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
-      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoMembership").list(GrouperDuoMembership.class).size());
       
       //now delete the group and sync again
@@ -560,7 +560,7 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
       
       //assertEquals(1, grouperProvisioningOutput.getDelete());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
-      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoMembership").list(GrouperDuoMembership.class).size());
       
     } finally {

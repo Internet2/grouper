@@ -67,8 +67,8 @@ public class ScimProvisionerTestUtils {
     GrouperUtil.assertion(!StringUtils.isBlank(provisioningTestConfigInput.getConfigId()), "Config ID required");
 
     if (!StringUtils.isBlank(provisioningTestConfigInput.getAcceptHeader())) {
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.githubProvisioner.acceptHeader")
-        .value(provisioningTestConfigInput.getAcceptHeader()).store();
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "acceptHeader", provisioningTestConfigInput.getAcceptHeader());
 
     }
     
@@ -77,24 +77,43 @@ public class ScimProvisionerTestUtils {
            provisioningTestConfigInput.getBearerTokenExternalSystemConfigId());
     }
 
-    for (String key : provisioningTestConfigInput.getSubjectLink().keySet()) {
+    if (StringUtils.isNotBlank(provisioningTestConfigInput.getSubjectLinkCache0())) {
       
-      String value = provisioningTestConfigInput.getSubjectLink().get(key);
-      configureProvisionerSuffix(provisioningTestConfigInput, "provisioner.githubProvisioner.common.subjectLink." + key, value);
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "subjectTranslationScript");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0translationScript", provisioningTestConfigInput.getSubjectLinkCache0());
+      
     }
-
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "class", "edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Provisioner");
     configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
     if (!StringUtils.isBlank(provisioningTestConfigInput.getEntityDeleteType())) {
       configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+      
       configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getEntityDeleteType(), "true");
     }
-    if (!StringUtils.isBlank(provisioningTestConfigInput.getEntityDeleteType())) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getEntityDeleteType(), "true");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "false");
+    
+    if (!StringUtils.isBlank(provisioningTestConfigInput.getGroupDeleteType())) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getGroupDeleteType(), "true");
     }
     if (!StringUtils.isBlank(provisioningTestConfigInput.getMembershipDeleteType())) {
       configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getMembershipDeleteType(), "true");
     }
     if (provisioningTestConfigInput.getGroupOfUsersToProvision() != null) {
@@ -144,9 +163,11 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", provisioningTestConfigInput.isSelectAllEntities() + "");
     }
     configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
-    if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "true");
+    
+    if (provisioningTestConfigInput.getGroupAttributeCount() == 0) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "false");
     }
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
@@ -177,7 +198,7 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateFromGrouperProvisioningEntityField", "name");
     } else if (StringUtils.equals(provisioningTestConfigInput.getEntityAttribute4name(), "emailValue")) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpression", "${gcGrouperSyncMember.entityAttributeValueCache0}");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpression", "${gcGrouperSyncMember.getEntityAttributeValueCache0()}");
     } else {
       throw new RuntimeException("Not value entityAttribute5Name: '" + provisioningTestConfigInput.getEntityAttribute4name() + "'");
     }
@@ -196,9 +217,6 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2type", "groupAttribute");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2groupAttribute", "id");
     }
-    configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "false");
-
     
     for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {
       String theValue = provisioningTestConfigInput.getExtraConfig().get(key);
@@ -212,7 +230,7 @@ public class ScimProvisionerTestUtils {
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".publisher.class", ProvisioningConsumer.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".quartzCron",  "0 0 5 * * 2000");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".provisionerConfigId", "githubProvisioner");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".provisionerConfigId", provisioningTestConfigInput.getConfigId());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".publisher.debug", "true");
 
