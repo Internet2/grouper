@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogCommands;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
@@ -239,12 +240,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoDeleteGroupResponse;
       } catch (RuntimeException e) {
+
+        GrouperUtil.injectInException(e, targetGroup.toString());
         hasError = true;
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("groupDelete")) {
+          LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+              "Error deleting group, " + GrouperUtil.getFullStackTrace(e)));
+        }
+
         if (targetGroup.getProvisioned() == null) {
           targetGroup.setProvisioned(false);
         }
         if (targetGroup.getException() == null) {
-          GrouperUtil.injectInException(e, targetGroup.toString());
           targetGroup.setException(e);
         }
         logGroup(targetGroup);
@@ -283,12 +290,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoInsertGroupResponse;
       } catch (RuntimeException e) {
+        GrouperUtil.injectInException(e, targetGroup.toString());
         hasError = true;
+
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("groupInsert")) {
+          LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+              "Error inserting group " + GrouperUtil.getFullStackTrace(e)));
+        }
+
         if (targetGroup.getProvisioned() == null) {
           targetGroup.setProvisioned(false);
         }
         if (targetGroup.getException() == null) {
-          GrouperUtil.injectInException(e, targetGroup.toString());
           targetGroup.setException(e);
         }
         logGroup(targetGroup);
@@ -445,15 +458,23 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoUpdateGroupsResponse;
       } catch (RuntimeException e) {
+        boolean first = true;
         hasError = true;
+
         for (ProvisioningGroup targetGroup : targetDaoUpdateGroupsRequest.getTargetGroups()) { 
           
+          if(first) {
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("entityUpdate")) {
+              LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+                  "Error updating groups, e.g. " + (targetGroup == null ? null : targetGroup.toString()) + GrouperUtil.getFullStackTrace(e)));
+            }
+          }
+          first = false;
+
           if (targetGroup.getProvisioned() == null) {
             targetGroup.setProvisioned(false);
           }
-          if (targetGroup.getException() == null) {
-            GrouperUtil.injectInException(e, targetGroup.toString());
-            targetGroup.setException(e);
+          if (targetGroup.getException() == null) {            targetGroup.setException(e);
           }
           setExceptionForMembershipsWhenGroupOrEntityAttributes(null, targetGroup, e);
         }
@@ -498,13 +519,20 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         return targetDaoDeleteMembershipsResponse;
       } catch (RuntimeException e) {
         hasError = true;
+        boolean first = true;
         for (ProvisioningMembership targetMembership : targetDaoDeleteMembershipsRequest.getTargetMemberships()) { 
+          if(first) {
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("membershipDelete")) {
+              LOG.error("Error deleting memberships, e.g. " + (targetMembership == null ? null : targetMembership.toString()), e);
+            }
+          }
           
+          first = false;
+
           if (targetMembership.getProvisioned() == null) {
             targetMembership.setProvisioned(false);
           }
           if (targetMembership.getException() == null) {
-            GrouperUtil.injectInException(e, targetMembership.toString());
             targetMembership.setException(e);
           }
         }
@@ -1398,13 +1426,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         
         return targetDaoUpdateGroupResponse;
       } catch (RuntimeException e) {
+        GrouperUtil.injectInException(e, targetGroup.toString());
         hasError = true;
+
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("groupUpdate")) {
+          LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+              "Error updating group " + GrouperUtil.getFullStackTrace(e)));
+        }
 
         if (targetGroup.getProvisioned() == null) {
           targetGroup.setProvisioned(false);
         }
         if (targetGroup.getException() == null) {
-          GrouperUtil.injectInException(e, targetGroup.toString());
           targetGroup.setException(e);
         }
         
@@ -1461,13 +1494,21 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         return targetDaoInsertGroupsResponse;
       } catch (RuntimeException e) {
         hasError = true;
+
+        boolean first = true;
         for (ProvisioningGroup targetGroup : targetDaoInsertGroupsRequest.getTargetGroups()) { 
-          
+          if(first) {
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("groupInsert")) {
+              LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+                  "Error inserting groups, e.g. " + (targetGroup == null ? null : targetGroup.toString()) + GrouperUtil.getFullStackTrace(e)));
+            }
+          }
+          first = false;
+
           if (targetGroup.getProvisioned() == null) {
             targetGroup.setProvisioned(false);
           }
           if (targetGroup.getException() == null) {
-            GrouperUtil.injectInException(e, targetGroup.toString());
             targetGroup.setException(e);
           }
         }
@@ -1510,13 +1551,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoDeleteEntityResponse;
       } catch (RuntimeException e) {
+        GrouperUtil.injectInException(e, targetEntity.toString());
         hasError = true;
+
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("entityDelete")) {
+          LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+              "Error deleting entity, " + GrouperUtil.getFullStackTrace(e)));
+        }
 
         if (targetEntity.getProvisioned() == null) {
           targetEntity.setProvisioned(false);
         }
         if (targetEntity.getException() == null) {
-          GrouperUtil.injectInException(e, targetEntity.toString());
           targetEntity.setException(e);
         }
         logEntity(targetEntity);
@@ -1706,13 +1752,20 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         return targetDaoDeleteEntitiesResponse;
       } catch (RuntimeException e) {
         hasError = true;
+        boolean first = true;
         for (ProvisioningEntity targetEntity : targetDaoDeleteEntitiesRequest.getTargetEntities()) { 
+          if(first) {
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("entityDelete")) {
+              LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+                  "Error deleting entities, e.g. " + (targetEntity == null ? null : targetEntity.toString()) + GrouperUtil.getFullStackTrace(e)));
+            }
+          }
           
+          first = false;
           if (targetEntity.getProvisioned() == null) {
             targetEntity.setProvisioned(false);
           }
           if (targetEntity.getException() == null) {
-            GrouperUtil.injectInException(e, targetEntity.toString());
             targetEntity.setException(e);
           }
         }
@@ -1755,13 +1808,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoInsertEntityResponse;
       } catch (RuntimeException e) {
+        GrouperUtil.injectInException(e, targetEntity.toString());
         hasError = true;
+
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("entityInsert")) {
+          LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+              "Error inserting entity " + GrouperUtil.getFullStackTrace(e)));
+        }
 
         if (targetEntity.getProvisioned() == null) {
           targetEntity.setProvisioned(false);
         }
         if (targetEntity.getException() == null) {
-          GrouperUtil.injectInException(e, targetEntity.toString());
           targetEntity.setException(e);
         }
         logEntity(targetEntity);
@@ -1802,13 +1860,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         return targetDaoInsertEntitiesResponse;
       } catch (RuntimeException e) {
         hasError = true;
+        boolean first = true;
         for (ProvisioningEntity targetEntity : targetDaoInsertEntitiesRequest.getTargetEntityInserts()) { 
-          
+          if(first) {
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("entityInsert")) {
+              LOG.error("Error inserting entities, e.g. " + (targetEntity == null ? null : targetEntity.toString()), e);
+            }
+          }
+          first = false;
+
           if (targetEntity.getProvisioned() == null) {
             targetEntity.setProvisioned(false);
           }
           if (targetEntity.getException() == null) {
-            GrouperUtil.injectInException(e, targetEntity.toString());
             targetEntity.setException(e);
           }
         }
@@ -1827,7 +1891,6 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
     throw new RuntimeException("Dao cannot insert entity or entities");
   }
-
 
   @Override
   public TargetDaoUpdateEntityResponse updateEntity(
@@ -1851,13 +1914,16 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoUpdateEntityResponse;
       } catch (RuntimeException e) {
+        GrouperUtil.injectInException(e, targetEntity.toString());
         hasError = true;
-
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("entityUpdate")) {
+          LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+              "Error updating entity " + GrouperUtil.getFullStackTrace(e)));
+        }
         if (targetEntity.getProvisioned() == null) {
           targetEntity.setProvisioned(false);
         }
         if (targetEntity.getException() == null) {
-          GrouperUtil.injectInException(e, targetEntity.toString());
           targetEntity.setException(e);
         }
         
@@ -1992,13 +2058,21 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       } catch (RuntimeException e) {
         hasError = true;
 
+        boolean first = true;
         for (ProvisioningEntity targetEntity : targetDaoUpdateEntitiesRequest.getTargetEntities()) { 
           
+          if(first) {
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("entityUpdate")) {
+              LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+                  "Error updating entities, e.g. " + (targetEntity == null ? null : targetEntity.toString()) + GrouperUtil.getFullStackTrace(e)));
+            }
+          }
+          first = false;
+
           if (targetEntity.getProvisioned() == null) {
             targetEntity.setProvisioned(false);
           }
           if (targetEntity.getException() == null) {
-            GrouperUtil.injectInException(e, targetEntity.toString());
             targetEntity.setException(e);
           }
           
@@ -2043,13 +2117,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoDeleteMembershipResponse;
       } catch (RuntimeException e) {
+        GrouperUtil.injectInException(e, targetMembership.toString());
         hasError = true;
+
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("membershipDelete")) {
+          LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+              "Error deleting membership, " + GrouperUtil.getFullStackTrace(e)));
+        }
 
         if (targetMembership.getProvisioned() == null) {
           targetMembership.setProvisioned(false);
         }
         if (targetMembership.getException() == null) {
-          GrouperUtil.injectInException(e, targetMembership.toString());
           targetMembership.setException(e);
         }
         logMembership(targetMembership);
@@ -2091,13 +2170,24 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         return targetDaoDeleteGroupsResponse;
       } catch (RuntimeException e) {
         hasError = true;
+        
+        boolean first = true;
+
         for (ProvisioningGroup targetGroup : targetDaoDeleteGroupsRequest.getTargetGroups()) { 
+          if(first) {
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("groupDelete")) {
+              LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+                  "Error deleting groups, e.g. " + (targetGroup == null ? null : targetGroup.toString()) + GrouperUtil.getFullStackTrace(e)));
+
+            }
+          }
           
+          first = false;
+
           if (targetGroup.getProvisioned() == null) {
             targetGroup.setProvisioned(false);
           }
           if (targetGroup.getException() == null) {
-            GrouperUtil.injectInException(e, targetGroup.toString());
             targetGroup.setException(e);
           }
         }
@@ -2140,13 +2230,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoInsertMembershipResponse;
       } catch (RuntimeException e) {
+        GrouperUtil.injectInException(e, targetMembership.toString());
         hasError = true;
+
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("membershipInsert")) {
+          LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+              "Error inserting membership " + (targetMembership == null ? null : targetMembership.toString()) + GrouperUtil.getFullStackTrace(e)));
+        }
 
         if (targetMembership.getProvisioned() == null) {
           targetMembership.setProvisioned(false);
         }
         if (targetMembership.getException() == null) {
-          GrouperUtil.injectInException(e, targetMembership.toString());
           targetMembership.setException(e);
         }
         logMembership(targetMembership);
@@ -2187,13 +2282,20 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         return targetDaoInsertMembershipsResponse;
       } catch (RuntimeException e) {
         hasError = true;
+        boolean first = true;
         for (ProvisioningMembership targetMembership : targetDaoInsertMembershipsRequest.getTargetMemberships()) { 
-          
+          if(first) {
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("membershipInsert")) {
+              LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+                  "Error inserting memberships, e.g. " + (targetMembership == null ? null : targetMembership.toString()) + GrouperUtil.getFullStackTrace(e)));
+            }
+          }
+          first = false;
+
           if (targetMembership.getProvisioned() == null) {
             targetMembership.setProvisioned(false);
           }
           if (targetMembership.getException() == null) {
-            GrouperUtil.injectInException(e, targetMembership.toString());
             targetMembership.setException(e);
           }
         }
@@ -2235,13 +2337,18 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         }
         return targetDaoUpdateMembershipResponse;
       } catch (RuntimeException e) {
+        GrouperUtil.injectInException(e, targetMembership.toString());
         hasError = true;
+
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("membershipUpdate")) {
+          LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+              "Error updating membership " + GrouperUtil.getFullStackTrace(e)));
+        }
 
         if (targetMembership.getProvisioned() == null) {
           targetMembership.setProvisioned(false);
         }
         if (targetMembership.getException() == null) {
-          GrouperUtil.injectInException(e, targetMembership.toString());
           targetMembership.setException(e);
         }
         logMembership(targetDaoUpdateMembershipRequest.getTargetMembership());
@@ -2282,13 +2389,21 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       } catch (RuntimeException e) {
         hasError = true;
 
+        boolean first = true;
         for (ProvisioningMembership targetMembership : targetDaoUpdateMembershipsRequest.getTargetMemberships()) { 
           
+          if(first) {
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("membershipUpdate")) {
+              LOG.error(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+                  "Error updating memberships, e.g. " + (targetMembership == null ? null : targetMembership.toString()) + GrouperUtil.getFullStackTrace(e)));
+            }
+          }
+          first = false;
+
           if (targetMembership.getProvisioned() == null) {
             targetMembership.setProvisioned(false);
           }
           if (targetMembership.getException() == null) {
-            GrouperUtil.injectInException(e, targetMembership.toString());
             targetMembership.setException(e);
           }
         }

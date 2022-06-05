@@ -426,6 +426,31 @@ public abstract class GrouperProvisioner {
 
   private GrouperProvisioningLogicIncremental grouperProvisioningLogicIncremental = null;
   
+  /**
+   * return the instance of the provisioning log
+   * @return the logic
+   */
+  public GrouperProvisioningLog retrieveGrouperProvisioningLog() {
+    if (this.grouperProvisioningLog == null) {
+      Class<? extends GrouperProvisioningLog> grouperProvisioningLogClass = this.grouperProvisioningLogClass();
+      this.grouperProvisioningLog = GrouperUtil.newInstance(grouperProvisioningLogClass);
+      this.grouperProvisioningLog.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningLog;
+    
+  }
+
+
+  private GrouperProvisioningLog grouperProvisioningLog = null;
+  
+  /**
+   * return the class of the provisioning logic
+   */
+  protected Class<? extends GrouperProvisioningLog> grouperProvisioningLogClass() {
+    return GrouperProvisioningLog.class;
+  }
+  
+
   private GrouperProvisioningLogic grouperProvisioningLogic = null;
   
   /**

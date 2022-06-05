@@ -67,7 +67,7 @@ public class GrouperProvisioningObjectLog {
     }
     if (LOG.isDebugEnabled()) {
       // put id on each line
-      String logMessageString = GrouperUtil.replace(logMessage.toString(), "\n", "\n(" + this.grouperProvisioner.getInstanceId() + "): ");
+      String logMessageString = this.grouperProvisioner.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(logMessage.toString()); 
       LOG.debug(logMessageString);      
     }
   }
