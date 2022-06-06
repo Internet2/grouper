@@ -31,9 +31,9 @@
         <relativePath>../../grouper-parent</relativePath>
     </parent>
 
-    <name>Grouper Authentication</name>
-    <description>Authentication Library</description>
-    <artifactId>grouper-authentication</artifactId>
+    <name>Grouper Authentication Plugin</name>
+    <description>Authentication Library Plugin</description>
+    <artifactId>grouper-authentication-plugin</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
@@ -44,11 +44,23 @@
     </properties>
 
     <dependencies>
-    
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>grouperClient</artifactId>
+            <version>${grouper.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>edu.internet2.middleware.grouper</groupId>
+            <artifactId>grouper</artifactId>
+            <version>${grouper.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>edu.internet2.middleware.grouper</groupId>
             <artifactId>grouper-ui</artifactId>
             <version>${grouper.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
@@ -69,6 +81,16 @@
             <groupId>org.pac4j</groupId>
             <artifactId>pac4j-saml-opensamlv3</artifactId>
             <version>${pac4j.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>jcl-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-jcl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.pac4j</groupId>
@@ -79,10 +101,12 @@
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-catalina</artifactId>
             <version>8.5.60</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -120,11 +144,21 @@
                     <instructions>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}-bundle</Bundle-Name>
-                        <Bundle-Version>0.0.1-SNAPSHOT</Bundle-Version>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Bundle-Activator>edu.internet2.middleware.grouper.authentication.plugin.GrouperAuthentication</Bundle-Activator>
                         <Export-Package>edu.internet2.middleware.grouper.authentication.plugin.filter</Export-Package>
                         <Private-Package>edu.internet2.middleware.grouper.authentication.plugin.*</Private-Package>
                         <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
+                        <Import-Package>
+                            *;resolution:=optional
+                        </Import-Package>
+                        <!--
+                        <Import-Package>
+                            net.sf.cglib.*,
+                            *;resolution:=optional,
+                        </Import-Package>
+                        -->
                     </instructions>
                 </configuration>
             </plugin>

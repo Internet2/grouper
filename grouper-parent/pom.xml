@@ -47,7 +47,7 @@
         <module>../grouper-misc/googleapps-grouper-provisioner</module>
         <module>../grouper-misc/grouper-azure</module>
         <module>../grouper-misc/grouper-authentication</module>
-        <module>../grouper-webapp</module>
+        <module>../grouper-misc/webapp/grouper-ui-webapp</module>
     </modules>
 
     <properties>
@@ -98,7 +98,7 @@
         <c3p0.oracle.thin.extras.version>0.9.5</c3p0.oracle.thin.extras.version>
         <mchange.commons.version>0.2.15</mchange.commons.version>
         <cglib.version>3.3.0</cglib.version>
-        <felix.version>7.0.3</felix.version>
+        <felix.version>7.0.4</felix.version>
         <jamon.version>2.81</jamon.version>
         <xstream.version>1.4.9</xstream.version>
         <jsch.version>0.1.55</jsch.version>

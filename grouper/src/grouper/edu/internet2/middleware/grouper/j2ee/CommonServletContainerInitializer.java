@@ -1,14 +1,19 @@
 package edu.internet2.middleware.grouper.j2ee;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import javax.servlet.FilterRegistration;
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
-import edu.internet2.middleware.grouper.j2ee.servlet.filter.PluginFilterDelegate;
+import edu.internet2.middleware.grouper.plugins.BundleStarter;
+import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -17,6 +22,12 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.launch.Framework;
+import org.osgi.framework.launch.FrameworkFactory;
 
 public class CommonServletContainerInitializer implements ServletContainerInitializer {
   
@@ -25,8 +36,29 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
    */
   private static final Log LOG = GrouperUtil.getLog(CommonServletContainerInitializer.class);
 
+  private Framework framework;
+
   @Override
   public void onStartup(Set<Class<?>> arg0, ServletContext context) throws ServletException {
+      // initialize OSGI
+      {
+        FrameworkStarter.getInstance().start();
+
+        BundleContext bundleContext = FrameworkStarter.getInstance().getFramework().getBundleContext();
+
+        try {
+          Collection<ServletContainerInitializer> initializerCollection = FrameworkStarter.getInstance().getFramework().getBundleContext().getServiceReferences(ServletContainerInitializer.class, null).stream().map(r -> bundleContext.getService(r)).collect(Collectors.toList());
+          initializerCollection.stream().forEach(r -> {
+            try {
+              r.onStartup(arg0, context);
+            } catch (ServletException e) {
+              throw new RuntimeException(e);
+            }
+          });
+        } catch (InvalidSyntaxException e) {
+          throw new RuntimeException(e);
+        }
+      }
     
       boolean runGrouperUi = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
 
@@ -48,21 +80,6 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
         statusServlet.setLoadOnStartup(1);
       } catch (ClassNotFoundException e) {
         throw new RuntimeException("why edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet is not there??");
-      }
-
-      // If using external auth, the security filters need to be installed first in the list, so this happens before other options to
-      // ensure correct order in the context - this is 'safe' : if the needed plugin isn't available, the default behavior for the
-      // filters should be to do nothing but continue the normal filter chain without issue.
-      if (runGrouperExtAuth) {
-        LOG.info("Initializing plugin security filters for external authentication");
-        String jarname = GrouperConfig.retrieveConfig().propertyValueString("grouper.extAuth.jarname", "");
-        PluginFilterDelegate filterDelegate = new PluginFilterDelegate(jarname, GrouperConfig.retrieveConfig().propertyValueString("grouper.extAuth.filter.callback.implmentation.className", ""));
-        FilterRegistration.Dynamic callbackFilter = context.addFilter("callbackFilter", filterDelegate);
-        callbackFilter.addMappingForUrlPatterns(null, false, "/*");
-
-        filterDelegate = new PluginFilterDelegate(jarname, GrouperConfig.retrieveConfig().propertyValueString("grouper.extAuth.filter.security.implmentation.className", ""));
-        FilterRegistration.Dynamic securityFilter = context.addFilter("securityFilter", filterDelegate);
-        securityFilter.addMappingForUrlPatterns(null, false, "/*");
       }
 
       if (runMockServices) {
@@ -199,5 +216,4 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       }
       
   }
-
 }

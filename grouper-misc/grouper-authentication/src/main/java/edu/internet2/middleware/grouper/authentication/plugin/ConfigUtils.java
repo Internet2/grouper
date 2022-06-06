@@ -2,12 +2,15 @@ package edu.internet2.middleware.grouper.authentication.plugin;
 
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.pac4j.core.client.config.BaseClientConfiguration;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.time.Period;
 import java.util.Arrays;
@@ -18,6 +21,8 @@ import java.util.Set;
 
 public class ConfigUtils {
     final static ResourceLoader resourceLoader = new DefaultResourceLoader();
+
+    final static BundleContext bundleContext = FrameworkUtil.getBundle(GrouperAuthentication.class).getBundleContext();
 
     public static ConfigPropertiesCascadeBase getBestGrouperConfiguration() {
         if (isGrouperUi()) {
@@ -33,17 +38,9 @@ public class ConfigUtils {
 
     public static ConfigPropertiesCascadeBase getConfigPropertiesCascadeBase(String type) {
         try {
-            switch (type) {
-                case "ui":
-                    return (ConfigPropertiesCascadeBase) Class.forName("edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi").getMethod("retrieveConfig").invoke(null);
-                case "ws":
-                    return (ConfigPropertiesCascadeBase) Class.forName("edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi").getMethod("retrieveConfig").invoke(null);
-                case "daemon":
-                    return (ConfigPropertiesCascadeBase) Class.forName("edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig").getMethod("retrieveConfig").invoke(null);
-                default:
-                    throw new RuntimeException("no appropriate type found");
-            }
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e ) {
+            ServiceReference<ConfigPropertiesCascadeBase> serviceReference = (ServiceReference<ConfigPropertiesCascadeBase>) FrameworkUtil.getBundle(ConfigUtils.class.getClassLoader()).get().getBundleContext().getServiceReferences(ConfigPropertiesCascadeBase.class, "(type=" + type + ")").toArray()[0];
+            return FrameworkUtil.getBundle(ConfigUtils.class.getClassLoader()).get().getBundleContext().getService(serviceReference);
+        } catch (InvalidSyntaxException e) {
             throw new RuntimeException(e);
         }
     }
@@ -135,14 +132,14 @@ public class ConfigUtils {
     }
 
     public static boolean isGrouperUi() {
-        return GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
+        return getConfigPropertiesCascadeBase("hibernate").propertyValueBoolean("grouper.is.ui", false);
     }
 
     public static boolean isGrouperWs() {
-        return GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws", false);
+        return getConfigPropertiesCascadeBase("hibernate").propertyValueBoolean("grouper.is.ws", false);
     }
 
     public static boolean isGrouperDaemon() {
-        return GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.daemon", false);
+        return getConfigPropertiesCascadeBase("hibernate").propertyValueBoolean("grouper.is.daemon", false);
     }
 }

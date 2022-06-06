@@ -41,7 +41,7 @@ public class CallbackFilterDecorator extends CallbackFilter implements Reinitial
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        boolean runGrouperUi = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
+        boolean runGrouperUi = ConfigUtils.getConfigPropertiesCascadeBase("hibernate").propertyValueBoolean("grouper.is.ui", false);
 
         if (runGrouperUi && FilterDecoratorUtils.isExternalAuthenticationEnabled() && isCallbackUrlCalled((HttpServletRequest) request)) {
             super.doFilter(request, response, chain);

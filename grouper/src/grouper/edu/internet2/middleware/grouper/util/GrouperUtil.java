@@ -1111,7 +1111,7 @@ public class GrouperUtil {
    * @return the logger
    */
   public static Log getLog(Class<?> theClass) {
-    logDirsCreateIfNotDone();
+    // logDirsCreateIfNotDone();
     return LogFactory.getLog(theClass);
   }
 
