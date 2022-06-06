@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.duo.role;
 
-import edu.internet2.middleware.grouper.app.duo.AllDuoProvisionerTests;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;

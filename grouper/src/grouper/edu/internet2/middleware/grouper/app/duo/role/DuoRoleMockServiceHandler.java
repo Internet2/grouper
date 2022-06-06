@@ -628,7 +628,7 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
   
     GrouperUtil.jsonJacksonAssignString(result, "email", grouperDuoRoleUser.getEmail());
     GrouperUtil.jsonJacksonAssignString(result, "name", grouperDuoRoleUser.getName());
-    GrouperUtil.jsonJacksonAssignString(result, "role", grouperDuoRoleUser.getName());
+    GrouperUtil.jsonJacksonAssignString(result, "role", grouperDuoRoleUser.getRole());
     GrouperUtil.jsonJacksonAssignString(result, "admin_id", grouperDuoRoleUser.getId());
     
     return result;

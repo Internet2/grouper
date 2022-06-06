@@ -754,13 +754,13 @@ public class GcGrouperSyncMembershipDao {
   }
   
   /**
-   * select count of memberships in target for the given sync group id
+   * select count of memberships for the given sync group id
    * @param syncGroupId
-   * @return the count of memberships in target for the given sync group id
+   * @return the count of memberships for the given sync group id
    */
-  public int internal_membershipRetrieveFromDbCountInTargetByGroupSyncId(String syncGroupId) {
+  public int internal_membershipRetrieveFromDbCountByGroupSyncId(String syncGroupId) {
     
-    String sql = "select count(1) from grouper_sync_membership where grouper_sync_group_id = ? and in_target = 'T' ";
+    String sql = "select count(1) from grouper_sync_membership where grouper_sync_group_id = ? ";
 
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName());
     

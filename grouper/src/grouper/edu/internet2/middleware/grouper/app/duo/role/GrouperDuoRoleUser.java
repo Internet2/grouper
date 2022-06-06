@@ -50,7 +50,7 @@ public class GrouperDuoRoleUser {
       if (GrouperUtil.length(roles) > 1) {
         throw new RuntimeException("Only one role is allowed: "+targetEntity);
       }
-      grouperDuoUser.setRole(targetEntity.retrieveAttributeValueString("role"));
+      grouperDuoUser.setRole(GrouperUtil.length(roles) == 1? (String)roles.iterator().next(): null);
     }
     
     return grouperDuoUser;
@@ -60,7 +60,7 @@ public class GrouperDuoRoleUser {
   public ProvisioningEntity toProvisioningEntity() {
     ProvisioningEntity targetEntity = new ProvisioningEntity();
     
-    targetEntity.assignAttributeValue("role", this.role);
+    targetEntity.addAttributeValue("role", this.role);
     targetEntity.setId(this.id);
     targetEntity.setEmail(this.email);
     targetEntity.setName(this.name);

@@ -12,7 +12,6 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
@@ -20,9 +19,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
@@ -32,7 +28,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -43,7 +38,7 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
   
   public static void main(String[] args) {
     GrouperStartup.startup();
-    TestRunner.run(new GrouperDuoProvisionerTest("testIncrementalProvisionDuo"));
+    TestRunner.run(new GrouperDuoProvisionerTest("testFullProvisionLoadEntitiesIntoDuoUsersTable"));
   }
   
   public GrouperDuoProvisionerTest(String name) {
@@ -390,7 +385,8 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
       return;
     }
 
-    DuoProvisionerTestUtils.configureDuoProvisioner(new DuoProvisionerTestConfigInput());
+    DuoProvisionerTestUtils.configureDuoProvisioner(new DuoProvisionerTestConfigInput()
+        .addExtraConfig("loadEntitiesToGrouperTable", "true"));
     GrouperStartup.startup();
     
     if (startTomcat) {

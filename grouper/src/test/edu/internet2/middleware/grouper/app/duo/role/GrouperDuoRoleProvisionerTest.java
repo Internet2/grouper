@@ -52,7 +52,7 @@ public class GrouperDuoRoleProvisionerTest extends GrouperTest {
   public void setUp() {
     super.setUp();
 
-    DuoProvisionerTestUtils.setupDuoExternalSystem();
+    DuoRoleProvisionerTestUtils.setupDuoRoleExternalSystem();
     
     try {
       GrouperDuoRoleApiCommands.retrieveDuoAdministrators("duo1");

@@ -173,6 +173,11 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     }
     
     if (StringUtils.isBlank(configId)) {
+      
+      if (StringUtils.equals(bearerToken, "Bearer abc123")) {
+        configId = "githubExternalSystem";
+      }
+      
       mockServiceRequest.getDebugMap().put("authnError", "Cant find client id!  WS bearer token external system not configured or invalid secret!");
       mockServiceResponse.setResponseCode(401);
       return false;

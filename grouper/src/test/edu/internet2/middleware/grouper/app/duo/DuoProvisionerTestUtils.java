@@ -65,6 +65,7 @@ public class DuoProvisionerTestUtils {
 
     
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
