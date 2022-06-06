@@ -118,7 +118,6 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
-        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true));
     
 
@@ -246,7 +245,6 @@ public class LdapProvisionerIncrementalTest extends GrouperTest {
   
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
-        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignExplicitFilters(true)
         .assignUpdateGroupsAndDn(true));
 
