@@ -126,7 +126,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleMembershipGroupNameSubjectId"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleMembershipGroupNameSubjectIdDeleteLogDaemon"));
     
   }
   
@@ -3806,4 +3806,87 @@ public class SqlProvisionerTest extends GrouperTest {
   
   }
 
+  public void testSimpleMembershipGroupNameSubjectIdDeleteLogDaemon() {
+    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_deleteOldSyncLogs");
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("OTHER_JOB_deleteOldSyncLogs");
+
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), 0));
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignMembershipTableName("testgrouper_prov_mship0")
+  //        .assignMembershipTableIdColumn("group_name, subject_id")
+  //        .assignMembershipGroupForeignKeyColumn("group_name")
+  //        .assignMembershipEntityForeignKeyColumn("subject_id")
+        .assignMembershipAttributeCount(2)
+    );
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
+    //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
+    
+    //lets sync these over
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    String sql = "select group_name, subject_id from testgrouper_prov_mship0";
+    
+    List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      membershipsInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(2, membershipsInTable.size());
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.0")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.1")));
+
+    // sleep so we can find most recent
+    GrouperUtil.sleep(5000);
+    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_deleteOldSyncLogs");
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("OTHER_JOB_deleteOldSyncLogs");
+
+    assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), 0));
+
+    int count = new GcDbAccess().sql("select count(1) from grouper_sync_log").select(int.class);
+    assertTrue(count + "", count > 0);
+    
+    List<String> ids = new GcDbAccess().sql("select id from grouper_sync_log").selectList(String.class);
+    String id = GrouperUtil.listPopOne(ids);
+    
+    new GcDbAccess().sql("update grouper_sync_log set last_updated = ? where id = ?").addBindVar(new Timestamp(System.currentTimeMillis() - (1000*60*60*24*8))).addBindVar(id).executeSql();
+    
+    // sleep so we can find most recent
+    GrouperUtil.sleep(5000);
+    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_deleteOldSyncLogs");
+    hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("OTHER_JOB_deleteOldSyncLogs");
+
+    assertEquals(1, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), 0));
+    assertEquals(count-1, new GcDbAccess().sql("select count(1) from grouper_sync_log").select(int.class).intValue());
+    
+  }
 }
