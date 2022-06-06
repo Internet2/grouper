@@ -148,6 +148,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -352,8 +353,16 @@ public class GrouperUtil {
 //    
 //    System.out.println(GrouperUtil.toStringForLog(listObjectArray));
     
+    Map<String, Object> variableMap = new HashMap<String, Object>();
+    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+    grouperProvisioningGroup.setName("w:e:r:t");
+    variableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
 
-  
+    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+        "${edu.internet2.middleware.grouper.util.GrouperUtil.ldapBushyDn(edu.internet2.middleware.grouper.util.GrouperUtil.stripPrefix(grouperProvisioningGroup.name, 'w:e:'), 'cn', 'ou', true, false) + ',ou=groups,dc=school,dc=edu'}"
+        , variableMap, true, false, false);
+
+    System.out.println(result);
   }
 
   /**

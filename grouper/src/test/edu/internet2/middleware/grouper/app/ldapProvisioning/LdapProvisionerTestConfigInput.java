@@ -254,6 +254,28 @@ public class LdapProvisionerTestConfigInput {
   private String groupDeleteType;
 
   /**
+   * entityDeleteType e.g. deleteEntitiesIfNotExistInGrouper or deleteEntitiesIfGrouperDeleted or deleteEntitiesIfGrouperCreated or null (default)
+   */
+  private String entityDeleteType;
+
+  /**
+   * entityDeleteType e.g. deleteEntitiesIfNotExistInGrouper or deleteEntitiesIfGrouperDeleted or deleteEntitiesIfGrouperCreated or null (default)
+   * @return
+   */
+  public String getEntityDeleteType() {
+    return entityDeleteType;
+  }
+  
+  /**
+   * entityDeleteType e.g. deleteEntitiesIfNotExistInGrouper or deleteEntitiesIfGrouperDeleted or deleteEntitiesIfGrouperCreated or null (default)
+   * @param entityDeleteType
+   */
+  public LdapProvisionerTestConfigInput assignEntityDeleteType(String entityDeleteType) {
+    this.entityDeleteType = entityDeleteType;
+    return this;
+  }
+
+  /**
    * membershipDeleteType e.g. deleteMembershipsIfNotExistInGrouper (default) or deleteMembershipsIfGrouperDeleted or deleteMembershipsIfGrouperCreated or null
    */
   private String membershipDeleteType = "deleteMembershipsIfNotExistInGrouper"; 
@@ -427,14 +449,14 @@ public class LdapProvisionerTestConfigInput {
   }
 
   /**
-   * 0, 2 (default), 3 or 6 (if has extended entity attributes
+   * 0, 2 (default), 3 or 6, or 7 (if has extended entity attributes
    */
   public int getEntityAttributeCount() {
     return entityAttributeCount;
   }
 
   /**
-   * 0, 2 (default), 3 or 6 (if has extended entity attributes
+   * 0, 2 (default), 3 or 6, or 7 (if has extended entity attributes
    */
   public LdapProvisionerTestConfigInput assignEntityAttributeCount(int entityAttributeCount) {
     this.entityAttributeCount = entityAttributeCount;
@@ -501,7 +523,7 @@ public class LdapProvisionerTestConfigInput {
   }
 
   /**
-   * 0, 2 (default), 3 or 6 (if has extended entity attributes
+   * 0, 2 (default), 3 or 6, or 7 (if has extended entity attributes
    */
   private int entityAttributeCount = 2;
 

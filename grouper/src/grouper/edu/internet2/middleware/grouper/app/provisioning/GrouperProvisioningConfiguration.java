@@ -660,7 +660,16 @@ public abstract class GrouperProvisioningConfiguration {
     this.logCommandsAlways = logCommandsAlways;
   }
 
+  private int logMaxErrorsPerType;
   
+  public int getLogMaxErrorsPerType() {
+    return logMaxErrorsPerType;
+  }
+
+  public void setLogMaxErrorsPerType(int logMaxErrorsPerType) {
+    this.logMaxErrorsPerType = logMaxErrorsPerType;
+  }
+
   public boolean isLogCommandsOnError() {
     return logCommandsOnError;
   }
@@ -2082,6 +2091,8 @@ public abstract class GrouperProvisioningConfiguration {
     this.logCommandsAlways = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsAlways", false), false);
     
     this.logCommandsOnError = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsOnError", false), false);
+    
+    this.logMaxErrorsPerType = GrouperUtil.intValue(this.retrieveConfigInt("logMaxErrorsPerType", false), 10);
     
     this.debugLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("debugLog", false), false);
     
