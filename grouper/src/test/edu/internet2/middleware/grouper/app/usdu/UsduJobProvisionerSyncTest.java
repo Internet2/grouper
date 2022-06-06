@@ -25,9 +25,22 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import junit.textui.TestRunner;
 
 public class UsduJobProvisionerSyncTest extends GrouperTest {
   
+  public static void main(String[] args) {
+    TestRunner.run(new UsduJobProvisionerSyncTest("test"));
+  }
+  
+  public UsduJobProvisionerSyncTest() {
+    super();
+  }
+
+  public UsduJobProvisionerSyncTest(String name) {
+    super(name);
+  }
+
   @Override
   protected void setUp() {
     super.setUp();    
@@ -97,8 +110,6 @@ public class UsduJobProvisionerSyncTest extends GrouperTest {
     
     
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test2.common.enabled", "false");
-    
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.entityAttributeValueCacheHas", "true");
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.entityAttributeValueCache0has", "true");
@@ -110,9 +121,7 @@ public class UsduJobProvisionerSyncTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.entityAttributeValueCache1source", "grouper");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.entityAttributeValueCache1type", "subjectTranslationScript");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.entityAttributeValueCache1translationScript", "test3 ${subject.name} fromid3");
-
-    //TODO delete it because it doesn't exist in grouper-loader.base.properties
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.common.subjectLink.autoEntityAttributeValueCache1", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test3.entityAttributeValueCache1auto", "false");
 
     UsduJob.runDaemonStandalone();
     
@@ -147,10 +156,10 @@ public class UsduJobProvisionerSyncTest extends GrouperTest {
     assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache3());
     
     // now test an update for test1
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache0", "test1 ${subject.name} fromid2 update");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache1", "test1 ${subject.name} fromid3 update");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache2", "test1 ${subject.name} toid2 update");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache3", "test1 ${subject.name} toid3 update");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache0translationScript", "test1 ${subject.name} fromid2 update");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache1translationScript", "test1 ${subject.name} fromid3 update");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache2translationScript", "test1 ${subject.name} toid2 update");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache3translationScript", "test1 ${subject.name} toid3 update");
     
     UsduJob.runDaemonStandalone();
     
@@ -185,15 +194,15 @@ public class UsduJobProvisionerSyncTest extends GrouperTest {
     assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache3());
     
     // disable sync for test1
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache0", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache1", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache2", "false");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache3", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache0has", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache1has", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache2has", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache3has", "false");
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache0", "test1 ${subject.name} fromid2 update2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache1", "test1 ${subject.name} fromid3 update2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache2", "test1 ${subject.name} toid2 update2");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.entityAttributeValueCache3", "test1 ${subject.name} toid3 update2");    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache0translationScript", "test1 ${subject.name} fromid2 update2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache1translationScript", "test1 ${subject.name} fromid3 update2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache2translationScript", "test1 ${subject.name} toid2 update2");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache3translationScript", "test1 ${subject.name} toid3 update2");    
     
     UsduJob.runDaemonStandalone();
     
@@ -228,10 +237,10 @@ public class UsduJobProvisionerSyncTest extends GrouperTest {
     assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache3());
     
     // disable provisioner for test1
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.enabled", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCacheHas", "false");
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache0", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.subjectLink.autoEntityAttributeValueCache2", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache0has", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCache2has", "true");
 
     UsduJob.runDaemonStandalone();
     
@@ -266,7 +275,7 @@ public class UsduJobProvisionerSyncTest extends GrouperTest {
     assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member3.getId()).getEntityAttributeValueCache3());
     
     // enable provisioner for test1
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.common.enabled", "true");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.test1.entityAttributeValueCacheHas", "true");
     
     UsduJob.runDaemonStandalone();
     

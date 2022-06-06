@@ -292,7 +292,7 @@ public class UsduJob extends OtherJobBase {
 
     int totalObjectsStored = 0;
     
-    Pattern provisionerPatternWithMemberInfo = Pattern.compile("^provisioner\\.(\\w+)\\.common\\.subjectLink\\.(entityAttributeValueCache0|entityAttributeValueCache1|entityAttributeValueCache2|entityAttributeValueCache3)$");    
+    Pattern provisionerPatternWithMemberInfo = Pattern.compile("^provisioner\\.(\\w+)\\.(entityAttributeValueCache0has|entityAttributeValueCache1has|entityAttributeValueCache2has|entityAttributeValueCache3has)$");    
     Map<String, String> provisionerPropsWithMemberInfo = GrouperLoaderConfig.retrieveConfig().propertiesMap(provisionerPatternWithMemberInfo);
     Set<String> configNames = new HashSet<String>();
     for (String property : provisionerPropsWithMemberInfo.keySet()) {
@@ -305,21 +305,53 @@ public class UsduJob extends OtherJobBase {
     RuntimeException runtimeException = null;
     
     for (String configName : configNames) {
-      boolean isEnabled = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.enabled", true); // what is the default here??
-      if (!isEnabled) {
+
+      boolean entityAttributeValueCache = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".entityAttributeValueCacheHas", false);
+
+      if (!entityAttributeValueCache) {
         continue;
       }
       
-      String entityAttributeValueCache0 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.entityAttributeValueCache0");
-      String entityAttributeValueCache1 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.entityAttributeValueCache1");
-      String entityAttributeValueCache2 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.entityAttributeValueCache2");
-      String entityAttributeValueCache3 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".common.subjectLink.entityAttributeValueCache3");
+      String entityAttributeValueCache0 = null;
+      String entityAttributeValueCache1 = null;
+      String entityAttributeValueCache2 = null;
+      String entityAttributeValueCache3 = null;
 
-      boolean autoEntityAttributeValueCache0 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoEntityAttributeValueCache0", true);
-      boolean autoEntityAttributeValueCache1 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoEntityAttributeValueCache1", true);
-      boolean autoEntityAttributeValueCache2 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoEntityAttributeValueCache2", true);
-      boolean autoEntityAttributeValueCache3 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".common.subjectLink.autoEntityAttributeValueCache3", true);
-
+      boolean autoEntityAttributeValueCache0 = false;
+      boolean autoEntityAttributeValueCache1 = false;
+      boolean autoEntityAttributeValueCache2 = false;
+      boolean autoEntityAttributeValueCache3 = false;
+      
+      if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".entityAttributeValueCache0has", false)
+          && StringUtils.equals("grouper", GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache0source"))
+          && StringUtils.equals("subjectTranslationScript",  GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache0type"))) {
+        
+        entityAttributeValueCache0 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache0translationScript");
+        autoEntityAttributeValueCache0 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".entityAttributeValueCache0auto", true);
+      }
+          
+      if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".entityAttributeValueCache1has", false)
+          && StringUtils.equals("grouper", GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache1source"))
+          && StringUtils.equals("subjectTranslationScript",  GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache1type"))) {
+        
+        entityAttributeValueCache1 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache1translationScript");
+        autoEntityAttributeValueCache1 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".entityAttributeValueCache1auto", true);
+      }
+      if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".entityAttributeValueCache2has", false)
+          && StringUtils.equals("grouper", GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache2source"))
+          && StringUtils.equals("subjectTranslationScript",  GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache2type"))) {
+        
+        entityAttributeValueCache2 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache2translationScript");
+        autoEntityAttributeValueCache2 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".entityAttributeValueCache2auto", true);
+      }
+      if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".entityAttributeValueCache3has", false)
+          && StringUtils.equals("grouper", GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache3source"))
+          && StringUtils.equals("subjectTranslationScript",  GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache3type"))) {
+        
+        entityAttributeValueCache3 = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configName + ".entityAttributeValueCache3translationScript");
+        autoEntityAttributeValueCache3 = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("provisioner." + configName + ".entityAttributeValueCache3auto", true);
+      }
+            
       if ((!autoEntityAttributeValueCache0 || GrouperUtil.isBlank(entityAttributeValueCache0)) &&
           (!autoEntityAttributeValueCache1 || GrouperUtil.isBlank(entityAttributeValueCache1)) &&
           (!autoEntityAttributeValueCache2 || GrouperUtil.isBlank(entityAttributeValueCache2)) &&
