@@ -4,7 +4,12 @@ import edu.internet2.middleware.grouper.authentication.plugin.config.ClientProvi
 import edu.internet2.middleware.grouper.authentication.plugin.config.ClientProviders;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.pac4j.core.client.Client;
 import org.pac4j.core.client.Clients;
 import org.pac4j.core.config.Config;
@@ -12,7 +17,18 @@ import org.pac4j.core.config.ConfigFactory;
 import org.pac4j.core.matching.matcher.PathMatcher;
 
 public class Pac4jConfigFactory implements ConfigFactory {
-    private static final Logger LOGGER = Logger.getLogger(Pac4jConfigFactory.class);
+    // private static final Logger LOGGER = Logger.getLogger(Pac4jConfigFactory.class);
+    private static final Log LOGGER;
+    static {
+        try {
+            BundleContext bundleContext = FrameworkUtil.getBundle(Pac4jConfigFactory.class).getBundleContext();
+            //TODO: figure out why this is weird
+            ServiceReference<LogFactory> logfactoryReference = (ServiceReference<LogFactory>) bundleContext.getAllServiceReferences("org.apache.commons.logging.LogFactory", null)[0];
+            LOGGER = bundleContext.getService(logfactoryReference).getInstance(ExternalAuthenticationServletContainerInitializer.class);
+        } catch (InvalidSyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public Config build(Object... parameters) {

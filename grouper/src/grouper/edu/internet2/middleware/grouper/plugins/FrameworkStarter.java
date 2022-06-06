@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.plugins;
 
+import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -45,7 +46,7 @@ public class FrameworkStarter {
         configMap.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
 
         //TODO: maybe make this more dynamic. currently we're very opinionated on what we export
-        configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "javax.servlet");
+        configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "javax.servlet,javax.servlet.http");
 
         // set up cachedir
         String grouperOsgiCacheDir = GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.cache.rootdir", "/opt/grouper/grouperWebapp/WEB-INF/grouperFelixCache");
@@ -56,6 +57,8 @@ public class FrameworkStarter {
         Set<String> packagesForBootDelegation = new HashSet<>();
         packagesForBootDelegation.add(LogFactory.class.getPackage().getName());
         packagesForBootDelegation.add(ConfigPropertiesCascadeBase.class.getPackage().getName());
+        // TODO: why oh why... need to fix this
+        packagesForBootDelegation.add(GrouperExternalSystem.class.getPackage().getName());
         configMap.put(Constants.FRAMEWORK_BOOTDELEGATION, String.join(",", packagesForBootDelegation));
 
         try {

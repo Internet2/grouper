@@ -1,15 +1,31 @@
 package edu.internet2.middleware.grouper.authentication.plugin.filter;
 
 import edu.internet2.middleware.grouper.authentication.plugin.ConfigUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import edu.internet2.middleware.grouper.authentication.plugin.ExternalAuthenticationServletContainerInitializer;
+import edu.internet2.middleware.grouper.authentication.plugin.Pac4jConfigFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 
 import java.util.Map;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
 public class ReinitializingTimer extends TimerTask {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReinitializingTimer.class);
+    private static final Log LOGGER;
+    static {
+        try {
+            BundleContext bundleContext = FrameworkUtil.getBundle(Pac4jConfigFactory.class).getBundleContext();
+            //TODO: figure out why this is weird
+            ServiceReference<LogFactory> logfactoryReference = (ServiceReference<LogFactory>) bundleContext.getAllServiceReferences("org.apache.commons.logging.LogFactory", null)[0];
+            LOGGER = bundleContext.getService(logfactoryReference).getInstance(ExternalAuthenticationServletContainerInitializer.class);
+        } catch (InvalidSyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     private Map config;
     private final Reinitializable initTarget;

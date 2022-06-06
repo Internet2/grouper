@@ -30,7 +30,7 @@ public class SecurityFilterDecorator extends SecurityFilter implements Reinitial
 
     public void initDecorator() {
         if (ConfigUtils.isGrouperUi() && FilterDecoratorUtils.isExternalAuthenticationEnabled()) {
-            this.setSharedConfig(ConfigBuilder.build(Pac4jConfigFactory.class.getCanonicalName()));
+            this.setSharedConfig(new Pac4jConfigFactory().build());
             this.setClients("client");
             this.setMatchers(String.join(Pac4jConstants.ELEMENT_SEPARATOR, "securityExclusions"));
             this.setAuthorizers(DefaultAuthorizers.NONE);

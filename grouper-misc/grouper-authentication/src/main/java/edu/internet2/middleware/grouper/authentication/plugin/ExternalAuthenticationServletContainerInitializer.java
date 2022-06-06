@@ -2,8 +2,6 @@ package edu.internet2.middleware.grouper.authentication.plugin;
 
 import edu.internet2.middleware.grouper.authentication.plugin.filter.CallbackFilterDecorator;
 import edu.internet2.middleware.grouper.authentication.plugin.filter.SecurityFilterDecorator;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.j2ee.servlet.filter.PluginFilterDelegate;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
