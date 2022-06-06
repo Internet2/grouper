@@ -25,6 +25,7 @@ public class LdapProvisionerTestUtils {
     GrouperSession.startRootSession();
     stopAndRemoveLdapContainer();
     startLdapContainer();
+    setupSubjectSource();
   }
   
   private static String dockerPath = null;

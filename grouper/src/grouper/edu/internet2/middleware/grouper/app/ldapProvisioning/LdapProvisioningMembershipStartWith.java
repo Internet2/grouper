@@ -33,18 +33,6 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
       provisionerSuffixToValue.put("entityResolver.entityAttributesNotInSubjectSource", "true");
     }
     
-    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasTargetEntityLink"), false)) {
-      provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
-      
-      provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
-      provisionerSuffixToValue.put("entityAttributeValueCache0has", "true");
-      provisionerSuffixToValue.put("entityAttributeValueCache0source", "target");
-      provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
-      
-      provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", startWithSuffixToValue.get("entityTableIdColumn"));
-      
-    }
-    
     if (StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSource") 
         || StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSourceAndEntityResolver")) {
       provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
@@ -89,7 +77,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
       
       provisionerSuffixToValue.put("operateOnGrouperGroups", "true");
       
-      // provisionerSuffixToValue.put("groupSearchBaseDn", startWithSuffixToValue.get("groupSearchBaseDn"));
+      provisionerSuffixToValue.put("hasTargetGroupLink", "true");
       
       int groupAttributes = 0;
       
@@ -97,10 +85,17 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
       
       provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".name", "ldap_dn");
       
+      provisionerSuffixToValue.put("groupAttributeValueCacheHas", "true");
+      provisionerSuffixToValue.put("groupAttributeValueCache0has", "true");
+      provisionerSuffixToValue.put("groupAttributeValueCache0source", "target");
+      provisionerSuffixToValue.put("groupAttributeValueCache0type", "groupAttribute");
+      
+      provisionerSuffixToValue.put("groupAttributeValueCache0groupAttribute", "ldap_dn");
+
       groupAttributes++;
       
       provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".name", rdnGroupsAttribute);
-      
+
       String rdnValueForGroups = startWithSuffixToValue.get("rdnValueForGroups");
       
       if (StringUtils.equalsAny(rdnValueForGroups, "extension", "idIndex", "idIndexString", "name", "id")) {
@@ -115,11 +110,10 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         } else if (StringUtils.equals(rdnValueForGroups, "extensionUnderscoreIdIndex")) {
           provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateExpression", "${grouperProvisioningGroup.extension+'_'+grouperProvisioningGroup.idIndex}");
         }
-        
-        groupAttributes++;
-        
+                
       }
-      
+      groupAttributes++;
+
       if (StringUtils.equals(startWithSuffixToValue.get("membershipStructure"), "groupAttributes")) {
 
         String membershipAttributeNameForGroups = startWithSuffixToValue.get("membershipAttributeNameForGroups");
@@ -130,14 +124,13 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         if (!GrouperUtil.booleanValue(startWithSuffixToValue.get("membershipValueDn"), false)) {
           
           String groupMembershipAttributeValue = startWithSuffixToValue.get("groupMembershipAttributeValue");
+          provisionerSuffixToValue.put("entityMembershipAttributeName", groupMembershipAttributeValue);
           
         }
         
         groupAttributes++;
         
       }
-      
-     
       
       String idIndexAttribute = startWithSuffixToValue.get("idIndexAttribute");
       if (StringUtils.isNotBlank(idIndexAttribute)) {
@@ -188,6 +181,12 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         
         for (String otherLdapAttribute: otherLdapAttributes) {
           provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".name", otherLdapAttribute);
+
+          if (StringUtils.equals("description", otherLdapAttribute)) {
+            provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateExpressionType", "grouperProvisioningGroupField");
+            provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateFromGrouperProvisioningGroupField", "description");
+          }
+          
           groupAttributes++;
         }
         
@@ -203,21 +202,35 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
       
       provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
       
-//      provisionerSuffixToValue.put("userSearchBaseDn", startWithSuffixToValue.get("userSearchBaseDn"));
+      provisionerSuffixToValue.put("hasTargetEntityLink", "true");
       
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasTargetEntityLink"), false)) {
+        provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
+        
+        provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
+        provisionerSuffixToValue.put("entityAttributeValueCache0has", "true");
+        provisionerSuffixToValue.put("entityAttributeValueCache0source", "target");
+        provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
+        
+        provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", "ldap_dn");
+        
+      }
+      
+
       boolean changeEntitiesInLdap = GrouperUtil.booleanValue(startWithSuffixToValue.get("changeEntitiesInLdap"), false);
       
       int entityAttributes = 0;
+
+      provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".name", "ldap_dn");
       
+      entityAttributes++;
+
       if (changeEntitiesInLdap) {
-        String rdnEntitiesAttribute = startWithSuffixToValue.get("rdnEntitiesAttribute");
+        String userRdnAttribute = startWithSuffixToValue.get("userRdnAttribute");
         String rdnValueForEntities = startWithSuffixToValue.get("rdnValueForEntities");
         
-        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".name", "ldap_dn");
         
-        entityAttributes++;
-        
-        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".name", rdnEntitiesAttribute);
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".name", userRdnAttribute);
         
         if (StringUtils.equalsAny(rdnValueForEntities, "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2")) {
           provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateFromGrouperProvisioningEntityField", rdnValueForEntities);
