@@ -394,8 +394,16 @@ public class LdapProvisionerTestUtils {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "sn");
           
           configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.showAdvancedAttribute", "true");
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionTypeCreateOnly", "translationScript");
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionCreateOnly", "'something'");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "translationScript");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpression", "'something'");
+          
+          if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+            
+            configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.showAdvancedAttribute", "true");
+            configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.showAttributeValidation", "true");
+            configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.required", "true");
+          }
+
 
         }
       }
@@ -403,14 +411,29 @@ public class LdapProvisionerTestUtils {
 
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.name", "cn");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.showAdvancedAttribute", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionTypeCreateOnly", "translationScript");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionCreateOnly", "'something'");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "translationScript");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpression", "'something'");
+        
+        if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+          
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.showAdvancedAttribute", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.showAttributeValidation", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.required", "true");
+        }
+
         
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "givenName");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.showAdvancedAttribute", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionTypeCreateOnly", "staticValues");
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateFromStaticValuesCreateOnly", "something");
-    
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "staticValues");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateFromStaticValues", "something");
+
+        if (provisioningTestConfigInput.isInsertEntityAndAttributes()) {
+          
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.showAdvancedAttribute", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.showAttributeValidation", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.required", "true");
+        }
+
       }
       if (provisioningTestConfigInput.getEntityAttributeCount() >= 6) {
         int objectClassIndex = -1;

@@ -575,9 +575,15 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
          .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
          .assignEntityAttributeCount(7)
          .assignSubjectSourcesToProvision("jdbc")
+         .addExtraConfig("logCommandsAlways", "true")
          .addExtraConfig("targetGroupAttribute.0.translateExpression", "${'someprefix:' + grouperProvisioningGroup.name}")
        );          
-    
+
+   {
+     GrouperProvisioningOutput grouperProvisioningOutput = GrouperProvisioner.retrieveProvisioner("ldapProvTest").provision(GrouperProvisioningType.fullProvisionFull);
+     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+   }
+
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
