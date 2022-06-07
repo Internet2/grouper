@@ -1,12 +1,15 @@
 package edu.internet2.middleware.grouper.j2ee;
 
+import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.FilterRegistration.Dynamic;
 import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -15,6 +18,9 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.launch.Framework;
 
 public class CommonServletContainerInitializer implements ServletContainerInitializer {
   
@@ -25,7 +31,26 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
 
   @Override
   public void onStartup(Set<Class<?>> arg0, ServletContext context) throws ServletException {
-    
+      // initialize OSGI
+      {
+        FrameworkStarter.getInstance().start();
+
+        BundleContext bundleContext = FrameworkStarter.getInstance().getFramework().getBundleContext();
+
+        try {
+          Collection<ServletContainerInitializer> initializerCollection = FrameworkStarter.getInstance().getFramework().getBundleContext().getServiceReferences(ServletContainerInitializer.class, null).stream().map(r -> bundleContext.getService(r)).collect(Collectors.toList());
+          initializerCollection.stream().forEach(r -> {
+            try {
+              r.onStartup(arg0, context);
+            } catch (ServletException e) {
+              throw new RuntimeException(e);
+            }
+          });
+        } catch (InvalidSyntaxException e) {
+          throw new RuntimeException(e);
+        }
+      }
+
       boolean runGrouperUi = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
 
       boolean runMockServices = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.mockServices", false);
@@ -180,5 +205,4 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       }
       
   }
-
 }

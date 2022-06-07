@@ -233,7 +233,7 @@ public class GrouperPluginManager {
     try {
       clazz = bundle.loadClass(pluginClassName);
     } catch (Exception e) {
-      throw new RuntimeException("Cannot load class '" + pluginClassName +  "' from bundle: " + (bundle == null ? null : bundle.getSymbolicName()) + ", " + moduleJarNameInput);
+      throw new RuntimeException("Cannot load class '" + pluginClassName +  "' from bundle: " + (bundle == null ? null : bundle.getSymbolicName()) + ", " + moduleJarNameInput, e);
     }
     
     // this is an instance from the module, though from a different classloader
@@ -242,7 +242,7 @@ public class GrouperPluginManager {
     try {
       providerImpl = clazz.newInstance();
     } catch (Exception e) {
-      throw new RuntimeException("Cannot instantiate class '" + pluginClassName +  "' from bundle: " + (bundle == null ? null : bundle.getSymbolicName()) + ", " + moduleJarNameInput);
+      throw new RuntimeException("Cannot instantiate class '" + pluginClassName +  "' from bundle: " + (bundle == null ? null : bundle.getSymbolicName()) + ", " + moduleJarNameInput, e);
     }
 
     // this converts that instance to the interface which is implements (but cant be typecast since different classloader)
