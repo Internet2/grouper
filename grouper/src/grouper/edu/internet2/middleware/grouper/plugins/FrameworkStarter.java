@@ -46,7 +46,7 @@ public class FrameworkStarter {
         configMap.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
 
         //TODO: maybe make this more dynamic. currently we're very opinionated on what we export
-        configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "javax.servlet,javax.servlet.http");
+        configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.framework.system.packages.extra","javax.servlet,javax.servlet.http"));
 
         // set up cachedir
         String grouperOsgiCacheDir = GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.cache.rootdir", "/opt/grouper/grouperWebapp/WEB-INF/grouperFelixCache");
@@ -54,12 +54,18 @@ public class FrameworkStarter {
 
         // usually, this is a bad idea, but we have several classes that must be loaded from the framework classpath to work,
         // e.g., logging, configuration
-        Set<String> packagesForBootDelegation = new HashSet<>();
-        packagesForBootDelegation.add(LogFactory.class.getPackage().getName());
-        packagesForBootDelegation.add(ConfigPropertiesCascadeBase.class.getPackage().getName());
-        // TODO: why oh why... need to fix this
-        packagesForBootDelegation.add(GrouperExternalSystem.class.getPackage().getName());
-        configMap.put(Constants.FRAMEWORK_BOOTDELEGATION, String.join(",", packagesForBootDelegation));
+        String packagesForBootDelegationString;
+        if (null != GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.framework.boot.delegation")) {
+            packagesForBootDelegationString = GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.framework.boot.delegation");
+        } else {
+            Set<String> packagesForBootDelegation = new HashSet<>();
+            packagesForBootDelegation.add(LogFactory.class.getPackage().getName());
+            packagesForBootDelegation.add(ConfigPropertiesCascadeBase.class.getPackage().getName());
+            // TODO: why oh why... need to fix this
+            packagesForBootDelegation.add(GrouperExternalSystem.class.getPackage().getName());
+            packagesForBootDelegationString = String.join(",", packagesForBootDelegation);
+        }
+        configMap.put(Constants.FRAMEWORK_BOOTDELEGATION, packagesForBootDelegationString);
 
         try {
             FrameworkFactory frameworkFactory = ServiceLoader.load(FrameworkFactory.class).iterator().next();
