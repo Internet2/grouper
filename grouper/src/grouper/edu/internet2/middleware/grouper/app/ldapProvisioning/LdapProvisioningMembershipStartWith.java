@@ -81,7 +81,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
       
       int groupAttributes = 0;
       
-      String rdnGroupsAttribute = startWithSuffixToValue.get("rdnGroupsAttribute");
+      String groupRdnAttribute = startWithSuffixToValue.get("groupRdnAttribute");
       
       provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".name", "ldap_dn");
       
@@ -94,7 +94,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
 
       groupAttributes++;
       
-      provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".name", rdnGroupsAttribute);
+      provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".name", groupRdnAttribute);
 
       String rdnValueForGroups = startWithSuffixToValue.get("rdnValueForGroups");
       
@@ -123,8 +123,9 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         
         if (!GrouperUtil.booleanValue(startWithSuffixToValue.get("membershipValueDn"), false)) {
           
-          String groupMembershipAttributeValue = startWithSuffixToValue.get("groupMembershipAttributeValue");
-          provisionerSuffixToValue.put("entityMembershipAttributeName", groupMembershipAttributeValue);
+          // groupMembershipAttributeValue will be copied over
+        } else {
+          provisionerSuffixToValue.put("groupMembershipAttributeValue", "entityAttributeValueCache0");
           
         }
         
@@ -163,6 +164,9 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         
         provisionerSuffixToValue.put("groupMatchingAttribute0name", matchingSearchAttributeNameForGroups);
         
+      } else {
+        
+        provisionerSuffixToValue.put("groupMatchingAttribute0name", idIndexAttribute);
       }
       
       String objectClassesForGroups = startWithSuffixToValue.get("objectClassesForGroups");
@@ -171,6 +175,10 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateExpressionType", "staticValues");
         provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateFromStaticValues", objectClassesForGroups);
         
+        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".showAdvancedAttribute", "true");
+        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".showAttributeValueSettings", "true");
+        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".multiValued", "true");
+
         groupAttributes++;
       }
       
@@ -204,17 +212,14 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
       
       provisionerSuffixToValue.put("hasTargetEntityLink", "true");
       
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasTargetEntityLink"), false)) {
-        provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
-        
-        provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
-        provisionerSuffixToValue.put("entityAttributeValueCache0has", "true");
-        provisionerSuffixToValue.put("entityAttributeValueCache0source", "target");
-        provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
-        
-        provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", "ldap_dn");
-        
-      }
+      provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
+      
+      provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
+      provisionerSuffixToValue.put("entityAttributeValueCache0has", "true");
+      provisionerSuffixToValue.put("entityAttributeValueCache0source", "target");
+      provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
+      
+      provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", "ldap_dn");
       
 
       boolean changeEntitiesInLdap = GrouperUtil.booleanValue(startWithSuffixToValue.get("changeEntitiesInLdap"), false);
@@ -295,7 +300,9 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".name", "objectClass");
         provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateExpressionType", "staticValues");
         provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateFromStaticValues", objectClassesForEntities);
-        
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".showAdvancedAttribute", "true");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".showAttributeValueSettings", "true");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".multiValued", "true");
         entityAttributes++;
       }
       
@@ -311,6 +318,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         
       }
       
+      
       provisionerSuffixToValue.put("numberOfEntityAttributes", entityAttributes);
       
 //      if (StringUtils.equals(startWithSuffixToValue.get("membershipStructure"), "entityAttributes") && 
@@ -320,7 +328,10 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
 //        
 //      }
       
-      
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), false) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), false)) {
+        provisionerSuffixToValue.put("showAdvanced", "true");
+      }
+
       
     }
     

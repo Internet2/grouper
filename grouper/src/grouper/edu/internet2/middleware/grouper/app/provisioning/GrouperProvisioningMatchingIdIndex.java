@@ -65,7 +65,7 @@ public class GrouperProvisioningMatchingIdIndex {
         
         if (grouperWrapper == null || targetWrapper == null || grouperWrapper == targetWrapper) {
 
-          throw new NullPointerException("Why do multiple groups have the same matching id???\n" 
+          throw new RuntimeException("Why do multiple groups have the same matching id???\n" 
               + provisioningGroupWrapper.getGrouperTargetGroup() + "\n" 
               + provisioningGroupWrapper.getTargetProvisioningGroup() + "\n"
               + provisioningGroupWrapperExisting.getGrouperTargetGroup() + "\n"
@@ -136,7 +136,7 @@ public class GrouperProvisioningMatchingIdIndex {
         
         if (grouperWrapper == null || targetWrapper == null || grouperWrapper == targetWrapper) {
 
-          throw new NullPointerException("Why do multiple memberships have the same matching id???\n" 
+          throw new RuntimeException("Why do multiple memberships have the same matching id???\n" 
               + provisioningMembershipWrapper.getGrouperTargetMembership() + "\n" 
               + provisioningMembershipWrapper.getTargetProvisioningMembership() + "\n"
               + membershipMatchingIdToProvisioningMembershipWrapper.get(matchingId).getGrouperTargetMembership() + "\n"
@@ -213,7 +213,7 @@ public class GrouperProvisioningMatchingIdIndex {
         
         if (grouperWrapper == null || targetWrapper == null || grouperWrapper == targetWrapper) {
           
-          throw new NullPointerException("Why do multiple entities have the same matching id???\n" 
+          throw new RuntimeException("Why do multiple entities have the same matching id???\n" 
               + provisioningEntityWrapper.getGrouperTargetEntity() + "\n" 
               + provisioningEntityWrapper.getTargetProvisioningEntity() + "\n"
               + entityMatchingIdToProvisioningEntityWrapper.get(matchingId).getGrouperTargetEntity() + "\n"
