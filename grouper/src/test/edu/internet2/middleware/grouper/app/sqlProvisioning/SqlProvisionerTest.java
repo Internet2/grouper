@@ -126,7 +126,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleMembershipGroupNameSubjectIdDeleteLogDaemon"));
+    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisioner"));
     
   }
   
@@ -394,7 +394,7 @@ public class SqlProvisionerTest extends GrouperTest {
       Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
       
       // mark some folders to provision
-      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").assignDescription("old description").save();
       Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
       
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
@@ -434,6 +434,15 @@ public class SqlProvisionerTest extends GrouperTest {
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
       assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_entity").select(int.class));
       assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_mship2").select(int.class));
+      
+      // change the description
+      assertEquals("old description", new GcDbAccess().sql("select description from testgrouper_prov_group where name = 'test:testGroup'").select(String.class));
+      testGroup = new GroupSave().assignName(testGroup.getName()).assignDescription("new description").assignReplaceAllSettings(false).save();
+      runJobs(true, true);
+
+      assertEquals("new description", new GcDbAccess().sql("select description from testgrouper_prov_group where name = 'test:testGroup'").select(String.class));
+      
+      
       
       //now delete the group and sync again
       testGroup.delete();

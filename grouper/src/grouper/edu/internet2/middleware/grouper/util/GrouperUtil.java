@@ -353,16 +353,19 @@ public class GrouperUtil {
 //    
 //    System.out.println(GrouperUtil.toStringForLog(listObjectArray));
     
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
-    grouperProvisioningGroup.setName("w:e:r:t");
-    variableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
-
-    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
-        "${edu.internet2.middleware.grouper.util.GrouperUtil.ldapBushyDn(edu.internet2.middleware.grouper.util.GrouperUtil.stripPrefix(grouperProvisioningGroup.name, 'w:e:'), 'cn', 'ou', true, false) + ',ou=groups,dc=school,dc=edu'}"
-        , variableMap, true, false, false);
-
-    System.out.println(result);
+//    Map<String, Object> variableMap = new HashMap<String, Object>();
+//    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+//    grouperProvisioningGroup.setName("w:e:r:t");
+//    variableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+//
+//    String result = (String)GrouperUtil.substituteExpressionLanguageScript(
+//        "${edu.internet2.middleware.grouper.util.GrouperUtil.ldapBushyDn(edu.internet2.middleware.grouper.util.GrouperUtil.stripPrefix(grouperProvisioningGroup.name, 'w:e:'), 'cn', 'ou', true, false) + ',ou=groups,dc=school,dc=edu'}"
+//        , variableMap, true, false, false);
+//
+//    System.out.println(result);
+    
+    System.out.println(GrouperUtil.stringFormatNameReverseReplaceTruncate("penn:isc:ait:apps:twoFactor:groups:requiredUsersStaff:twoFactorStaff", ".", 64));
+    
   }
 
   /**
