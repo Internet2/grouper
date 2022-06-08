@@ -31,10 +31,8 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
 
   @Override
   public void onStartup(Set<Class<?>> arg0, ServletContext context) throws ServletException {
-      // initialize OSGI
+      // setup ServletContainerInitializer from OSGI
       {
-        FrameworkStarter.getInstance().start();
-
         BundleContext bundleContext = FrameworkStarter.getInstance().getFramework().getBundleContext();
 
         try {
