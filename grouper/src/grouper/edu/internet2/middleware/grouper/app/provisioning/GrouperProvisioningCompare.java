@@ -1066,6 +1066,12 @@ public class GrouperProvisioningCompare {
         
         
       } else {
+        
+        if (!provisioningGroupWrapper.isUpdate()) {
+          // if there's no changelog that says it was updated then it might just be a membership change so skip the update
+          continue;
+        }
+        
         provisioningGroupWrappersForUpdate.add(provisioningGroupWrapper);
       }
       

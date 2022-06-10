@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
 import edu.internet2.middleware.grouper.j2ee.MockServiceResponse;
 import edu.internet2.middleware.grouper.j2ee.MockServiceServlet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class GithubScim2MockServiceHandler extends MockServiceHandler {
@@ -158,7 +159,9 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
       throw new RuntimeException("Authorization token must start with 'Bearer '");
     }
     String authorizationToken = GrouperUtil.prefixOrSuffix(bearerToken, "Bearer ", false);
-
+    
+    ConfigPropertiesCascadeBase.clearCache();
+    
     Pattern clientIdPattern = Pattern.compile("^grouper\\.wsBearerToken\\.([^.]+)\\.accessTokenPassword$");
     String configId = null;
     for (String propertyName : GrouperLoaderConfig.retrieveConfig().propertyNames()) {
@@ -173,10 +176,6 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     }
     
     if (StringUtils.isBlank(configId)) {
-      
-      if (StringUtils.equals(bearerToken, "Bearer abc123")) {
-        configId = "githubExternalSystem";
-      }
       
       mockServiceRequest.getDebugMap().put("authnError", "Cant find client id!  WS bearer token external system not configured or invalid secret!");
       mockServiceResponse.setResponseCode(401);
