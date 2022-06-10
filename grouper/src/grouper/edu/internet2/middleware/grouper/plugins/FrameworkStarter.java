@@ -12,7 +12,10 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.launch.FrameworkFactory;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,9 +51,14 @@ public class FrameworkStarter {
         //TODO: maybe make this more dynamic. currently we're very opinionated on what we export
         configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.framework.system.packages.extra","javax.servlet,javax.servlet.http"));
 
-        // set up cachedir
-        String grouperOsgiCacheDir = GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.cache.rootdir", "/opt/grouper/grouperWebapp/WEB-INF/grouperFelixCache");
-        configMap.put(Constants.FRAMEWORK_STORAGE, grouperOsgiCacheDir);
+        try {
+            // set up cachedir
+            Path cacheDir = Files.createTempDirectory("osgi-cache");
+            String grouperOsgiCacheDir = GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.cache.rootdir", cacheDir.toString());
+            configMap.put(Constants.FRAMEWORK_STORAGE, grouperOsgiCacheDir);
+        } catch (IOException e) {
+            throw new RuntimeException("problem with setting up osgi cache directory", e);
+        }
 
         // usually, this is a bad idea, but we have several classes that must be loaded from the framework classpath to work,
         // e.g., logging, configuration

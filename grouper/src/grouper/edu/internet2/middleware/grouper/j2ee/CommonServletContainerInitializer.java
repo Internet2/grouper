@@ -9,6 +9,7 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -20,7 +21,6 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.launch.Framework;
 
 public class CommonServletContainerInitializer implements ServletContainerInitializer {
   
@@ -31,6 +31,9 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
 
   @Override
   public void onStartup(Set<Class<?>> arg0, ServletContext context) throws ServletException {
+      GrouperStartup.startup();
+      GrouperStartup.waitForGrouperStartup();
+
       // setup ServletContainerInitializer from OSGI
       {
         BundleContext bundleContext = FrameworkStarter.getInstance().getFramework().getBundleContext();
