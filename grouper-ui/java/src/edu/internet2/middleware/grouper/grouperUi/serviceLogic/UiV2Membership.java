@@ -429,7 +429,14 @@ public class UiV2Membership {
     AuditType addGroupMembershipAuditType = AuditTypeFinder.find("membership", "addGroupMembership", true);
     AuditType updateGroupMembershipAuditType = AuditTypeFinder.find("membership", "updateGroupMembership", true);
     AuditType deleteGroupMembershipAuditType = AuditTypeFinder.find("membership", "deleteGroupMembership", true);
-     
+    
+    int initialStatesCount = pitGroupsForTimelineStates.size();
+    int traceAdditionalStatesCount = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.membership.traceAdditionalStatesCount", 10);
+    int maxStatesCount = initialStatesCount + traceAdditionalStatesCount;
+    
+    Set<PITGroup> pitGroupsForTimelineStatesWithAdditional = new LinkedHashSet<PITGroup>(pitGroupsForTimelineStates);
+    Set<String> foundGroupIdsForAdditionalStates = new LinkedHashSet<String>();
+    
     Map<String, GrouperProvisioningTarget> allProvisioningTargets = GrouperProvisioningSettings.getTargets(true);
 
     // refactor these into separate classes
@@ -442,7 +449,8 @@ public class UiV2Membership {
     Map<Timestamp, List<GcGrouperSyncMembership>> eventsProvisioningInTargetStart = new LinkedHashMap<Timestamp, List<GcGrouperSyncMembership>>();
     Map<Timestamp, List<GcGrouperSyncMembership>> eventsProvisioningInTargetEnd = new LinkedHashMap<Timestamp, List<GcGrouperSyncMembership>>();
     Map<Timestamp, Map<PITGroup, Boolean>> states = new LinkedHashMap<Timestamp, Map<PITGroup, Boolean>>();
-
+    Map<Timestamp, Timestamp> toDates = new LinkedHashMap<Timestamp, Timestamp>();
+    
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
       @Override
@@ -523,6 +531,8 @@ public class UiV2Membership {
                 
           Timestamp fromDate = new Timestamp(fromLong);
           Timestamp toDate = new Timestamp(toLong);
+          
+          toDates.put(momentOfInterestTimestamp, toDate);
                 
           if (membershipGuiContainer.isTraceMembershipTimelineShowUserAudit()) {
             UserAuditQuery userAuditQuery = new UserAuditQuery();
@@ -553,12 +563,21 @@ public class UiV2Membership {
                 continue;
               }
               
+              String userAuditGroupId = guiUserAudit.getGuiGroup().getGroup().getId();
+              
               if (!isWheelOrRoot && !guiUserAudit.getGuiGroup().getGroup().canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
                 // no access so return
                 continue;
               }
         
               eventsUserAudits.get(momentOfInterestTimestamp).add(guiUserAudit);
+              if (!foundGroupIdsForAdditionalStates.contains(userAuditGroupId) && pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                foundGroupIdsForAdditionalStates.add(userAuditGroupId);
+                Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(userAuditGroupId, false);
+                if (pitGroups.size() > 0) {
+                  pitGroupsForTimelineStatesWithAdditional.add(pitGroups.iterator().next());
+                }
+              }
             }
           }
           
@@ -579,6 +598,10 @@ public class UiV2Membership {
               
               eventsPITAddMembership.get(momentOfInterestTimestamp).add(pitMembershipStarted);
               eventsPITAddMembershipGroup.get(momentOfInterestTimestamp).add(currentPITGroup);
+              
+              if (pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                pitGroupsForTimelineStatesWithAdditional.add(currentPITGroup);
+              }
             }
             
             Set<PITMembershipView> pitMembershipsEnded = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITMemberAndPITFieldAndEndTimeRange(pitMember.getId(), pitField.getId(), fromDate, toDate);
@@ -597,6 +620,10 @@ public class UiV2Membership {
               
               eventsPITDeleteMembership.get(momentOfInterestTimestamp).add(pitMembershipEnded);
               eventsPITDeleteMembershipGroup.get(momentOfInterestTimestamp).add(currentPITGroup);
+              
+              if (pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                pitGroupsForTimelineStatesWithAdditional.add(currentPITGroup);
+              }
             }
           }
           
@@ -604,8 +631,9 @@ public class UiV2Membership {
             List<GcGrouperSyncMembership> gcGrouperSyncMembershipsStarted = GrouperProvisioningService.retrieveGcGrouperSyncMembershipsByMemberIdAndInTargetStartTimeRange(pitMember.getSourceId(), fromDate, toDate);
 
             for (GcGrouperSyncMembership gcGrouperSyncMembership : gcGrouperSyncMembershipsStarted) {
+              String currentGroupId = gcGrouperSyncMembership.getGrouperSyncGroup().getGroupId();
+
               if (!isWheelOrRoot) {
-                String currentGroupId = gcGrouperSyncMembership.getGrouperSyncGroup().getGroupId();
                 Group currentGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currentGroupId, false);
                 GrouperProvisioningTarget currentGrouperProvisioningTarget = allProvisioningTargets.get(gcGrouperSyncMembership.getGrouperSync().getProvisionerName());
                 if (currentGroup == null || currentGrouperProvisioningTarget == null ||
@@ -616,14 +644,22 @@ public class UiV2Membership {
                 }
               }
               
-              eventsProvisioningInTargetStart.get(momentOfInterestTimestamp).add(gcGrouperSyncMembership);
+              eventsProvisioningInTargetStart.get(momentOfInterestTimestamp).add(gcGrouperSyncMembership);        
+              if (!foundGroupIdsForAdditionalStates.contains(currentGroupId) && pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                foundGroupIdsForAdditionalStates.add(currentGroupId);
+                Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(currentGroupId, false);
+                if (pitGroups.size() > 0) {
+                  pitGroupsForTimelineStatesWithAdditional.add(pitGroups.iterator().next());
+                }
+              }
             }
             
             List<GcGrouperSyncMembership> gcGrouperSyncMembershipsEnded = GrouperProvisioningService.retrieveGcGrouperSyncMembershipsByMemberIdAndInTargetEndTimeRange(pitMember.getSourceId(), fromDate, toDate);
 
             for (GcGrouperSyncMembership gcGrouperSyncMembership : gcGrouperSyncMembershipsEnded) {
+              String currentGroupId = gcGrouperSyncMembership.getGrouperSyncGroup().getGroupId();
+
               if (!isWheelOrRoot) {
-                String currentGroupId = gcGrouperSyncMembership.getGrouperSyncGroup().getGroupId();
                 Group currentGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currentGroupId, false);
                 GrouperProvisioningTarget currentGrouperProvisioningTarget = allProvisioningTargets.get(gcGrouperSyncMembership.getGrouperSync().getProvisionerName());
                 if (currentGroup == null || currentGrouperProvisioningTarget == null ||
@@ -635,10 +671,22 @@ public class UiV2Membership {
               }
               
               eventsProvisioningInTargetEnd.get(momentOfInterestTimestamp).add(gcGrouperSyncMembership);
+              if (!foundGroupIdsForAdditionalStates.contains(currentGroupId) && pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                foundGroupIdsForAdditionalStates.add(currentGroupId);
+                Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(currentGroupId, false);
+                if (pitGroups.size() > 0) {
+                  pitGroupsForTimelineStatesWithAdditional.add(pitGroups.iterator().next());
+                }
+              }
             }
           }
-          
-          for (PITGroup pitGroupForState : pitGroupsForTimelineStates) {
+        }
+        
+        for (int i = 0; i < momentsOfInterest.size(); i++) {
+          Timestamp momentOfInterestTimestamp = momentsOfInterest.get(i);
+          Timestamp toDate = toDates.get(momentOfInterestTimestamp);
+
+          for (PITGroup pitGroupForState : pitGroupsForTimelineStatesWithAdditional) {
             
             Set<PITMembershipView> pitMembershipsForState = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITOwnerAndPITMemberAndPITField(pitGroupForState.getId(), pitMember.getId(), pitField.getId(), toDate, toDate, null);
             if (pitMembershipsForState.size() > 0) {
