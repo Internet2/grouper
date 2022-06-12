@@ -9,6 +9,20 @@ import java.util.Map;
  *
  */
 public class AzureProvisionerTestConfigInput {
+  
+  private String displayNameMapping = "name";
+  
+  
+  
+  public String getDisplayNameMapping() {
+    return displayNameMapping;
+  }
+
+  
+  public AzureProvisionerTestConfigInput assignDisplayNameMapping(String displayNameMapping) {
+    this.displayNameMapping = displayNameMapping;
+    return this;
+  }
 
   /**
    * extra config by suffix and value

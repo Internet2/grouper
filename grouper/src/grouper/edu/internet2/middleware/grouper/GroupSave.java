@@ -592,6 +592,10 @@ public class GroupSave {
       this.groupNameToEdit = this.name;
     }
     
+    if (StringUtils.isBlank(this.name)) {
+      this.name = this.groupNameToEdit;
+    }
+    
     //validate
     //get the stem name
     if (!StringUtils.contains(GroupSave.this.name, ":")) {

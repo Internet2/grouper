@@ -210,6 +210,17 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
     }
 
+    
+//    try {
+//      debugMap.put("state", "retrieveIndividualMissingGroups");
+//      // if a group was renamed in grouper or the target, and doesn't match then look for it by other search attributes or past search attributes
+//      this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualMissingGroups();
+//    } finally {
+//      this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualMissingGroups);
+//    }
+    
+    
+    
     {
       debugMap.put("state", "assignRecalc");
       // everything in a full sync is a recalc
@@ -406,6 +417,75 @@ public class GrouperProvisioningLogic {
 
   }
   
+  /**
+   * if a group was renamed in grouper or the target, and doesn't match then look for it by other search attributes or past search attributes
+   */
+  public void retrieveIndividualMissingGroups() {
+   
+    //do we have missing groups?
+    List<ProvisioningGroup> missingGroups = new ArrayList<ProvisioningGroup>();
+    List<ProvisioningGroupWrapper> missingGroupWrappers = new ArrayList<ProvisioningGroupWrapper>();
+    
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+      
+      ProvisioningGroup provisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
+      
+      if (provisioningGroup == null) {
+        continue;
+      }
+      
+      ProvisioningGroup targetGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
+      
+      if (targetGroup != null) {
+        continue;
+      }
+      
+      missingGroups.add(provisioningGroup);
+      missingGroupWrappers.add(provisioningGroupWrapper);
+    }
+
+    if (GrouperUtil.length(missingGroups) == 0) {
+      return;
+    }
+
+    // how many do we have 
+    this.grouperProvisioner.getDebugMap().put("missingGroupsForRetrieve", GrouperUtil.length(missingGroups));
+
+    List<GrouperProvisioningConfigurationAttribute> searchAttributes = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes();
+//    for (GrouperProvisioningConfigurationAttribute searchAttribute : GrouperUtil.nonNull(searchAttributes)) {
+//      String value = searchAttribute.getTranslateFromGrouperProvisioningGroupField();
+//      if (value != null && value.startsWith("subjectIdentifier")) {
+//        currSubjectIdentifierForMemberSyncTable = value;
+//      }
+//    }
+    
+    Set<MultiKey> alreadySearchedForAttributeAndValue = new HashSet<>();
+    
+    for (ProvisioningGroup missingGroup: missingGroups) {
+      ProvisioningGroupWrapper missingGroupWrapper = missingGroup.getProvisioningGroupWrapper();
+      // we've a list of search attributes
+      // for each attribute we have the current state and we have the past state
+      // we just need to look everywhere until we find something
+      // the algo should look first at the past state and then any secondary places
+      
+      
+      for (GrouperProvisioningConfigurationAttribute searchAttribute : GrouperUtil.nonNull(searchAttributes)) {
+
+        String attributeName = searchAttribute.getTranslateFromGrouperProvisioningGroupField();
+        
+        
+//        if (alreadySearchedForAttributeAndValue.contains(new MultiKey(key1, key2))) {
+//          
+//        }
+        
+        
+      }
+      
+      
+    }
+    
+  }
+
   public void validateAndThrowExceptionIfInvalid() {
     int fatalValidationProblems = 0;
     int nonfatalValidationProblems = 0;

@@ -186,7 +186,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     provisionerConfiguration.setConfigId("myLdapProvisioner");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("groupDnType");
-    attribute.setValue("flat");
+    attribute.setValue("bushy");
      
     List<String> actionsPerformed = new ArrayList<String>();
 
@@ -199,7 +199,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     
     attribute = provisionerConfiguration.retrieveAttributes().get("groupDnType");
     value = attribute.getValue();
-    assertEquals("flat", value);
+    assertEquals("bushy", value);
     
     // before we delete - let's set up some grouper sync data because
     // we want to make sure that sync data gets deleted when provisioner is deleted
