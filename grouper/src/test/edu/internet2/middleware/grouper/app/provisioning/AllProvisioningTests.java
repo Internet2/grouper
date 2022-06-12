@@ -43,6 +43,7 @@ public class AllProvisioningTests {
     suite.addTestSuite(ProvisionableGroupSaveTest.class);
     suite.addTestSuite(ProvisionableStemFinderTest.class);
     suite.addTestSuite(ProvisionableGroupFinderTest.class);
+    suite.addTestSuite(ProvisioningGroupTest.class);
     //$JUnit-END$
     return suite;
   }

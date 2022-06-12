@@ -1,9 +1,14 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
@@ -14,6 +19,23 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
  *
  */
 public class ProvisioningGroup extends ProvisioningUpdatable {
+  
+  public static void main(String[] args) {
+    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+    provisioningGroup.assignAttributeValue("name", "someName");
+    provisioningGroup.assignAttributeValue("id", "abc123");
+    provisioningGroup.addAttributeValue("member", "jsmith");
+    provisioningGroup.addAttributeValue("member", "ajackson");
+    provisioningGroup.addAttributeValue("member", "tjohnson");
+    provisioningGroup.addAttributeValue("objectClass", "groupOfNames");
+    provisioningGroup.addAttributeValue("objectClass", "top");
+    provisioningGroup.addAttributeValue("objectClass", "memberGroup");
+    provisioningGroup.assignAttributeValue("description", "This is the description of the group");
+    provisioningGroup.assignAttributeValue("displayName", "Some name");
+    provisioningGroup.assignAttributeValue("uuid", "abc123xyz456");
+    String json = provisioningGroup.toJsonForCache("member");
+    System.out.println(json);    
+  }
   
   private ProvisioningGroupWrapper provisioningGroupWrapper;
   
@@ -241,11 +263,8 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    * @param value
    */
   public String retrieveAttributeValueString(GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
-    
     return GrouperUtil.stringValue(this.retrieveAttributeValue(grouperProvisioningConfigurationAttribute));
-    
   }
-
   
   /**
    * base on attribute get the value
