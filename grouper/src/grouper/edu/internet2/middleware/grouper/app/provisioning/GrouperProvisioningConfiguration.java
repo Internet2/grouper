@@ -1462,7 +1462,10 @@ public abstract class GrouperProvisioningConfiguration {
     fieldNames.remove("targetMembershipFieldNameToConfig");
     fieldNames.remove("grouperProvisioningToTargetTranslation");
     fieldNames.remove("metadataNameToMetadataItem");
-    
+    fieldNames.remove("entityMatchingAttributes");
+    fieldNames.remove("groupMatchingAttributes");
+    fieldNames.remove("entitySearchAttributes");
+    fieldNames.remove("groupSearchAttributes");
     
     fieldNames = new TreeSet<String>(fieldNames);
     boolean firstField = true;
@@ -1485,6 +1488,50 @@ public abstract class GrouperProvisioningConfiguration {
         }
         firstField = false;
         result.append(fieldName).append(" = '").append(GrouperUtil.toStringForLog(value, false)).append("'");
+      }
+    }
+    if (GrouperUtil.length(this.groupMatchingAttributes) > 0) {
+      result.append(", groupMatchingAttributes: ");
+      boolean first = true;
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.groupMatchingAttributes) {
+        if (!first) {
+          result.append(", ");
+        }
+        first = false;
+        result.append(grouperProvisioningConfigurationAttribute.getName());
+      }
+    }
+    if (GrouperUtil.length(this.groupSearchAttributes) > 0) {
+      result.append(", groupSearchAttributes: ");
+      boolean first = true;
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.groupSearchAttributes) {
+        if (!first) {
+          result.append(", ");
+        }
+        first = false;
+        result.append(grouperProvisioningConfigurationAttribute.getName());
+      }
+    }
+    if (GrouperUtil.length(this.entityMatchingAttributes) > 0) {
+      result.append(", entityMatchingAttributes: ");
+      boolean first = true;
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.entityMatchingAttributes) {
+        if (!first) {
+          result.append(", ");
+        }
+        first = false;
+        result.append(grouperProvisioningConfigurationAttribute.getName());
+      }
+    }
+    if (GrouperUtil.length(this.entitySearchAttributes) > 0) {
+      result.append(", entitySearchAttributes: ");
+      boolean first = true;
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.entitySearchAttributes) {
+        if (!first) {
+          result.append(", ");
+        }
+        first = false;
+        result.append(grouperProvisioningConfigurationAttribute.getName());
       }
     }
     for (String key : new TreeSet<String>(this.metadataNameToMetadataItem.keySet())) {

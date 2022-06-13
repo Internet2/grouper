@@ -307,7 +307,7 @@ public class GrouperProvisioningLinkLogic {
         }
       }
       
-      if (hasGroupLinkAttributeValueCache1) {
+      if (hasGroupLinkAttributeValueCache3) {
         String groupAttributeValueCache3Value = null;
         if (groupLinkGroupAttributeValueCache3Attribute != null) {
           groupAttributeValueCache3Value = targetGroup.retrieveAttributeValueString(groupLinkGroupAttributeValueCache3Attribute);

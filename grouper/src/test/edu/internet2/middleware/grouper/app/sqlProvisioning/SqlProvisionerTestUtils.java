@@ -358,6 +358,11 @@ public class SqlProvisionerTestUtils {
       if (provisioningTestConfigInput.isPosixId()) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "name");
         
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1has", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1source", "target");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1type", "groupAttribute");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1groupAttribute", "name");
+
         configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeSameAsSearchAttribute", "false");
         configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchAttributeCount", "1");
         configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchAttribute0name", "name");
@@ -386,6 +391,11 @@ public class SqlProvisionerTestUtils {
       } else {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "name");
         
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1has", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1source", "target");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1type", "groupAttribute");
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1groupAttribute", "name");
+
         configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
         configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "name");
 

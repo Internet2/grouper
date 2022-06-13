@@ -210,6 +210,17 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
     }
 
+    {
+      debugMap.put("state", "indexMatchingIdGroupsUnmatched");
+      
+      // index the groups and entity matching ids
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched();
+      
+//      debugMap.put("state", "indexMatchingIdEntities");
+//      
+//      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
+    }
+
     
 //    try {
 //      debugMap.put("state", "retrieveIndividualMissingGroups");

@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +24,9 @@ public class GrouperProvisioningMatchingIdIndex {
   }
 
 
+  /**
+   * look through group wrappers and add matching IDs to the index and make sure everything is linked up
+   */
   public void indexMatchingIdGroups() {
   
     int provisioningGroupWrappersWithNullIds = 0;
@@ -91,6 +95,130 @@ public class GrouperProvisioningMatchingIdIndex {
       this.getGrouperProvisioner().getDebugMap().put("provisioningGroupWrappersWithNullIds", oldCount + provisioningGroupWrappersWithNullIds);
     }
   
+  }
+
+  /**
+   * look through group wrappers focus on grouper and target data which is not yet matched
+   */
+  public void indexMatchingIdGroupsUnmatched() {
+  
+    Set<ProvisioningGroup> grouperTargetGroupsUnmatched = new HashSet<ProvisioningGroup>();
+    Set<ProvisioningGroup> targetProvisioningGroupsUnmatched = new HashSet<ProvisioningGroup>();
+    
+    Map<Object, ProvisioningGroupWrapper> groupMatchingIdToProvisioningGroupWrapper = 
+        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper();
+
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : new ArrayList<ProvisioningGroupWrapper>(
+        GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()))) {
+
+      // this is a match
+      if (provisioningGroupWrapper.getGrouperTargetGroup() != null && provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
+        continue;
+      }
+
+      // this is weird, but skip it
+      if (provisioningGroupWrapper.getGrouperTargetGroup() == null && provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+        continue;
+      }
+      
+      // this grouperTargetGroup with no match
+      if (provisioningGroupWrapper.getGrouperTargetGroup() != null && provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+        grouperTargetGroupsUnmatched.add(provisioningGroupWrapper.getGrouperTargetGroup());
+        continue;
+      }
+      
+      // this targetProvisioningGroup with no match
+      if (provisioningGroupWrapper.getGrouperTargetGroup() == null && provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
+        targetProvisioningGroupsUnmatched.add(provisioningGroupWrapper.getTargetProvisioningGroup());
+        continue;
+      }
+    }
+
+    if (grouperTargetGroupsUnmatched.size() > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("grouperTargetGroupsUnmatched"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("grouperTargetGroupsUnmatched", oldCount + grouperTargetGroupsUnmatched.size());
+    }
+    if (targetProvisioningGroupsUnmatched.size() > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("targetProvisioningGroupsUnmatched"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("targetProvisioningGroupsUnmatched", oldCount + grouperTargetGroupsUnmatched.size());
+    }
+    if (grouperTargetGroupsUnmatched.size() == 0 || targetProvisioningGroupsUnmatched.size() == 0) {
+      // if none on either side then we cannot find a deeper match
+      return;
+    }
+    // loop through matching ids
+    int provisioningGroupWrappersMatchedFromCache = 0;
+    int provisioningGroupWrappersMatchedFromAlternateMatchAttr = 0;
+    for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) {
+      String matchingAttributeName = matchingAttribute.getName();
+      Map<Object, ProvisioningGroup> matchingValueToTargetProvisioningGroup = new HashMap<Object, ProvisioningGroup>();
+      for (ProvisioningGroup targetProvisioningGroup : targetProvisioningGroupsUnmatched) {
+        // dont worry if dupes... oh well
+        Object targetProvisioningGroupCurrentValue = targetProvisioningGroup.retrieveAttributeValue(matchingAttributeName);
+        if(!GrouperUtil.isBlank(targetProvisioningGroupCurrentValue)) {
+          matchingValueToTargetProvisioningGroup.put(targetProvisioningGroupCurrentValue, targetProvisioningGroup);
+        }
+      }
+      for (ProvisioningGroup grouperTargetGroup : new HashSet<ProvisioningGroup>(grouperTargetGroupsUnmatched)) {
+        ProvisioningGroup targetProvisioningGroup = null;
+        
+        Object grouperTargetGroupCurrentValue = grouperTargetGroup.retrieveAttributeValue(matchingAttributeName);
+        if (targetProvisioningGroup == null 
+            && !GrouperUtil.isEmpty(grouperTargetGroupCurrentValue)) {
+          targetProvisioningGroup = matchingValueToTargetProvisioningGroup.get(grouperTargetGroupCurrentValue);
+          if (targetProvisioningGroup != null) {
+            provisioningGroupWrappersMatchedFromAlternateMatchAttr++;
+          }
+        }
+
+        if (targetProvisioningGroup == null) {
+          Set<Object> cachedValues = GrouperProvisioningConfigurationAttributeDbCache.cachedValuesForGroup(grouperTargetGroup, matchingAttributeName);
+          for (Object cachedValue : GrouperUtil.nonNull(cachedValues)) {
+            if (targetProvisioningGroup == null 
+                && !GrouperUtil.isEmpty(cachedValue)) {
+              targetProvisioningGroup = matchingValueToTargetProvisioningGroup.get(cachedValue);
+              if (targetProvisioningGroup != null) {
+                provisioningGroupWrappersMatchedFromCache++;
+              }
+            }
+          }
+        }
+        
+        if (targetProvisioningGroup != null) {
+          // we have a match!!!!
+
+          //  i guess use the grouper matching id... hmmm... since they dont match
+          groupMatchingIdToProvisioningGroupWrapper.put(grouperTargetGroup.getMatchingId(), grouperTargetGroup.getProvisioningGroupWrapper());
+          
+          // link to group wrapper
+          grouperTargetGroup.getProvisioningGroupWrapper().setTargetProvisioningGroup(targetProvisioningGroup);
+          grouperTargetGroup.getProvisioningGroupWrapper().setTargetNativeGroup(targetProvisioningGroup.getProvisioningGroupWrapper().getTargetNativeGroup());
+          
+          // unlink from its wrapper
+          if (targetProvisioningGroup.getProvisioningGroupWrapper() != grouperTargetGroup.getProvisioningGroupWrapper()) {
+            this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers().remove(targetProvisioningGroup.getProvisioningGroupWrapper());
+            targetProvisioningGroup.getProvisioningGroupWrapper().setTargetProvisioningGroup(null);
+            targetProvisioningGroup.getProvisioningGroupWrapper().setTargetNativeGroup(null);
+            targetProvisioningGroup.getProvisioningGroupWrapper().setGcGrouperSyncGroup(null);
+          }
+          
+          targetProvisioningGroup.setProvisioningGroupWrapper(grouperTargetGroup.getProvisioningGroupWrapper());
+          
+          grouperTargetGroupsUnmatched.remove(grouperTargetGroup);
+          targetProvisioningGroupsUnmatched.remove(targetProvisioningGroup);
+        }
+      }
+    }
+    
+    if (provisioningGroupWrappersMatchedFromAlternateMatchAttr > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("provisioningGroupWrappersMatchedFromAlternateMatchAttr"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("provisioningGroupWrappersMatchedFromAlternateMatchAttr", oldCount + provisioningGroupWrappersMatchedFromAlternateMatchAttr);
+    }
+    if (provisioningGroupWrappersMatchedFromCache > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("provisioningGroupWrappersMatchedFromCache"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("provisioningGroupWrappersMatchedFromCache", oldCount + provisioningGroupWrappersMatchedFromCache);
+    }
+
   }
 
   public void indexMatchingIdMemberships() {

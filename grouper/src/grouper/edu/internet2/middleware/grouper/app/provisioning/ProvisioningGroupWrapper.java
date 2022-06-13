@@ -5,6 +5,38 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class ProvisioningGroupWrapper {
   
+  private boolean grouperTargetGroupFromCacheInitted = false;
+  private ProvisioningGroup grouperTargetGroupFromCache;
+
+  //TODO finish this for cached objects
+  public ProvisioningGroup getGrouperTargetGroupFromCache() {
+    if (grouperTargetGroupFromCacheInitted 
+        || this.gcGrouperSyncGroup == null || this.grouperProvisioner == null) {
+      return grouperTargetGroupFromCache;
+    }
+    
+    // see if there is an object cached
+    for (GrouperProvisioningConfigurationAttributeDbCache cache :
+      this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
+      if (cache == null 
+          || cache.getSource() != GrouperProvisioningConfigurationAttributeDbCacheSource.grouper 
+          || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+        continue;
+      }
+      
+    }
+    return grouperTargetGroupFromCache;
+  }
+
+  private boolean targetProvisioningGroupFromCacheInitted = false;
+  private ProvisioningGroup targetProvisioningGroupFromCache;
+
+  
+    
+  public ProvisioningGroup getTargetProvisioningGroupFromCache() {
+    return targetProvisioningGroupFromCache;
+  }
+
   /**
    * if this object should not be provisioned because there is an error, list it here
    */

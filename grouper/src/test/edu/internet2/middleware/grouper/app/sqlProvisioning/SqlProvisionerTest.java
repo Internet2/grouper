@@ -126,7 +126,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaFullRenameMatchingOld"));
+    TestRunner.run(new SqlProvisionerTest("testGroupEntityMembershipRenameGroupFullMatchOnOld"));
     
   }
   
@@ -1052,6 +1052,131 @@ public class SqlProvisionerTest extends GrouperTest {
     
     memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
     assertEquals(0, memberships.size());
+    
+  }
+
+  public void testGroupEntityMembershipRenameGroupFullMatchOnOld() {
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignEntityAttributesTable(true)
+        .assignGroupAttributesTable(true)
+        .assignGroupTableName("testgrouper_prov_group")
+        .assignGroupTableIdColumn("uuid")
+        .assignEntityTableName("testgrouper_prov_entity")
+        .assignEntityTableIdColumn("uuid")
+        .assignMembershipTableName("testgrouper_prov_mship2")
+        .assignMembershipTableIdColumn("uuid")
+        .assignMembershipGroupForeignKeyColumn("group_uuid")
+        .assignMembershipEntityForeignKeyColumn("entity_uuid")
+        .assignHasTargetEntityLink(true)
+        .assignHasTargetGroupLink(true)
+        .assignEntityAttributeCount(5)
+        .assignGroupAttributeCount(4)
+        .assignMembershipAttributeCount(3)
+        .addExtraConfig("targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "displayName")
+        .addExtraConfig("groupMatchingAttributeSameAsSearchAttribute", "false")
+        .addExtraConfig("groupMatchingAttribute0name", "name")
+        );
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").assignDescription("testDescription1").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").assignDescription("testDescription2").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
+    //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
+    
+    //lets sync these over
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    List<Object[]> groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group").selectList(Object[].class);
+    assertEquals(1, groups.size());
+    
+    String testGroupUuidInTarget = groups.get(0)[0].toString();
+    assertNotNull(testGroupUuidInTarget);
+    
+    assertEquals(testGroup.getIdIndex().longValue(), ((BigDecimal)groups.get(0)[1]).longValue());
+    assertEquals(testGroup.getName(), groups.get(0)[2]);
+    
+    List<Object[]> groupAttributes = new GcDbAccess().sql("select attribute_name, attribute_value from testgrouper_pro_ldap_group_attr where group_uuid = '"+testGroupUuidInTarget+"'").selectList(Object[].class);
+    assertEquals(1, groupAttributes.size());
+    
+    assertEquals("description", groupAttributes.get(0)[0]);
+    assertEquals(testGroup.getDescription(), groupAttributes.get(0)[1]);
+    
+    List<Object[]> entities = new GcDbAccess().sql("select uuid, name, subject_id_or_identifier, description from testgrouper_prov_entity").selectList(Object[].class);
+    assertEquals(2, entities.size());
+    
+    String subject0EntityUUID = null;
+    String subject1EntityUUID2 = null;
+    
+    Map<String, Object[]> entityNameToAllAttributes = new HashMap<String, Object[]>();
+    for (Object[] entityAttributes: entities) {
+      entityNameToAllAttributes.put(entityAttributes[1].toString(), entityAttributes);
+      if (StringUtils.equals(entityAttributes[1].toString(), SubjectTestHelper.SUBJ0.getName())) {
+        subject0EntityUUID = entityAttributes[0].toString();
+      }
+      if (StringUtils.equals(entityAttributes[1].toString(), SubjectTestHelper.SUBJ1.getName())) {
+        subject1EntityUUID2 = entityAttributes[0].toString();
+      }
+    }
+    
+    assertTrue(entityNameToAllAttributes.containsKey(SubjectTestHelper.SUBJ0.getName()));
+    assertTrue(entityNameToAllAttributes.containsKey(SubjectTestHelper.SUBJ1.getName()));
+    
+    List<Object[]> memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
+    
+    Set<MultiKey> groupIdSubjectIdsInTable = new HashSet<MultiKey>();
+    
+    for (Object[] membershipAttributes: memberships) {
+      groupIdSubjectIdsInTable.add(new MultiKey(membershipAttributes[0], membershipAttributes[1]));
+    }
+    
+    assertEquals(2, groupIdSubjectIdsInTable.size());
+    
+    assertTrue(groupIdSubjectIdsInTable.contains(new MultiKey(testGroupUuidInTarget, subject0EntityUUID)));
+    assertTrue(groupIdSubjectIdsInTable.contains(new MultiKey(testGroupUuidInTarget, subject1EntityUUID2)));
+    
+    // rename the group in grouper
+    testGroup = new GroupSave().assignUuid(testGroup.getUuid()).assignDisplayName(testGroup.getDisplayName() + "New").assignReplaceAllSettings(false).save();
+    
+    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    
+    grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
+    assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("provisioningGroupWrappersMatchedFromCache"), -1));
+    
+    groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group").selectList(Object[].class);
+    assertEquals(1, groups.size());
+    
+    testGroupUuidInTarget = groups.get(0)[0].toString();
+    assertNotNull(testGroupUuidInTarget);
+    
+    assertEquals(testGroup.getIdIndex().longValue(), ((BigDecimal)groups.get(0)[1]).longValue());
+    assertEquals(testGroup.getDisplayName(), groups.get(0)[2]);
     
   }
 
