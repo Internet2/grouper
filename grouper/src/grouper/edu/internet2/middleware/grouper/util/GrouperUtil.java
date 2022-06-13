@@ -148,7 +148,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -10691,6 +10690,149 @@ public class GrouperUtil {
     return newSet.size() == 0;
   }
 
+  /**
+   * see if two collections are deep equals based on strings or longs (or conversions)
+   * @param collection1
+   * @param collection2
+   * @return if lists are equal or empty
+   */
+  public static boolean equalsCollectionStringLong(Collection<?> collection1, Collection<?> collection2) {
+    int collection1length = length(collection1);
+    int collection2length = length(collection2);
+    if (collection1length == collection2length && collection1length == 0) {
+      return true;
+    }
+    if (collection1 == null || collection2 == null) {
+      return false;
+    }
+    
+    if (collection1length != collection2length) {
+      return false;
+    }
+
+    Object collection1firstValue = collection1.iterator().next();
+    Object collection2firstValue = collection2.iterator().next();
+    
+    if (collection1firstValue instanceof Integer || collection1firstValue instanceof Long || collection2firstValue instanceof Integer || collection2firstValue instanceof Long) {
+      
+      // lets treat as longs
+      Collection<Object> collection2longs = new HashSet<Object>();
+      for (Object object : collection2) {
+        try {
+          collection2longs.add(GrouperUtil.longObjectValue(object, true));
+        } catch (Exception e) {
+          return false;
+        }
+      }
+
+      for (Object object : collection1) {
+        try {
+          Long objectLong = GrouperUtil.longObjectValue(object, true);
+          if (!collection2longs.contains(objectLong)) {
+            return false;
+          }
+        } catch (Exception e) {
+          return false;
+        }
+      }
+      return true;
+    }
+    if (collection1firstValue instanceof String || collection2firstValue instanceof String) {
+
+      // lets treat as strings
+      Collection<Object> collection2strings = new HashSet<Object>();
+      for (Object object : collection2) {
+        try {
+          collection2strings.add(GrouperUtil.stringValue(object));
+        } catch (Exception e) {
+          return false;
+        }
+      }
+
+      for (Object object : collection1) {
+        try {
+          String objectString = GrouperUtil.stringValue(object);
+          if (!collection2strings.contains(objectString)) {
+            return false;
+          }
+        } catch (Exception e) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    // not sure why not one of those...
+    return false;
+  }
+
+  /**
+   * see if two objects long value is the same
+   * @param thisValue
+   * @param thatValue
+   * @return if equal
+   */
+  public static boolean equalsLong(Object thisValue, Object thatValue) {
+    
+    if (thisValue == thatValue) {
+      return true;
+    }
+    if (thisValue == null || thatValue == null) {
+      return false;
+    }
+    try {
+      thisValue = GrouperUtil.longObjectValue(thisValue, true);
+    } catch (RuntimeException re) {
+      
+    }
+    try {
+      thatValue = GrouperUtil.longObjectValue(thatValue, true);
+    } catch (RuntimeException re) {
+      
+    }
+        
+    if (!(thisValue instanceof Long) || !(thatValue instanceof Long)) {
+      return false;
+    }
+    
+    //they are both longs
+    return ((Long)thisValue).equals(thatValue);
+
+  }
+  
+  /**
+   * see if two strings are equal (or the strings they convert into)
+   * @param thisValue
+   * @param thatValue
+   * @return true if equal
+   */
+  public static boolean equalsString(Object thisValue, Object thatValue) {
+    if (thisValue == thatValue) {
+      return true;
+    }
+    if (thisValue == null || thatValue == null) {
+      return false;
+    }
+    try {
+      thisValue = GrouperUtil.stringValue(thisValue);
+    } catch (RuntimeException re) {
+      
+    }
+    try {
+      thatValue = GrouperUtil.stringValue(thatValue);
+    } catch (RuntimeException re) {
+      
+    }
+    
+    if (!(thisValue instanceof String) || !(thatValue instanceof String)) {
+      return false;
+    }
+    
+    //they are both strings
+    return ((String)thisValue).equals(thatValue);
+
+  }
+  
   /**
    * see if two lists are deep equals using the equals() method on each item
    * @param list1

@@ -210,7 +210,7 @@ public abstract class ProvisioningUpdatable {
             overByChars -= oldSize - truncateTo;
             value = StringUtils.abbreviate((String)value, truncateTo);
             GrouperUtil.jsonJacksonAssignString(objectNode, attributeName, (String)value);
-            
+            attributeSize.put(attributeName, ((String)value).length());            
           } else {
             if (truncateTo == -1) {
               GrouperUtil.jsonJacksonAssignString(objectNode, attributeName, (String)value);
@@ -220,33 +220,36 @@ public abstract class ProvisioningUpdatable {
         } else if (value instanceof Collection) {
           // if its the first pass or has already been yanked for being too big
           if (truncateTo == -1 || !theTruncatedAttributeNames.contains(attributeName)) {
-            int collectionSize = 0;
-            Collection<?> valueCollection = (Collection<?>)value;
-            ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
-            for (Object eachValue : valueCollection) {
-              if (eachValue == null) {
-                continue;
+            int collectionSize = GrouperUtil.intValue(attributeSize.get(attributeName), -1);
+            ArrayNode arrayNode = (ArrayNode)objectNode.get(attributeName);
+            if (collectionSize == -1) {
+              arrayNode = GrouperUtil.jsonJacksonArrayNode();
+              collectionSize = 0;
+              Collection<?> valueCollection = (Collection<?>)value;
+              for (Object eachValue : valueCollection) {
+                if (eachValue == null) {
+                  continue;
+                }
+                if (eachValue instanceof Integer) {
+                  collectionSize += 8;
+                  arrayNode.add((Integer)eachValue);
+                } else if (eachValue instanceof Long) {
+                  collectionSize += 12;
+                  arrayNode.add((Long)eachValue);
+                } else if (eachValue instanceof String) {
+                  collectionSize += ((String)eachValue).length();
+                  arrayNode.add((String)eachValue);
+                } else {
+                  throw new RuntimeException("Invalid collection type: " + eachValue.getClass());
+                }
               }
-              if (eachValue instanceof Integer) {
-                collectionSize += 8;
-                arrayNode.add((Integer)eachValue);
-              } else if (eachValue instanceof Long) {
-                collectionSize += 12;
-                arrayNode.add((Long)eachValue);
-              } else if (eachValue instanceof String) {
-                collectionSize += ((String)eachValue).length();
-                arrayNode.add((String)eachValue);
-              } else {
-                throw new RuntimeException("Invalid collection type: " + eachValue.getClass());
-              }
-            }
-            
+              attributeSize.put(attributeName, collectionSize);
+            }            
             if (truncateTo > -1 && collectionSize > truncateTo && overByChars != null && overByChars > 0) {
               
               // just skip it
               theTruncatedAttributeNames.add(attributeName);
               overByChars -= collectionSize;
-              objectNode.set(attributeName, arrayNode);
             } else {
   
               if (truncateTo == -1) {
@@ -277,6 +280,121 @@ public abstract class ProvisioningUpdatable {
     return null;
   }
 
+  /**
+   * see which attribute names are different when comparing to a cached object from json
+   * note if there is a truncated field, consider that so the same prefix is ok
+   * @param provisioningUpdatable
+   * @param membershipAttribute
+   * @return the changed fields
+   */
+  public Set<String> attributeNamesDifferentForCache(ProvisioningUpdatable provisioningUpdatable, String membershipAttribute) {
+
+    boolean isGroup = this instanceof ProvisioningGroup && provisioningUpdatable instanceof ProvisioningGroup;
+    boolean isEntity = this instanceof ProvisioningEntity && provisioningUpdatable instanceof ProvisioningEntity;
+    boolean isMembership = this instanceof ProvisioningMembership && provisioningUpdatable instanceof ProvisioningMembership;
+    
+    if (!isGroup && !isEntity && !isMembership) {
+      throw new RuntimeException("Not expecting object type: " + this.getClass() + " not compatible with " + (provisioningUpdatable == null ? null : provisioningUpdatable.getClass()));
+    }
+    
+    Map<String, ProvisioningAttribute> thisAttributes = GrouperUtil.nonNull(this.getAttributes());
+    Map<String, ProvisioningAttribute> thatAttributes = GrouperUtil.nonNull(provisioningUpdatable.getAttributes());
+
+    Set<String> thisTruncatedAttributeNames = GrouperUtil.nonNull(this.getTruncatedAttributeNames());
+    Set<String> thatTruncatedAttributeNames = GrouperUtil.nonNull(provisioningUpdatable.getTruncatedAttributeNames());
+    
+    Set<String> differentAttributes = new HashSet<String>();
+    
+    for (String attributeName : GrouperUtil.nonNull(thisAttributes).keySet()) {
+        
+      // ignore memberships
+      if (StringUtils.equals(membershipAttribute, attributeName)) {
+        continue;
+      }
+      
+      Object thisValue = thisAttributes.get(attributeName);
+      Object thatValue = thatAttributes.get(attributeName);
+      
+      if (thisValue instanceof ProvisioningAttribute) {
+        ProvisioningAttribute provisioningAttribute = (ProvisioningAttribute)thisValue;
+        thisValue = provisioningAttribute.getValue();
+      }
+      if (thatValue instanceof ProvisioningAttribute) {
+        ProvisioningAttribute provisioningAttribute = (ProvisioningAttribute)thatValue;
+        thatValue = provisioningAttribute.getValue();
+      }
+
+      // null or empty is ok
+      if ((thisValue == null || GrouperUtil.isEmpty(thisValue)) && (thatValue == null || GrouperUtil.isEmpty(thatValue))) {
+        continue;
+      }
+
+
+      if (thisValue instanceof Collection || thatValue instanceof Collection) {
+        
+        if (thisTruncatedAttributeNames.contains(attributeName) || thatTruncatedAttributeNames.contains(attributeName)) {
+          // we ignore this...
+          continue;
+        }
+        
+        if (!(thisValue instanceof Collection) || !(thatValue instanceof Collection)) {
+          differentAttributes.add(attributeName);
+          continue;
+        }
+
+        Collection<?> thisCollection = (Collection<?>)thisValue;
+        Collection<?> thatCollection = (Collection<?>)thatValue;
+
+        if (GrouperUtil.equalsCollectionStringLong(thisCollection, thatCollection)) {
+          continue;
+        }
+        
+        differentAttributes.add(attributeName);
+        continue;
+      }        
+
+      // if one is its different
+      if (thisValue == null || GrouperUtil.isEmpty(thisValue) || thatValue == null || GrouperUtil.isEmpty(thatValue)) {
+        differentAttributes.add(attributeName);
+        continue;
+      }
+      
+      if (thisValue instanceof Integer || thisValue instanceof Long || thatValue instanceof Integer || thatValue instanceof Long) {
+
+        if (GrouperUtil.equalsLong(thisValue, thatValue)) {
+          continue;
+        }
+        
+        differentAttributes.add(attributeName);
+        continue;
+
+      }
+      
+      if (thisValue instanceof String || thatValue instanceof String) {
+        
+        thisValue = GrouperUtil.stringValue(thisValue);
+        thatValue = GrouperUtil.stringValue(thatValue);
+        
+        if (thisTruncatedAttributeNames.contains(attributeName)) {
+          thatValue = StringUtils.abbreviate((String)thatValue, ((String)thisValue).length());
+        }
+        if (thatTruncatedAttributeNames.contains(attributeName)) {
+          thisValue = StringUtils.abbreviate((String)thisValue, ((String)thatValue).length());
+        }
+        
+        if (GrouperUtil.equalsString(thisValue, thatValue)) {
+          continue;
+        }
+        
+        differentAttributes.add(attributeName);
+        continue;
+      }
+      // not sure how it got here
+      differentAttributes.add(attributeName);
+    }
+    return differentAttributes;
+  }
+  
   public String provisioningUpdatableTypeShort() {
     
     if (this instanceof ProvisioningGroup) {
