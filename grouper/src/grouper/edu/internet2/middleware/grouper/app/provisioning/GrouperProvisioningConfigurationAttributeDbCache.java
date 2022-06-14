@@ -15,19 +15,19 @@ public class GrouperProvisioningConfigurationAttributeDbCache {
    * get all the cached values for a group attribute.
    * these are prioritized by most important.
    * note, the current value will not be returned
-   * @param provisioningGroup
+   * @param someTargetGroup
    * @param attributeName
    * @return the set of values
    */
-  public static Set<Object> cachedValuesForGroup(ProvisioningGroup provisioningGroup, String attributeName) {
+  public static Set<Object> cachedValuesForGroup(ProvisioningGroup someTargetGroup, String attributeName) {
     Set<Object> cachedValues = new LinkedHashSet<Object>();
-    if (provisioningGroup.getProvisioningGroupWrapper() == null 
-        || provisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup() == null) {
+    if (someTargetGroup.getProvisioningGroupWrapper() == null 
+        || someTargetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup() == null) {
       return cachedValues;
     }
-    GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup();
-    Object currentValue = provisioningGroup.retrieveAttributeValue(attributeName);
-    GrouperProvisioner grouperProvisioner = provisioningGroup.getGrouperProvisioner();
+    GcGrouperSyncGroup gcGrouperSyncGroup = someTargetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup();
+    Object currentValue = someTargetGroup.retrieveAttributeValue(attributeName);
+    GrouperProvisioner grouperProvisioner = someTargetGroup.getGrouperProvisioner();
     // look in target first
     for (GrouperProvisioningConfigurationAttributeDbCacheSource source : 
       new GrouperProvisioningConfigurationAttributeDbCacheSource[] {

@@ -1391,17 +1391,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig();
 
-    List<GrouperProvisioningConfigurationAttribute> searchAttributes = sqlProvisioningConfiguration.getGroupSearchAttributes();
-    if (searchAttributes.size() != 1) {
-      throw new RuntimeException("Can currently only have one searchAttribute! " + GrouperUtil.toStringForLog(searchAttributes));
-    }
-
-    GrouperProvisioningConfigurationAttribute searchAttribute = searchAttributes.get(0);
-    
     for (String attributeName: groupAttributeNameToConfigAttribute.keySet()) {
       SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) groupAttributeNameToConfigAttribute.get(attributeName);
       GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
-      if (!configurationAttribute.isSelect() && !StringUtils.equals(searchAttribute.getName(), attributeName)) {
+      if (!configurationAttribute.isSelect() && !StringUtils.equals(targetDaoRetrieveGroupsRequest.getSearchAttribute(), attributeName)) {
         continue;
       }
       
@@ -1427,37 +1420,34 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       }
     }
 
-    boolean filterByColumn = groupTablePrimaryColNamesList.contains(searchAttribute.getName());
+    boolean filterByColumn = groupTablePrimaryColNamesList.contains(targetDaoRetrieveGroupsRequest.getSearchAttribute());
     
-    boolean filterByAttribute = searchAttribute != null && attributeTableAttributesNamesList.contains(searchAttribute.getName());
+    boolean filterByAttribute = attributeTableAttributesNamesList.contains(targetDaoRetrieveGroupsRequest.getSearchAttribute());
     
     GrouperUtil.assertion(filterByAttribute || filterByColumn, "Must filter by attribute or column");
 
     if (attributeTableAttributesNamesList.size() > 0 ) {
-      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesGroupForeignKeyColumn), "entity attributes foreign key column must be configured");
-      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeNameColumn), "entity attributes attribute name column must be configured");
-      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeValueColumn), "entity attributes attribute value column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesGroupForeignKeyColumn), "group attributes foreign key column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeNameColumn), "group attributes attribute name column must be configured");
+      GrouperUtil.assertion(!StringUtils.isBlank(groupAttributesAttributeValueColumn), "group attributes attribute value column must be configured");
       groupTableAttributesColNamesList = GrouperUtil.toList(groupAttributesGroupForeignKeyColumn, groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
     }
      
-    if (GrouperUtil.length(targetDaoRetrieveGroupsRequest.getTargetGroups()) > 0) {
+    if (GrouperUtil.length(targetDaoRetrieveGroupsRequest.getSearchAttributeValues()) > 0) {
       
-      List<Object> idsToRetrieve = new ArrayList<Object>();
-      for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsRequest.getTargetGroups()) {
-        idsToRetrieve.add(provisioningGroup.retrieveAttributeValue(searchAttribute.getName()));
-      }
+      List<Object> idsToRetrieve = new ArrayList<Object>(targetDaoRetrieveGroupsRequest.getSearchAttributeValues());
       
       List<Object[]> groupPrimaryAttributeValues = null;
   
 
       if (filterByColumn) {
         groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
-            dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName, null, null, GrouperUtil.toList(searchAttribute.getName()), idsToRetrieve);
+            dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName, null, null, GrouperUtil.toList(targetDaoRetrieveGroupsRequest.getSearchAttribute()), idsToRetrieve);
         
       } else if (filterByAttribute) {
         groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsAttributeFilter(dbExternalSystemConfigId, 
             groupTablePrimaryColNamesList, groupTableName, groupTableIdColumn, groupAttributesTableName, groupAttributesGroupForeignKeyColumn, 
-            groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn, searchAttribute.getName(), idsToRetrieve);
+            groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn, targetDaoRetrieveGroupsRequest.getSearchAttribute(), idsToRetrieve);
             
       }
       

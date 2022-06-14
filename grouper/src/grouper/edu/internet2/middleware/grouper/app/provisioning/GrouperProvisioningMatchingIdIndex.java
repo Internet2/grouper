@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -100,7 +101,7 @@ public class GrouperProvisioningMatchingIdIndex {
   /**
    * look through group wrappers focus on grouper and target data which is not yet matched
    */
-  public void indexMatchingIdGroupsUnmatched() {
+  public void indexMatchingIdGroupsUnmatched(List<ProvisioningGroup> extraTargetProvisioningGroups) {
   
     Set<ProvisioningGroup> grouperTargetGroupsUnmatched = new HashSet<ProvisioningGroup>();
     Set<ProvisioningGroup> targetProvisioningGroupsUnmatched = new HashSet<ProvisioningGroup>();
@@ -134,6 +135,12 @@ public class GrouperProvisioningMatchingIdIndex {
       }
     }
 
+    for (ProvisioningGroup extraTargetProvisioningGroup : GrouperUtil.nonNull(extraTargetProvisioningGroups)) {
+      if (extraTargetProvisioningGroup.getProvisioningGroupWrapper() == null || extraTargetProvisioningGroup.getProvisioningGroupWrapper().getGrouperTargetGroup() == null) {
+        targetProvisioningGroupsUnmatched.add(extraTargetProvisioningGroup);
+      }
+    }
+    
     if (grouperTargetGroupsUnmatched.size() > 0) {
       Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("grouperTargetGroupsUnmatched"), 0);
       this.getGrouperProvisioner().getDebugMap().put("grouperTargetGroupsUnmatched", oldCount + grouperTargetGroupsUnmatched.size());
