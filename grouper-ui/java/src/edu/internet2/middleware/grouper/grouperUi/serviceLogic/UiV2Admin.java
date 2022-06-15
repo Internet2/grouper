@@ -328,8 +328,10 @@ public class UiV2Admin extends UiServiceLogicBase {
             scheduler.triggerJob(jobKey);
           } else if ("disable".equals(action)) {
             scheduler.pauseJob(jobKey);
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("daemonJobDisabledSuccess")));
           } else if ("enable".equals(action)) {
             scheduler.resumeJob(jobKey);
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("daemonJobEnabledSuccess")));
           } else if ("failsafeApprove".equals(action)) {
             GrouperFailsafe.assignApproveNextRun(jobName);
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("failsafeApproved")));
