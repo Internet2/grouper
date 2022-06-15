@@ -282,7 +282,15 @@ public class UiV2Admin extends UiServiceLogicBase {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
+      String source = request.getParameter("source");
+      if (StringUtils.equals(source, "logs")) {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogs.jsp"));
+        viewLogsHelper(request, response);
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
+      }
+      
 
   
     } finally {
@@ -336,6 +344,16 @@ public class UiV2Admin extends UiServiceLogicBase {
       AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
       
       List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
+      
+      // action was taken from logs screen
+      String source = request.getParameter("source");
+      if (StringUtils.equals(source, "logs")) {
+        String jobName = request.getParameter("jobName");
+        GuiDaemonJob guiDaemonJob = new GuiDaemonJob(jobName);
+        guiDaemonJobs.add(guiDaemonJob);
+        adminContainer.setGuiDaemonJobs(guiDaemonJobs);
+        return true;
+      }
                   
       String daemonJobsFilter = StringUtils.trimToEmpty(request.getParameter("daemonJobsFilter"));
       adminContainer.setDaemonJobsFilter(daemonJobsFilter);
