@@ -15,7 +15,9 @@
  */
 package edu.internet2.middleware.grouper.member;
 
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -1148,22 +1150,33 @@ public class TestMemberAttributes extends GrouperTest {
   public void testPersonMemberIgnoreCachedSubjects() {
     Subject subj0 = SubjectFinder.findByIdAndSource(SubjectTestHelper.SUBJ0.getId(), SubjectTestHelper.SUBJ0.getSourceId(), true, true);
     Subject subj1 = SubjectFinder.findByIdAndSource(SubjectTestHelper.SUBJ1.getId(), SubjectTestHelper.SUBJ0.getSourceId(), true, true);
+    Subject subj2 = SubjectFinder.findByIdAndSource(SubjectTestHelper.SUBJ2.getId(), SubjectTestHelper.SUBJ0.getSourceId(), true, true);
 
-    MultiKey sourceIdSubjectId = new MultiKey(subj1.getSourceId(), subj1.getId());
+    MultiKey key1 = new MultiKey(subj1.getSourceId(), subj1.getId());
+    MultiKey key2 = new MultiKey(subj2.getSourceId(), subj2.getId());
+    Set<MultiKey> keys = new HashSet<MultiKey>();
+    keys.add(key1);
+    keys.add(key2);
     
     edu.grantPriv(subj0, NamingPrivilege.CREATE);
     edu.grantPriv(subj1, NamingPrivilege.CREATE);
+    edu.grantPriv(subj2, NamingPrivilege.CREATE);
 
     Member member0 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj0, true);
     Member member1 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj1, true);
+    Member member2 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj2, true);
     assertEquals("id.test.subject.0", member0.getSubjectIdentifier0());
     assertEquals("id.test.subject.1", member1.getSubjectIdentifier0());
+    assertEquals("id.test.subject.2", member2.getSubjectIdentifier0());
     
     HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='id.test.subject.0-updated', searchvalue='id.test.subject.0-updated' where subjectid='test.subject.0' and name='loginid'", null, null);
     HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='id.test.subject.1-updated', searchvalue='id.test.subject.1-updated' where subjectid='test.subject.1' and name='loginid'", null, null);
+    HibernateSession.bySqlStatic().executeSql("update subjectattribute set value='id.test.subject.2-updated', searchvalue='id.test.subject.2-updated' where subjectid='test.subject.2' and name='loginid'", null, null);
 
     subj0 = SubjectFinder.findByIdAndSource(subj0.getId(), subj0.getSourceId(), false, true);
-    subj1 = (Subject)SubjectFinder.findBySourceIdsAndSubjectIds(Collections.singleton(sourceIdSubjectId), false, false).get(sourceIdSubjectId);
+    Map<MultiKey, Subject> subjects = SubjectFinder.findBySourceIdsAndSubjectIds(keys, false, false);
+    subj1 = subjects.get(key1);
+    subj2 = subjects.get(key2);
         
     // give time for member table to be updated if it were being updated (separate transaction)
     try {
@@ -1177,12 +1190,16 @@ public class TestMemberAttributes extends GrouperTest {
     
     member0 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj0, true);
     member1 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj1, true);
+    member2 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj2, true);
     assertEquals("id.test.subject.0", member0.getSubjectIdentifier0());
     assertEquals("id.test.subject.1", member1.getSubjectIdentifier0());
+    assertEquals("id.test.subject.2", member2.getSubjectIdentifier0());
     
     // now again without caching
     subj0 = SubjectFinder.findByIdAndSource(subj0.getId(), subj0.getSourceId(), true, true);
-    subj1 = (Subject)SubjectFinder.findBySourceIdsAndSubjectIds(Collections.singleton(sourceIdSubjectId), false, true).get(sourceIdSubjectId);
+    subjects = SubjectFinder.findBySourceIdsAndSubjectIds(keys, false, true);
+    subj1 = subjects.get(key1);
+    subj2 = subjects.get(key2);
     
     // give time for member table to be updated if it were being updated (separate transaction)
     try {
@@ -1196,8 +1213,10 @@ public class TestMemberAttributes extends GrouperTest {
     
     member0 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj0, true);
     member1 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj1, true);
+    member2 = GrouperDAOFactory.getFactory().getMember().findBySubject(subj2, true);
     assertEquals("id.test.subject.0-updated", member0.getSubjectIdentifier0());
     assertEquals("id.test.subject.1-updated", member1.getSubjectIdentifier0());
+    assertEquals("id.test.subject.2-updated", member2.getSubjectIdentifier0());
   }
   
   /**

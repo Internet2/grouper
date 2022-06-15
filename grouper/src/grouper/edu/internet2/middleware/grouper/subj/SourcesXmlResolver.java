@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.SearchPageResult;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.SourceUnavailableException;
@@ -659,6 +660,38 @@ public class SourcesXmlResolver implements SubjectResolver {
       }
     }
   }
+  
+  /**
+   * @param subj
+   */
+  private void updateMemberAttributes(Set<Subject> subjects) {
+    
+    //if not started, then maybe not initted...
+    if (GrouperStartup.isFinishedStartupSuccessfully() && !UsduJob.isInUsduThread()) {
+      
+      Map<MultiKey, Subject> nonGroupSubjects = new HashMap<MultiKey, Subject>();
+      
+      for (Subject subject : subjects) {
+        if (!"g:gsa".equals(subject.getSourceId())) {
+          MultiKey nonGroupSubjectMultiKey = new MultiKey(subject.getSourceId(), subject.getId());
+          nonGroupSubjects.put(nonGroupSubjectMultiKey, subject);
+        }
+      }
+      
+      if (nonGroupSubjects.size() > 0) {
+        // update member attributes
+        Set<Member> members = MemberFinder.findBySubjects(nonGroupSubjects.values(), false);
+        for (Member member : members) {
+          MultiKey key = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
+          Subject subject = nonGroupSubjects.get(key);
+
+          if (subject != null) {
+            member.updateMemberAttributes(subject, true);
+          }
+        }
+      }
+    }
+  }
 
 
   /**
@@ -1164,9 +1197,7 @@ public class SourcesXmlResolver implements SubjectResolver {
 
     Map<String, Subject> subjectMap = SubjectSourceCache.getSubjectsByIdsFromCacheOrSource(this.getSource(source), ids, ignoreCachedSubjects);
     if (subjectMap != null) {
-      for (Subject subject : subjectMap.values()) {
-        updateMemberAttributes(subject);
-      }      
+      updateMemberAttributes(new HashSet<Subject>(subjectMap.values()));   
     }
     subjectMap = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjectMap, null);
     return subjectMap;
