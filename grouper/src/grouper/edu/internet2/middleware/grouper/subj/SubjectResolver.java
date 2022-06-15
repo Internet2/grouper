@@ -73,6 +73,20 @@ public interface SubjectResolver {
 
   /**
    * @return  Subject matching search parameters.
+   * @param   id    Subject id to search on.
+   * @param   ignoreCachedSubjects
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   */
+  Subject find(String id, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+            ;
+  
+  /**
+   * @return  Subject matching search parameters.
    * @param   id      Subject id to search on.
    * @param   source  Source adapter to search within.
    * @throws  IllegalArgumentException if any parameter is null.
@@ -82,6 +96,23 @@ public interface SubjectResolver {
    * @since   1.2.1
    */
   Subject find(String id, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+            ;
+  
+  /**
+   * @return  Subject matching search parameters.
+   * @param   id      Subject id to search on.
+   * @param   source  Source adapter to search within.
+   * @param   ignoreCachedSubjects
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SourceUnavailableException if source is unavailable.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   */
+  Subject find(String id, String source, boolean ignoreCachedSubjects)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
@@ -153,6 +184,20 @@ public interface SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
             ;
+  
+  /**
+   * @return  Subject matching search parameters.
+   * @param   id    Subject identifier to search on.
+   * @param   ignoreCachedSubjects
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   */
+  Subject findByIdentifier(String id, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+            ;
 
   /**
    * @return  Subject matching search parameters.
@@ -165,6 +210,23 @@ public interface SubjectResolver {
    * @since   1.2.1
    */
   Subject findByIdentifier(String id, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+            ;
+  
+  /**
+   * @return  Subject matching search parameters.
+   * @param   id      Subject identifier to search on.
+   * @param   source  Source adapter to search within.
+   * @param   ignoreCachedSubjects
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SourceUnavailableException if source is unavailable.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   */
+  Subject findByIdentifier(String id, String source, boolean ignoreCachedSubjects)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
@@ -202,6 +264,20 @@ public interface SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
             ;
+  
+  /**
+   * @return  Subject matching search parameters.
+   * @param   id    Subject identifier to search on.
+   * @param   ignoreCachedSubjects
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   */
+  Subject findByIdOrIdentifier(String id, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+            ;
 
   /**
    * @return  Subject matching search parameters.
@@ -215,6 +291,24 @@ public interface SubjectResolver {
    * @since   1.2.1
    */
   Subject findByIdOrIdentifier(String id, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+            ;
+  
+  /**
+   * @return  Subject matching search parameters.
+   * @param   id      Subject identifier to search on.
+   * @param   type    Subject type to search on.
+   * @param   source  Source adapter to search within.
+   * @param   ignoreCachedSubjects
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SourceUnavailableException if source is unavailable.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   */
+  Subject findByIdOrIdentifier(String id, String source, boolean ignoreCachedSubjects)
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
@@ -327,6 +421,21 @@ public interface SubjectResolver {
    * @since   2.0.2
    */
   Map<String,Subject> findByIds(Collection<String> ids, String source)
+    throws  IllegalArgumentException,
+            SourceUnavailableException;
+  
+  /**
+   * @return  map of search param to subject
+   * @param   id      Subject id to search on.
+   * @param   source  Source adapter to search within.
+   * @param   ignoreCachedSubjects
+   * @throws  IllegalArgumentException if any parameter is null.
+   * @throws  SourceUnavailableException if source is unavailable.
+   * @throws  SubjectNotFoundException if no matching subject is found.
+   * @throws  SubjectNotUniqueException if more than one matching subject is found.
+   * @since   2.0.2
+   */
+  Map<String,Subject> findByIds(Collection<String> ids, String source, boolean ignoreCachedSubjects)
     throws  IllegalArgumentException,
             SourceUnavailableException;
 

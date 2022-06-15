@@ -105,6 +105,16 @@ public class SourcesXmlResolver implements SubjectResolver {
     throws  IllegalArgumentException,
             SubjectNotFoundException,
             SubjectNotUniqueException {
+    return find(id, false);
+  }         
+  
+  /**
+   * @see     SubjectResolver#find(String, boolean)
+   */
+  public Subject find(final String id, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException {
     List<Subject> subjects = new ArrayList();
     
     List<LogLabelCallable<Subject>> callables = new ArrayList<LogLabelCallable<Subject>>();
@@ -118,7 +128,7 @@ public class SourcesXmlResolver implements SubjectResolver {
       callables.add(new LogLabelCallable<Subject>("find on source: " + sa.getId() + ", '" + id + "'") {
 
         public Subject callLogic() throws Exception {
-          return SubjectSourceCache.getSubjectFromCacheOrSource(SOURCE, id, false);
+          return SubjectSourceCache.getSubjectFromCacheOrSource(SOURCE, id, ignoreCachedSubjects, false);
         }
         
       });
@@ -138,7 +148,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     subject = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subject, null);
     
     return subject;
-  }            
+  }      
   
 
   /**
@@ -296,8 +306,8 @@ public class SourcesXmlResolver implements SubjectResolver {
     }    
     return results;
     
-  }            
-
+  }
+  
   /**
    * @see     SubjectResolver#find(String, String, String)
    * @since   1.2.1
@@ -306,9 +316,22 @@ public class SourcesXmlResolver implements SubjectResolver {
     throws  IllegalArgumentException,
             SourceUnavailableException,
             SubjectNotFoundException,
+            SubjectNotUniqueException {
+    return find(id, source, false);
+  }
+
+  /**
+   * @param id
+   * @param source
+   * @param ignoreCachedSubjects
+   */
+  public Subject find(String id, String source, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SourceUnavailableException,
+            SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = SubjectSourceCache.getSubjectFromCacheOrSource(getSource(source), id, true);
+    Subject subj = SubjectSourceCache.getSubjectFromCacheOrSource(getSource(source), id, ignoreCachedSubjects, true);
     updateMemberAttributes(subj);
     
     //before we have started up, it wont find the session :)
@@ -373,6 +396,17 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    return findByIdentifier(id, false);
+  }        
+  
+  /**
+   * @see     SubjectResolver#findByIdentifier(String, boolean)
+   */
+  public Subject findByIdentifier(final String id, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
     List<Subject> subjects = new ArrayList();
     
     List<LogLabelCallable<Subject>> callables = new ArrayList<LogLabelCallable<Subject>>();
@@ -387,7 +421,7 @@ public class SourcesXmlResolver implements SubjectResolver {
 
         public Subject callLogic() throws Exception {
 
-          return SubjectSourceCache.getSubjectByIdentifierFromCacheOrSource(SOURCE, id, false);
+          return SubjectSourceCache.getSubjectByIdentifierFromCacheOrSource(SOURCE, id, ignoreCachedSubjects, false);
         }
         
       });
@@ -403,7 +437,7 @@ public class SourcesXmlResolver implements SubjectResolver {
     Subject subject = this.thereCanOnlyBeOne(subjects, id);
     subject = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subject, null);
     return subject;
-  }            
+  }      
 
   /**
    * @see     SubjectResolver#findByIdentifier(String, String, String)
@@ -415,7 +449,19 @@ public class SourcesXmlResolver implements SubjectResolver {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = SubjectSourceCache.getSubjectByIdentifierFromCacheOrSource(getSource(source), id, true);
+    return findByIdentifier(id, source, false);
+  }
+  
+  /**
+   * @see     SubjectResolver#findByIdentifier(String, String, String, boolean)
+   */
+  public Subject findByIdentifier(String id, String source, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
+    Subject subj = SubjectSourceCache.getSubjectByIdentifierFromCacheOrSource(getSource(source), id, ignoreCachedSubjects, true);
     updateMemberAttributes(subj);
     subj = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subj, null);
     return subj;
@@ -500,6 +546,14 @@ public class SourcesXmlResolver implements SubjectResolver {
    */
   public Subject findByIdOrIdentifier(final String idOrIdentifier) throws IllegalArgumentException,
       SubjectNotFoundException, SubjectNotUniqueException {
+    return findByIdOrIdentifier(idOrIdentifier, false);
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdOrIdentifier(String, boolean)
+   */
+  public Subject findByIdOrIdentifier(final String idOrIdentifier, boolean ignoreCachedSubjects) throws IllegalArgumentException,
+      SubjectNotFoundException, SubjectNotUniqueException {
     
     List<Subject> subjects = new ArrayList();
     
@@ -515,7 +569,7 @@ public class SourcesXmlResolver implements SubjectResolver {
 
         public Subject callLogic() throws Exception {
           
-          return SubjectSourceCache.getSubjectByIdOrIdentifierFromCacheOrSource(SOURCE, idOrIdentifier, false);
+          return SubjectSourceCache.getSubjectByIdOrIdentifierFromCacheOrSource(SOURCE, idOrIdentifier, ignoreCachedSubjects, false);
         }
         
       });
@@ -539,8 +593,17 @@ public class SourcesXmlResolver implements SubjectResolver {
   public Subject findByIdOrIdentifier(String id, String source)
       throws IllegalArgumentException, SourceUnavailableException,
       SubjectNotFoundException, SubjectNotUniqueException {
+    return findByIdOrIdentifier(id, source, false);
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdOrIdentifier(String, String, boolean)
+   */
+  public Subject findByIdOrIdentifier(String id, String source, boolean ignoreCachedSubjects)
+      throws IllegalArgumentException, SourceUnavailableException,
+      SubjectNotFoundException, SubjectNotUniqueException {
     
-    Subject subj = SubjectSourceCache.getSubjectByIdOrIdentifierFromCacheOrSource(getSource(source), id, true);
+    Subject subj = SubjectSourceCache.getSubjectByIdOrIdentifierFromCacheOrSource(getSource(source), id, ignoreCachedSubjects, true);
     updateMemberAttributes(subj);
     subj = SubjectFinder.filterSubject(GrouperSession.staticGrouperSession(), subj, null);
     return subj;
@@ -1091,6 +1154,23 @@ public class SourcesXmlResolver implements SubjectResolver {
 
     return subjectMapResults;
     
+  }
+  
+  /**
+   * @see SubjectResolver#findByIds(Collection, String, boolean)
+   */
+  public Map<String, Subject> findByIds(Collection<String> ids, String source, boolean ignoreCachedSubjects)
+      throws IllegalArgumentException, SourceUnavailableException {
+
+    Map<String, Subject> subjectMap = SubjectSourceCache.getSubjectsByIdsFromCacheOrSource(this.getSource(source), ids, ignoreCachedSubjects);
+    if (subjectMap != null) {
+      for (Subject subject : subjectMap.values()) {
+        updateMemberAttributes(subject);
+      }      
+    }
+    subjectMap = SubjectFinder.filterSubjects(GrouperSession.staticGrouperSession(), subjectMap, null);
+    return subjectMap;
+
   }
   
   /**

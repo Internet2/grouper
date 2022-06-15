@@ -1183,6 +1183,18 @@ public class SubjectSourceCache {
    * @return subject
    */
   public static Subject getSubjectFromCacheOrSource(Source source, String id, boolean exceptionIfNotFound) {
+    return getSubjectFromCacheOrSource(source, id, false, exceptionIfNotFound);
+  }
+  
+  /**
+   * get a subject by id or from cache
+   * @param source
+   * @param id
+   * @param ignoreCachedSubjects
+   * @param exceptionIfNotFound
+   * @return subject
+   */
+  public static Subject getSubjectFromCacheOrSource(Source source, String id, boolean ignoreCachedSubjects, boolean exceptionIfNotFound) {
     
     initCacheIfNotInitted();
 
@@ -1237,7 +1249,7 @@ public class SubjectSourceCache {
           }
 
           boolean retrieved = false;
-          if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired()) {
+          if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired() || ignoreCachedSubjects) {
             subject = source.getSubject(id, false);
             if (subjectSourceCacheItem != null) {
               subjectSourceCacheItem.setSubject(subject);
@@ -1304,6 +1316,17 @@ public class SubjectSourceCache {
    * @return subject
    */
   public static Map<String, Subject> getSubjectsByIdsFromCacheOrSource(Source source, Collection<String> ids) {
+    return getSubjectsByIdsFromCacheOrSource(source, ids, false);
+  }
+  
+  /**
+   * get a subject by id or from cache
+   * @param source
+   * @param ids
+   * @param ignoreCachedSubjects
+   * @return subject
+   */
+  public static Map<String, Subject> getSubjectsByIdsFromCacheOrSource(Source source, Collection<String> ids, boolean ignoreCachedSubjects) {
     
     initCacheIfNotInitted();
 
@@ -1367,7 +1390,7 @@ public class SubjectSourceCache {
             SubjectSourceCacheItem subjectSourceCacheItem = subjectCache.get(multiKey);
             
             Subject subject = null;
-            if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired()) {
+            if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired() || ignoreCachedSubjects) {
               idsToRetrieveFromSource.add(id);
             } else {
 
@@ -1443,8 +1466,6 @@ public class SubjectSourceCache {
     
   }
   
-
-  
   /**
    * get a subject by identifier or from cache
    * @param source
@@ -1453,6 +1474,18 @@ public class SubjectSourceCache {
    * @return subject
    */
   public static Subject getSubjectByIdentifierFromCacheOrSource(Source source, String identifier, boolean exceptionIfNotFound) {
+    return getSubjectByIdentifierFromCacheOrSource(source, identifier, false, exceptionIfNotFound);
+  }
+  
+  /**
+   * get a subject by identifier or from cache
+   * @param source
+   * @param identifier
+   * @param ignoreCachedSubjects
+   * @param exceptionIfNotFound
+   * @return subject
+   */
+  public static Subject getSubjectByIdentifierFromCacheOrSource(Source source, String identifier, boolean ignoreCachedSubjects, boolean exceptionIfNotFound) {
     
     initCacheIfNotInitted();
     
@@ -1506,7 +1539,7 @@ public class SubjectSourceCache {
           }
 
           boolean retrieved = false;
-          if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired()) {
+          if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired() || ignoreCachedSubjects) {
             subject = source.getSubjectByIdentifier(identifier, false);
             if (subjectSourceCacheItem != null) {
               subjectSourceCacheItem.setSubject(subject);
@@ -1579,6 +1612,18 @@ public class SubjectSourceCache {
    * @return subject
    */
   public static Subject getSubjectByIdOrIdentifierFromCacheOrSource(Source source, String idOrIdentifier, boolean exceptionIfNotFound) {
+    return getSubjectByIdOrIdentifierFromCacheOrSource(source, idOrIdentifier, false, exceptionIfNotFound);
+  }
+  
+  /**
+   * get a subject by identifier or from cache
+   * @param source
+   * @param idOrIdentifier
+   * @param ignoreCachedSubjects
+   * @param exceptionIfNotFound
+   * @return subject
+   */
+  public static Subject getSubjectByIdOrIdentifierFromCacheOrSource(Source source, String idOrIdentifier, boolean ignoreCachedSubjects, boolean exceptionIfNotFound) {
     
     initCacheIfNotInitted();
 
@@ -1651,7 +1696,7 @@ public class SubjectSourceCache {
           }
           
           boolean retrieved = false;
-          if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired()) {
+          if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired() || ignoreCachedSubjects) {
             subject = source.getSubjectByIdOrIdentifier(idOrIdentifier, false);
             if (subjectSourceCacheItem != null) {
               subjectSourceCacheItem.setSubject(subject);

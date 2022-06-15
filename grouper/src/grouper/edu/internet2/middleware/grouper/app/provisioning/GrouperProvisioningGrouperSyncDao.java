@@ -518,7 +518,7 @@ public class GrouperProvisioningGrouperSyncDao {
     }
 
     Map<MultiKey, Subject> sourceIdSubjectIdToSubject = SubjectFinder
-        .findBySourceIdsAndSubjectIds(sourceIdSubjectIds, false);
+        .findBySourceIdsAndSubjectIds(sourceIdSubjectIds, false, true);
 
     for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMembersToRefreshSubjectLink) {
 

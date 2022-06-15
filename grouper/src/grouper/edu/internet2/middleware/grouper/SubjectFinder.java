@@ -174,6 +174,21 @@ public class SubjectFinder implements CheckboxValueDriver {
   }
   
   /**
+   * whether to ignore cached subjects
+   */
+  private boolean ignoreCachedSubjects = false;
+  
+  /**
+   * whether to ignore cached subjects, false by default
+   * @param ignoreCachedSubjects
+   * @return self for chaining
+   */
+  public SubjectFinder assignIgnoreCachedSubjects(boolean ignoreCachedSubjects) {
+    this.ignoreCachedSubjects = ignoreCachedSubjects;
+    return this;
+  }
+  
+  /**
    * assign subject id or identifier to search for
    * @param theSubjectIdOrIdentifier
    * @return this for chaining
@@ -267,23 +282,23 @@ public class SubjectFinder implements CheckboxValueDriver {
   private Subject findSubjectHelper() {
     if (!StringUtils.isBlank(this.subjectId)) {
       if (!StringUtils.isBlank(this.sourceId)) {
-        return SubjectFinder.findByIdAndSource(this.subjectId, this.sourceId, false);
+        return SubjectFinder.findByIdAndSource(this.subjectId, this.sourceId, this.ignoreCachedSubjects, false);
       }
-      return SubjectFinder.findById(this.subjectId, false);
+      return SubjectFinder.findById(this.subjectId, this.ignoreCachedSubjects, false);
     }
     
     if (!StringUtils.isBlank(this.subjectIdentifier)) {
       if (!StringUtils.isBlank(this.sourceId)) {
-        return SubjectFinder.findByIdentifierAndSource(this.subjectIdentifier, this.sourceId, false);
+        return SubjectFinder.findByIdentifierAndSource(this.subjectIdentifier, this.sourceId, this.ignoreCachedSubjects, false);
       }
-      return SubjectFinder.findByIdentifier(this.subjectId, false);
+      return SubjectFinder.findByIdentifier(this.subjectId, this.ignoreCachedSubjects, false);
     }
     
     if (!StringUtils.isBlank(this.subjectIdOrIdentifier)) {
       if (!StringUtils.isBlank(this.sourceId)) {
-        return SubjectFinder.findByIdOrIdentifierAndSource(this.subjectIdOrIdentifier, this.sourceId, false);
+        return SubjectFinder.findByIdOrIdentifierAndSource(this.subjectIdOrIdentifier, this.sourceId, this.ignoreCachedSubjects, false);
       }
-      return SubjectFinder.findByIdOrIdentifier(this.subjectIdOrIdentifier, false);
+      return SubjectFinder.findByIdOrIdentifier(this.subjectIdOrIdentifier, this.ignoreCachedSubjects, false);
     }
 
     if (!StringUtils.isBlank(this.memberId)) {
@@ -376,8 +391,22 @@ public class SubjectFinder implements CheckboxValueDriver {
    */
   public static Subject findByIdOrIdentifier(String idOrIdentifier, boolean exceptionIfNull) 
       throws SubjectNotFoundException, SubjectNotUniqueException {
+    return findByIdOrIdentifier(idOrIdentifier, false, exceptionIfNull);
+  }
+  
+  /**
+   * find by id or identifier
+   * @param idOrIdentifier
+   * @param ignoreCachedSubjects
+   * @param exceptionIfNull if SubjectNotFoundException or null
+   * @return the subject
+   * @throws SubjectNotFoundException 
+   * @throws SubjectNotUniqueException 
+   */
+  public static Subject findByIdOrIdentifier(String idOrIdentifier, boolean ignoreCachedSubjects, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException {
     try {
-      return getResolver().findByIdOrIdentifier(idOrIdentifier);
+      return getResolver().findByIdOrIdentifier(idOrIdentifier, ignoreCachedSubjects);
     } catch (SubjectNotFoundException snfe) {
       if (exceptionIfNull) {
         throw snfe;
@@ -434,8 +463,23 @@ public class SubjectFinder implements CheckboxValueDriver {
    */
   public static Subject findByIdOrIdentifierAndSource(String idOrIdentifier, String source, boolean exceptionIfNull) 
       throws SubjectNotFoundException, SubjectNotUniqueException {
+    return findByIdOrIdentifierAndSource(idOrIdentifier, source, false, exceptionIfNull);
+  }
+  
+  /**
+   * find by id or identifier
+   * @param idOrIdentifier
+   * @param source 
+   * @param ignoreCachedSubjects
+   * @param exceptionIfNull if SubjectNotFoundException or null
+   * @return the subject
+   * @throws SubjectNotFoundException 
+   * @throws SubjectNotUniqueException 
+   */
+  public static Subject findByIdOrIdentifierAndSource(String idOrIdentifier, String source, boolean ignoreCachedSubjects, boolean exceptionIfNull) 
+      throws SubjectNotFoundException, SubjectNotUniqueException {
     try {
-      return getResolver().findByIdOrIdentifier(idOrIdentifier, source);
+      return getResolver().findByIdOrIdentifier(idOrIdentifier, source, ignoreCachedSubjects);
     } catch (SubjectNotFoundException snfe) {
       if (exceptionIfNull) {
         throw snfe;
@@ -530,8 +574,34 @@ public class SubjectFinder implements CheckboxValueDriver {
   public static Subject findById(String id, boolean exceptionIfNull) 
     throws  SubjectNotFoundException,
             SubjectNotUniqueException {
+    return findById(id, false, exceptionIfNull);
+  } 
+  
+  /**
+   * Search within all configured sources for subject with identified by <i>id</i>.
+   * <pre class="eg">
+   * try {
+   *   Subject subj = SubjectFinder.findById(subjectID);
+   * }
+   * catch (SubjectNotFoundException eSNF)  {
+   *   // Subject not found
+   * }
+   * catch (SubjectNotUniqueException eSNU) {
+   *   // Subject not unique
+   * }
+   *  </pre>
+   * @param   id      Subject ID
+   * @param ignoreCachedSubjects
+   * @param exceptionIfNull 
+   * @return  A {@link Subject} object
+   * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
+   */
+  public static Subject findById(String id, boolean ignoreCachedSubjects, boolean exceptionIfNull) 
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException {
     try {
-      return getResolver().find(id);
+      return getResolver().find(id, ignoreCachedSubjects);
     } catch (SubjectNotFoundException snfe) {
       if (exceptionIfNull) {
         throw snfe;
@@ -563,9 +633,36 @@ public class SubjectFinder implements CheckboxValueDriver {
   public static Subject findByIdAndSource(String id, String source, boolean exceptionIfNull) 
     throws  SubjectNotFoundException,
             SubjectNotUniqueException {
+    return findByIdAndSource(id, source, false, exceptionIfNull);
+  } 
+  
+  /**
+   * Search within all configured sources for subject with identified by <i>id</i>.
+   * <pre class="eg">
+   * try {
+   *   Subject subj = SubjectFinder.findByIdAndSource(subjectID, source, true);
+   * }
+   * catch (SubjectNotFoundException eSNF)  {
+   *   // Subject not found
+   * }
+   * catch (SubjectNotUniqueException eSNU) {
+   *   // Subject not unique
+   * }
+   *  </pre>
+   * @param   id      Subject ID
+   * @param source is the source to check in
+   * @param ignoreCachedSubjects
+   * @param exceptionIfNull 
+   * @return  A {@link Subject} object
+   * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
+   */
+  public static Subject findByIdAndSource(String id, String source, boolean ignoreCachedSubjects, boolean exceptionIfNull) 
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException {
 
     try {
-      return getResolver().find(id, source);
+      return getResolver().find(id, source, ignoreCachedSubjects);
     } catch (SubjectNotFoundException snfe) {
       if (exceptionIfNull) {
         throw snfe;
@@ -1365,8 +1462,35 @@ public class SubjectFinder implements CheckboxValueDriver {
     throws  SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    return findByIdentifier(id, false, exceptionIfNotFound);
+  }
+  
+  /**
+   * Get a subject by a well-known identifier.
+   * <pre class="eg">
+   * try {
+   *   Subject subj = SubjectFinder.findByIdentifier(identifier);
+   * }
+   * catch (SubjectNotFoundException eSNF)  {
+   *   // Subject not found
+   * }
+   * catch (SubjectNotUniqueException eSNU) {
+   *   // Subject not unique
+   * }
+   *  </pre>
+   * @param   id      Subject identifier.
+   * @param ignoreCachedSubjects
+   * @param exceptionIfNotFound 
+   * @return  A {@link Subject} object
+   * @throws SubjectNotFoundException
+   * @throws SubjectNotUniqueException
+   */
+  public static Subject findByIdentifier(String id, boolean ignoreCachedSubjects, boolean exceptionIfNotFound) 
+    throws  SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
     try {
-      return getResolver().findByIdentifier(id);
+      return getResolver().findByIdentifier(id, ignoreCachedSubjects);
     } catch (SubjectNotFoundException snfe) {
       if (exceptionIfNotFound) {
         throw snfe;
@@ -1495,8 +1619,37 @@ public class SubjectFinder implements CheckboxValueDriver {
     throws  SourceUnavailableException,
             SubjectNotFoundException,
             SubjectNotUniqueException {
+    return findByIdentifierAndSource(identifier, source, false, exceptionIfNull);
+  }
+  
+  /**
+   * Get a subject by a well-known identifier, and source.
+   * <p>
+   * <b>NOTE:</b> This method does not perform any caching.
+   * </p>
+   * <pre class="eg">
+   * try {
+   *   Subject subj = SubjectFinder.findByIdentifierAndSource(id, source, true);
+   * }
+   * catch (SubjectNotFoundException e) {
+   *   // Subject not found
+   * }
+   *  </pre>
+   * @param   identifier      Well-known identifier.
+   * @param   source  {@link Source} adapter to search.
+   * @param ignoreCachedSubjects
+   * @param exceptionIfNull 
+   * @return  A {@link Subject} object
+   * @throws  SourceUnavailableException
+   * @throws  SubjectNotFoundException
+   * @throws  SubjectNotUniqueException
+   */
+  public static Subject findByIdentifierAndSource(String identifier, String source, boolean ignoreCachedSubjects, boolean exceptionIfNull) 
+    throws  SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException {
     try {
-      return getResolver().findByIdentifier(identifier, source);
+      return getResolver().findByIdentifier(identifier, source, ignoreCachedSubjects);
     } catch (SubjectNotFoundException snfe) {
       if (exceptionIfNull) {
         throw snfe;
@@ -1873,9 +2026,22 @@ public class SubjectFinder implements CheckboxValueDriver {
    * not be in the result
    */
   public static Map<String, Subject> findByIds(Collection<String> ids, String source, boolean resolveAsLazySubjects) {
+    return findByIds(ids, source, resolveAsLazySubjects, false);
+  }
+  
+  /**
+   * find subjects by ids
+   * @param ids
+   * @param source
+   * @param resolveAsLazySubjects
+   * @param ignoreCachedSubjects
+   * @return the map of id to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<String, Subject> findByIds(Collection<String> ids, String source, boolean resolveAsLazySubjects, boolean ignoreCachedSubjects) {
     
     if (!resolveAsLazySubjects) {
-      return getResolver().findByIds(ids, source);
+      return getResolver().findByIds(ids, source, ignoreCachedSubjects);
     }
     
     // Fetch members directly from the database
@@ -1900,13 +2066,12 @@ public class SubjectFinder implements CheckboxValueDriver {
       }
     }
 
-    Map<String, Subject> subjectsFromResolver = getResolver().findByIds(subjectIdsNotFoundInMembersTable, source);
+    Map<String, Subject> subjectsFromResolver = getResolver().findByIds(subjectIdsNotFoundInMembersTable, source, ignoreCachedSubjects);
 
     result.putAll(subjectsFromResolver);
 
     return result;
   }
-
 
   /**
    * find subjects by ids
@@ -1917,6 +2082,19 @@ public class SubjectFinder implements CheckboxValueDriver {
    * not be in the result
    */
   public static Map<MultiKey, Subject> findBySourceIdsAndSubjectIds(Collection<MultiKey> sourceIdsSubjectIds, boolean resolveAsLazySubjects) {
+    return findBySourceIdsAndSubjectIds(sourceIdsSubjectIds, resolveAsLazySubjects, false);
+  }
+
+  /**
+   * find subjects by ids
+   * @param ids
+   * @param source
+   * @param resolveAsLazySubjects
+   * @parma ignoreCachedSubjects
+   * @return the map of id to subject.  If a subject is not found, it will
+   * not be in the result
+   */
+  public static Map<MultiKey, Subject> findBySourceIdsAndSubjectIds(Collection<MultiKey> sourceIdsSubjectIds, boolean resolveAsLazySubjects, boolean ignoreCachedSubjects) {
 
     Map<MultiKey, Subject> sourceIdSubjectIdToSubject = new HashMap<MultiKey, Subject>();
     
@@ -1942,7 +2120,7 @@ public class SubjectFinder implements CheckboxValueDriver {
       
       Set<String> subjectIds = sourceIdToSubjectIds.get(sourceId);
       
-      Map<String, Subject> subjectIdToSubject = findByIds(subjectIds, sourceId, resolveAsLazySubjects);
+      Map<String, Subject> subjectIdToSubject = findByIds(subjectIds, sourceId, resolveAsLazySubjects, ignoreCachedSubjects);
       
       for (Subject subject : GrouperUtil.nonNull(subjectIdToSubject).values()) {
         sourceIdSubjectIdToSubject.put(new MultiKey(sourceId, subject.getId()), subject);
