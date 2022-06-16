@@ -479,7 +479,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   public Set<Membership> findAllByGroupOwnerAndMemberAndField(String ownerGroupId, String memberUUID, Field f, boolean enabledOnly) 
     throws  GrouperDAOException {
     
-    StringBuilder sql = new StringBuilder("select distinct ms, m from MembershipEntry as ms, Member as m, Field as field where  "
+    StringBuilder sql = new StringBuilder("select distinct ms, m from MembershipEntry as ms, Member as m where  "
         + "     ms.ownerGroupId   = :owner            "  
         + "and  ms.memberUuid  = :member           "
         + "and  ms.fieldId = :fuuid "
@@ -1761,7 +1761,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
 
     MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
     StringBuilder sql = new StringBuilder(
-        "select distinct ms, m from MembershipEntry as ms, Member as m, Field as field where  "
+        "select distinct ms, m from MembershipEntry as ms, Member as m where  "
         + "     ms.ownerStemId  = :owner            "
         + "and  ms.memberUuid = :member           "
         + "and  ms.fieldId = :fuuid "
@@ -1881,7 +1881,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     
     StringBuilder sql = new StringBuilder(
-        "select ms, m from MembershipEntry as ms, Member as m, Field as field where  "
+        "select ms, m from MembershipEntry as ms, Member as m where  "
           + "     ms.ownerStemId  = :owner            "
           + "and  ms.memberUuid = :member           "
           + "and  ms.fieldId = :fuuid "
@@ -1950,7 +1950,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     throws  GrouperDAOException {
     
     StringBuilder sql = new StringBuilder(
-        "select ms, m from MembershipEntry as ms, Member as m, Field as field where  "
+        "select ms, m from MembershipEntry as ms, Member as m where  "
           + "     ms.ownerGroupId  = :owner            "
           + "and  ms.memberUuid = :member           "
           + "and  ms.fieldId = :fuuid "
@@ -2474,7 +2474,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     MembershipType membershipType = MembershipType.valueOfIgnoreCase(type, true);
     
     StringBuilder sql = new StringBuilder(
-        "select distinct ms, m from MembershipEntry as ms, Member as m, Field as field where  "
+        "select distinct ms, m from MembershipEntry as ms, Member as m where  "
             + "     ms.ownerAttrDefId  = :owner            "
             + "and  ms.memberUuid = :member           "
             + "and  ms.fieldId = :fuuid "
@@ -2515,7 +2515,7 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     }
     
     StringBuilder sql = new StringBuilder(
-        "select ms, m from MembershipEntry as ms, Member as m, Field as field where  "
+        "select ms, m from MembershipEntry as ms, Member as m where  "
           + "     ms.ownerAttrDefId  = :owner            "
           + "and  ms.memberUuid = :member           "
           + "and  ms.fieldId = :fuuid "
