@@ -24,6 +24,7 @@ import static edu.internet2.middleware.grouper.util.GrouperUtil.isBlank;
 import java.io.File;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -397,6 +398,8 @@ public class GrouperStartup {
             return null;
           }
         });
+
+        setupOsgi();
 
         return true;
       }
@@ -869,6 +872,13 @@ public class GrouperStartup {
         LOG.error("Error initting data", e);
       }
     }
+  }
+
+  /**
+   * setup the osgi framework
+   */
+  private static void setupOsgi() {
+    FrameworkStarter.getInstance().start();
   }
   
   /** if we should run the boot strap from startup */
