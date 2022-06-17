@@ -47,7 +47,7 @@ import junit.textui.TestRunner;
 public class GrouperScimProvisionerTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperScimProvisionerTest("testGithubIncrementalSync"));
+    TestRunner.run(new GrouperScimProvisionerTest("testAWSIncrementalSyncProvisionGroupAndThenDeleteTheGroup"));
 
   }
   
@@ -83,7 +83,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
         .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
         .assignAcceptHeader("application/vnd.github.v3+json")
         .assignBearerTokenExternalSystemConfigId("githubExternalSystem")
-        .addSubjectLink("entityAttributeValueCache0", "${subject.getAttributeValue('email')}")
+        .assignSubjectLinkCache0("${subject.getAttributeValue('email')}")
         .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
         .assignGroupOfUsersToProvision(testGroup)
         .assignScimMembershipType("group")
@@ -166,7 +166,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
         .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
         .assignAcceptHeader("application/vnd.github.v3+json")
         .assignBearerTokenExternalSystemConfigId("githubExternalSystem")
-        .addSubjectLink("entityAttributeValueCache0", "${subject.getAttributeValue('email')}")
+        .assignSubjectLinkCache0("${subject.getAttributeValue('email')}")
         .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
         .assignGroupOfUsersToProvision(testGroup)
         .assignScimMembershipType("group")

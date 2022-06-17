@@ -40,7 +40,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerDiagnosticsTest("testGroupAndMembershipWithoutEntitiesInsertAndDelete"));    
+    TestRunner.run(new LdapProvisionerDiagnosticsTest("testEntityAndMembershipInsertAndDelete"));    
   }
   
   public LdapProvisionerDiagnosticsTest() {
@@ -79,6 +79,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
   public static void setupLdap() {
     LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
     LdapProvisionerTestUtils.startLdapContainer();
+    
   }
 
   /**
@@ -344,6 +345,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
         .assignEntityAttributeCount(0)
         .assignSubjectSourcesToProvision("jdbc")
         .assignGroupDnTypeBushy(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignTranslateFromGrouperProvisioningGroupField("extension")
         );
     
@@ -570,10 +572,18 @@ public class LdapProvisionerDiagnosticsTest extends GrouperTest {
          .assignGroupAttributeCount(1)
          .assignUpdateEntitiesAndDn(true)
          .assignInsertEntityAndAttributes(true)
-         .assignEntityAttributeCount(6)
+         .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+         .assignEntityAttributeCount(7)
+         .assignSubjectSourcesToProvision("jdbc")
+         .addExtraConfig("logCommandsAlways", "true")
          .addExtraConfig("targetGroupAttribute.0.translateExpression", "${'someprefix:' + grouperProvisioningGroup.name}")
        );          
-    
+
+   {
+     GrouperProvisioningOutput grouperProvisioningOutput = GrouperProvisioner.retrieveProvisioner("ldapProvTest").provision(GrouperProvisioningType.fullProvisionFull);
+     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+   }
+
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();

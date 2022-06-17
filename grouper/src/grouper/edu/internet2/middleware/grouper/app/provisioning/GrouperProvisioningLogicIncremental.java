@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -22,6 +23,8 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSetti
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsResponse;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
@@ -170,7 +173,7 @@ public class GrouperProvisioningLogicIncremental {
       } 
       
       int count = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().
-          internal_membershipRetrieveFromDbCountInTargetByGroupSyncId(gcGrouperSyncGroup.getId());
+          internal_membershipRetrieveFromDbCountByGroupSyncId(gcGrouperSyncGroup.getId());
         
       // if we're doing entity attributes and a group is deleted, it's not provisionable but if there are still memberships for this group
       // we need to address them

@@ -90,8 +90,10 @@ import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.framework.TestCase;
 
@@ -1097,6 +1099,11 @@ public class GrouperTest extends TestCase {
     GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().clear();
     GrouperWsConfigInApi.retrieveConfig().propertiesOverrideMap().clear();
     GrouperUiConfigInApi.retrieveConfig().propertiesOverrideMap().clear();
+    SubjectConfig.retrieveConfig().propertiesOverrideMap().clear();
+    ConfigPropertiesCascadeBase.clearCache();
+
+    SourceManager.getInstance().reloadSource("personLdapSource");
+
     SubjectFinder.internalClearSubjectCustomizerCache();
 
     for (int i=0;i<20;i++) {

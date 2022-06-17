@@ -56,46 +56,100 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     
     // set the required values so that the validation pass and values can be inserted into the db
     GrouperConfigurationModuleAttribute attribute = provisionerConfiguration.retrieveAttributes().get("ldapExternalSystemConfigId");
-    attribute.setValue("ldapExternalSystem");
+    attribute.setValue("personLdap");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("subjectSourcesToProvision");
     attribute.setValue("jdbc");
     
+    attribute = provisionerConfiguration.retrieveAttributes().get("operateOnGrouperMemberships");
+    attribute.setValue("true");
+    
     attribute = provisionerConfiguration.retrieveAttributes().get("provisioningType");
     attribute.setValue("groupAttributes");
     
-    attribute = provisionerConfiguration.retrieveAttributes().get("groupDnType");
-    attribute.setValue("bushy");
-    
-    // set this value so that we can test that some internal attributes are also being saved correctly in the db.
-    attribute = provisionerConfiguration.retrieveAttributes().get("hasTargetGroupLink");
+    attribute = provisionerConfiguration.retrieveAttributes().get("customizeMembershipCrud");
+    attribute.setValue("true");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("selectMemberships");
+    attribute.setValue("true");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("insertMemberships");
+    attribute.setValue("true");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("deleteMemberships");
+    attribute.setValue("true");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("deleteMembershipsIfNotExistInGrouper");
     attribute.setValue("true");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("operateOnGrouperGroups");
     attribute.setValue("true");
-    
-    attribute = provisionerConfiguration.retrieveAttributes().get("insertGroups");
-    attribute.setValue("true");
-    
-    attribute = provisionerConfiguration.retrieveAttributes().get("common.groupLink.groupAttributeValueCache0");
-    attribute.setValue("test");
-    
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.url", "ldap://localhost:389");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.user", "cn=admin,dc=example,dc=edu");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.ldapExternalSystem.pass", "secret");
-    
-    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.name");
-    attribute.setValue("name");
-    
-    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.insert");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("customizeGroupCrud");
     attribute.setValue("true");
 
-    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.select");
+    attribute = provisionerConfiguration.retrieveAttributes().get("selectGroups");
+    attribute.setValue("true");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("insertGroups");
+    attribute.setValue("true");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("deleteGroups");
+    attribute.setValue("false");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("hasTargetGroupLink");
+    attribute.setValue("true");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupSearchBaseDn");
+    attribute.setValue("ou=Groups,dc=example,dc=edu");
+    
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupDnType");
+    attribute.setValue("flat");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("numberOfGroupAttributes");
+    attribute.setValue("1");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.name");
+    attribute.setValue("ldap_dn");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.translateExpressionType");
+    attribute.setValue("grouperProvisioningGroupField");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.translateFromGrouperProvisioningGroupField");
+    attribute.setValue("name");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupMembershipAttributeName");
+    attribute.setValue("ldap_dn");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupMembershipAttributeValue");
+    attribute.setValue("subjectId");
+
+    
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupMatchingAttributeCount");
+    attribute.setValue("1");
+    
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupMatchingAttribute0name");
+    attribute.setValue("ldap_dn");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupAttributeValueCacheHas");
     attribute.setValue("true");
     
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.insert", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.targetGroupAttribute.0.select", "true");
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupAttributeValueCache2has");
+    attribute.setValue("true");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupAttributeValueCache2source");
+    attribute.setValue("target");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupAttributeValueCache2type");
+    attribute.setValue("groupAttribute");
+
+    attribute = provisionerConfiguration.retrieveAttributes().get("groupAttributeValueCache2groupAttribute");
+    attribute.setValue("ldap_dn");
     
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.url", "ldap://localhost:389");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.user", "cn=admin,dc=example,dc=edu");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.pass", "secret");
     
     
     StringBuilder message = new StringBuilder();
@@ -125,14 +179,14 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     
     attribute = provisionerConfiguration.retrieveAttributes().get("groupDnType");
     value = attribute.getValue();
-    assertEquals("bushy", value);
+    assertEquals("flat", value);
     
     // edit the configuration 
     provisionerConfiguration = new LdapProvisionerConfiguration();
     provisionerConfiguration.setConfigId("myLdapProvisioner");
     
     attribute = provisionerConfiguration.retrieveAttributes().get("groupDnType");
-    attribute.setValue("flat");
+    attribute.setValue("bushy");
      
     List<String> actionsPerformed = new ArrayList<String>();
 
@@ -145,7 +199,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     
     attribute = provisionerConfiguration.retrieveAttributes().get("groupDnType");
     value = attribute.getValue();
-    assertEquals("flat", value);
+    assertEquals("bushy", value);
     
     // before we delete - let's set up some grouper sync data because
     // we want to make sure that sync data gets deleted when provisioner is deleted

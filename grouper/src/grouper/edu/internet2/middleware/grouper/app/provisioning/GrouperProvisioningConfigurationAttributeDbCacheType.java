@@ -11,7 +11,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public enum GrouperProvisioningConfigurationAttributeDbCacheType {
 
-  attribute, subjectTranslationScript, translationScript;
+  attribute, object, subjectTranslationScript, translationScript;
 
   /**
    * do a case-insensitive matching
@@ -23,6 +23,9 @@ public enum GrouperProvisioningConfigurationAttributeDbCacheType {
   public static GrouperProvisioningConfigurationAttributeDbCacheType valueOfIgnoreCase(String string, boolean exceptionOnBlank) {
     if (StringUtils.equalsIgnoreCase(string, "groupAttribute") || StringUtils.equalsIgnoreCase(string, "entityAttribute")) {
       return GrouperProvisioningConfigurationAttributeDbCacheType.attribute;
+    }
+    if (StringUtils.equalsIgnoreCase(string, "groupObject") || StringUtils.equalsIgnoreCase(string, "entityObject")) {
+      return GrouperProvisioningConfigurationAttributeDbCacheType.object;
     }
     return GrouperUtil.enumValueOfIgnoreCase(GrouperProvisioningConfigurationAttributeDbCacheType.class, 
         string, exceptionOnBlank);

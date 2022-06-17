@@ -22,6 +22,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGcGrouperSyncMembership;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembership;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -258,6 +259,29 @@ public class MembershipGuiContainer {
    * if should show pit audit
    */
   private boolean traceMembershipTimelineShowPITAudit = true;
+  
+  /**
+   * if should show provisioning events
+   */
+  private boolean traceMembershipTimelineShowProvisioningEvents = true;
+  
+
+  /**
+   * if should show provisioning events
+   * @return traceMembershipTimelineShowProvisioningEvents
+   */
+  public boolean isTraceMembershipTimelineShowProvisioningEvents() {
+    return traceMembershipTimelineShowProvisioningEvents;
+  }
+
+  /**
+   * if should show provisioning events
+   * @param traceMembershipTimelineShowProvisioningEvents
+   */
+  public void setTraceMembershipTimelineShowProvisioningEvents(
+      boolean traceMembershipTimelineShowProvisioningEvents) {
+    this.traceMembershipTimelineShowProvisioningEvents = traceMembershipTimelineShowProvisioningEvents;
+  }
 
   /**
    * if should show user audit
@@ -632,5 +656,22 @@ public class MembershipGuiContainer {
    */
   public void setGuiAuditEntryCurrent(GuiAuditEntry guiAuditEntryCurrent) {
     this.guiAuditEntryCurrent = guiAuditEntryCurrent;
+  }
+  
+  private GuiGcGrouperSyncMembership guiGcGrouperSyncMembershipCurrent;
+
+  /**
+   * @return current gui GcGrouperSyncMembership
+   */
+  public GuiGcGrouperSyncMembership getGuiGcGrouperSyncMembershipCurrent() {
+    return guiGcGrouperSyncMembershipCurrent;
+  }
+
+  /**
+   * @param guiGcGrouperSyncMembershipCurrent
+   */
+  public void setGuiGcGrouperSyncMembershipCurrent(
+      GuiGcGrouperSyncMembership guiGcGrouperSyncMembershipCurrent) {
+    this.guiGcGrouperSyncMembershipCurrent = guiGcGrouperSyncMembershipCurrent;
   }
 }

@@ -143,7 +143,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    * @param login1
    */
   public void setLoginId(String login1) {
-    this.assignAttributeValue("login", login1);
+    this.assignAttributeValue("loginId", login1);
   }
 
   /**

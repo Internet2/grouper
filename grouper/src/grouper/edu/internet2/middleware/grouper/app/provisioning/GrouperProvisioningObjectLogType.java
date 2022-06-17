@@ -336,6 +336,17 @@ public enum GrouperProvisioningObjectLogType {
     }
     
   },
+  
+  retrieveIndividualMissingGroups {
+    
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
+      
+    }
+    
+  },
   matchingIdGrouperMemberships {
 
     @Override

@@ -827,7 +827,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               searchFilter = "(" + grouperProvisioningConfigurationAttribute.getName() + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
 
             } else {
-              throw new RuntimeException("Why is groupSearchFilter empty?");
+              throw new RuntimeException("Why is entitySearchFilter empty?");
             }
 
           }

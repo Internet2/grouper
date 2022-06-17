@@ -47,6 +47,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntityFinder;
@@ -123,7 +124,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("test_copy_stem_inherit_privileges"));
+    TestRunner.run(new TestStemApi("testStemCreateEditDeleteAudit"));
   }
 
   /** size before getting started */
@@ -1302,6 +1303,42 @@ public class TestStemApi extends GrouperTest {
     assertTrue("query count should exist, and be at least 2: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
   
     assertEquals("Context id's should match", auditEntry.getContextId(), top.getContextId());
+  
+  }
+  
+  /**
+   * @throws Exception
+   */
+  public void testStemCreateEditDeleteAudit() throws Exception {
+    R r = R.populateRegistry(0, 0, 2);
+    Subject a = r.getSubject("a");
+    Subject b = r.getSubject("b");
+
+    HibernateSession.bySqlStatic().executeSql("delete from grouper_audit_entry");
+    int newAuditCount = -1;
+    
+    int auditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+
+    this.top_new = this.root.addChildStem("top new", "top new display name");
+
+    newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
+        "select count(1) from grouper_audit_entry");
+
+    assertEquals("Should have added exactly one audit", auditCount+1, newAuditCount);
+
+    AuditEntry auditEntry = HibernateSession.byHqlStatic()
+        .createQuery("from AuditEntry").uniqueResult(AuditEntry.class);
+      
+    assertTrue("contextId should exist", StringUtils.isNotBlank(auditEntry.getContextId()));
+    assertTrue("durationMicros should exist", auditEntry.getDurationMicroseconds() > 0);
+    assertTrue("query count should exist, and be at least 2: " + auditEntry.getQueryCount(), 2 <= auditEntry.getQueryCount());
+  
+    assertEquals("Context id's should match", auditEntry.getContextId(), top_new.getContextId());
+    
+    assertEquals(AuditTypeBuiltin.STEM_ADD.getAuditCategory(), auditEntry.getAuditType().getAuditCategory());
+    assertEquals(AuditTypeBuiltin.STEM_ADD.getActionName(), auditEntry.getAuditType().getActionName());
+    
   
   }
   

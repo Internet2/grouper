@@ -282,7 +282,15 @@ public class UiV2Admin extends UiServiceLogicBase {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
+      String source = request.getParameter("source");
+      if (StringUtils.equals(source, "logs")) {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogs.jsp"));
+        viewLogsHelper(request, response);
+      } else {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));
+      }
+      
 
   
     } finally {
@@ -320,8 +328,10 @@ public class UiV2Admin extends UiServiceLogicBase {
             scheduler.triggerJob(jobKey);
           } else if ("disable".equals(action)) {
             scheduler.pauseJob(jobKey);
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("daemonJobDisabledSuccess")));
           } else if ("enable".equals(action)) {
             scheduler.resumeJob(jobKey);
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("daemonJobEnabledSuccess")));
           } else if ("failsafeApprove".equals(action)) {
             GrouperFailsafe.assignApproveNextRun(jobName);
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("failsafeApproved")));
@@ -336,6 +346,16 @@ public class UiV2Admin extends UiServiceLogicBase {
       AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
       
       List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
+      
+      // action was taken from logs screen
+      String source = request.getParameter("source");
+      if (StringUtils.equals(source, "logs")) {
+        String jobName = request.getParameter("jobName");
+        GuiDaemonJob guiDaemonJob = new GuiDaemonJob(jobName);
+        guiDaemonJobs.add(guiDaemonJob);
+        adminContainer.setGuiDaemonJobs(guiDaemonJobs);
+        return true;
+      }
                   
       String daemonJobsFilter = StringUtils.trimToEmpty(request.getParameter("daemonJobsFilter"));
       adminContainer.setDaemonJobsFilter(daemonJobsFilter);

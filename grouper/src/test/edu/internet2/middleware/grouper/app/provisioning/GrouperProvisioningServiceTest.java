@@ -64,7 +64,7 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
   }
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperProvisioningServiceTest("testGetProvisioningAttributeValueWithIndirectAndRegexRestriction"));
+    TestRunner.run(new GrouperProvisioningServiceTest("testTargetNotEditableWhenReadOnlyIsTrue"));
   }
   
   @Override
@@ -1000,35 +1000,6 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     assertEquals(3.14, metadata.get("float"));
     assertEquals(true, metadata.get("boolean"));
     assertTrue(metadata.containsKey("timestamp"));
-  }
-  
-  public void testTargetNotEditableWhenReadOnlyIsTrue() {
-    
-    //Given
-    GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
-    GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
-    
-    Stem stem0 = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test").save();
-    
-    GrouperProvisioningTarget target1 = new GrouperProvisioningTarget("ldapReadOnlyKey", "ldapReadOnly");
-    target1.setReadOnly(true);
-    GrouperProvisioningSettings.getTargets(false).put("ldapReadOnly", target1);
-    
-    saveProvisioningAttributeMetadata(stem0, true, "ldapReadOnly");
-    
-    Stem etc = new StemSave(grouperSession).assignStemNameToEdit("etc").assignName("etc").save();
-    Group wheel = etc.addChildGroup("wheel","wheel");
-    wheel.addMember(SubjectTestHelper.SUBJ0);
-    
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", wheel.getName());
-    
-    //When
-    boolean isEditable = GrouperProvisioningService.isTargetEditable(target1, SubjectTestHelper.SUBJ0, stem0);
-    
-    // Then
-    assertFalse(isEditable);
-    
   }
   
   public void testTargetEditableWhenReadOnlyIsFalse() {

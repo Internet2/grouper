@@ -159,6 +159,37 @@ public class GcGrouperSyncLogDao {
   }
 
   /**
+   * delete stuff with batches by id
+   * @param ids
+   * @return the number of records deleted
+   */
+  public static int internal_logDeleteByIds(Collection<String> ids) {
+  
+    int count = 0;
+    if (GrouperClientUtils.length(ids) > 0) {
+
+      List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+          
+      for (String ownerId : ids) {
+        List<Object> currentBindVarRow = new ArrayList<Object>();
+        currentBindVarRow.add(ownerId);
+        batchBindVars.add(currentBindVarRow);
+        
+      }
+  
+      int[] rowDeleteCounts = new GcDbAccess().sql(
+          "delete from grouper_sync_log where id = ?")
+        .batchBindVars(batchBindVars).executeBatchSql();
+      
+      for (int rowDeleteCount : rowDeleteCounts) {
+        count += rowDeleteCount;
+      }
+      
+    }
+    return count;
+  }
+
+  /**
    * delete batch
    * @param gcGrouperSyncLogs
    * @return rows deleted (logs)

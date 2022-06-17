@@ -1,9 +1,6 @@
 package edu.internet2.middleware.grouper.j2ee;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,7 +9,7 @@ import javax.servlet.ServletContainerInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
-import edu.internet2.middleware.grouper.plugins.BundleStarter;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -23,11 +20,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.launch.Framework;
-import org.osgi.framework.launch.FrameworkFactory;
 
 public class CommonServletContainerInitializer implements ServletContainerInitializer {
   
@@ -36,14 +29,13 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
    */
   private static final Log LOG = GrouperUtil.getLog(CommonServletContainerInitializer.class);
 
-  private Framework framework;
-
   @Override
   public void onStartup(Set<Class<?>> arg0, ServletContext context) throws ServletException {
-      // initialize OSGI
-      {
-        FrameworkStarter.getInstance().start();
+      GrouperStartup.startup();
+      GrouperStartup.waitForGrouperStartup();
 
+      // setup ServletContainerInitializer from OSGI
+      {
         BundleContext bundleContext = FrameworkStarter.getInstance().getFramework().getBundleContext();
 
         try {
@@ -59,7 +51,7 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           throw new RuntimeException(e);
         }
       }
-    
+
       boolean runGrouperUi = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui", false);
 
       boolean runMockServices = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.mockServices", false);
@@ -69,9 +61,7 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       boolean runGrouperScim = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim", false);
       
       boolean runGrouperDaemon = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.daemon", false);
-
-      boolean runGrouperExtAuth = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.is.extAuth.enabled", false);
-
+      
       try {
         String statusServletName = "StatusServlet";
         Class statusServletClass = Class.forName("edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet");
@@ -81,7 +71,7 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       } catch (ClassNotFoundException e) {
         throw new RuntimeException("why edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet is not there??");
       }
-
+     
       if (runMockServices) {
         
         String uiServletName = "MockServices";

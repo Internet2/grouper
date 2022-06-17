@@ -87,9 +87,20 @@ public class ValidatingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    return find(id, false);
+  }     
+  
+  /**
+   * @see     SubjectResolver#find(String, boolean)
+   */
+  public Subject find(String id, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
     this.param.notNullString(id, "null Subject Id"); 
-    return super.getDecoratedResolver().find(id);
-  }            
+    return super.getDecoratedResolver().find(id, ignoreCachedSubjects);
+  } 
 
   /**
    * @see     SubjectResolver#find(String, String)
@@ -101,8 +112,20 @@ public class ValidatingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    return find(id, source, false);
+  }
+  
+  /**
+   * @see     SubjectResolver#find(String, String, boolean)
+   */
+  public Subject find(String id, String source, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
     this.param.notNullString(id, "null Subject Id").notNullString(source, "null Source Id");
-    return super.getDecoratedResolver().find(id, source);
+    return super.getDecoratedResolver().find(id, source, ignoreCachedSubjects);
   }
 
   /**
@@ -156,9 +179,21 @@ public class ValidatingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    return findByIdentifier(id, false);
+  }    
+  
+  /**
+   * @see     SubjectResolver#findByIdentifier(String, boolean)
+   */
+  public Subject findByIdentifier(String id, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
     this.param.notNullString(id, "null Subject Id");
-    return super.getDecoratedResolver().findByIdentifier(id);
-  }            
+    return super.getDecoratedResolver().findByIdentifier(id, ignoreCachedSubjects);
+  }    
+  
 
   /**
    * @see     SubjectResolver#findByIdentifier(String, String)
@@ -170,8 +205,20 @@ public class ValidatingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
+    return findByIdentifier(id, source, false);
+  }
+  
+  /**
+   * @see     SubjectResolver#findByIdentifier(String, String, boolean)
+   */
+  public Subject findByIdentifier(String id,String source, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
     this.param.notNullString(id, "null Subject Id").notNullString(source, "null Source Id");
-    return super.getDecoratedResolver().findByIdentifier(id, source);
+    return super.getDecoratedResolver().findByIdentifier(id, source, ignoreCachedSubjects);
   }
 
   /**
@@ -199,8 +246,16 @@ public class ValidatingResolver extends SubjectResolverDecorator {
    */
   public Subject findByIdOrIdentifier(String id) throws IllegalArgumentException,
       SubjectNotFoundException, SubjectNotUniqueException {
+    return findByIdOrIdentifier(id, false);
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdOrIdentifier(String, boolean)
+   */
+  public Subject findByIdOrIdentifier(String id, boolean ignoreCachedSubjects) throws IllegalArgumentException,
+      SubjectNotFoundException, SubjectNotUniqueException {
     this.param.notNullString(id, "null Subject Id");
-    return super.getDecoratedResolver().findByIdOrIdentifier(id);
+    return super.getDecoratedResolver().findByIdOrIdentifier(id, ignoreCachedSubjects);
   }
 
   /**
@@ -209,8 +264,17 @@ public class ValidatingResolver extends SubjectResolverDecorator {
   public Subject findByIdOrIdentifier(String id, String source)
       throws IllegalArgumentException, SourceUnavailableException,
       SubjectNotFoundException, SubjectNotUniqueException {
+    return findByIdOrIdentifier(id, source, false);
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdOrIdentifier(String, String, boolean)
+   */
+  public Subject findByIdOrIdentifier(String id, String source, boolean ignoreCachedSubjects)
+      throws IllegalArgumentException, SourceUnavailableException,
+      SubjectNotFoundException, SubjectNotUniqueException {
     this.param.notNullString(id, "null Subject Id").notNullString(source, "null Source Id");
-    return super.getDecoratedResolver().findByIdOrIdentifier(id, source);
+    return super.getDecoratedResolver().findByIdOrIdentifier(id, source, ignoreCachedSubjects);
   }
 
   /**
@@ -309,9 +373,17 @@ public class ValidatingResolver extends SubjectResolverDecorator {
    */
   public Map<String, Subject> findByIds(Collection<String> ids, String source)
       throws IllegalArgumentException, SourceUnavailableException {
+    return findByIds(ids, source, false);
+  }
+  
+  /**
+   * @see SubjectResolver#findByIds(Collection, String, boolean)
+   */
+  public Map<String, Subject> findByIds(Collection<String> ids, String source, boolean ignoreCachedSubjects)
+      throws IllegalArgumentException, SourceUnavailableException {
 
     this.param.notNullCollectionString(ids, "null Subject Ids");
-    return super.getDecoratedResolver().findByIds(ids, source);
+    return super.getDecoratedResolver().findByIds(ids, source, ignoreCachedSubjects);
 
   }
   

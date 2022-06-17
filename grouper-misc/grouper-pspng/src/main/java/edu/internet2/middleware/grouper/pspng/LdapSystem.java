@@ -188,10 +188,11 @@ public class LdapSystem {
     // INFO log is a count of each attribute's values
     if ( LOG.isInfoEnabled() ) {
       StringBuilder sb = new StringBuilder();
-      sb.append(String.format("dn=%s|", ldapEntry.getDn()));
-
-      for (LdapAttribute attribute : ldapEntry.getAttributes()) {
-        sb.append(String.format("%d %s values|", attribute.size(), attribute.getName()));
+      sb.append(String.format("dn=%s|", ldapEntry == null ? "null" : ldapEntry.getDn()));
+      if (ldapEntry != null && ldapEntry.getAttributes() != null) {
+        for (LdapAttribute attribute : ldapEntry.getAttributes()) {
+          sb.append(String.format("%d %s values|", attribute.size(), attribute.getName()));
+        }
       }
       LOG.info("{}: {} Entry Summary: {}", ldapSystemName, ldapEntryDescription, sb.toString());
     }
@@ -210,11 +211,13 @@ public class LdapSystem {
     // INFO log is a count of each attribute's values
     if ( LOG.isInfoEnabled() ) {
       StringBuilder sb = new StringBuilder();
-      sb.append(String.format("dn=%s|", modifyRequest.getDn()));
+      sb.append(String.format("dn=%s|", modifyRequest == null ? "null" : modifyRequest.getDn()));
 
-      for (AttributeModification mod : modifyRequest.getAttributeModifications()) {
-        sb.append(String.format("%s %d %s values|",
-                mod.getAttributeModificationType(), mod.getAttribute().size(), mod.getAttribute().getName()));
+      if (modifyRequest != null && modifyRequest.getAttributeModifications() != null) {
+        for (AttributeModification mod : modifyRequest.getAttributeModifications()) {
+          sb.append(String.format("%s %d %s values|",
+                  mod.getAttributeModificationType(), mod.getAttribute().size(), mod.getAttribute().getName()));
+        }
       }
       LOG.info("{}: {} Mod Summary: {}", ldapSystemName, ldapEntryDescription, sb.toString());
     }
@@ -229,7 +232,15 @@ public class LdapSystem {
     SearchRequestPropertySource srSource = new SearchRequestPropertySource(searchExecutor, getLdaptiveProperties());
     srSource.initialize();
 
-    SearchRequest read = new SearchRequest("", "objectclass=*");
+    String baseDn = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapSystemName + ".uiTestSearchDn", "");
+    String filter = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapSystemName + ".uiTestFilter", "objectclass=*");
+    
+    filter = StringUtils.trim(filter);
+    if (filter.startsWith("(") && filter.endsWith(")")) {
+      filter = filter.substring(1, filter.length()-1);
+    }
+    
+    SearchRequest read = new SearchRequest(baseDn, filter);
     read.setSearchScope(SearchScope.OBJECT);
 
     // Turn on attribute-value paging if this is an active directory target

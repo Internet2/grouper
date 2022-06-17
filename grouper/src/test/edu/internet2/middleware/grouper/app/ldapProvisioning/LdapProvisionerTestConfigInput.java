@@ -136,6 +136,52 @@ public class LdapProvisionerTestConfigInput {
   }
 
   /**
+   * set to false to have grouper auto translate the dn
+   */
+  private boolean entityDnTranslate = true;
+  
+  /**
+   * set to false to have grouper auto translate the dn
+   * @return
+   */
+  public boolean isEntityDnTranslate() {
+    return entityDnTranslate;
+  }
+
+  /**
+   * set to false to have grouper auto translate the dn
+   * @param entityDnTranslate
+   * @return
+   */
+  public LdapProvisionerTestConfigInput assignEntityDnTranslate(boolean entityDnTranslate) {
+    this.entityDnTranslate = entityDnTranslate;
+    return this;
+  }
+
+  /**
+   * set to false to have grouper auto translate the dn
+   */
+  private boolean groupDnTranslate = true;
+
+  /**
+   * set to false to have grouper auto translate the dn
+   * @return
+   */
+  public boolean isGroupDnTranslate() {
+    return groupDnTranslate;
+  }
+
+  /**
+   * set to false to have grouper auto translate the dn
+   * @param groupDnTranslate
+   * @return
+   */
+  public LdapProvisionerTestConfigInput assignGroupDnTranslate(boolean groupDnTranslate) {
+    this.groupDnTranslate = groupDnTranslate;
+    return this;
+  }
+
+  /**
    * groupDnType flat (default) or bushy
    */
   private boolean groupDnTypeBushy = false;
@@ -206,6 +252,28 @@ public class LdapProvisionerTestConfigInput {
    * groupDeleteType e.g. deleteGroupsIfNotExistInGrouper or deleteGroupsIfGrouperDeleted or deleteGroupsIfGrouperCreated or null (default)
    */
   private String groupDeleteType;
+
+  /**
+   * entityDeleteType e.g. deleteEntitiesIfNotExistInGrouper or deleteEntitiesIfGrouperDeleted or deleteEntitiesIfGrouperCreated or null (default)
+   */
+  private String entityDeleteType;
+
+  /**
+   * entityDeleteType e.g. deleteEntitiesIfNotExistInGrouper or deleteEntitiesIfGrouperDeleted or deleteEntitiesIfGrouperCreated or null (default)
+   * @return
+   */
+  public String getEntityDeleteType() {
+    return entityDeleteType;
+  }
+  
+  /**
+   * entityDeleteType e.g. deleteEntitiesIfNotExistInGrouper or deleteEntitiesIfGrouperDeleted or deleteEntitiesIfGrouperCreated or null (default)
+   * @param entityDeleteType
+   */
+  public LdapProvisionerTestConfigInput assignEntityDeleteType(String entityDeleteType) {
+    this.entityDeleteType = entityDeleteType;
+    return this;
+  }
 
   /**
    * membershipDeleteType e.g. deleteMembershipsIfNotExistInGrouper (default) or deleteMembershipsIfGrouperDeleted or deleteMembershipsIfGrouperCreated or null
@@ -381,14 +449,14 @@ public class LdapProvisionerTestConfigInput {
   }
 
   /**
-   * 0, 2 (default), 3 or 6 (if has extended entity attributes
+   * 0, 2 (default), 3 or 6, or 7 (if has extended entity attributes
    */
   public int getEntityAttributeCount() {
     return entityAttributeCount;
   }
 
   /**
-   * 0, 2 (default), 3 or 6 (if has extended entity attributes
+   * 0, 2 (default), 3 or 6, or 7 (if has extended entity attributes
    */
   public LdapProvisionerTestConfigInput assignEntityAttributeCount(int entityAttributeCount) {
     this.entityAttributeCount = entityAttributeCount;
@@ -455,7 +523,7 @@ public class LdapProvisionerTestConfigInput {
   }
 
   /**
-   * 0, 2 (default), 3 or 6 (if has extended entity attributes
+   * 0, 2 (default), 3 or 6, or 7 (if has extended entity attributes
    */
   private int entityAttributeCount = 2;
 

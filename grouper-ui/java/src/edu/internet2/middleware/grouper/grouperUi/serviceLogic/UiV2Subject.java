@@ -419,13 +419,24 @@ public class UiV2Subject {
   private static Subject retrieveSubjectHelper(HttpServletRequest request) {
     return retrieveSubjectHelper(request, true);
   }
-
+  
   /**
    * get the subject from the request
    * @param request
    * @return the subject or null if not found
    */
   public static Subject retrieveSubjectHelper(HttpServletRequest request, boolean displayErrorIfProblem) {
+    return retrieveSubjectHelper(request, displayErrorIfProblem, false);
+  }
+
+  /**
+   * get the subject from the request
+   * @param request
+   * @param displayErrorIfProblem
+   * @param ignoreCachedSubjects
+   * @return the subject or null if not found
+   */
+  public static Subject retrieveSubjectHelper(HttpServletRequest request, boolean displayErrorIfProblem, boolean ignoreCachedSubjects) {
   
     //initialize the bean
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
@@ -472,7 +483,8 @@ public class UiV2Subject {
     SubjectFinder subjectFinder = addedError ? null : new SubjectFinder().assignSourceId(sourceId)
         .assignSubjectId(subjectId).assignSubjectIdentifier(subjectIdentifier)
         .assignAllowUnresolvable(PrivilegeHelper.isWheelOrRootOrReadonlyRoot(GrouperSession.staticGrouperSession().getSubject()))
-        .assignSubjectIdOrIdentifier(subjectIdOrIdentifier).assignMemberId(memberId);
+        .assignSubjectIdOrIdentifier(subjectIdOrIdentifier).assignMemberId(memberId)
+        .assignIgnoreCachedSubjects(ignoreCachedSubjects);
 
     subject = subjectFinder == null ? null : subjectFinder.findSubject();
     
@@ -536,7 +548,7 @@ public class UiV2Subject {
 
       grouperSession = GrouperSession.start(loggedInSubject);
 
-      subject = retrieveSubjectHelper(request);
+      subject = retrieveSubjectHelper(request, true, true);
 
       if (subject == null) {
         return;

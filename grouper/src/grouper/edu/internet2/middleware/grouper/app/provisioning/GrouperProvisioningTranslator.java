@@ -150,7 +150,9 @@ public class GrouperProvisioningTranslator {
           }
         }
         
-        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+        // if the group is missing, has an invalid attribute don't bother setting the membership
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes 
+            && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
           String groupMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName();
           if (!StringUtils.isEmpty(groupMembershipAttribute)) {
             GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(groupMembershipAttribute);
@@ -187,7 +189,9 @@ public class GrouperProvisioningTranslator {
           }
         }
         
-        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+        // if the entity is missing, has an invalid attribute don't bother setting the membership
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
+            && provisioningEntityWrapper.getGrouperTargetEntity() != null) {
           String userMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName();
           if (!StringUtils.isEmpty(userMembershipAttribute)) {
             GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(userMembershipAttribute);
@@ -1025,7 +1029,7 @@ public class GrouperProvisioningTranslator {
     return translateGrouperToTargetAutomatically;
   }
 
-  private String getTranslateFromGrouperProvisioningGroupField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String getTranslateFromGrouperProvisioningGroupField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     String expression = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField();
     boolean hasExpression = !StringUtils.isBlank(expression);
     String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupFieldCreateOnly();
@@ -1040,7 +1044,7 @@ public class GrouperProvisioningTranslator {
     return expressionToUse;
   }
 
-  private String getTranslateFromGrouperProvisioningEntityField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String getTranslateFromGrouperProvisioningEntityField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     String expression = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField();
     boolean hasExpression = !StringUtils.isBlank(expression);
     String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityFieldCreateOnly();
@@ -1056,7 +1060,7 @@ public class GrouperProvisioningTranslator {
   }
   
 
-  private String getTargetExpressionToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String getTargetExpressionToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     String expression = grouperProvisioningConfigurationAttribute.getTranslateExpression();
     boolean hasExpression = !StringUtils.isBlank(expression);
     String expressionCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateExpressionCreateOnly();
@@ -1071,7 +1075,7 @@ public class GrouperProvisioningTranslator {
     return expressionToUse;
   }
   
-  private String getTranslateFromStaticValuesToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+  public String getTranslateFromStaticValuesToUse(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     String staticValues = grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues();
     boolean hasStaticValues = !StringUtils.isBlank(staticValues);
     String staticValuesCreateOnly = grouperProvisioningConfigurationAttribute.getTranslateFromStaticValuesCreateOnly();

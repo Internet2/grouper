@@ -11,17 +11,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class DuoRoleProvisoningConfigurationValidation extends GrouperProvisioningConfigurationValidation {
-  
-  @Override
-  public Collection<String> validateGroupAttributeNamesAllowed() {
-    return GrouperUtil.toSet("description");
-
-  }
 
   @Override
   public Collection<String> validateGroupAttributeNamesRequired() {
-    return GrouperUtil.toSet("name", "id");
-
+    return GrouperUtil.toSet("role");
   }
 
   @Override
@@ -30,13 +23,8 @@ public class DuoRoleProvisoningConfigurationValidation extends GrouperProvisioni
   }
 
   @Override
-  public Collection<String> validateEntityAttributeNamesAllowed() {
-    return GrouperUtil.toSet("name", "email", "firstname", "lastname");
-  }
-
-  @Override
   public Collection<String> validateEntityAttributeNamesRequired() {
-    return GrouperUtil.toSet("id", "loginId");
+    return GrouperUtil.toSet("email", "id", "name", "role");
   }
 
   @Override

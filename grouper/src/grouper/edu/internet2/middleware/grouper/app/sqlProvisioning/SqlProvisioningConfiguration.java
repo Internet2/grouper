@@ -5,6 +5,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 
 
@@ -70,17 +71,45 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   private String entityAttributesLastModifiedColumn;
   private String entityAttributesLastModifiedColumnType;
   
+  private boolean useSeparateTableForGroupAttributes;
+  
+  private boolean useSeparateTableForEntityAttributes;
   
   /**
    * columns in the group table
    */
 //  private String groupAttributeNames;
   
+  public boolean isUseSeparateTableForEntityAttributes() {
+    return useSeparateTableForEntityAttributes;
+  }
+
+
+
+
+  public void setUseSeparateTableForEntityAttributes(boolean useSeparateTableForEntityAttributes) {
+    this.useSeparateTableForEntityAttributes = useSeparateTableForEntityAttributes;
+  }
+
+
+
+
   /**
    * if there is a group attribute table (like ldap), this is the table name
    */
 //  private String groupAttributeTableName;
   
+  public boolean isUseSeparateTableForGroupAttributes() {
+    return useSeparateTableForGroupAttributes;
+  }
+
+
+
+
+  public void setUseSeparateTableForGroupAttributes(boolean useSeparateTableForGroupAttributes) {
+    this.useSeparateTableForGroupAttributes = useSeparateTableForGroupAttributes;
+  }
+
   /**
    * if group table has one primary key, this is it
    */
@@ -258,6 +287,10 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     this.entityAttributesLastModifiedColumn = this.retrieveConfigString("entityAttributesLastModifiedColumn", false);
     this.entityAttributesLastModifiedColumnType = this.retrieveConfigString("entityAttributesLastModifiedColumnType", false);
     
+    this.useSeparateTableForGroupAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useSeparateTableForGroupAttributes", false), false);
+    
+    this.useSeparateTableForEntityAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useSeparateTableForEntityAttributes", false), false);
+
     if (!StringUtils.isBlank(this.membershipTableName) && StringUtils.isBlank(this.getMembershipMatchingIdExpression())) {
       //setMembershipMatchingIdExpression("${new edu.internet2.middleware.grouperClient.collections.MultiKey(targetMembership.getProvisioningGroup().retrieveAttributeValueString('"+groupTableIdColumn+"'), targetMembership.getProvisioningEntity().retrieveAttributeValueString('"+entityTableIdColumn+"'))}");
       setMembershipMatchingIdExpression("${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('"+getMembershipGroupMatchingIdAttribute()+"'), targetMembership.retrieveAttributeValueString('"+getMembershipEntityMatchingIdAttribute()+"'))}");

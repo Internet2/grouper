@@ -62,7 +62,10 @@ public class DuoProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
+
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
@@ -76,6 +79,7 @@ public class DuoProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "membershipObjects");
     configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");

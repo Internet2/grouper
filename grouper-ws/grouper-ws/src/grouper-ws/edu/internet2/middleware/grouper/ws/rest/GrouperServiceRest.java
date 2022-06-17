@@ -1441,7 +1441,7 @@ public class GrouperServiceRest {
             wsRestGetMembershipsRequest.getServiceLookup(), wsRestGetMembershipsRequest.getPageSize(),
             wsRestGetMembershipsRequest.getPageNumber(), wsRestGetMembershipsRequest.getSortString(),
             wsRestGetMembershipsRequest.getAscending(),
-            wsRestGetMembershipsRequest.getPageNumberForMember(),
+            wsRestGetMembershipsRequest.getPageSizeForMember(),
             wsRestGetMembershipsRequest.getPageNumberForMember(), wsRestGetMembershipsRequest.getSortStringForMember(),
             wsRestGetMembershipsRequest.getAscendingForMember(),
             wsRestGetMembershipsRequest.getPageIsCursor(),

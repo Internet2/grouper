@@ -120,9 +120,25 @@ public class CachingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindCache(id, null);
+    return find(id, false);
+  }
+  
+  /**
+   * @see     SubjectResolver#find(String, boolean)
+   */
+  public Subject find(String id, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
+    Subject subj = null;
+    
+    if (!ignoreCachedSubjects) {
+      subj = this.getFromFindCache(id, null);
+    }
+    
     if (subj == null) {
-      subj = super.getDecoratedResolver().find(id);
+      subj = super.getDecoratedResolver().find(id, ignoreCachedSubjects);
       this.putInFindCache(subj);
     }
     return subj;
@@ -138,9 +154,27 @@ public class CachingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindCache(id, source);
+    return find(id, source, false);
+  }
+  
+  /**
+   * @see     SubjectResolver#find(String, String, boolean)
+   * @since   1.2.1
+   */
+  public Subject find(String id, String source, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
+    Subject subj = null;
+    
+    if (!ignoreCachedSubjects) {
+      subj = this.getFromFindCache(id, source);
+    }
+    
     if (subj == null) {
-      subj = super.getDecoratedResolver().find(id, source);
+      subj = super.getDecoratedResolver().find(id, source, ignoreCachedSubjects);
       this.putInFindCache(subj);
     }
     return subj;
@@ -186,13 +220,29 @@ public class CachingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindByIdentifierCache(id, null);
+    return findByIdentifier(id, false);
+  }      
+  
+  /**
+   * @see     SubjectResolver#findByIdentifier(String, boolean)
+   */
+  public Subject findByIdentifier(String id, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
+    Subject subj = null;
+    
+    if (!ignoreCachedSubjects) {
+      subj = this.getFromFindByIdentifierCache(id, null);
+    }
+    
     if (subj == null) {
-      subj = super.getDecoratedResolver().findByIdentifier(id);
+      subj = super.getDecoratedResolver().findByIdentifier(id, ignoreCachedSubjects);
       this.putInFindByIdentifierCache(id, subj);
     }
     return subj;
-  }            
+  }   
 
   /**
    * @see     SubjectResolver#findByIdentifier(String, String)
@@ -204,9 +254,26 @@ public class CachingResolver extends SubjectResolverDecorator {
             SubjectNotFoundException,
             SubjectNotUniqueException
   {
-    Subject subj = this.getFromFindByIdentifierCache(id, source);
+    return findByIdentifier(id, source, false);
+  }
+  
+  /**
+   * @see     SubjectResolver#findByIdentifier(String, String, boolean)
+   */
+  public Subject findByIdentifier(String id, String source, boolean ignoreCachedSubjects)
+    throws  IllegalArgumentException,
+            SourceUnavailableException,
+            SubjectNotFoundException,
+            SubjectNotUniqueException
+  {
+    Subject subj = null;
+    
+    if (!ignoreCachedSubjects) {
+      subj = this.getFromFindByIdentifierCache(id, source);
+    }
+    
     if (subj == null) {
-      subj = super.getDecoratedResolver().findByIdentifier(id, source);
+      subj = super.getDecoratedResolver().findByIdentifier(id, source, ignoreCachedSubjects);
       this.putInFindByIdentifierCache(id, subj);
     }
     return subj;
@@ -401,9 +468,22 @@ public class CachingResolver extends SubjectResolverDecorator {
    */
   public Subject findByIdOrIdentifier(String id) throws IllegalArgumentException,
       SubjectNotFoundException, SubjectNotUniqueException {
-    Subject subj = this.getFromFindByIdOrIdentifierCache(id, (String)null);
+    return findByIdOrIdentifier(id, false);
+  }
+  
+  /**
+   * 
+   */
+  public Subject findByIdOrIdentifier(String id, boolean ignoreCachedSubjects) throws IllegalArgumentException,
+      SubjectNotFoundException, SubjectNotUniqueException {
+    Subject subj = null;
+    
+    if (!ignoreCachedSubjects) {
+      subj = this.getFromFindByIdOrIdentifierCache(id, (String)null);
+    }
+    
     if (subj == null) {
-      subj = super.getDecoratedResolver().findByIdOrIdentifier(id);
+      subj = super.getDecoratedResolver().findByIdOrIdentifier(id, ignoreCachedSubjects);
       this.putInFindByIdOrIdentifierCache(id, subj);
     }
     return subj;
@@ -415,9 +495,23 @@ public class CachingResolver extends SubjectResolverDecorator {
   public Subject findByIdOrIdentifier(String id, String source)
       throws IllegalArgumentException, SourceUnavailableException,
       SubjectNotFoundException, SubjectNotUniqueException {
-    Subject subj = this.getFromFindByIdOrIdentifierCache(id, source);
+    return findByIdOrIdentifier(id, source, false);
+  }
+  
+  /**
+   * @see SubjectResolver#findByIdOrIdentifier(String, String, boolean)
+   */
+  public Subject findByIdOrIdentifier(String id, String source, boolean ignoreCachedSubjects)
+      throws IllegalArgumentException, SourceUnavailableException,
+      SubjectNotFoundException, SubjectNotUniqueException {
+    Subject subj = null;
+    
+    if (!ignoreCachedSubjects) {
+      subj = this.getFromFindByIdOrIdentifierCache(id, source);
+    }
+    
     if (subj == null) {
-      subj = super.getDecoratedResolver().findByIdOrIdentifier(id, source);
+      subj = super.getDecoratedResolver().findByIdOrIdentifier(id, source, ignoreCachedSubjects);
       this.putInFindByIdOrIdentifierCache(id, subj);
     }
     return subj;
@@ -930,32 +1024,44 @@ public class CachingResolver extends SubjectResolverDecorator {
     return result;
 
   }
-
+  
   /**
    * @see SubjectResolver#findByIds(Collection, String)
    */
   public Map<String, Subject> findByIds(Collection<String> ids, String source)
+      throws IllegalArgumentException, SourceUnavailableException {
+    return findByIds(ids, source, false);
+  }
+
+  /**
+   * @see SubjectResolver#findByIds(Collection, String, boolean)
+   */
+  public Map<String, Subject> findByIds(Collection<String> ids, String source, boolean ignoreCachedSubjects)
       throws IllegalArgumentException, SourceUnavailableException {
 
     Map<String, Subject> result = new HashMap<String, Subject>();
     
     Set<String> idsNotFoundInCache = new HashSet<String>();
     
-    //lets get from cache
-    for (String id : ids) {
-      Subject subject = this.getFromFindCache(id, source);
-      if (subject == null) {
-        //if not found, batch these up
-        idsNotFoundInCache.add(id);
-      } else {
-        result.put(id, subject);
+    if (ignoreCachedSubjects) {
+      idsNotFoundInCache.addAll(ids);
+    } else {
+      //lets get from cache
+      for (String id : ids) {
+        Subject subject = this.getFromFindCache(id, source);
+        if (subject == null) {
+          //if not found, batch these up
+          idsNotFoundInCache.add(id);
+        } else {
+          result.put(id, subject);
+        }
       }
     }
 
     //if not everything in cache, get the batch
     if (GrouperUtil.length(idsNotFoundInCache) > 0) {
 
-      Map<String, Subject> nonCachedResult = super.getDecoratedResolver().findByIds(idsNotFoundInCache, source);
+      Map<String, Subject> nonCachedResult = super.getDecoratedResolver().findByIds(idsNotFoundInCache, source, ignoreCachedSubjects);
 
       for (Subject subject : nonCachedResult.values()) {
 

@@ -45,6 +45,9 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditType;
@@ -52,6 +55,7 @@ import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGcGrouperSyncMembership;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembership;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -90,6 +94,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -225,6 +230,7 @@ public class UiV2Membership {
       
       membershipGuiContainer.setTraceMembershipTimelineShowUserAudit(GrouperUtil.booleanValue(request.getParameter("showUserAudit"), true));
       membershipGuiContainer.setTraceMembershipTimelineShowPITAudit(GrouperUtil.booleanValue(request.getParameter("showPITAudit"), true));
+      membershipGuiContainer.setTraceMembershipTimelineShowProvisioningEvents(GrouperUtil.booleanValue(request.getParameter("showProvisioningEvents"), true));
 
       //this is a subobject
       grouperRequestContainer.getGroupContainer().getGuiGroup().setShowBreadcrumbLink(true);
@@ -423,7 +429,16 @@ public class UiV2Membership {
     AuditType addGroupMembershipAuditType = AuditTypeFinder.find("membership", "addGroupMembership", true);
     AuditType updateGroupMembershipAuditType = AuditTypeFinder.find("membership", "updateGroupMembership", true);
     AuditType deleteGroupMembershipAuditType = AuditTypeFinder.find("membership", "deleteGroupMembership", true);
-     
+    
+    int initialStatesCount = pitGroupsForTimelineStates.size();
+    int traceAdditionalStatesCount = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.membership.traceAdditionalStatesCount", 10);
+    int maxStatesCount = initialStatesCount + traceAdditionalStatesCount;
+    
+    Set<PITGroup> pitGroupsForTimelineStatesWithAdditional = new LinkedHashSet<PITGroup>(pitGroupsForTimelineStates);
+    Set<String> foundGroupIdsForAdditionalStates = new LinkedHashSet<String>();
+    
+    Map<String, GrouperProvisioningTarget> allProvisioningTargets = GrouperProvisioningSettings.getTargets(true);
+
     // refactor these into separate classes
     List<Timestamp> momentsOfInterest = new ArrayList<Timestamp>();
     Map<Timestamp, List<GuiAuditEntry>> eventsUserAudits = new LinkedHashMap<Timestamp, List<GuiAuditEntry>>();
@@ -431,8 +446,11 @@ public class UiV2Membership {
     Map<Timestamp, List<PITMembershipView>> eventsPITAddMembership = new LinkedHashMap<Timestamp, List<PITMembershipView>>();
     Map<Timestamp, List<PITGroup>> eventsPITDeleteMembershipGroup = new LinkedHashMap<Timestamp, List<PITGroup>>();
     Map<Timestamp, List<PITMembershipView>> eventsPITDeleteMembership = new LinkedHashMap<Timestamp, List<PITMembershipView>>();
+    Map<Timestamp, List<GcGrouperSyncMembership>> eventsProvisioningInTargetStart = new LinkedHashMap<Timestamp, List<GcGrouperSyncMembership>>();
+    Map<Timestamp, List<GcGrouperSyncMembership>> eventsProvisioningInTargetEnd = new LinkedHashMap<Timestamp, List<GcGrouperSyncMembership>>();
     Map<Timestamp, Map<PITGroup, Boolean>> states = new LinkedHashMap<Timestamp, Map<PITGroup, Boolean>>();
-       
+    Map<Timestamp, Timestamp> toDates = new LinkedHashMap<Timestamp, Timestamp>();
+    
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
       @Override
@@ -507,10 +525,14 @@ public class UiV2Membership {
           eventsPITAddMembershipGroup.put(momentOfInterestTimestamp, new ArrayList<PITGroup>());
           eventsPITDeleteMembership.put(momentOfInterestTimestamp, new ArrayList<PITMembershipView>());
           eventsPITDeleteMembershipGroup.put(momentOfInterestTimestamp, new ArrayList<PITGroup>());
+          eventsProvisioningInTargetStart.put(momentOfInterestTimestamp, new ArrayList<GcGrouperSyncMembership>());
+          eventsProvisioningInTargetEnd.put(momentOfInterestTimestamp, new ArrayList<GcGrouperSyncMembership>());
           states.put(momentOfInterestTimestamp, new LinkedHashMap<PITGroup, Boolean>());
                 
           Timestamp fromDate = new Timestamp(fromLong);
           Timestamp toDate = new Timestamp(toLong);
+          
+          toDates.put(momentOfInterestTimestamp, toDate);
                 
           if (membershipGuiContainer.isTraceMembershipTimelineShowUserAudit()) {
             UserAuditQuery userAuditQuery = new UserAuditQuery();
@@ -541,12 +563,21 @@ public class UiV2Membership {
                 continue;
               }
               
+              String userAuditGroupId = guiUserAudit.getGuiGroup().getGroup().getId();
+              
               if (!isWheelOrRoot && !guiUserAudit.getGuiGroup().getGroup().canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
                 // no access so return
                 continue;
               }
         
               eventsUserAudits.get(momentOfInterestTimestamp).add(guiUserAudit);
+              if (!foundGroupIdsForAdditionalStates.contains(userAuditGroupId) && pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                foundGroupIdsForAdditionalStates.add(userAuditGroupId);
+                Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(userAuditGroupId, false);
+                if (pitGroups.size() > 0) {
+                  pitGroupsForTimelineStatesWithAdditional.add(pitGroups.iterator().next());
+                }
+              }
             }
           }
           
@@ -567,6 +598,10 @@ public class UiV2Membership {
               
               eventsPITAddMembership.get(momentOfInterestTimestamp).add(pitMembershipStarted);
               eventsPITAddMembershipGroup.get(momentOfInterestTimestamp).add(currentPITGroup);
+              
+              if (pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                pitGroupsForTimelineStatesWithAdditional.add(currentPITGroup);
+              }
             }
             
             Set<PITMembershipView> pitMembershipsEnded = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITMemberAndPITFieldAndEndTimeRange(pitMember.getId(), pitField.getId(), fromDate, toDate);
@@ -585,10 +620,73 @@ public class UiV2Membership {
               
               eventsPITDeleteMembership.get(momentOfInterestTimestamp).add(pitMembershipEnded);
               eventsPITDeleteMembershipGroup.get(momentOfInterestTimestamp).add(currentPITGroup);
+              
+              if (pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                pitGroupsForTimelineStatesWithAdditional.add(currentPITGroup);
+              }
             }
           }
           
-          for (PITGroup pitGroupForState : pitGroupsForTimelineStates) {
+          if (membershipGuiContainer.isTraceMembershipTimelineShowProvisioningEvents()) {
+            List<GcGrouperSyncMembership> gcGrouperSyncMembershipsStarted = GrouperProvisioningService.retrieveGcGrouperSyncMembershipsByMemberIdAndInTargetStartTimeRange(pitMember.getSourceId(), fromDate, toDate);
+
+            for (GcGrouperSyncMembership gcGrouperSyncMembership : gcGrouperSyncMembershipsStarted) {
+              String currentGroupId = gcGrouperSyncMembership.getGrouperSyncGroup().getGroupId();
+
+              if (!isWheelOrRoot) {
+                Group currentGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currentGroupId, false);
+                GrouperProvisioningTarget currentGrouperProvisioningTarget = allProvisioningTargets.get(gcGrouperSyncMembership.getGrouperSync().getProvisionerName());
+                if (currentGroup == null || currentGrouperProvisioningTarget == null ||
+                    !GrouperProvisioningService.isTargetViewable(currentGrouperProvisioningTarget, loggedInGrouperSession.getSubject(), currentGroup) ||
+                    !currentGroup.canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
+                  // no access so return
+                  continue;
+                }
+              }
+              
+              eventsProvisioningInTargetStart.get(momentOfInterestTimestamp).add(gcGrouperSyncMembership);        
+              if (!foundGroupIdsForAdditionalStates.contains(currentGroupId) && pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                foundGroupIdsForAdditionalStates.add(currentGroupId);
+                Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(currentGroupId, false);
+                if (pitGroups.size() > 0) {
+                  pitGroupsForTimelineStatesWithAdditional.add(pitGroups.iterator().next());
+                }
+              }
+            }
+            
+            List<GcGrouperSyncMembership> gcGrouperSyncMembershipsEnded = GrouperProvisioningService.retrieveGcGrouperSyncMembershipsByMemberIdAndInTargetEndTimeRange(pitMember.getSourceId(), fromDate, toDate);
+
+            for (GcGrouperSyncMembership gcGrouperSyncMembership : gcGrouperSyncMembershipsEnded) {
+              String currentGroupId = gcGrouperSyncMembership.getGrouperSyncGroup().getGroupId();
+
+              if (!isWheelOrRoot) {
+                Group currentGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(currentGroupId, false);
+                GrouperProvisioningTarget currentGrouperProvisioningTarget = allProvisioningTargets.get(gcGrouperSyncMembership.getGrouperSync().getProvisionerName());
+                if (currentGroup == null || currentGrouperProvisioningTarget == null ||
+                    !GrouperProvisioningService.isTargetViewable(currentGrouperProvisioningTarget, loggedInGrouperSession.getSubject(), currentGroup) ||
+                    !currentGroup.canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
+                  // no access so return
+                  continue;
+                }
+              }
+              
+              eventsProvisioningInTargetEnd.get(momentOfInterestTimestamp).add(gcGrouperSyncMembership);
+              if (!foundGroupIdsForAdditionalStates.contains(currentGroupId) && pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                foundGroupIdsForAdditionalStates.add(currentGroupId);
+                Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(currentGroupId, false);
+                if (pitGroups.size() > 0) {
+                  pitGroupsForTimelineStatesWithAdditional.add(pitGroups.iterator().next());
+                }
+              }
+            }
+          }
+        }
+        
+        for (int i = 0; i < momentsOfInterest.size(); i++) {
+          Timestamp momentOfInterestTimestamp = momentsOfInterest.get(i);
+          Timestamp toDate = toDates.get(momentOfInterestTimestamp);
+
+          for (PITGroup pitGroupForState : pitGroupsForTimelineStatesWithAdditional) {
             
             Set<PITMembershipView> pitMembershipsForState = GrouperDAOFactory.getFactory().getPITMembershipView().findAllByPITOwnerAndPITMemberAndPITField(pitGroupForState.getId(), pitMember.getId(), pitField.getId(), toDate, toDate, null);
             if (pitMembershipsForState.size() > 0) {
@@ -618,6 +716,8 @@ public class UiV2Membership {
       List<PITGroup> currEventsPITAddMembershipGroup = eventsPITAddMembershipGroup.get(momentOfInterestTimestamp);
       List<PITMembershipView> currEventsPITDeleteMembership = eventsPITDeleteMembership.get(momentOfInterestTimestamp);
       List<PITGroup> currEventsPITDeleteMembershipGroup = eventsPITDeleteMembershipGroup.get(momentOfInterestTimestamp);
+      List<GcGrouperSyncMembership> currEventsProvisioningInTargetStart = eventsProvisioningInTargetStart.get(momentOfInterestTimestamp);
+      List<GcGrouperSyncMembership> currEventsProvisioningInTargetEnd = eventsProvisioningInTargetEnd.get(momentOfInterestTimestamp);
       Map<PITGroup, Boolean> currStates = states.get(momentOfInterestTimestamp);
       
       membershipGuiContainer.setGuiAuditDateCurrent(momentOfInterestTimestamp);
@@ -688,6 +788,30 @@ public class UiV2Membership {
         }
         
         sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelinePITAuditDeleteMembership"));
+      }
+      
+      for (GcGrouperSyncMembership gcGrouperSyncMembership : currEventsProvisioningInTargetStart) {
+        membershipGuiContainer.setGuiGcGrouperSyncMembershipCurrent(new GuiGcGrouperSyncMembership(gcGrouperSyncMembership));
+        
+        long timestamp = gcGrouperSyncMembership.getInTargetStart().getTime();
+        
+        if (sortedEvents.get(timestamp) == null) {
+          sortedEvents.put(timestamp, new TreeSet<String>());
+        }
+        
+        sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineProvisioningTargetStart"));
+      }
+      
+      for (GcGrouperSyncMembership gcGrouperSyncMembership : currEventsProvisioningInTargetEnd) {
+        membershipGuiContainer.setGuiGcGrouperSyncMembershipCurrent(new GuiGcGrouperSyncMembership(gcGrouperSyncMembership));
+        
+        long timestamp = gcGrouperSyncMembership.getInTargetEnd().getTime();
+        
+        if (sortedEvents.get(timestamp) == null) {
+          sortedEvents.put(timestamp, new TreeSet<String>());
+        }
+        
+        sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineProvisioningTargetEnd"));
       }
       
       for (long timestamp : sortedEvents.keySet()) {

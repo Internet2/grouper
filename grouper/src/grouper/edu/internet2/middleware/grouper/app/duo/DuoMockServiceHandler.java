@@ -257,9 +257,19 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(colonIndex != -1, "Need to pass in integrationKey and password in Authorization header");
     String integrationKey = credentials.substring(0, colonIndex).trim();
     
-    String configId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.duo.mock.configId");
-    String expectedIntegrationKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminIntegrationKey");
-    String adminDomainName = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminDomainName");
+    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.duo.mock.configId");
+    if (StringUtils.isBlank(configId)) {
+      configId = "duo1";
+    }
+    String expectedIntegrationKey = GrouperConfig.retrieveConfig().propertyValueString("grouper.duoConnector."+configId+".adminIntegrationKey");
+    if (StringUtils.isBlank(expectedIntegrationKey)) {
+      expectedIntegrationKey = "DI3GFYRTLYKA0J3E3U1H";
+    }
+    
+    String adminDomainName = GrouperConfig.retrieveConfig().propertyValueString("grouper.duoConnector."+configId+".adminDomainName");
+    if (StringUtils.isBlank(adminDomainName)) {
+      adminDomainName = "localhost:8080/grouper/mockServices/duo";
+    }
     if (!StringUtils.equals(expectedIntegrationKey, integrationKey)) {
       throw new RuntimeException("Integration key does not match with what is in grouper config");
     }
@@ -295,7 +305,10 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     
     String hmacSource = date + "\n" + method + "\n" + adminDomainName + "\n" + path + "\n" + paramsLine;
     
-    String adminSecretKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminSecretKey");
+    String adminSecretKey = GrouperConfig.retrieveConfig().propertyValueString("grouper.duoConnector."+configId+".adminSecretKey");
+    if (StringUtils.isBlank(adminSecretKey)) {
+      adminSecretKey = "PxtwEr5XxxpGHYxj39vQnmjtPKEq1G1rurdwH7N5";
+    }
     
     String hmac = new HmacUtils(HmacAlgorithms.HMAC_SHA_1, adminSecretKey).hmacHex(hmacSource);
     if (!StringUtils.equals(hmac, password)) {
@@ -332,6 +345,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -395,6 +409,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -433,6 +448,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -502,6 +518,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -623,6 +640,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
       checkAuthorization(mockServiceRequest);
       checkRequestContentTypeAndDateHeader(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -680,6 +698,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
       checkAuthorization(mockServiceRequest);
       checkRequestContentTypeAndDateHeader(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -759,6 +778,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
       checkAuthorization(mockServiceRequest);
       checkRequestContentTypeAndDateHeader(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -800,6 +820,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -860,6 +881,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -930,6 +952,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -969,6 +992,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
       checkAuthorization(mockServiceRequest);
       checkRequestContentTypeAndDateHeader(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -1115,6 +1139,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }
@@ -1148,6 +1173,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     try {      
       checkAuthorization(mockServiceRequest);
     } catch (Exception e) {
+      e.printStackTrace();
       mockServiceResponse.setResponseCode(401);
       return;
     }

@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
 import edu.internet2.middleware.grouper.j2ee.MockServiceResponse;
 import edu.internet2.middleware.grouper.j2ee.MockServiceServlet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class AwsScim2MockServiceHandler extends MockServiceHandler {
@@ -175,6 +176,8 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     }
     String authorizationToken = GrouperUtil.prefixOrSuffix(bearerToken, "Bearer ", false);
 
+    ConfigPropertiesCascadeBase.clearCache();
+    
     Pattern clientIdPattern = Pattern.compile("^grouper\\.wsBearerToken\\.([^.]+)\\.accessTokenPassword$");
     String configId = null;
     for (String propertyName : GrouperLoaderConfig.retrieveConfig().propertyNames()) {
