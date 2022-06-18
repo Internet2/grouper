@@ -445,7 +445,7 @@ public class GrouperProvisioningLinkLogic {
     }
     // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
     GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache0 = 
-        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[0];
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[0];
     boolean hasEntityLinkAttributeValueCache0 = grouperProvisioningConfigurationAttributeDbCache0 != null
         && grouperProvisioningConfigurationAttributeDbCache0.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
     GrouperProvisioningConfigurationAttribute entityLinkGroupAttributeValueCache0Attribute = 
