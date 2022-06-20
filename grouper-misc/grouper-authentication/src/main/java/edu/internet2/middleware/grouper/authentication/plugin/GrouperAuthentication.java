@@ -16,7 +16,6 @@ public class GrouperAuthentication implements BundleActivator {
 
     @Override
     public void start(BundleContext context) throws Exception {
-        System.out.println("hello");
         ExternalAuthenticationServletContainerInitializer externalAuthenticationServletContainerInitializer = new ExternalAuthenticationServletContainerInitializer(context);
         ServiceRegistration easciRegistration = context.registerService(ServletContainerInitializer.class, externalAuthenticationServletContainerInitializer, new Hashtable<>());
         registrationMap.put(ExternalAuthenticationServletContainerInitializer.class.getCanonicalName(), easciRegistration);
