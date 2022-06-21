@@ -184,7 +184,7 @@
         <java-ipv6.version>0.17</java-ipv6.version>
         
         <!-- grouper-ui -->
-        <csrfguard.version>3.1.0</csrfguard.version>
+        <csrfguard.version>4.0.0</csrfguard.version>
         <commons.fileupload.version>1.3.3</commons.fileupload.version>
         <jstl.version>1.2.1</jstl.version>
         <struts.version>1.2.4</struts.version>
