@@ -347,6 +347,8 @@ public class GrouperProvisioningLinkLogic {
 
         this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
         
+        this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(null);
+
         for (ProvisioningGroup grouperTargetGroup : grouperTargetGroups) {
           grouperTargetGroup.getProvisioningGroupWrapper().setGrouperTargetGroup(grouperTargetGroup);
         }

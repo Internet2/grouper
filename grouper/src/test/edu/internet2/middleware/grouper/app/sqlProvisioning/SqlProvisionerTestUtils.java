@@ -240,6 +240,10 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "entityAttribute");
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0entityAttribute", "uuid");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1source", "grouper");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1type", "entityAttribute");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1entityAttribute", "name");
       
       configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
       configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "name");

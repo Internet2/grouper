@@ -78,7 +78,7 @@ public class TableSyncOtherJob extends OtherJobBase {
    * @param gcTableSync
    * @param store if should store
    */
-  private void updateHib3LoaderLog(Hib3GrouperLoaderLog hib3GrouperLoaderLog, GcTableSync gcTableSync, boolean store) {
+  public static void updateHib3LoaderLog(Hib3GrouperLoaderLog hib3GrouperLoaderLog, GcTableSync gcTableSync, boolean store) {
     GcTableSyncOutput gcTableSyncOutput = gcTableSync.getGcTableSyncOutput();
     if (gcTableSyncOutput == null) {
       return;

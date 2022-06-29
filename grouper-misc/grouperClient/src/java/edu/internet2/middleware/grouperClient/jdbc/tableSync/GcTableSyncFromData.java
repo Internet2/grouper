@@ -131,7 +131,29 @@ public class GcTableSyncFromData {
     this.data = theData;
     return this;
   }
-  
+
+  /**
+   * gc table sync
+   */
+  private GcTableSync gcTableSync = new GcTableSync();
+
+  /**
+   * gc table sync
+   * @return
+   */
+  public GcTableSync getGcTableSync() {
+    return gcTableSync;
+  }
+
+  /**
+   * gc table sync
+   * @param gcTableSync
+   */
+  public void setGcTableSync(GcTableSync gcTableSync) {
+    this.gcTableSync = gcTableSync;
+  }
+
+
   /**
    * sync data from a list of object arrays to a SQL table
    */
@@ -152,7 +174,6 @@ public class GcTableSyncFromData {
     this.debugMapPrefix = GrouperClientUtils.defaultString(this.debugMapPrefix);
     String columnsCommaSeparated = GrouperClientUtils.join(this.columnNames.iterator(), ",");
     // setup the table sync
-    GcTableSync gcTableSync = new GcTableSync();
     gcTableSync.setGcTableSyncConfiguration(new GcTableSyncConfiguration());
     gcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
 
@@ -199,6 +220,63 @@ public class GcTableSyncFromData {
 
     GcTableSyncSubtype.fullSyncFull.syncData(this.debugMap, gcTableSync);
 
+    // try to get the retrieved and updated times
+    {  
+      long retrieveMillis = 0;
+      long syncMillis = 0;
+
+      {
+        //  retrieveDataFromMillis: 412, 
+        //  retrieveDataToMillis: 420
+        Long retrieveDataFromMillis = (Long)debugMap.get("retrieveDataFromMillis");
+        Long retrieveDataToMillis = (Long)debugMap.get("retrieveDataToMillis");
+
+        // if we have both then we did this in threads so just take the max
+        if (retrieveDataFromMillis != null && retrieveDataToMillis != null) {
+          retrieveMillis += Math.max(retrieveDataFromMillis, retrieveDataToMillis);
+        } else if (retrieveDataFromMillis != null) {
+          retrieveMillis += retrieveDataFromMillis;
+        } else if (retrieveDataToMillis != null) {
+          retrieveMillis += retrieveDataToMillis;
+        }
+      }
+      {          
+        //  selectAllColumnsMillis: 1,
+        Long selectAllColumnsMillis = (Long)debugMap.get("selectAllColumnsMillis");
+        if (selectAllColumnsMillis != null) {
+          retrieveMillis += selectAllColumnsMillis;
+        }
+      }
+      {          
+        //  deletesMillis
+        Long deletesMillis = (Long)debugMap.get("deletesMillis");
+        if (deletesMillis != null) {
+          syncMillis += deletesMillis;
+        }
+      }
+      {          
+        //  insertsMillis
+        Long insertsMillis = (Long)debugMap.get("insertsMillis");
+        if (insertsMillis != null) {
+          syncMillis += insertsMillis;
+        }
+      }
+      {          
+        //  updatesMillis
+        Long updatesMillis = (Long)debugMap.get("updatesMillis");
+        if (updatesMillis != null) {
+          syncMillis += updatesMillis;
+        }
+      }
+      this.gcTableSync.getGcTableSyncOutput().setMillisGetData(retrieveMillis);
+      this.gcTableSync.getGcTableSyncOutput().setMillisLoadData(syncMillis);
+      
+      if (this.gcTableSync.getGcGrouperSync() != null && this.gcTableSync.getGcGrouperSync().getRecordsCount() != null) {
+        this.gcTableSync.getGcTableSyncOutput().setTotalCount(this.gcTableSync.getGcGrouperSync().getRecordsCount());
+      }
+    }
+
+    
   }
  
 }

@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
 public class GrouperProvisioningConfigurationAttributeDbCache {
 
@@ -58,6 +59,63 @@ public class GrouperProvisioningConfigurationAttributeDbCache {
 //        
 //        
 //        Object value = gcGrouperSyncGroup.retrieveField("groupAttributeValueCache" + cache.getIndex());
+//        if (!GrouperUtil.isBlank(value) && !GrouperUtil.equals(value, currentValue) && !cachedValues.contains(value)) {
+//          cachedValues.add(value);
+//        }
+//      }
+
+      
+    }
+    return cachedValues;
+  }
+  
+  /**
+   * get all the cached values for an entity attribute.
+   * these are prioritized by most important.
+   * note, the current value will not be returned
+   * @param someTargetEntity
+   * @param attributeName
+   * @return the set of values
+   */
+  public static Set<Object> cachedValuesForEntity(ProvisioningEntity someTargetEntity, String attributeName) {
+    Set<Object> cachedValues = new LinkedHashSet<Object>();
+    if (someTargetEntity.getProvisioningEntityWrapper() == null 
+        || someTargetEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember() == null) {
+      return cachedValues;
+    }
+    GcGrouperSyncMember gcGrouperSyncMember = someTargetEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember();
+    Object currentValue = someTargetEntity.retrieveAttributeValue(attributeName);
+    GrouperProvisioner grouperProvisioner = someTargetEntity.getGrouperProvisioner();
+    // look in target first
+    for (GrouperProvisioningConfigurationAttributeDbCacheSource source : 
+      new GrouperProvisioningConfigurationAttributeDbCacheSource[] {
+          GrouperProvisioningConfigurationAttributeDbCacheSource.target,
+          GrouperProvisioningConfigurationAttributeDbCacheSource.grouper
+      }) {
+
+      // see if there is an attribute cached
+      for (GrouperProvisioningConfigurationAttributeDbCache cache :
+        grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
+        if (cache == null || cache.getSource() != source || !StringUtils.equals(attributeName, cache.getAttributeName())) {
+          continue;
+        }
+        Object value = gcGrouperSyncMember.retrieveField("entityAttributeValueCache" + cache.getIndex());
+        if (!GrouperUtil.isBlank(value) && !GrouperUtil.equals(value, currentValue) && !cachedValues.contains(value)) {
+          cachedValues.add(value);
+        }
+      }
+
+      // TODO finish this for object cache
+//      // see if there is an object cached
+//      for (GrouperProvisioningConfigurationAttributeDbCache cache :
+//        grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
+//        if (cache == null || cache.getSource() != source || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+//          continue;
+//        }
+//        
+//        
+//        
+//        Object value = gcGrouperSyncGroup.retrieveField("entityAttributeValueCache" + cache.getIndex());
 //        if (!GrouperUtil.isBlank(value) && !GrouperUtil.equals(value, currentValue) && !cachedValues.contains(value)) {
 //          cachedValues.add(value);
 //        }
