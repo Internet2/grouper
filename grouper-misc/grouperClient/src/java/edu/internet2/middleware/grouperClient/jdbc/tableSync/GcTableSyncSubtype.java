@@ -1692,7 +1692,15 @@ public enum GcTableSyncSubtype {
     {
       Set<MultiKey> primaryKeysToDelete = new LinkedHashSet<MultiKey>(gcTableSyncTableDataTo.allPrimaryKeys());
       primaryKeysToDelete.removeAll(gcTableSyncTableDataFrom.allPrimaryKeys());
-      
+      if (GrouperClientUtils.length(primaryKeysToDelete) > 0) {
+        int count=0;
+        for (MultiKey key : primaryKeysToDelete) {
+          debugMap.put("delete_" + count, GrouperClientUtils.toStringForLog(key));
+          if (count++ >= 2) {
+            break;
+          }
+        }
+      }
       deletes = runDeletes(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToDelete, "deletes");
       results[2] = deletes;
     }      
@@ -1702,6 +1710,16 @@ public enum GcTableSyncSubtype {
       Set<MultiKey> primaryKeysToInsert = new LinkedHashSet<MultiKey>(gcTableSyncTableDataFrom.allPrimaryKeys());
       primaryKeysToInsert.removeAll(gcTableSyncTableDataTo.allPrimaryKeys());
       
+      if (GrouperClientUtils.length(primaryKeysToInsert) > 0) {
+        int count=0;
+        for (MultiKey key : primaryKeysToInsert) {
+          debugMap.put("insert_" + count, GrouperClientUtils.toStringForLog(key));
+          if (count++ >= 2) {
+            break;
+          }
+        }
+      }
+
       inserts = runInserts(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToInsert, 
           gcTableSyncTableDataFrom.allIndexByPrimaryKey(), "inserts");
       results[0] = inserts;
@@ -1722,11 +1740,21 @@ public enum GcTableSyncSubtype {
         if (multiKeyDataFrom.equals(multiKeyDataTo)) {
           continue;
         }
-        
         // must be an update
         primaryKeysToUpdate.add(multiKey);
         
       }
+
+      if (GrouperClientUtils.length(primaryKeysToUpdate) > 0) {
+        int count=0;
+        for (MultiKey key : primaryKeysToUpdate) {
+          debugMap.put("update_" + count, GrouperClientUtils.toStringForLog(key));
+          if (count++ >= 2) {
+            break;
+          }
+        }
+      }
+
       updates = runUpdates(debugMap, gcTableSync.getDataBeanTo(), primaryKeysToUpdate, 
           gcTableSyncTableDataFrom.allIndexByPrimaryKey(), "updates");
       results[1] = updates;
@@ -1793,7 +1821,7 @@ public enum GcTableSyncSubtype {
         for (int batchIndex = 0;batchIndex < numberOfBatches; batchIndex++) {
 
           List<MultiKey> primaryKeysToUpdateBatch = GrouperClientUtils.batchList(primaryKeysToUpdateList, batchSize, batchIndex);
-      
+
           //
           GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanTo.getTableMetadata();
           sql = "update " 
