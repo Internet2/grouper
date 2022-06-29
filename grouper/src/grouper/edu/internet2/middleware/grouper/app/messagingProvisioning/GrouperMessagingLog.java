@@ -10,7 +10,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperMessagingLog {
  
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperMessagingLog.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperMessagingLog.class);
  
   /**
    * log something to the log file

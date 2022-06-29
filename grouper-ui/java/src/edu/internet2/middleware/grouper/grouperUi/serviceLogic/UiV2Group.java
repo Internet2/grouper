@@ -2734,7 +2734,7 @@ public class UiV2Group {
   }
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2Group.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Group.class);
 
 
   /**

@@ -84,7 +84,7 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     return LdapSessionUtils.logEnd();
   }
 
-  private static Log log = LogFactory.getLog(LdapSourceAdapter.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(LdapSourceAdapter.class);
 
   private Properties props;
   protected String subjectIDAttributeName = null;

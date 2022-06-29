@@ -186,7 +186,7 @@ public class UiV2Service extends UiServiceLogicBase {
   
   /** logger */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(UiV2Service.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Service.class);
 
   /**
    * view folders for one service

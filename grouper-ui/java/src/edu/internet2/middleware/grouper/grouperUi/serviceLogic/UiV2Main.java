@@ -103,7 +103,7 @@ import edu.internet2.middleware.subject.SubjectTooManyResults;
 public class UiV2Main extends UiServiceLogicBase {
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(UiV2Main.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Main.class);
 
   /**
    * search submit from upper right

@@ -254,9 +254,9 @@ public class GrouperUiFilter implements Filter {
     
     return result;
   }
-
+  
   /** logger */
-  private static Log LOG = LogFactory.getLog(GrouperUiFilter.class);
+  private static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperUiFilter.class);
 
   /**
    * if in request, get the start time

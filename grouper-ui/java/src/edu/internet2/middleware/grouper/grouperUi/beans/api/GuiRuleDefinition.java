@@ -193,7 +193,7 @@ public class GuiRuleDefinition implements Serializable, Comparable {
   private boolean assignedToStem;
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(GuiRuleDefinition.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GuiRuleDefinition.class);
   
   /**
    * @return the ruleDefinition

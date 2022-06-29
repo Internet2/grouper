@@ -79,7 +79,7 @@ import edu.internet2.middleware.subject.Subject;
  * @version $Id: DefaultComparatorImpl.java,v 1.4 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class DefaultComparatorImpl implements GrouperComparator {
-	protected static final Log LOG = LogFactory.getLog(DefaultComparatorImpl.class);
+	protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(DefaultComparatorImpl.class);
 	
 	private String context;
 	private Map helpers = new HashMap();

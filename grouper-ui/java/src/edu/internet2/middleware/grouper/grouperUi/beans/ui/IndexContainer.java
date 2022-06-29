@@ -798,7 +798,7 @@ public class IndexContainer {
 
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(IndexContainer.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(IndexContainer.class);
 
   /**
    * for index page, this is a short list of user's services, lazy load if null

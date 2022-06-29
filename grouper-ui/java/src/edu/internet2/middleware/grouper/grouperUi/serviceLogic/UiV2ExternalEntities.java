@@ -82,7 +82,7 @@ public class UiV2ExternalEntities {
   }
   
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2ExternalEntities.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2ExternalEntities.class);
 
   
   /**

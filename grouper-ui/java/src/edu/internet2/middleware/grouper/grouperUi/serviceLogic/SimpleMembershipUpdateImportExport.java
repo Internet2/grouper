@@ -73,7 +73,7 @@ import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 public class SimpleMembershipUpdateImportExport {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(SimpleMembershipUpdateImportExport.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(SimpleMembershipUpdateImportExport.class);
   /**
    * cols (tolower) which are cols which are not attributes
    */

@@ -59,7 +59,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class UiV2ExternalSubjectSelfRegister {
   
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2ExternalSubjectSelfRegister.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2ExternalSubjectSelfRegister.class);
   
   public void externalSubjectSelfRegister(HttpServletRequest request, HttpServletResponse response) {
     final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();

@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperScim2Log {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperScim2Log.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperScim2Log.class);
  
   /**
    * log something to the log file

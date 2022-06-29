@@ -83,7 +83,7 @@ public class DefaultUIGroupPrivilegeResolver implements
 	Map privs;
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(DefaultUIGroupPrivilegeResolver.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(DefaultUIGroupPrivilegeResolver.class);
 
 
 	/* (non-Javadoc)

@@ -376,7 +376,7 @@ public class GuiAuditEntry {
   private AuditEntry auditEntry;
   
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(GuiAuditEntry.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GuiAuditEntry.class);
 
   /**
    * underlying audit entry

@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
 public class UiV2AttributeDefAction {
   
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2AttributeDefAction.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2AttributeDefAction.class);
   
   /**
    * save attribute def action from edit screen

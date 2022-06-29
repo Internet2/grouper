@@ -81,7 +81,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperMessageTag extends MessageTag {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperMessageTag.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperMessageTag.class);
 
   /** in the nav.properties, terms must start with this prefix.  multiple terms can exist for one tooltip */
   private static final String TERM_PREFIX = "term.";

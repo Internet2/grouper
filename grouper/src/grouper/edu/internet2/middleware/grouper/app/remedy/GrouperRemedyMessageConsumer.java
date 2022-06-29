@@ -35,7 +35,7 @@ import edu.internet2.middleware.grouperClientExt.xmpp.GcDecodeEsbEvents;
 public class GrouperRemedyMessageConsumer implements Job {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperRemedyMessageConsumer.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperRemedyMessageConsumer.class);
 
   /**
    * 

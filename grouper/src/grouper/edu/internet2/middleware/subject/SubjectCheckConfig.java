@@ -47,7 +47,7 @@ public class SubjectCheckConfig {
   public static final String FIND_SUBJECT_BY_ID_ON_CHECK_CONFIG = "findSubjectByIdOnCheckConfig";
   
   /** logger */
-  private static Log log = LogFactory.getLog(SubjectCheckConfig.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(SubjectCheckConfig.class);
 
   /**
    * make surce classpath file is there

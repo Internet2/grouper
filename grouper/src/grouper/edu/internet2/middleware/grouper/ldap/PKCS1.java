@@ -52,7 +52,7 @@ class PKCS1 {
 	byte[] code;
 	BigInteger[] ints;
 
-    private static Log log = LogFactory.getLog(PKCS1.class);
+    private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(PKCS1.class);
 
 	public PKCS1() { }
 

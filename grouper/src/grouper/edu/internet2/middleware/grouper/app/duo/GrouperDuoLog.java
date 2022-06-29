@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperDuoLog {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperDuoLog.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperDuoLog.class);
  
   /**
    * log something to the log file

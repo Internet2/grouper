@@ -2,9 +2,9 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
 /**
  * ldap sync log
@@ -14,7 +14,7 @@ public class LdapSyncLog {
   /**
    * log object
    */
-  private static final Log LOG = LogFactory.getLog(LdapSyncLog.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(LdapSyncLog.class);
   
   /**
    * debug log

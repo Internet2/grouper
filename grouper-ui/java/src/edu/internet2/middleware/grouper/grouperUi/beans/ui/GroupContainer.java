@@ -68,7 +68,7 @@ import edu.internet2.middleware.subject.Subject;
 public class GroupContainer {
   
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(GroupContainer.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GroupContainer.class);
 
  /**
   * group types for edit to show on details and group edit screen

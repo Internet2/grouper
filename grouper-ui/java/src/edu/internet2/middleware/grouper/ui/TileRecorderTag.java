@@ -56,7 +56,7 @@ import org.apache.commons.logging.LogFactory;
  */
 
 public class TileRecorderTag extends TagSupport implements TryCatchFinally{
-	protected Log LOG = LogFactory.getLog(TileRecorderTag.class);
+	protected Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(TileRecorderTag.class);
 	public void doCatch(Throwable ex) throws Throwable {
 		LOG.error(ex);
 		try {

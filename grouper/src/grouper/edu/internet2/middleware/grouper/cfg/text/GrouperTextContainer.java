@@ -31,7 +31,7 @@ public class GrouperTextContainer {
   }
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(GrouperTextContainer.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperTextContainer.class);
 
   /**
    * variables to replace once we are in the text and replacing the second time

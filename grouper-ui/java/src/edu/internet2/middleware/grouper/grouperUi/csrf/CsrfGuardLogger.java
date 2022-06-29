@@ -16,7 +16,7 @@ import org.owasp.csrfguard.log.LogLevel;
 public class CsrfGuardLogger implements ILogger {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(CsrfGuardLogger.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(CsrfGuardLogger.class);
 
   /**
    * @see org.owasp.csrfguard.log.ILogger#log(java.lang.String)

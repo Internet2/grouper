@@ -20,7 +20,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperDigitalMarketplaceLog {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperDigitalMarketplaceLog.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperDigitalMarketplaceLog.class);
  
   /**
    * log something to the log file

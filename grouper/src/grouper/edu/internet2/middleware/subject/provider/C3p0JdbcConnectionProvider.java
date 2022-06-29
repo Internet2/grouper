@@ -46,7 +46,7 @@ public class C3p0JdbcConnectionProvider implements JdbcConnectionProvider {
   private ComboPooledDataSource comboPooledDataSource;
   
   /** logger */
-  private static Log log = LogFactory.getLog(C3p0JdbcConnectionProvider.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(C3p0JdbcConnectionProvider.class);
 
   /**
    * @see edu.internet2.middleware.subject.provider.JdbcConnectionProvider#connectionBean()

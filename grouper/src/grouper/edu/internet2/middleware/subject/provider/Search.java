@@ -50,7 +50,7 @@ public class Search {
 
   /** */
   @SuppressWarnings("unused")
-  private static Log log = LogFactory.getLog(Search.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(Search.class);
 
   /** */
   protected Properties params = new Properties();

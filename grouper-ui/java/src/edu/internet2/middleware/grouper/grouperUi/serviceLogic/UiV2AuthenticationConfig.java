@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
 
 public class UiV2AuthenticationConfig {
   
-  protected static Log LOG = LogFactory.getLog(UiV2AuthenticationConfig.class);
+  protected static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2AuthenticationConfig.class);
   
   /**
    * if allowed to view authentication

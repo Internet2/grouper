@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
 
 public class UiV2OidcConfig {
   
-  protected static Log LOG = LogFactory.getLog(UiV2OidcConfig.class);
+  protected static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2OidcConfig.class);
   
   /**
    * if allowed to view oidc config

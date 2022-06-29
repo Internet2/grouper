@@ -573,7 +573,7 @@ public abstract class BaseSourceAdapter implements Source {
   /**
    * 
    */
-  private static Log log = LogFactory.getLog(BaseSourceAdapter.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(BaseSourceAdapter.class);
 
   /** */
   protected String id = null;

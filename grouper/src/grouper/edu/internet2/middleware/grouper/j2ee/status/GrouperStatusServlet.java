@@ -90,7 +90,7 @@ public class GrouperStatusServlet extends HttpServlet {
   private static int diagnosticErrorCount = 0;
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperStatusServlet.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperStatusServlet.class);
 
   /** start nanos of these status requests */
   private static ThreadLocal<Long> startNanos = new ThreadLocal<Long>();

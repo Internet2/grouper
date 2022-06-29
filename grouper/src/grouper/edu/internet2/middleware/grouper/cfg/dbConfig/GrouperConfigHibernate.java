@@ -64,7 +64,7 @@ public class GrouperConfigHibernate extends GrouperAPI implements Hib3GrouperVer
 
   private static Pattern subjectPropertiesConfigPattern = Pattern.compile("^subjectApi\\.source\\.([^.]+)\\..*$");
 
-  private static Log LOG = LogFactory.getLog(GrouperConfigHibernate.class);
+  private static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperConfigHibernate.class);
 
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreSave(edu.internet2.middleware.grouper.hibernate.HibernateSession)

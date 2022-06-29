@@ -70,7 +70,7 @@ public class LdapPEMSocketFactory {
    private TrustManager[] trustManagers;
    private KeyManager[] keyManagers;
 
-   private static Log log = LogFactory.getLog(LdapPEMSocketFactory.class);
+   private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(LdapPEMSocketFactory.class);
    
    /**
     * Create a socket factory from PEM files.

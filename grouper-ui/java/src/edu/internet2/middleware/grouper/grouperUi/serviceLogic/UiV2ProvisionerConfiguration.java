@@ -68,7 +68,7 @@ import edu.internet2.middleware.subject.Subject;
 public class UiV2ProvisionerConfiguration {
   
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2ProvisionerConfiguration.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2ProvisionerConfiguration.class);
   
   /**
    * keep an expirble cache of diagnostic progress for 5 hours (longest a diagnostics is expected).  This has multikey of session id and some random uuid

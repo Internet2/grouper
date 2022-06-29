@@ -128,7 +128,7 @@ public class SubjectUtils {
    */
   public static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
   /** logger */
-  private static Log log = LogFactory.getLog(SubjectUtils.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(SubjectUtils.class);
   /**
    * cache the properties read from resource 
    */

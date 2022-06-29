@@ -114,7 +114,7 @@ public class UiV2AttributeDef {
   public static final String PROPERTY_PREVENT_DELETE_IN_UI = "uiV2.attributeDef.preventDeleteInUi";
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2AttributeDef.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2AttributeDef.class);
 
   /**
    * results from retrieving results

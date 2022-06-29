@@ -80,7 +80,7 @@ public class UiV2AttributeDefName {
   public static final String PROPERTY_PREVENT_DELETE_IN_UI = "uiV2.attributeDefName.preventDeleteInUi";
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2AttributeDefName.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2AttributeDefName.class);
   
   /**
    * delete attribute def name
