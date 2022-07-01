@@ -1123,7 +1123,7 @@ public class GrouperUtil {
    */
   public static Log getLog(Class<?> theClass) {
     logDirsCreateIfNotDone();
-    return edu.internet2.middleware.grouper.util.GrouperUtil.getLog(theClass);
+    return LogFactory.getLog(theClass);
   }
 
   /**
