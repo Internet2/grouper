@@ -186,6 +186,55 @@ public class LdapProvisionerTestUtils {
     }
   }
   
+  public static void configureLdapProvisioner_1(LdapProvisionerTestConfigInput provisioningTestConfigInput) {
+   
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "class", LdapSync.class.getName());
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsIfNotExistInGrouper", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2entityAttribute", "ldap_dn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2source", "target");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2type", "entityAttribute");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "uid");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityMembershipAttributeName", "eduPersonEntitlement");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityMembershipAttributeValue", "name");
+    configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "ldapExternalSystemConfigId", "personLdap");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "3");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "entityAttributes");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", provisioningTestConfigInput.getSubjectSourcesToProvision());
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "ldap_dn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "eduPersonEntitlement");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "uid");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "subjectId");
+    configureProvisionerSuffix(provisioningTestConfigInput, "userSearchBaseDn", "ou=People,dc=example,dc=edu");
+    
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
+    
+//    configureProvisionerSuffix(provisioningTestConfigInput, "userSearchAllFilter", "(&(objectClass=person)(uid=*))");
+//    configureProvisionerSuffix(provisioningTestConfigInput, "userSearchFilter", "(&(objectClass=person)(uid=${targetEntity.retrieveAttributeValue('uid')}))");
+    
+//    configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
+//    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpression", "${gcGrouperSyncMember.getEntityAttributeValueCache2()}");
+//    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "translationScript");
+//    
+//    
+//    configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
+//    configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
+//    
+//    configureProvisionerSuffix(provisioningTestConfigInput, "userSearchAllFilter", "(&(objectClass=person)(uid=*))");
+//    configureProvisionerSuffix(provisioningTestConfigInput, "userSearchFilter", "(&(objectClass=person)(uid=${targetEntity.retrieveAttributeValue('uid')}))");
+  }
+  
   /**
    * @param provisioningTestConfigInput     
    * LdapProvisionerTestUtils.configureLdapProvisioner(

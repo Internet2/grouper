@@ -201,17 +201,17 @@ public class GrouperLoaderResultset {
         }
 
         if (hasSubjectIdCol) {
-          throw new RuntimeException("Result has a null subject_id, please correct the query (maybe just filter where subject_id is not null)" + debugInfo);
+          throw new RuntimeException("Result has a null/blank subject_id, please correct the query (maybe just filter where subject_id is not null/blank.)" + debugInfo);
         }
         if (hasSubjectIdentifierCol) {
-          throw new RuntimeException("Result has a null subject_identifer, please correct the query (maybe just filter where subject_identifier is not null)" + debugInfo);
+          throw new RuntimeException("Result has a null/blank subject_identifer, please correct the query (maybe just filter where subject_identifier is not null/blank.)" + debugInfo);
         }
         if (hasSubjectIdOrIdentifierCol) {
-          throw new RuntimeException("Result has a null subject_id_or_identifer, please correct the query (maybe just filter where subject_id_or_identifier is not null)" + debugInfo);
+          throw new RuntimeException("Result has a null/blank subject_id_or_identifer, please correct the query (maybe just filter where subject_id_or_identifier is not null/blank)" + debugInfo);
         }
         
         throw new RuntimeException(
-            "Loader job needs to have SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER and the values need to be not null! "
+            "Loader job needs to have SUBJECT_ID, SUBJECT_IDENTIFIER, or SUBJECT_ID_OR_IDENTIFIER and the values need to be not null/blank! "
                 + debugInfo);
 
       }

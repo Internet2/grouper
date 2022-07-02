@@ -86,9 +86,9 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
         provisionerSuffixToValue.put("metadata.4.showForGroup", "true");
       }
       
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForResourceProvisioningOptionsTeams"), true)) {
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForResourceProvisioningOptionsTeam"), true)) {
         numberOfMetadataItems++;
-        provisionerSuffixToValue.put("metadata.5.name", "md_resourceProvisioningOptionsTeams");
+        provisionerSuffixToValue.put("metadata.5.name", "md_resourceProvisioningOptionsTeam");
         provisionerSuffixToValue.put("metadata.5.showForGroup", "true");
       }
       

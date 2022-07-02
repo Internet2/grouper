@@ -8,22 +8,26 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   private String azureExternalSystemConfigId;
   
   private boolean allowOnlyMembersToPost;
+  private boolean assignableToRole;
   private boolean hideGroupInOutlook;
   private boolean subscribeNewGroupMembers;
   private boolean welcomeEmailDisabled;
+  private boolean azureGroupType;
   
-  private boolean resourceProvisioningOptionsTeams;
+  private boolean resourceProvisioningOptionsTeam;
 
   @Override
   public void configureSpecificSettings() {
     
     this.azureExternalSystemConfigId = this.retrieveConfigString("azureExternalSystemConfigId", true);
     
+    this.assignableToRole = GrouperUtil.booleanValue(this.retrieveConfigString("assignableToRole", false), false);
+    this.azureGroupType = GrouperUtil.booleanValue(this.retrieveConfigString("azureGroupType", false), false);
     this.allowOnlyMembersToPost = GrouperUtil.booleanValue(this.retrieveConfigString("allowOnlyMembersToPost", false), false);
     this.hideGroupInOutlook = GrouperUtil.booleanValue(this.retrieveConfigString("hideGroupInOutlook", false), false);
     this.subscribeNewGroupMembers = GrouperUtil.booleanValue(this.retrieveConfigString("subscribeNewGroupMembers", false), false);
     this.welcomeEmailDisabled = GrouperUtil.booleanValue(this.retrieveConfigString("welcomeEmailDisabled", false), false);
-    this.resourceProvisioningOptionsTeams = GrouperUtil.booleanValue(this.retrieveConfigString("resourceProvisioningOptionsTeams", false), false);
+    this.resourceProvisioningOptionsTeam = GrouperUtil.booleanValue(this.retrieveConfigString("resourceProvisioningOptionsTeam", false), false);
   }
 
   public String getAzureExternalSystemConfigId() {
@@ -33,8 +37,27 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   public void setAzureExternalSystemConfigId(String azureExternalSystemConfigId) {
     this.azureExternalSystemConfigId = azureExternalSystemConfigId;
   }
+  
+  
+  
+  public boolean isAssignableToRole() {
+    return assignableToRole;
+  }
 
   
+  public void setAssignableToRole(boolean assignableToRole) {
+    this.assignableToRole = assignableToRole;
+  }
+
+  public boolean isAzureGroupType() {
+    return azureGroupType;
+  }
+
+  
+  public void setAzureGroupType(boolean azureGroupType) {
+    this.azureGroupType = azureGroupType;
+  }
+
   public boolean isAllowOnlyMembersToPost() {
     return allowOnlyMembersToPost;
   }
@@ -73,13 +96,13 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   }
 
   
-  public boolean isResourceProvisioningOptionsTeams() {
-    return resourceProvisioningOptionsTeams;
+  public boolean isResourceProvisioningOptionsTeam() {
+    return resourceProvisioningOptionsTeam;
   }
 
   
-  public void setResourceProvisioningOptionsTeams(boolean resourceProvisioningOptionsTeams) {
-    this.resourceProvisioningOptionsTeams = resourceProvisioningOptionsTeams;
+  public void setResourceProvisioningOptionsTeams(boolean resourceProvisioningOptionsTeam) {
+    this.resourceProvisioningOptionsTeam = resourceProvisioningOptionsTeam;
   }
 
   

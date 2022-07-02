@@ -565,6 +565,16 @@ public class GrouperProvisioningCompare {
       default:
         throw new RuntimeException("Not expecting membership type");
     }
+    
+    // We're here because we're updating the membership attribute but we're not updating other attributes
+    if (grouperProvisioningUpdatable instanceof ProvisioningEntity && !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isUpdateEntities()) {
+      return;
+    }
+    
+    // We're here because we're updating the membership attribute but we're not updating other attributes
+    if (grouperProvisioningUpdatable instanceof ProvisioningGroup && !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isUpdateGroups()) {
+      return;
+    }
 
     Object grouperValue = grouperAttribute == null ? null : grouperAttribute.getValue();
     Object targetValue = targetAttribute == null ? null : targetAttribute.getValue();
@@ -801,9 +811,9 @@ public class GrouperProvisioningCompare {
     }
     
     
-    List<ProvisioningEntityWrapper> provisioningEntityWrappersForInsert = new ArrayList<ProvisioningEntityWrapper>();
-    List<ProvisioningEntityWrapper> provisioningEntityWrappersForUpdate = new ArrayList<ProvisioningEntityWrapper>();
-    List<ProvisioningEntityWrapper> provisioningEntityWrappersForDelete = new ArrayList<ProvisioningEntityWrapper>();
+    Set<ProvisioningEntityWrapper> provisioningEntityWrappersForInsert = new HashSet<ProvisioningEntityWrapper>();
+    Set<ProvisioningEntityWrapper> provisioningEntityWrappersForUpdate = new HashSet<ProvisioningEntityWrapper>();
+    Set<ProvisioningEntityWrapper> provisioningEntityWrappersForDelete = new HashSet<ProvisioningEntityWrapper>();
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper: GrouperUtil.nonNull(provisioningEntityWrappers)) {
       
@@ -851,10 +861,37 @@ public class GrouperProvisioningCompare {
         } else {
           // isDelete is applicable only for non-recalc 
           if (provisioningEntityWrapper.isDelete()) {
-            provisioningEntityWrappersForDelete.add(provisioningEntityWrapper);
-            continue;
             
-            //TODO if it's not a recalc and the behavior is not a delete, we need to delete memberships in the target (the ones that we know about hint, sync objects) if it's entity attributes
+            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteEntity(provisioningEntityWrapper.getGcGrouperSyncMember())) {
+              provisioningEntityWrappersForDelete.add(provisioningEntityWrapper);
+              continue;
+            }
+            
+            if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes 
+                && provisioningEntityWrapper.getGrouperTargetEntity() != null) {
+              String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+              
+              Set<?> attributeValueSet = provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValueSet(attributeForMemberships);
+              ProvisioningAttribute provisioningAttribute = provisioningEntityWrapper.getGrouperTargetEntity().getAttributes().get(attributeForMemberships);
+              boolean deleted = false;
+              for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
+                String membershipValue = GrouperUtil.stringValue(obj);
+                ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(membershipValue);
+                if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper.getGcGrouperSyncMembership())) {
+                  this.membershipDeleteCount++;
+                  countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+                  provisioningEntityWrapper.getGrouperTargetEntity().addInternal_objectChange(
+                    new ProvisioningObjectChange(attributeForMemberships, 
+                        ProvisioningObjectChangeAction.delete, membershipValue, null)
+                  );
+                  if (!deleted) {
+                    deleted = true;
+                    provisioningEntityWrappersForUpdate.add(provisioningEntityWrapper);
+                  }
+                }
+                
+              }
+            }
             
           }
           
@@ -954,7 +991,7 @@ public class GrouperProvisioningCompare {
         
         ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
         ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
-        
+
         compareAttributesForUpdate(provisioningEntitiesToUpdate, grouperTargetEntity == null ? null : grouperTargetEntity.getAttributes(),
             targetProvisioningEntity == null ? null : targetProvisioningEntity.getAttributes(), grouperTargetEntity);
         
@@ -988,10 +1025,9 @@ public class GrouperProvisioningCompare {
       }
     }
     
-    
-    List<ProvisioningGroupWrapper> provisioningGroupWrappersForInsert = new ArrayList<ProvisioningGroupWrapper>();
-    List<ProvisioningGroupWrapper> provisioningGroupWrappersForUpdate = new ArrayList<ProvisioningGroupWrapper>();
-    List<ProvisioningGroupWrapper> provisioningGroupWrappersForDelete = new ArrayList<ProvisioningGroupWrapper>();
+    Set<ProvisioningGroupWrapper> provisioningGroupWrappersForInsert = new HashSet<ProvisioningGroupWrapper>();
+    Set<ProvisioningGroupWrapper> provisioningGroupWrappersForUpdate = new HashSet<ProvisioningGroupWrapper>();
+    Set<ProvisioningGroupWrapper> provisioningGroupWrappersForDelete = new HashSet<ProvisioningGroupWrapper>();
     
     for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
       
@@ -1041,9 +1077,32 @@ public class GrouperProvisioningCompare {
           if (provisioningGroupWrapper.isDelete()) {
             provisioningGroupWrappersForDelete.add(provisioningGroupWrapper);
             continue;
+          }
+          
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes 
+              && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
+            String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
             
-            //TODO if it's not a recalc and the behavior is not a delete, we need to delete memberships in the target (the ones that we know about hint, sync objects) if it's group attributes
-            
+            Set<?> attributeValueSet = provisioningGroupWrapper.getGrouperTargetGroup().retrieveAttributeValueSet(attributeForMemberships);
+            ProvisioningAttribute provisioningAttribute = provisioningGroupWrapper.getGrouperTargetGroup().getAttributes().get(attributeForMemberships);
+            boolean deleted = false;
+            for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
+              String membershipValue = GrouperUtil.stringValue(obj);
+              ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(membershipValue);
+              if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper.getGcGrouperSyncMembership())) {
+                this.membershipDeleteCount++;
+                countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+                provisioningGroupWrapper.getGrouperTargetGroup().addInternal_objectChange(
+                  new ProvisioningObjectChange(attributeForMemberships, 
+                      ProvisioningObjectChangeAction.delete, membershipValue, null)
+                );
+                if (!deleted) {
+                  deleted = true;
+                  provisioningGroupWrappersForUpdate.add(provisioningGroupWrapper);
+                }
+              }
+              
+            }
           }
           
         }

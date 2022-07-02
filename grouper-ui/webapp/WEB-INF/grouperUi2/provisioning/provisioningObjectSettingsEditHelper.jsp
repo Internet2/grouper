@@ -79,6 +79,7 @@
 			  					value="${metadataItem.defaultValue}"
 			  					readOnly="${metadataItem.readOnly}"
 			  					valuesAndLabels="${metadataItem.keysAndLabelsForDropdown}"
+                  ajaxCallback="ajax('../app/UiV2Provisioning.editProvisioningOn${ObjectType}', {formIds: 'editProvisioningFormId'}); return false;"
 			  				/>
 			  				
 			  		    </c:forEach>

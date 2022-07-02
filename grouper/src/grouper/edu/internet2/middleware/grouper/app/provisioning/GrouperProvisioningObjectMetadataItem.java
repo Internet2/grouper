@@ -31,7 +31,12 @@ public class GrouperProvisioningObjectMetadataItem {
   private boolean showForGroup;
   private boolean showForMember;
   private boolean showForMembership;
+  
+  // right now only applicable for groups and folder
+  // look at UiV2Provisioning.editProvisioningOnGroup or UiV2Provisioning.editProvisioningOnFolder to enable it on others as well
   private boolean showForFolder;
+  
+  private String showEl;
   
   private boolean canUpdate = true;
   private boolean canChange = true;
@@ -238,4 +243,16 @@ public class GrouperProvisioningObjectMetadataItem {
     this.validateUniqueValue = validateUniqueValue;
   }
 
+
+  
+  public String getShowEl() {
+    return showEl;
+  }
+
+
+  
+  public void setShowEl(String showEl) {
+    this.showEl = showEl;
+  }
+  
 }

@@ -11306,7 +11306,7 @@ public class GrouperUtil {
   
   /**
    * substitute an EL for objects
-   * @param stringToParse
+   * @param script
    * @param variableMap
    * @param allowStaticClasses if true allow static classes not registered with context
    * @param silent if silent mode, swallow exceptions (warn), and dont warn when variable not found

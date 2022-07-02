@@ -687,16 +687,18 @@ public class AzureMockServiceHandler extends MockServiceHandler {
         String groupType = groupTypesArrayNode.get(i).asText();
         groupTypesSet.add(groupType);
       }
-      grouperAzureGroup.setGroupTypeMailEnabled(groupTypesSet.contains("MailEnabled"));
-      grouperAzureGroup.setGroupTypeMailEnabledSecurity(groupTypesSet.contains("MailEnabledSecurity"));
-      grouperAzureGroup.setGroupTypeSecurity(groupTypesSet.contains("Security"));
+     
       grouperAzureGroup.setGroupTypeUnified(groupTypesSet.contains("Unified"));
+      grouperAzureGroup.setGroupTypeDynamic(groupTypesSet.contains("Dynamic"));
     }
     if (requestJsonNode.has("id")) {
       throw new RuntimeException("Cant update the id field!");
     }
     if (requestJsonNode.has("mailEnabled")) {
       grouperAzureGroup.setMailEnabled(GrouperUtil.jsonJacksonGetBoolean(requestJsonNode, "mailEnabled"));
+    }
+    if (requestJsonNode.has("isAssignableToRole")) {
+      grouperAzureGroup.setAssignableToRole(GrouperUtil.jsonJacksonGetBoolean(requestJsonNode, "isAssignableToRole"));
     }
     if (requestJsonNode.has("mailNickname")) {
       grouperAzureGroup.setMailNickname(GrouperUtil.jsonJacksonGetString(requestJsonNode, "mailNickname"));

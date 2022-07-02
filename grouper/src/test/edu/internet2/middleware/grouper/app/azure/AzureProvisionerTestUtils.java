@@ -58,8 +58,8 @@ public class AzureProvisionerTestUtils {
    */
   public static void configureAzureProvisioner(AzureProvisionerTestConfigInput provisioningTestConfigInput) {
 
-    if (5 != provisioningTestConfigInput.getGroupAttributeCount() && 8 != provisioningTestConfigInput.getGroupAttributeCount()) {
-      throw new RuntimeException("Expecting 5, 8 for groupAttributeCount but was '" + provisioningTestConfigInput.getGroupAttributeCount() + "'");
+    if (5 != provisioningTestConfigInput.getGroupAttributeCount() && 9 != provisioningTestConfigInput.getGroupAttributeCount()) {
+      throw new RuntimeException("Expecting 5, 9 for groupAttributeCount but was '" + provisioningTestConfigInput.getGroupAttributeCount() + "'");
     }
     
     configureProvisionerSuffix(provisioningTestConfigInput, "azureExternalSystemConfigId", "myAzure");
@@ -99,7 +99,9 @@ public class AzureProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "showProvisioningDiagnostics", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "id");
-    
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.showAdvancedAttribute", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.showAttributeCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.update", "false");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
     
@@ -141,6 +143,10 @@ public class AzureProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "translationScript");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "id");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.showAdvancedAttribute", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.showAttributeCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.update", "false");
 
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2has", "true");
@@ -193,9 +199,9 @@ public class AzureProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
 
-    if (provisioningTestConfigInput.getGroupAttributeCount() == 8) {
+    if (provisioningTestConfigInput.getGroupAttributeCount() == 9) {
       configureProvisionerSuffix(provisioningTestConfigInput, "allowOnlyMembersToPost", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "resourceProvisioningOptionsTeams", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "resourceProvisioningOptionsTeam", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "hideGroupInOutlook", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAttributeCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.insert", "true");
@@ -213,11 +219,19 @@ public class AzureProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.6.update", "false");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.showAttributeCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.insert", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.name", "resourceProvisioningOptionsTeams");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.name", "resourceProvisioningOptionsTeam");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.select", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.translateExpression", "${'true'}");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.translateExpressionType", "translationScript");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.update", "true");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.showAttributeCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.insert", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.name", "isAssignableToRole");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.select", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.translateExpression", "${'true'}");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.translateExpressionType", "translationScript");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.update", "false");
     }
     
     for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {

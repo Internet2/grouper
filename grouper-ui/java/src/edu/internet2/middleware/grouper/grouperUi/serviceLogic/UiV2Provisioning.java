@@ -1145,8 +1145,32 @@ public class UiV2Provisioning {
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
         List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
+        // variableMap is used only when there's at least one metadata item which has showEl non blank
+        Map<String, Object> variableMap = new HashMap<>();
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
-          if (metadataItem.isShowForFolder()) {
+          String name = metadataItem.getName();
+          String value = request.getParameter(name);
+          String defaultValue = GrouperUtil.stringValue(metadataItem.getDefaultValue());
+          if (!StringUtils.equals(defaultValue, value)) {
+            metadataItem.setDefaultValue(value); // override the value so that screen can show the right value after rerendering
+          }
+          variableMap.put(name, value);
+        }
+        
+        for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
+          if (StringUtils.isNotBlank(metadataItem.getShowEl())) {
+            
+            String showElExpression = metadataItem.getShowEl();
+            
+            String showString = GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(showElExpression, variableMap, true, false, false));
+            
+            boolean showBoolean = GrouperUtil.booleanValue(showString, false);
+//            metadataItem.setShowForFolder(showBoolean);
+            if (showBoolean) {
+              metadataItems.add(metadataItem);
+            }
+            
+          } else if (metadataItem.isShowForFolder()) {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             
@@ -1727,8 +1751,32 @@ public class UiV2Provisioning {
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
         List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
+        // variableMap is used only when there's at least one metadata item which has showEl non blank
+        Map<String, Object> variableMap = new HashMap<>();
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
-          if (metadataItem.isShowForGroup()) {
+          String name = metadataItem.getName();
+          String value = request.getParameter(name);
+          String defaultValue = GrouperUtil.stringValue(metadataItem.getDefaultValue());
+          if (!StringUtils.equals(defaultValue, value)) {
+            metadataItem.setDefaultValue(value); // override the value so that screen can show the right value after rerendering
+          }
+          variableMap.put(name, value);
+        }
+        
+        for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
+          
+          if (StringUtils.isNotBlank(metadataItem.getShowEl())) {
+            
+            String showElExpression = metadataItem.getShowEl();
+            
+            String showString = GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(showElExpression, variableMap, true, false, false));
+            boolean showBoolean = GrouperUtil.booleanValue(showString, false);
+//            metadataItem.setShowForGroup(showBoolean);
+            if (showBoolean) {
+              metadataItems.add(metadataItem);
+            }
+            
+          } else if (metadataItem.isShowForGroup()) {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             

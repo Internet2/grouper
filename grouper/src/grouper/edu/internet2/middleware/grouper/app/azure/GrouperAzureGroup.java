@@ -31,9 +31,7 @@ public class GrouperAzureGroup {
     
     grouperAzureGroup.setDescription("desc");
     grouperAzureGroup.setDisplayName("dispName");
-    grouperAzureGroup.setGroupTypeMailEnabled(true);
-    grouperAzureGroup.setGroupTypeMailEnabledSecurity(true);
-    grouperAzureGroup.setGroupTypeSecurity(true);
+    grouperAzureGroup.setGroupTypeDynamic(true);
     grouperAzureGroup.setGroupTypeUnified(true);
     grouperAzureGroup.setId("id");
     grouperAzureGroup.setMailEnabled(true);
@@ -67,20 +65,19 @@ public class GrouperAzureGroup {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "256", false, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_mail_enabled", Types.VARCHAR, "1", false, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_mail_enabled_sec", Types.VARCHAR, "1", false, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_security", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_dynamic", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_type_unified", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_enabled", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_nickname", Types.VARCHAR, "64", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "security_enabled", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "visibility", Types.VARCHAR, "32", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "is_assignable_to_role", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_allow_only_members_to_post", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_hide_group_in_outlook", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_sub_new_group_members", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_welcome_email_disbled", Types.VARCHAR, "1", false, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rpo_teams", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rpo_team", Types.VARCHAR, "1", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_group_disp_idx", false, "display_name");
     }
@@ -91,21 +88,34 @@ public class GrouperAzureGroup {
     ProvisioningGroup targetGroup = new ProvisioningGroup();
     targetGroup.assignAttributeValue("description", this.description);
     targetGroup.setDisplayName(this.displayName);
-    targetGroup.assignAttributeValue("groupTypeMailEnabled", this.groupTypeMailEnabled);
-    targetGroup.assignAttributeValue("groupTypeMailEnabledSecurity", this.groupTypeMailEnabledSecurity);
-    targetGroup.assignAttributeValue("groupTypeSecurity", this.groupTypeSecurity);
+    
+    if (groupTypeUnified && securityEnabled) {
+      // distributionGroup, security, securityMailEnabled, unified, unifiedSecurityEnabled
+      targetGroup.assignAttributeValue("groupType", "unifiedSecurityEnabled");
+    } else if (groupTypeUnified) {
+      targetGroup.assignAttributeValue("groupType", "unified");
+    } else if (securityEnabled && mailEnabled) {
+      targetGroup.assignAttributeValue("groupType", "securityMailEnabled");
+    } else if (securityEnabled) {
+      targetGroup.assignAttributeValue("groupType", "security");
+    } else if (mailEnabled) {
+      targetGroup.assignAttributeValue("groupType", "distributionGroup");
+    }
+    
     targetGroup.assignAttributeValue("groupTypeUnified", this.groupTypeUnified);
+    targetGroup.assignAttributeValue("groupTypeDynamic", this.groupTypeDynamic);
     targetGroup.setId(this.id);
     targetGroup.assignAttributeValue("mailEnabled", this.mailEnabled);
     targetGroup.assignAttributeValue("mailNickname", this.mailNickname);
     targetGroup.assignAttributeValue("securityEnabled", this.securityEnabled);
+    targetGroup.assignAttributeValue("isAssignableToRole", this.isAssignableToRole);
     targetGroup.assignAttributeValue("visibility", this.visibility);
     
     targetGroup.assignAttributeValue("allowOnlyMembersToPost", this.resourceBehaviorOptionsAllowOnlyMembersToPost);
     targetGroup.assignAttributeValue("hideGroupInOutlook", this.resourceBehaviorOptionsHideGroupInOutlook);
     targetGroup.assignAttributeValue("subscribeNewGroupMembers", this.resourceBehaviorOptionsSubscribeNewGroupMembers);
     targetGroup.assignAttributeValue("welcomeEmailDisabled", this.resourceBehaviorOptionsWelcomeEmailDisabled);
-    targetGroup.assignAttributeValue("resourceProvisioningOptionsTeams", this.resourceProvisioningOptionsTeams);
+    targetGroup.assignAttributeValue("resourceProvisioningOptionsTeam", this.resourceProvisioningOptionsTeam);
     
     return targetGroup;
   }
@@ -125,17 +135,12 @@ public class GrouperAzureGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
       grouperAzureGroup.setDisplayName(targetGroup.getDisplayName());
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeMailEnabled")) {      
-      grouperAzureGroup.setGroupTypeMailEnabled(targetGroup.retrieveAttributeValueBoolean("groupTypeMailEnabled"));
-    }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeMailEnabledSecurity")) {      
-      grouperAzureGroup.setGroupTypeMailEnabledSecurity(targetGroup.retrieveAttributeValueBoolean("groupTypeMailEnabledSecurity"));
-    }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeSecurity")) {      
-      grouperAzureGroup.setGroupTypeSecurity(targetGroup.retrieveAttributeValueBoolean("groupTypeSecurity"));
-    }
+    
     if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeUnified")) {      
       grouperAzureGroup.setGroupTypeUnified(targetGroup.retrieveAttributeValueBoolean("groupTypeUnified"));
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeDynamic")) {      
+      grouperAzureGroup.setGroupTypeDynamic(targetGroup.retrieveAttributeValueBoolean("groupTypeDynamic"));
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       grouperAzureGroup.setId(targetGroup.getId());
@@ -149,6 +154,11 @@ public class GrouperAzureGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("securityEnabled")) {      
       grouperAzureGroup.setSecurityEnabled(targetGroup.retrieveAttributeValueBoolean("securityEnabled"));
     }
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("isAssignableToRole")) {      
+      grouperAzureGroup.setAssignableToRole(targetGroup.retrieveAttributeValueBoolean("isAssignableToRole"));
+    }
+    
     if (fieldNamesToSet == null || fieldNamesToSet.contains("visibility")) {      
       grouperAzureGroup.setVisibilityDb(targetGroup.retrieveAttributeValueString("visibility"));
     }
@@ -169,8 +179,8 @@ public class GrouperAzureGroup {
       grouperAzureGroup.setResourceBehaviorOptionsWelcomeEmailDisabled(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("welcomeEmailDisabled"), false));
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("resourceProvisioningOptionsTeams")) {      
-      grouperAzureGroup.setResourceProvisioningOptionsTeams(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("resourceProvisioningOptionsTeams"), false));
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("resourceProvisioningOptionsTeam")) {      
+      grouperAzureGroup.setResourceProvisioningOptionsTeam(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("resourceProvisioningOptionsTeam"), false));
     }
     
     return grouperAzureGroup;
@@ -191,24 +201,22 @@ public class GrouperAzureGroup {
   private boolean resourceBehaviorOptionsHideGroupInOutlook;
   private boolean resourceBehaviorOptionsSubscribeNewGroupMembers;
   private boolean resourceBehaviorOptionsWelcomeEmailDisabled;
-  private boolean resourceProvisioningOptionsTeams;
-
-
-  /** if this is true then it has the MailEnabled group type */
-  private boolean groupTypeMailEnabled;
-
-  /** if this is true then it has the MailEnabledSecurity group type */
-  private boolean groupTypeMailEnabledSecurity;
-  
-  /** if this is true then it has the Security group type */
-  private boolean groupTypeSecurity;
+  private boolean resourceProvisioningOptionsTeam;
   
   /** if this is true then it has the Unified group type */
   private boolean groupTypeUnified;
+  
+  /** if the azure side dynamically populates the group via attributes */
+  private boolean groupTypeDynamic;
+  
+  private Boolean isAssignableToRole;
+  
   private String description;
   private AzureVisibility visibility;
 
-  public static final String fieldsToSelect="description,displayName,groupTypes,id,mailEnabled,mailNickname,securityEnabled,visibility,resourceBehaviorOptions,resourceProvisioningOptions";
+  public static final String fieldsToSelect="isAssignableToRole,description,displayName,groupTypes,id,mailEnabled,mailNickname,securityEnabled,visibility,resourceBehaviorOptions,resourceProvisioningOptions";
+  
+  
   
   public String getId() {
     return id;
@@ -266,22 +274,6 @@ public class GrouperAzureGroup {
     this.securityEnabled = GrouperUtil.booleanValue(securityEnabledDb, false);
   }
   
-  public boolean isGroupTypeSecurity() {
-    return groupTypeSecurity;
-  }
-  
-  public void setGroupTypeSecurity(Boolean groupTypeMailSecurity) {
-    this.groupTypeSecurity = (groupTypeMailSecurity == null ? false : groupTypeMailSecurity);
-  }
-  
-  public String getGroupTypeSecurityDb() {
-    return groupTypeSecurity ? "T" : "F";
-  }
-  
-  public void setGroupTypeSecurityDb(String groupTypeMailSecurityDb) {
-    this.groupTypeSecurity = GrouperUtil.booleanValue(groupTypeMailSecurityDb, false);
-  }
-  
   public boolean isGroupTypeUnified() {
     return groupTypeUnified;
   }
@@ -293,6 +285,24 @@ public class GrouperAzureGroup {
   public String getGroupTypeUnifiedDb() {
     return groupTypeUnified ? "T" : "F";
   }
+  
+  
+  public boolean isGroupTypeDynamic() {
+    return groupTypeDynamic;
+  }
+  
+  public void setGroupTypeDynamic(Boolean groupTypeDynamic) {
+    this.groupTypeDynamic = (groupTypeDynamic == null ? false : groupTypeDynamic);
+  }
+  
+  public String getGroupTypeDynamicDb() {
+    return groupTypeDynamic ? "T" : "F";
+  }
+  
+  public void setGroupTypeDynamicDb(String groupTypeDynamicDb) {
+    this.groupTypeDynamic = GrouperUtil.booleanValue(groupTypeDynamicDb, false);
+  }
+  
   
   public void setGroupTypeUnifiedDb(String groupTypeUnifiedDb) {
     this.groupTypeUnified = GrouperUtil.booleanValue(groupTypeUnifiedDb, false);
@@ -371,19 +381,14 @@ public class GrouperAzureGroup {
       if (groupTypes.contains("Unified")) {
         grouperAzureGroup.groupTypeUnified = true;
       }
-      if (groupTypes.contains("Security")) {
-        grouperAzureGroup.groupTypeSecurity = true;
-      }
-      if (groupTypes.contains("MailEnabled")) {
-        grouperAzureGroup.groupTypeMailEnabled = true;
-      }
-      if (groupTypes.contains("MailEnabledSecurity")) {
-        grouperAzureGroup.groupTypeMailEnabledSecurity = true;
+      if (groupTypes.contains("Dynamic")) {
+        grouperAzureGroup.groupTypeDynamic = true;
       }
     }
     
     grouperAzureGroup.id = GrouperUtil.jsonJacksonGetString(groupNode, "id");
     grouperAzureGroup.mailEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "mailEnabled", false);
+    grouperAzureGroup.isAssignableToRole = GrouperUtil.jsonJacksonGetBoolean(groupNode, "isAssignableToRole", false);
     grouperAzureGroup.mailNickname = GrouperUtil.jsonJacksonGetString(groupNode, "mailNickname");
     grouperAzureGroup.securityEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "securityEnabled", false);
     grouperAzureGroup.setVisibilityDb(GrouperUtil.jsonJacksonGetString(groupNode, "visibility", defaultVisibility));
@@ -408,8 +413,8 @@ public class GrouperAzureGroup {
     Set<String> resourceProvisioningOptions = GrouperUtil.jsonJacksonGetStringSet(groupNode, "resourceProvisioningOptions");
     
     if (resourceProvisioningOptions != null) {
-      if (resourceProvisioningOptions.contains("Teams")) {
-        grouperAzureGroup.resourceProvisioningOptionsTeams = true;
+      if (resourceProvisioningOptions.contains("Team")) {
+        grouperAzureGroup.resourceProvisioningOptionsTeam = true;
       }
     }
     
@@ -442,20 +447,9 @@ public class GrouperAzureGroup {
       }
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypes") || fieldNamesToSet.contains("groupTypeMailEnabled")
-        || fieldNamesToSet.contains("groupTypeMailEnabledSecurity") 
-        || fieldNamesToSet.contains("groupTypeSecurity") || fieldNamesToSet.contains("groupTypeUnified") ) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypes") || fieldNamesToSet.contains("groupTypeUnified") ) {      
 
       Set<String> groupTypes = new HashSet<String>();
-      if (this.groupTypeMailEnabled) {
-        groupTypes.add("MailEnabled");
-      }
-      if (this.groupTypeMailEnabledSecurity) {
-        groupTypes.add("MailEnabledSecurity");
-      }
-      if (this.groupTypeSecurity) {
-        groupTypes.add("Security");
-      }
       if (this.groupTypeUnified) {
         groupTypes.add("Unified");
       }
@@ -488,6 +482,10 @@ public class GrouperAzureGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("visibility")) {
       result.put("visibility", this.getVisibilityDb());
     }
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("isAssignableToRole")) {
+      result.put("isAssignableToRole", this.isAssignableToRole);
+    }
     
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("resourceBehaviorOptions") || fieldNamesToSet.contains("allowOnlyMembersToPost") || 
@@ -515,12 +513,12 @@ public class GrouperAzureGroup {
       
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("resourceProvisioningOptions") || fieldNamesToSet.contains("resourceProvisioningOptionsTeams")) {
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("resourceProvisioningOptions") || fieldNamesToSet.contains("resourceProvisioningOptionsTeam")) {
       
       Set<String> resourceProvisioningOptions = new HashSet<String>();
       
-      if (this.resourceProvisioningOptionsTeams) {
-        resourceProvisioningOptions.add("Teams");
+      if (this.resourceProvisioningOptionsTeam) {
+        resourceProvisioningOptions.add("Team");
       }
       // do we need to set null if none set?  hmmm
       if (resourceProvisioningOptions.size() > 0) {
@@ -533,22 +531,22 @@ public class GrouperAzureGroup {
   }
   
   
-  public boolean isResourceProvisioningOptionsTeams() {
-    return resourceProvisioningOptionsTeams;
+  public boolean isResourceProvisioningOptionsTeam() {
+    return resourceProvisioningOptionsTeam;
   }
 
   
-  public void setResourceProvisioningOptionsTeams(
-      boolean resourceProvisioningOptionsTeams) {
-    this.resourceProvisioningOptionsTeams = resourceProvisioningOptionsTeams;
+  public void setResourceProvisioningOptionsTeam(
+      boolean resourceProvisioningOptionsTeam) {
+    this.resourceProvisioningOptionsTeam = resourceProvisioningOptionsTeam;
   }
 
-  public String getResourceProvisioningOptionsTeamsDb() {
-    return resourceProvisioningOptionsTeams ? "T" : "F";
+  public String getResourceProvisioningOptionsTeamDb() {
+    return resourceProvisioningOptionsTeam ? "T" : "F";
   }
   
-  public void setResourceProvisioningOptionsTeamsDb(String resourceProvisioningOptionsTeams) {
-    this.resourceProvisioningOptionsTeams = GrouperUtil.booleanValue(resourceProvisioningOptionsTeams, false);
+  public void setResourceProvisioningOptionsTeamDb(String resourceProvisioningOptionsTeam) {
+    this.resourceProvisioningOptionsTeam = GrouperUtil.booleanValue(resourceProvisioningOptionsTeam, false);
   }
 
   public String getResourceBehaviorOptionsAllowOnlyMembersToPostDb() {
@@ -583,43 +581,25 @@ public class GrouperAzureGroup {
   public void setResourceBehaviorOptionsWelcomeEmailDisabledDb(String resourceBehaviorOptionsWelcomeEmailDisabled) {
     this.resourceBehaviorOptionsWelcomeEmailDisabled = GrouperUtil.booleanValue(resourceBehaviorOptionsWelcomeEmailDisabled, false);
   }
+
   
-  
-  public boolean isGroupTypeMailEnabled() {
-    return groupTypeMailEnabled;
+  public boolean isAssignableToRole() {
+    return isAssignableToRole;
   }
 
   
-  public void setGroupTypeMailEnabled(Boolean groupTypeMailEnabled) {
-    this.groupTypeMailEnabled = (groupTypeMailEnabled == null ? false : groupTypeMailEnabled);
-  }
-
-  public String getGroupTypeMailEnabledDb() {
-    return groupTypeMailEnabled ? "T" : "F";
-  }
-
-  
-  public void setGroupTypeMailEnabledDb(String groupTypeMailEnabled) {
-    this.groupTypeMailEnabled = GrouperUtil.booleanValue(groupTypeMailEnabled, false);
-  }
-
-  
-  public boolean isGroupTypeMailEnabledSecurity() {
-    return groupTypeMailEnabledSecurity;
-  }
-
-  
-  public void setGroupTypeMailEnabledSecurity(Boolean groupTypeMailEnabledSecurityDb) {
-    this.groupTypeMailEnabledSecurity = (groupTypeMailEnabledSecurityDb == null ? false : groupTypeMailEnabledSecurityDb);
+  public void setAssignableToRole(Boolean isAssignableToRole) {
+    this.isAssignableToRole = isAssignableToRole;
   }
   
-  public String getGroupTypeMailEnabledSecurityDb() {
-    return groupTypeMailEnabledSecurity ? "T" : "F";
+  public void setAssignableToRoleDb(String assignableToRoleString) {
+    this.isAssignableToRole = GrouperUtil.booleanValue(assignableToRoleString, false);    
   }
 
-  
-  public void setGroupTypeMailEnabledSecurityDb(String groupTypeMailEnabledSecurityDb) {
-    this.groupTypeMailEnabledSecurity = GrouperUtil.booleanValue(groupTypeMailEnabledSecurityDb, false);
+  public String getAssignableToRoleDb() {
+    return isAssignableToRole ? "T" : "F";
   }
+  
+  
   
 }

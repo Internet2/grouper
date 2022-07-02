@@ -22,7 +22,7 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
   public void initBuiltInMetadata() {
     super.initBuiltInMetadata();
     
-    if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isAllowOnlyMembersToPost() &&
+    if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isAzureGroupType() &&
         !this.containsMetadataItemByName("md_grouper_azureGroupType")) {
       GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
 
@@ -30,6 +30,7 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAzureGroupTypeLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_azureGroupType");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       //grouperProvisioningObjectMetadataItem.setValidateUniqueValue(true);
       
@@ -38,11 +39,11 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       
-      valuesAndLabels.add(new MultiKey("groupTypeMailEnabled", GrouperTextContainer.textOrNull("config.azureGroupTypeMailEnabled") ));
-      valuesAndLabels.add(new MultiKey("groupTypeMailEnabledSecurity", GrouperTextContainer.textOrNull("config.azureGroupTypeMailEnabledSecurity")));
-      valuesAndLabels.add(new MultiKey("groupTypeSecurity", GrouperTextContainer.textOrNull("config.azureGroupTypeSecurity")));
-      valuesAndLabels.add(new MultiKey("groupTypeUnifiedSecurityEnabled", GrouperTextContainer.textOrNull("config.azureGroupTypeUnifiedSecurityEnabled")));
-      valuesAndLabels.add(new MultiKey("groupTypeUnifiedNotSecurityEnabled", GrouperTextContainer.textOrNull("config.azureGroupTypeUnifiedNotSecurityEnabled")));
+      valuesAndLabels.add(new MultiKey("distributionGroup", GrouperTextContainer.textOrNull("config.azureDistributionGroup") ));
+      valuesAndLabels.add(new MultiKey("security", GrouperTextContainer.textOrNull("config.azureSecurity")));
+      valuesAndLabels.add(new MultiKey("securityMailEnabled", GrouperTextContainer.textOrNull("config.azureSecurityMailEnabled")));
+      valuesAndLabels.add(new MultiKey("unified", GrouperTextContainer.textOrNull("config.azureUnified")));
+      valuesAndLabels.add(new MultiKey("unifiedSecurityEnabled", GrouperTextContainer.textOrNull("config.azureUnifiedSecurityEnabled")));
       
       grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
       
@@ -57,8 +58,34 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAllowOnlyMembersToPostLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowOnlyMembersToPost");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       //grouperProvisioningObjectMetadataItem.setValidateUniqueValue(true);
+      
+      grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
+      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
+      
+      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+      
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel") ));
+      valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
+      valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
+      
+      grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
+      
+      this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
+    }
+    
+    if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isAssignableToRole() &&
+        !this.containsMetadataItemByName("md_grouper_assignableToRole")) {
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+
+      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataAssignableToRoleDescription");
+      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAssignableToRoleLabel");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_assignableToRole");
+      grouperProvisioningObjectMetadataItem.setShowEl("${md_grouper_azureGroupType == 'security' || md_grouper_azureGroupType == 'securityMailEnabled' || md_grouper_azureGroupType == 'unifiedSecurityEnabled'}");
+      
+      grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
@@ -83,6 +110,7 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataHideGroupInOutlookLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_hideGroupInOutlook");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
@@ -106,6 +134,7 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataSubscribeNewGroupMembersLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_subscribeNewGroupMembers");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
@@ -128,6 +157,7 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWelcomeEmailDisabledLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_welcomeEmailEnabled");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
@@ -142,15 +172,16 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
     }
 
-    if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isResourceProvisioningOptionsTeams() &&
-        !this.containsMetadataItemByName("md_grouper_resourceProvisioningOptionsTeams")) {
+    if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isResourceProvisioningOptionsTeam() &&
+        !this.containsMetadataItemByName("md_grouper_resourceProvisioningOptionsTeam")) {
       
       GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
       
-      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataResourceProvisioningOptionsTeamsDescription");
-      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataResourceProvisioningOptionsTeamsLabel");
-      grouperProvisioningObjectMetadataItem.setName("md_grouper_resourceProvisioningOptionsTeams");
+      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataResourceProvisioningOptionsTeamDescription");
+      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataResourceProvisioningOptionsTeamLabel");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_resourceProvisioningOptionsTeam");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanChange(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);

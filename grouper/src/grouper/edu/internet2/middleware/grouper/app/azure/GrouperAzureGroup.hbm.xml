@@ -32,9 +32,8 @@
 
     <property name="description" column="description" />
     <property name="displayName" column="display_name" />
-    <property name="groupTypeMailEnabledDb" column="group_type_mail_enabled" />
-    <property name="groupTypeMailEnabledSecurityDb" column="group_type_mail_enabled_sec" />
-    <property name="groupTypeSecurityDb" column="group_type_security" />
+    <property name="assignableToRoleDb" column="is_assignable_to_role" />
+    <property name="groupTypeDynamicDb" column="group_type_dynamic" />
     <property name="groupTypeUnifiedDb" column="group_type_unified" />
     <property name="mailEnabledDb" column="mail_enabled" />
     <property name="mailNickname" column="mail_nickname" />
@@ -44,7 +43,7 @@
     <property name="resourceBehaviorOptionsHideGroupInOutlookDb" column="rbo_hide_group_in_outlook" />
     <property name="resourceBehaviorOptionsSubscribeNewGroupMembersDb" column="rbo_sub_new_group_members" />
     <property name="resourceBehaviorOptionsWelcomeEmailDisabledDb" column="rbo_welcome_email_disbled" />
-    <property name="resourceProvisioningOptionsTeamsDb" column="rpo_teams" />
+    <property name="resourceProvisioningOptionsTeamDb" column="rpo_team" />
 
   </class>
 </hibernate-mapping>
