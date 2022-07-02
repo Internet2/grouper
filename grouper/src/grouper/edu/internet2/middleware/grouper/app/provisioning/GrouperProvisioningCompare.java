@@ -897,6 +897,8 @@ public class GrouperProvisioningCompare {
           
         }
         
+        continue;
+        
       }
       
       // updates

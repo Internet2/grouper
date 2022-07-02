@@ -535,6 +535,10 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       EsbConsumer esbConsumer = new EsbConsumer();
       ChangeLogHelper.processRecords("azureProvTestCLC", hib3GrouploaderLog, esbConsumer);
   
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+      
       return hib3GrouploaderLog;
     }
     

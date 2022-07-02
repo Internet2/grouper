@@ -1718,6 +1718,7 @@ public class GrouperProvisioningLogicIncremental {
     
     int convertToGroupSyncGroups = 0;
     int convertToGroupSyncMemberships = 0;
+    int groupsWithRecalcMembershipsThatCannotSelectMemberships = 0;
     
     int membershipsConvertToGroupSyncThreshold = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipsConvertToGroupSyncThreshold();
         
@@ -1727,7 +1728,7 @@ public class GrouperProvisioningLogicIncremental {
     //    return;
     //  }
     
-    boolean convertAllMembershipChangesToGroupSync = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
+    boolean convertAllRecalcMembershipChangesToGroupSync = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
         || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
     
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithoutRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc();
@@ -1762,13 +1763,24 @@ public class GrouperProvisioningLogicIncremental {
         }
       }
     }
-
+    
+    Map<String, Boolean> groupIdToHasRecalcMembership = new HashMap<>();
+    
+    Set<GrouperIncrementalDataItem> grouperIncrementalDataItemSet = grouperIncrementalDataToProcessWithRecalc.getGroupUuidsMemberUuidsForMembershipSync();
+    for (GrouperIncrementalDataItem grouperIncrementalDataItem : grouperIncrementalDataItemSet) {
+      String groupId = (String)((MultiKey)grouperIncrementalDataItem.getItem()).getKey(0);
+      groupIdToHasRecalcMembership.put(groupId, true);
+    }
+    
+    groupsWithRecalcMembershipsThatCannotSelectMemberships = groupIdToHasRecalcMembership.size();
+    
+    
     // lets see whats over the threshold
     for (String groupId : groupUuidToMembershipCount.keySet()) {
       
       int membershipCount = groupUuidToMembershipCount.get(groupId);
       
-      if (membershipCount >= membershipsConvertToGroupSyncThreshold || convertAllMembershipChangesToGroupSync) {
+      if (membershipCount >= membershipsConvertToGroupSyncThreshold || (groupIdToHasRecalcMembership.containsKey(groupId) && convertAllRecalcMembershipChangesToGroupSync)) {
        
         convertToGroupSyncGroups++;        
         
@@ -1825,6 +1837,9 @@ public class GrouperProvisioningLogicIncremental {
     if (convertToGroupSyncGroups > 0) {
       this.getGrouperProvisioner().getDebugMap().put("convertToGroupSyncGroups", convertToGroupSyncGroups);
       this.getGrouperProvisioner().getDebugMap().put("convertToGroupSyncMemberships", convertToGroupSyncMemberships);
+    }
+    if (groupsWithRecalcMembershipsThatCannotSelectMemberships > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("groupsWithRecalcMembershipsThatCannotSelectMemberships", groupsWithRecalcMembershipsThatCannotSelectMemberships);
     }
 
   }
