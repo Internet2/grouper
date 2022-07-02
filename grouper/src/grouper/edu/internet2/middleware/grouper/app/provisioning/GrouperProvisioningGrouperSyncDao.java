@@ -511,10 +511,13 @@ public class GrouperProvisioningGrouperSyncDao {
 
     for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMembersToRefreshSubjectLink) {
 
-      MultiKey sourceIdSubjectId = new MultiKey(gcGrouperSyncMember.getSourceId(),
-          gcGrouperSyncMember.getSubjectId());
-      sourceIdSubjectIds.add(sourceIdSubjectId);
-
+      ProvisioningSyncIntegration.decorateSyncMemberSubjectInformationIfNull(this.grouperProvisioner, gcGrouperSyncMember, null);
+      
+      if (!StringUtils.isBlank(gcGrouperSyncMember.getSourceId()) && !StringUtils.isBlank(gcGrouperSyncMember.getSubjectId())) {
+        MultiKey sourceIdSubjectId = new MultiKey(gcGrouperSyncMember.getSourceId(),
+            gcGrouperSyncMember.getSubjectId());
+        sourceIdSubjectIds.add(sourceIdSubjectId);
+      }
     }
 
     Map<MultiKey, Subject> sourceIdSubjectIdToSubject = SubjectFinder
@@ -553,7 +556,7 @@ public class GrouperProvisioningGrouperSyncDao {
         gcGrouperSyncMember.setEntityAttributeValueCache2(entityAttributeValueCache2Value);
       }
 
-      if (hasSubjectLinkAttributeValueCache1) {
+      if (hasSubjectLinkAttributeValueCache3) {
         String entityAttributeValueCache3Value = GrouperUtil
             .substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache3.getTranslationScript(), variableMap);
         gcGrouperSyncMember.setEntityAttributeValueCache3(entityAttributeValueCache3Value);

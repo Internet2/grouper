@@ -116,7 +116,7 @@ public class JDBCSourceAdapter2 extends JDBCSourceAdapter {
   private Map<String, String> subjectAttributeColToName = new LinkedHashMap<String, String>();
 
   /** logger */
-  private static Log log = LogFactory.getLog(JDBCSourceAdapter2.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(JDBCSourceAdapter2.class);
 
   /**
    * 

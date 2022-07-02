@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
+import org.apache.commons.logging.Log;
+
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningCompare;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
@@ -13,8 +15,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogi
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -31,7 +31,7 @@ public class LdapSync extends GrouperProvisioner {
    * log object
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(LdapSync.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(LdapSync.class);
 
   @Override
   protected Class<? extends GrouperProvisionerTargetDaoBase> grouperTargetDaoClass() {

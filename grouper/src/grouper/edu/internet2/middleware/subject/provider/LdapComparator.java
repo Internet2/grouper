@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.SubjectUtils;
 
 public class LdapComparator implements Comparator<Subject> {
 
-	private static Log log = LogFactory.getLog(LdapComparator.class);
+	private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(LdapComparator.class);
 
 	public LdapComparator() {
 		super();

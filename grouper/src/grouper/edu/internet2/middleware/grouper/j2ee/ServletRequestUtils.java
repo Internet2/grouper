@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.util.GrouperThreadLocalState;
 public class ServletRequestUtils {
 
   /** logger */
-  private static Log LOG = LogFactory.getLog(ServletRequestUtils.class);
+  private static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(ServletRequestUtils.class);
 
   /**
    * 

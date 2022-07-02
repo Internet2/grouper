@@ -120,7 +120,7 @@ public class GrouperDigitalMarketplaceFullRefresh {
   public static final String GROUPER_DUO_FULL_REFRESH = "CHANGE_LOG_grouperDigitalMarketplaceFullRefresh";
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperDigitalMarketplaceFullRefresh.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperDigitalMarketplaceFullRefresh.class);
 
   /**
    * 

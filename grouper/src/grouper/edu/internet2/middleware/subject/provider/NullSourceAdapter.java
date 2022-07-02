@@ -46,7 +46,7 @@ public class NullSourceAdapter extends BaseSourceAdapter {
 
   /** */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(NullSourceAdapter.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(NullSourceAdapter.class);
 
   /** */
   private static final Set<SubjectType> TYPES = new HashSet<SubjectType>();

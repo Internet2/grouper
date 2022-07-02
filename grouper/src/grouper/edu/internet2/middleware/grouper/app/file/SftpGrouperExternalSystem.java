@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.file;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
@@ -28,6 +30,12 @@ public class SftpGrouperExternalSystem extends GrouperExternalSystem {
   @Override
   public String getConfigIdThatIdentifiesThisConfig() {
     return "configId";
+  }
+
+  @Override
+  public List<String> test() throws UnsupportedOperationException {
+    GrouperSftp.existsFile(this.getConfigId(), "whatever");
+    return null;
   }
 
 }

@@ -141,7 +141,7 @@ public class UiV2Stem {
   public static final String PERFORMANCE_LOG_LABEL_STEM_MORE_ACTIONS = "StemUiMoreActions";
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2Stem.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Stem.class);
   
   /**
    * submit button on parent folder search model dialog

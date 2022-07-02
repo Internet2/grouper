@@ -350,7 +350,7 @@ public class DbConfigEngine {
   /**
    * 
    */
-  protected static Log LOG = LogFactory.getLog(DbConfigEngine.class);
+  protected static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(DbConfigEngine.class);
 
   /**
    * return if the edit should continue

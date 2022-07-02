@@ -214,7 +214,7 @@ public class GrouperSftp {
       grouperSftpSession.setPassphrase(passphrase);
       debugMap.put("passphrase?", StringUtils.isBlank(passphrase) ? "<none>" : "yes");
 
-      String password = GrouperConfig.retrieveConfig().propertyValueString(".password");
+      String password = GrouperConfig.retrieveConfig().propertyValueString("grouperSftp.site." + configId + ".password");
       grouperSftpSession.setPassword(password);
       debugMap.put("password?", StringUtils.isBlank(password) ? "<none>" : "yes");
 

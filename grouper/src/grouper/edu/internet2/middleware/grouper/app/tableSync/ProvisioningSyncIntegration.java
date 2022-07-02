@@ -11,6 +11,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectAttributes;
@@ -25,6 +28,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * Sync up provisioning attributes with grouper group sync provisionable attributes
@@ -348,7 +352,7 @@ public class ProvisioningSyncIntegration {
     Set<String> memberIdsToUpdate = new HashSet<String>();
     provisioningSyncResult.setMemberIdsToUpdate(memberIdsToUpdate);
 
-    List<GcGrouperSyncMember> gcGrouperSyncRowsToDeleteFromDatabase = new ArrayList<GcGrouperSyncMember>();
+    Set<GcGrouperSyncMember> gcGrouperSyncRowsToDeleteFromDatabase = new HashSet<GcGrouperSyncMember>();
     
     Set<String> memberIdsWithChangedSubjectIds = new HashSet<String>();
     provisioningSyncResult.setMemberIdsWithChangedSubjectIds(memberIdsWithChangedSubjectIds);
@@ -379,6 +383,28 @@ public class ProvisioningSyncIntegration {
       }
 
       gcGrouperSync.getGcGrouperSyncMemberDao().memberDelete(gcGrouperSyncRowsToDeleteFromDatabase, true, true);
+    }
+
+    // fix missing subject id or source id
+    Set<GcGrouperSyncMember> gcGrouperSyncRowsToFixSubjectIdOrSourceId = new HashSet<GcGrouperSyncMember>();
+    for (GcGrouperSyncMember gcGrouperSyncMember : GrouperUtil.nonNull(memberUuidToSyncMember).values()) {
+      if (gcGrouperSyncRowsToDeleteFromDatabase.contains(gcGrouperSyncMember)) {
+        continue;
+      }
+      if (GrouperClientUtils.isBlank(gcGrouperSyncMember.getSourceId()) || GrouperClientUtils.isBlank(gcGrouperSyncMember.getSubjectId())) {
+        gcGrouperSyncRowsToFixSubjectIdOrSourceId.add(gcGrouperSyncMember);
+      }
+    }
+
+    // null subject id issue
+    // GRP-4137: error resolving subject attributes. has null subject id and subject identifier
+    for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncRowsToFixSubjectIdOrSourceId) {
+      
+      // try by query
+      GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = memberUuidToProvisioningObjectAttributes.get(gcGrouperSyncMember.getMemberId());
+      
+      decorateSyncMemberSubjectInformationIfNull(grouperProvisioner, gcGrouperSyncMember,
+          grouperProvisioningObjectAttributes);
     }
     
     if (GrouperUtil.length(memberIdsToInsert) > 0) {
@@ -430,6 +456,46 @@ public class ProvisioningSyncIntegration {
     
   }
 
+  public static void decorateSyncMemberSubjectInformationIfNull(GrouperProvisioner grouperProvisioner,
+      GcGrouperSyncMember gcGrouperSyncMember,
+      GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes) {
+    if (grouperProvisioningObjectAttributes != null) {
+      String sourceId = grouperProvisioningObjectAttributes.getSourceId();
+      String subjectId = grouperProvisioningObjectAttributes.getSubjectId();
+      String subjectIdentifier = grouperProvisioningObjectAttributes.getSubjectIdentifier0();
+      if ("subjectIdentifier1".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
+        subjectIdentifier = grouperProvisioningObjectAttributes.getSubjectIdentifier1();
+      } else if ("subjectIdentifier2".equals(grouperProvisioner.retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable())) {
+        subjectIdentifier = grouperProvisioningObjectAttributes.getSubjectIdentifier2();
+      }
+      
+      if (GrouperClientUtils.isBlank(gcGrouperSyncMember.getSourceId())) {
+        gcGrouperSyncMember.setSourceId(sourceId);
+      }
+      
+      if (GrouperClientUtils.isBlank(gcGrouperSyncMember.getSubjectId())) {
+        gcGrouperSyncMember.setSubjectId(subjectId);
+      }
+      
+      if (GrouperClientUtils.isBlank(gcGrouperSyncMember.getSubjectIdentifier())) {
+        gcGrouperSyncMember.setSubjectIdentifier(subjectIdentifier);
+      }
+    }
+      
+    // TODO batch this when the API is available
+    if (GrouperClientUtils.isBlank(gcGrouperSyncMember.getSourceId()) || GrouperClientUtils.isBlank(gcGrouperSyncMember.getSubjectId())) {
+      Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), gcGrouperSyncMember.getMemberId(), false);
+      if (member != null) {
+        if (GrouperClientUtils.isBlank(gcGrouperSyncMember.getSourceId())) {
+          gcGrouperSyncMember.setSourceId(member.getSubjectSourceId());
+        }
+        if (GrouperClientUtils.isBlank(gcGrouperSyncMember.getSubjectId())) {
+          gcGrouperSyncMember.setSourceId(member.getSubjectId());
+        }
+      }
+    }
+  }
+
 
   public static void fullSyncMembersForInitialize(GrouperProvisioner grouperProvisioner, ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
       List<GcGrouperSyncMember> initialGcGrouperSyncMembers, 
@@ -470,6 +536,13 @@ public class ProvisioningSyncIntegration {
   
         // keep it
         if (grouperProvisioningEntity != null || gcGrouperSyncMember.isProvisionable() || gcGrouperSyncMember.isInTarget()) {
+          
+          if (StringUtils.isBlank(gcGrouperSyncMember.getSubjectId())) {
+            gcGrouperSyncMember.setSubjectId(grouperProvisioningEntity.getSubjectId());
+          }
+          if (StringUtils.isBlank(gcGrouperSyncMember.getSourceId())) {
+            gcGrouperSyncMember.setSourceId(grouperProvisioningEntity.getSubjectSourceId());
+          }
           
           // see if needs to update
           {

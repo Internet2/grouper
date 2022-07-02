@@ -119,7 +119,7 @@ public class GrouperRemedyFullRefresh {
   public static final String GROUPER_DUO_FULL_REFRESH = "CHANGE_LOG_grouperRemedyFullRefresh";
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperRemedyFullRefresh.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperRemedyFullRefresh.class);
 
   /**
    * 

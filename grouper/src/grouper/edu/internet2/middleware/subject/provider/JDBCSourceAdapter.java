@@ -72,7 +72,7 @@ public class JDBCSourceAdapter extends BaseSourceAdapter {
   }
 
   /** logger */
-  private static Log log = LogFactory.getLog(JDBCSourceAdapter.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(JDBCSourceAdapter.class);
 
   /** subject id attribute name */
   protected String subjectIDAttributeName;

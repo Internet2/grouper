@@ -28,7 +28,7 @@ import edu.internet2.middleware.subject.Subject;
 
 public class UiV2GlobalAttributeResolverConfig {
   
-  protected static Log LOG = LogFactory.getLog(UiV2GlobalAttributeResolverConfig.class);
+  protected static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2GlobalAttributeResolverConfig.class);
   
   /**
    * if allowed to view global attribute resolver configs

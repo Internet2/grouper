@@ -20,7 +20,7 @@ import edu.internet2.middleware.subject.provider.LdapSourceAdapter;
 
 public class GrouperLdapSourceAdapter2_5 extends LdapSourceAdapter {
   
-  private static Log log = LogFactory.getLog(GrouperLdapSourceAdapter2_5.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperLdapSourceAdapter2_5.class);
 
   @Override
   public boolean isEditable() {

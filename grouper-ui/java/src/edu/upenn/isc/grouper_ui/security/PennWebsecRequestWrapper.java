@@ -47,7 +47,7 @@ import edu.internet2.middleware.subject.Subject;
 public class PennWebsecRequestWrapper extends HttpServletRequestWrapper {
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(PennWebsecRequestWrapper.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(PennWebsecRequestWrapper.class);
 
   /** key in session attribute for penn user */
   private static final String PENN_SESSION_USER_KEY = "pennUser";

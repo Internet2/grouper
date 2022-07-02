@@ -54,7 +54,7 @@ import edu.internet2.middleware.grouper.ui.UnrecoverableErrorException;
  * @version $Id: NavExceptionHelper.java,v 1.3 2009-08-12 04:52:14 mchyzer Exp $
  */
 public class NavExceptionHelper implements Serializable {
-	protected static final Log LOG = LogFactory.getLog(NavExceptionHelper.class);
+	protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(NavExceptionHelper.class);
 
 	public NavExceptionHelper() {
 	}

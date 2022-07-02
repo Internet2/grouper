@@ -51,7 +51,7 @@ import java.util.ResourceBundle;
  */
 
 public class Logout {
-  protected static Log LOG = LogFactory.getLog(Logout.class);
+  protected static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(Logout.class);
 
   /**
    * Utility function to perform logout: set message, delete cookies, invalidate session

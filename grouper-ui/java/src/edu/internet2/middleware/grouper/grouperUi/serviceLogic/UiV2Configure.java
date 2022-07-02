@@ -73,7 +73,7 @@ public class UiV2Configure {
   /**
    * 
    */
-  protected static Log LOG = LogFactory.getLog(UiV2Configure.class);
+  protected static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Configure.class);
 
   /**
    * if allowed to view configuration

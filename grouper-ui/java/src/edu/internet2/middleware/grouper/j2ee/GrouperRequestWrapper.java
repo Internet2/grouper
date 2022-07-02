@@ -145,7 +145,7 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
   private java.util.Map<String,Object> parameterMap;
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperUiRestServlet.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperUiRestServlet.class);
 
   /**
    * @param request

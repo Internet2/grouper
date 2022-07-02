@@ -38,7 +38,7 @@ public class UiV2Public extends UiServiceLogicBase {
   
   /** logger */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(UiV2Public.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Public.class);
 
   /**
    * index page of application, or public operation used for posts.  since we only have one

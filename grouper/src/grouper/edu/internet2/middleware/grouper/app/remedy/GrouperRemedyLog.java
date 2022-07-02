@@ -21,7 +21,7 @@ import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyLog;import edu.i
 public class GrouperRemedyLog {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperRemedyLog.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperRemedyLog.class);
  
   /**
    * log something to the log file

@@ -142,7 +142,7 @@ public class SubjectStatusProcessor {
   /**
    * 
    */
-  private static Log log = LogFactory.getLog(SubjectStatusProcessor.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(SubjectStatusProcessor.class);
   
   
   

@@ -101,7 +101,7 @@ public class UiV2GroupImport {
 
   
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2GroupImport.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2GroupImport.class);
 
   /**
    * validate import list

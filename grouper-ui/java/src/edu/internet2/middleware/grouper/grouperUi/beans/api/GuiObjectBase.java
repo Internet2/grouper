@@ -312,7 +312,7 @@ public abstract class GuiObjectBase {
   private String additionalBreadcrumbBullets = "";
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GuiObjectBase.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GuiObjectBase.class);
   
   /**
    * if true, then this is a subpage, show a link for the last time so we can drill down one item lower, though dont show separator

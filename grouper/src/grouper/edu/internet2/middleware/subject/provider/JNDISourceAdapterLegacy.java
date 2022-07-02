@@ -86,7 +86,7 @@ public class JNDISourceAdapterLegacy extends BaseSourceAdapter {
   }
 
   /** */
-  private static Log log = LogFactory.getLog(JNDISourceAdapterLegacy.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(JNDISourceAdapterLegacy.class);
 
   /** */
   Hashtable<String, String> environment = new Hashtable<String, String>(11);

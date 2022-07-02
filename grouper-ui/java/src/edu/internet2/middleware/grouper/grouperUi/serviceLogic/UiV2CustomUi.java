@@ -105,7 +105,7 @@ public class UiV2CustomUi {
   }
   
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2CustomUi.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2CustomUi.class);
 
   /**
    * leave the current group

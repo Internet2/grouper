@@ -79,7 +79,7 @@ public class SessionInitialiser {
   public static final String RESOURCE_BUNDLE_KEY = "resourceBundleKey";
 
   /** logger */
-  protected static Log LOG = LogFactory.getLog(SessionInitialiser.class);
+  protected static Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(SessionInitialiser.class);
 
   private static Group debuggers;
   private static boolean attemptedDebuggers=false;

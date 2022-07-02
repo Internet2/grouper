@@ -143,7 +143,7 @@ public class SubjectApiUtils {
   /**
    * 
    */
-  private static Log log = LogFactory.getLog(SubjectApiUtils.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(SubjectApiUtils.class);
 
   /**
    * see if the config file seems to be hsql

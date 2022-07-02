@@ -508,7 +508,7 @@ public class GrouperUiUtils {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(GrouperUiUtils.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperUiUtils.class);
 
   /**
    * web service format string

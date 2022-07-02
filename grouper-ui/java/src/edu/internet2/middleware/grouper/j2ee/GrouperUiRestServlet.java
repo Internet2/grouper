@@ -101,7 +101,7 @@ public class GrouperUiRestServlet extends HttpServlet {
   public static final String X_GROUPER_RESULT_CODE2 = "X-Grouper-resultCode2";
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperUiRestServlet.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperUiRestServlet.class);
 
   /** uris that it is ok to get (e.g. auto complete and other ajax components */
   private static Set<String> operationsOkGet = GrouperUtil.toSet(

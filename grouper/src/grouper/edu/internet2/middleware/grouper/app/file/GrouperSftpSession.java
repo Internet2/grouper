@@ -438,7 +438,7 @@ public class GrouperSftpSession {
     if (keyPath != null) {
       return "sftp://" + username + "@" + hostName  + "/" + remoteFilePath;
     }
-    return "sftp://" + username + ":" + password + "@" + hostName  + "/" + "/" + remoteFilePath;
+    return "sftp://" + username + ":" + password + "@" + hostName  + "/" + remoteFilePath;
   }
 
 

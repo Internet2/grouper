@@ -228,6 +228,136 @@ public class GrouperProvisioningMatchingIdIndex {
 
   }
 
+  /**
+   * look through entity wrappers focus on grouper and target data which is not yet matched
+   */
+  public void indexMatchingIdEntitiesUnmatched(List<ProvisioningEntity> extraTargetProvisioningEntities) {
+  
+    Set<ProvisioningEntity> grouperTargetEntitiesUnmatched = new HashSet<ProvisioningEntity>();
+    Set<ProvisioningEntity> targetProvisioningEntitiesUnmatched = new HashSet<ProvisioningEntity>();
+    
+    Map<Object, ProvisioningEntityWrapper> groupMatchingIdToProvisioningEntityWrapper = 
+        this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper();
+
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : new ArrayList<ProvisioningEntityWrapper>(
+        GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()))) {
+
+      // this is a match
+      if (provisioningEntityWrapper.getGrouperTargetEntity() != null && provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
+        continue;
+      }
+
+      // this is weird, but skip it
+      if (provisioningEntityWrapper.getGrouperTargetEntity() == null && provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+        continue;
+      }
+      
+      // this grouperTargetEntity with no match
+      if (provisioningEntityWrapper.getGrouperTargetEntity() != null && provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+        grouperTargetEntitiesUnmatched.add(provisioningEntityWrapper.getGrouperTargetEntity());
+        continue;
+      }
+      
+      // this targetProvisioningEntity with no match
+      if (provisioningEntityWrapper.getGrouperTargetEntity() == null && provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
+        targetProvisioningEntitiesUnmatched.add(provisioningEntityWrapper.getTargetProvisioningEntity());
+        continue;
+      }
+    }
+
+    for (ProvisioningEntity extraTargetProvisioningEntity : GrouperUtil.nonNull(extraTargetProvisioningEntities)) {
+      if (extraTargetProvisioningEntity.getProvisioningEntityWrapper() == null || extraTargetProvisioningEntity.getProvisioningEntityWrapper().getGrouperTargetEntity() == null) {
+        targetProvisioningEntitiesUnmatched.add(extraTargetProvisioningEntity);
+      }
+    }
+    
+    if (grouperTargetEntitiesUnmatched.size() > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("grouperTargetEntitiesUnmatched"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("grouperTargetEntitiesUnmatched", oldCount + grouperTargetEntitiesUnmatched.size());
+    }
+    if (targetProvisioningEntitiesUnmatched.size() > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("targetProvisioningEntitiesUnmatched"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("targetProvisioningEntitiesUnmatched", oldCount + grouperTargetEntitiesUnmatched.size());
+    }
+    if (grouperTargetEntitiesUnmatched.size() == 0 || targetProvisioningEntitiesUnmatched.size() == 0) {
+      // if none on either side then we cannot find a deeper match
+      return;
+    }
+    // loop through matching ids
+    int provisioningEntityWrappersMatchedFromCache = 0;
+    int provisioningEntityWrappersMatchedFromAlternateMatchAttr = 0;
+    for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) {
+      String matchingAttributeName = matchingAttribute.getName();
+      Map<Object, ProvisioningEntity> matchingValueToTargetProvisioningEntity = new HashMap<Object, ProvisioningEntity>();
+      for (ProvisioningEntity targetProvisioningEntity : targetProvisioningEntitiesUnmatched) {
+        // dont worry if dupes... oh well
+        Object targetProvisioningEntityCurrentValue = targetProvisioningEntity.retrieveAttributeValue(matchingAttributeName);
+        if(!GrouperUtil.isBlank(targetProvisioningEntityCurrentValue)) {
+          matchingValueToTargetProvisioningEntity.put(targetProvisioningEntityCurrentValue, targetProvisioningEntity);
+        }
+      }
+      for (ProvisioningEntity grouperTargetEntity : new HashSet<ProvisioningEntity>(grouperTargetEntitiesUnmatched)) {
+        ProvisioningEntity targetProvisioningEntity = null;
+        
+        Object grouperTargetEntityCurrentValue = grouperTargetEntity.retrieveAttributeValue(matchingAttributeName);
+        if (targetProvisioningEntity == null 
+            && !GrouperUtil.isEmpty(grouperTargetEntityCurrentValue)) {
+          targetProvisioningEntity = matchingValueToTargetProvisioningEntity.get(grouperTargetEntityCurrentValue);
+          if (targetProvisioningEntity != null) {
+            provisioningEntityWrappersMatchedFromAlternateMatchAttr++;
+          }
+        }
+
+        if (targetProvisioningEntity == null) {
+          Set<Object> cachedValues = GrouperProvisioningConfigurationAttributeDbCache.cachedValuesForEntity(grouperTargetEntity, matchingAttributeName);
+          for (Object cachedValue : GrouperUtil.nonNull(cachedValues)) {
+            if (targetProvisioningEntity == null 
+                && !GrouperUtil.isEmpty(cachedValue)) {
+              targetProvisioningEntity = matchingValueToTargetProvisioningEntity.get(cachedValue);
+              if (targetProvisioningEntity != null) {
+                provisioningEntityWrappersMatchedFromCache++;
+              }
+            }
+          }
+        }
+        
+        if (targetProvisioningEntity != null) {
+          // we have a match!!!!
+
+          //  i guess use the grouper matching id... hmmm... since they dont match
+          groupMatchingIdToProvisioningEntityWrapper.put(grouperTargetEntity.getMatchingId(), grouperTargetEntity.getProvisioningEntityWrapper());
+          
+          // link to entity wrapper
+          grouperTargetEntity.getProvisioningEntityWrapper().setTargetProvisioningEntity(targetProvisioningEntity);
+          grouperTargetEntity.getProvisioningEntityWrapper().setTargetNativeEntity(targetProvisioningEntity.getProvisioningEntityWrapper().getTargetNativeEntity());
+          
+          // unlink from its wrapper
+          if (targetProvisioningEntity.getProvisioningEntityWrapper() != grouperTargetEntity.getProvisioningEntityWrapper()) {
+            this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(targetProvisioningEntity.getProvisioningEntityWrapper());
+            targetProvisioningEntity.getProvisioningEntityWrapper().setTargetProvisioningEntity(null);
+            targetProvisioningEntity.getProvisioningEntityWrapper().setTargetNativeEntity(null);
+            targetProvisioningEntity.getProvisioningEntityWrapper().setGcGrouperSyncMember(null);
+          }
+          
+          targetProvisioningEntity.setProvisioningEntityWrapper(grouperTargetEntity.getProvisioningEntityWrapper());
+          
+          grouperTargetEntitiesUnmatched.remove(grouperTargetEntity);
+          targetProvisioningEntitiesUnmatched.remove(targetProvisioningEntity);
+        }
+      }
+    }
+    
+    if (provisioningEntityWrappersMatchedFromAlternateMatchAttr > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("provisioningEntityWrappersMatchedFromAlternateMatchAttr"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("provisioningEntityWrappersMatchedFromAlternateMatchAttr", oldCount + provisioningEntityWrappersMatchedFromAlternateMatchAttr);
+    }
+    if (provisioningEntityWrappersMatchedFromCache > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("provisioningEntityWrappersMatchedFromCache"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("provisioningEntityWrappersMatchedFromCache", oldCount + provisioningEntityWrappersMatchedFromCache);
+    }
+
+  }
+
   public void indexMatchingIdMemberships() {
     
     int provisioningMembershipWrappersWithNullIds = 0;

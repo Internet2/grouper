@@ -242,7 +242,7 @@ public class SourceManager {
   }
 
   /** */
-  private static Log log = LogFactory.getLog(SourceManager.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(SourceManager.class);
 
   /** */
   private static SourceManager manager;

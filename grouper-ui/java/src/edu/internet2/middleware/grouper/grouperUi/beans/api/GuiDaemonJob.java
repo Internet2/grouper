@@ -60,7 +60,7 @@ import net.redhogs.cronparser.CronExpressionDescriptor;
  */
 public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
 
-  private static final Log LOG = LogFactory.getLog(GuiDaemonJob.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GuiDaemonJob.class);
 
   /**
    * 

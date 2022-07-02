@@ -101,7 +101,7 @@ import edu.internet2.middleware.subject.Subject;
 public class UiV2Subject {
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2Subject.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Subject.class);
   
   /**
    * this subjects privileges inherited from folders

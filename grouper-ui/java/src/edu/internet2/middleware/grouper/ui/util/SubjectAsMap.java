@@ -53,7 +53,7 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  * @version $Id: SubjectAsMap.java,v 1.13 2009-03-04 15:36:09 isgwb Exp $
  */
 public class SubjectAsMap extends ObjectAsMap {
-	protected static final Log LOG = LogFactory.getLog(SubjectAsMap.class);
+	protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(SubjectAsMap.class);
 
 
 	protected String objType = "I2miSubject";

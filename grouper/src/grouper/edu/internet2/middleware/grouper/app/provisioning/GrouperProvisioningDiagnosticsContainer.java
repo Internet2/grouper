@@ -952,6 +952,9 @@ public class GrouperProvisioningDiagnosticsContainer {
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(targetGroups);
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
 
+    // index the groups and entity matching ids
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(targetGroups);
+      
     this.provisioningGroupWrapper.setTargetProvisioningGroup(targetGroups.get(0));
     this.provisioningGroupWrapper.setCreate(false);
     
@@ -1153,6 +1156,7 @@ public class GrouperProvisioningDiagnosticsContainer {
     // index
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(targetEntities);
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntitiesUnmatched(targetEntities);
 
     this.provisioningEntityWrapper.setTargetProvisioningEntity(targetEntities.get(0));
     this.provisioningEntityWrapper.setCreate(false);

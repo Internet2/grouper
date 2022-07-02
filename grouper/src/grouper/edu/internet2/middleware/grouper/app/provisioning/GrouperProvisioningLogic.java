@@ -216,9 +216,9 @@ public class GrouperProvisioningLogic {
       // index the groups and entity matching ids
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(null);
       
-//      debugMap.put("state", "indexMatchingIdEntities");
-//      
-//      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
+      debugMap.put("state", "indexMatchingIdEntitiesUnmatched");
+      
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(null);
     }
 
     
@@ -1314,6 +1314,7 @@ public class GrouperProvisioningLogic {
 
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(grouperTargetGroupsToInsert);
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(null);
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().setProvisioningGroups(grouperTargetGroupsToInsert);
     

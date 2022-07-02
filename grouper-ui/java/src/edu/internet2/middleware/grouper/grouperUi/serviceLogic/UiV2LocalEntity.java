@@ -1569,6 +1569,6 @@ public class UiV2LocalEntity {
   }
 
   /** logger */
-  protected static final Log LOG = LogFactory.getLog(UiV2LocalEntity.class);
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2LocalEntity.class);
 
 }

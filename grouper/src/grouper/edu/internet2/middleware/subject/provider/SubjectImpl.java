@@ -100,7 +100,7 @@ public class SubjectImpl implements Subject {
   }
 
   /** */
-  private static Log log = LogFactory.getLog(SubjectImpl.class);
+  private static Log log = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(SubjectImpl.class);
 
   /** */
   private String id;

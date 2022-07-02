@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperAzureLog {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperAzureLog.class);
+  private static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GrouperAzureLog.class);
  
   /**
    * log something to the log file
