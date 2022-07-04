@@ -41,6 +41,9 @@ public class FrameworkStarter {
     }
 
     public void start() {
+      if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.osgi.enable", false)) {
+        return;
+      }
         Map<String, String> configMap = new HashMap<>();
 
         configMap.put(Constants.FRAMEWORK_BUNDLE_PARENT, Constants.FRAMEWORK_BUNDLE_PARENT_FRAMEWORK);
@@ -122,4 +125,18 @@ public class FrameworkStarter {
     public Framework getFramework() {
         return this.framework;
     }
+    
+//    public void stop() {
+//      if (!started) {
+//        return;
+//      }
+//      started = false;
+//      try {
+//        FrameworkStarter.getInstance().getFramework().waitForStop(20000);
+//      } catch (Exception e) {
+//        throw new RuntimeException(e);
+//      }
+//
+//    }
+    
 }

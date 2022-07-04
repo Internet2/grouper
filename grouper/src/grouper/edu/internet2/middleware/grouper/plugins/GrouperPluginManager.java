@@ -261,9 +261,9 @@ public class GrouperPluginManager {
    * not sure where this would be called from, but heres the method
    */
   public synchronized static void shutdownIfStarted() {
-    if (!initted) {
-      return;
-    }
+    //if (!initted) {
+    //  return;
+    //}
     for (Bundle bundle : GrouperUtil.nonNull(pluginJarNameToBundleMap).values()) {
       try {
         bundle.stop();
@@ -272,7 +272,9 @@ public class GrouperPluginManager {
       }
     }
     try {
-      felix.stop();
+      if (felix != null) {
+        felix.stop();
+      }
     } catch (Exception e) {
       LOG.error("Problem stopping felix", e);
     }
@@ -286,5 +288,18 @@ public class GrouperPluginManager {
     }
     
     initted = false;
+    
+    //    try {
+    //      FrameworkStarter.getInstance().getFramework().waitForStop(20000);
+    //    } catch (Exception e) {
+    //      throw new RuntimeException(e);
+    //    }
+
+    //  for (Thread t : Thread.getAllStackTraces().keySet()) {
+    //    if (t.getName().equals("FelixDispatchQueue")) {
+    //      t.stop();
+    //    }
+    //  }
+
   }
 }
