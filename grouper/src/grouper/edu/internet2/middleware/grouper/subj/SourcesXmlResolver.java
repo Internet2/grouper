@@ -539,7 +539,14 @@ public class SourcesXmlResolver implements SubjectResolver {
       updateMemberAttributes(subj);
       return subj;
     }
-    throw new SubjectNotUniqueException( "found multiple matching subjects: " + subjects.size() + ", '" + id + "'" );
+    StringBuilder sources = new StringBuilder();
+    for (int i=0;i<GrouperUtil.length(subjects);i++) {
+      if (i != 0) {
+        sources.append(",");
+      }
+      sources.append(subjects.get(i).getSourceId());
+    }
+    throw new SubjectNotUniqueException("Found multiple matching subjects: " + subjects.size() + ", '" + id + "', " + sources);
   }
 
   /**

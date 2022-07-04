@@ -1,9 +1,10 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -555,7 +556,7 @@ public enum GrouperProvisioningObjectLogType {
     if (logMessage.charAt(logMessage.length()-1) != '\n') {
       logMessage.append("\n");
     }
-    List<GcGrouperSyncMembership> gcGrouperSyncMemberships = new ArrayList<GcGrouperSyncMembership>();
+    Set<GcGrouperSyncMembership> gcGrouperSyncMemberships = new LinkedHashSet<GcGrouperSyncMembership>();
     
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(memberIdToWrapper).values()) {
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
@@ -586,7 +587,7 @@ public enum GrouperProvisioningObjectLogType {
     if (logMessage.charAt(logMessage.length()-1) != '\n') {
       logMessage.append("\n");
     }
-    List<GcGrouperSyncMember> gcGrouperSyncMembers = new ArrayList<GcGrouperSyncMember>();
+    Set<GcGrouperSyncMember> gcGrouperSyncMembers = new HashSet<GcGrouperSyncMember>();
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(memberIdToWrapper).values()) {
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
@@ -616,7 +617,7 @@ public enum GrouperProvisioningObjectLogType {
     if (logMessage.charAt(logMessage.length()-1) != '\n') {
       logMessage.append("\n");
     }
-    List<GcGrouperSyncGroup> gcGrouperSyncGroups = new ArrayList<GcGrouperSyncGroup>();
+    Set<GcGrouperSyncGroup> gcGrouperSyncGroups = new LinkedHashSet<GcGrouperSyncGroup>();
     
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(groupIdToWrapper).values()) {
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();

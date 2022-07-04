@@ -218,7 +218,7 @@ public class GrouperProvisioningLogic {
       
       debugMap.put("state", "indexMatchingIdEntitiesUnmatched");
       
-      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(null);
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntitiesUnmatched(null);
     }
 
     

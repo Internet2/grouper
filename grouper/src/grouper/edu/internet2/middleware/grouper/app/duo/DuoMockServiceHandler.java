@@ -268,7 +268,11 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     
     String adminDomainName = GrouperConfig.retrieveConfig().propertyValueString("grouper.duoConnector."+configId+".adminDomainName");
     if (StringUtils.isBlank(adminDomainName)) {
-      adminDomainName = "localhost:8080/grouper/mockServices/duo";
+      String uiUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.ui.url", "http://localhost:8080/grouper");
+      uiUrl = GrouperUtil.stripLastSlashIfExists(uiUrl);
+      uiUrl = GrouperUtil.prefixOrSuffix(uiUrl, "http://", false);
+      uiUrl = GrouperUtil.prefixOrSuffix(uiUrl, "https://", false);
+      adminDomainName = uiUrl + "/mockServices/duo";
     }
     if (!StringUtils.equals(expectedIntegrationKey, integrationKey)) {
       throw new RuntimeException("Integration key does not match with what is in grouper config");

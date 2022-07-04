@@ -38,7 +38,7 @@ public class GrouperDuoProvisionerTest extends GrouperTest {
   
   public static void main(String[] args) {
     GrouperStartup.startup();
-    TestRunner.run(new GrouperDuoProvisionerTest("testFullProvisionLoadEntitiesIntoDuoUsersTable"));
+    TestRunner.run(new GrouperDuoProvisionerTest("testDuoMembershipCrud"));
   }
   
   public GrouperDuoProvisionerTest(String name) {

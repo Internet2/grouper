@@ -194,8 +194,9 @@ public class GrouperProvisioningLinkLogic {
   /**
    * update group link for these groups
    * @param provisioningGroupWrappers
+   * @param copyFromTargetOrGrouperTarget true to copy from target representation (e.g. full sync select or entity link), or false to copy from grouper target representation (e.g. successful update)
    */
-  public void updateGroupLink(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers) {
+  public void updateGroupLink(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers, boolean copyFromTargetOrGrouperTarget) {
   
     if (GrouperUtil.length(provisioningGroupWrappers) == 0) {
       return;
@@ -250,14 +251,28 @@ public class GrouperProvisioningLinkLogic {
   
       boolean hasChange = false;
       
-      ProvisioningGroup targetGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
+      ProvisioningGroup targetGroup = provisioningGroupWrapper.getTargetProvisioningGroup().clone();
       
       // not sure why this would happen... deleted?
-      if (targetGroup == null) {
+      if (targetGroup == null || (!copyFromTargetOrGrouperTarget && provisioningGroupWrapper.getGrouperTargetGroup() == null)) {
         targetGroupsForLinkNull++;
         continue;
       }
 
+      if (!copyFromTargetOrGrouperTarget) {
+        for (GrouperProvisioningConfigurationAttribute attribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+              && StringUtils.equals(attribute.getName(), this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName())) {
+            continue;
+          }
+          if (!attribute.isUpdate()) {
+            continue;
+          }
+          // copy the new value to the clone
+          targetGroup.assignAttributeValue(attribute.getName(), provisioningGroupWrapper.getGrouperTargetGroup().retrieveAttributeValue(attribute));
+        }
+      }
+      
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
       
       if (gcGrouperSyncGroup == null) {
@@ -328,7 +343,7 @@ public class GrouperProvisioningLinkLogic {
       }
     }
 
-    if (changedGroups.size() > 0) {
+    if (copyFromTargetOrGrouperTarget && changedGroups.size() > 0) {
       // these need to be translated and indexed
       List<ProvisioningGroup> grouperTargetGroups = this.grouperProvisioner.retrieveGrouperProvisioningTranslator().translateGrouperToTargetGroups(changedGroups, false, false);
       
@@ -356,30 +371,44 @@ public class GrouperProvisioningLinkLogic {
       
     }
     
-    if (changeCount > 0) {
-      this.grouperProvisioner.getDebugMap().put("linkGcSyncGroupsUpdated", changeCount);
-    }
-    if (targetGroupsForLinkNull > 0) {
-      this.grouperProvisioner.getDebugMap().put("targetGroupsForLinkNull", targetGroupsForLinkNull);
-    }
-    if (groupsCannotFindLinkData > 0) {
-      this.grouperProvisioner.getDebugMap().put("groupsCannotFindLinkData", groupsCannotFindLinkData);
-    }
-    if (groupsCannotFindSyncGroup > 0) {
-      this.grouperProvisioner.getDebugMap().put("groupsCannotFindSyncGroup", groupsCannotFindSyncGroup);
-    }
-    
+    if (copyFromTargetOrGrouperTarget) {
+      if (changeCount > 0) {
+        this.grouperProvisioner.getDebugMap().put("linkGcSyncGroupsUpdated", changeCount);
+      }
+      if (targetGroupsForLinkNull > 0) {
+        this.grouperProvisioner.getDebugMap().put("targetGroupsForLinkNull", targetGroupsForLinkNull);
+      }
+      if (groupsCannotFindLinkData > 0) {
+        this.grouperProvisioner.getDebugMap().put("groupsCannotFindLinkData", groupsCannotFindLinkData);
+      }
+      if (groupsCannotFindSyncGroup > 0) {
+        this.grouperProvisioner.getDebugMap().put("groupsCannotFindSyncGroup", groupsCannotFindSyncGroup);
+      }
+    } else {
+      if (changeCount > 0) {
+        this.grouperProvisioner.getDebugMap().put("cacheGroupsUpdatedAfterChange", changeCount);
+      }
+      if (groupsCannotFindLinkData > 0) {
+        this.grouperProvisioner.getDebugMap().put("cacheGroupsCannotFindLinkData", groupsCannotFindLinkData);
+      }
+      if (groupsCannotFindSyncGroup > 0) {
+        this.grouperProvisioner.getDebugMap().put("cacheGroupsCannotFindSyncMember", groupsCannotFindSyncGroup);
+      }
+      if (targetGroupsForLinkNull > 0) {
+        this.grouperProvisioner.getDebugMap().put("grouperTargetGroupsForCacheNull", targetGroupsForLinkNull);
+      }
+    }    
     
   }
 
   public void updateGroupLinkFull() {
     updateGroupLink(GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()), true);
   }
 
   public void updateEntityLinkFull() {
     updateEntityLink(GrouperUtil.nonNull(
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
+        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()), true);
   }
   
   
@@ -433,8 +462,9 @@ public class GrouperProvisioningLinkLogic {
   /**
    * update entity link for these entities
    * @param provisioningEntityWrappers
+   * @param copyFromTargetOrGrouperTarget true to copy from target representation (e.g. full sync select or entity link), or false to copy from grouper target representation (e.g. successful update)
    */
-  public void updateEntityLink(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers) {
+  public void updateEntityLink(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers, boolean copyFromTargetOrGrouperTarget) {
   
     if (GrouperUtil.length(provisioningEntityWrappers) == 0) {
       return;
@@ -492,11 +522,25 @@ public class GrouperProvisioningLinkLogic {
     for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
   
       boolean hasChange = false;
-      ProvisioningEntity targetEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+      ProvisioningEntity targetEntity = provisioningEntityWrapper.getTargetProvisioningEntity().clone();
       
-      if (targetEntity == null) {
+      if (targetEntity == null || (!copyFromTargetOrGrouperTarget && provisioningEntityWrapper.getGrouperTargetEntity() == null)) {
         targetEntitiesForLinkNull++;
         continue;
+      }
+
+      if (!copyFromTargetOrGrouperTarget) {
+        for (GrouperProvisioningConfigurationAttribute attribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
+              && StringUtils.equals(attribute.getName(), this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName())) {
+            continue;
+          }
+          if (!attribute.isUpdate()) {
+            continue;
+          }
+          // copy the new value to the clone
+          targetEntity.assignAttributeValue(attribute.getName(), provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValue(attribute));
+        }
       }
       
       GcGrouperSyncMember gcGrouperSyncEntity = targetEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember();
@@ -568,7 +612,7 @@ public class GrouperProvisioningLinkLogic {
       }
  
     }
-    if (changedEntities.size() > 0) {
+    if (copyFromTargetOrGrouperTarget && changedEntities.size() > 0) {
       // these need to be translated and indexed
       List<ProvisioningEntity> grouperTargetEntities = this.grouperProvisioner.retrieveGrouperProvisioningTranslator().translateGrouperToTargetEntities(changedEntities, false, false);
       
@@ -591,20 +635,34 @@ public class GrouperProvisioningLinkLogic {
       }
       
     }
-    
-    if (changeCount > 0) {
-      this.grouperProvisioner.getDebugMap().put("linkGcSyncEntitiesUpdated", changeCount);
+
+    if (copyFromTargetOrGrouperTarget) {
+      if (changeCount > 0) {
+        this.grouperProvisioner.getDebugMap().put("linkGcSyncEntitiesUpdated", changeCount);
+      }
+      if (entitiesCannotFindLinkData > 0) {
+        this.grouperProvisioner.getDebugMap().put("entitiesCannotFindLinkData", entitiesCannotFindLinkData);
+      }
+      if (entitiesCannotFindSyncMember > 0) {
+        this.grouperProvisioner.getDebugMap().put("entitiesCannotFindSyncMember", entitiesCannotFindSyncMember);
+      }
+      if (targetEntitiesForLinkNull > 0) {
+        this.grouperProvisioner.getDebugMap().put("targetEntitiesForLinkNull", targetEntitiesForLinkNull);
+      }
+    } else {
+      if (changeCount > 0) {
+        this.grouperProvisioner.getDebugMap().put("cacheEntitiesUpdatedAfterChange", changeCount);
+      }
+      if (entitiesCannotFindLinkData > 0) {
+        this.grouperProvisioner.getDebugMap().put("cacheEntitiesCannotFindLinkData", entitiesCannotFindLinkData);
+      }
+      if (entitiesCannotFindSyncMember > 0) {
+        this.grouperProvisioner.getDebugMap().put("cacheEntitiesCannotFindSyncMember", entitiesCannotFindSyncMember);
+      }
+      if (targetEntitiesForLinkNull > 0) {
+        this.grouperProvisioner.getDebugMap().put("grouperTargetEntitiesForCacheNull", targetEntitiesForLinkNull);
+      }
     }
-    if (entitiesCannotFindLinkData > 0) {
-      this.grouperProvisioner.getDebugMap().put("entitiesCannotFindLinkData", entitiesCannotFindLinkData);
-    }
-    if (entitiesCannotFindSyncMember > 0) {
-      this.grouperProvisioner.getDebugMap().put("entitiesCannotFindSyncMember", entitiesCannotFindSyncMember);
-    }
-    if (targetEntitiesForLinkNull > 0) {
-      this.grouperProvisioner.getDebugMap().put("targetEntitiesForLinkNull", targetEntitiesForLinkNull);
-    }
-    
   }
 
   /**

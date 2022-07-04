@@ -47,7 +47,7 @@ import junit.textui.TestRunner;
 public class GrouperScimProvisionerTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperScimProvisionerTest("testAWSIncrementalSyncProvisionGroupAndThenDeleteTheGroup"));
+    TestRunner.run(new GrouperScimProvisionerTest("testAWSFullSyncProvisionGroupAndThenDeleteTheGroup"));
 
   }
   
@@ -112,7 +112,8 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("githubProvisioner");
       
       GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
-      
+      GrouperUtil.sleep(2000);
+
       runJobs(true, true, "githubScimProvTestCLC");
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
@@ -199,6 +200,8 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       
       GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      GrouperUtil.sleep(2000);
+
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
@@ -209,6 +212,8 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("githubProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
       
+      GrouperUtil.sleep(2000);
+
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
@@ -298,6 +303,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       long started = System.currentTimeMillis();
       
       GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      GrouperUtil.sleep(2000);
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
@@ -323,6 +329,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertTrue(System.currentTimeMillis() >= gcGrouperSync.getLastUpdated().getTime());
       
       GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType("fullProvisionFull");
+      GrouperUtil.sleep(2000);
       assertEquals(100, gcGrouperSyncJob.getPercentComplete().intValue());
       assertEquals(GcGrouperSyncJobState.notRunning, gcGrouperSyncJob.getJobState());
       assertTrue(started <= gcGrouperSyncJob.getLastSyncTimestamp().getTime());
@@ -445,7 +452,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
-      
+      GrouperUtil.sleep(2000);
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
@@ -466,6 +473,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertTrue(System.currentTimeMillis() >= gcGrouperSync.getLastUpdated().getTime());
       
       gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType("fullProvisionFull");
+      GrouperUtil.sleep(2000);
       assertEquals(100, gcGrouperSyncJob.getPercentComplete().intValue());
       assertEquals(GcGrouperSyncJobState.notRunning, gcGrouperSyncJob.getJobState());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncJob.getLastSyncTimestamp().getTime());
@@ -575,7 +583,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
       grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
-      
+      GrouperUtil.sleep(2000);
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
@@ -594,6 +602,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertTrue(System.currentTimeMillis() >= gcGrouperSync.getLastUpdated().getTime());
       
       gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType("fullProvisionFull");
+      GrouperUtil.sleep(2000);
       assertEquals(100, gcGrouperSyncJob.getPercentComplete().intValue());
       assertEquals(GcGrouperSyncJobState.notRunning, gcGrouperSyncJob.getJobState());
       assertTrue(System.currentTimeMillis() >= gcGrouperSyncJob.getLastSyncTimestamp().getTime());
@@ -742,7 +751,8 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       
       GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
-      
+      GrouperUtil.sleep(2000);
+
       runJobs(true, true, "awsScimProvTestCLC");
       
       Stem stem = new StemSave(grouperSession).assignName("test").save();

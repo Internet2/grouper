@@ -55,7 +55,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalDoNotCreateUsers"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalCreateUsers"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {

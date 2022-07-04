@@ -39,7 +39,7 @@ import junit.textui.TestRunner;
 public class GrouperAzureProvisionerTest extends GrouperTest {
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testIncrementalSyncAzure"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzure"));
   }
 
   public GrouperAzureProvisionerTest(String name) {

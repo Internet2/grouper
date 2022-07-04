@@ -23,7 +23,9 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningList
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogCommands;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
@@ -452,11 +454,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
         TargetDaoUpdateGroupsResponse targetDaoUpdateGroupsResponse = this.wrappedDao.updateGroups(targetDaoUpdateGroupsRequest);
         hasError = logGroups(targetDaoUpdateGroupsRequest.getTargetGroups());
+        Set<ProvisioningGroupWrapper> provisioningGroupWrappersSuccessfullyUpdated = new HashSet<ProvisioningGroupWrapper>();
         for (ProvisioningGroup provisioningGroup : targetDaoUpdateGroupsRequest.getTargetGroups()) { 
           if (provisioningGroup.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set updated group as provisioned: " + this.wrappedDao);
           }
+          if (provisioningGroup.getProvisioned()) {
+            provisioningGroupWrappersSuccessfullyUpdated.add(provisioningGroup.getProvisioningGroupWrapper());
+          }
+
         }
+        // update the cache
+        this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateGroupLink(provisioningGroupWrappersSuccessfullyUpdated, false);
+
         return targetDaoUpdateGroupsResponse;
       } catch (RuntimeException e) {
         boolean first = true;
@@ -475,7 +485,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           if (targetGroup.getProvisioned() == null) {
             targetGroup.setProvisioned(false);
           }
-          if (targetGroup.getException() == null) {            targetGroup.setException(e);
+          if (targetGroup.getException() == null) {
+            targetGroup.setException(e);
           }
           setExceptionForMembershipsWhenGroupOrEntityAttributes(null, targetGroup, e);
         }
@@ -1578,7 +1589,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         if (targetGroup.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set updated group as provisioned: " + this.wrappedDao);
         }
-        
+        if (targetGroup.getProvisioned()) {
+          // update the cache
+          this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateGroupLink(GrouperUtil.toSet(targetGroup.getProvisioningGroupWrapper()), false);
+        }
+
         return targetDaoUpdateGroupResponse;
       } catch (RuntimeException e) {
         GrouperUtil.injectInException(e, targetGroup.toString());
@@ -2068,6 +2083,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         if (targetEntity.getProvisioned() == null) {
           throw new RuntimeException("Dao did not set updateed entity as provisioned: " + this.wrappedDao);
         }
+        if (targetEntity.getProvisioned()) {
+          // update the cache
+          this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateEntityLink(GrouperUtil.toSet(targetEntity.getProvisioningEntityWrapper()), false);
+        }
+
         return targetDaoUpdateEntityResponse;
       } catch (RuntimeException e) {
         GrouperUtil.injectInException(e, targetEntity.toString());
@@ -2205,11 +2225,17 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoUpdateEntitiesResponse targetDaoUpdateEntitiesResponse = this.wrappedDao.updateEntities(targetDaoUpdateEntitiesRequest);
         hasError = logEntities(targetDaoUpdateEntitiesRequest.getTargetEntities());
+        Set<ProvisioningEntityWrapper> provisioningEntityWrappersSuccessfullyUpdated = new HashSet<ProvisioningEntityWrapper>();
         for (ProvisioningEntity provisioningEntity : targetDaoUpdateEntitiesRequest.getTargetEntities()) { 
           if (provisioningEntity.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set updated entity as provisioned: " + this.wrappedDao);
           }
+          if (provisioningEntity.getProvisioned()) {
+            provisioningEntityWrappersSuccessfullyUpdated.add(provisioningEntity.getProvisioningEntityWrapper());
+          }
         }
+        // update the cache
+        this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateEntityLink(provisioningEntityWrappersSuccessfullyUpdated, false);
         return targetDaoUpdateEntitiesResponse;
       } catch (RuntimeException e) {
         hasError = true;

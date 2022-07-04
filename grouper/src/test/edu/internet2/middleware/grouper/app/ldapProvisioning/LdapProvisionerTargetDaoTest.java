@@ -8,7 +8,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
@@ -17,7 +16,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipResponse;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
@@ -26,12 +24,17 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.SourceManager;
+import junit.textui.TestRunner;
 
 /**
  * @author shilen
  */
 public class LdapProvisionerTargetDaoTest extends GrouperTest {
 
+  public static void main(String[] args) {
+    TestRunner.run(new LdapProvisionerTargetDaoTest("testRetrieveMembership"));
+  }
+  
   public LdapProvisionerTargetDaoTest() {
     super();
   }
@@ -135,11 +138,11 @@ public class LdapProvisionerTargetDaoTest extends GrouperTest {
 
     // now test retrieveMembership
     {
-      ProvisioningGroup targetMembership = new ProvisioningGroup();
-      targetMembership.setName("cn=test:testGroup,ou=Groups,dc=example,dc=edu");
-      targetMembership.addAttributeValue("member", "uid=jsmith,ou=People,dc=example,dc=edu");
+      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
+      targetGroup.addAttributeValue("member", "uid=jsmith,ou=People,dc=example,dc=edu");
       TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequest = new TargetDaoRetrieveMembershipRequest();
-      targetDaoRetrieveMembershipRequest.setTargetMembership(targetMembership);
+      targetDaoRetrieveMembershipRequest.setTargetMembership(targetGroup);
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
@@ -148,11 +151,11 @@ public class LdapProvisionerTargetDaoTest extends GrouperTest {
     }
     
     {
-      ProvisioningGroup targetMembership = new ProvisioningGroup();
-      targetMembership.setName("cn=test:testGroup,ou=Groups,dc=example,dc=edu");
-      targetMembership.addAttributeValue("member", "uid=banderson,ou=People,dc=example,dc=edu");
+      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
+      targetGroup.addAttributeValue("member", "uid=banderson,ou=People,dc=example,dc=edu");
       TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequest = new TargetDaoRetrieveMembershipRequest();
-      targetDaoRetrieveMembershipRequest.setTargetMembership(targetMembership);
+      targetDaoRetrieveMembershipRequest.setTargetMembership(targetGroup);
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
@@ -161,11 +164,11 @@ public class LdapProvisionerTargetDaoTest extends GrouperTest {
     }
     
     {
-      ProvisioningGroup targetMembership = new ProvisioningGroup();
-      targetMembership.setName("cn=test:testGroup,ou=Groups,dc=example,dc=edu");
-      targetMembership.addAttributeValue("member", "uid=hdavis,ou=People,dc=example,dc=edu");
+      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
+      targetGroup.addAttributeValue("member", "uid=hdavis,ou=People,dc=example,dc=edu");
       TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequest = new TargetDaoRetrieveMembershipRequest();
-      targetDaoRetrieveMembershipRequest.setTargetMembership(targetMembership);
+      targetDaoRetrieveMembershipRequest.setTargetMembership(targetGroup);
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
@@ -174,11 +177,11 @@ public class LdapProvisionerTargetDaoTest extends GrouperTest {
     }
     
     {
-      ProvisioningGroup targetMembership = new ProvisioningGroup();
-      targetMembership.setName("cn=test:testGroup:does:not:exist,ou=Groups,dc=example,dc=edu");
-      targetMembership.addAttributeValue("member", "uid=hdavis,ou=People,dc=example,dc=edu");
+      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup:does:not:exist,ou=Groups,dc=example,dc=edu");
+      targetGroup.addAttributeValue("member", "uid=hdavis,ou=People,dc=example,dc=edu");
       TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequest = new TargetDaoRetrieveMembershipRequest();
-      targetDaoRetrieveMembershipRequest.setTargetMembership(targetMembership);
+      targetDaoRetrieveMembershipRequest.setTargetMembership(targetGroup);
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
