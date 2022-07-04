@@ -320,33 +320,36 @@ public class GrouperProvisioningCompare {
 
     String attributeForMemberships = null;
 
-    switch (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
-      case membershipObjects:
-        // we dont update any attribute for memberships, we just insert and delete them
-        return;
-      case entityAttributes:
-        
-        attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
-        if (grouperProvisioningUpdatable instanceof ProvisioningEntity && StringUtils.equals(attributeForMemberships,  attributeName)) {
-          break;
-        }
-        // otherwise ignore
-        return;
-        
-      case groupAttributes:
-  
-        attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
-        if (grouperProvisioningUpdatable instanceof ProvisioningGroup && StringUtils.equals(attributeForMemberships,  attributeName)) {
-          break;
-        }
-        // otherwise ignore
-        return;
-        
-      default:
-        throw new RuntimeException("Not expecting membership type");
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != null) {
+      switch (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
+        case membershipObjects:
+          // we dont update any attribute for memberships, we just insert and delete them
+          return;
+        case entityAttributes:
+          
+          attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+          if (grouperProvisioningUpdatable instanceof ProvisioningEntity && StringUtils.equals(attributeForMemberships,  attributeName)) {
+            break;
+          }
+          // otherwise ignore
+          return;
+          
+        case groupAttributes:
+    
+          attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+          if (grouperProvisioningUpdatable instanceof ProvisioningGroup && StringUtils.equals(attributeForMemberships,  attributeName)) {
+            break;
+          }
+          // otherwise ignore
+          return;
+          
+        default:
+          throw new RuntimeException("Not expecting membership type");
+      }
     }
+    // not syncing memberships?
     if (StringUtils.isBlank(attributeForMemberships)) {
-      throw new RuntimeException("Attribute for memberships is blank!");
+      return;
     }
     if (!recalcProvisioningUpdateable) {
       
@@ -557,28 +560,30 @@ public class GrouperProvisioningCompare {
     }
     
     String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
-    switch (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
-      case membershipObjects:
-        // this is ok
-        break;
-      case entityAttributes:
-      
-        // dont deal with entity membership attribute
-        if (grouperProvisioningUpdatable instanceof ProvisioningEntity && StringUtils.equals(attributeForMemberships,  attributeName)) {
-          return;
-        }
-        break;
-      case groupAttributes:
-  
-        // dont deal with group membership attribute
-        if (grouperProvisioningUpdatable instanceof ProvisioningGroup && StringUtils.equals(attributeForMemberships,  attributeName)) {
-          return;
-        }
-        // otherwise ignore
-        break;
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != null) {
+      switch (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
+        case membershipObjects:
+          // this is ok
+          break;
+        case entityAttributes:
         
-      default:
-        throw new RuntimeException("Not expecting membership type");
+          // dont deal with entity membership attribute
+          if (grouperProvisioningUpdatable instanceof ProvisioningEntity && StringUtils.equals(attributeForMemberships,  attributeName)) {
+            return;
+          }
+          break;
+        case groupAttributes:
+    
+          // dont deal with group membership attribute
+          if (grouperProvisioningUpdatable instanceof ProvisioningGroup && StringUtils.equals(attributeForMemberships,  attributeName)) {
+            return;
+          }
+          // otherwise ignore
+          break;
+          
+        default:
+          throw new RuntimeException("Not expecting membership type");
+      }
     }
     
     // We're here because we're updating the membership attribute but we're not updating other attributes
