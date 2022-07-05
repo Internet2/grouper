@@ -35,7 +35,7 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       GrouperStartup.waitForGrouperStartup();
 
       // setup ServletContainerInitializer from OSGI
-      {
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.osgi.enable", false)) {
         BundleContext bundleContext = FrameworkStarter.getInstance().getFramework().getBundleContext();
 
         try {
