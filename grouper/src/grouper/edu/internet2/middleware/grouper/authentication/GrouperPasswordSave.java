@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -37,8 +38,7 @@ import edu.internet2.middleware.subject.SubjectUtils;
  * 
  * <blockquote>
  * <pre>
- * new GrouperPasswordSave().assignUsername("GrouperSystem").assignPassword("admin123").assignEntityType("username")
- *  .assignApplication(GrouperPassword.Application.UI).save();
+ * new GrouperPasswordSave().assignUsername("GrouperSystem").assignPassword("admin123").assignApplication(GrouperPassword.Application.UI).save();
  * </pre>
  * </blockquote>
  * 
@@ -47,14 +47,20 @@ import edu.internet2.middleware.subject.SubjectUtils;
  * <p> Sample call to create a username password for grouper webservices
  * <blockquote>
  * <pre>
- * new GrouperPasswordSave().assignUsername("GrouperSystem").assignPassword("admin123").assignEntityType("username")
- *  .assignApplication(GrouperPassword.Application.WS).save();
+ * new GrouperPasswordSave().assignUsername("GrouperSystem").assignPassword("admin123").assignApplication(GrouperPassword.Application.WS).save();
  * </pre>
  * </blockquote>
  * </p>
  *
  */
 public class GrouperPasswordSave {
+  
+  public static void main(String[] args) {
+    GrouperStartup.startup();
+    GrouperSession.startRootSession();
+    new GrouperPasswordSave().assignApplication(GrouperPassword.Application.UI).assignUsername("GrouperSystem").assignPassword("mypassword2").save();
+    new GrouperPasswordSave().assignApplication(GrouperPassword.Application.UI).assignUsername("GrouperSystem").assignPassword("mypassword3").save();
+  }
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperPasswordSave.class);
@@ -307,6 +313,8 @@ public class GrouperPasswordSave {
    */
   private boolean encryptionTpyeAssigned = false;
   
+  private boolean passwordAssigned = false;
+  
   /**
    * assign password to be stored
    * @param password
@@ -314,6 +322,7 @@ public class GrouperPasswordSave {
    */
   public GrouperPasswordSave assignPassword(String password) {
     this.thePassword = password;
+    this.passwordAssigned = true;
     return this;
   }
   
@@ -828,17 +837,25 @@ public class GrouperPasswordSave {
               }
               
               if (StringUtils.isNotBlank(thePassword)) {
-                if (replaceAllSettings) {
+                if (replaceAllSettings || GrouperPasswordSave.this.passwordAssigned) {
                   needsSave = true;
                   if (saveResultType == SaveResultType.NO_CHANGE) {
                     saveResultType = SaveResultType.UPDATE;
                   }
-                  grouperPassword.setThePassword(thePassword);
+                  
+                  Object[] saltPasswordEncryptionType = encryptPassword(thePassword);
+                  
+                  grouperPassword.setEncryptionType((EncryptionType)saltPasswordEncryptionType[2]);
+                  grouperPassword.setThePassword(saltPasswordEncryptionType[1].toString());
+                  grouperPassword.setHashed(true);
+                  grouperPassword.setTheSalt(saltPasswordEncryptionType[0].toString());
+                  
                   grouperPassword.setMemberIdWhoSetPassword(memberIdWhoSetPassword);
                 }
               }
               
               if (needsSave) {
+                grouperPassword.setLastEdited(Instant.now().toEpochMilli());
                 GrouperDAOFactory.getFactory().getGrouperPassword().saveOrUpdate(grouperPassword);
               }
 

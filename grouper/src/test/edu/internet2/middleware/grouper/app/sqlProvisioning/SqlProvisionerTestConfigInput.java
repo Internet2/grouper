@@ -13,6 +13,17 @@ import edu.internet2.middleware.grouper.app.scim.ScimProvisionerTestConfigInput;
  */
 public class SqlProvisionerTestConfigInput {
 
+  private boolean cacheObjects = false;
+  
+  public boolean isCacheObjects() {
+    return cacheObjects;
+  }
+
+  public SqlProvisionerTestConfigInput assignCacheObjects(boolean cacheObjects) {
+    this.cacheObjects = cacheObjects;
+    return this;
+  }
+
   private boolean operateOnGrouperMemberships = true;
   
   

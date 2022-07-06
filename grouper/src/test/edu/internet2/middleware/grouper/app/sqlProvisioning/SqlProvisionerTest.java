@@ -127,7 +127,7 @@ public class SqlProvisionerTest extends GrouperTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFullWithAttributesTableRequiredMembers"));
+    TestRunner.run(new SqlProvisionerTest("testGroupEntityMembershipRenameGroupFullMatchOnOld"));
     
   }
   
@@ -1074,6 +1074,7 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignMembershipEntityForeignKeyColumn("entity_uuid")
         .assignHasTargetEntityLink(true)
         .assignHasTargetGroupLink(true)
+        .assignCacheObjects(true)
         .assignEntityAttributeCount(5)
         .assignGroupAttributeCount(4)
         .assignMembershipAttributeCount(3)
