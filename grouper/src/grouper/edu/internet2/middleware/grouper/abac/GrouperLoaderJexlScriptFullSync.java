@@ -140,7 +140,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         List<String> groupIdsBatch = GrouperUtil.batchList(allGroupIdsList, batchSize, i);
         GcDbAccess gcDbAccess = new GcDbAccess();
         String sql = "select group_id, member_id, subject_source from grouper_memberships_lw_v where group_id in (" 
-            + GrouperClientUtils.appendQuestions(GrouperUtil.length(groupIdsBatch)) + ")";
+            + GrouperClientUtils.appendQuestions(GrouperUtil.length(groupIdsBatch)) + ") and list_name = 'members'";
         List<Object[]> results = gcDbAccess.sql(sql).bindVars(GrouperUtil.toArray(groupIdsBatch, Object.class)).selectList(Object[].class);
         for (Object[] row : results) {
           String groupId = (String)row[0];
@@ -232,10 +232,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
               Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, true);
               if (shouldBeInGroup) {
                 Subject subject = member.getSubject();
-                group.addMember(subject);
+                group.addMember(subject, false);
                 insertCount++;
               } else {
-                group.deleteMember(member);
+                group.deleteMember(member, false);
                 deleteCount++;
               }
             }
