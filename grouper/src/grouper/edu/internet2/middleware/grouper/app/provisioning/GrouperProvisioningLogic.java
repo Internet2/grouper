@@ -1174,6 +1174,11 @@ public class GrouperProvisioningLogic {
         {
           Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
 
+          GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
+          //TODO check with Chris if need this line. It's there in fullProvision
+//          gcGrouperSync.setLastFullSyncStart(startTimestamp);
+          gcGrouperSync.setLastIncrementalSyncRun(nowTimestamp);
+          
           GcGrouperSyncJob gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSyncJob();
           gcGrouperSyncJob.setErrorMessage(null);
           gcGrouperSyncJob.setErrorTimestamp(null);
@@ -1188,6 +1193,7 @@ public class GrouperProvisioningLogic {
           this.grouperProvisioner.getProvisioningSyncResult().setSyncObjectStoreCount(objectStoreCount);
       
           this.grouperProvisioner.getDebugMap().put("syncObjectStoreCount", objectStoreCount);
+          
         }
 
         // TODO flesh this out, resolve subjects, linked cached data, etc, try individually again
