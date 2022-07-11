@@ -81,7 +81,7 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     
     //something that will never fire
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
-        "0 0 5 * * 2000");
+        "0 0 0 1 1 ? 2200");
 
     GrouperSession grouperSession = GrouperSession.startRootSession();
     

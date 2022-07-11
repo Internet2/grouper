@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.cfg.annotations.Nullability;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -20,6 +21,28 @@ public class GrouperProvisioningConfigurationAttribute {
 
   private boolean grouperProvisioningConfigurationAttributeDbCacheRetrieved = false;
   
+  private GrouperProvisioningConfigurationAttributeTranslationType translateExpressionType = null;
+  private GrouperProvisioningConfigurationAttributeTranslationType translateExpressionTypeCreateOnly = null;
+  
+  
+  public GrouperProvisioningConfigurationAttributeTranslationType getTranslateExpressionType() {
+    return translateExpressionType;
+  }
+
+  public void setTranslateExpressionType(
+      GrouperProvisioningConfigurationAttributeTranslationType translateExpressionType) {
+    this.translateExpressionType = translateExpressionType;
+  }
+
+  public GrouperProvisioningConfigurationAttributeTranslationType getTranslateExpressionTypeCreateOnly() {
+    return translateExpressionTypeCreateOnly;
+  }
+
+  public void setTranslateExpressionTypeCreateOnly(
+      GrouperProvisioningConfigurationAttributeTranslationType translateExpressionTypeCreateOnly) {
+    this.translateExpressionTypeCreateOnly = translateExpressionTypeCreateOnly;
+  }
+
   /**
    * 
    * @return if this is a member cache attribute

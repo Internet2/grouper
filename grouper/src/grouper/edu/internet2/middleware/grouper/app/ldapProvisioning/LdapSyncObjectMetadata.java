@@ -17,7 +17,8 @@ public class LdapSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
   public void initBuiltInMetadata() {
     super.initBuiltInMetadata();
     
-    if (((LdapSyncConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isAllowLdapGroupDnOverride() && !this.containsMetadataItemByName("md_grouper_ldapGroupDnOverride")) {
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    if (ldapSyncConfiguration.isAllowLdapGroupDnOverride() && !this.containsMetadataItemByName("md_grouper_ldapGroupDnOverride")) {
       GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
 
       grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataLdapGroupDnOverrideDescription");
@@ -26,6 +27,9 @@ public class LdapSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.TEXT);
+      if (ldapSyncConfiguration.isOnlyLdapGroupDnOverride()) {
+        grouperProvisioningObjectMetadataItem.setRequired(true);
+      }
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
     }
     

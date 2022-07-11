@@ -25,7 +25,7 @@ public class LdapSyncConfigurationValidation
     super.validateFromSuffixValueMap();
     
     validateDnExistsAndString();
-
+    validateOnlyDnOverrideHasDnMatching();
   }
 
   /**
@@ -156,5 +156,36 @@ public class LdapSyncConfigurationValidation
     GrouperTextContainer.resetThreadLocalVariableMap();
     
   }
- 
+
+  /**
+   * make sure attribute names arent re-used
+   */
+  public void validateOnlyDnOverrideHasDnMatching() {
+
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+    boolean onlyLdapGroupDnOverride = GrouperUtil.booleanValue(this.getSuffixToConfigValue().get("onlyLdapGroupDnOverride"), false);
+    if (onlyLdapGroupDnOverride) {
+      boolean groupMatchingAttributeSameAsSearchAttribute = GrouperUtil.booleanValue(this.getSuffixToConfigValue().get("groupMatchingAttributeSameAsSearchAttribute"), true);
+      if (!groupMatchingAttributeSameAsSearchAttribute) {
+        this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.onlyDnOverrideMatchingSameAsSearch"))
+            .assignJqueryHandle("groupMatchingAttributeSameAsSearchAttribute"));
+      } else {
+        int groupMatchingAttributeCount = GrouperUtil.intValue(this.getSuffixToConfigValue().get("groupMatchingAttributeCount"), 0);
+        if (groupMatchingAttributeCount != 1) {
+          this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.onlyDnOverrideHasOneMatchingAttribute"))
+              .assignJqueryHandle("groupMatchingAttributeCount"));
+        } else {
+          String groupMatchingAttribute0name = this.getSuffixToConfigValue().get("groupMatchingAttribute0name");
+          if (!StringUtils.equals("ldap_dn", groupMatchingAttribute0name)) {
+            this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.onlyDnOverrideHasLdapDnMatchingAttribute"))
+                .assignJqueryHandle("groupMatchingAttribute0name"));
+          }
+        }
+      }
+    }
+      
+    GrouperTextContainer.resetThreadLocalVariableMap();
+    
+  }
 }

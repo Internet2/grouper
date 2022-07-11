@@ -126,28 +126,30 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
       String dn = null;
       String groupRdnAttributeName = ldapSyncConfiguration.getGroupRdnAttribute();
 
+      boolean dnOnly = ldapSyncConfiguration.isOnlyLdapGroupDnOverride();
       if (ldapSyncConfiguration.isAllowLdapGroupDnOverride()) {
         dn = provisioningGroupWrapper.getGrouperProvisioningGroup().retrieveAttributeValueString("md_grouper_ldapGroupDnOverride");
       }
 
-      if (StringUtils.isEmpty(dn)) {        
-        if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.bushy) {
-          String groupRdnAttributeValue = null;
-
-          if (((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes() != null 
-              && ((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName) != null) {
-            groupRdnAttributeValue = (String)((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName).getValue();
+      if (!dnOnly) {
+        if (StringUtils.isEmpty(dn)) {        
+          if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.bushy) {
+            String groupRdnAttributeValue = null;
+  
+            if (((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes() != null 
+                && ((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName) != null) {
+              groupRdnAttributeValue = (String)((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName).getValue();
+            }
+  
+            dn = GrouperUtil.ldapBushyDn(fieldValueString, groupRdnAttributeName, groupRdnAttributeValue, ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
+          } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat) {
+            dn = GrouperUtil.ldapEscapeRdn(groupRdnAttributeName + "=" + fieldValueString) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
+  
+          } else {
+            throw new RuntimeException("Not expecting group dn type: " + ldapSyncConfiguration.getGroupDnType());
           }
-
-          dn = GrouperUtil.ldapBushyDn(fieldValueString, groupRdnAttributeName, groupRdnAttributeValue, ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
-        } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat) {
-          dn = GrouperUtil.ldapEscapeRdn(groupRdnAttributeName + "=" + fieldValueString) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
-
-        } else {
-          throw new RuntimeException("Not expecting group dn type: " + ldapSyncConfiguration.getGroupDnType());
         }
       }
-
       attributeValue = dn;
     }
     

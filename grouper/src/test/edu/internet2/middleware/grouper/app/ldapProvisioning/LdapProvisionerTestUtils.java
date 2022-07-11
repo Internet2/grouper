@@ -312,15 +312,18 @@ public class LdapProvisionerTestUtils {
       } else {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "ldap_dn");
         if (provisioningTestConfigInput.isGroupDnTranslate()) {
-          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", provisioningTestConfigInput.isDnOverrideScript() ? "translationScript" : "grouperProvisioningGroupField");
-          String dnAttribute = provisioningTestConfigInput.isGroupDnTypeBushy() ? "name" : provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField();
-          if (provisioningTestConfigInput.isDnOverrideScript()) {
-            configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpression",
-                "${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_ldapGroupDnOverride'), 'cn=' + edu.internet2.middleware.grouper.util.GrouperUtil.ldapEscapeRdnValue(grouperProvisioningGroup." 
-                    + dnAttribute + ") + ',ou=Groups,dc=example,dc=edu')}");
-          } else {
-            configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField",
-                dnAttribute);
+          if (!StringUtils.equals("true", provisioningTestConfigInput.getExtraConfig().get("onlyLdapGroupDnOverride"))) {
+            configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", provisioningTestConfigInput.isDnOverrideScript() ? "translationScript" : "grouperProvisioningGroupField");
+            String dnAttribute = provisioningTestConfigInput.isGroupDnTypeBushy() ? "name" : provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField();
+            if (provisioningTestConfigInput.isDnOverrideScript()) {
+              configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpression",
+                  "${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_ldapGroupDnOverride'), 'cn=' + edu.internet2.middleware.grouper.util.GrouperUtil.ldapEscapeRdnValue(grouperProvisioningGroup." 
+                      + dnAttribute + ") + ',ou=Groups,dc=example,dc=edu')}");
+            } else {
+              configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField",
+                  dnAttribute);
+            }
+            
           }
         }
         if (provisioningTestConfigInput.isGroupAttributeValueCache2dn()) {
@@ -345,7 +348,12 @@ public class LdapProvisionerTestUtils {
             provisioningTestConfigInput.getBusinessCategoryTranslateFromGrouperProvisioningGroupField());
       
         configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
-        configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", attributeName);
+
+        if (!StringUtils.equals("true", provisioningTestConfigInput.getExtraConfig().get("onlyLdapGroupDnOverride"))) {
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", attributeName);
+        } else {
+          configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "ldap_dn");
+        }
 
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "cn");
     
@@ -563,7 +571,9 @@ public class LdapProvisionerTestUtils {
     }
     if (provisioningTestConfigInput.getGroupAttributeCount() > 1) {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupDnType", provisioningTestConfigInput.isGroupDnTypeBushy() ? "bushy" : "flat");
-      configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchBaseDn", "ou=Groups,dc=example,dc=edu");
+      if (!StringUtils.equals("true", provisioningTestConfigInput.getExtraConfig().get("onlyLdapGroupDnOverride"))) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchBaseDn", "ou=Groups,dc=example,dc=edu");
+      }
     }
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
@@ -639,7 +649,7 @@ public class LdapProvisionerTestUtils {
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.class").value(EsbConsumer.class.getName()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.publisher.class").value(ProvisioningConsumer.class.getName()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.quartzCron").value("0 0 5 * * 2000").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.quartzCron").value("0 0 0 1 1 ? 2200").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.provisionerConfigId").value(provisioningTestConfigInput.getConfigId()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.provisionerJobSyncType").value(GrouperProvisioningType.incrementalProvisionChangeLog.name()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + provisioningTestConfigInput.getConfigId() + "CLC.publisher.debug").value("true").store();

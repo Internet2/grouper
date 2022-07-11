@@ -391,6 +391,7 @@ public class GrouperProvisioningLogicIncremental {
       return;
     }
     if (gcGrouperSyncGroup.getLastGroupSyncStart().getTime() > grouperIncrementalDataItem.getMillisSince1970()) {
+      // note, if unit tests fail, might want to sleep for a few seconds before running incremental in runJobs()
       filterByGroupSyncGroups[0]++;
       iterator.remove();
     }
@@ -2618,19 +2619,19 @@ public class GrouperProvisioningLogicIncremental {
         needsData = true;
       }
       {
-        Set<Object> groupMatchingIdsToRetrieve = new HashSet<Object>();
-        Set<Object> entityMatchingIdsToRetrieve = new HashSet<Object>();
+        Set<ProvisioningGroup> groupsToRetrieve = new HashSet<ProvisioningGroup>();
+        Set<ProvisioningEntity> entitiesToRetrieve = new HashSet<ProvisioningEntity>();
         for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetGroupsForGroupMembershipSync()) ) {
-          groupMatchingIdsToRetrieve.add(grouperTargetGroup.getMatchingId());
+          groupsToRetrieve.add(grouperTargetGroup);
         }
         for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetGroupsForGroupOnly()) ) {
-          groupMatchingIdsToRetrieve.add(grouperTargetGroup.getMatchingId());
+          groupsToRetrieve.add(grouperTargetGroup);
         }
         for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetEntitiesForEntityMembershipSync())) {
-          entityMatchingIdsToRetrieve.add(grouperTargetEntity.getMatchingId());
+          entitiesToRetrieve.add(grouperTargetEntity);
         }
         for (ProvisioningEntity grouperTargetEntity : GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetEntitiesForEntityOnly())) {
-          entityMatchingIdsToRetrieve.add(grouperTargetEntity.getMatchingId());
+          entitiesToRetrieve.add(grouperTargetEntity);
         }
         
         // we need to add groups that are there for entity recalcs, and entities there for group recalcs, and both for membership recalcs
@@ -2652,8 +2653,8 @@ public class GrouperProvisioningLogicIncremental {
           }
           if (retrieveGroupAndMember) {
             {
-              Object groupMatchingId = provisioningGroupWrapper == null || provisioningGroupWrapper.getGrouperTargetGroup() == null ? null : provisioningGroupWrapper.getGrouperTargetGroup().getMatchingId();
-              if (groupMatchingId != null && !groupMatchingIdsToRetrieve.contains(groupMatchingId) && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
+              ProvisioningGroup thisGrouperTargetGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperTargetGroup();
+              if (thisGrouperTargetGroup != null && !groupsToRetrieve.contains(thisGrouperTargetGroup)) {
                 if (targetDaoRetrieveIncrementalDataRequest.getTargetGroupsForGroupOnly() == null) {
                   targetDaoRetrieveIncrementalDataRequest.setTargetGroupsForGroupOnly(new ArrayList<ProvisioningGroup>());
                 }
@@ -2662,8 +2663,8 @@ public class GrouperProvisioningLogicIncremental {
               }
             }
             {
-              Object entityMatchingId = provisioningEntityWrapper == null || provisioningEntityWrapper.getGrouperTargetEntity() == null ? null : provisioningEntityWrapper.getGrouperTargetEntity().getMatchingId();
-              if (entityMatchingId != null && !entityMatchingIdsToRetrieve.contains(entityMatchingId) && provisioningEntityWrapper.getGrouperTargetEntity() != null) {
+              ProvisioningEntity thisGrouperTargetEntity = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGrouperTargetEntity();
+              if (!entitiesToRetrieve.contains(thisGrouperTargetEntity) && provisioningEntityWrapper.getGrouperTargetEntity() != null) {
                 if (targetDaoRetrieveIncrementalDataRequest.getTargetEntitiesForEntityOnly() == null) {
                   targetDaoRetrieveIncrementalDataRequest.setTargetEntitiesForEntityOnly(new ArrayList<ProvisioningEntity>());
                 }

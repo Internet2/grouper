@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeTranslationType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -66,11 +67,12 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfiguration {
       }
     }
     this.allowLdapGroupDnOverride = GrouperUtil.booleanValue(this.retrieveConfigString("allowLdapGroupDnOverride", false), false);
+    this.onlyLdapGroupDnOverride = GrouperUtil.booleanValue(this.retrieveConfigString("onlyLdapGroupDnOverride", false), false);
     
     {
       GrouperProvisioningConfigurationAttribute groupDnAttributeConfig = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(LdapProvisioningTargetDao.ldap_dn);
       GrouperProvisioningConfigurationAttribute groupRdnAttributeConfig = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(this.groupRdnAttribute);
-      if (groupRdnAttributeConfig != null && groupDnAttributeConfig != null
+      if (groupRdnAttributeConfig != null && groupDnAttributeConfig != null && !this.isOnlyLdapGroupDnOverride()
           && StringUtils.isBlank(groupDnAttributeConfig.getTranslateFromStaticValues())
           && StringUtils.isBlank(groupDnAttributeConfig.getTranslateFromStaticValuesCreateOnly())
           && StringUtils.isBlank(groupDnAttributeConfig.getTranslateExpression())
@@ -102,6 +104,12 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfiguration {
             }
           }
         }
+      }
+
+      if (this.isOnlyLdapGroupDnOverride() && groupDnAttributeConfig.getTranslateExpressionType() == null 
+          && groupDnAttributeConfig.getTranslateExpressionTypeCreateOnly() == null) {
+        groupDnAttributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.translationScript);
+        groupDnAttributeConfig.setTranslateExpression("${grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_ldapGroupDnOverride')}");
       }
     }
     
@@ -136,7 +144,28 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfiguration {
    * If you want a metadata item on groups to allow a DN override
    */
   private boolean allowLdapGroupDnOverride;
-  
+
+  /**
+   * If you want a metadata item on groups to set a DN override (only way to provision)
+   */
+  private boolean onlyLdapGroupDnOverride;
+
+  /**
+   * If you want a metadata item on groups to allow a DN override
+   * @return only override
+   */
+  public boolean isOnlyLdapGroupDnOverride() {
+    return this.onlyLdapGroupDnOverride;
+  }
+
+  /**
+   * If you want a metadata item on groups to allow a DN override
+   * @param onlyLdapGroupDnOverride1
+   */
+  public void setOnlyLdapGroupDnOverride(boolean onlyLdapGroupDnOverride1) {
+    this.onlyLdapGroupDnOverride = onlyLdapGroupDnOverride1;
+  }
+
   /**
    * If you want a metadata item on groups to allow a DN override
    * @return override

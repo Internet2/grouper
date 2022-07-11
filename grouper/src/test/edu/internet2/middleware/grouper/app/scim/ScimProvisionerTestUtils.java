@@ -229,7 +229,7 @@ public class ScimProvisionerTestUtils {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".provisionerConfigId", provisioningTestConfigInput.getConfigId());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + provisioningTestConfigInput.getChangelogConsumerConfigId() + ".publisher.debug", "true");

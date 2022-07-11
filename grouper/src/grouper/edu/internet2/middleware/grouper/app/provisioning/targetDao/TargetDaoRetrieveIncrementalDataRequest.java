@@ -151,19 +151,19 @@ public class TargetDaoRetrieveIncrementalDataRequest {
     
     if (GrouperUtil.length(targetGroupsForGroupMembershipSync) > 0) {
       
-      Set<Object> groupMatchingIdsForGroupOnly = new HashSet<Object>();
+      Set<ProvisioningGroup> targetGroupsForGroupOnlySet = new HashSet<ProvisioningGroup>();
       this.targetGroupsForGroupOnly = GrouperUtil.nonNull(this.targetGroupsForGroupOnly);
       
       // indexing the groups that are already there
       for (ProvisioningGroup targetGroupForGroupOnly: targetGroupsForGroupOnly) {
-        groupMatchingIdsForGroupOnly.add(targetGroupForGroupOnly.getMatchingId());
+        targetGroupsForGroupOnlySet.add(targetGroupForGroupOnly);
       }
       
       // if a membership object is not there then add it
       for (ProvisioningGroup targetGroupForGroupMembershipSync: targetGroupsForGroupMembershipSync) {
-        if (!groupMatchingIdsForGroupOnly.contains(targetGroupForGroupMembershipSync.getMatchingId())) {
+        if (!targetGroupsForGroupOnlySet.contains(targetGroupForGroupMembershipSync)) {
           this.targetGroupsForGroupOnly.add(targetGroupForGroupMembershipSync);
-          groupMatchingIdsForGroupOnly.add(targetGroupForGroupMembershipSync.getMatchingId());
+          targetGroupsForGroupOnlySet.add(targetGroupForGroupMembershipSync);
         }
       }
       
@@ -171,19 +171,19 @@ public class TargetDaoRetrieveIncrementalDataRequest {
     
     if (GrouperUtil.length(targetEntitiesForEntityMembershipSync) > 0) {
       
-      Set<Object> entityMatchingIdsForEntityOnly = new HashSet<Object>();
+      Set<ProvisioningEntity> targetEntitiesForEntityOnlySet = new HashSet<ProvisioningEntity>();
       this.targetEntitiesForEntityOnly = GrouperUtil.nonNull(this.targetEntitiesForEntityOnly);
       
       // indexing the groups that are already there
       for (ProvisioningEntity targetEntityForEntityOnly: targetEntitiesForEntityOnly) {
-        entityMatchingIdsForEntityOnly.add(targetEntityForEntityOnly.getMatchingId());
+        targetEntitiesForEntityOnlySet.add(targetEntityForEntityOnly);
       }
       
       // if a membership object is not there then add it
       for (ProvisioningEntity targetEntityForEntityMembershipSync: targetEntitiesForEntityMembershipSync) {
-        if (!entityMatchingIdsForEntityOnly.contains(targetEntityForEntityMembershipSync.getMatchingId())) {
+        if (!targetEntitiesForEntityOnlySet.contains(targetEntityForEntityMembershipSync)) {
           this.targetEntitiesForEntityOnly.add(targetEntityForEntityMembershipSync);
-          entityMatchingIdsForEntityOnly.add(targetEntityForEntityMembershipSync.getMatchingId());
+          targetEntitiesForEntityOnlySet.add(targetEntityForEntityMembershipSync);
         }
       }
       

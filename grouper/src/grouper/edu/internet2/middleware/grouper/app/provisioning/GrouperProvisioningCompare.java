@@ -504,7 +504,7 @@ public class GrouperProvisioningCompare {
       if (grouperProvisioningUpdatable.canInsertAttribute(attributeName)) {
         for (Object insertValue : inserts) {
           ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(insertValue);
-          if (recalcProvisioningUpdateable || provisioningMembershipWrapper.isRecalc()) {
+          if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.isRecalc())) {
             grouperProvisioningUpdatable.addInternal_objectChange(
                 new ProvisioningObjectChange(attributeName, 
                     ProvisioningObjectChangeAction.insert, null, insertValue)
@@ -520,7 +520,7 @@ public class GrouperProvisioningCompare {
           if (grouperProvisioningUpdatable.canDeleteAttributeValue(attributeName, deleteValue)) {
           
             ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(deleteValue);
-            if (recalcProvisioningUpdateable || provisioningMembershipWrapper.isRecalc()) {
+            if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.isRecalc())) {
               grouperProvisioningUpdatable.addInternal_objectChange(
                   new ProvisioningObjectChange(attributeName, 
                       ProvisioningObjectChangeAction.delete, deleteValue, null)

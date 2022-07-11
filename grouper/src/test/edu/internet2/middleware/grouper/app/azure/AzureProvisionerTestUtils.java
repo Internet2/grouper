@@ -246,7 +246,7 @@ public class AzureProvisionerTestUtils {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.azureProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.azureProvTestCLC.publisher.class", ProvisioningConsumer.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.azureProvTestCLC.publisher.debug", "true");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.azureProvTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.azureProvTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
   
     ConfigPropertiesCascadeBase.clearCache();
   

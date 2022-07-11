@@ -145,7 +145,7 @@ public class DuoRoleProvisionerTestUtils {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.provisionerConfigId", "myDuoRoleProvisioner");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.duoRoleProvTestCLC.publisher.debug", "true");

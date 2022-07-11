@@ -78,7 +78,7 @@ public class MessagingProvisionerTestUtils {
     // edu.internet2.middleware.grouper.changeLog.esb.consumer
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.class").value(EsbConsumer.class.getName()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.publisher.class").value(ProvisioningConsumer.class.getName()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.quartzCron").value("0 0 5 * * 2000").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.quartzCron").value("0 0 0 1 1 ? 2200").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.provisionerConfigId").value("myMessagingProvisioner").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.provisionerJobSyncType").value(GrouperProvisioningType.incrementalProvisionChangeLog.name()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.publisher.debug").value("true").store();

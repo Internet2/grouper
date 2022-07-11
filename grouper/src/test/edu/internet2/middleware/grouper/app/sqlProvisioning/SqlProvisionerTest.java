@@ -1972,7 +1972,7 @@ public class SqlProvisionerTest extends GrouperTest {
     
     //something that will never fire
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
-        "0 0 5 * * 2000");
+        "0 0 0 1 1 ? 2200");
 
     // we dont need an EL filter
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
@@ -2351,7 +2351,7 @@ public class SqlProvisionerTest extends GrouperTest {
       
       //something that will never fire
       GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
-          "0 0 5 * * 2000");
+          "0 0 0 1 1 ? 2200");
   
       // we dont need an EL filter
   //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
@@ -3268,7 +3268,7 @@ public class SqlProvisionerTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".publisher.class").value(ProvisioningConsumer.class.getName()).store();
     
     //something that will never fire
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".quartzCron").value("0 0 5 * * 2000").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".quartzCron").value("0 0 0 1 1 ? 2200").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".provisionerConfigId").value("sqlProvTest").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".provisionerJobSyncType").value(GrouperProvisioningType.incrementalProvisionChangeLog.name()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer." + JOB_NAME + ".publisher.debug").value("true").store();

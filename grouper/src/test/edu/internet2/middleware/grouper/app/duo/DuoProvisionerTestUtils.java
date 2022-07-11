@@ -130,7 +130,7 @@ public class DuoProvisionerTestUtils {
     // edu.internet2.middleware.grouper.changeLog.esb.consumer
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.duoProvTestCLC.class").value(EsbConsumer.class.getName()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.duoProvTestCLC.publisher.class").value(ProvisioningConsumer.class.getName()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.duoProvTestCLC.quartzCron").value("0 0 5 * * 2000").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.duoProvTestCLC.quartzCron").value("0 0 0 1 1 ? 2200").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.duoProvTestCLC.provisionerConfigId").value("myDuoProvisioner").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.duoProvTestCLC.provisionerJobSyncType").value(GrouperProvisioningType.incrementalProvisionChangeLog.name()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.duoProvTestCLC.publisher.debug").value("true").store();

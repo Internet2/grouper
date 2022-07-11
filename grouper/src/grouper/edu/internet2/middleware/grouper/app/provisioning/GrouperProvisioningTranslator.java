@@ -473,7 +473,6 @@ public class GrouperProvisioningTranslator {
                   && grouperProvisioningConfigurationAttribute.getSyncGroupCacheAttribute().getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.grouper) {
                 gcGrouperSyncGroup.assignField(grouperProvisioningConfigurationAttribute.getSyncGroupCacheAttribute().getCacheName(), result);
               }
-              
               String attributeOrFieldName = grouperProvisioningConfigurationAttribute.getName();
               grouperTargetGroup.assignAttributeValue(attributeOrFieldName, result);
               this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateValue(grouperTargetGroup, grouperProvisioningConfigurationAttribute, null);

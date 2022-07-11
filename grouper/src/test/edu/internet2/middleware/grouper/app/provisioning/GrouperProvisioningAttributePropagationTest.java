@@ -209,7 +209,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
@@ -416,7 +416,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
@@ -712,7 +712,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
@@ -920,7 +920,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
@@ -1128,7 +1128,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
@@ -1390,7 +1390,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
@@ -1648,7 +1648,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
@@ -1860,7 +1860,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
@@ -2068,7 +2068,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
@@ -2245,7 +2245,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTest2CLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTest2CLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTest2CLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTest2CLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTest2CLC.provisionerConfigId", "junitProvisioningAttributePropagationTest2");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTest2CLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTest2CLC.publisher.debug", "true");
@@ -2363,7 +2363,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 5 * * 2000");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");

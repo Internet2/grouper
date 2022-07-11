@@ -1979,6 +1979,16 @@ public abstract class GrouperProvisioningConfiguration {
         }
   
         {
+          String translateExpressionType = this.retrieveConfigString(objectType + "."+i+".translateExpressionType" , false);
+          attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.valueOfIgnoreCase(translateExpressionType, false));
+        }
+        
+        {
+          String translateExpressionType = this.retrieveConfigString(objectType + "."+i+".translateExpressionTypeCreateOnly" , false);
+          attributeConfig.setTranslateExpressionTypeCreateOnly(GrouperProvisioningConfigurationAttributeTranslationType.valueOfIgnoreCase(translateExpressionType, false));
+        }
+        
+        {
           String translateExpression = this.retrieveConfigString(objectType + "."+i+".translateExpression" , false);
           attributeConfig.setTranslateExpression(translateExpression);
         }
