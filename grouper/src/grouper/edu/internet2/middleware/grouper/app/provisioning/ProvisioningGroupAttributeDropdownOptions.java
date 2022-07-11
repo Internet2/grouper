@@ -28,10 +28,14 @@ public class ProvisioningGroupAttributeDropdownOptions implements OptionValueDri
   @Override
   public List<MultiKey> retrieveKeysAndLabels() {
     
-    GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = configSuffixToConfigModuleAttribute.get("numberOfGroupAttributes");
-    int countOfAttributes = GrouperUtil.intValue(grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation(), 0);
-    
     List<MultiKey> result = new ArrayList<MultiKey>();
+    GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = configSuffixToConfigModuleAttribute.get("numberOfGroupAttributes");
+    
+    if (grouperConfigurationModuleAttribute == null) {
+      return result;
+    }
+    
+    int countOfAttributes = GrouperUtil.intValue(grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation(), 0);
     
     for (int i=0; i<countOfAttributes; i++) {
       GrouperConfigurationModuleAttribute nameAttribute = configSuffixToConfigModuleAttribute.get("targetGroupAttribute."+i+".name");

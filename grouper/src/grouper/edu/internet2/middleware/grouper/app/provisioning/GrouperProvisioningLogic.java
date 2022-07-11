@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoSendChangesToTargetRequest;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
@@ -704,6 +705,7 @@ public class GrouperProvisioningLogic {
   public void provisionIncremental() {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+    Timestamp startTimestamp = new Timestamp(System.currentTimeMillis());
 
     GrouperProvisioningLogicIncremental grouperProvisioningLogicIncremental = this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental();
 
@@ -1175,8 +1177,17 @@ public class GrouperProvisioningLogic {
           Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
 
           GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
-          //TODO check with Chris if need this line. It's there in fullProvision
-//          gcGrouperSync.setLastFullSyncStart(startTimestamp);
+          
+          List<EsbEventContainer> esbEventContainers = this.grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers();
+          if (GrouperUtil.length(esbEventContainers) > 0) {
+            EsbEventContainer lastEvent = esbEventContainers.get(esbEventContainers.size()-1);
+            Long createdOnMicros = lastEvent.getEsbEvent().getCreatedOnMicros();
+            if (createdOnMicros != null) {
+              Timestamp incrementalTimeStamp = new Timestamp(createdOnMicros/1000);
+              gcGrouperSync.setIncrementalTimestamp(incrementalTimeStamp);
+            }
+          }
+          
           gcGrouperSync.setLastIncrementalSyncRun(nowTimestamp);
           
           GcGrouperSyncJob gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSyncJob();

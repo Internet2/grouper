@@ -251,6 +251,11 @@ public class GrouperProvisioningLinkLogic {
   
       boolean hasChange = false;
       
+      if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+        targetGroupsForLinkNull++;
+        continue;
+      }
+      
       ProvisioningGroup targetGroup = provisioningGroupWrapper.getTargetProvisioningGroup().clone();
       
       // not sure why this would happen... deleted?
@@ -522,6 +527,12 @@ public class GrouperProvisioningLinkLogic {
     for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
   
       boolean hasChange = false;
+      
+      if (provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+        targetEntitiesForLinkNull++;
+        continue;
+      }
+      
       ProvisioningEntity targetEntity = provisioningEntityWrapper.getTargetProvisioningEntity().clone();
       
       if (targetEntity == null || (!copyFromTargetOrGrouperTarget && provisioningEntityWrapper.getGrouperTargetEntity() == null)) {
