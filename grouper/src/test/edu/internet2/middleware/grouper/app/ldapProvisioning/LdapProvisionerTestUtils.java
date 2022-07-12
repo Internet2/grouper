@@ -23,9 +23,10 @@ public class LdapProvisionerTestUtils {
   
   public static void main(String args[]) throws Exception {
     GrouperSession.startRootSession();
-    stopAndRemoveLdapContainer();
-    startLdapContainer();
-    setupSubjectSource();
+//    stopAndRemoveLdapContainer();
+//    startLdapContainer();
+//    setupSubjectSource();
+    setupLdapExternalSystem();
   }
   
   private static String dockerPath = null;

@@ -93,8 +93,9 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
       provisionerSuffixToValue.put("groupAttributeValueCache0groupAttribute", "ldap_dn");
 
       groupAttributes++;
-      
-      provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".name", groupRdnAttribute);
+      if (!GrouperUtil.booleanValue(startWithSuffixToValue.get("onlyLdapGroupDnOverride"), false)) {
+        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".name", groupRdnAttribute);
+      }
 
       String rdnValueForGroups = startWithSuffixToValue.get("rdnValueForGroups");
       
@@ -451,6 +452,11 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
           result.put("membershipValueDn", "false");
           result.put("membershipAttributeNameForEntities", "eduPersonAffiliation");
           result.put("membershipValueForEntities", "extension");
+        } else if (StringUtils.equals(valueUserEnteredOnScreen, "usersWithEduPersonEntitlements")) {
+          result.put("membershipStructure", "entityAttributes");
+          result.put("membershipValueDn", "false");
+          result.put("membershipAttributeNameForEntities", "eduPersonEntitlement");
+          result.put("membershipValueForEntities", "name");
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "usersWithMembershipGroupExtensions")) {
           result.put("membershipStructure", "entityAttributes");
           result.put("membershipValueDn", "false");
