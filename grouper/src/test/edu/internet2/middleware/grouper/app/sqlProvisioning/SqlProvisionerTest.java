@@ -1074,7 +1074,7 @@ public class SqlProvisionerTest extends GrouperTest {
         .assignMembershipEntityForeignKeyColumn("entity_uuid")
         .assignHasTargetEntityLink(true)
         .assignHasTargetGroupLink(true)
-        .assignCacheObjects(true)
+  // TODO      .assignCacheObjects(true)
         .assignEntityAttributeCount(5)
         .assignGroupAttributeCount(4)
         .assignMembershipAttributeCount(3)
