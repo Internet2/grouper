@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
@@ -44,7 +45,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import junit.textui.TestRunner;
 
-public class GrouperScimProvisionerTest extends GrouperTest {
+public class GrouperScimProvisionerTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
     TestRunner.run(new GrouperScimProvisionerTest("testAWSFullSyncProvisionGroupAndThenDeleteTheGroup"));
@@ -111,7 +112,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       //lets sync these over
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("githubProvisioner");
       
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       GrouperUtil.sleep(2000);
 
       runJobs(true, true, "githubScimProvTestCLC");
@@ -199,7 +200,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       GrouperUtil.sleep(2000);
 
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
@@ -210,7 +211,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("githubProvisioner");
-      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       
       GrouperUtil.sleep(2000);
 
@@ -222,7 +223,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       testGroup.delete();
       try {
         grouperProvisioner = GrouperProvisioner.retrieveProvisioner("githubProvisioner");
-        grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+        grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
         fail();
       } catch (Exception e) {
         // good
@@ -302,7 +303,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       
       long started = System.currentTimeMillis();
       
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       GrouperUtil.sleep(2000);
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
@@ -451,7 +452,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       started = System.currentTimeMillis();
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
-      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       GrouperUtil.sleep(2000);
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
@@ -582,7 +583,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       started = System.currentTimeMillis();
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("awsProvisioner");
-      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       GrouperUtil.sleep(2000);
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
@@ -750,7 +751,7 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_scim_group").select(int.class));
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       GrouperUtil.sleep(2000);
 
       runJobs(true, true, "awsScimProvTestCLC");
@@ -970,6 +971,10 @@ public class GrouperScimProvisionerTest extends GrouperTest {
       EsbConsumer esbConsumer = new EsbConsumer();
       ChangeLogHelper.processRecords(consumerName, hib3GrouploaderLog, esbConsumer);
   
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+      
       return hib3GrouploaderLog;
     }
     

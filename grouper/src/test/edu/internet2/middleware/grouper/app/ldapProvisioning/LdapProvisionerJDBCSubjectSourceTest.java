@@ -123,6 +123,10 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperTest {
       EsbConsumer esbConsumer = new EsbConsumer();
       ChangeLogHelper.processRecords("ldapProvTestCLC", hib3GrouploaderLog, esbConsumer);
   
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+      
       return hib3GrouploaderLog;
     }
     

@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
@@ -36,7 +37,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import junit.textui.TestRunner;
 
 
-public class GrouperAzureProvisionerTest extends GrouperTest {
+public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
     TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzure"));
@@ -110,7 +111,8 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
   
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
@@ -154,7 +156,9 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       
       // now run the full sync again and the member should be deleted from mock_azure_membership also
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myAzureProvisioner");
-      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      
+      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
@@ -164,7 +168,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       
       // now run the full sync again
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myAzureProvisioner");
-      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
@@ -173,7 +177,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       testGroup.delete();
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myAzureProvisioner");
-      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
@@ -238,7 +242,8 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
   
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
@@ -282,7 +287,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       
       // now run the full sync again and the member should be deleted from mock_azure_membership also
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myAzureProvisioner");
-      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
@@ -292,7 +297,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       
       // now run the full sync again
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myAzureProvisioner");
-      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
@@ -301,7 +306,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       testGroup = new GroupSave().assignUuid(testGroup.getUuid()).assignDisplayExtension("newDisplayExtension").assignReplaceAllSettings(false).save();
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myAzureProvisioner");
-      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
@@ -314,7 +319,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       testGroup.delete();
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myAzureProvisioner");
-      grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
@@ -356,7 +361,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_azure_group").select(int.class));
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       
       runJobs(true, true);
       
@@ -476,7 +481,7 @@ public class GrouperAzureProvisionerTest extends GrouperTest {
   
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull); 
+      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());

@@ -450,7 +450,10 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       throw new RuntimeException("Cant find client secret!");
     }
     
-    String tenantId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".tenantId");
+    String tenantId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".tenantId");
+    if (StringUtils.isBlank(tenantId)) {
+      tenantId = "myTenant";
+    }
     
     if (4 != mockServiceRequest.getPostMockNamePaths().length
         || !StringUtils.equals(tenantId, mockServiceRequest.getPostMockNamePaths()[1])

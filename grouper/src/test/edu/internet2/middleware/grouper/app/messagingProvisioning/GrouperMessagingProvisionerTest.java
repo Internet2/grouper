@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
@@ -29,7 +30,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
 
-public class GrouperMessagingProvisionerTest extends GrouperTest {
+public class GrouperMessagingProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static boolean startTomcat = false;
   
@@ -64,7 +65,7 @@ public class GrouperMessagingProvisionerTest extends GrouperTest {
 
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myMessagingProvisioner");
       
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);;
       
       runJobs(true, true);
       
@@ -154,6 +155,10 @@ public class GrouperMessagingProvisionerTest extends GrouperTest {
       EsbConsumer esbConsumer = new EsbConsumer();
       ChangeLogHelper.processRecords("messagingProvTestCLC", hib3GrouploaderLog, esbConsumer);
   
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+      
       return hib3GrouploaderLog;
     }
     

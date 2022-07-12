@@ -46,7 +46,7 @@ import junit.textui.TestRunner;
  * 
  * @author shilen
  */
-public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
+public class GrouperProvisioningAttributePropagationTest extends GrouperProvisioningBaseTest {
 
   /**
    * 
@@ -2493,14 +2493,14 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperTest {
   private void runFullJob() {
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest");
     grouperProvisioner.retrieveGrouperProvisioningOutput(); // make sure to initialize
-    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
   }
   
   private void runFullJob2() {
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest2");
     grouperProvisioner.retrieveGrouperProvisioningOutput(); // make sure to initialize
-    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
   }
 }

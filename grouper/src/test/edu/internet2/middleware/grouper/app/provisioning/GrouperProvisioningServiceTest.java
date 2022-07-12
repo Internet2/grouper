@@ -57,7 +57,7 @@ import junit.textui.TestRunner;
  * @author mchyzer
  *
  */
-public class GrouperProvisioningServiceTest extends GrouperTest {
+public class GrouperProvisioningServiceTest extends GrouperProvisioningBaseTest {
   
   public GrouperProvisioningServiceTest(String name) {
     super(name);
@@ -907,7 +907,9 @@ public class GrouperProvisioningServiceTest extends GrouperTest {
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem0);
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest");
     grouperProvisioner.retrieveGrouperProvisioningOutput(); // make sure its initialized
-    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+    
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     //Then

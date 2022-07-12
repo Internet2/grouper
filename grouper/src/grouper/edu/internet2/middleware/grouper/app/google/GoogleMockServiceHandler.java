@@ -173,10 +173,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
         postUsers(mockServiceRequest, mockServiceResponse);
         return;
       }
-      if ("users".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
-        updateUser(mockServiceRequest, mockServiceResponse);
-        return;
-      }
+      
       if ("groups".equals(mockNamePaths.get(0)) && "members".equals(mockNamePaths.get(2))
           && 3 == mockNamePaths.size()) {
         associateGroupWithUser(mockServiceRequest, mockServiceResponse);
@@ -194,6 +191,10 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     if (StringUtils.equals("PUT", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("groups".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
         updateGroup(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      if ("users".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
+        updateUser(mockServiceRequest, mockServiceResponse);
         return;
       }
     }
@@ -515,8 +516,8 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     JsonNode userJsonNode = GrouperUtil.jsonJacksonNode(userJsonString);
     
     GrouperGoogleUser grouperGoogleUser = GrouperGoogleUser.fromJson(userJsonNode);
-    
-    HibernateSession.byObjectStatic().save(grouperGoogleUser);
+    grouperGoogleUser.setId(userId);
+    HibernateSession.byObjectStatic().update(grouperGoogleUser);
     
     JsonNode resultNode = grouperGoogleUser.toJson(null);
 
@@ -1040,6 +1041,11 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       PublicKey publicKey = null;
       try {
         String publicKeyEncoded = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.google.mock.publicKey");
+        
+        if (StringUtils.isBlank(publicKeyEncoded)) {
+          publicKeyEncoded = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuaGc9tsPiKesuG4u534VbiLXIm55oAsV5PX+EaXRQ0Ah+B3VN2K/lO3lL3Dp8KJWiAaN0ItSpfRsWMBcjZgJVSK4Ah3DAejIpuiEU6BU5puukX/j9OuHgBwZ9KycFUZwUL2i//8ChL+2hvgSha3TtGRBLMrGU/HhY/UEBb5UoMmtiTim95YzuoIs0Q85+Ti5tL/JljAU3zjkYfhoGYjQj7EqQyROSjxB52xYFmABWR2FfXSzMJdyVi6w6QWJKt0VtwOzboiJqSl+QypiK6pdn8jKAB5uErYF5Zbf50K38rSF2BzhAqwNEIVWhrx/jB9iu9cyXNx328bWQw2hpDZ6hwIDAQAB";  // rsaKeypair[0];
+        }
+        
         byte[] publicKeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(publicKeyEncoded);
         KeyFactory kf = KeyFactory.getInstance("RSA");
         EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(publicKeyBytes);

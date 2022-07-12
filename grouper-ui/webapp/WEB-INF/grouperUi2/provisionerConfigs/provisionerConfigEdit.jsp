@@ -46,15 +46,23 @@
               <tbody>
               
               <tr>
-				  <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['provisionerConfigIdLabel']}</label></strong></td>
-				    <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
-				    <td>
-				     ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId)}
-				    </td>
-				</tr>
+      				  <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['provisionerConfigIdLabel']}</label></strong></td>
+      				    <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
+      				    <td>
+      				     ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId)}
+      				    </td>
+				      </tr>
               
+              
+         <c:forEach items="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.subSections}" var="subSection">
+            <ul>
+              <c:if test="${!grouper:isBlank(subSection.label) and subSection.show}">
+              <li><a href="#subsection_${subSection.label}">${subSection.title}</a></li>
+              </c:if>
+            </ul>
+         </c:forEach>     
                	
-               	<c:forEach items="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.subSections}" var="subSection">
+           <c:forEach items="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.subSections}" var="subSection">
 			  		<tbody>
 			  			<c:if test="${!grouper:isBlank(subSection.label) and subSection.show}">
 				  			<tr>
@@ -62,7 +70,8 @@
                     <%-- the header needs to be on a field to subsitute the name in the label if there --%>
                     <c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
                       property="currentConfigSuffix"
-                      value="${subSection.label}.header" />  
+                      value="${subSection.label}.header" /> 
+                      <a id="subsection_${subSection.label}"></a> 
 				  					<h4>${subSection.title}</h4>
 				  					<p style="font-weight: normal;">${subSection.description} </p>
 				  				</th>

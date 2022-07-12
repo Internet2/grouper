@@ -50,14 +50,14 @@ public class AzureProvisionerTestConfigInput {
   }
 
   /**
-   * 5 (default), or 8
+   * 5 (default), or 9
    */
   public int getGroupAttributeCount() {
     return groupAttributeCount;
   }
 
   /**
-   * 5 (default), or 8
+   * 5 (default), or 9
    */
   public AzureProvisionerTestConfigInput assignGroupAttributeCount(int groupAttributeCount) {
     this.groupAttributeCount = groupAttributeCount;
@@ -70,7 +70,7 @@ public class AzureProvisionerTestConfigInput {
   private String configId = "myAzureProvisioner";
 
   /**
-   * 5 (default), or 8
+   * 5 (default), or 9
    */
   private int groupAttributeCount = 5;
   
