@@ -36,6 +36,11 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
     TestRunner.run(new LdapProvisionerTargetDaoTest("testRetrieveMembership"));
   }
   
+  @Override
+  public String defaultConfigId() {
+    return "ldapProvTest";
+  }
+
   public LdapProvisionerTargetDaoTest() {
     super();
   }
@@ -112,12 +117,10 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
 
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
 
-    //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
-    
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory"}, null).size());
     
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory", "description"}, null);

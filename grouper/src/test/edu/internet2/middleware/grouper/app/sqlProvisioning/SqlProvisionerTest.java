@@ -101,6 +101,14 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
   /**
    * 
+   */
+  @Override
+  public String defaultConfigId() {
+    return "sqlProvTest";
+  }
+
+  /**
+   * 
    * @param args
    */
   public static void main(String[] args) {
@@ -155,7 +163,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
    */
   @Override
   protected void setUp() {
-    super.setUp();
+    setUp();
     
     try {
 
@@ -185,7 +193,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
+    tearDown();
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     
@@ -245,9 +253,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     String sql = "select group_name, subject_id from testgrouper_prov_mship0";
@@ -276,13 +283,12 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMinGroupSize").value("8").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxOverallPercentMembershipsRemove").value("20").store();
         
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
     assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
     
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     
-    runJobs(true, true);
+    incrementalProvision();
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
@@ -319,7 +325,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
 
     this.failsafeGroups.get(6).deleteMember(SubjectTestHelper.SUBJ3);
-    runJobs(true, true);
+    incrementalProvision();
         
     groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group order by name").selectList(Object[].class);
     assertEquals(10, groups.size());
@@ -382,13 +388,13 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
           );
 
       
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
       
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
       
-      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
-      
-      runJobs(true, true);
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+
+      incrementalProvision();
       
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
@@ -416,7 +422,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
       // assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       
-      runJobs(true, true);
+      incrementalProvision();
       
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
       assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_entity").select(int.class));
@@ -424,14 +430,14 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
-      runJobs(true, true);
+      incrementalProvision();
       
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_entity").select(int.class));
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_mship2").select(int.class));
       
       testGroup.addMember(SubjectTestHelper.SUBJ3);
-      runJobs(true, true);
+      incrementalProvision();
       
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
       assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_entity").select(int.class));
@@ -440,7 +446,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       // change the description
       assertEquals("old description", new GcDbAccess().sql("select description from testgrouper_prov_group where name = 'test:testGroup'").select(String.class));
       testGroup = new GroupSave().assignName(testGroup.getName()).assignDescription("new description").assignReplaceAllSettings(false).save();
-      runJobs(true, true);
+      incrementalProvision();
 
       assertEquals("new description", new GcDbAccess().sql("select description from testgrouper_prov_group where name = 'test:testGroup'").select(String.class));
       
@@ -448,7 +454,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       
       //now delete the group and sync again
       testGroup.delete();
-      runJobs(true, true);
+      incrementalProvision();
       
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_entity").select(int.class));
@@ -559,9 +565,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     List<Object[]> groups = new GcDbAccess().sql("select uuid, posix_id, name, description from testgrouper_prov_group").selectList(Object[].class);
@@ -627,9 +632,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     testGroup.deleteMember(SubjectTestHelper.SUBJ1);
     testGroup.deleteMember(SubjectTestHelper.SUBJ2);
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     entities = new GcDbAccess().sql("select uuid, name, subject_id_or_identifier, description from testgrouper_prov_entity").selectList(Object[].class);
@@ -656,9 +660,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
         .assignSaveMode(SaveMode.UPDATE).save();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     groups = new GcDbAccess().sql("select uuid, posix_id, name, description from testgrouper_prov_group").selectList(Object[].class);
@@ -673,9 +676,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // now delete the group
     testGroup.delete();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     groups = new GcDbAccess().sql("select uuid, posix_id, name, description from testgrouper_prov_group").selectList(Object[].class);
@@ -762,9 +764,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     List<Object[]> groups = new GcDbAccess().sql("select uuid, posix_id, name, description from testgrouper_prov_group").selectList(Object[].class);
@@ -813,9 +814,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // delete a member from testGroup and reprovision
     testGroup.deleteMember(SubjectTestHelper.SUBJ1);
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     entities = new GcDbAccess().sql("select uuid, name, subject_id_or_identifier, description from testgrouper_prov_entity").selectList(Object[].class);
@@ -842,9 +842,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
         .assignSaveMode(SaveMode.UPDATE).save();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     groups = new GcDbAccess().sql("select uuid, posix_id, name, description from testgrouper_prov_group").selectList(Object[].class);
@@ -859,9 +858,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // now delete the group
     testGroup.delete();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     groups = new GcDbAccess().sql("select uuid, posix_id, name, description from testgrouper_prov_group").selectList(Object[].class);
@@ -922,9 +920,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     List<Object[]> groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group").selectList(Object[].class);
@@ -978,9 +975,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // delete a member from testGroup and reprovision
     testGroup.deleteMember(SubjectTestHelper.SUBJ1);
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     memberships = new GcDbAccess().sql("select group_uuid, entity_uuid from testgrouper_prov_mship2").selectList(Object[].class);
@@ -998,9 +994,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
         .assignSaveMode(SaveMode.UPDATE).save();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group").selectList(Object[].class);
@@ -1022,9 +1017,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     new GcDbAccess().sql("update subjectattribute set value = 'newTestDescription' where subjectid = 'test.subject.0' and name = 'description' ").executeSql();
     GrouperCacheUtils.clearAllCaches();
     SubjectFinder.findById("test.subject.0", true);
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     String testSubject0Id = new GcDbAccess().sql("select uuid from testgrouper_prov_entity where subject_id_or_identifier = 'test.subject.0' ").select(String.class);
@@ -1038,9 +1032,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // now delete the group
     testGroup.delete();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     groups = new GcDbAccess().sql("select uuid, posix_id, name, description from testgrouper_prov_group").selectList(Object[].class);
@@ -1109,9 +1102,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     List<Object[]> groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group").selectList(Object[].class);
@@ -1165,9 +1157,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // rename the group in grouper
     testGroup = new GroupSave().assignUuid(testGroup.getUuid()).assignDisplayName(testGroup.getDisplayName() + "New").assignReplaceAllSettings(false).save();
     
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("provisioningGroupWrappersMatchedFromCache"), -1));
@@ -1235,12 +1226,11 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
-    runJobs(true, true);
+    incrementalProvision();
 
     List<Object[]> groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group").selectList(Object[].class);
     assertEquals(1, groups.size());
@@ -1293,7 +1283,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // rename the group in grouper
     testGroup = new GroupSave().assignUuid(testGroup.getUuid()).assignDisplayName(testGroup.getDisplayName() + "New").assignReplaceAllSettings(false).save();
     
-    runJobs(true, true);
+    incrementalProvision();
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1723,9 +1713,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
       
       //lets sync these over
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-      
-      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
       
       String sql = "select uuid from testgrouper_prov_ldap_group";
@@ -1790,9 +1779,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem3);
     
         //lets sync these over
-        GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-        
-        GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+        GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+        GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
         assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
         String sql = "select uuid from testgrouper_prov_ldap_group";
@@ -1837,9 +1825,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         testGroup.addMember(SubjectTestHelper.SUBJ8, false);
         testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
 
-        grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-        
-        grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+        grouperProvisioningOutput = fullProvision();
+        grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
         assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
         sql = "select uuid from testgrouper_prov_ldap_group";
@@ -1918,9 +1905,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem3);
   
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = grouperProvisioner.retrieveGrouperProvisioningOutput().getHib3GrouperLoaderLog();
@@ -1988,7 +1974,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     //clear out changelog
     // run the provisioner, it will init
-    hib3GrouperLoaderLog = runJobs(true, true);
+    hib3GrouperLoaderLog = incrementalProvision();
     assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getTotalCount(), -1));
     assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
     assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getUpdateCount(), -1));
@@ -2008,7 +1994,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     new AttributeDefSave(grouperSession).assignName("test:whateverDef").assignCreateParentStemsIfNotExist(true).save();
     
     // run the provisioner
-    hib3GrouperLoaderLog = runJobs(true, true);
+    hib3GrouperLoaderLog = incrementalProvision();
 
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
 
@@ -2052,7 +2038,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "subjectId", "test.subject.7")));
 
     // do an incremental should do nothing
-    hib3GrouperLoaderLog = runJobs(true, true);
+    hib3GrouperLoaderLog = incrementalProvision();
     assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), -1));
     assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), -1));
     assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getUpdateCount(), -1));
@@ -2091,8 +2077,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(attributesInTable.contains(new MultiKey("test4:testGroup4", "subjectId", "test.subject.7")));
 
     // do a full should do nothing
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     sql = "select uuid from testgrouper_prov_ldap_group";
@@ -2154,33 +2140,6 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
   private final String JOB_NAME = "sqlProvisionerIncremental";
 
   /**
-   * 
-   */
-  private Hib3GrouperLoaderLog runJobs(boolean runChangeLog, boolean runConsumer) {
-    
-    if (runChangeLog) {
-      ChangeLogTempToEntity.convertRecords();
-    }
-    
-    if (runConsumer) {
-      Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_sqlProvisionerIncremental");
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-      this.esbConsumer = new EsbConsumer();
-      ChangeLogHelper.processRecords("sqlProvisionerIncremental", hib3GrouploaderLog, this.esbConsumer);
-  
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
-      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
-      
-      return hib3GrouploaderLog;
-    }
-    
-    return null;
-  }
-
-  /**
    * pa use case with group members ldap and user link
    */
   public void testSimpleGroupLdapInsertUpdateDeleteFullSync2() {
@@ -2220,9 +2179,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem3);
   
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     String sql = "select uuid from testgrouper_prov_ldap_group";
@@ -2267,9 +2225,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     testGroup.addMember(SubjectTestHelper.SUBJ8, false);
     testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
   
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     sql = "select uuid from testgrouper_prov_ldap_group";
@@ -2371,7 +2328,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
   
       //clear out changelog
       // run the provisioner, it will init
-      hib3GrouperLoaderLog = runJobs(true, true);
+      hib3GrouperLoaderLog = incrementalProvision();
       
       int changeLogTempSize = new GcDbAccess().sql("select count(1) from grouper_change_log_entry_temp").select(int.class);
       assertEquals(0, changeLogTempSize);
@@ -2798,9 +2755,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     
     // make sure some time has passed
     GrouperUtil.sleep(1000);
@@ -3008,9 +2964,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     
     // make sure some time has passed
     GrouperUtil.sleep(1000);
@@ -3082,9 +3037,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     new GroupSave().assignGroupNameToEdit(testGroup.getName()).assignName(testGroup.getName() + "New").save();
 
     //lets sync these over
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     
     // make sure some time has passed
     GrouperUtil.sleep(1000);
@@ -3230,9 +3184,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
     String sql = "select uuid from testgrouper_prov_ldap_group";
@@ -3280,7 +3233,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
     //clear out changelog
     // run the provisioner, it will init
-    hib3GrouperLoaderLog = runJobs(true, true);
+    hib3GrouperLoaderLog = incrementalProvision();
     
     // add 4
     attributeValue = new GrouperProvisioningAttributeValue();
@@ -3302,7 +3255,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     new AttributeDefSave(grouperSession).assignName("test:whateverDef").assignCreateParentStemsIfNotExist(true).save();
     
     // run the provisioner
-    hib3GrouperLoaderLog = runJobs(true, true);
+    hib3GrouperLoaderLog = incrementalProvision();
 
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
     
@@ -3369,9 +3322,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     GrouperUtil.sleep(500);
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
@@ -3404,7 +3356,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
     //clear out changelog
     // run the provisioner, it will init
-    hib3GrouperLoaderLog = runJobs(true, true);
+    hib3GrouperLoaderLog = incrementalProvision();
     
     assertLdapGroupNamesInTable(GrouperUtil.toSet("test:testGroup"));
 
@@ -3429,7 +3381,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     testGroup.addMember(SubjectTestHelper.SUBJ8, false);
 
     // run the provisioner
-    hib3GrouperLoaderLog = runJobs(true, true);
+    hib3GrouperLoaderLog = incrementalProvision();
 
     provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
 
@@ -3458,7 +3410,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
 
     // run the provisioner
-    hib3GrouperLoaderLog = runJobs(true, true);
+    hib3GrouperLoaderLog = incrementalProvision();
 
     provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
 
@@ -4019,11 +3971,10 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     .value("${grouperProvisioningEntity.subjectId == 'test.subject.4' ? null : grouperProvisioningEntity.subjectId}").store();
 
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
 
-    runJobs(true, true);
+    incrementalProvision();
 
     
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
@@ -4069,12 +4020,14 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     
     // make sure some time has passed
     GrouperUtil.sleep(1000);
+    
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("OTHER_JOB_sqlProvisionerFull");
+    assertEquals(GrouperLoaderStatus.ERROR.name(), hib3GrouperLoaderLog.getStatus());
     
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
   
@@ -4262,7 +4215,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     }  
 
     // this should not retry
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = runJobs(true, true);
+    hib3GrouperLoaderLog = incrementalProvision();
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
     
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
@@ -4271,7 +4224,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
     
     
-    hib3GrouperLoaderLog = runJobs(true, true);
+    hib3GrouperLoaderLog = incrementalProvision();
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
     
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
@@ -4322,9 +4275,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     String sql = "select group_name, subject_id from testgrouper_prov_mship0";
@@ -4417,9 +4369,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
-    
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     //get the grouper_sync and check cols
@@ -4491,9 +4442,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject);
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(true), "OTHER_JOB_usduDaemon");
 
-    grouperProvisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    grouperProvisioningOutput = fullProvision(); 
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     
-    grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
   
     //get the grouper_sync and check cols

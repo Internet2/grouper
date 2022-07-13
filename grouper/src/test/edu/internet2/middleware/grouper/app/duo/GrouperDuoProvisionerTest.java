@@ -42,6 +42,11 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
     TestRunner.run(new GrouperDuoProvisionerTest("testIncrementalProvisionDuo"));
   }
   
+  @Override
+  public String defaultConfigId() {
+    return "myDuoProvisioner";
+  }
+
   public GrouperDuoProvisionerTest(String name) {
     super(name);
   }
@@ -323,14 +328,14 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
   
       //lets sync these over
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoProvisioner");
       
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_duo_group").select(int.class));
   
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
       
-      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
@@ -352,8 +357,8 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
       // now run the full sync again and the member should be deleted from mock_duo_membership also
-      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoProvisioner");
-      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      grouperProvisioningOutput = fullProvision();
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoMembership").list(GrouperDuoMembership.class).size());
@@ -361,8 +366,8 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
       //now delete the group and sync again
       testGroup.delete();
       
-      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoProvisioner");
-      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      grouperProvisioningOutput = fullProvision();
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       
       //assertEquals(1, grouperProvisioningOutput.getDelete());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
@@ -429,15 +434,15 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
   
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
   
-      //lets sync these over
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoProvisioner");
-      
+      //lets sync these over      
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_duo_group").select(int.class));
   
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
       
-      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+ 
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
      
       assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_prov_duo_user").select(int.class));
@@ -497,15 +502,13 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
       new GcDbAccess().connectionName("grouper").sql("delete from mock_duo_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_duo_group").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_duo_user").executeSql();
-      
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoProvisioner");
-      
+            
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_duo_group").select(int.class));
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
       
-      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
-      
-      runJobs(true, true);
+      fullProvision();
+
+      incrementalProvision();
       
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
@@ -533,7 +536,7 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_duo_group").select(int.class));
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
       
-      runJobs(true, true);
+      incrementalProvision();
       
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
@@ -545,7 +548,7 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
-      runJobs(true, true);
+      incrementalProvision();
       
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoUser").list(GrouperDuoUser.class).size());
@@ -554,7 +557,7 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
       //now delete the group and sync again
       testGroup.delete();
       
-      runJobs(true, true);
+      incrementalProvision();
       
       //assertEquals(1, grouperProvisioningOutput.getDelete());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoGroup").list(GrouperDuoGroup.class).size());
@@ -570,31 +573,4 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
   
-  private Hib3GrouperLoaderLog runJobs(boolean runChangeLog, boolean runConsumer) {
-    
-    // wait for message cache to clear
-    GrouperUtil.sleep(10000);
-    
-    if (runChangeLog) {
-      ChangeLogTempToEntity.convertRecords();
-    }
-    
-    if (runConsumer) {
-      Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_duoProvTestCLC");
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-      EsbConsumer esbConsumer = new EsbConsumer();
-      ChangeLogHelper.processRecords("duoProvTestCLC", hib3GrouploaderLog, esbConsumer);
-  
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
-      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
-      
-      return hib3GrouploaderLog;
-    }
-    
-    return null;
-  }
-
 }

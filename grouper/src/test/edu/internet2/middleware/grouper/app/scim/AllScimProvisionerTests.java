@@ -9,7 +9,8 @@ public class AllScimProvisionerTests extends TestCase {
   public static Test suite() {
     TestSuite suite = new TestSuite(AllScimProvisionerTests.class.getName());
     //$JUnit-BEGIN$
-    suite.addTestSuite(GrouperScimProvisionerTest.class);
+    suite.addTestSuite(GrouperAwsProvisionerTest.class);
+    suite.addTestSuite(GrouperGithubProvisionerTest.class);
     //$JUnit-END$
     return suite;
   }

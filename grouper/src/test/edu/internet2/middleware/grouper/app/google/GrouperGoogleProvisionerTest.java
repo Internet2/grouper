@@ -56,6 +56,11 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
   
+  @Override
+  public String defaultConfigId() {
+    return "myGoogleProvisioner";
+  }
+
   public GrouperGoogleProvisionerTest(String name) {
     super(name);
   }
@@ -83,14 +88,11 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
       //new GcDbAccess().connectionName("grouper").sql("delete from mock_google_auth").executeSql();
       
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
-      
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       
-      super.fullProvision(grouperProvisioner);
-      
-      runJobs(true, true);
+      fullProvision();
+      incrementalProvision();
       
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
@@ -122,7 +124,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       
-      runJobs(true, true);
+      incrementalProvision();
   
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
@@ -144,7 +146,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
       // now run the full sync again and the member should be deleted from mock_google_membership also
-      runJobs(true,true);
+      incrementalProvision();
       
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
@@ -154,7 +156,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       testGroup.addMember(SubjectTestHelper.SUBJ3);
       
       // now run the full sync again
-      runJobs(true,true);
+      incrementalProvision();
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
@@ -176,7 +178,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
       
-      runJobs(true,true);
+      incrementalProvision();
       
       GrouperGoogleGroup groupWithUpdatedDescription = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).get(0);
       assertEquals("newDescription", groupWithUpdatedDescription.getDescription());
@@ -185,7 +187,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       //now delete the group and sync again
       testGroup.delete();
       
-      runJobs(true,true);
+      incrementalProvision();
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
@@ -245,13 +247,13 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
   
       //lets sync these over
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
       
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
   
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       
-      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
@@ -291,8 +293,8 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
       // now run the full sync again and the member should be deleted from mock_google_membership also
-      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
-      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      grouperProvisioningOutput = fullProvision();
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
@@ -301,8 +303,8 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       testGroup.addMember(SubjectTestHelper.SUBJ3);
       
       // now run the full sync again
-      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
-      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      grouperProvisioningOutput = fullProvision();
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleMembership").list(GrouperGoogleMembership.class).size());
@@ -324,8 +326,8 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
       
-      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
-      grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+      grouperProvisioningOutput = fullProvision();
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       
       GrouperGoogleGroup groupWithUpdatedDescription = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).get(0);
       assertEquals("newDescription", groupWithUpdatedDescription.getDescription());
@@ -334,8 +336,8 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       //now delete the group and sync again
       testGroup.delete();
       
-      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myGoogleProvisioner");
-      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      grouperProvisioningOutput = fullProvision();
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup").list(GrouperGoogleGroup.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperGoogleUser").list(GrouperGoogleUser.class).size());
@@ -345,33 +347,6 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       
     }
 
-  }
-  
-  private Hib3GrouperLoaderLog runJobs(boolean runChangeLog, boolean runConsumer) {
-    
-    // wait for message cache to clear
-    GrouperUtil.sleep(10000);
-    
-    if (runChangeLog) {
-      ChangeLogTempToEntity.convertRecords();
-    }
-    
-    if (runConsumer) {
-      Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_googleProvTestCLC");
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-      EsbConsumer esbConsumer = new EsbConsumer();
-      ChangeLogHelper.processRecords("googleProvTestCLC", hib3GrouploaderLog, esbConsumer);
-  
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
-      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
-      
-      return hib3GrouploaderLog;
-    }
-    
-    return null;
   }
 
 }

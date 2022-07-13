@@ -462,7 +462,7 @@ public class TestGroup1 extends GrouperTest {
   
       GroupType groupType = GroupType.createType(grouperSession, "theGroupType", false); 
       groupType.addList(grouperSession, "theList1", 
-            AccessPrivilege.READ, AccessPrivilege.ADMIN);;
+            AccessPrivilege.READ, AccessPrivilege.ADMIN);
       a.addType(groupType, false);
   
       grouperSession.stop();

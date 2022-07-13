@@ -227,7 +227,7 @@ public enum GrouperLoaderType {
       
       String classKey = "otherJob." + otherJobConfigName + ".class";
 
-      String jobClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString(classKey);
+      String jobClassName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(classKey);
       Class<Job> jobClass = GrouperUtil.forName(jobClassName);
       Job job = GrouperUtil.newInstance(jobClass);
       

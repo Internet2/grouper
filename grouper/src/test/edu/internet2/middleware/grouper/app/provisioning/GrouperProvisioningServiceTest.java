@@ -63,8 +63,13 @@ public class GrouperProvisioningServiceTest extends GrouperProvisioningBaseTest 
     super(name);
   }
   
+  @Override
+  public String defaultConfigId() {
+    return "junitProvisioningAttributePropagationTest";
+  }
+
   public static void main(String[] args) {
-    TestRunner.run(new GrouperProvisioningServiceTest("testTargetNotEditableWhenReadOnlyIsTrue"));
+    TestRunner.run(new GrouperProvisioningServiceTest("testSaveOrUpdateProvisioningAttributes"));
   }
   
   @Override
@@ -875,15 +880,18 @@ public class GrouperProvisioningServiceTest extends GrouperProvisioningBaseTest 
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
     
     // edu.internet2.middleware.grouper.changeLog.esb.consumer
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTestCLC.class", EsbConsumer.class.getName());
     // edu.internet2.middleware.grouper.app.provisioning
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
-
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
     
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class", GrouperProvisioningFullSyncJob.class.getName());
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron", "9 59 23 31 12 ? 2099");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId", "junitProvisioningAttributePropagationTest");
+
     //Given
     GrouperSessionResult grouperSessionResult = GrouperSession.startRootSessionIfNotStarted();
     GrouperSession grouperSession = grouperSessionResult.getGrouperSession();
@@ -905,10 +913,8 @@ public class GrouperProvisioningServiceTest extends GrouperProvisioningBaseTest 
     
     //When
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem0);
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest");
-    grouperProvisioner.retrieveGrouperProvisioningOutput(); // make sure its initialized
     
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
     
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     

@@ -56,6 +56,11 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     TestRunner.run(new GrouperProvisioningAttributePropagationTest("testFullPolicyRestriction"));    
   }
   
+  @Override
+  public String defaultConfigId() {
+    return "junitProvisioningAttributePropagationTest";
+  }
+
   public GrouperProvisioningAttributePropagationTest() {
     super();
   }
@@ -210,12 +215,12 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     // edu.internet2.middleware.grouper.app.provisioning
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.class", ProvisioningConsumer.class.getName());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.quartzCron",  "0 0 0 1 1 ? 2200");
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "provisioner_incremental_junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
     // init stuff
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     Stem test2Stem = new StemSave(this.grouperSession).assignName("test:test2").save();
@@ -241,7 +246,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup_includes").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup_includes").save();
     
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -258,7 +263,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testGroup2.setExtension("testGroup");
     testGroup2.store();
     
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -282,7 +287,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testGroup2.setExtension("testGroup_excludesxx");
     testGroup2.store();
 
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -445,7 +450,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup_includes").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup_includes").save();
     
-    runFullJob();
+    fullProvision();
     
     {
       assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -462,7 +467,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testGroup2.setExtension("testGroup");
     testGroup2.store();
     
-    runFullJob();
+    fullProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -486,7 +491,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testGroup2.setExtension("testGroup_excludesxx");
     testGroup2.store();
 
-    runFullJob();
+    fullProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -539,7 +544,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup").save();
         
-    runFullJob();
+    fullProvision();
     
     {
       assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -551,7 +556,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     
     addGroupType(testGroup, "policy");
     
-    runFullJob();
+    fullProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -567,7 +572,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
 
     removeGroupTypes(testGroup);
 
-    runFullJob();
+    fullProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -583,7 +588,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     
     addGroupType(testGroup, "ref");
     
-    runFullJob();
+    fullProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -718,7 +723,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
     // init stuff
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     Stem test2Stem = new StemSave(this.grouperSession).assignName("test:test2").save();
@@ -744,7 +749,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup").save();
         
-    runIncrementalJobs(true, true);
+    incrementalProvision();
 
     {
       assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -756,7 +761,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
 
     addGroupType(testGroup, "policy");
     
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -772,7 +777,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     
     removeGroupTypes(testGroup);
 
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -788,7 +793,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     
     addGroupType(testGroup, "ref");
     
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -926,7 +931,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
     // init stuff
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     Stem test2Stem = new StemSave(this.grouperSession).assignName("test:test2").save();
@@ -952,7 +957,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:test2:testGroup").save();
         
-    runIncrementalJobs(true, true);
+    incrementalProvision();
 
     {
       assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -965,7 +970,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     addGroupType(testStem, "policy");
     GrouperObjectTypesDaemonLogic.fullSyncLogic();
 
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -982,7 +987,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     removeGroupTypes(testStem);
     GrouperObjectTypesDaemonLogic.fullSyncLogic();
 
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -999,7 +1004,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     addGroupType(testStem, "ref");
     GrouperObjectTypesDaemonLogic.fullSyncLogic();
 
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1134,7 +1139,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
     // init stuff
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     new StemSave(this.grouperSession).assignName("test:test2").save();
@@ -1154,7 +1159,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroup").save();
     Group testGroup4 = new GroupSave(this.grouperSession).assignName("test:test2:test3:test4:testGroup").save();
         
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1168,7 +1173,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testStemAttributeValue.setStemScopeString("sub");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
     
-    runIncrementalJobs(true, true);
+    incrementalProvision();
 
     {
       assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1197,7 +1202,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     test3StemAttributeValue.setStemScopeString("one");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
-    runIncrementalJobs(true, true);
+    incrementalProvision();
 
     {
       assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1222,7 +1227,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testStemAttributeValue.setStemScopeString("one");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
     
-    runIncrementalJobs(true, true);
+    incrementalProvision();
 
     {
       assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1249,7 +1254,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     new StemSave(this.grouperSession).assignName("test:test2:test3:test4b").save();
     Group testGroup3b = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroupb").save();
 
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     {
       assertEquals(5, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1413,7 +1418,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroup").save();
     Group testGroup4 = new GroupSave(this.grouperSession).assignName("test:test2:test3:test4:testGroup").save();
         
-    runFullJob();
+    fullProvision();
         
     {
       assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1427,7 +1432,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testStemAttributeValue.setStemScopeString("sub");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
     
-    runFullJob();
+    fullProvision();
 
     {
       assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1456,7 +1461,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     test3StemAttributeValue.setStemScopeString("one");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
-    runFullJob();
+    fullProvision();
 
     {
       assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1481,7 +1486,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testStemAttributeValue.setStemScopeString("one");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
     
-    runFullJob();
+    fullProvision();
 
     {
       assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1508,7 +1513,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     new StemSave(this.grouperSession).assignName("test:test2:test3:test4b").save();
     Group testGroup3b = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroupb").save();
 
-    runFullJob();
+    fullProvision();
     
     {
       assertEquals(5, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1654,7 +1659,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
     // init stuff
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     new StemSave(this.grouperSession).assignName("test:test2").save();
@@ -1681,7 +1686,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroup").save();
     Group testGroup4 = new GroupSave(this.grouperSession).assignName("test:test2:test3:test4:testGroup").save();
         
-    runIncrementalJobs(true, true);
+    incrementalProvision();
 
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1698,7 +1703,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     test3StemAttributeValue.setDoProvision("junitProvisioningAttributePropagationTest");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
-    runIncrementalJobs(true, true);
+    incrementalProvision();
 
     {
       assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1723,7 +1728,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     test3StemAttributeValue.setDoProvision(null);
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
-    runIncrementalJobs(true, true);
+    incrementalProvision();
   
     {
       assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1890,7 +1895,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:test2:test3:testGroup").save();
     Group testGroup4 = new GroupSave(this.grouperSession).assignName("test:test2:test3:test4:testGroup").save();
         
-    runFullJob();
+    fullProvision();
 
     {
       assertEquals(2, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1907,7 +1912,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     test3StemAttributeValue.setDoProvision("junitProvisioningAttributePropagationTest");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
-    runFullJob();
+    fullProvision();
 
     {
       assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -1932,7 +1937,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     test3StemAttributeValue.setDoProvision(null);
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(test3StemAttributeValue, test3Stem);
 
-    runFullJob();
+    fullProvision();
   
     {
       assertEquals(4, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -2074,7 +2079,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
     // init stuff
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
@@ -2092,7 +2097,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testGroupAttributeValue.setTargetName("junitProvisioningAttributePropagationTest");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testGroupAttributeValue, testGroup);
     
-    runIncrementalJobs(true, true);
+    incrementalProvision();
     
     Set<AttributeAssign> testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
     Set<AttributeAssign> testStemAssigns = testStem.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
@@ -2124,7 +2129,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testGroupAssigns = testGroup.getAttributeDelegate().retrieveAssignmentsByAttributeDef("etc:provisioning:provisioningDef");
     assertEquals(0, testGroupAssigns.size());
 
-    runIncrementalJobs(true, true);
+    incrementalProvision();
   
     {
       assertEquals(1, GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveAll().size());
@@ -2388,8 +2393,8 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
         
-    runFullJob();
-    runFullJob2();
+    fullProvision();
+    fullProvision2();
     
     Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
     Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToSyncGroup2 = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest2").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
@@ -2408,8 +2413,8 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testStemAttributeValue2.setMetadataNameValues(Collections.singletonMap("test2x", "test2x"));
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue2, testStem);
     
-    runFullJob();
-    runFullJob2();
+    fullProvision();
+    fullProvision2();
     
     grouperSyncGroupIdToSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
     grouperSyncGroupIdToSyncGroup2 = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest2").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
@@ -2425,8 +2430,8 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     testStemAttributeValue.setDoProvision(null);
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(testStemAttributeValue, testStem);
 
-    runFullJob();
-    runFullJob2();
+    fullProvision();
+    fullProvision2();
     
     grouperSyncGroupIdToSyncGroup = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
     grouperSyncGroupIdToSyncGroup2 = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "junitProvisioningAttributePropagationTest2").getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(Collections.singletonList(testGroup.getId()));
@@ -2474,33 +2479,8 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     stem.getAttributeDelegate().removeAttribute(retrieveAttributeDefNameBase());
   }
   
-  private void runIncrementalJobs(boolean runChangeLog, boolean runConsumer) {
-    
-    if (runChangeLog) {
-      ChangeLogTempToEntity.convertRecords();
-    }
-    
-    if (runConsumer) {
-      Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_junitProvisioningAttributePropagationTestCLC");
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-      EsbConsumer esbConsumer = new EsbConsumer();
-      ChangeLogHelper.processRecords("junitProvisioningAttributePropagationTestCLC", hib3GrouploaderLog, esbConsumer);
-    }
+  public GrouperProvisioningOutput fullProvision2() {
+    return fullProvision("junitProvisioningAttributePropagationTest2");
   }
-  
-  private void runFullJob() {
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest");
-    grouperProvisioner.retrieveGrouperProvisioningOutput(); // make sure to initialize
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
-    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
-  }
-  
-  private void runFullJob2() {
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("junitProvisioningAttributePropagationTest2");
-    grouperProvisioner.retrieveGrouperProvisioningOutput(); // make sure to initialize
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
-    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
-  }
+
 }

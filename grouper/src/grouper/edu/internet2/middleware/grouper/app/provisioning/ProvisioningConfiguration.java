@@ -375,6 +375,15 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
   }
 
   @Override
+  public void editConfig(boolean fromUi, StringBuilder message, List<String> errorsToDisplay,
+      Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
+    super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
+
+    addDaemonsIfNecessary(message, errorsToDisplay, validationErrorsToDisplay);
+    
+  }
+
+  @Override
   public void insertConfig(boolean fromUi, StringBuilder message,
       List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay,
       List<String> actionsPerformed) {
@@ -382,8 +391,17 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay,
         actionsPerformed);
     
-    if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) {
       
+    addDaemonsIfNecessary(message, errorsToDisplay, validationErrorsToDisplay);
+    
+    
+  }
+
+  public void addDaemonsIfNecessary(StringBuilder message,
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) {
+    
       GrouperConfigurationModuleAttribute disabledFullSyncAttribute = this.retrieveAttributes().get("addDisabledFullSyncDaemon");
       
       if (disabledFullSyncAttribute != null && GrouperUtil.booleanValue(disabledFullSyncAttribute.getValueOrExpressionEvaluation(), false)) {
@@ -498,16 +516,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
         
         
       }
-      
-      
     }
-    
-    
   }
-  
-  
-  
-  
-  
 
 }

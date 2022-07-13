@@ -42,6 +42,11 @@ public class LdapProvisionerMultipleTest extends GrouperProvisioningBaseTest {
     TestRunner.run(new LdapProvisionerMultipleTest("testMultipleProvisionersFull"));    
   }
   
+  @Override
+  public String defaultConfigId() {
+    return "ldapProvTest";
+  }
+
   public LdapProvisionerMultipleTest() {
     super();
   }
@@ -173,16 +178,20 @@ public class LdapProvisionerMultipleTest extends GrouperProvisioningBaseTest {
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup2);
 
     //lets sync these over
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
-    GrouperProvisioner grouperProvisioner2 = GrouperProvisioner.retrieveProvisioner("ldapProvTest2");
+    
+    fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=ldapProvTest,ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory"}, null).size());
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=ldapProvTest2,ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory"}, null).size());
     
-    GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner); 
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
-    GrouperProvisioningOutput grouperProvisioningOutput2 = grouperProvisioner2.provision(GrouperProvisioningType.fullProvisionFull); 
+    GrouperProvisioningOutput grouperProvisioningOutput2 = fullProvision("ldapProvTest2");
+    GrouperProvisioner grouperProvisioner2 = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioner2 = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput2.getRecordsWithErrors());
     
     List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=ldapProvTest,ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory", "description"}, null);

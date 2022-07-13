@@ -951,4 +951,13 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
     this.lastUpdated = new Timestamp(System.currentTimeMillis());
     this.truncate();
   }
+
+  /**
+   * @param hibernateSession
+   */
+  public static void reset(HibernateSession hibernateSession) {
+    
+    hibernateSession.byHql().createQuery("delete from Hib3GrouperLoaderLog").executeUpdate();
+    
+  }
 }

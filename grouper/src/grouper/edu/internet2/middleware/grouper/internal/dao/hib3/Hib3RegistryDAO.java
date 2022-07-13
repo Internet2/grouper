@@ -49,6 +49,7 @@ import org.apache.ddlutils.platform.SqlBuilder;
 import org.hibernate.HibernateException;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -178,6 +179,7 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3ChangeLogEntryDAO.reset(hibernateSession);
             Hib3ChangeLogTypeDAO.reset(hibernateSession);
             Hib3ConfigDAO.reset(hibernateSession);
+            Hib3GrouperLoaderLog.reset(hibernateSession);
             Hib3GrouperPasswordRecentlyUsedDAO.reset(hibernateSession);
             Hib3GrouperPasswordDAO.reset(hibernateSession);
             Hib3GroupSetDAO.reset(hibernateSession);

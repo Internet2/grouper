@@ -329,7 +329,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
 //        
 //      }
       
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), false) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), false)) {
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), true) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), true)) {
         provisionerSuffixToValue.put("showAdvanced", "true");
       }
 

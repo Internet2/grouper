@@ -45,6 +45,11 @@ public class GrouperDuoRoleProvisionerTest extends GrouperProvisioningBaseTest {
 
   }
 
+  @Override
+  public String defaultConfigId() {
+    return "myDuoRoleProvisioner";
+  }
+
   public static void main(String[] args) {
     GrouperStartup.startup();
     TestRunner.run(new GrouperDuoRoleProvisionerTest("testFullProvisionInsertUpdateDeleteAdministrator"));
@@ -136,11 +141,11 @@ public class GrouperDuoRoleProvisionerTest extends GrouperProvisioningBaseTest {
           MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true));
   
       //lets sync these over
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoRoleProvisioner");
       
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_duo_role_user").select(int.class));
       
-      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperDuoRoleUser").list(GrouperDuoRoleUser.class).size());
       
@@ -150,15 +155,13 @@ public class GrouperDuoRoleProvisionerTest extends GrouperProvisioningBaseTest {
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
-      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoRoleProvisioner");
-      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      grouperProvisioningOutput = fullProvision();
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoRoleUser").list(GrouperDuoRoleUser.class).size());
 //      
       //now delete the group and sync again
       testGroup.delete();
       
-      grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoRoleProvisioner");
-      grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
+      grouperProvisioningOutput = fullProvision();
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoRoleUser").list(GrouperDuoRoleUser.class).size());
       
@@ -190,14 +193,12 @@ public class GrouperDuoRoleProvisionerTest extends GrouperProvisioningBaseTest {
 //  
       new GcDbAccess().connectionName("grouper").sql("delete from mock_duo_role_user").executeSql();
       
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("myDuoRoleProvisioner");
-      
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_duo_role_user").select(int.class));
       
-      GrouperProvisioningOutput grouperProvisioningOutput = super.fullProvision(grouperProvisioner);
-      
-      runJobs(true, true);
-      
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+
+      incrementalProvision();
+
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
       Stem stem = new StemSave(grouperSession).assignName("test").save();
@@ -246,22 +247,22 @@ public class GrouperDuoRoleProvisionerTest extends GrouperProvisioningBaseTest {
   
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_duo_role_user").select(int.class));
 //      
-      runJobs(true, true);
+      incrementalProvision();
       
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperDuoRoleUser").list(GrouperDuoRoleUser.class).size());
       
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
-      runJobs(true, true);
+      incrementalProvision();
       
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperDuoRoleUser").list(GrouperDuoRoleUser.class).size());
       
       //now delete the group and sync again
       testGroup.delete();
       
-      runJobs(true, true);
-      
+      incrementalProvision();
+
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperDuoRoleUser").list(GrouperDuoRoleUser.class).size());
       
     } finally {
@@ -271,32 +272,5 @@ public class GrouperDuoRoleProvisionerTest extends GrouperProvisioningBaseTest {
 //      }
     }
     
-  }
-  
-  private Hib3GrouperLoaderLog runJobs(boolean runChangeLog, boolean runConsumer) {
-    
-    // wait for message cache to clear
-    GrouperUtil.sleep(10000);
-    
-    if (runChangeLog) {
-      ChangeLogTempToEntity.convertRecords();
-    }
-    
-    if (runConsumer) {
-      Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-      hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-      hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_duoRoleProvTestCLC");
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-      EsbConsumer esbConsumer = new EsbConsumer();
-      ChangeLogHelper.processRecords("duoRoleProvTestCLC", hib3GrouploaderLog, esbConsumer);
-  
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
-      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
-      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
-      
-      return hib3GrouploaderLog;
-    }
-    
-    return null;
   }
 }
