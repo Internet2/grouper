@@ -136,7 +136,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testGroupEntityMembershipRenameGroupFullMatchOnOld"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaMatchingIdMissingValidation"));
     
   }
   
@@ -163,7 +163,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
    */
   @Override
   protected void setUp() {
-    setUp();
+    super.setUp();
     
     try {
 
@@ -4020,13 +4020,13 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    grouperProvisioningOutput = fullProvision();
+    grouperProvisioningOutput = fullProvision("sqlProvTest", true);
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     
     // make sure some time has passed
     GrouperUtil.sleep(1000);
     
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("OTHER_JOB_sqlProvisionerFull");
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("OTHER_JOB_provisioner_full_sqlProvTest");
     assertEquals(GrouperLoaderStatus.ERROR.name(), hib3GrouperLoaderLog.getStatus());
     
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());

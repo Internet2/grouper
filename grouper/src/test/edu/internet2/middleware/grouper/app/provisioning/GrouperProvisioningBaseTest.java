@@ -32,12 +32,20 @@ public abstract class GrouperProvisioningBaseTest extends GrouperTest {
   public GrouperProvisioningOutput fullProvision() {
     return fullProvision(defaultConfigId());
   }
-  
+
   /**
    * @param configId
    * @return GrouperProvisioningOutput
    */
   public GrouperProvisioningOutput fullProvision(String configId) {
+    return fullProvision(configId, false);
+  }
+
+  /**
+   * @param configId
+   * @return GrouperProvisioningOutput
+   */
+  public GrouperProvisioningOutput fullProvision(String configId, boolean allowErrors) {
     
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_provisioner_full_" + configId);
 
@@ -46,7 +54,9 @@ public abstract class GrouperProvisioningBaseTest extends GrouperTest {
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput(); 
 
     GrouperUtil.sleep(1000);
-    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    if (!allowErrors) {
+      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    }
    
     return grouperProvisioningOutput;
   }
@@ -55,7 +65,7 @@ public abstract class GrouperProvisioningBaseTest extends GrouperTest {
    * @return GrouperProvisioningOutput
    */
   public Hib3GrouperLoaderLog incrementalProvision() {
-    return incrementalProvision(defaultConfigId(), true, true);
+    return incrementalProvision(defaultConfigId(), true, true, false);
   }
   
   /**
@@ -64,6 +74,15 @@ public abstract class GrouperProvisioningBaseTest extends GrouperTest {
    * @return GrouperProvisioningOutput
    */
   public Hib3GrouperLoaderLog incrementalProvision(String configId, boolean runChangeLog, boolean runConsumer) {
+    return incrementalProvision(configId, runChangeLog, runConsumer, false);
+  }
+  
+  /**
+   * @param runChangeLog
+   * @param runConsumer
+   * @return GrouperProvisioningOutput
+   */
+  public Hib3GrouperLoaderLog incrementalProvision(String configId, boolean runChangeLog, boolean runConsumer, boolean allowErrors) {
     
     // wait for message cache to clear
     GrouperUtil.sleep(10000);
@@ -78,7 +97,9 @@ public abstract class GrouperProvisioningBaseTest extends GrouperTest {
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
-      GrouperUtil.sleep(1000);
+      if (!allowErrors) {
+        GrouperUtil.sleep(1000);
+      }
       
       assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
