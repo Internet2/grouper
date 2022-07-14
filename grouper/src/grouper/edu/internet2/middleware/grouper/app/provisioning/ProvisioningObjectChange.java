@@ -1,5 +1,9 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import edu.internet2.middleware.grouper.app.graph.GraphEdge;
 
 public class ProvisioningObjectChange {
 
@@ -124,6 +128,35 @@ public class ProvisioningObjectChange {
     this.newValue = newValue;
   }
 
-  
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    ProvisioningObjectChange other = (ProvisioningObjectChange) obj;
+
+    return new EqualsBuilder()
+      .append(this.attributeName, other.attributeName)
+      .append(this.newValue, other.newValue)
+      .append(this.oldValue, other.oldValue)
+      .append(this.provisioned, other.provisioned)
+      .append(this.provisioningObjectChangeAction, other.provisioningObjectChangeAction)
+      .isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+      return new HashCodeBuilder()
+              .append( this.attributeName)
+              .append( this.newValue)
+              .append( this.oldValue)
+              .append( this.provisioned)
+              .append( this.provisioningObjectChangeAction)
+              .toHashCode();
+  }
+
   
 }

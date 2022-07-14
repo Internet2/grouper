@@ -14,6 +14,8 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class GrouperProvisioningCompare {
@@ -905,6 +907,10 @@ public class GrouperProvisioningCompare {
             for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
               String membershipValue = GrouperUtil.stringValue(obj);
               ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(membershipValue);
+              if (!provisioningMembershipWrapper.getGcGrouperSyncMembership().isInTarget()) {
+                continue;
+              }
+
               if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper.getGcGrouperSyncMembership())) {
                 this.membershipDeleteCount++;
                 countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
@@ -1121,6 +1127,9 @@ public class GrouperProvisioningCompare {
             for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
               String membershipValue = GrouperUtil.stringValue(obj);
               ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(membershipValue);
+              if (!provisioningMembershipWrapper.getGcGrouperSyncMembership().isInTarget()) {
+                continue;
+              }
               if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper.getGcGrouperSyncMembership())) {
                 this.membershipDeleteCount++;
                 countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
@@ -1666,8 +1675,12 @@ public class GrouperProvisioningCompare {
       }
       
       int membershipCountForGroup = this.grouperProvisioner.retrieveGrouperDao().retrieveMembershipCountForGroup(grouperTargetGroupForUpdate.getProvisioningGroupWrapper());
+
+      ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroupForUpdate.getProvisioningGroupWrapper();
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGcGrouperSyncGroup();
+      boolean groupProvisionable = gcGrouperSyncGroup == null || gcGrouperSyncGroup.isProvisionable();
       
-      if (membershipCountForGroup > countMembershipDelete) {
+      if (groupProvisionable && membershipCountForGroup > countMembershipDelete) {
         continue;
       }
       
@@ -1799,9 +1812,17 @@ public class GrouperProvisioningCompare {
         continue;
       }
       
-      int membershipCountForGroup = this.grouperProvisioner.retrieveGrouperDao().retrieveMembershipCountForEntity(grouperTargetEntityForUpdate.getProvisioningEntityWrapper());
+      int membershipCountForEntity = this.grouperProvisioner.retrieveGrouperDao().retrieveMembershipCountForEntity(grouperTargetEntityForUpdate.getProvisioningEntityWrapper());
+
+      ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntityForUpdate.getProvisioningEntityWrapper();
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGcGrouperSyncMember();
+      boolean entityProvisionable = gcGrouperSyncMember == null || gcGrouperSyncMember.isProvisionable();
       
-      if (membershipCountForGroup > countMembershipDelete) {
+      if (entityProvisionable && membershipCountForEntity > countMembershipDelete) {
+        continue;
+      }
+
+      if (membershipCountForEntity > countMembershipDelete) {
         continue;
       }
       

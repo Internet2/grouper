@@ -2138,6 +2138,7 @@ public class GrouperProvisioningGrouperDao {
         "WHERE " +      
         "    sync_membership.grouper_sync_group_id = sync_group.id " +
         "    AND sync_group.group_id = ? " +
+        "    AND sync_group.provisionable = 'T' " +
         "    AND sync_membership.in_target = 'T' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
@@ -2163,6 +2164,7 @@ public class GrouperProvisioningGrouperDao {
         "    grouper_sync_membership sync_membership " +  
         "WHERE " +      
         "    sync_membership.grouper_sync_member_id = sync_member.id " +
+        "    AND sync_member.provisionable = 'T' " +
         "    AND sync_member.member_id = ? " +
         "    AND sync_membership.in_target = 'T' ";
     
