@@ -1126,6 +1126,9 @@ public class GrouperProvisioningCompare {
             boolean deleted = false;
             for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
               String membershipValue = GrouperUtil.stringValue(obj);
+              if (provisioningAttribute.getValueToProvisioningMembershipWrapper() == null) {
+                continue;
+              }
               ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(membershipValue);
               if (!provisioningMembershipWrapper.getGcGrouperSyncMembership().isInTarget()) {
                 continue;
