@@ -1030,8 +1030,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       return new TargetDaoRetrieveMembershipsByGroupsResponse();
     }
     
-    TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.retrieveGroups(
-        new TargetDaoRetrieveGroupsRequest(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups(), true));
+    TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest();
+    targetDaoRetrieveGroupsRequest.setTargetGroups(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups());
+    targetDaoRetrieveGroupsRequest.setSearchAttributeValues(targetDaoRetrieveMembershipsByGroupsRequest.getSearchAttributeValues());
+    targetDaoRetrieveGroupsRequest.setSearchAttribute(targetDaoRetrieveMembershipsByGroupsRequest.getSearchAttribute());
+    targetDaoRetrieveGroupsRequest.setIncludeAllMembershipsIfApplicable(true);
+    
+    TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.retrieveGroups(targetDaoRetrieveGroupsRequest);
     return new TargetDaoRetrieveMembershipsByGroupsResponse((List<Object>)(Object)targetDaoRetrieveGroupsResponse.getTargetGroups());
     
   }

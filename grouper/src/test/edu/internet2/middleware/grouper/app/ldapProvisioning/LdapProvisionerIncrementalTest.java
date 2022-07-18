@@ -56,7 +56,7 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerIncrementalTest("testIncremental2"));    
+    TestRunner.run(new LdapProvisionerIncrementalTest("testIncremental2recalc"));    
   }
   
   @Override

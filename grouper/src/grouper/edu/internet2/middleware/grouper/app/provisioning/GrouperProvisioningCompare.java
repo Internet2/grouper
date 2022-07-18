@@ -410,10 +410,16 @@ public class GrouperProvisioningCompare {
         if (GrouperUtil.isArrayOrCollection(grouperValue)) {
           if (grouperValue instanceof Collection) {
             for (Object value : (Collection)grouperValue) {
-              
+              if (grouperAttribute.getValueToProvisioningMembershipWrapper() == null) {
+                continue;
+              }
               ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
               if (recalcProvisioningUpdateable || provisioningMembershipWrapper.isRecalc()) {
                 value = filterDeletedMemberships(grouperAttribute, value);
+                
+                if (value == null) {
+                  continue;
+                }
                 
                 if (filterNonRecalcMemberships(grouperAttribute, value, recalcProvisioningUpdateable)) {
                   continue;
