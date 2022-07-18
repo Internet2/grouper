@@ -524,6 +524,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       hasError = true;
       debugMapOverall.put("exception", GrouperUtil.getFullStackTrace(re));
       
+      LOG.error("Error processing record: " + currentId, re);
+
       changeLogProcessorMetadata.registerProblem(re, "Error processing record " + currentId, currentId);
       if (currentId != -1) {
         currentId--;
