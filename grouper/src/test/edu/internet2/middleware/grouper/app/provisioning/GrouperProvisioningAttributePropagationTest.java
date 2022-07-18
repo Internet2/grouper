@@ -30,11 +30,13 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import junit.textui.TestRunner;
@@ -53,7 +55,7 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperProvisioningAttributePropagationTest("testFullPolicyRestriction"));    
+    TestRunner.run(new GrouperProvisioningAttributePropagationTest("testFullMultipleProvisioners"));    
   }
   
   @Override
@@ -219,6 +221,18 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+    
     // init stuff
     incrementalProvision();
     
@@ -425,6 +439,18 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     Stem test2Stem = new StemSave(this.grouperSession).assignName("test:test2").save();
@@ -722,6 +748,18 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+    
     // init stuff
     incrementalProvision();
     
@@ -930,6 +968,18 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+    
     // init stuff
     incrementalProvision();
     
@@ -1138,6 +1188,18 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+    
     // init stuff
     incrementalProvision();
     
@@ -1400,6 +1462,18 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
     
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+    
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     new StemSave(this.grouperSession).assignName("test:test2").save();
     Stem test3Stem = new StemSave(this.grouperSession).assignName("test:test2:test3").save();
@@ -1658,6 +1732,18 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+    
     // init stuff
     incrementalProvision();
     
@@ -1870,6 +1956,18 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
     
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+    
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     new StemSave(this.grouperSession).assignName("test:test2").save();
     Stem test3Stem = new StemSave(this.grouperSession).assignName("test:test2:test3").save();
@@ -2078,6 +2176,18 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
 
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+    
     // init stuff
     incrementalProvision();
     
@@ -2372,6 +2482,30 @@ public class GrouperProvisioningAttributePropagationTest extends GrouperProvisio
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerConfigId", "junitProvisioningAttributePropagationTest");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.provisionerJobSyncType", GrouperProvisioningType.incrementalProvisionChangeLog.name());
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.junitProvisioningAttributePropagationTestCLC.publisher.debug", "true");
+    
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.provisionerConfigId").value("junitProvisioningAttributePropagationTest").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest.publisher.debug").value("true").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest2.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest2.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_junitProvisioningAttributePropagationTest2.provisionerConfigId").value("junitProvisioningAttributePropagationTest2").store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest2.class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest2.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest2.provisionerConfigId").value("junitProvisioningAttributePropagationTest2").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest2.publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_junitProvisioningAttributePropagationTest2.publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+    
     
     Stem testStem = new StemSave(this.grouperSession).assignName("test").save();
     

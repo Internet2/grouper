@@ -87,9 +87,6 @@ public class MessagingProvisionerTestUtils {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".publisher.debug").value("true").store();
   
     ConfigPropertiesCascadeBase.clearCache();
-    
-    
-    ConfigPropertiesCascadeBase.clearCache();
   
   }
 }
