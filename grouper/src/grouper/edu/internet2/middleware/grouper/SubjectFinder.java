@@ -291,7 +291,7 @@ public class SubjectFinder implements CheckboxValueDriver {
       if (!StringUtils.isBlank(this.sourceId)) {
         return SubjectFinder.findByIdentifierAndSource(this.subjectIdentifier, this.sourceId, this.ignoreCachedSubjects, false);
       }
-      return SubjectFinder.findByIdentifier(this.subjectId, this.ignoreCachedSubjects, false);
+      return SubjectFinder.findByIdentifier(this.subjectIdentifier, this.ignoreCachedSubjects, false);
     }
     
     if (!StringUtils.isBlank(this.subjectIdOrIdentifier)) {
