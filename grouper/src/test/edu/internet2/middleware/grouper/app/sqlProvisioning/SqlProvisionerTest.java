@@ -136,7 +136,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaMatchingIdMissingValidation"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaRealTimeAddMember"));
     
   }
   
@@ -193,7 +193,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
    */
   @Override
   protected void tearDown() {
-    tearDown();
+    super.tearDown();
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     
@@ -294,8 +294,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     
     //lets sync these over
-    String jobName = "OTHER_JOB_sqlProvisionerFull";
-    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    String jobName = "OTHER_JOB_provisioner_full_sqlProvTest";
+    fullProvision();
     
     assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
     
@@ -3369,9 +3369,12 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         new MultiKey("test:testGroup", "member", "dn_test.subject.1")));
     
 
-    ProvisioningConsumer provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
-
-    grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
+//    ProvisioningConsumer provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
+//
+//    grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
+    
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    GrouperUtil.sleep(500);
     
     assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("messageCountForProvisioner"), 0));
     
@@ -3383,9 +3386,11 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // run the provisioner
     hib3GrouperLoaderLog = incrementalProvision();
 
-    provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
-
-    grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
+//    provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
+//
+//    grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    GrouperUtil.sleep(500);
     
     assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("missingGroupsForCreate"), 0));
 
@@ -3412,9 +3417,11 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // run the provisioner
     hib3GrouperLoaderLog = incrementalProvision();
 
-    provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
-
-    grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
+//    provisioningConsumer = (ProvisioningConsumer)this.esbConsumer.getEsbPublisherBase();
+//
+//    grouperProvisioner = provisioningConsumer.getGrouperProvisioner();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    GrouperUtil.sleep(500);
 
     assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
 
@@ -3543,8 +3550,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    String jobName = "OTHER_JOB_sqlProvisionerFull";
-    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    String jobName = "OTHER_JOB_provisioner_full_sqlProvTest";
+    
+    fullProvision();
     
     assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
     
@@ -3648,8 +3656,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
     
     //lets sync these over
-    String jobName = "OTHER_JOB_sqlProvisionerFull";
-    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    String jobName = "OTHER_JOB_provisioner_full_sqlProvTest";
+    
+    fullProvision();
     
     List<Object[]> groups = new GcDbAccess().sql("select uuid from testgrouper_prov_group order by name").selectList(Object[].class);
     assertEquals(10, groups.size());
@@ -3675,8 +3684,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.failsafeMaxPercentRemove").value("20").store();
     
     //lets sync these over
-    String jobName = "OTHER_JOB_sqlProvisionerFull";
-    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    String jobName = "OTHER_JOB_provisioner_full_sqlProvTest";
+    
+    fullProvision();
     
     assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
     
@@ -3747,8 +3757,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    String jobName = "OTHER_JOB_sqlProvisionerFull";
-    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    String jobName = "OTHER_JOB_provisioner_full_sqlProvTest";
+    fullProvision();
     
     assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
     
@@ -3817,8 +3827,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     setupFailsafeJob();
     
     //lets sync these over
-    String jobName = "OTHER_JOB_sqlProvisionerFull";
-    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    String jobName = "OTHER_JOB_provisioner_full_sqlProvTest";
+    fullProvision();
     
     assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
     
@@ -3888,8 +3898,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     setupFailsafeJob();
     
     //lets sync these over
-    String jobName = "OTHER_JOB_sqlProvisionerFull";
-    GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
+    String jobName = "OTHER_JOB_provisioner_full_sqlProvTest";
+    
+    fullProvision();
     
     assertFalse(GrouperFailsafe.isFailsafeIssue(jobName));
     
