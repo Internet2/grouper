@@ -179,14 +179,12 @@ public class LdapProvisionerMultipleTest extends GrouperProvisioningBaseTest {
 
     //lets sync these over
     
-    fullProvision();
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
-    
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=ldapProvTest,ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory"}, null).size());
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=ldapProvTest2,ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory"}, null).size());
     
+    
     GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
-    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     GrouperProvisioningOutput grouperProvisioningOutput2 = fullProvision("ldapProvTest2");
