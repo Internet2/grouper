@@ -1322,7 +1322,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             for (Object searchValue : searchValues) {
               // search based on those
               TargetDaoRetrieveMembershipsByEntityRequest targetDaoRetrieveMembershipsByEntityRequestNew = new TargetDaoRetrieveMembershipsByEntityRequest();
-              targetDaoRetrieveMembershipsByEntityRequestNew.setTargetEntity(targetDaoRetrieveMembershipsByEntityRequestNew.getTargetEntity());
+              targetDaoRetrieveMembershipsByEntityRequestNew.setTargetEntity(targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity());
               targetDaoRetrieveMembershipsByEntityRequestNew.setSearchAttribute(searchAttributeName);
               targetDaoRetrieveMembershipsByEntityRequestNew.setSearchAttributeValue(searchValue);
               
