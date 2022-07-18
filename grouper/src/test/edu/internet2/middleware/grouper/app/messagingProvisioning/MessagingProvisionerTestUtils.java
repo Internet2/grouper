@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.messagingProvisioning;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
@@ -75,14 +76,18 @@ public class MessagingProvisionerTestUtils {
       }
     }
     
-    // edu.internet2.middleware.grouper.changeLog.esb.consumer
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.class").value(EsbConsumer.class.getName()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.publisher.class").value(ProvisioningConsumer.class.getName()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.quartzCron").value("0 0 0 1 1 ? 2200").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.provisionerConfigId").value("myMessagingProvisioner").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.provisionerJobSyncType").value(GrouperProvisioningType.incrementalProvisionChangeLog.name()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.messagingProvTestCLC.publisher.debug").value("true").store();
-
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_" + provisioningTestConfigInput.getConfigId() + ".class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_" + provisioningTestConfigInput.getConfigId() + ".quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_" + provisioningTestConfigInput.getConfigId() + ".provisionerConfigId").value(provisioningTestConfigInput.getConfigId()).store();
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".class").value(EsbConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".provisionerConfigId").value(provisioningTestConfigInput.getConfigId()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".publisher.class").value(ProvisioningConsumer.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".publisher.debug").value("true").store();
+  
+    ConfigPropertiesCascadeBase.clearCache();
+    
     
     ConfigPropertiesCascadeBase.clearCache();
   
