@@ -136,7 +136,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaMatchingIdMissingValidation"));
+    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisionerFailsafe"));
     
   }
   
@@ -325,7 +325,12 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals("ERROR_FAILSAFE", hib3GrouperLoaderLog.getStatus());
 
     this.failsafeGroups.get(6).deleteMember(SubjectTestHelper.SUBJ3);
-    incrementalProvision();
+    try {
+      // incremental will fail after the full fails with failsafe
+      incrementalProvision();
+      fail();
+    } catch (Exception e) {
+    }
         
     groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group order by name").selectList(Object[].class);
     assertEquals(10, groups.size());
