@@ -3,7 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
-public class ProvisioningGroupWrapper {
+public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   
   private boolean grouperTargetGroupFromCacheInitted = false;
   private ProvisioningGroup grouperTargetGroupFromCache;
@@ -345,4 +345,28 @@ public class ProvisioningGroupWrapper {
   public String toString() {
     return "GroupWrapper@" + Integer.toHexString(hashCode());
   }
+  
+  public String toStringForError() {
+    
+    if (this.grouperTargetGroup != null) {
+      return "grouperTargetGroup: " + this.grouperTargetGroup;
+    }
+
+    if (this.grouperProvisioningGroup != null) {
+      return "grouperProvisioningGroup: " + this.grouperProvisioningGroup;
+    }
+
+    if (this.targetProvisioningGroup != null) {
+      return "targetProvisioningGroup: " + this.targetProvisioningGroup;
+    }
+    
+    return this.toString();
+  }
+
+  @Override
+  public String objectTypeName() {
+    return "group";
+  }
+  
+
 }

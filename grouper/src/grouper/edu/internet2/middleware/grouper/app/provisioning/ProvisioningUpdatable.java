@@ -23,6 +23,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public abstract class ProvisioningUpdatable {
 
+  /**
+   * get the object type name, e.g. group, entity, membership
+   * @return the object type name
+   */
+  public abstract String objectTypeName();
+  
   private static final String TRUNC_ATTRS = "trunc_attrs";
 
   /**

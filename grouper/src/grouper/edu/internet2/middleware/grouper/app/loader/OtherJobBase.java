@@ -438,7 +438,9 @@ public abstract class OtherJobBase implements Job {
           OtherJobBase.this.otherJobInput = otherJobInput;
           OtherJobBase.this.run(otherJobInput);
           
-          hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+          if (hib3GrouperLoaderLog.getStatusEnum() == null || !hib3GrouperLoaderLog.getStatusEnum().isError()) {
+            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+          }
           storeLogInDb(hib3GrouperLoaderLog, true, startTime);
           
         } catch (RuntimeException e) {

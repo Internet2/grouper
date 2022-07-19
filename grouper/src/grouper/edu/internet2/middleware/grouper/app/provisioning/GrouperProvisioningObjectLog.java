@@ -23,7 +23,18 @@ public class GrouperProvisioningObjectLog {
   public GrouperProvisioningObjectLog(GrouperProvisioner grouperProvisioner) {
     this.grouperProvisioner = grouperProvisioner;
   }
-  
+
+  public void error(String error, Throwable throwable) {
+    if (!LOG.isErrorEnabled()) {
+      return;
+    }
+    if (throwable != null) {
+      error += "\n" + GrouperUtil.getFullStackTrace(throwable);
+    }
+    String logMessageString = this.grouperProvisioner.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(error); 
+    LOG.error(logMessageString);      
+  }
+
   public void debug(GrouperProvisioningObjectLogType state) {
     if (!grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerbose()) {
       return;

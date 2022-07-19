@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -439,6 +440,9 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
     return this.status;
   }
 
+  public GrouperLoaderStatus getStatusEnum() {
+    return GrouperLoaderStatus.valueOfIgnoreCase(this.status, false);
+  }
   
   /**
    * STARTED, SUCCESS, ERROR, WARNING, GrouperLoaderStatus

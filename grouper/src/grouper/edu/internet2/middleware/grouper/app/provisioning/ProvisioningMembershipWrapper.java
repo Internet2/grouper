@@ -5,7 +5,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
-public class ProvisioningMembershipWrapper {
+public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper {
   
   /**
    * if this object should not be provisioned because there is an error, list it here
@@ -312,7 +312,31 @@ public class ProvisioningMembershipWrapper {
     this.delete = delete;
   }
 
-  
-  
+  @Override
+  public String objectTypeName() {
+    return "membership";
+  }
+
+  public String toStringForError() {
+    
+    StringBuilder result = new StringBuilder();
+    if (this.getGrouperProvisioningMembership() != null && this.getGrouperProvisioningMembership().getProvisioningGroup() != null && this.getGrouperProvisioningMembership().getProvisioningGroup().getProvisioningGroupWrapper() != null) {
+      result.append(this.getGrouperProvisioningMembership().getProvisioningGroup().getProvisioningGroupWrapper().toStringForError()).append(", ");
+    } else if (this.grouperTargetMembership != null && this.grouperTargetMembership.getProvisioningGroup() != null) {
+      result.append(this.grouperTargetMembership.getProvisioningGroup()).append(", ");
+    }
+
+    if (this.getGrouperProvisioningMembership() != null && this.getGrouperProvisioningMembership().getProvisioningEntity() != null && this.getGrouperProvisioningMembership().getProvisioningEntity().getProvisioningEntityWrapper() != null) {
+      result.append(this.getGrouperProvisioningMembership().getProvisioningEntity().getProvisioningEntityWrapper().toStringForError()).append(", ");
+    } else if (this.grouperTargetMembership != null && this.grouperTargetMembership.getProvisioningEntity() != null) {
+      result.append(this.grouperTargetMembership.getProvisioningEntity());
+    }
+
+    if (result.length() > 0) {
+      return result.toString();
+    }
+    return this.toString();
+  }
+
 
 }

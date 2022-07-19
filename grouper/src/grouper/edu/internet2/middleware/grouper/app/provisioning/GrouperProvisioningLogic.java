@@ -16,6 +16,7 @@ import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllDataRequest;
@@ -35,6 +36,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
@@ -78,6 +80,9 @@ public class GrouperProvisioningLogic {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     Timestamp startTimestamp = new Timestamp(System.currentTimeMillis());
+
+    this.getGrouperProvisioner().getGcGrouperSyncJob().setErrorMessage(null);
+    this.getGrouperProvisioner().getGcGrouperSyncJob().setErrorTimestamp(null);
 
     {
       debugMap.put("state", "propagateProvisioningAttributes");
@@ -354,10 +359,11 @@ public class GrouperProvisioningLogic {
       } catch (RuntimeException e) {
         GrouperUtil.exceptionFinallyInjectOrThrow(runtimeException, e);
       }
-      //TODO this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.sendChangesToTarget);
 
     }
   
+    this.errorHandling();
+    
     { 
       // counts for sync
       this.countInsertsUpdatesDeletes();
@@ -391,8 +397,6 @@ public class GrouperProvisioningLogic {
       gcGrouperSync.setLastFullSyncRun(nowTimestamp);
 
       GcGrouperSyncJob gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSyncJob();
-      gcGrouperSyncJob.setErrorMessage(null);
-      gcGrouperSyncJob.setErrorTimestamp(null);
       gcGrouperSyncJob.setLastSyncTimestamp(nowTimestamp);
       if (this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().wasWorkDone()) {
         gcGrouperSyncJob.setLastTimeWorkWasDone(nowTimestamp);
@@ -405,7 +409,7 @@ public class GrouperProvisioningLogic {
   
       this.grouperProvisioner.getDebugMap().put("syncObjectStoreCount", objectStoreCount);
     }
-
+    
     // TODO flesh this out, resolve subjects, linked cached data, etc, try individually again
 //    this.getGrouperProvisioner().retrieveTargetDao().resolveErrors();
 //    this.getGrouperProvisioner().retrieveTargetDao().sendErrorFixesToTarget();
@@ -644,6 +648,9 @@ public class GrouperProvisioningLogic {
     Timestamp startTimestamp = new Timestamp(System.currentTimeMillis());
 
     GrouperProvisioningLogicIncremental grouperProvisioningLogicIncremental = this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental();
+
+    this.getGrouperProvisioner().getGcGrouperSyncJob().setErrorMessage(null);
+    this.getGrouperProvisioner().getGcGrouperSyncJob().setErrorTimestamp(null);
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningFailsafe().processFailsafesAtStart();
 
@@ -1107,6 +1114,8 @@ public class GrouperProvisioningLogic {
           
           this.countInsertsUpdatesDeletes();
 
+          this.errorHandling();
+
         }
         
         {
@@ -1127,8 +1136,7 @@ public class GrouperProvisioningLogic {
           gcGrouperSync.setLastIncrementalSyncRun(nowTimestamp);
           
           GcGrouperSyncJob gcGrouperSyncJob = this.grouperProvisioner.getGcGrouperSyncJob();
-          gcGrouperSyncJob.setErrorMessage(null);
-          gcGrouperSyncJob.setErrorTimestamp(null);
+
           gcGrouperSyncJob.setLastSyncTimestamp(nowTimestamp);
           if (this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().wasWorkDone()) {
             gcGrouperSyncJob.setLastTimeWorkWasDone(nowTimestamp);
@@ -1176,6 +1184,148 @@ public class GrouperProvisioningLogic {
     // ######### STEP 36: acknowledge messages
     this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental().acknowledgeMessagesProcessed();
 
+  }
+
+  /**
+   * 
+   * @param objectTypeErrorCodeToCount
+   * @param gcGrouperSyncErrorCode
+   * @return true if error
+   */
+  public boolean errorHandlingHandleError(Map<MultiKey, Integer> objectTypeErrorCodeToCount, ProvisioningUpdatableWrapper provisioningUpdatableWrapper, GcGrouperSyncErrorCode gcGrouperSyncErrorCode, String errorMessage, Exception exception) {
+    
+    boolean logErrors = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingLogErrors();
+    boolean daemonShouldFail = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingProvisionerDaemonShouldFailOnObjectError();
+
+    // we arent doing anything so ignore
+    if (!logErrors && !daemonShouldFail) {
+      return false;
+    }
+    
+    // is this an error?
+    boolean errorCodeIsError = true;
+    boolean errorCodeIsLoggable = true;
+    switch(gcGrouperSyncErrorCode) {
+      case DNE:
+        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingTargetObjectDoesNotExistIsAnError()) {
+          errorCodeIsError = false;
+        }
+        break;
+      case INV:
+        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingInvalidDataIsAnError()) {
+          errorCodeIsError = false;
+        }
+        break;
+      case LEN:
+        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingLengthValidationIsAnError()) {
+          errorCodeIsError = false;
+        }
+        break;
+      case MEM:
+        errorCodeIsError = false;
+        errorCodeIsLoggable = false;
+        break;
+      case REQ:
+        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingRequiredValidationIsAnError()) {
+          errorCodeIsError = false;
+        }
+      case ERR:
+        break;
+      default:
+        throw new RuntimeException("Not expecting error code! " + gcGrouperSyncErrorCode);
+    }
+    
+    if (!errorCodeIsError) {
+      return false;
+    }
+    if (daemonShouldFail) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningOutput().getHib3GrouperLoaderLog().setStatus(GrouperLoaderStatus.ERROR.name());
+      this.getGrouperProvisioner().getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.ERROR);
+    }
+
+    MultiKey objectTypeErrorCode = new MultiKey(provisioningUpdatableWrapper.objectTypeName(), gcGrouperSyncErrorCode);
+    int count = GrouperUtil.mapAddValueObjectKey((Map<Object, Object>)(Object)objectTypeErrorCodeToCount, objectTypeErrorCode, 1);
+    int maxCount = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getErrorHandlingLogCountPerType();
+    
+    if (errorCodeIsLoggable && count <= maxCount) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().error("Error with " + provisioningUpdatableWrapper.objectTypeName() + ", " + provisioningUpdatableWrapper.toStringForError() + ", " + gcGrouperSyncErrorCode + ", " + errorMessage, exception);
+    }
+    return true;
+  }
+  
+  public void errorHandling() {
+
+    Map<MultiKey, Integer> objectTypeErrorCodeToCount = new HashMap<MultiKey, Integer>();
+
+    boolean hasError = false;
+    
+    // look at errors
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+      Exception exception = grouperTargetGroup == null ? null : grouperTargetGroup.getException();
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+      if (gcGrouperSyncGroup == null) {
+        continue;
+      }
+      if (gcGrouperSyncGroup.getErrorCode() == null) {
+        continue;
+      }
+      hasError = errorHandlingHandleError(objectTypeErrorCodeToCount,  provisioningGroupWrapper, gcGrouperSyncGroup.getErrorCode(), gcGrouperSyncGroup.getErrorMessage(), exception) || hasError;
+    }
+
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+      Exception exception = grouperTargetEntity == null ? null : grouperTargetEntity.getException();
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+      if (gcGrouperSyncMember == null) {
+        continue;
+      }
+      if (gcGrouperSyncMember.getErrorCode() == null) {
+        continue;
+      }
+      hasError = errorHandlingHandleError(objectTypeErrorCodeToCount,  provisioningEntityWrapper, gcGrouperSyncMember.getErrorCode(), gcGrouperSyncMember.getErrorMessage(), exception) || hasError;
+    }
+
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
+      Exception exception = grouperTargetMembership == null ? null : grouperTargetMembership.getException();
+      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+      if (gcGrouperSyncMembership == null) {
+        continue;
+      }
+      if (gcGrouperSyncMembership.getErrorCode() == null) {
+        continue;
+      }
+      hasError = errorHandlingHandleError(objectTypeErrorCodeToCount,  provisioningMembershipWrapper, gcGrouperSyncMembership.getErrorCode(), gcGrouperSyncMembership.getErrorMessage(), exception) || hasError;
+    }
+
+    if (!hasError) {
+      return;
+    }
+    StringBuilder errorSummary = new StringBuilder();
+    
+    for (MultiKey objectTypeErrorCode : objectTypeErrorCodeToCount.keySet()) {
+      if (errorSummary.length() == 0) {
+        errorSummary.append(", ");
+      }
+      errorSummary.append(objectTypeErrorCode.getKey(0) + " error " + objectTypeErrorCode.getKey(1) + " count " + objectTypeErrorCodeToCount.get(objectTypeErrorCode));
+    }
+
+    String errorSummaryString = errorSummary.toString();
+    this.getGrouperProvisioner().getDebugMap().put("objectErrors", errorSummaryString);
+    
+    if (hasError && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isErrorHandlingProvisionerDaemonShouldFailOnObjectError()) {
+      this.grouperProvisioner.retrieveGrouperProvisioningOutput().getHib3GrouperLoaderLog().setStatus(GrouperLoaderStatus.ERROR.name());
+    }
+    // maybe not mess with job status?
+//    if (GcGrouperSyncLogState.ERROR.equals(this.getGrouperProvisioner().getGcGrouperSyncLog().getStatus())) {
+//      if (StringUtils.isBlank(this.getGrouperProvisioner().getGcGrouperSyncJob().getErrorMessage())) {
+//        this.getGrouperProvisioner().getGcGrouperSyncJob().setErrorMessage(errorSummaryString);
+//      }
+//      if (this.getGrouperProvisioner().getGcGrouperSyncJob().getErrorTimestamp() == null) {
+//        this.grouperProvisioner.getGcGrouperSyncJob().setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+//      }
+//    }
   }
 
   public void storeAllSyncObjects() {

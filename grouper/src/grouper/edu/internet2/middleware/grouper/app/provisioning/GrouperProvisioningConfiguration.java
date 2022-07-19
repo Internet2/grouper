@@ -47,6 +47,198 @@ public abstract class GrouperProvisioningConfiguration {
   public void setCustomizeEntityCrud(boolean customizeEntityCrud) {
     this.customizeEntityCrud = customizeEntityCrud;
   }
+
+  /**
+   * # If the full or incremental provisioner should have a ERROR if there is an error in a group / entity / membership
+   * # {valueType: "boolean", order: 130010, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingProvisionerDaemonShouldFailOnObjectError =
+   */
+  private boolean errorHandlingProvisionerDaemonShouldFailOnObjectError = true;
+
+  /**
+   * # If the full or incremental provisioner should have a ERROR if there is an error in a group / entity / membership
+   * # {valueType: "boolean", order: 130010, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingProvisionerDaemonShouldFailOnObjectError =
+   * @return
+   */
+  public boolean isErrorHandlingProvisionerDaemonShouldFailOnObjectError() {
+    return errorHandlingProvisionerDaemonShouldFailOnObjectError;
+  }
+
+  /**
+   * # If the full or incremental provisioner should have a ERROR if there is an error in a group / entity / membership
+   * # {valueType: "boolean", order: 130010, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingProvisionerDaemonShouldFailOnObjectError =
+   * @param errorHandlingProvisionerDaemonShouldFailOnObjectError
+   */
+  public void setErrorHandlingProvisionerDaemonShouldFailOnObjectError(
+      boolean errorHandlingProvisionerDaemonShouldFailOnObjectError) {
+    this.errorHandlingProvisionerDaemonShouldFailOnObjectError = errorHandlingProvisionerDaemonShouldFailOnObjectError;
+  }
+
+  /**
+   * # Object errors will be logged, at least a handful of each type
+   * # {valueType: "boolean", order: 130020, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingLogErrors =
+   */
+  private boolean errorHandlingLogErrors = true;
+
+  /**
+   * # Object errors will be logged, at least a handful of each type
+   * # {valueType: "boolean", order: 130020, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingLogErrors =
+   * @return
+   */
+  public boolean isErrorHandlingLogErrors() {
+    return errorHandlingLogErrors;
+  }
+
+  /**
+   * # Object errors will be logged, at least a handful of each type
+   * # {valueType: "boolean", order: 130020, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingLogErrors =
+   * @param errorHandlingLogErrors
+   */
+  public void setErrorHandlingLogErrors(boolean errorHandlingLogErrors) {
+    this.errorHandlingLogErrors = errorHandlingLogErrors;
+  }
+
+  /**
+   * # Object errors will be logged, at least a handful of each type
+   * # {valueType: "integer", order: 130030, defaultValue: "5", subSection: "errorHandling", showEl: "${errorHandlingShow && errorHandlingLogErrors}"}
+   * # provisioner.genericProvisioner.errorHandlingLogCountPerType = 
+   */
+  private int errorHandlingLogCountPerType = 5;
+
+  /**
+   * # Object errors will be logged, at least a handful of each type
+   * # {valueType: "integer", order: 130030, defaultValue: "5", subSection: "errorHandling", showEl: "${errorHandlingShow && errorHandlingLogErrors}"}
+   * # provisioner.genericProvisioner.errorHandlingLogCountPerType = 
+   * @return
+   */
+  public int getErrorHandlingLogCountPerType() {
+    return errorHandlingLogCountPerType;
+  }
+
+  /**
+   * # Object errors will be logged, at least a handful of each type
+   * # {valueType: "integer", order: 130030, defaultValue: "5", subSection: "errorHandling", showEl: "${errorHandlingShow && errorHandlingLogErrors}"}
+   * # provisioner.genericProvisioner.errorHandlingLogCountPerType = 
+   * @param errorHandlingLogCountPerType1
+   */
+  public void setErrorHandlingLogCountPerType(int errorHandlingLogCountPerType1) {
+    this.errorHandlingLogCountPerType = errorHandlingLogCountPerType1;
+  }
+
+  /**
+   * # If invalid data counts as an error.  Data is invalid if it is the wrong type or fails a validation
+   * # {valueType: "boolean", order: 130040, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingInvalidDataIsAnError = 
+   */
+  private boolean errorHandlingInvalidDataIsAnError = true;
+
+  /**
+   * # If invalid data counts as an error.  Data is invalid if it is the wrong type or fails a validation
+   * # {valueType: "boolean", order: 130040, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingInvalidDataIsAnError = 
+   * @return
+   */
+  public boolean isErrorHandlingInvalidDataIsAnError() {
+    return errorHandlingInvalidDataIsAnError;
+  }
+
+  /**
+   * # If invalid data counts as an error.  Data is invalid if it is the wrong type or fails a validation
+   * # {valueType: "boolean", order: 130040, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingInvalidDataIsAnError = 
+   * @param errorHandlingInvalidDataIsAnError
+   */
+  public void setErrorHandlingInvalidDataIsAnError(boolean errorHandlingInvalidDataIsAnError) {
+    this.errorHandlingInvalidDataIsAnError = errorHandlingInvalidDataIsAnError;
+  }
+
+  /**
+   * # If attribute length validation counts as an error.  This happens when there is a max length on an attribute and the data is too long
+   * # {valueType: "boolean", order: 130050, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingLengthValidationIsAnError = 
+   */
+  private boolean errorHandlingLengthValidationIsAnError = true;
+
+  /**
+   * # If attribute length validation counts as an error.  This happens when there is a max length on an attribute and the data is too long
+   * # {valueType: "boolean", order: 130050, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingLengthValidationIsAnError = 
+   * @return
+   */
+  public boolean isErrorHandlingLengthValidationIsAnError() {
+    return errorHandlingLengthValidationIsAnError;
+  }
+
+  /**
+   * # If attribute length validation counts as an error.  This happens when there is a max length on an attribute and the data is too long
+   * # {valueType: "boolean", order: 130050, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingLengthValidationIsAnError = 
+   * @param errorHandlingLengthValidationIsAnError
+   */
+  public void setErrorHandlingLengthValidationIsAnError(boolean errorHandlingLengthValidationIsAnError) {
+    this.errorHandlingLengthValidationIsAnError = errorHandlingLengthValidationIsAnError;
+  }
+
+  /**
+   * # If required but missing attributes count as an error.  Attribute can be marked as required, if they are blank then this problem happens
+   * # {valueType: "boolean", order: 130060, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingRequiredValidationIsAnError = 
+   */
+  private boolean errorHandlingRequiredValidationIsAnError = true;
+
+  /**
+   * # If required but missing attributes count as an error.  Attribute can be marked as required, if they are blank then this problem happens
+   * # {valueType: "boolean", order: 130060, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingRequiredValidationIsAnError = 
+   * @return
+   */
+  public boolean isErrorHandlingRequiredValidationIsAnError() {
+    return errorHandlingRequiredValidationIsAnError;
+  }
+  
+  /**
+   * # If required but missing attributes count as an error.  Attribute can be marked as required, if they are blank then this problem happens
+   * # {valueType: "boolean", order: 130060, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingRequiredValidationIsAnError = 
+   * @param errorHandlingRequiredValidationIsAnError
+   */
+  public void setErrorHandlingRequiredValidationIsAnError(boolean errorHandlingRequiredValidationIsAnError) {
+    this.errorHandlingRequiredValidationIsAnError = errorHandlingRequiredValidationIsAnError;
+  }
+
+  /**
+   * # If missing object in target counts as an error.  If the object is missing from the target and cannot be created this this problem happens
+   * # {valueType: "boolean", order: 130070, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingTargetObjectDoesNotExistIsAnError = 
+   */
+  private boolean errorHandlingTargetObjectDoesNotExistIsAnError = true;
+
+  /**
+   * # If missing object in target counts as an error.  If the object is missing from the target and cannot be created this this problem happens
+   * # {valueType: "boolean", order: 130070, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingTargetObjectDoesNotExistIsAnError = 
+   * @return
+   */
+  public boolean isErrorHandlingTargetObjectDoesNotExistIsAnError() {
+    return errorHandlingTargetObjectDoesNotExistIsAnError;
+  }
+
+  /**
+   * # If missing object in target counts as an error.  If the object is missing from the target and cannot be created this this problem happens
+   * # {valueType: "boolean", order: 130070, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingTargetObjectDoesNotExistIsAnError = 
+   * @param errorHandlingTargetObjectDoesNotExistIsAnError
+   */
+  public void setErrorHandlingTargetObjectDoesNotExistIsAnError(boolean errorHandlingTargetObjectDoesNotExistIsAnError) {
+    this.errorHandlingTargetObjectDoesNotExistIsAnError = errorHandlingTargetObjectDoesNotExistIsAnError;
+  }
+
+  
   
   private boolean makeChangesToEntities;
   
@@ -2274,6 +2466,21 @@ public abstract class GrouperProvisioningConfiguration {
           (deleteMemberships && !this.deleteMembershipsIfNotExistInGrouper && !this.deleteMembershipsIfGrouperDeleted));
     }
 
+    boolean errorHandlingShow = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingShow", false), false);
+
+    if (errorHandlingShow) {
+      
+      this.errorHandlingLogErrors = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingLogErrors", false), true);
+      this.errorHandlingLogCountPerType = GrouperUtil.intValue(this.retrieveConfigInt("errorHandlingLogCountPerType", false), 5);
+      this.errorHandlingProvisionerDaemonShouldFailOnObjectError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingProvisionerDaemonShouldFailOnObjectError", false), true);
+      this.errorHandlingInvalidDataIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingInvalidDataIsAnError", false), true);
+      this.errorHandlingLengthValidationIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingLengthValidationIsAnError", false), true);
+      this.errorHandlingRequiredValidationIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingRequiredValidationIsAnError", false), true);
+      this.errorHandlingTargetObjectDoesNotExistIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingTargetObjectDoesNotExistIsAnError", false), true);
+      
+      
+    }
+    
     this.makeChangesToEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("makeChangesToEntities", false), false);
 
     // reset some defaults if making changes

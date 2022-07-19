@@ -2,7 +2,10 @@ package edu.internet2.middleware.grouper.app.sqlProvisioning;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 /**
@@ -558,14 +561,14 @@ public class SqlProvisionerTestUtils {
       }
     }
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_sqlProvTest.class").value("edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_sqlProvTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_sqlProvTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_sqlProvTest.provisionerConfigId").value("sqlProvTest").store();
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_sqlProvTest.class").value("edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_sqlProvTest.class").value(EsbConsumer.class.getName()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_sqlProvTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_sqlProvTest.provisionerConfigId").value("sqlProvTest").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_sqlProvTest.publisher.class").value("edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_sqlProvTest.publisher.class").value(ProvisioningConsumer.class.getName()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_sqlProvTest.publisher.debug").value("true").store();
     
     ConfigPropertiesCascadeBase.clearCache();

@@ -341,4 +341,9 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     return true;
   }
 
+  @Override
+  public String objectTypeName() {
+    return "entity";
+  }
+
 }

@@ -3,7 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
-public class ProvisioningEntityWrapper {
+public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
 
   /**
    * if this object should not be provisioned because there is an error, list it here
@@ -283,7 +283,29 @@ public class ProvisioningEntityWrapper {
   public void setDelete(boolean delete) {
     this.delete = delete;
   }
+
+  @Override
+  public String objectTypeName() {
+    return "entity";
+  }
   
-  
+  public String toStringForError() {
+    
+    if (this.grouperTargetEntity != null) {
+      return "grouperTargetEntity: " + this.grouperTargetEntity;
+    }
+
+    if (this.grouperProvisioningEntity != null) {
+      return "grouperProvisioningEntity: " + this.grouperProvisioningEntity;
+    }
+
+    if (this.targetProvisioningEntity != null) {
+      return "targetProvisioningEntity: " + this.targetProvisioningEntity;
+    }
+    
+    return this.toString();
+  }
+
+
 
 }

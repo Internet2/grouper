@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -57,6 +58,52 @@ public class GrouperProvisioningValidation {
   }
 
   /**
+   * see if a group has a matching ID
+   * @param provisioningGroup
+   * @return true if has matching id
+   */
+  public boolean validateGroupHasMatchingId(ProvisioningGroup provisioningGroup) {
+    
+    for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) {
+      String matchingAttributeName = matchingAttribute.getName();
+      Object targetProvisioningGroupCurrentValue = provisioningGroup.retrieveAttributeValue(matchingAttributeName);
+      if(!GrouperUtil.isBlank(targetProvisioningGroupCurrentValue)) {
+        return true;
+      }
+      Set<Object> cachedValues = GrouperProvisioningConfigurationAttributeDbCache.cachedValuesForGroup(provisioningGroup, matchingAttributeName);
+      for (Object cachedValue : GrouperUtil.nonNull(cachedValues)) {
+        if (!GrouperUtil.isEmpty(cachedValue)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  /**
+   * see if an entity has a matching ID
+   * @param provisioningEntity
+   * @return true if has matching id
+   */
+  public boolean validateEntityHasMatchingId(ProvisioningEntity provisioningEntity) {
+    
+    for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) {
+      String matchingAttributeName = matchingAttribute.getName();
+      Object targetProvisioningEntityCurrentValue = provisioningEntity.retrieveAttributeValue(matchingAttributeName);
+      if(!GrouperUtil.isBlank(targetProvisioningEntityCurrentValue)) {
+        return true;
+      }
+      Set<Object> cachedValues = GrouperProvisioningConfigurationAttributeDbCache.cachedValuesForEntity(provisioningEntity, matchingAttributeName);
+      for (Object cachedValue : GrouperUtil.nonNull(cachedValues)) {
+        if (!GrouperUtil.isEmpty(cachedValue)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  /**
    * validate groups based on attribute constraints and set the error code in the sync
    * object and the wrapper object
    * @param provisioningGroups
@@ -86,17 +133,14 @@ public class GrouperProvisioningValidation {
       if (gcGrouperSyncGroup != null && !gcGrouperSyncGroup.isProvisionable()) {
         continue;
       }
-      
+
       // matching ID must be there
       // if a matching id is configured on groups even
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isHasMatchingIdStrategyForGroups()) {
         if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isAllowBlankMatchingIds()) {
           
           // lets see which attribute is the matching id
-          
-          
-          if (GrouperUtil.isBlank(provisioningGroupWrapper.getMatchingId())) {
-            // TODO see if the matching ID field is stored in a bucket, if so, maybe its not required?
+          if (!validateGroupHasMatchingId(provisioningGroup)) {
             this.assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
             if (removeInvalid) {
               iterator.remove();
@@ -169,11 +213,11 @@ public class GrouperProvisioningValidation {
         continue;
       }
       
-      // if a matching id is configured on groups even
+      // if a matching id is configured on entities even
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isHasMatchingIdStrategyForEntities()) {
         if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isAllowBlankMatchingIds()) {
           // matching ID must be there
-          if (GrouperUtil.isBlank(provisioningEntityWrapper.getMatchingId())) {
+          if (!validateEntityHasMatchingId(provisioningEntity)) {
             this.assignEntityError(provisioningEntityWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
             if (removeInvalid) {
               iterator.remove();

@@ -39,14 +39,13 @@ public class GrouperProvisioningFullSyncJob extends OtherJobBase {
   public static void runFullSync(String provisionerConfigId,
       final Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     final GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
-    
+    grouperProvisioner.retrieveGrouperProvisioningOutput().setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
     grouperProvisioner.getGcGrouperSyncHeartbeat().insertHeartbeatLogic(new Runnable() {
 
       @Override
       public void run() {
         
         GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
-        grouperProvisioningOutput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
         grouperProvisioningOutput.copyToHib3LoaderLog();
         hib3GrouperLoaderLog.store();
       }
@@ -55,7 +54,6 @@ public class GrouperProvisioningFullSyncJob extends OtherJobBase {
 
     grouperProvisioner.setJobName(hib3GrouperLoaderLog.getJobName());
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
-    grouperProvisioningOutput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
     grouperProvisioningOutput.copyToHib3LoaderLog();
     hib3GrouperLoaderLog.store();
   }

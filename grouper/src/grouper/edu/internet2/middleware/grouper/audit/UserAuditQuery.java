@@ -33,13 +33,18 @@ import org.apache.commons.lang.StringUtils;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -47,6 +52,21 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class UserAuditQuery {
 
+  public static void main(String args[]) {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    UserAuditQuery userAuditQuery = new UserAuditQuery();
+    
+    userAuditQuery.addAuditTypeCategory("group");
+
+    Group group = GroupFinder.findByName(grouperSession, "test:testGroup", true);
+    
+    userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_GROUP_ID, group.getUuid());
+    List<AuditEntry> auditEntries = userAuditQuery.execute();
+    System.out.println(GrouperUtil.toStringForLog(auditEntries));
+  }
+  
   /**
    * query by audit type category
    */

@@ -365,4 +365,9 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     //if can delete attribute name, then all good, assume that has been checked already
     return true;
   }
+
+  @Override
+  public String objectTypeName() {
+    return "membership";
+  }
 }

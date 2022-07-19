@@ -59,7 +59,8 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     String provisioningConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("changeLog.consumer." + this.getChangeLogProcessorMetadata().getConsumerName() + ".provisionerConfigId");
     
     this.grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisioningConfigId);
-    final Hib3GrouperLoaderLog hib3GrouperLoaderLog = ProvisioningConsumer.this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = ProvisioningConsumer.this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
+    this.grouperProvisioner.retrieveGrouperProvisioningOutput().setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
     grouperProvisioner.setJobName(hib3GrouperLoaderLog.getJobName());
     grouperProvisioner.setProvisioningConsumer(this);
     grouperProvisioner.setDebugMap(debugMapOverall);
@@ -69,7 +70,6 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
       public void run() {
         
         GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
-        grouperProvisioningOutput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
         grouperProvisioningOutput.copyToHib3LoaderLog();
         hib3GrouperLoaderLog.store();
       }
@@ -89,7 +89,6 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
     }
 
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(grouperProvisioningType);
-    grouperProvisioningOutput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
     grouperProvisioningOutput.copyToHib3LoaderLog();
     hib3GrouperLoaderLog.store();
 

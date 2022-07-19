@@ -14249,6 +14249,30 @@ public class GrouperUtil {
    * in a map get a value if there and increment or set a value
    * @param map
    * @param key
+   * @param numberToAdd long
+   */
+  public static long mapAddValueObjectKey(Map<Object, Object> map, Object key, long numberToAdd) {
+    if (map == null) {
+      return -1;
+    }
+    
+    Object currentValue = map.get(key);
+    
+    if (currentValue == null) {
+      
+      currentValue = 0L;
+    }
+
+    long newValue = GrouperUtil.longValue(currentValue) + numberToAdd;
+    
+    map.put(key, newValue);
+    return newValue;
+  }
+
+  /**
+   * in a map get a value if there and increment or set a value
+   * @param map
+   * @param key
    * @param numberToAdd int
    */
   public static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
@@ -14267,6 +14291,31 @@ public class GrouperUtil {
     
     map.put(key, newValue);
 
+  }
+
+  /**
+   * in a map get a value if there and increment or set a value
+   * @param map
+   * @param key
+   * @param numberToAdd int
+   * @return new count
+   */
+  public static int mapAddValueObjectKey(Map<Object, Object> map, Object key, int numberToAdd) {
+    if (map == null) {
+      return -1;
+    }
+    
+    Object currentValue = map.get(key);
+    
+    if (currentValue == null) {
+      
+      currentValue = 0;
+    }
+
+    int newValue = GrouperUtil.intValue(currentValue) + numberToAdd;
+    
+    map.put(key, newValue);
+    return newValue;
   }
 
   /**

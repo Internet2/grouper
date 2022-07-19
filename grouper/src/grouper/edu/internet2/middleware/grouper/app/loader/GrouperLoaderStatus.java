@@ -90,13 +90,13 @@ public enum GrouperLoaderStatus {
    * do a case-insensitive matching
    * 
    * @param string
-   * @param exceptionOnNotFound true to throw exception if method not found
+   * @param exceptionOnBlank true to throw exception if string is blank
    * @return the enum or null or exception if not found
    */
   public static GrouperLoaderStatus valueOfIgnoreCase(String string,
-      boolean exceptionOnNotFound) {
+      boolean exceptionOnBlank) {
     return GrouperUtil.enumValueOfIgnoreCase(GrouperLoaderStatus.class, 
-        string, exceptionOnNotFound);
+        string, exceptionOnBlank);
   }
 
 }

@@ -14,6 +14,10 @@ public class GrouperProvisioningLog {
 
   public String prefixLogLinesWithInstanceId(String logMessage) {
     GrouperUtil.whitespaceNormalizeNewLines(logMessage);
+    String logPrefix = "Provisioner '" + this.grouperProvisioner.getConfigId() + "' (" + this.grouperProvisioner.getInstanceId() + ") ";
+    if (!logMessage.startsWith(logPrefix)) {
+      logMessage = logPrefix + logMessage;
+    }
     String logMessageString = GrouperUtil.replace(logMessage.toString(), "\n", "\n(" + this.grouperProvisioner.getInstanceId() + "): ");
     return logMessageString;
   }

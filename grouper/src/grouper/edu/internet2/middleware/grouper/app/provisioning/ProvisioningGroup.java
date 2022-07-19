@@ -279,4 +279,9 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     return this.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName());
   }
 
+  @Override
+  public String objectTypeName() {
+    return "group";
+  }
+
 }
