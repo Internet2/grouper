@@ -1246,6 +1246,9 @@ public class GrouperProvisioningLogic {
     MultiKey objectTypeErrorCode = new MultiKey(provisioningUpdatableWrapper.objectTypeName(), gcGrouperSyncErrorCode);
     int count = GrouperUtil.mapAddValueObjectKey((Map<Object, Object>)(Object)objectTypeErrorCodeToCount, objectTypeErrorCode, 1);
     int maxCount = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getErrorHandlingLogCountPerType();
+
+    // is this an update?  maybe?
+    this.grouperProvisioner.retrieveGrouperProvisioningOutput().addRecordsWithUpdateErrors(1);
     
     if (errorCodeIsLoggable && count <= maxCount) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().error("Error with " + provisioningUpdatableWrapper.objectTypeName() + ", " + provisioningUpdatableWrapper.toStringForError() + ", " + gcGrouperSyncErrorCode + ", " + errorMessage, exception);

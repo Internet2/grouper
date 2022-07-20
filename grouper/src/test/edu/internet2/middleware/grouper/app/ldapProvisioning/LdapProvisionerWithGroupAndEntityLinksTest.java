@@ -56,7 +56,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalNullDefaultValueForEntities"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testLdapProvisionerWithGroupAndEntityLinksFullLatestConfig_1_maxLength"));    
   }
   
   @Override
@@ -431,9 +431,17 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     //lets sync these over
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null).size());
     
-    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioningOutput grouperProvisioningOutput = null;
+    
+    try {
+      grouperProvisioningOutput = fullProvision();
+      fail();
+    } catch (Exception e) {
+      
+    }
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
-    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+    assertEquals(1, grouperProvisioningOutput.getRecordsWithErrors());
   
     List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
     assertEquals(1, ldapEntries.size());
