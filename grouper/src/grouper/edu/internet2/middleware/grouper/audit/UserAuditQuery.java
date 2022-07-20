@@ -58,7 +58,7 @@ public class UserAuditQuery {
     
     UserAuditQuery userAuditQuery = new UserAuditQuery();
     
-    userAuditQuery.addAuditTypeCategory("group");
+    userAuditQuery.addAuditTypeCategory("membership");
 
     Group group = GroupFinder.findByName(grouperSession, "test:testGroup", true);
     

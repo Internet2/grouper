@@ -97,12 +97,12 @@ public abstract class GrouperProvisioningBaseTest extends GrouperTest {
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
+      GrouperUtil.sleep(1000);
+      
       if (!allowErrors) {
-        GrouperUtil.sleep(1000);
+        assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
       }
       
-      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
-
       return Hib3GrouperLoaderLog.retrieveMostRecentLog("CHANGE_LOG_consumer_provisioner_incremental_" + configId);
     }
     
