@@ -93,7 +93,6 @@ public abstract class GrouperProvisioningBaseTest extends GrouperTest {
     
     if (runConsumer) {
       GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_provisioner_incremental_" + configId);
-
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
