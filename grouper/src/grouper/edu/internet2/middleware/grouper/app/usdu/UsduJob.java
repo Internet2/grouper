@@ -509,7 +509,7 @@ public class UsduJob extends OtherJobBase {
    * @param unresolvableMembres
    * @return number of members marked as deleted
    */
-  private long deleteUnresolvableMembers(GrouperSession grouperSession, Set<Member> unresolvableMembers) {
+  public static long deleteUnresolvableMembers(GrouperSession grouperSession, Set<Member> unresolvableMembers) {
         
     // map to store source id to set of members to be deleted
     Map<String, Set<Member>> sourceIdToMembers = new HashMap<String, Set<Member>>();
@@ -527,7 +527,7 @@ public class UsduJob extends OtherJobBase {
    * delete unresolvable members
    * @param unresolvables
    */
-  private void populateUnresolvableMembersConfig(Set<Member> unresolvables, Map<String, Set<Member>> sourceIdToMembers, 
+  private static void populateUnresolvableMembersConfig(Set<Member> unresolvables, Map<String, Set<Member>> sourceIdToMembers, 
       Set<Member> membersWithoutExplicitSourceConfiguration) {
         
     if (unresolvables.size() == 0) {
@@ -554,7 +554,7 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private long deleteUnresolvableMembers(Map<String, Set<Member>> sourceIdToMembers, Set<Member> membersWithoutExplicitSourceConfiguration) {
+  private static long deleteUnresolvableMembers(Map<String, Set<Member>> sourceIdToMembers, Set<Member> membersWithoutExplicitSourceConfiguration) {
     
     int globalMaxAllowed = GrouperConfig.retrieveConfig().propertyValueInt("usdu.failsafe.maxUnresolvableSubjects", 500);
     
@@ -612,7 +612,7 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private void addUnresolvedMemberToCorrectSet(Member member, SubjectResolutionAttributeValue memberSubjectResolutionAttributeValue,
+  private static void addUnresolvedMemberToCorrectSet(Member member, SubjectResolutionAttributeValue memberSubjectResolutionAttributeValue,
       Map<String, Set<Member>> sourceIdToMembers, Set<Member> membersWithoutExplicitSourceConfiguration) {
     
     int globalDeleteAfterDays = GrouperConfig.retrieveConfig().propertyValueInt("usdu.delete.ifAfterDays", 30);
@@ -635,7 +635,7 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private SubjectResolutionAttributeValue saveSubjectResolutionAttributeValue(Member member, AttributeAssignValueFinderResult attributeAssignValueFinderResult) {
+  private static SubjectResolutionAttributeValue saveSubjectResolutionAttributeValue(Member member, AttributeAssignValueFinderResult attributeAssignValueFinderResult) {
     
     SubjectResolutionAttributeValue existingSubjectResolutionAttributeValue = UsduService.getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
     
@@ -758,7 +758,7 @@ public class UsduJob extends OtherJobBase {
         
         try {
           for (Member member : members) {
-            Subject subject = SubjectFinder.findByIdAndSource(member.getSubjectId(), member.getSubjectSourceId(), false);
+            Subject subject = SubjectFinder.findByIdAndSource(member.getSubjectId(), member.getSubjectSourceId(), true, false);
             if (subject == null) {
               member.setSubjectIdentifier0(null);
               member.setSubjectIdentifier1(null);

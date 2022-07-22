@@ -524,6 +524,29 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
     }
     return member;
   }
+  
+  /**
+   * 
+   */
+  public Member findBySubjectIdentifier(String subjectIdentifier, String src, boolean exceptionIfNull)
+      throws GrouperDAOException, MemberNotFoundException {
+    
+    Member member = HibernateSession.byHqlStatic().createQuery(
+        "from Member as m " + 
+        "where (m.subjectIdentifier0 = :identifier or m.subjectIdentifier1 = :identifier or m.subjectIdentifier2 = :identifier) " +
+        "and m.subjectSourceIdDb = :source ")
+        .setCacheable(true)
+        .setCacheRegion(KLASS + ".FindBySubjectIdentifier")
+        .setString("identifier", subjectIdentifier)
+        .setString("source", src)
+        .uniqueResult(Member.class);
+    
+    if (member == null && exceptionIfNull) {
+      throw new MemberNotFoundException("Cant find member by source '" + src + "' and subjectIdentifier '" + subjectIdentifier + "'");
+    }
+    
+    return member;
+  }
 
   /**
    * 

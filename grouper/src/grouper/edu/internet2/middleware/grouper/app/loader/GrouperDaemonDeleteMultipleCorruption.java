@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -57,7 +58,7 @@ public class GrouperDaemonDeleteMultipleCorruption {
 
   /**
    * 
-   * @param logOnly
+   * @param logOnly (ignored for usdu)
    * @return summary
    */
   public static String fixValues(boolean logOnly) {
@@ -67,7 +68,7 @@ public class GrouperDaemonDeleteMultipleCorruption {
   /**
    * 
    * @param jobMessage
-   * @param logOnly
+   * @param logOnly (ignored for usdu)
    * @param error
    * @return summary
    */
@@ -189,7 +190,8 @@ public class GrouperDaemonDeleteMultipleCorruption {
           GrouperUtil.appendIfNotBlank(response, null, "\n", message, null);
           
           //ok, we either log or delete
-          if (!logOnly) {
+          boolean isUsdu = UsduSettings.usduStemName().equals(GrouperUtil.parentStemNameFromName(attributeDefWithCurrent.getName()));
+          if (!logOnly || isUsdu) {
             
             try {
               attributeAssignValueCurrent.delete();
@@ -215,7 +217,7 @@ public class GrouperDaemonDeleteMultipleCorruption {
   }
   /**
    * 
-   * @param logOnly
+   * @param logOnly (ignored for usdu)
    * @return summary
    */
   public static String fixAssigns(boolean logOnly) {
@@ -257,7 +259,7 @@ public class GrouperDaemonDeleteMultipleCorruption {
   /**
    * 
    * @param jobMessage
-   * @param logOnly
+   * @param logOnly (ignored for usdu)
    * @param error
    * @return summary
    */
@@ -390,9 +392,10 @@ public class GrouperDaemonDeleteMultipleCorruption {
             LOG.error("Cant log attributeAssign: " + attributeAssignCurrent, e);
           }
           
-          
+          boolean isUsdu = UsduSettings.usduStemName().equals(GrouperUtil.parentStemNameFromName(attributeDefWithCurrent.getName()));
+
           //ok, we either log or delete
-          if (!logOnly) {
+          if (!logOnly || isUsdu) {
             
             try {
               attributeAssignCurrent.delete();

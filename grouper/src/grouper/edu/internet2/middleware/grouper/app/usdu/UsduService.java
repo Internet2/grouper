@@ -382,8 +382,17 @@ public class UsduService {
       return null;
     }
     
-    return attributeAssigns.iterator().next();
+    if (attributeAssigns.size() == 1) {
+      return attributeAssigns.iterator().next();
+    }
     
+    // delete all but the first
+    List<AttributeAssign> attributeAssignsList = new ArrayList<AttributeAssign>(attributeAssigns);
+    for (int i = 1; i < attributeAssignsList.size(); i++) {
+      attributeAssignsList.get(i).delete();
+    }
+    
+    return attributeAssignsList.get(0);
   }
 
 

@@ -298,7 +298,7 @@ public class USDU {
   public static void deleteUnresolvableMember(Member member, Group group, Field field) throws IllegalArgumentException,
       InsufficientPrivilegeException, MemberDeleteException, SourceUnavailableException, SchemaException {
 
-    group.deleteMember(getUSDUSubject(member), field);
+    group.deleteMember(getUSDUSubject(member), field, false);
   }
 
   /**
@@ -317,7 +317,7 @@ public class USDU {
       throws IllegalArgumentException, InsufficientPrivilegeException, RevokePrivilegeException, SchemaException,
       SourceUnavailableException {
 
-    group.revokePriv(getUSDUSubject(member), privilege);
+    group.revokePriv(getUSDUSubject(member), privilege, false);
   }
 
   /**
@@ -336,7 +336,7 @@ public class USDU {
       throws IllegalArgumentException, InsufficientPrivilegeException, RevokePrivilegeException, SchemaException,
       SourceUnavailableException {
 
-    stem.revokePriv(getUSDUSubject(member), privilege);
+    stem.revokePriv(getUSDUSubject(member), privilege, false);
   }
 
   /**
@@ -513,7 +513,7 @@ public class USDU {
     try {
       // Changed because member.getSubject now always returns a LazySubject
       //member.getSubject();
-      Subject subject = SubjectFinder.findByIdAndSource(member.getSubjectId(),member.getSubjectSourceId(), true);
+      Subject subject = SubjectFinder.findByIdAndSource(member.getSubjectId(),member.getSubjectSourceId(), true, true);
       if (memberIdToSubjectMap != null) {
         memberIdToSubjectMap.put(member.getId(), subject);
         member.updateMemberAttributes(subject, true);
