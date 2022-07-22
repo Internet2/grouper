@@ -590,6 +590,9 @@ public class GrouperClientCommonUtils  {
       return null;
     }
     string = trim(string);
+    if (string.startsWith("{")) {
+      return new JsonIndenter(string).result();
+    }
     if (string.startsWith("<")) {
       //this is xml
       return new XmlIndenter(string).result();
@@ -6213,7 +6216,7 @@ public class GrouperClientCommonUtils  {
     return readFromFileIfFile(in, disableExternalFileLookup);
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     System.out.println(grouperWsVersionConvert(grouperClientVersion()));
   }
   

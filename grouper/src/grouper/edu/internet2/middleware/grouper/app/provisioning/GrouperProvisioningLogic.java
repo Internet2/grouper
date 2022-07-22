@@ -2392,10 +2392,7 @@ public class GrouperProvisioningLogic {
     GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
     gcGrouperSync.setGroupCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().getProvisioningGroups()));
     gcGrouperSync.setUserCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().getProvisioningEntities()));
-    gcGrouperSync.setRecordsCount(
-        GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().getProvisioningEntities())
-        + GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().getProvisioningGroups())
-        + GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().getProvisioningMemberships())
+    gcGrouperSync.setRecordsCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().getProvisioningMemberships())
         );
     
   }

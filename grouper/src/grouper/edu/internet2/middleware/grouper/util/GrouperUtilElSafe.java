@@ -55,10 +55,7 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javassist.util.proxy.ProxyObject;
-
 import org.apache.commons.codec.binary.Base64;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.Nestable;
 import org.apache.commons.logging.Log;
@@ -66,8 +63,12 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.JsonIndenter;
+import edu.internet2.middleware.grouperClient.util.XmlIndenter;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import javassist.util.proxy.ProxyObject;
 
 
 /**

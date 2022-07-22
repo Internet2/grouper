@@ -1,22 +1,7 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
- * $Header: /home/hagleyj/i2mi/grouper-misc/grouperClient/src/ext/edu/internet2/middleware/grouperClientExt/org/apache/commons/httpclient/util/URIUtil.java,v 1.1 2008-11-30 10:57:27 mchyzer Exp $
- * $Revision: 1.1 $
- * $Date: 2008-11-30 10:57:27 $
+ * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/util/URIUtil.java,v 1.27 2004/05/05 20:34:01 olegk Exp $
+ * $Revision: 507321 $
+ * $Date: 2007-02-14 01:10:51 +0100 (Wed, 14 Feb 2007) $
  *
  * ====================================================================
  *
@@ -58,7 +43,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.U
  * than {@link edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.URI}.
  *
  * @author <a href="mailto:jericho@apache.org">Sung-Gu</a>
- * @version $Revision: 1.1 $ $Date: 2002/03/14 15:14:01 
+ * @version $Revision: 507321 $ $Date: 2002/03/14 15:14:01 
  */
 public class URIUtil {
 
@@ -563,7 +548,7 @@ public class URIUtil {
      * The basic and internal utility for URI escape and character encoding and
      * decoding.
      * 
-     * @deprecated use org.apache.commons.codec.net.URLCodec
+     * @deprecated use edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.net.URLCodec
      */
     protected static class Coder extends URI {
 
@@ -578,7 +563,7 @@ public class URIUtil {
          * 
          * @throws URIException if the charset is not supported
          * 
-         * @deprecated use org.apache.commons.codec.net.URLCodec
+         * @deprecated use edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.net.URLCodec
          */
         public static char[] encode(String unescapedComponent, BitSet allowed, String charset) 
             throws URIException {
@@ -596,7 +581,7 @@ public class URIUtil {
          * 
          * @throws URIException if the charset is not supported
          * 
-         * @deprecated use org.apache.commons.codec.net.URLCodec
+         * @deprecated use edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.net.URLCodec
          */
         public static String decode(char[] escapedComponent, String charset)
             throws URIException {

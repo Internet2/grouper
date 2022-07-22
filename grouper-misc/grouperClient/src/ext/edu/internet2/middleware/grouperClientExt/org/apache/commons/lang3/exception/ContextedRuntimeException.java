@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -60,10 +45,13 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.tuple.
  *     throw new ContextedRuntimeException("Error posting account transaction", e)
  *          .addContextValue("Account Number", accountNumber)
  *          .addContextValue("Amount Posted", amountPosted)
- *          .addContextValue("Previous Balance", previousBalance)
+ *          .addContextValue("Previous Balance", previousBalance);
  *   }
  * }
- * </pre> or improve diagnose data at a higher level:
+ * </pre>
+ * <p>
+ * or improve diagnose data at a higher level:
+ * </p>
  * <pre>
  *   try {
  *     ...
@@ -77,8 +65,9 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.tuple.
  *   }
  * }
  * </pre>
- * </p><p>
+ * <p>
  * The output in a printStacktrace() (which often is written to a log) would look something like the following:
+ * </p>
  * <pre>
  * edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.exception.ContextedRuntimeException: java.lang.Exception: Error posting account transaction
  *  Exception Context:
@@ -91,8 +80,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.tuple.
  *  at edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.exception.ContextedRuntimeExceptionTest.testAddValue(ContextedExceptionTest.java:88)
  *  ..... (rest of trace)
  * </pre>
- * </p>
- * 
+ *
  * @see ContextedException
  * @since 3.0
  */
@@ -109,7 +97,6 @@ public class ContextedRuntimeException extends RuntimeException implements Excep
      * The context information is stored using a default implementation.
      */
     public ContextedRuntimeException() {
-        super();
         exceptionContext = new DefaultExceptionContext();
     }
 
@@ -117,10 +104,10 @@ public class ContextedRuntimeException extends RuntimeException implements Excep
      * Instantiates ContextedRuntimeException with message, but without cause.
      * <p>
      * The context information is stored using a default implementation.
-     * 
+     *
      * @param message  the exception message, may be null
      */
-    public ContextedRuntimeException(String message) {
+    public ContextedRuntimeException(final String message) {
         super(message);
         exceptionContext = new DefaultExceptionContext();
     }
@@ -129,10 +116,10 @@ public class ContextedRuntimeException extends RuntimeException implements Excep
      * Instantiates ContextedRuntimeException with cause, but without message.
      * <p>
      * The context information is stored using a default implementation.
-     * 
+     *
      * @param cause  the underlying cause of the exception, may be null
      */
-    public ContextedRuntimeException(Throwable cause) {
+    public ContextedRuntimeException(final Throwable cause) {
         super(cause);
         exceptionContext = new DefaultExceptionContext();
     }
@@ -141,23 +128,23 @@ public class ContextedRuntimeException extends RuntimeException implements Excep
      * Instantiates ContextedRuntimeException with cause and message.
      * <p>
      * The context information is stored using a default implementation.
-     * 
+     *
      * @param message  the exception message, may be null
      * @param cause  the underlying cause of the exception, may be null
      */
-    public ContextedRuntimeException(String message, Throwable cause) {
+    public ContextedRuntimeException(final String message, final Throwable cause) {
         super(message, cause);
         exceptionContext = new DefaultExceptionContext();
     }
 
     /**
      * Instantiates ContextedRuntimeException with cause, message, and ExceptionContext.
-     * 
+     *
      * @param message  the exception message, may be null
      * @param cause  the underlying cause of the exception, may be null
      * @param context  the context used to store the additional information, null uses default implementation
      */
-    public ContextedRuntimeException(String message, Throwable cause, ExceptionContext context) {
+    public ContextedRuntimeException(final String message, final Throwable cause, ExceptionContext context) {
         super(message, cause);
         if (context == null) {
             context = new DefaultExceptionContext();
@@ -174,12 +161,13 @@ public class ContextedRuntimeException extends RuntimeException implements Excep
      * <p>
      * Note: This exception is only serializable if the object added is serializable.
      * </p>
-     * 
+     *
      * @param label  a textual label associated with information, {@code null} not recommended
      * @param value  information needed to understand exception, may be {@code null}
      * @return {@code this}, for method chaining, not {@code null}
      */
-    public ContextedRuntimeException addContextValue(String label, Object value) {        
+    @Override
+    public ContextedRuntimeException addContextValue(final String label, final Object value) {
         exceptionContext.addContextValue(label, value);
         return this;
     }
@@ -192,12 +180,13 @@ public class ContextedRuntimeException extends RuntimeException implements Excep
      * <p>
      * Note: This exception is only serializable if the object added as value is serializable.
      * </p>
-     * 
+     *
      * @param label  a textual label associated with information, {@code null} not recommended
      * @param value  information needed to understand exception, may be {@code null}
      * @return {@code this}, for method chaining, not {@code null}
      */
-    public ContextedRuntimeException setContextValue(String label, Object value) {        
+    @Override
+    public ContextedRuntimeException setContextValue(final String label, final Object value) {
         exceptionContext.setContextValue(label, value);
         return this;
     }
@@ -205,20 +194,23 @@ public class ContextedRuntimeException extends RuntimeException implements Excep
     /**
      * {@inheritDoc}
      */
-    public List<Object> getContextValues(String label) {
+    @Override
+    public List<Object> getContextValues(final String label) {
         return this.exceptionContext.getContextValues(label);
     }
 
     /**
      * {@inheritDoc}
      */
-    public Object getFirstContextValue(String label) {
+    @Override
+    public Object getFirstContextValue(final String label) {
         return this.exceptionContext.getFirstContextValue(label);
     }
 
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<Pair<String, Object>> getContextEntries() {
         return this.exceptionContext.getContextEntries();
     }
@@ -226,24 +218,25 @@ public class ContextedRuntimeException extends RuntimeException implements Excep
     /**
      * {@inheritDoc}
      */
+    @Override
     public Set<String> getContextLabels() {
         return exceptionContext.getContextLabels();
     }
 
     /**
      * Provides the message explaining the exception, including the contextual data.
-     * 
+     *
      * @see java.lang.Throwable#getMessage()
      * @return the message, never null
      */
     @Override
-    public String getMessage(){
+    public String getMessage() {
         return getFormattedExceptionMessage(super.getMessage());
     }
 
     /**
      * Provides the message explaining the exception without the contextual data.
-     * 
+     *
      * @see java.lang.Throwable#getMessage()
      * @return the message
      * @since 3.0.1
@@ -255,7 +248,8 @@ public class ContextedRuntimeException extends RuntimeException implements Excep
     /**
      * {@inheritDoc}
      */
-    public String getFormattedExceptionMessage(String baseMessage) {
+    @Override
+    public String getFormattedExceptionMessage(final String baseMessage) {
         return exceptionContext.getFormattedExceptionMessage(baseMessage);
     }
 

@@ -161,6 +161,8 @@ import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.util.JsonIndenter;
+import edu.internet2.middleware.grouperClient.util.XmlIndenter;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;

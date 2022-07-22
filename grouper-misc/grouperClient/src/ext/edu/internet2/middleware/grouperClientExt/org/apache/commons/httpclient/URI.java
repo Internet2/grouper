@@ -1,22 +1,7 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * $HeadURL: https://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/tags/HTTPCLIENT_3_1/src/java/org/apache/commons/httpclient/URI.java $
- * $Revision: 1.1 $
- * $Date: 2008-11-30 10:57:19 $
+ * $Revision: 564973 $
+ * $Date: 2007-08-11 22:51:47 +0200 (Sat, 11 Aug 2007) $
  *
  * ====================================================================
  *
@@ -50,9 +35,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.BitSet;
 import java.util.Hashtable;
-import java.util.Locale;
 
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.DecoderException;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.net.URLCodec;
@@ -129,7 +114,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.u
  *
  * @author <a href="mailto:jericho@apache.org">Sung-Gu</a>
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @version $Revision: 1.1 $ $Date: 2002/03/14 15:14:01 
+ * @version $Revision: 564973 $ $Date: 2002/03/14 15:14:01 
  */
 public class URI implements Cloneable, Comparable, Serializable {
 

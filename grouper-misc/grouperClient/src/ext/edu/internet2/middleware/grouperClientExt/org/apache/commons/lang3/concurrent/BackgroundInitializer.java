@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -56,6 +41,7 @@ import java.util.concurrent.Future;
  * initialization can be implemented, and a result object can be returned. With
  * this method in place the basic usage of this class is as follows (where
  * {@code MyBackgroundInitializer} is a concrete subclass):
+ * </p>
  *
  * <pre>
  * MyBackgroundInitializer initializer = new MyBackgroundInitializer();
@@ -66,7 +52,6 @@ import java.util.concurrent.Future;
  * Object result = initializer.get();
  * </pre>
  *
- * </p>
  * <p>
  * After the construction of a {@code BackgroundInitializer} object its
  * {@link #start()} method has to be called. This starts the background
@@ -95,19 +80,18 @@ import java.util.concurrent.Future;
  * </p>
  *
  * @since 3.0
- * @version $Id: BackgroundInitializer.java 1082044 2011-03-16 04:26:58Z bayard $
  * @param <T> the type of the object managed by this initializer class
  */
 public abstract class BackgroundInitializer<T> implements
         ConcurrentInitializer<T> {
     /** The external executor service for executing tasks. */
-    private ExecutorService externalExecutor;
+    private ExecutorService externalExecutor; // @GuardedBy("this")
 
     /** A reference to the executor service that is actually used. */
-    private ExecutorService executor;
+    private ExecutorService executor; // @GuardedBy("this")
 
     /** Stores the handle to the background task. */
-    private Future<T> future;
+    private Future<T> future;  // @GuardedBy("this")
 
     /**
      * Creates a new instance of {@code BackgroundInitializer}. No external
@@ -127,7 +111,7 @@ public abstract class BackgroundInitializer<T> implements
      * @param exec an external {@code ExecutorService} to be used for task
      * execution
      */
-    protected BackgroundInitializer(ExecutorService exec) {
+    protected BackgroundInitializer(final ExecutorService exec) {
         setExternalExecutor(exec);
     }
 
@@ -166,7 +150,7 @@ public abstract class BackgroundInitializer<T> implements
      * started
      */
     public final synchronized void setExternalExecutor(
-            ExecutorService externalExecutor) {
+            final ExecutorService externalExecutor) {
         if (isStarted()) {
             throw new IllegalStateException(
                     "Cannot set ExecutorService after start()!");
@@ -191,7 +175,7 @@ public abstract class BackgroundInitializer<T> implements
 
             // Determine the executor to use and whether a temporary one has to
             // be created
-            ExecutorService tempExec;
+            final ExecutorService tempExec;
             executor = getExternalExecutor();
             if (executor == null) {
                 executor = tempExec = createExecutor();
@@ -221,13 +205,14 @@ public abstract class BackgroundInitializer<T> implements
      * background processing
      * @throws IllegalStateException if {@link #start()} has not been called
      */
+    @Override
     public T get() throws ConcurrentException {
         try {
             return getFuture().get();
-        } catch (ExecutionException execex) {
+        } catch (final ExecutionException execex) {
             ConcurrentUtils.handleCause(execex);
             return null; // should not be reached
-        } catch (InterruptedException iex) {
+        } catch (final InterruptedException iex) {
             // reset interrupted state
             Thread.currentThread().interrupt();
             throw new ConcurrentException(iex);
@@ -259,7 +244,7 @@ public abstract class BackgroundInitializer<T> implements
      *
      * @return the {@code ExecutorService} for executing the background task
      */
-    protected synchronized final ExecutorService getActiveExecutor() {
+    protected final synchronized ExecutorService getActiveExecutor() {
         return executor;
     }
 
@@ -301,7 +286,7 @@ public abstract class BackgroundInitializer<T> implements
      * task
      * @return a task for the background initialization
      */
-    private Callable<T> createTask(ExecutorService execDestroy) {
+    private Callable<T> createTask(final ExecutorService execDestroy) {
         return new InitializationTask(execDestroy);
     }
 
@@ -325,7 +310,7 @@ public abstract class BackgroundInitializer<T> implements
          *
          * @param exec the {@code ExecutorService}
          */
-        public InitializationTask(ExecutorService exec) {
+        InitializationTask(final ExecutorService exec) {
             execFinally = exec;
         }
 
@@ -335,6 +320,7 @@ public abstract class BackgroundInitializer<T> implements
          * @return the result object
          * @throws Exception if an error occurs
          */
+        @Override
         public T call() throws Exception {
             try {
                 return initialize();

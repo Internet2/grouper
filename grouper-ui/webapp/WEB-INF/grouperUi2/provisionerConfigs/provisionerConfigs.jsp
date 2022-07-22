@@ -46,7 +46,7 @@
 			              <th>${textContainer.text['provisionerConfigsTableHeaderIncrementalSyncLastRunTimestamp']}</th>
 			              <th>${textContainer.text['provisionerConfigsTableHeaderGroupCount']}</th>
 			              <th>${textContainer.text['provisionerConfigsTableHeaderUserCount']}</th>
-			              <th>${textContainer.text['provisionerConfigsTableHeaderRecordsCount']}</th>
+			              <th>${textContainer.text['provisionerConfigsTableHeaderMembershipCount']}</th>
 			              <th>${textContainer.text['provisionerConfigsTableHeaderActions']}</th>
 			            </tr>
 			            </thead>
@@ -82,7 +82,7 @@
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
-			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.recordsCount}
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.membershipCount}
 			                   </td>
 			                   
 			                   <td>

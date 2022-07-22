@@ -131,11 +131,11 @@
              		    <tr>
              		   	  <td style="vertical-align: top; white-space: nowrap;">
              		   	    <strong><label>
-             		   		  ${textContainer.text['provisionerConfigsTableHeaderRecordsCount']}
+             		   		  ${textContainer.text['provisionerConfigsTableHeaderMembershipCount']}
              		   		</label></strong>
              		   	  </td>
              		   	  <td>
-             		   	 	${syncDetails.recordsCount}
+             		   	 	${syncDetails.membershipCount}
              		   	   </td>
              		    </tr>
              		    

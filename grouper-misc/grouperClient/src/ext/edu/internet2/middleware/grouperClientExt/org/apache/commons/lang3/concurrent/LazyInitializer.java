@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -55,6 +40,7 @@ package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.concu
  * As an usage example consider that we have a class {@code ComplexObject} whose
  * instantiation is a complex operation. In order to apply lazy initialization
  * to this class, a subclass of {@code LazyInitializer} has to be created:
+ * </p>
  *
  * <pre>
  * public class ComplexObjectInitializer extends LazyInitializer&lt;ComplexObject&gt; {
@@ -65,9 +51,11 @@ package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.concu
  * }
  * </pre>
  *
+ * <p>
  * Access to the data object is provided through the {@code get()} method. So,
  * code that wants to obtain the {@code ComplexObject} instance would simply
  * look like this:
+ * </p>
  *
  * <pre>
  * // Create an instance of the lazy initializer
@@ -77,7 +65,6 @@ package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.concu
  * ComplexObject cobj = initializer.get();
  * </pre>
  *
- * </p>
  * <p>
  * If multiple threads call the {@code get()} method when the object has not yet
  * been created, they are blocked until initialization completes. The algorithm
@@ -88,12 +75,15 @@ package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.concu
  * </p>
  *
  * @since 3.0
- * @version $Id: LazyInitializer.java 1088899 2011-04-05 05:31:27Z bayard $
  * @param <T> the type of the object managed by this initializer class
  */
 public abstract class LazyInitializer<T> implements ConcurrentInitializer<T> {
-    /** Stores the managed object. */
-    private volatile T object;
+
+    private static final Object NO_INIT = new Object();
+
+    @SuppressWarnings("unchecked")
+    // Stores the managed object.
+    private volatile T object = (T) NO_INIT;
 
     /**
      * Returns the object wrapped by this instance. On first access the object
@@ -103,15 +93,16 @@ public abstract class LazyInitializer<T> implements ConcurrentInitializer<T> {
      * @throws ConcurrentException if an error occurred during initialization of
      * the object
      */
+    @Override
     public T get() throws ConcurrentException {
         // use a temporary variable to reduce the number of reads of the
         // volatile field
         T result = object;
 
-        if (result == null) {
+        if (result == NO_INIT) {
             synchronized (this) {
                 result = object;
-                if (result == null) {
+                if (result == NO_INIT) {
                     object = result = initialize();
                 }
             }

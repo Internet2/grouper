@@ -34,9 +34,9 @@ import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.util.JsonIndenter;
 import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import edu.internet2.middleware.grouperClient.util.JsonIndenter;
 import edu.internet2.middleware.grouperVoot.messages.VootErrorResponse;
 import edu.internet2.middleware.grouperVoot.restLogic.VootWsRest;
 import edu.internet2.middleware.subject.Subject;

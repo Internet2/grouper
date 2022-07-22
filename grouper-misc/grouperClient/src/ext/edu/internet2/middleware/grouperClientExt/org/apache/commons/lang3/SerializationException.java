@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -36,15 +21,14 @@ package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3;
  *
  * <p>The original error is wrapped within this one.</p>
  *
- * <p>#NotThreadSafe# because Throwable is not threadsafe</p>
+ * <p>#NotThreadSafe# because Throwable is not thread-safe</p>
  * @since 1.0
- * @version $Id: SerializationException.java 1088899 2011-04-05 05:31:27Z bayard $
  */
 public class SerializationException extends RuntimeException {
 
     /**
      * Required for serialization support.
-     * 
+     *
      * @see java.io.Serializable
      */
     private static final long serialVersionUID = 4029025366392702726L;
@@ -54,7 +38,6 @@ public class SerializationException extends RuntimeException {
      * detail message.</p>
      */
     public SerializationException() {
-        super();
     }
 
     /**
@@ -63,7 +46,7 @@ public class SerializationException extends RuntimeException {
      *
      * @param msg  The error message.
      */
-    public SerializationException(String msg) {
+    public SerializationException(final String msg) {
         super(msg);
     }
 
@@ -74,7 +57,7 @@ public class SerializationException extends RuntimeException {
      * @param cause  The {@code Exception} or {@code Error}
      *  that caused this exception to be thrown.
      */
-    public SerializationException(Throwable cause) {
+    public SerializationException(final Throwable cause) {
         super(cause);
     }
 
@@ -86,7 +69,7 @@ public class SerializationException extends RuntimeException {
      * @param cause  The {@code Exception} or {@code Error}
      *  that caused this exception to be thrown.
      */
-    public SerializationException(String msg, Throwable cause) {
+    public SerializationException(final String msg, final Throwable cause) {
         super(msg, cause);
     }
 

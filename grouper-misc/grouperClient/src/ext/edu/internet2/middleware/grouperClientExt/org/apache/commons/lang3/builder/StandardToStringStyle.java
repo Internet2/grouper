@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,7 +17,7 @@
 package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder;
 
 /**
- * <p>Works with {@link ToStringBuilder} to create a <code>toString</code>.</p>
+ * <p>Works with {@link ToStringBuilder} to create a {@code toString}.</p>
  *
  * <p>This class is intended to be used as a singleton.
  * There is no need to instantiate a new style each time.
@@ -41,13 +26,12 @@ package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.build
  * program to access.</p>
  *
  * @since 1.0
- * @version $Id: StandardToStringStyle.java 1089740 2011-04-07 05:01:54Z bayard $
  */
 public class StandardToStringStyle extends ToStringStyle {
-    
+
     /**
      * Required for serialization support.
-     * 
+     *
      * @see java.io.Serializable
      */
     private static final long serialVersionUID = 1L;
@@ -56,11 +40,10 @@ public class StandardToStringStyle extends ToStringStyle {
      * <p>Constructor.</p>
      */
     public StandardToStringStyle() {
-        super();
     }
-    
+
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets whether to use the class name.</p>
      *
@@ -77,12 +60,12 @@ public class StandardToStringStyle extends ToStringStyle {
      * @param useClassName  the new useClassName flag
      */
     @Override
-    public void setUseClassName(boolean useClassName) { // NOPMD as this is implementing the abstract class
+    public void setUseClassName(final boolean useClassName) { // NOPMD as this is implementing the abstract class
         super.setUseClassName(useClassName);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets whether to output short or long class names.</p>
      *
@@ -101,12 +84,12 @@ public class StandardToStringStyle extends ToStringStyle {
      * @since 2.0
      */
     @Override
-    public void setUseShortClassName(boolean useShortClassName) { // NOPMD as this is implementing the abstract class
+    public void setUseShortClassName(final boolean useShortClassName) { // NOPMD as this is implementing the abstract class
         super.setUseShortClassName(useShortClassName);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets whether to use the identity hash code.</p>
      * @return the current useIdentityHashCode flag
@@ -122,12 +105,12 @@ public class StandardToStringStyle extends ToStringStyle {
      * @param useIdentityHashCode  the new useIdentityHashCode flag
      */
     @Override
-    public void setUseIdentityHashCode(boolean useIdentityHashCode) { // NOPMD as this is implementing the abstract class
+    public void setUseIdentityHashCode(final boolean useIdentityHashCode) { // NOPMD as this is implementing the abstract class
         super.setUseIdentityHashCode(useIdentityHashCode);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets whether to use the field names passed in.</p>
      *
@@ -144,12 +127,12 @@ public class StandardToStringStyle extends ToStringStyle {
      * @param useFieldNames  the new useFieldNames flag
      */
     @Override
-    public void setUseFieldNames(boolean useFieldNames) { // NOPMD as this is implementing the abstract class
+    public void setUseFieldNames(final boolean useFieldNames) { // NOPMD as this is implementing the abstract class
         super.setUseFieldNames(useFieldNames);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets whether to use full detail when the caller doesn't
      * specify.</p>
@@ -168,12 +151,12 @@ public class StandardToStringStyle extends ToStringStyle {
      * @param defaultFullDetail  the new defaultFullDetail flag
      */
     @Override
-    public void setDefaultFullDetail(boolean defaultFullDetail) { // NOPMD as this is implementing the abstract class
+    public void setDefaultFullDetail(final boolean defaultFullDetail) { // NOPMD as this is implementing the abstract class
         super.setDefaultFullDetail(defaultFullDetail);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets whether to output array content detail.</p>
      *
@@ -183,19 +166,19 @@ public class StandardToStringStyle extends ToStringStyle {
     public boolean isArrayContentDetail() { // NOPMD as this is implementing the abstract class
         return super.isArrayContentDetail();
     }
-    
+
     /**
      * <p>Sets whether to output array content detail.</p>
      *
      * @param arrayContentDetail  the new arrayContentDetail flag
      */
     @Override
-    public void setArrayContentDetail(boolean arrayContentDetail) { // NOPMD as this is implementing the abstract class
+    public void setArrayContentDetail(final boolean arrayContentDetail) { // NOPMD as this is implementing the abstract class
         super.setArrayContentDetail(arrayContentDetail);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets the array start text.</p>
      *
@@ -209,18 +192,18 @@ public class StandardToStringStyle extends ToStringStyle {
     /**
      * <p>Sets the array start text.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted
+     * <p>{@code null} is accepted, but will be converted
      * to an empty String.</p>
      *
      * @param arrayStart  the new array start text
      */
     @Override
-    public void setArrayStart(String arrayStart) { // NOPMD as this is implementing the abstract class
+    public void setArrayStart(final String arrayStart) { // NOPMD as this is implementing the abstract class
         super.setArrayStart(arrayStart);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets the array end text.</p>
      *
@@ -234,18 +217,18 @@ public class StandardToStringStyle extends ToStringStyle {
     /**
      * <p>Sets the array end text.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted
+     * <p>{@code null} is accepted, but will be converted
      * to an empty String.</p>
      *
      * @param arrayEnd  the new array end text
      */
     @Override
-    public void setArrayEnd(String arrayEnd) { // NOPMD as this is implementing the abstract class
+    public void setArrayEnd(final String arrayEnd) { // NOPMD as this is implementing the abstract class
         super.setArrayEnd(arrayEnd);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets the array separator text.</p>
      *
@@ -259,18 +242,18 @@ public class StandardToStringStyle extends ToStringStyle {
     /**
      * <p>Sets the array separator text.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted
+     * <p>{@code null} is accepted, but will be converted
      * to an empty String.</p>
      *
      * @param arraySeparator  the new array separator text
      */
     @Override
-    public void setArraySeparator(String arraySeparator) { // NOPMD as this is implementing the abstract class
+    public void setArraySeparator(final String arraySeparator) { // NOPMD as this is implementing the abstract class
         super.setArraySeparator(arraySeparator);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets the content start text.</p>
      *
@@ -284,18 +267,18 @@ public class StandardToStringStyle extends ToStringStyle {
     /**
      * <p>Sets the content start text.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted
+     * <p>{@code null} is accepted, but will be converted
      * to an empty String.</p>
      *
      * @param contentStart  the new content start text
      */
     @Override
-    public void setContentStart(String contentStart) { // NOPMD as this is implementing the abstract class
+    public void setContentStart(final String contentStart) { // NOPMD as this is implementing the abstract class
         super.setContentStart(contentStart);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets the content end text.</p>
      *
@@ -309,18 +292,18 @@ public class StandardToStringStyle extends ToStringStyle {
     /**
      * <p>Sets the content end text.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted
+     * <p>{@code null} is accepted, but will be converted
      * to an empty String.</p>
      *
      * @param contentEnd  the new content end text
      */
     @Override
-    public void setContentEnd(String contentEnd) { // NOPMD as this is implementing the abstract class
+    public void setContentEnd(final String contentEnd) { // NOPMD as this is implementing the abstract class
         super.setContentEnd(contentEnd);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets the field name value separator text.</p>
      *
@@ -334,18 +317,18 @@ public class StandardToStringStyle extends ToStringStyle {
     /**
      * <p>Sets the field name value separator text.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted
+     * <p>{@code null} is accepted, but will be converted
      * to an empty String.</p>
      *
      * @param fieldNameValueSeparator  the new field name value separator text
      */
     @Override
-    public void setFieldNameValueSeparator(String fieldNameValueSeparator) { // NOPMD as this is implementing the abstract class
+    public void setFieldNameValueSeparator(final String fieldNameValueSeparator) { // NOPMD as this is implementing the abstract class
         super.setFieldNameValueSeparator(fieldNameValueSeparator);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
      * <p>Gets the field separator text.</p>
      *
@@ -359,22 +342,22 @@ public class StandardToStringStyle extends ToStringStyle {
     /**
      * <p>Sets the field separator text.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted
+     * <p>{@code null} is accepted, but will be converted
      * to an empty String.</p>
      *
      * @param fieldSeparator  the new field separator text
      */
     @Override
-    public void setFieldSeparator(String fieldSeparator) { // NOPMD as this is implementing the abstract class
+    public void setFieldSeparator(final String fieldSeparator) { // NOPMD as this is implementing the abstract class
         super.setFieldSeparator(fieldSeparator);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
-     * <p>Gets whether the field separator should be added at the start 
+     * <p>Gets whether the field separator should be added at the start
      * of each buffer.</p>
-     * 
+     *
      * @return the fieldSeparatorAtStart flag
      * @since 2.0
      */
@@ -384,23 +367,23 @@ public class StandardToStringStyle extends ToStringStyle {
     }
 
     /**
-     * <p>Sets whether the field separator should be added at the start 
+     * <p>Sets whether the field separator should be added at the start
      * of each buffer.</p>
-     * 
+     *
      * @param fieldSeparatorAtStart  the fieldSeparatorAtStart flag
      * @since 2.0
      */
     @Override
-    public void setFieldSeparatorAtStart(boolean fieldSeparatorAtStart) { // NOPMD as this is implementing the abstract class
+    public void setFieldSeparatorAtStart(final boolean fieldSeparatorAtStart) { // NOPMD as this is implementing the abstract class
         super.setFieldSeparatorAtStart(fieldSeparatorAtStart);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
-     * <p>Gets whether the field separator should be added at the end 
+     * <p>Gets whether the field separator should be added at the end
      * of each buffer.</p>
-     * 
+     *
      * @return fieldSeparatorAtEnd flag
      * @since 2.0
      */
@@ -410,23 +393,23 @@ public class StandardToStringStyle extends ToStringStyle {
     }
 
     /**
-     * <p>Sets whether the field separator should be added at the end 
+     * <p>Sets whether the field separator should be added at the end
      * of each buffer.</p>
-     * 
+     *
      * @param fieldSeparatorAtEnd  the fieldSeparatorAtEnd flag
      * @since 2.0
      */
     @Override
-    public void setFieldSeparatorAtEnd(boolean fieldSeparatorAtEnd) { // NOPMD as this is implementing the abstract class
+    public void setFieldSeparatorAtEnd(final boolean fieldSeparatorAtEnd) { // NOPMD as this is implementing the abstract class
         super.setFieldSeparatorAtEnd(fieldSeparatorAtEnd);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
-     * <p>Gets the text to output when <code>null</code> found.</p>
+     * <p>Gets the text to output when {@code null} found.</p>
      *
-     * @return the current text to output when <code>null</code> found
+     * @return the current text to output when {@code null} found
      */
     @Override
     public String getNullText() { // NOPMD as this is implementing the abstract class
@@ -434,23 +417,23 @@ public class StandardToStringStyle extends ToStringStyle {
     }
 
     /**
-     * <p>Sets the text to output when <code>null</code> found.</p>
+     * <p>Sets the text to output when {@code null} found.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted
+     * <p>{@code null} is accepted, but will be converted
      * to an empty String.</p>
      *
-     * @param nullText  the new text to output when <code>null</code> found
+     * @param nullText  the new text to output when {@code null} found
      */
     @Override
-    public void setNullText(String nullText) { // NOPMD as this is implementing the abstract class
+    public void setNullText(final String nullText) { // NOPMD as this is implementing the abstract class
         super.setNullText(nullText);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
-     * <p>Gets the text to output when a <code>Collection</code>,
-     * <code>Map</code> or <code>Array</code> size is output.</p>
+     * <p>Gets the text to output when a {@code Collection},
+     * {@code Map} or {@code Array} size is output.</p>
      *
      * <p>This is output before the size value.</p>
      *
@@ -462,26 +445,26 @@ public class StandardToStringStyle extends ToStringStyle {
     }
 
     /**
-     * <p>Sets the start text to output when a <code>Collection</code>,
-     * <code>Map</code> or <code>Array</code> size is output.</p>
+     * <p>Sets the start text to output when a {@code Collection},
+     * {@code Map} or {@code Array} size is output.</p>
      *
      * <p>This is output before the size value.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted to
+     * <p>{@code null} is accepted, but will be converted to
      * an empty String.</p>
      *
      * @param sizeStartText  the new start of size text
      */
     @Override
-    public void setSizeStartText(String sizeStartText) { // NOPMD as this is implementing the abstract class
+    public void setSizeStartText(final String sizeStartText) { // NOPMD as this is implementing the abstract class
         super.setSizeStartText(sizeStartText);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
-     * Gets the end text to output when a <code>Collection</code>,
-     * <code>Map</code> or <code>Array</code> size is output.</p>
+     * <p>Gets the end text to output when a {@code Collection},
+     * {@code Map} or {@code Array} size is output.</p>
      *
      * <p>This is output after the size value.</p>
      *
@@ -493,25 +476,25 @@ public class StandardToStringStyle extends ToStringStyle {
     }
 
     /**
-     * <p>Sets the end text to output when a <code>Collection</code>,
-     * <code>Map</code> or <code>Array</code> size is output.</p>
+     * <p>Sets the end text to output when a {@code Collection},
+     * {@code Map} or {@code Array} size is output.</p>
      *
      * <p>This is output after the size value.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted
+     * <p>{@code null} is accepted, but will be converted
      * to an empty String.</p>
      *
      * @param sizeEndText  the new end of size text
      */
     @Override
-    public void setSizeEndText(String sizeEndText) { // NOPMD as this is implementing the abstract class
+    public void setSizeEndText(final String sizeEndText) { // NOPMD as this is implementing the abstract class
         super.setSizeEndText(sizeEndText);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
-     * <p>Gets the start text to output when an <code>Object</code> is
+     * <p>Gets the start text to output when an {@code Object} is
      * output in summary mode.</p>
      *
      * <P>This is output before the size value.</p>
@@ -524,25 +507,25 @@ public class StandardToStringStyle extends ToStringStyle {
     }
 
     /**
-     * <p>Sets the start text to output when an <code>Object</code> is
+     * <p>Sets the start text to output when an {@code Object} is
      * output in summary mode.</p>
      *
      * <p>This is output before the size value.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted to
+     * <p>{@code null} is accepted, but will be converted to
      * an empty String.</p>
      *
      * @param summaryObjectStartText  the new start of summary text
      */
     @Override
-    public void setSummaryObjectStartText(String summaryObjectStartText) { // NOPMD as this is implementing the abstract class
+    public void setSummaryObjectStartText(final String summaryObjectStartText) { // NOPMD as this is implementing the abstract class
         super.setSummaryObjectStartText(summaryObjectStartText);
     }
 
     //---------------------------------------------------------------------
-    
+
     /**
-     * <p>Gets the end text to output when an <code>Object</code> is
+     * <p>Gets the end text to output when an {@code Object} is
      * output in summary mode.</p>
      *
      * <p>This is output after the size value.</p>
@@ -555,21 +538,21 @@ public class StandardToStringStyle extends ToStringStyle {
     }
 
     /**
-     * <p>Sets the end text to output when an <code>Object</code> is
+     * <p>Sets the end text to output when an {@code Object} is
      * output in summary mode.</p>
      *
      * <p>This is output after the size value.</p>
      *
-     * <p><code>null</code> is accepted, but will be converted to
+     * <p>{@code null} is accepted, but will be converted to
      * an empty String.</p>
      *
      * @param summaryObjectEndText  the new end of summary text
      */
     @Override
-    public void setSummaryObjectEndText(String summaryObjectEndText) { // NOPMD as this is implementing the abstract class
+    public void setSummaryObjectEndText(final String summaryObjectEndText) { // NOPMD as this is implementing the abstract class
         super.setSummaryObjectEndText(summaryObjectEndText);
     }
 
     //---------------------------------------------------------------------
-    
+
 }

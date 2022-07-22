@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -31,7 +16,7 @@
  */
 package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.concurrent;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.ObjectUtils;
+import java.util.Objects;
 
 /**
  * <p>
@@ -50,7 +35,6 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Object
  * </p>
  *
  * @since 3.0
- * @version $Id: ConstantInitializer.java 1199894 2011-11-09 17:53:59Z ggregory $
  * @param <T> the type of the object managed by this initializer
  */
 public class ConstantInitializer<T> implements ConcurrentInitializer<T> {
@@ -69,7 +53,7 @@ public class ConstantInitializer<T> implements ConcurrentInitializer<T> {
      *
      * @param obj the object to be managed by this initializer
      */
-    public ConstantInitializer(T obj) {
+    public ConstantInitializer(final T obj) {
         object = obj;
     }
 
@@ -91,6 +75,7 @@ public class ConstantInitializer<T> implements ConcurrentInitializer<T> {
      * @return the object managed by this initializer
      * @throws ConcurrentException if an error occurs
      */
+    @Override
     public T get() throws ConcurrentException {
         return getObject();
     }
@@ -116,7 +101,7 @@ public class ConstantInitializer<T> implements ConcurrentInitializer<T> {
      * @return a flag whether the objects are equal
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) {
             return true;
         }
@@ -124,8 +109,8 @@ public class ConstantInitializer<T> implements ConcurrentInitializer<T> {
             return false;
         }
 
-        ConstantInitializer<?> c = (ConstantInitializer<?>) obj;
-        return ObjectUtils.equals(getObject(), c.getObject());
+        final ConstantInitializer<?> c = (ConstantInitializer<?>) obj;
+        return Objects.equals(getObject(), c.getObject());
     }
 
     /**

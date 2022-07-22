@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -35,6 +20,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Validate;
 
 /**
  * <p>
@@ -65,6 +52,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  * <p>
  * A thread class for performing database queries could look as follows:
+ * </p>
  *
  * <pre>
  * public class StatisticsThread extends Thread {
@@ -77,7 +65,7 @@ import java.util.concurrent.TimeUnit;
  *     // Gather statistics
  *     public void run() {
  *         try {
- *             while(true) {
+ *             while (true) {
  *                 semaphore.acquire();   // limit database load
  *                 performQuery();        // issue a query
  *             }
@@ -89,9 +77,11 @@ import java.util.concurrent.TimeUnit;
  * }
  * </pre>
  *
+ * <p>
  * The following code fragment shows how a {@code TimedSemaphore} is created
  * that allows only 10 operations per second and passed to the statistics
  * thread:
+ * </p>
  *
  * <pre>
  * TimedSemaphore sem = new TimedSemaphore(1, TimeUnit.SECOND, 10);
@@ -99,7 +89,6 @@ import java.util.concurrent.TimeUnit;
  * thread.start();
  * </pre>
  *
- * </p>
  * <p>
  * When creating an instance the time period for the semaphore must be
  * specified. {@code TimedSemaphore} uses an executor service with a
@@ -110,11 +99,20 @@ import java.util.concurrent.TimeUnit;
  * </p>
  * <p>
  * Client code that uses {@code TimedSemaphore} has to call the
- * {@link #acquire()} method in aach processing step. {@code TimedSemaphore}
+ * {@link #acquire()} method in each processing step. {@code TimedSemaphore}
  * keeps track of the number of invocations of the {@link #acquire()} method and
  * blocks the calling thread if the counter exceeds the limit specified. When
  * the timer signals the end of the time period the counter is reset and all
  * waiting threads are released. Then another cycle can start.
+ * </p>
+ * <p>
+ * An alternative to {@code acquire()} is the {@link #tryAcquire()} method. This
+ * method checks whether the semaphore is under the specified limit and
+ * increases the internal counter if this is the case. The return value is then
+ * <strong>true</strong>, and the calling thread can continue with its action.
+ * If the semaphore is already at its limit, {@code tryAcquire()} immediately
+ * returns <strong>false</strong> without blocking; the calling thread must
+ * then abort its action. This usage scenario prevents blocking of threads.
  * </p>
  * <p>
  * It is possible to modify the limit at any time using the
@@ -138,7 +136,6 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @since 3.0
- * @version $Id: TimedSemaphore.java 1199894 2011-11-09 17:53:59Z ggregory $
  */
 public class TimedSemaphore {
     /**
@@ -164,28 +161,28 @@ public class TimedSemaphore {
     private final boolean ownExecutor;
 
     /** A future object representing the timer task. */
-    private ScheduledFuture<?> task;
+    private ScheduledFuture<?> task; // @GuardedBy("this")
 
     /** Stores the total number of invocations of the acquire() method. */
-    private long totalAcquireCount;
+    private long totalAcquireCount; // @GuardedBy("this")
 
     /**
      * The counter for the periods. This counter is increased every time a
      * period ends.
      */
-    private long periodCount;
+    private long periodCount; // @GuardedBy("this")
 
     /** The limit. */
-    private int limit;
+    private int limit; // @GuardedBy("this")
 
     /** The current counter. */
-    private int acquireCount;
+    private int acquireCount;  // @GuardedBy("this")
 
     /** The number of invocations of acquire() in the last period. */
-    private int lastCallsPerPeriod;
+    private int lastCallsPerPeriod; // @GuardedBy("this")
 
     /** A flag whether shutdown() was called. */
-    private boolean shutdown;
+    private boolean shutdown;  // @GuardedBy("this")
 
     /**
      * Creates a new instance of {@link TimedSemaphore} and initializes it with
@@ -196,7 +193,7 @@ public class TimedSemaphore {
      * @param limit the limit for the semaphore
      * @throws IllegalArgumentException if the period is less or equals 0
      */
-    public TimedSemaphore(long timePeriod, TimeUnit timeUnit, int limit) {
+    public TimedSemaphore(final long timePeriod, final TimeUnit timeUnit, final int limit) {
         this(null, timePeriod, timeUnit, limit);
     }
 
@@ -212,11 +209,9 @@ public class TimedSemaphore {
      * @param limit the limit for the semaphore
      * @throws IllegalArgumentException if the period is less or equals 0
      */
-    public TimedSemaphore(ScheduledExecutorService service, long timePeriod,
-            TimeUnit timeUnit, int limit) {
-        if (timePeriod <= 0) {
-            throw new IllegalArgumentException("Time period must be greater 0!");
-        }
+    public TimedSemaphore(final ScheduledExecutorService service, final long timePeriod,
+            final TimeUnit timeUnit, final int limit) {
+        Validate.inclusiveBetween(1, Long.MAX_VALUE, timePeriod, "Time period must be greater than 0!");
 
         period = timePeriod;
         unit = timeUnit;
@@ -225,7 +220,7 @@ public class TimedSemaphore {
             executorService = service;
             ownExecutor = false;
         } else {
-            ScheduledThreadPoolExecutor s = new ScheduledThreadPoolExecutor(
+            final ScheduledThreadPoolExecutor s = new ScheduledThreadPoolExecutor(
                     THREAD_POOL_SIZE);
             s.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
             s.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
@@ -257,7 +252,7 @@ public class TimedSemaphore {
      *
      * @param limit the limit
      */
-    public final synchronized void setLimit(int limit) {
+    public final synchronized void setLimit(final int limit) {
         this.limit = limit;
     }
 
@@ -294,7 +289,7 @@ public class TimedSemaphore {
     }
 
     /**
-     * Tries to acquire a permit from this semaphore. This method will block if
+     * Acquires a permit from this semaphore. This method will block if
      * the limit for the current period has already been reached. If
      * {@link #shutdown()} has already been invoked, calling this method will
      * cause an exception. The very first call of this method starts the timer
@@ -305,23 +300,31 @@ public class TimedSemaphore {
      * @throws IllegalStateException if this semaphore is already shut down
      */
     public synchronized void acquire() throws InterruptedException {
-        if (isShutdown()) {
-            throw new IllegalStateException("TimedSemaphore is shut down!");
-        }
+        prepareAcquire();
 
-        if (task == null) {
-            task = startTimer();
-        }
-
-        boolean canPass = false;
+        boolean canPass;
         do {
-            canPass = getLimit() <= NO_LIMIT || acquireCount < getLimit();
+            canPass = acquirePermit();
             if (!canPass) {
                 wait();
-            } else {
-                acquireCount++;
             }
         } while (!canPass);
+    }
+
+    /**
+     * Tries to acquire a permit from this semaphore. If the limit of this semaphore has
+     * not yet been reached, a permit is acquired, and this method returns
+     * <strong>true</strong>. Otherwise, this method returns immediately with the result
+     * <strong>false</strong>.
+     *
+     * @return <strong>true</strong> if a permit could be acquired; <strong>false</strong>
+     * otherwise
+     * @throws IllegalStateException if this semaphore is already shut down
+     * @since 3.5
+     */
+    public synchronized boolean tryAcquire() {
+        prepareAcquire();
+        return acquirePermit();
     }
 
     /**
@@ -414,11 +417,7 @@ public class TimedSemaphore {
      * @return a future object representing the task scheduled
      */
     protected ScheduledFuture<?> startTimer() {
-        return getExecutorService().scheduleAtFixedRate(new Runnable() {
-            public void run() {
-                endOfPeriod();
-            }
-        }, getPeriod(), getPeriod(), getUnit());
+        return getExecutorService().scheduleAtFixedRate(this::endOfPeriod, getPeriod(), getPeriod(), getUnit());
     }
 
     /**
@@ -432,5 +431,35 @@ public class TimedSemaphore {
         periodCount++;
         acquireCount = 0;
         notifyAll();
+    }
+
+    /**
+     * Prepares an acquire operation. Checks for the current state and starts the internal
+     * timer if necessary. This method must be called with the lock of this object held.
+     */
+    private void prepareAcquire() {
+        if (isShutdown()) {
+            throw new IllegalStateException("TimedSemaphore is shut down!");
+        }
+
+        if (task == null) {
+            task = startTimer();
+        }
+    }
+
+    /**
+     * Internal helper method for acquiring a permit. This method checks whether currently
+     * a permit can be acquired and - if so - increases the internal counter. The return
+     * value indicates whether a permit could be acquired. This method must be called with
+     * the lock of this object held.
+     *
+     * @return a flag whether a permit could be acquired
+     */
+    private boolean acquirePermit() {
+        if (getLimit() <= NO_LIMIT || acquireCount < getLimit()) {
+            acquireCount++;
+            return true;
+        }
+        return false;
     }
 }

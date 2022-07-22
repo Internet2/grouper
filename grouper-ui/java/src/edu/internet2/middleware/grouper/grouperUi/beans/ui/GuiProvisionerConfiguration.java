@@ -16,7 +16,7 @@ public class GuiProvisionerConfiguration {
   private String lastIncrementalSyncTimestamp;
   private int groupCount;
   private int userCount;
-  private int recordsCount;
+  private int membershipCount;
   
   private GuiProvisionerConfiguration() {}
   
@@ -45,8 +45,8 @@ public class GuiProvisionerConfiguration {
   }
 
   
-  public int getRecordsCount() {
-    return recordsCount;
+  public int getMembershipCount() {
+    return membershipCount;
   }
 
   /**

@@ -47,7 +47,7 @@ public class ProvisioningConfigSyncDetails {
   /**
    * records count
    */
-  private int recordsCount;
+  private int membershipCount;
   
   /**
    * number of validation errors for a given provisioner across groups, members, and memberships
@@ -109,13 +109,13 @@ public class ProvisioningConfigSyncDetails {
   }
 
   
-  public int getRecordsCount() {
-    return recordsCount;
+  public int getMembershipCount() {
+    return membershipCount;
   }
 
   
-  public void setRecordsCount(int recordsCount) {
-    this.recordsCount = recordsCount;
+  public void setMembershipCount(int recordsCount) {
+    this.membershipCount = recordsCount;
   }
 
   

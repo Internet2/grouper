@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.util;
 
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouperClient.util.JsonIndenter;
 import junit.textui.TestRunner;
 
 
