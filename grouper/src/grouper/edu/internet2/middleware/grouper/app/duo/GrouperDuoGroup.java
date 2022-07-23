@@ -3,8 +3,8 @@ package edu.internet2.middleware.grouper.app.duo;
 import java.sql.Types;
 import java.util.Set;
 
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

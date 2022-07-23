@@ -28,7 +28,7 @@ import java.lang.annotation.*;
  */
 @Target({ElementType.ANNOTATION_TYPE, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@com.fasterxml.jackson.annotation.JacksonAnnotation
+@edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonPOJOBuilder
 {
     /**

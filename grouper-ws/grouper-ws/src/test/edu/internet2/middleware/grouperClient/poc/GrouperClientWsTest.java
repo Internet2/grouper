@@ -2391,6 +2391,12 @@ public class GrouperClientWsTest extends GrouperTest {
       baos = new ByteArrayOutputStream();
       System.setOut(new PrintStream(baos));
 
+      // THIS WORKS IF WS HAS THIS IN grouper.properties
+      //  group.validateExtensionByDefault = true
+      //  stem.validateExtensionByDefault = true
+      //  attributeDef.validateExtensionByDefault = true
+      //  attributeDefName.validateExtensionByDefault = true
+          
       GrouperClient.main(GrouperClientUtils.splitTrim(
           "--operation=groupSaveWs --name=aStem:newGroup0/1", " "));
       System.out.flush();
@@ -5185,6 +5191,7 @@ public class GrouperClientWsTest extends GrouperTest {
     file.deleteOnExit();
 
     try {
+      Ws
       String contents = "<WsRestAddMemberRequest>"
           + "wsGroupLookup\":{\"groupNameaStem:aGroup</groupName></wsGroupLookup>"
           + "<subjectLookups><WsSubjectLookup>"
@@ -7029,7 +7036,7 @@ public class GrouperClientWsTest extends GrouperTest {
     Group           i2sub    = eduSub.addChildGroup("i2sub", "i2sub");
     Group           edu2i2sub    = edu2.addChildGroup("edu2i2sub", "edu2i2sub");
     Group           comp1    = edu.addChildGroup("comp1", "comp1");
-    Group           compLeft    = edu.addChildGroup("compLeft", "compRight");
+    Group           compLeft    = edu.addChildGroup("compLeft", "compLeft");
     Group           compRight    = edu.addChildGroup("compRight", "compRight");
 
     comp1.addCompositeMember(CompositeType.INTERSECTION, compLeft, compRight);
@@ -7723,9 +7730,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           GrouperClientWs.mostRecentRequest.contains("serviceRole"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("serviceLookup\":\"uuid"));
+          GrouperClientWs.mostRecentRequest.contains("serviceLookup\":{\"uuid"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("\"serviceLookup\":\"name\""));
+          !GrouperClientWs.mostRecentRequest.contains("\"serviceLookup\":{\"name\""));
 
       // ##################### subject 7 and 8 is admin of the confluence service...
 
@@ -7788,9 +7795,9 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           GrouperClientWs.mostRecentRequest.contains("serviceRole"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          GrouperClientWs.mostRecentRequest.contains("\"serviceLookup\":\"name\""));
+          GrouperClientWs.mostRecentRequest.contains("\"serviceLookup\":{\"name\""));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("serviceLookup\":\"uuid"));
+          !GrouperClientWs.mostRecentRequest.contains("serviceLookup\":{\"uuid"));
 
     } finally {
       System.setOut(systemOut);
@@ -7953,7 +7960,7 @@ public class GrouperClientWsTest extends GrouperTest {
       assertTrue(GrouperClientWs.mostRecentRequest,
           !GrouperClientWs.mostRecentRequest.contains("serviceRole"));
       assertTrue(GrouperClientWs.mostRecentRequest,
-          !GrouperClientWs.mostRecentRequest.contains("serviceLookup\":\"uuid"));
+          !GrouperClientWs.mostRecentRequest.contains("serviceLookup\":{\"uuid"));
 
       // ######################################################
       // Try a sourceId
