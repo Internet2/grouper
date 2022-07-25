@@ -1011,6 +1011,15 @@ public class GrouperHttpClient {
             }
             theLog.append("\n");
           }
+          
+          if (StringUtils.isNotBlank(this.body)) {
+            theLog.append("HTTP request body: ").append(StringUtils.abbreviate(this.body, 20000)).append("\n");
+          }
+          
+          for (String key : GrouperUtil.nonNull(this.bodyParameters).keySet()) {
+            theLog.append("HTTP request body param: ").append(key).append(":").append(this.bodyParameters.get(key)).append("\n");
+          }
+          
           theLog.append("HTTP response code: ").append(this.responseCode).append(", took ms: ").append(System.currentTimeMillis() - start).append("\n");
           for (String key: GrouperUtil.nonNull(this.responseHeaders).keySet()) {
             theLog.append("HTTP response header: ").append(key).append(": ");

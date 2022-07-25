@@ -142,7 +142,7 @@
                 <c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
                         property="currentConfigSuffix"
                         value="${subSection.label}.header" />
-                <a id="subsection_${subSection.label}"></a> 
+                <a id="subsection_${subSection.label}" href="#">${textContainer.text['backToTop'] }</a> 
   	  					<h4>${subSection.title}</h4>
   	  					<p style="font-weight: normal;">${subSection.description} </p>
   	  					<p style="font-weight: normal;">${subSection.documentation} </p>

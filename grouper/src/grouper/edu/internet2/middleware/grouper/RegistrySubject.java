@@ -102,7 +102,11 @@ public class RegistrySubject extends GrouperAPI implements Subject {
   public static RegistrySubject add(GrouperSession s, String id, String type, String name)
       throws  GrouperException, InsufficientPrivilegeException {
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("create.attributes.when.creating.registry.subjects", true)) {
-      return add(s, id, type, name, "name." + id, "id." + id, "description." + id, id + "@somewhere.someSchool.edu");
+      String email = id + "@somewhere.someSchool.edu";
+      if (id.contains("@")) {
+        email = id;
+      } 
+      return add(s, id, type, name, "name." + id, "id." + id, "description." + id, email);
     }
     return add(s, id, type, name, null, null, null, null);
   } // public static RegistrySubject add(s, id, type, name)
