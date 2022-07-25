@@ -1727,6 +1727,10 @@ public class UiV2Provisioning {
           boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
           provisioningAttributeValue.setDirectAssignment(isDirect);
         }
+        String shouldDoProvisionString = request.getParameter("provisioningProvisionName");
+        boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
+        provisioningAttributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);
+
       }
       
       

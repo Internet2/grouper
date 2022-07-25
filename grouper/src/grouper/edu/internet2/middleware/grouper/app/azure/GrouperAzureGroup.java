@@ -4,17 +4,18 @@ import java.sql.Types;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
+import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -128,6 +129,9 @@ public class GrouperAzureGroup {
   public static GrouperAzureGroup fromProvisioningGroup(ProvisioningGroup targetGroup, Set<String> fieldNamesToSet) {
     
     GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
+    ProvisioningGroupWrapper provisioningGroupWrapper = targetGroup.getProvisioningGroupWrapper();
+    ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperProvisioningGroup();
+    String groupType = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.retrieveAttributeValueString("md_grouper_azureGroupType");
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
       grouperAzureGroup.setDescription(targetGroup.retrieveAttributeValueString("description"));
@@ -136,8 +140,12 @@ public class GrouperAzureGroup {
       grouperAzureGroup.setDisplayName(targetGroup.getDisplayName());
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeUnified")) {      
-      grouperAzureGroup.setGroupTypeUnified(targetGroup.retrieveAttributeValueBoolean("groupTypeUnified"));
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeUnified")) {
+      Boolean groupTypeUnified = targetGroup.retrieveAttributeValueBoolean("groupTypeUnified");
+      if (groupTypeUnified == null && StringUtils.equalsAny(groupType, "unified", "unifiedSecurityEnabled")) {
+        groupTypeUnified = true;
+      }
+      grouperAzureGroup.setGroupTypeUnified(groupTypeUnified);
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeDynamic")) {      
       grouperAzureGroup.setGroupTypeDynamic(targetGroup.retrieveAttributeValueBoolean("groupTypeDynamic"));
@@ -146,13 +154,21 @@ public class GrouperAzureGroup {
       grouperAzureGroup.setId(targetGroup.getId());
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("mailEnabled")) {      
-      grouperAzureGroup.setMailEnabled(targetGroup.retrieveAttributeValueBoolean("mailEnabled"));
+      Boolean mailEnabled = targetGroup.retrieveAttributeValueBoolean("mailEnabled");
+      if (mailEnabled == null && StringUtils.equalsAny(groupType, "distributionGroup", "securityMailEnabled")) {
+        mailEnabled = true;
+      }
+      grouperAzureGroup.setMailEnabled(mailEnabled);
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("mailNickname")) {      
       grouperAzureGroup.setMailNickname(targetGroup.retrieveAttributeValueString("mailNickname"));
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("securityEnabled")) {      
-      grouperAzureGroup.setSecurityEnabled(targetGroup.retrieveAttributeValueBoolean("securityEnabled"));
+      Boolean securityEnabled = targetGroup.retrieveAttributeValueBoolean("securityEnabled");
+      if (securityEnabled == null && StringUtils.equalsAny(groupType, "security", "securityMailEnabled", "unifiedSecurityEnabled")) {
+        securityEnabled = true;
+      }
+      grouperAzureGroup.setSecurityEnabled(securityEnabled);
     }
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("isAssignableToRole")) {      
