@@ -668,7 +668,9 @@ public abstract class GrouperProvisioner {
     try {
 
       debugMap.put("finalLog", false);
-      
+
+      debugMap.put("runId", this.getInstanceId());
+
       debugMap.put("state", "init");
       this.initialize(grouperProvisioningType1);
       
