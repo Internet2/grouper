@@ -1,6 +1,6 @@
 package edu.internet2.middleware.grouper.ddl;
 
-import org.apache.ddlutils.model.IndexColumn;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.IndexColumn;
 
 public class GrouperDdlCompareIndexColumn {
 

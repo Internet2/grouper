@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import org.quartz.CronTrigger;
 import org.quartz.JobDetail;
 import org.quartz.JobKey;

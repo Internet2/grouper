@@ -3,8 +3,8 @@ package edu.internet2.middleware.grouper.ddl;
 import java.sql.Types;
 import java.util.Arrays;
 
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Member;

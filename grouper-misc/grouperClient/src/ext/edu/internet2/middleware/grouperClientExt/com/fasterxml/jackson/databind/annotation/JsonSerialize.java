@@ -28,7 +28,7 @@ import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.
  */
 @Target({ElementType.ANNOTATION_TYPE, ElementType.METHOD, ElementType.FIELD, ElementType.TYPE, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-@com.fasterxml.jackson.annotation.JacksonAnnotation
+@edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.annotation.JacksonAnnotation
 public @interface JsonSerialize
 {
     // // // Annotations for explicitly specifying deserializer

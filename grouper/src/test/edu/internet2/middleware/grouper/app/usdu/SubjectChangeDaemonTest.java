@@ -5,8 +5,8 @@ import java.sql.Types;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.Group;

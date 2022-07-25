@@ -3,7 +3,7 @@ package edu.internet2.middleware.grouper.ddl;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.ddlutils.model.Index;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Index;
 
 public class GrouperDdlCompareIndex {
 

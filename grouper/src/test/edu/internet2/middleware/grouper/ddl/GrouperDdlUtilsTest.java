@@ -23,10 +23,10 @@ import java.io.File;
 import java.sql.Connection;
 
 import org.apache.commons.logging.Log;
-import org.apache.ddlutils.Platform;
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Index;
-import org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Index;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;

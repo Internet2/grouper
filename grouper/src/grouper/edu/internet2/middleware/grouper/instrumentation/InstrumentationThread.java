@@ -87,7 +87,7 @@ public class InstrumentationThread {
           
           String uuid;
           try {
-            uuid = FileUtils.readFileToString(instanceFile, null).trim();
+            uuid = FileUtils.readFileToString(instanceFile, (String)null).trim();
           } catch (IOException e) {
             throw new RuntimeException(e);
           }
@@ -258,7 +258,7 @@ public class InstrumentationThread {
       if (childFile.exists()) {
         try {
           LOG.debug("Reading uuid from instrumentation file: " + childFile.getCanonicalPath());
-          String uuid = FileUtils.readFileToString(childFile, null);
+          String uuid = FileUtils.readFileToString(childFile, (String)null);
           if (!GrouperUtil.isBlank(uuid)) {
             LOG.debug("Uuid for " + grouperEngineName + " is " + uuid);
             return childFile;

@@ -50,21 +50,5 @@ public interface RegistryDAO extends GrouperDAO {
   public void reset(boolean includeTypesincludeTypesAndFields)
     throws  GrouperDAOException;
 
-  /**
-   * @param writer 
-   * @throws GrouperDAOException 
-   * @since   1.3.0
-   */
-  public void addForeignKeys(Writer writer)
-    throws  GrouperDAOException;
-
-  /**
-   * @param writer 
-   * @throws GrouperDAOException 
-   * @since   1.3.0
-   */
-  public void dropForeignKeys(Writer writer)
-    throws  GrouperDAOException;
-
 } 
 
