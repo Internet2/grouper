@@ -682,24 +682,27 @@ public class GrouperAzureApiCommands {
 
       String urlSuffix = "/users/" + GrouperUtil.escapeUrlEncode(userId) + "/getMemberGroups";
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200), new int[] {-1}, null);
+      for (boolean securityEnabledOnly: new boolean[] {true, false}) { 
 
-      //lets get the group node
+        JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200), new int[] {-1}, "{\"securityEnabledOnly\": " + securityEnabledOnly + "}");
 
-      ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
-      if (value != null && value.size() > 0) {
-        
-        int azureGetUserGroupsMax = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetUserGroupsMax", 2046);
-        if (value.size() == azureGetUserGroupsMax) {
-          throw new RuntimeException("Too many groups! " + value.size());
-        }
-        
-        for (int i=0;i<value.size();i++) {
-          String groupId = value.get(i).asText();
-          result.add(groupId);
+        //lets get the group node
+  
+        ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
+        if (value != null && value.size() > 0) {
+          
+          int azureGetUserGroupsMax = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetUserGroupsMax", 2046);
+          if (value.size() == azureGetUserGroupsMax) {
+            throw new RuntimeException("Too many groups! " + value.size());
+          }
+          
+          for (int i=0;i<value.size();i++) {
+            String groupId = value.get(i).asText();
+            result.add(groupId);
+          }
         }
       }
-
+      
       return result;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

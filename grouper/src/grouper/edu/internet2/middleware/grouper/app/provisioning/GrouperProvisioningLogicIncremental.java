@@ -2684,6 +2684,28 @@ public class GrouperProvisioningLogicIncremental {
     
     targetDaoRetrieveIncrementalDataRequest.ensureAllMembershipRequestsAreInTheOnlyRequestsAlso();
     
+    for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetEntitiesForEntityMembershipSync())) {
+      if (provisioningEntity.getProvisioningEntityWrapper() != null) {
+        provisioningEntity.getProvisioningEntityWrapper().setRecalc(true);
+      }
+    }
+    for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetEntitiesForEntityOnly())) {
+      if (provisioningEntity.getProvisioningEntityWrapper() != null) {
+        provisioningEntity.getProvisioningEntityWrapper().setRecalc(true);
+      }
+    }
+    for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetGroupsForGroupMembershipSync())) {
+      if (provisioningGroup.getProvisioningGroupWrapper() != null) {
+        provisioningGroup.getProvisioningGroupWrapper().setRecalc(true);
+      }
+    }
+    for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetGroupsForGroupOnly())) {
+      if (provisioningGroup.getProvisioningGroupWrapper() != null) {
+        provisioningGroup.getProvisioningGroupWrapper().setRecalc(true);
+      }
+    }
+    // TODO look at memberships?
+    
     TargetDaoRetrieveIncrementalDataResponse targetDaoRetrieveIncrementalDataResponse 
       = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveIncrementalData(targetDaoRetrieveIncrementalDataRequest);
     

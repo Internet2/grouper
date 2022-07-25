@@ -178,17 +178,11 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       GrouperAzureGroup grouperAzureGroup = null;
 
-      if (!StringUtils.isBlank(grouperTargetGroup.getId())) {
+      String attributeValue = grouperTargetGroup.retrieveAttributeValueString(targetDaoRetrieveGroupRequest.getSearchAttribute());
+      if (!StringUtils.isBlank(attributeValue)) {
         grouperAzureGroup = GrouperAzureApiCommands.retrieveAzureGroup(
-            azureConfiguration.getAzureExternalSystemConfigId(), "id",
-            grouperTargetGroup.getId());
-      }
-
-      String displayName = grouperTargetGroup
-          .retrieveAttributeValueString("displayName");
-      if (grouperAzureGroup == null && !StringUtils.isBlank(displayName)) {
-        grouperAzureGroup = GrouperAzureApiCommands.retrieveAzureGroup(
-            azureConfiguration.getAzureExternalSystemConfigId(), "displayName", displayName);
+            azureConfiguration.getAzureExternalSystemConfigId(), targetDaoRetrieveGroupRequest.getSearchAttribute(),
+            attributeValue);
       }
 
       ProvisioningGroup targetGroup = grouperAzureGroup == null ? null
