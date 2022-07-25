@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -1455,6 +1456,15 @@ public class GrouperProvisioningLogic {
       }
     }
     
+    // remove errors
+    Iterator<ProvisioningGroup> iterator = grouperTargetGroupsToInsert.iterator();
+    while (iterator.hasNext()) {
+      ProvisioningGroup grouperTargetGroupToInsert = iterator.next();
+      if (grouperTargetGroupToInsert.getProvisioned() == null || !grouperTargetGroupToInsert.getProvisioned()) {
+        iterator.remove();
+      }
+    }
+    
     List<ProvisioningGroup> targetGroups = null;
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
       //retrieve so we have a copy
@@ -1722,6 +1732,15 @@ public class GrouperProvisioningLogic {
       }
     }
     
+    // remove errors
+    Iterator<ProvisioningEntity> iterator = grouperTargetEntitiesToInsert.iterator();
+    while (iterator.hasNext()) {
+      ProvisioningEntity grouperTargetEntityToInsert = iterator.next();
+      if (grouperTargetEntityToInsert.getProvisioned() == null || !grouperTargetEntityToInsert.getProvisioned()) {
+        iterator.remove();
+      }
+    }
+
     List<ProvisioningEntity> targetEntities = null;
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
      //retrieve so we have a copy
