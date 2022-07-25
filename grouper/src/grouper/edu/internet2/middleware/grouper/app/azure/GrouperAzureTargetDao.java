@@ -225,6 +225,10 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
       
+      if (grouperAzureGroup.isGroupTypeUnified()) {
+        fieldNamesToInsert.add("groupTypeUnified");
+      }
+      
       GrouperAzureGroup createdGAG = GrouperAzureApiCommands.createAzureGroup(azureConfiguration.getAzureExternalSystemConfigId(), grouperAzureGroup, fieldNamesToInsert);
 
       targetGroup.setId(createdGAG.getId());

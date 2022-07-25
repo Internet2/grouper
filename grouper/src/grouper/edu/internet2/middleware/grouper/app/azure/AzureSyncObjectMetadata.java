@@ -39,9 +39,9 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       
-      valuesAndLabels.add(new MultiKey("distributionGroup", GrouperTextContainer.textOrNull("config.azureDistributionGroup") ));
+      //valuesAndLabels.add(new MultiKey("distributionGroup", GrouperTextContainer.textOrNull("config.azureDistributionGroup") ));
       valuesAndLabels.add(new MultiKey("security", GrouperTextContainer.textOrNull("config.azureSecurity")));
-      valuesAndLabels.add(new MultiKey("securityMailEnabled", GrouperTextContainer.textOrNull("config.azureSecurityMailEnabled")));
+      //valuesAndLabels.add(new MultiKey("securityMailEnabled", GrouperTextContainer.textOrNull("config.azureSecurityMailEnabled")));
       valuesAndLabels.add(new MultiKey("unified", GrouperTextContainer.textOrNull("config.azureUnified")));
       valuesAndLabels.add(new MultiKey("unifiedSecurityEnabled", GrouperTextContainer.textOrNull("config.azureUnifiedSecurityEnabled")));
       
