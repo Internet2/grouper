@@ -308,11 +308,6 @@ public abstract class GrouperProvisioningConfiguration {
   private boolean filterAllLDAPOnFull = true;
   
   private boolean loadEntitiesToGrouperTable;
-  private boolean allowBlankMatchingIds;
-  
-  public boolean isAllowBlankMatchingIds() {
-    return allowBlankMatchingIds;
-  }
 
 
   private String entityAttributesSqlExternalSystem;
@@ -2515,7 +2510,6 @@ public abstract class GrouperProvisioningConfiguration {
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
     
     this.loadEntitiesToGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGrouperTable", false), false);
-    this.allowBlankMatchingIds = GrouperUtil.booleanValue(this.retrieveConfigBoolean("allowBlankMatchingIds", false), false);
     
     this.hasEntityAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.entityAttributesNotInSubjectSource", false), false);
     this.resolveAttributesWithSql = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityResolver.resolveAttributesWithSQL", false), false);

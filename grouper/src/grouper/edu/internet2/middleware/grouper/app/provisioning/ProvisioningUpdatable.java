@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 
 public abstract class ProvisioningUpdatable {
 
@@ -54,24 +55,26 @@ public abstract class ProvisioningUpdatable {
     throw new RuntimeException("Not expecting object of type: " + this.getClass());
   }
   
+  public ProvisioningUpdatableWrapper getProvisioningWrapper() {
+    if (this instanceof ProvisioningGroup) {
+      return ((ProvisioningGroup)this).getProvisioningGroupWrapper();
+    }
+    if (this instanceof ProvisioningEntity) {
+      return ((ProvisioningEntity)this).getProvisioningEntityWrapper();
+    }
+    if (this instanceof ProvisioningMembership) {
+      return ((ProvisioningMembership)this).getProvisioningMembershipWrapper();
+    }
+    throw new RuntimeException("Not expecting object type: " + this.getClass().getName());
+  }
+  
   /**
    * if this object is hooked up to a wrapper and hooked up to a provisioner, then return that provisioner
    * @return the provisioner
    */
   public GrouperProvisioner getGrouperProvisioner() {
-    if (this instanceof ProvisioningGroup) {
-      ProvisioningGroupWrapper provisioningGroupWrapper = ((ProvisioningGroup)this).getProvisioningGroupWrapper();
-      return provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperProvisioner();
-    }
-    if (this instanceof ProvisioningEntity) {
-      ProvisioningEntityWrapper provisioningEntityWrapper = ((ProvisioningEntity)this).getProvisioningEntityWrapper();
-      return provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGrouperProvisioner();
-    }
-    if (this instanceof ProvisioningMembership) {
-      ProvisioningMembershipWrapper provisioningMembershipWrapper = ((ProvisioningMembership)this).getProvisioningMembershipWrapper();
-      return provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGrouperProvisioner();
-    }
-    return null;
+    ProvisioningUpdatableWrapper provisioningUpdatableWrapper = this.getProvisioningWrapper();
+    return provisioningUpdatableWrapper == null ? null : provisioningUpdatableWrapper.getGrouperProvisioner();
   }
   
   /**
@@ -841,6 +844,12 @@ public abstract class ProvisioningUpdatable {
    */
   public void setException(Exception internal_exception) {
     this.exception = internal_exception;
+    ProvisioningUpdatableWrapper provisioningUpdatableWrapper = this.getProvisioningWrapper();
+    if (internal_exception != null && provisioningUpdatableWrapper != null) {
+      if (provisioningUpdatableWrapper.getErrorCode() == null) {
+        provisioningUpdatableWrapper.setErrorCode(GcGrouperSyncErrorCode.ERR);
+      }
+    }
   }
  
   protected boolean toStringProvisioningUpdatable(StringBuilder result, boolean firstField) {

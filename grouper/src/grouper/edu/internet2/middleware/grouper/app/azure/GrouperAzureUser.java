@@ -99,8 +99,8 @@ public class GrouperAzureUser {
     return accountEnabled;
   }
 
-  public void setAccountEnabled(boolean accountEnabled) {
-    this.accountEnabled = accountEnabled;
+  public void setAccountEnabled(Boolean accountEnabled) {
+    this.accountEnabled = (accountEnabled == null ? false : accountEnabled);
   }
 
   public String getAccountEnabledDb() {

@@ -91,6 +91,9 @@ public class GrouperProvisioningTranslator {
 
       GcGrouperSyncErrorCode errorCode = provisioningGroupWrapper.getErrorCode();
       String errorMessage = provisioningGroupWrapper.getGcGrouperSyncGroup().getErrorMessage();
+      if (errorCode == null && !StringUtils.isBlank(errorMessage)) {
+        errorCode = GcGrouperSyncErrorCode.ERR;
+      }
           
       ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper();
       ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
@@ -98,8 +101,10 @@ public class GrouperProvisioningTranslator {
       if (errorCode == null) {
         errorCode = provisioningEntityWrapper.getErrorCode();
         errorMessage = provisioningEntityWrapper.getGcGrouperSyncMember().getErrorMessage();
+        if (errorCode == null && !StringUtils.isBlank(errorMessage)) {
+          errorCode = GcGrouperSyncErrorCode.ERR;
+        }
       }
-      
       if (errorCode != null) {
         this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
         continue;

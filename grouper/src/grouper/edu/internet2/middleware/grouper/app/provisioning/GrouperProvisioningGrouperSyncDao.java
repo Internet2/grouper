@@ -76,9 +76,34 @@ public class GrouperProvisioningGrouperSyncDao {
     List<GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync
         .getGcGrouperSyncGroupDao().groupRetrieveAll();
 
+    clearErrorsGroup(gcGrouperSyncGroups);
     return gcGrouperSyncGroups;
   }
 
+  public void clearErrorsGroup(Collection<GcGrouperSyncGroup> gcGrouperSyncGroups) {
+    for (GcGrouperSyncGroup gcGrouperSyncGroup : GrouperUtil.nonNull(gcGrouperSyncGroups)) {
+      gcGrouperSyncGroup.setErrorCode(null);
+      gcGrouperSyncGroup.setErrorMessage(null);
+      gcGrouperSyncGroup.setErrorTimestamp(null);
+    }
+  }
+  
+  public void clearErrorsMember(Collection<GcGrouperSyncMember> gcGrouperSyncMembers) {
+    for (GcGrouperSyncMember gcGrouperSyncMember : GrouperUtil.nonNull(gcGrouperSyncMembers)) {
+      gcGrouperSyncMember.setErrorCode(null);
+      gcGrouperSyncMember.setErrorMessage(null);
+      gcGrouperSyncMember.setErrorTimestamp(null);
+    }
+  }
+  
+  public void clearErrorsMembership(Collection<GcGrouperSyncMembership> gcGrouperSyncMemberships) {
+    for (GcGrouperSyncMembership gcGrouperSyncMembership : GrouperUtil.nonNull(gcGrouperSyncMemberships)) {
+      gcGrouperSyncMembership.setErrorCode(null);
+      gcGrouperSyncMembership.setErrorMessage(null);
+      gcGrouperSyncMembership.setErrorTimestamp(null);
+    }
+  }
+  
   /**
    * get sync objects from the database
    */
@@ -87,6 +112,7 @@ public class GrouperProvisioningGrouperSyncDao {
 
     List<GcGrouperSyncMember> gcGrouperSyncMembers = gcGrouperSync
         .getGcGrouperSyncMemberDao().memberRetrieveAll();
+    clearErrorsMember(gcGrouperSyncMembers);
 
     return gcGrouperSyncMembers;
   }
@@ -99,6 +125,8 @@ public class GrouperProvisioningGrouperSyncDao {
 
     List<GcGrouperSyncMembership> gcGrouperSyncMemberships = gcGrouperSync
         .getGcGrouperSyncMembershipDao().membershipRetrieveAll();
+
+    clearErrorsMembership(gcGrouperSyncMemberships);
 
     return gcGrouperSyncMemberships;
   }
@@ -166,10 +194,12 @@ public class GrouperProvisioningGrouperSyncDao {
       GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
       Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToSyncGroup = gcGrouperSync
           .getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIdsToRetrieve);
+
       gcGrouperSyncGroups
           .addAll(GrouperUtil.nonNull(grouperSyncGroupIdToSyncGroup).values());
     }
 
+    clearErrorsGroup(gcGrouperSyncGroups);
     this.getGrouperProvisioner().getDebugMap().put("syncGroupsFound",
         GrouperUtil.length(gcGrouperSyncGroups));
 
@@ -265,12 +295,14 @@ public class GrouperProvisioningGrouperSyncDao {
     } else {
       Set<GcGrouperSyncMember> gcGrouperSyncMembersSet = new HashSet<GcGrouperSyncMember>();
       gcGrouperSyncMembersSet.addAll(gcGrouperSyncMembers);
+
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync()
           .setGcGrouperSyncMembers(
               new ArrayList<GcGrouperSyncMember>(gcGrouperSyncMembersSet));
     }
 
     //    this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().setGcGrouperSyncMembers(gcGrouperSyncMembers);
+    clearErrorsMember(gcGrouperSyncMembers);
 
     debugMap.put("retrieveSyncMembersMillis", System.currentTimeMillis() - start);
     debugMap.put("syncMemberCount", GrouperUtil.length(gcGrouperSyncMembers));
@@ -410,12 +442,14 @@ public class GrouperProvisioningGrouperSyncDao {
           .setGcGrouperSyncMembers(
               new ArrayList<GcGrouperSyncMember>(gcGrouperSyncMembersSet));
     } else {
-      Set<GcGrouperSyncMember> gcGrouperSyncMembersSet = new HashSet<GcGrouperSyncMember>();
-      gcGrouperSyncMembersSet.addAll(memberRetrieveByIds.values());
+      Set<GcGrouperSyncMember> gcGrouperSyncMembershipsSet = new HashSet<GcGrouperSyncMember>();
+      gcGrouperSyncMembershipsSet.addAll(memberRetrieveByIds.values());
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync()
           .setGcGrouperSyncMembers(
-              new ArrayList<GcGrouperSyncMember>(gcGrouperSyncMembersSet));
+              new ArrayList<GcGrouperSyncMember>(gcGrouperSyncMembershipsSet));
     }
+
+    clearErrorsMembership(gcGrouperSyncMemberships);
 
     debugMap.put("retrieveSyncMembershipsMillis", System.currentTimeMillis() - start);
     debugMap.put("syncMembershipCount", GrouperUtil.length(gcGrouperSyncMemberships));

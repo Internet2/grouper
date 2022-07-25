@@ -6,27 +6,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
 
   /**
-   * if this object should not be provisioned because there is an error, list it here
-   */
-  private GcGrouperSyncErrorCode errorCode;
-  
-  /**
-   * if this object should not be provisioned because there is an error, list it here
-   * @return
-   */
-  public GcGrouperSyncErrorCode getErrorCode() {
-    return errorCode;
-  }
-
-  /**
-   * if this object should not be provisioned because there is an error, list it here
-   * @param errorCode
-   */
-  public void setErrorCode(GcGrouperSyncErrorCode errorCode) {
-    this.errorCode = errorCode;
-  }
-
-  /**
    * if incremental and recalc
    */
   private boolean recalc;
@@ -137,16 +116,6 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
     super();
   }
 
-  private GrouperProvisioner grouperProvisioner;
-  
-  public GrouperProvisioner getGrouperProvisioner() {
-    return grouperProvisioner;
-  }
-  
-  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
-    this.grouperProvisioner = grouperProvisioner;
-  }
-
   public String toString() {
     return "EntityWrapper@" + Integer.toHexString(hashCode());
   }
@@ -186,7 +155,7 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
       this.memberId = this.grouperProvisioningEntity.getId();
       if (this != this.grouperProvisioningEntity.getProvisioningEntityWrapper()) {
         if (this.grouperProvisioningEntity.getProvisioningEntityWrapper() != null) {
-          this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.grouperProvisioningEntity.getProvisioningEntityWrapper());
+          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.grouperProvisioningEntity.getProvisioningEntityWrapper());
         }
         this.grouperProvisioningEntity.setProvisioningEntityWrapper(this);
       }
@@ -203,7 +172,7 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
     this.targetProvisioningEntity = targetProvisioningEntity;
     if (this.targetProvisioningEntity != null && this != this.targetProvisioningEntity.getProvisioningEntityWrapper()) {
       if (this.targetProvisioningEntity.getProvisioningEntityWrapper() != null) {
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.targetProvisioningEntity.getProvisioningEntityWrapper());
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.targetProvisioningEntity.getProvisioningEntityWrapper());
       }
       this.targetProvisioningEntity.setProvisioningEntityWrapper(this);
     }
@@ -219,7 +188,7 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
     this.grouperTargetEntity = grouperTargetEntity;
     if (this.grouperTargetEntity != null && this != this.grouperTargetEntity.getProvisioningEntityWrapper()) {
       if (this.grouperTargetEntity.getProvisioningEntityWrapper() != null) {
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.grouperTargetEntity.getProvisioningEntityWrapper());
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.grouperTargetEntity.getProvisioningEntityWrapper());
       }
       this.grouperTargetEntity.setProvisioningEntityWrapper(this);
     }

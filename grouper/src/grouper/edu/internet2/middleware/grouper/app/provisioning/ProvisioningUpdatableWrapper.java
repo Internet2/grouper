@@ -1,10 +1,51 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
+
 /**
  * 
  * @author mchyzer
  */
 public abstract class ProvisioningUpdatableWrapper {
+
+  /**
+   * if this object should not be provisioned because there is an error, list it here
+   */
+  private GcGrouperSyncErrorCode errorCode;
+  
+  /**
+   * if this object should not be provisioned because there is an error, list it here
+   * @return
+   */
+  public GcGrouperSyncErrorCode getErrorCode() {
+    return errorCode;
+  }
+
+  /**
+   * if this object should not be provisioned because there is an error, list it here
+   * @param errorCode
+   */
+  public void setErrorCode(GcGrouperSyncErrorCode errorCode) {
+    this.errorCode = errorCode;
+  }
+
+
+  private GrouperProvisioner grouperProvisioner;
+  
+  
+  
+  
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
+  }
+
+
+
+  
+  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    this.grouperProvisioner = grouperProvisioner;
+  }
+
 
   /**
    * 

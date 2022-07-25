@@ -8,27 +8,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper {
   
   /**
-   * if this object should not be provisioned because there is an error, list it here
-   */
-  private GcGrouperSyncErrorCode errorCode;
-  
-  /**
-   * if this object should not be provisioned because there is an error, list it here
-   * @return
-   */
-  public GcGrouperSyncErrorCode getErrorCode() {
-    return errorCode;
-  }
-
-  /**
-   * if this object should not be provisioned because there is an error, list it here
-   * @param errorCode
-   */
-  public void setErrorCode(GcGrouperSyncErrorCode errorCode) {
-    this.errorCode = errorCode;
-  }
-
-  /**
    * if incremental and recalc
    */
   private boolean recalc;
@@ -118,9 +97,6 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     super();
   }
 
-  private GrouperProvisioner grouperProvisioner;
-  
-  
   /**
    * get grouper target mship if its there, if not, get target provisioning mship
    * @return the target mship
@@ -130,19 +106,6 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
   }
 
   
-  public GrouperProvisioner getGrouperProvisioner() {
-    return grouperProvisioner;
-  }
-
-
-
-  
-  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
-    this.grouperProvisioner = grouperProvisioner;
-  }
-
-
-
   public String toString() {
     return "MshipWrapper@" + Integer.toHexString(hashCode());
   }
@@ -209,7 +172,7 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
       this.groupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
       if (this != this.grouperProvisioningMembership.getProvisioningMembershipWrapper()) {
         if (this.grouperProvisioningMembership.getProvisioningMembershipWrapper() != null) {
-          this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.grouperProvisioningMembership.getProvisioningMembershipWrapper());
+          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.grouperProvisioningMembership.getProvisioningMembershipWrapper());
         }
         this.grouperProvisioningMembership.setProvisioningMembershipWrapper(this);
       }
@@ -227,7 +190,7 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     this.targetProvisioningMembership = targetProvisioningMembership;
     if (this.targetProvisioningMembership != null && this != this.targetProvisioningMembership.getProvisioningMembershipWrapper()) {
       if (this.targetProvisioningMembership.getProvisioningMembershipWrapper() != null) {
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.targetProvisioningMembership.getProvisioningMembershipWrapper());
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.targetProvisioningMembership.getProvisioningMembershipWrapper());
       }
       this.targetProvisioningMembership.setProvisioningMembershipWrapper(this);
     }
@@ -243,7 +206,7 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     this.grouperTargetMembership = grouperTargetMembership;
     if (this.grouperTargetMembership != null && this != this.grouperTargetMembership.getProvisioningMembershipWrapper()) {
       if (this.grouperTargetMembership.getProvisioningMembershipWrapper() != null) {
-        this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.grouperTargetMembership.getProvisioningMembershipWrapper());
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.grouperTargetMembership.getProvisioningMembershipWrapper());
       }
       this.grouperTargetMembership.setProvisioningMembershipWrapper(this);
     }

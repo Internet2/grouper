@@ -109,7 +109,7 @@ public class GrouperProvisioningValidation {
    * @param provisioningGroups
    * @param removeInvalid
    */
-  public void validateGroups(Collection<ProvisioningGroup> provisioningGroups, boolean removeInvalid, Boolean forMembershipAttribute) {
+  public void validateGroups(Collection<ProvisioningGroup> provisioningGroups, boolean removeInvalid, Boolean forMembershipAttribute, boolean forInsert) {
     
     String membershipAttributeName =  null;
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
@@ -137,7 +137,7 @@ public class GrouperProvisioningValidation {
       // matching ID must be there
       // if a matching id is configured on groups even
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isHasMatchingIdStrategyForGroups()) {
-        if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isAllowBlankMatchingIds()) {
+        if (!forInsert) {
           
           // lets see which attribute is the matching id
           if (!validateGroupHasMatchingId(provisioningGroup)) {
@@ -191,7 +191,7 @@ public class GrouperProvisioningValidation {
    * @param provisioningEntities
    * @param removeInvalid
    */
-  public void validateEntities(Collection<ProvisioningEntity> provisioningEntities, boolean removeInvalid, Boolean forMembershipAttribute) {
+  public void validateEntities(Collection<ProvisioningEntity> provisioningEntities, boolean removeInvalid, Boolean forMembershipAttribute, boolean forInsert) {
     
     String membershipAttributeName =  null;
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
@@ -215,7 +215,7 @@ public class GrouperProvisioningValidation {
       
       // if a matching id is configured on entities even
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isHasMatchingIdStrategyForEntities()) {
-        if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isAllowBlankMatchingIds()) {
+        if (!forInsert) {
           // matching ID must be there
           if (!validateEntityHasMatchingId(provisioningEntity)) {
             this.assignEntityError(provisioningEntityWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
@@ -355,6 +355,22 @@ public class GrouperProvisioningValidation {
       }
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGcGrouperSyncMembership();
       
+      Object matchingId = provisioningMembershipWrapper.getMatchingId();
+      if (matchingId instanceof MultiKey) {
+        MultiKey matchingIdMultiKey = (MultiKey)matchingId;
+        for (int i=0;i<matchingIdMultiKey.size();i++) {
+          if (matchingIdMultiKey.getKey(i) == null) {
+            GcGrouperSyncErrorCode errorCode = GcGrouperSyncErrorCode.REQ;
+            String errorMessage = "membership multiKey has blank value in index: " + i;
+            this.assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
+            if (removeInvalid) {
+              iterator.remove();
+            }
+            continue MEMBERSHIPS;
+          }
+        }
+      }
+      
       for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
         new Collection[] {
           this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values(),
@@ -489,7 +505,7 @@ public class GrouperProvisioningValidation {
       wrapperKey = "provisioningEntityWrapper";
       wrapperValue = ((ProvisioningEntity)provisioningUpdatable).getProvisioningEntityWrapper();
     } else {
-      throw new RuntimeException("Not expecitng provisioningUpdatable type: " + (provisioningUpdatable == null ? null : provisioningUpdatable.getClass()));
+      throw new RuntimeException("Not expecting provisioningUpdatable type: " + (provisioningUpdatable == null ? null : provisioningUpdatable.getClass()));
     }
     Collection fieldOrAttributeValueCollection = null;
         

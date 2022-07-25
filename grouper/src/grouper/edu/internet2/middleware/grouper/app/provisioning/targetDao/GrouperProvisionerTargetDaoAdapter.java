@@ -1101,7 +1101,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
           first = false;
         }
-      
+        return targetDaoRetrieveMembershipsByGroupResponse;
       } catch (RuntimeException e) {
         hasError = true;
         throw e;
@@ -1347,7 +1347,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
           first = false;
         }
-       
+        return targetDaoRetrieveMembershipsByEntityResponse;
       } catch (RuntimeException e) {
         hasError = true;
         throw e;

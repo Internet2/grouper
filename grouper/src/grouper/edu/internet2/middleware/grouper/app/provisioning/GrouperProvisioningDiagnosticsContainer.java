@@ -345,7 +345,7 @@ public class GrouperProvisioningDiagnosticsContainer {
             }
             
             // validate
-            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroups, false, false);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroups, false, false, true);
             
             if (this.provisioningGroupWrapper.getErrorCode() != null) {
               this.report.append("<font color='red'><b>Error:</b></font> Group is not valid! " + this.provisioningGroupWrapper.getErrorCode() + "\n");
@@ -469,7 +469,7 @@ public class GrouperProvisioningDiagnosticsContainer {
               }
               
               // validate
-              this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(grouperTargetEntities, false, false);
+              this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(grouperTargetEntities, false, false, true);
               
               if (this.provisioningEntityWrapper.getErrorCode() != null) {
                 this.report.append("<font color='red'><b>Error:</b></font> Entity is not valid! " + this.provisioningEntityWrapper.getErrorCode() + "\n");
