@@ -232,13 +232,15 @@ public class GrouperProvisioningLogic {
       debugMap.put("state", "assignRecalc");
       // everything in a full sync is a recalc
       for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
-        provisioningGroupWrapper.setRecalc(true);
+        provisioningGroupWrapper.setRecalcObject(true);
+        provisioningGroupWrapper.setRecalcGroupMemberships(true);
       }
       for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
-        provisioningEntityWrapper.setRecalc(true);
+        provisioningEntityWrapper.setRecalcObject(true);
+        provisioningEntityWrapper.setRecalcEntityMemberships(true);
       }
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
-        provisioningMembershipWrapper.setRecalc(true);
+        provisioningMembershipWrapper.setRecalcObject(true);
       }
 
     }
@@ -1373,7 +1375,7 @@ public class GrouperProvisioningLogic {
       
       ProvisioningGroup provisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
       
-      if (provisioningGroup == null || !provisioningGroupWrapper.isRecalc()) {
+      if (provisioningGroup == null || !provisioningGroupWrapper.isRecalcObject()) {
         continue;
       }
       
@@ -1663,7 +1665,7 @@ public class GrouperProvisioningLogic {
       
       ProvisioningEntity provisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
       
-      if (provisioningEntity == null || !provisioningEntityWrapper.isRecalc() || provisioningEntityWrapper.isDelete()) {
+      if (provisioningEntity == null || !provisioningEntityWrapper.isRecalcObject() || provisioningEntityWrapper.isDelete()) {
         continue;
       }
       
@@ -3113,7 +3115,7 @@ public class GrouperProvisioningLogic {
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
       
       if (provisioningGroupWrapper.getGrouperProvisioningGroup() == null || provisioningGroupWrapper.getGrouperTargetGroup() == null
-          || !provisioningGroupWrapper.isRecalc()) {
+          || !provisioningGroupWrapper.isRecalcObject()) {
         continue;
       }
 

@@ -6,24 +6,24 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
 
   /**
-   * if incremental and recalc
+   * if recalcing the entity memberships 
    */
-  private boolean recalc;
+  private boolean recalcEntityMemberships;
   
   /**
-   * if incremental and recalc
+   * if recalcing the entity memberships 
    * @return
    */
-  public boolean isRecalc() {
-    return recalc;
+  public boolean isRecalcEntityMemberships() {
+    return recalcEntityMemberships;
   }
-
+  
   /**
-   * if incremental and recalc
-   * @param recalc
+   * if recalcing the entity memberships 
+   * @param recalcEntityMemberships1
    */
-  public void setRecalc(boolean recalc) {
-    this.recalc = recalc;
+  public void setRecalcEntityMemberships(boolean recalcEntityMemberships1) {
+    this.recalcEntityMemberships = recalcEntityMemberships1;
   }
 
   /**

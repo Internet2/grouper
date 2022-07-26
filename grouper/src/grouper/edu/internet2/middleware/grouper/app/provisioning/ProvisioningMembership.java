@@ -307,8 +307,8 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     firstField = toStringAppendField(result, firstField, "entityId", this.provisioningEntityId);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     if (this.provisioningMembershipWrapper != null) {
-      if (this.provisioningMembershipWrapper.isRecalc()) {
-        firstField = toStringAppendField(result, firstField, "recalc", this.provisioningMembershipWrapper.isRecalc());
+      if (this.provisioningMembershipWrapper.isRecalcObject()) {
+        firstField = toStringAppendField(result, firstField, "recalc", this.provisioningMembershipWrapper.isRecalcObject());
       }
       if (this.provisioningMembershipWrapper.getGrouperIncrementalDataAction() != null) {
         firstField = toStringAppendField(result, firstField, "incrementalDataAction", this.provisioningMembershipWrapper.getGrouperIncrementalDataAction());

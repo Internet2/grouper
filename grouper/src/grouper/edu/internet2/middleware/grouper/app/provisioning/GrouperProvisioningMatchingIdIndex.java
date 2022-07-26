@@ -421,7 +421,7 @@ public class GrouperProvisioningMatchingIdIndex {
       
       if (provisioningMembershipWrapper.getGrouperIncrementalDataAction() == null) {
         // if there's a group recalc and there are membership inserts; the action either needs to be provided or it needs to be recalc
-        provisioningMembershipWrapper.setRecalc(true);
+        provisioningMembershipWrapper.setRecalcObject(true);
       }
       
       matchingIds.add(matchingId);

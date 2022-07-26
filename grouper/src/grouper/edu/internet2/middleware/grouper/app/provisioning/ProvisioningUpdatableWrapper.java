@@ -9,6 +9,28 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorC
 public abstract class ProvisioningUpdatableWrapper {
 
   /**
+   * if incremental and recalc, this applies to the entity / group / membership, but not the groupMemberships (for that provisioning) or entityMemberships (for that provisioning)
+   */
+  private boolean recalcObject;
+  
+  /**
+   * if incremental and recalc, this applies to the entity / group / membership, but not the groupMemberships (for that provisioning) or entityMemberships (for that provisioning)
+   * @return
+   */
+  public boolean isRecalcObject() {
+    return recalcObject;
+  }
+
+  /**
+   * if incremental and recalc, this applies to the entity / group / membership, but not the groupMemberships (for that provisioning) or entityMemberships (for that provisioning)
+   * @param recalc
+   */
+  public void setRecalcObject(boolean recalc) {
+    this.recalcObject = recalc;
+  }
+
+
+  /**
    * if this object should not be provisioned because there is an error, list it here
    */
   private GcGrouperSyncErrorCode errorCode;

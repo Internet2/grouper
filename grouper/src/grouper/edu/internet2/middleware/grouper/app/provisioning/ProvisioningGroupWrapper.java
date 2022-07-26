@@ -5,6 +5,27 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   
+  /**
+   * if recalcing the groupAttribute memberships 
+   */
+  private boolean recalcGroupMemberships;
+
+  /**
+   * if recalcing the groupAttribute memberships 
+   * @return
+   */
+  public boolean isRecalcGroupMemberships() {
+    return recalcGroupMemberships;
+  }
+
+  /**
+   * if recalcing the group memberships 
+   * @param recalcGroupMemberships1
+   */
+  public void setRecalcGroupMemberships(boolean recalcGroupMemberships1) {
+    this.recalcGroupMemberships = recalcGroupMemberships1;
+  }
+
   private boolean grouperTargetGroupFromCacheInitted = false;
   private ProvisioningGroup grouperTargetGroupFromCache;
 
@@ -35,27 +56,6 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     
   public ProvisioningGroup getTargetProvisioningGroupFromCache() {
     return targetProvisioningGroupFromCache;
-  }
-
-  /**
-   * if incremental and recalc
-   */
-  private boolean recalc;
-  
-  /**
-   * if incremental and recalc
-   * @return
-   */
-  public boolean isRecalc() {
-    return recalc;
-  }
-
-  /**
-   * if incremental and recalc
-   * @param recalc
-   */
-  public void setRecalc(boolean recalc) {
-    this.recalc = recalc;
   }
 
   /**

@@ -13,7 +13,9 @@
     <div class="top-container" id="theTopContainer">
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
-          <div class="container-fluid"><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" /></a>
+          <div class="container-fluid"><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" /></a><br 
+              /><a id="grouperHideSidePanelId" href="#" onclick="grouperHideSidePanel">${textContainer.text['grouperHideSidePanel']}</a><a 
+                   id="grouperShowSidePanelId" href="#" onclick="grouperShowSidePanel" style="display:none">${textContainer.text['grouperShowSidePanel']}</a>              
             <div class="pull-right">
 
               <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" class="navbar-search">

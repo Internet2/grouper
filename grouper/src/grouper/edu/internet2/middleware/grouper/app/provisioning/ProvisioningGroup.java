@@ -134,8 +134,11 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     
     if (this.provisioningGroupWrapper != null) {
-      if (this.provisioningGroupWrapper.isRecalc()) {
-        firstField = toStringAppendField(result, firstField, "recalc", this.provisioningGroupWrapper.isRecalc());
+      if (this.provisioningGroupWrapper.isRecalcObject()) {
+        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningGroupWrapper.isRecalcObject());
+      }
+      if (this.provisioningGroupWrapper.isRecalcGroupMemberships()) {
+        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningGroupWrapper.isRecalcGroupMemberships());
       }
       if (this.provisioningGroupWrapper.isCreate()) {
         firstField = toStringAppendField(result, firstField, "create", this.provisioningGroupWrapper.isCreate());

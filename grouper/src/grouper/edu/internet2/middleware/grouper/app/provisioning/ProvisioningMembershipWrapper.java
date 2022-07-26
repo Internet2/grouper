@@ -2,32 +2,10 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper {
   
-  /**
-   * if incremental and recalc
-   */
-  private boolean recalc;
-  
-  /**
-   * if incremental and recalc
-   * @return
-   */
-  public boolean isRecalc() {
-    return recalc;
-  }
-
-  /**
-   * if incremental and recalc
-   * @param recalc
-   */
-  public void setRecalc(boolean recalc) {
-    this.recalc = recalc;
-  }
-
   /**
    * if this is an incremental action without recalc, then this is the action that occurred in Grouper
    */

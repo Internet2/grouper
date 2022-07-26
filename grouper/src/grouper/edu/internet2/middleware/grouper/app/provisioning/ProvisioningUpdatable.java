@@ -418,15 +418,24 @@ public abstract class ProvisioningUpdatable {
     throw new RuntimeException("Not expecting provisioning updatable: " + this.getClass());
   }
 
-  public boolean isRecalc() {
+  public boolean isRecalcObject() {
     if (this instanceof ProvisioningGroup) {
-      return ((ProvisioningGroup)this).getProvisioningGroupWrapper().isRecalc();
+      return ((ProvisioningGroup)this).getProvisioningGroupWrapper().isRecalcObject();
     }
     if (this instanceof ProvisioningEntity) {
-      return ((ProvisioningEntity)this).getProvisioningEntityWrapper().isRecalc();
+      return ((ProvisioningEntity)this).getProvisioningEntityWrapper().isRecalcObject();
     }
     if (this instanceof ProvisioningMembership) {
-      return ((ProvisioningMembership)this).getProvisioningMembershipWrapper().isRecalc();
+      return ((ProvisioningMembership)this).getProvisioningMembershipWrapper().isRecalcObject();
+    }
+    throw new RuntimeException("Not expecting type: " + this.getClass().getName());
+  }
+  public boolean isRecalcObjectMemberships() {
+    if (this instanceof ProvisioningGroup) {
+      return ((ProvisioningGroup)this).getProvisioningGroupWrapper().isRecalcGroupMemberships();
+    }
+    if (this instanceof ProvisioningEntity) {
+      return ((ProvisioningEntity)this).getProvisioningEntityWrapper().isRecalcEntityMemberships();
     }
     throw new RuntimeException("Not expecting type: " + this.getClass().getName());
   }
