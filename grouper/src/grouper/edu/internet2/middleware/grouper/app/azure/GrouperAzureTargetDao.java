@@ -504,7 +504,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       return targetGroup.getId();
     }
     
-    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.retrieveGroup(new TargetDaoRetrieveGroupRequest(targetGroup, false));
+    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroup(new TargetDaoRetrieveGroupRequest(targetGroup, false));
     
     if (targetDaoRetrieveGroupResponse == null || targetDaoRetrieveGroupResponse.getTargetGroup() == null) {
       return null;
