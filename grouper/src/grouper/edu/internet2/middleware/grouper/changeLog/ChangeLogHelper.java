@@ -324,8 +324,9 @@ public class ChangeLogHelper {
       }
   
       if (!error) {
-  
-        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        if (hib3GrouploaderLog.getStatusEnum() == null || !hib3GrouploaderLog.getStatusEnum().isError()) {
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        }
       }
     } finally {
       if (LOG.isDebugEnabled()) {

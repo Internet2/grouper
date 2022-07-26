@@ -4236,8 +4236,13 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     }  
 
     // this should not retry
-    hib3GrouperLoaderLog = incrementalProvision();
-    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    try {
+      hib3GrouperLoaderLog = incrementalProvision(defaultConfigId(), true, true, true);
+      fail();
+    } catch (Exception e) {
+      
+    }
+    assertEquals("ERROR", hib3GrouperLoaderLog.getStatus());
     
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("addErrorsToQueue"), 0));

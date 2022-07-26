@@ -242,7 +242,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     
     assertEquals(20, syncDetails.getGroupCount());
     assertEquals(10, syncDetails.getUserCount());
-    assertEquals(0, syncDetails.getMembershipCount());
+    assertEquals(30, syncDetails.getMembershipCount());
     
     List<GrouperSyncJobWrapper> syncJobs = syncDetails.getSyncJobs();
     assertEquals(1, syncJobs.size());

@@ -148,7 +148,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       
       assertEquals(1, gcGrouperSync.getGroupCount().intValue());
       assertEquals(2, gcGrouperSync.getUserCount().intValue());
-      assertEquals(1+2+2, gcGrouperSync.getRecordsCount().intValue());
+      assertEquals(2, gcGrouperSync.getRecordsCount().intValue());
       assertTrue(started <=  gcGrouperSync.getLastFullSyncRun().getTime());
       assertTrue(new Timestamp(System.currentTimeMillis()) + ", " + gcGrouperSync.getLastFullSyncRun(), 
       System.currentTimeMillis() >=  gcGrouperSync.getLastFullSyncRun().getTime());
@@ -293,7 +293,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       
       assertEquals(1, gcGrouperSync.getGroupCount().intValue());
       assertEquals(1, gcGrouperSync.getUserCount().intValue());
-      assertEquals(1+1+1, gcGrouperSync.getRecordsCount().intValue());
+      assertEquals(1, gcGrouperSync.getRecordsCount().intValue());
       assertTrue(new Timestamp(System.currentTimeMillis()) + ", " + gcGrouperSync.getLastFullSyncRun(), 
           System.currentTimeMillis() >=  gcGrouperSync.getLastFullSyncRun().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSync.getLastUpdated().getTime());
@@ -620,7 +620,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       
       assertEquals(1, gcGrouperSync.getGroupCount().intValue());
       assertEquals(2, gcGrouperSync.getUserCount().intValue());
-      assertEquals(1+2+2, gcGrouperSync.getRecordsCount().intValue());
+      assertEquals(2, gcGrouperSync.getRecordsCount().intValue());
       assertTrue(started < gcGrouperSync.getLastUpdated().getTime());
       assertTrue(System.currentTimeMillis() >= gcGrouperSync.getLastUpdated().getTime());
       
