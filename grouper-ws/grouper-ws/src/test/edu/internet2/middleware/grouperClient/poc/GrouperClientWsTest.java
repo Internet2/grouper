@@ -5191,12 +5191,10 @@ public class GrouperClientWsTest extends GrouperTest {
     file.deleteOnExit();
 
     try {
-      Ws
-      String contents = "<WsRestAddMemberRequest>"
-          + "wsGroupLookup\":{\"groupNameaStem:aGroup</groupName></wsGroupLookup>"
-          + "<subjectLookups><WsSubjectLookup>"
-          + "subjectIdtest.subject.0</subjectId></WsSubjectLookup>"
-          + "</subjectLookups></WsRestAddMemberRequest>";
+      String contents = "{\"WsRestAddMemberRequest\":"
+          + "\"wsGroupLookup\":{\"groupName\":\"aStem:aGroup\"},"
+          + "\"subjectLookups\":{\"WsSubjectLookup\":"
+          + "{\"subjectId\":\"test.subject.0\"}}}";
       GrouperClientUtils.saveStringIntoFile(file, contents);
 
       GrouperClient

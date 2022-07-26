@@ -87,7 +87,7 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
 
             if (StringUtils.isNotEmpty(tlsVersion)) {
               if ("default".equals(tlsVersion)) {
-                tlsVersion = ConnectionFactory.computeDefaultTlsProcotol(SSLContext.getDefault().getSupportedSSLParameters().getProtocols());
+                tlsVersion = ConnectionFactory.computeDefaultTlsProtocol(SSLContext.getDefault().getSupportedSSLParameters().getProtocols());
               }
               SSLContext c = SSLContext.getInstance(tlsVersion);
               if (StringUtils.isNotEmpty(pathToTrustStore) && StringUtils.isNotEmpty(trustPassphrase)) {
