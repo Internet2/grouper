@@ -2463,6 +2463,7 @@ public class GrouperProvisioningLogicIncremental {
             // we need to retrieve or create this, its probably already a recalc but...
             grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
             provisioningGroupWrapper.setRecalcObject(true);
+            provisioningGroupWrapper.setRecalcGroupMemberships(true);
             continue;
           }
         }
@@ -2516,6 +2517,7 @@ public class GrouperProvisioningLogicIncremental {
             // we need to retrieve or create this, its probably already a recalc but...
             grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
             provisioningEntityWrapper.setRecalcObject(true);
+            provisioningEntityWrapper.setRecalcEntityMemberships(true);
             continue;
           }
         }
