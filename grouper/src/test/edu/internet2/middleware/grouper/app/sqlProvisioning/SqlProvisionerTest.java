@@ -2823,7 +2823,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "sqlProvTest");
     assertEquals(1, gcGrouperSync.getGroupCount().intValue());
     assertEquals(2, gcGrouperSync.getUserCount().intValue());
-    assertEquals(1+2+2, gcGrouperSync.getRecordsCount().intValue());
+    assertEquals(2, gcGrouperSync.getRecordsCount().intValue());
     assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
     assertTrue(new Timestamp(System.currentTimeMillis()) + " > " + new Timestamp(gcGrouperSync.getLastFullSyncRun().getTime()), System.currentTimeMillis() >  gcGrouperSync.getLastFullSyncRun().getTime());
     assertTrue(started < gcGrouperSync.getLastUpdated().getTime());
@@ -4109,7 +4109,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
     // 2 valid, 1 invalid, 2 in invalid group
     assertEquals(5, gcGrouperSync.getUserCount().intValue());
-    assertEquals(2+5+5, gcGrouperSync.getRecordsCount().intValue());
+    assertEquals(5, gcGrouperSync.getRecordsCount().intValue());
     assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
     assertTrue(new Timestamp(System.currentTimeMillis()) + " > " + new Timestamp(gcGrouperSync.getLastFullSyncRun().getTime()), System.currentTimeMillis() >  gcGrouperSync.getLastFullSyncRun().getTime());
     assertTrue(started < gcGrouperSync.getLastUpdated().getTime());

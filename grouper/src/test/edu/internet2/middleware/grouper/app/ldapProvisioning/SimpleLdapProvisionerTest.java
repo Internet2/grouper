@@ -67,7 +67,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLatestConfig_1"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullOverrideDn"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -202,7 +202,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "ldapProvTest");
     assertEquals(1, gcGrouperSync.getGroupCount().intValue());
     assertEquals(1, gcGrouperSync.getUserCount().intValue());
-    assertEquals(1+1+1, gcGrouperSync.getRecordsCount().intValue());
+    assertEquals(1, gcGrouperSync.getRecordsCount().intValue());
     assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
     assertTrue(new Timestamp(System.currentTimeMillis()) + ", " + gcGrouperSync.getLastFullSyncRun(), 
         System.currentTimeMillis() >=  gcGrouperSync.getLastFullSyncRun().getTime());
@@ -402,7 +402,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "ldapProvTest");
     assertEquals(1, gcGrouperSync.getGroupCount().intValue());
     assertEquals(1, gcGrouperSync.getUserCount().intValue());
-    assertEquals(1+1+1, gcGrouperSync.getRecordsCount().intValue());
+    assertEquals(1, gcGrouperSync.getRecordsCount().intValue());
     assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
     assertTrue(new Timestamp(System.currentTimeMillis()) + ", " + gcGrouperSync.getLastFullSyncRun(), 
         System.currentTimeMillis() >=  gcGrouperSync.getLastFullSyncRun().getTime());
@@ -1883,7 +1883,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "ldapProvTest");
     assertEquals(1, gcGrouperSync.getGroupCount().intValue());
     assertEquals(1, gcGrouperSync.getUserCount().intValue());
-    assertEquals(1+1+1, gcGrouperSync.getRecordsCount().intValue());
+    assertEquals(1, gcGrouperSync.getRecordsCount().intValue());
     assertTrue(started <=  gcGrouperSync.getLastFullSyncRun().getTime());
     assertTrue(new Timestamp(System.currentTimeMillis()) + ", " + gcGrouperSync.getLastFullSyncRun(), 
         System.currentTimeMillis() >=  gcGrouperSync.getLastFullSyncRun().getTime());
