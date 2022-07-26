@@ -53,9 +53,9 @@ public class AllProvisioningTestsManual {
     suite.addTest(AllGoogleProvisionerTests.suite());
     suite.addTest(AllLdapProvisioningTests.suite());
     suite.addTest(AllMessagingProvisioningTests.suite());
-    suite.addTest(AllProvisioningTests.suite());
     suite.addTest(AllScimProvisionerTests.suite());
     suite.addTest(AllSqlProvisioningTests.suite());
+    suite.addTest(AllProvisioningTests.suite());
 
     suite.addTestSuite(UsduJobProvisionerSyncTest.class);
 
