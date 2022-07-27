@@ -7622,7 +7622,12 @@ public class GrouperInstallerUtils  {
   public static Set<String> jarFileBaseNames(String fileName) {
     
     Set<String> result = new HashSet<String>();
-    
+
+    if (fileName.toLowerCase().startsWith("log4j-1.2-api")) {
+      result.add("log4j-1.2-api");
+      return result;
+    }
+
     Pattern pattern = Pattern.compile("^(.*?)-[0-9].*.jar$");
     Matcher matcher = pattern.matcher(fileName);
     String baseName = null;
@@ -7656,7 +7661,7 @@ public class GrouperInstallerUtils  {
       result.add("mail");
       result.add("mailapi");
     }
-
+    
     return result;
   }
 
