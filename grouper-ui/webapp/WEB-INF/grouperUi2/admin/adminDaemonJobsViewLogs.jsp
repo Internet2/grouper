@@ -21,7 +21,7 @@
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.editDaemon&jobName=${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).loader == true}">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.editGrouperLoader&${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName.editQueryParam}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.editGrouperLoader&${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).editQueryParam}'); return false;">${textContainer.text['grouperDaemonConfigEditJob'] }</a></li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).failsafeNeedsApproval}" >
                           <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=failsafeApprove&source=logs&jobName=${grouper:escapeUrl(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName)}'); return false;" >${textContainer.text['adminDaemonJobsMoreActionsFailsafeApprove'] }</a></li>
