@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -204,12 +203,16 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.appendInsertGroupIntoTarget();
       this.appendInsertEntityIntoTarget();
 
-      this.appendInsertGroupAttributesMembershipIntoTarget();
-      this.appendDeleteGroupAttributesMembershipFromTarget();
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+        this.appendInsertGroupAttributesMembershipIntoTarget();
+        this.appendDeleteGroupAttributesMembershipFromTarget();
+      }
       
-      this.appendInsertEntityAttributesMembershipIntoTarget();
-      this.appendDeleteEntityAttributesMembershipFromTarget();
-
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+        this.appendInsertEntityAttributesMembershipIntoTarget();
+        this.appendDeleteEntityAttributesMembershipFromTarget();
+      }
+      
       this.appendDeleteGroupFromTarget();
       this.appendDeleteEntityFromTarget();
     } catch (Exception e) {
