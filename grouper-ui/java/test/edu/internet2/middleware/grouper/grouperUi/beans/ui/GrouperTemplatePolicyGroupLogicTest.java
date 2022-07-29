@@ -6,19 +6,18 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.List;
 
-import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Template;
-import edu.internet2.middleware.grouper.helper.GrouperTest;
+import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 /**
  *
  */
-public class GrouperTemplatePolicyGroupLogicTest extends GrouperTest {
+public class GrouperTemplatePolicyGroupLogicTest extends TestCase {
 
   /**
    * @param name

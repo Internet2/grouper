@@ -428,6 +428,19 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
     return this.parameterMap;
   }
 
+  @Override
+  public String getHeader(String name) {
+    
+    if (StringUtils.equals("OWASP_CSRFTOKEN", name)) {
+      String value = this.wrapped.getHeader(name);
+      if (value != null && value.contains(",")) {
+        return GrouperUtil.prefixOrSuffix(value, ",", true).trim();
+      }
+    }
+
+    return this.wrapped.getHeader(name);
+  }
+
   /**
    * Use this instead of request.getParameter as it will handle file uploads.
    * 
@@ -441,6 +454,13 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
   @Override
   public String getParameter(String name) {
 
+    if (StringUtils.equals("OWASP_CSRFTOKEN", name)) {
+      String value = this.wrapped.getParameter(name);
+      if (value != null && value.contains(",")) {
+        return GrouperUtil.prefixOrSuffix(value, ",", true).trim();
+      }
+    }
+    
     //radios give a name as brackets????  add them if it helps
     if (this.wrapped.getParameter(name) == null && this.wrapped.getParameter(name+"[]") != null) {
       name = name+"[]";
