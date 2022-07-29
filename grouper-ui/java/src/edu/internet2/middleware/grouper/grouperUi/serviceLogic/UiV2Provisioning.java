@@ -1515,11 +1515,11 @@ public class UiV2Provisioning {
     
     try {
   
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
         throw new RuntimeException("Cannot access provisioning.");
       }
-      
-      grouperSession = GrouperSession.start(loggedInSubject);
   
       subject = UiV2Subject.retrieveSubjectHelper(request, true);
 
@@ -2112,11 +2112,12 @@ public class UiV2Provisioning {
     
     try {
   
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
       if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
         throw new RuntimeException("Cannot access provisioning.");
       }
       
-      grouperSession = GrouperSession.start(loggedInSubject);
   
       subject = UiV2Subject.retrieveSubjectHelper(request, true);
 
