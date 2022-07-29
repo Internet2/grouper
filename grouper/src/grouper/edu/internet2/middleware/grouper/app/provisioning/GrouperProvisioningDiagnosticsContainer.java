@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -46,6 +47,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -193,7 +195,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       this.appendSelectAllGroups();
       this.appendSelectAllEntities();
       this.appendSelectAllMemberships();
-
+      
       this.appendSelectGroupFromGrouper();
       this.appendSelectGroupFromTarget();
 
@@ -270,93 +272,121 @@ public class GrouperProvisioningDiagnosticsContainer {
     
       Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, false);
       if (group == null) {
-
-        this.report.append("<font color='orange'><b>Warning:</b></font> Group '").append(GrouperUtil.xmlEscape(groupName)).append("' does not exist in Grouper\n");
+        this.report.append("<font color='orange'><b>Warning:</b></font> Group '").append(GrouperUtil.xmlEscape(groupName)).append("' does not exist in Grouper. Going to create one.\n");
+        group = new GroupSave(GrouperSession.staticGrouperSession()).assignName(groupName).assignSaveMode(SaveMode.INSERT).save();
         
       } else {
-
         this.report.append("<font color='gray'><b>Note:</b></font> Group: ").append(GrouperUtil.xmlEscape(group.toStringDb())).append(this.getCurrentDuration()).append("\n");
-
-        GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
-        GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(group.getId());
-        if (gcGrouperSyncGroup == null) {
-          this.report.append("<font color='gray'><b>Note:</b></font> GrouperSyncGroup record does not exist in database\n");
-          
-        } else {
-          this.report.append("<font color='gray'><b>Note:</b></font> GrouperSyncGroup: ").append(GrouperUtil.xmlEscape(gcGrouperSyncGroup.toString())).append(this.getCurrentDuration()).append("\n");
-        }
+      }
+      
+      GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(group.getId());
+      
+      if (gcGrouperSyncGroup == null) {
+        this.report.append("<font color='gray'><b>Note:</b></font> GrouperSyncGroup record does not exist in database. Going to create one.\n");
+        gcGrouperSyncGroup = new GcGrouperSyncGroup();
+        gcGrouperSyncGroup.setGrouperSync(gcGrouperSync);
+        gcGrouperSyncGroup.setGroupId(group.getId());
+        gcGrouperSyncGroup.setProvisionable(true);
         
-        List<ProvisioningGroup> grouperProvisioningGroups = this.grouperProvisioner.retrieveGrouperDao().retrieveGroups(false, GrouperUtil.toList(group.getId()));
-        if (GrouperUtil.length(grouperProvisioningGroups) == 0) {
-          this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningGroup object, perhaps the group is not marked as provisionable\n");
+        gcGrouperSync.getGcGrouperSyncGroupDao().internal_groupStore(gcGrouperSyncGroup);
+      } else {
+        this.report.append("<font color='gray'><b>Note:</b></font> GrouperSyncGroup: ").append(GrouperUtil.xmlEscape(gcGrouperSyncGroup.toString())).append(this.getCurrentDuration()).append("\n");
+      }
+      
+      String subjectIdOrIdentifier = this.getGrouperProvisioningDiagnosticsSettings().getDiagnosticsSubjectIdOrIdentifier();
+      if (StringUtils.isNotBlank(subjectIdOrIdentifier)) {
+        Subject subject = SubjectFinder.findByIdOrIdentifier(subjectIdOrIdentifier, false);
+        if (subject != null && !group.hasMember(subject)) {
+          group.addMember(subject);
+        }
+      }
+        
+      GrouperProvisioningAttributeValue provisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(group, this.getGrouperProvisioner().getConfigId());
+      
+      if (provisioningAttributeValue == null) {
+        GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+        attributeValue.setDirectAssignment(true);
+        attributeValue.setDoProvision(this.getGrouperProvisioner().getConfigId());
+        attributeValue.setTargetName(this.getGrouperProvisioner().getConfigId());
+        
+        GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, group);
+      }
+      
+      
+        
+        
+      List<ProvisioningGroup> grouperProvisioningGroups = this.grouperProvisioner.retrieveGrouperDao().retrieveGroups(false, GrouperUtil.toList(group.getId()));
+      if (GrouperUtil.length(grouperProvisioningGroups) == 0) {
+        this.report.append("<font color='orange'><b>Warning:</b></font> Cannot find ProvisioningGroup object, perhaps the group is not marked as provisionable\n");
+      } else {
+        GrouperUtil.assertion(grouperProvisioningGroups.size() == 1, "Why is size not 1???? " + grouperProvisioningGroups.size());
+        
+        ProvisioningGroup grouperProvisioningGroup = grouperProvisioningGroups.get(0);
+        this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (unprocessed): ").append(GrouperUtil.xmlEscape(grouperProvisioningGroup.toString())).append(this.getCurrentDuration()).append("\n");
+       
+        this.provisioningGroupWrapper = new ProvisioningGroupWrapper();
+        grouperProvisioningGroup.setProvisioningGroupWrapper(this.provisioningGroupWrapper);
+        this.provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
+        this.provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
+        this.provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+        
+        List<ProvisioningGroup> grouperTargetGroups = this.grouperProvisioner.retrieveGrouperProvisioningTranslator().translateGrouperToTargetGroups(grouperProvisioningGroups, false, false);
+        
+        if (GrouperUtil.length(grouperTargetGroups) == 0) {
+          this.report.append("<font color='gray'><b>Note:</b></font> Cannot find grouperTargetGroup object after translation, perhaps the group is not supposed to translate\n");
         } else {
-          GrouperUtil.assertion(grouperProvisioningGroups.size() == 1, "Why is size not 1???? " + grouperProvisioningGroups.size());
-          
-          ProvisioningGroup grouperProvisioningGroup = grouperProvisioningGroups.get(0);
-          this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (unprocessed): ").append(GrouperUtil.xmlEscape(grouperProvisioningGroup.toString())).append(this.getCurrentDuration()).append("\n");
-         
-          this.provisioningGroupWrapper = new ProvisioningGroupWrapper();
-          grouperProvisioningGroup.setProvisioningGroupWrapper(this.provisioningGroupWrapper);
-          this.provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
-          this.provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
-          this.provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
-          
-          List<ProvisioningGroup> grouperTargetGroups = this.grouperProvisioner.retrieveGrouperProvisioningTranslator().translateGrouperToTargetGroups(grouperProvisioningGroups, false, false);
-          
-          if (GrouperUtil.length(grouperTargetGroups) == 0) {
-            this.report.append("<font color='gray'><b>Note:</b></font> Cannot find grouperTargetGroup object after translation, perhaps the group is not supposed to translate\n");
-          } else {
-            GrouperUtil.assertion(grouperTargetGroups.size() == 1, "Why is size not 1???? " + grouperTargetGroups.size());
-            ProvisioningGroup grouperTargetGroup = grouperTargetGroups.get(0);
-            this.provisioningGroupWrapper.setGrouperTargetGroup(grouperTargetGroup);
-            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (translated): ").append(GrouperUtil.xmlEscape(grouperTargetGroup.toString())).append("\n");
-          
-            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForGroups(grouperTargetGroups, null);
-            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(grouperTargetGroups, true, false, false);
-            this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroups);
-            this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(grouperTargetGroups);
+          GrouperUtil.assertion(grouperTargetGroups.size() == 1, "Why is size not 1???? " + grouperTargetGroups.size());
+          ProvisioningGroup grouperTargetGroup = grouperTargetGroups.get(0);
+          this.provisioningGroupWrapper.setGrouperTargetGroup(grouperTargetGroup);
+          this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (translated): ").append(GrouperUtil.xmlEscape(grouperTargetGroup.toString())).append("\n");
+        
+          this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForGroups(grouperTargetGroups, null);
+          this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(grouperTargetGroups, true, false, false);
+          this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroups);
+          this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(grouperTargetGroups);
 
-            this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (filtered, attributes manipulated, matchingId calculated): ").append(GrouperUtil.xmlEscape(grouperTargetGroup.toString())).append("\n");
+          this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (filtered, attributes manipulated, matchingId calculated): ").append(GrouperUtil.xmlEscape(grouperTargetGroup.toString())).append("\n");
+          
+          if (GrouperUtil.isBlank(grouperTargetGroup.getMatchingId())) {
             
-            if (GrouperUtil.isBlank(grouperTargetGroup.getMatchingId())) {
-              
-              // TODO handle multiple matching IDs
-              GrouperProvisioningConfigurationAttribute matchingAttribute = null;
-              if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) > 0) {
-                matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes().get(0);
-              }
+            // TODO handle multiple matching IDs
+            GrouperProvisioningConfigurationAttribute matchingAttribute = null;
+            if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) > 0) {
+              matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes().get(0);
+            }
 
-              if (matchingAttribute == null) {
-                
-                if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isUpdateGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
-                  this.report.append("<font color='red'><b>Error:</b></font> Cannot find the group matching attribute/field\n");
+            if (matchingAttribute == null) {
+              
+              if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isUpdateGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
+                this.report.append("<font color='red'><b>Error:</b></font> Cannot find the group matching attribute/field\n");
+              } else {
+                this.report.append("<font color='gray'><b>Note:</b></font> Cannot find the group matching attribute/field\n");
+              }
+            } else {
+              if (!matchingAttribute.isInsert() && !matchingAttribute.isUpdate()) {
+                if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isInTarget()) {
+                  this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank and it is currently in target\n");
                 } else {
-                  this.report.append("<font color='gray'><b>Note:</b></font> Cannot find the group matching attribute/field\n");
+                  this.report.append("<font color='green'><b>Success:</b></font> Grouper target group matching id is blank but it is not inserted or updated so it probably is not retrieved from target yet\n");
                 }
               } else {
-                if (!matchingAttribute.isInsert() && !matchingAttribute.isUpdate()) {
-                  if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isInTarget()) {
-                    this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank and it is currently in target\n");
-                  } else {
-                    this.report.append("<font color='green'><b>Success:</b></font> Grouper target group matching id is blank but it is not inserted or updated so it probably is not retrieved from target yet\n");
-                  }
-                } else {
-                  this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank\n");
-                }
+                this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank\n");
               }
-              
             }
             
-            // validate
-            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroups, false, false, true);
-            
-            if (this.provisioningGroupWrapper.getErrorCode() != null) {
-              this.report.append("<font color='red'><b>Error:</b></font> Group is not valid! " + this.provisioningGroupWrapper.getErrorCode() + "\n");
-            } else {
-              this.report.append("<font color='green'><b>Success:</b></font> Group is valid\n");
-            }
-          }          
-        }
+          }
+          
+          // validate
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(grouperTargetGroups, false, false, true);
+          
+          if (this.provisioningGroupWrapper.getErrorCode() != null) {
+            this.report.append("<font color='red'><b>Error:</b></font> Group is not valid! " + this.provisioningGroupWrapper.getErrorCode() + "\n");
+          } else {
+            this.report.append("<font color='green'><b>Success:</b></font> Group is valid\n");
+          }
+        }          
       }
       
     }
