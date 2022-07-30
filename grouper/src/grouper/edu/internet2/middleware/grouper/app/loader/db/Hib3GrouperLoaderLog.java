@@ -142,7 +142,18 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
   
   /** could be an error or success message.  might include partial stacktraces */
   private StringBuilder jobMessage;
+
+  private String jobMessageDb;
   
+  public String getJobMessageDb() {
+    return jobMessageDb;
+  }
+
+  public void setJobMessageDb(String jobMessageDb) {
+    this.jobMessageDb = jobMessageDb;
+    this.jobMessage = null;
+  }
+
   /** host that the loader is running on */
   private String host;
   
@@ -614,7 +625,25 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    * @return the jobMessage
    */
   public String getJobMessage() {
-    return this.jobMessage == null ? null : this.jobMessage.toString();
+    StringBuilder jobMessageStringBuilder = this.getJobMessageStringBuilder();
+    return jobMessageStringBuilder == null ? null : jobMessageStringBuilder.toString();
+  }
+
+  /**
+   * could be an error or success message.  might include partial stacktraces
+   * @return the jobMessage
+   */
+  public StringBuilder getJobMessageStringBuilder() {
+    if (this.jobMessage == null) {
+      if (!StringUtils.isBlank(this.jobMessageClob)) {
+        this.jobMessage = new StringBuilder(this.jobMessageClob);
+      } else if (this.jobMessageDb != null) {
+        this.jobMessage = new StringBuilder(this.jobMessageDb);
+      }
+      this.jobMessageClob = null;
+      this.jobMessageDb = null;
+    }
+    return this.jobMessage;
   }
 
   
@@ -623,6 +652,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    * @param messageFragment
    */
   public void appendJobMessage(String messageFragment) {
+    this.jobMessage = this.getJobMessageStringBuilder();
     if (this.jobMessage == null) {
       this.jobMessage = new StringBuilder();
     }
@@ -636,6 +666,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    * @param messageFragment
    */
   public void insertJobMessage(String messageFragment) {
+    this.jobMessage = this.getJobMessageStringBuilder();
     if (this.jobMessage == null) {
       this.jobMessage = new StringBuilder();
     }
@@ -647,7 +678,10 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    * @return bytes
    */
   public Long getJobMessageBytes() {
-    return this.jobMessage == null ? 0 : new Long(GrouperUtil.lengthAscii(this.jobMessage.toString()));
+    if (this.jobMessageDb == null) {
+      return new Long(GrouperUtil.lengthAscii(this.jobMessageClob));
+    }
+    return new Long(GrouperUtil.lengthAscii(this.jobMessageDb));
   }
 
   /**
@@ -676,9 +710,8 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    * @param jobMessageClob
    */
   public void setJobMessageClob(String jobMessageClob) {
-    if (!StringUtils.isBlank(jobMessageClob)) {
-      this.jobMessage = new StringBuilder(jobMessageClob);
-    }
+    this.jobMessageClob = jobMessageClob;
+    this.jobMessage = null;
   }
 
   /**
@@ -686,7 +719,10 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    * @param jobMessage1 the jobMessage to set
    */
   public void setJobMessage(String jobMessage1) {
+    
     this.jobMessage = jobMessage1 == null ? null : new StringBuilder(jobMessage1);
+    this.jobMessageClob = null;
+    this.jobMessageDb = null;
   }
 
   
@@ -884,8 +920,14 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
       int length = GrouperUtil.lengthAscii(jobMessageString);
       if (length > 3500) {
         this.jobMessageClob = GrouperUtil.abbreviate(jobMessageString, GrouperConfig.retrieveConfig().propertyValueInt("grouper.loader.log.maxJobMessageBytes", 200000));
-        this.jobMessage = null;
+        this.jobMessageDb = null;
+      } else {
+        this.jobMessageDb = this.jobMessage == null ? null : this.jobMessage.toString();
+        this.jobMessageClob = null;
       }
+    } else {
+      this.jobMessageDb = null;
+      this.jobMessageClob = null;
     }
     
     this.host = GrouperUtil.truncateAscii(this.host, 128);
@@ -907,8 +949,8 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
       if (!StringUtils.isBlank(this.getParentJobId())) {
         GrouperLoaderLogger.addLogEntry(logLabel, "parentJobName", this.getParentJobName());
       }
-      if (!StringUtils.isBlank(this.getJobMessage())) {
-        GrouperLoaderLogger.addLogEntry(logLabel, "jobMessage", StringUtils.abbreviate(this.getJobMessage(), 2000));
+      if (!StringUtils.isBlank(this.getJobMessageDb())) {
+        GrouperLoaderLogger.addLogEntry(logLabel, "jobMessage", StringUtils.abbreviate(this.getJobMessageDb(), 2000));
       }
       if (!StringUtils.isBlank(this.getJobMessageClob())) {
         GrouperLoaderLogger.addLogEntry(logLabel, "jobMessageClob", StringUtils.abbreviate(this.getJobMessageClob(), 2000));
@@ -962,6 +1004,16 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
         
       });
     }
+    
+    //lets copy state back
+    if (!StringUtils.isBlank(this.jobMessageClob)) {
+      this.jobMessage = new StringBuilder(this.jobMessageClob);
+    } else {
+      this.jobMessage = this.jobMessageDb == null ? null : new StringBuilder(this.jobMessageDb);
+    }
+    this.jobMessageClob = null;
+    this.jobMessageDb = null;
+
   }
 
   /**

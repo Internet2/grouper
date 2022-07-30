@@ -75,22 +75,26 @@ public class Hib3GrouploaderLogTest extends GrouperTest {
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
     hib3GrouploaderLog.setEndedTime(new Timestamp(System.currentTimeMillis()));
     hib3GrouploaderLog.setJobName(testObjectName);
+    hib3GrouploaderLog.setJobMessage(StringUtils.repeat("b", 2000));
+    assertEquals(2000, hib3GrouploaderLog.getJobMessage().length());
+    assertNull("Not stored, no id", hib3GrouploaderLog.getId());
+    hib3GrouploaderLog.store();
+
     hib3GrouploaderLog.setJobMessage(StringUtils.repeat("a", 4001));
     assertEquals(4001, hib3GrouploaderLog.getJobMessage().length());
     
-    assertNull("Not stored, no id", hib3GrouploaderLog.getId());
     hib3GrouploaderLog.store();
     assertNotNull("Stored, should have id", hib3GrouploaderLog.getId());
     
-    //the value should have truncated
-    assertEquals(4000, hib3GrouploaderLog.getJobMessage().length());
+    //the value should not have truncated
+    assertEquals(4001, hib3GrouploaderLog.getJobMessage().length());
     
     //try an update
     hib3GrouploaderLog.setJobDescription("hey");
     HibernateSession.byObjectStatic().saveOrUpdate(hib3GrouploaderLog);
     
     //now clean up, just delete
-    HibernateSession.byObjectStatic().delete(hib3GrouploaderLog);
+    //HibernateSession.byObjectStatic().delete(hib3GrouploaderLog);
   }
   
 }

@@ -63,7 +63,7 @@
       <column name="job_description" length="4000" />
     </property>
 
-    <property name="jobMessage" type="string">
+    <property name="jobMessageDb" type="string">
       <column name="job_message" length="4000" />
     </property>
 
