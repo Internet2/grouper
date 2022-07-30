@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.app.loader.db;
 
 import java.sql.Timestamp;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -54,6 +56,16 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
    * 
    */
   public static final String COLUMN_CONTEXT_ID = "context_id";
+
+  /**
+   * 
+   */
+  public static final String COLUMN_JOB_MESSAGE_CLOB = "job_message_clob";
+
+  /**
+   * 
+   */
+  public static final String COLUMN_JOB_MESSAGE_BYTES = "job_message_bytes";
 
   /**
    * 
@@ -631,6 +643,45 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
   }
   
   /**
+   * size of job message in bytes
+   * @return bytes
+   */
+  public Long getJobMessageBytes() {
+    return this.jobMessage == null ? 0 : new Long(GrouperUtil.lengthAscii(this.jobMessage.toString()));
+  }
+
+  /**
+   * size of job message in bytes
+   * @param jobMessageBytes
+   */
+  public void setJobMessageBytes(Long jobMessageBytes) {
+    // ignore
+  }
+
+  /**
+   * just used when reading or writing to the database
+   */
+  private String jobMessageClob;
+  
+  /**
+   * 
+   * @return
+   */
+  public String getJobMessageClob() {
+    return jobMessageClob;
+  }
+
+  /**
+   * 
+   * @param jobMessageClob
+   */
+  public void setJobMessageClob(String jobMessageClob) {
+    if (!StringUtils.isBlank(jobMessageClob)) {
+      this.jobMessage = new StringBuilder(jobMessageClob);
+    }
+  }
+
+  /**
    * could be an error or success message.  might include partial stacktraces
    * @param jobMessage1 the jobMessage to set
    */
@@ -825,7 +876,18 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
     this.jobType = GrouperUtil.truncateAscii(this.jobType, 128);
     this.jobScheduleType = GrouperUtil.truncateAscii(this.jobScheduleType, 128);
     this.jobDescription = GrouperUtil.truncateAscii(this.jobDescription, 4000);
-    this.setJobMessage(GrouperUtil.truncateAscii(this.getJobMessage(), 4000));
+    
+    this.jobMessageClob = null;
+    
+    if (this.jobMessage!= null) {
+      String jobMessageString = this.jobMessage.toString();
+      int length = GrouperUtil.lengthAscii(jobMessageString);
+      if (length > 3500) {
+        this.jobMessageClob = GrouperUtil.abbreviate(jobMessageString, GrouperConfig.retrieveConfig().propertyValueInt("grouper.loader.log.maxJobMessageBytes", 200000));
+        this.jobMessage = null;
+      }
+    }
+    
     this.host = GrouperUtil.truncateAscii(this.host, 128);
     this.groupUuid = GrouperUtil.truncateAscii(this.groupUuid, 128);
     this.jobScheduleQuartzCron = GrouperUtil.truncateAscii(this.jobScheduleQuartzCron, 128);
@@ -846,7 +908,10 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
         GrouperLoaderLogger.addLogEntry(logLabel, "parentJobName", this.getParentJobName());
       }
       if (!StringUtils.isBlank(this.getJobMessage())) {
-        GrouperLoaderLogger.addLogEntry(logLabel, "jobMessage", this.getJobMessage());
+        GrouperLoaderLogger.addLogEntry(logLabel, "jobMessage", StringUtils.abbreviate(this.getJobMessage(), 2000));
+      }
+      if (!StringUtils.isBlank(this.getJobMessageClob())) {
+        GrouperLoaderLogger.addLogEntry(logLabel, "jobMessageClob", StringUtils.abbreviate(this.getJobMessageClob(), 2000));
       }
       if (!StringUtils.isBlank(this.getJobScheduleQuartzCron())) {
         GrouperLoaderLogger.addLogEntry(logLabel, "quartzCron", this.getJobScheduleQuartzCron());

@@ -1350,6 +1350,8 @@ CREATE TABLE grouper_loader_log
     and_group_names VARCHAR(512),
     job_schedule_priority INTEGER,
     context_id VARCHAR(40),
+    job_message_clob varchar(10000000),
+    job_message_bytes BIGINT,
     PRIMARY KEY (id)
 );
 
@@ -4288,6 +4290,10 @@ COMMENT ON COLUMN grouper_loader_log.job_schedule_priority IS 'Priority of this 
 
 COMMENT ON COLUMN grouper_loader_log.context_id IS 'link to the audit entry table';
 
+COMMENT ON COLUMN grouper_loader_log.job_message_clob IS 'Could be a status or error message or stack (over 3800 bytes)';
+
+COMMENT ON COLUMN grouper_loader_log.job_message_bytes IS 'Number of bytes in the job message';
+
 COMMENT ON TABLE grouper_stem_set IS 'This table holds the relationship between stems by easily indicating all the ancestors of a stem.';
 
 COMMENT ON COLUMN grouper_stem_set.context_id IS 'uuid for the audit table';
@@ -7070,7 +7076,7 @@ COMMENT ON COLUMN grouper_prov_duo_user.last_login_time IS 'When the user last l
 
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 41, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V41, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 42, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V42, ');
 commit;
 

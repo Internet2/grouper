@@ -317,10 +317,14 @@ public class GrouperDdl2_6_5 {
     Table grouperLastLoginTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
         TABLE_GROUPER_LAST_LOGIN);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperLastLoginTable.getName(), 
-        "grouper_last_login_mem_idx", true, 
-        COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_MEMBER_UUID);
+    // I think oracle already has this
+    if (!GrouperDdlUtils.isOracle()) {
 
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperLastLoginTable.getName(), 
+          "grouper_last_login_mem_idx", true, 
+          COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_MEMBER_UUID);
+    }
+    
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperLastLoginTable.getName(), 
         "grouper_last_login_login_idx", false, 
         COLUMN_GROUPER_LAST_LOGIN_MILLIS);
@@ -455,9 +459,12 @@ public class GrouperDdl2_6_5 {
     Table grouperFailsafeTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,
         TABLE_GROUPER_FAILSAFE);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperFailsafeTable.getName(), 
-        "grouper_failsafe_id_idx", true, 
-        COLUMN_GROUPER_FAILSAFE_ID);
+    // oracle already has this I think
+    if (!GrouperDdlUtils.isOracle()) {
+      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperFailsafeTable.getName(), 
+          "grouper_failsafe_id_idx", true, 
+          COLUMN_GROUPER_FAILSAFE_ID);
+    }
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperFailsafeTable.getName(), 
         "grouper_failsafe_name_idx", true, 
         COLUMN_GROUPER_FAILSAFE_NAME);

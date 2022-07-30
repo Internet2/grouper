@@ -145,6 +145,9 @@
       <column name="and_group_names"  length="512" />
     </property>
 
+    <property name="jobMessageClob" column="job_message_clob"/>    
+    <property name="jobMessageBytes" column="job_message_bytes"/>    
+
   </class>
 </hibernate-mapping>
 
