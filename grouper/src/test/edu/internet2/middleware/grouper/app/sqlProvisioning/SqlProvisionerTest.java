@@ -136,7 +136,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapInsertUpdateDeleteRealTime"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
     
   }
   
@@ -1562,13 +1562,22 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
           // no primary key
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", true, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", false, false);
 
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", true, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.TIMESTAMP, "200", false, false);
+
+        }
+        
+      });
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+        
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
 
           GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, "testgrouper_pro_ldap_gr_idx0", null, false, "group_uuid", "attribute_name");
           
@@ -2702,7 +2711,18 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.TIMESTAMP, "200", false, false);
         
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, "testgrouper_pro_ldap_en_idx0", null, false, "entity_uuid", "attribute_name");
+
+        }
+        
+      });
+      
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+        
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
+
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, "testgrouper_pro_ldap_en_idx0", null, false, "entity_uuid", "entity_attribute_name");
 
           GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "testgrouper_pro_ldap_en_fk", "testgrouper_prov_ldap_entity", "entity_uuid", "entity_uuid");
 
