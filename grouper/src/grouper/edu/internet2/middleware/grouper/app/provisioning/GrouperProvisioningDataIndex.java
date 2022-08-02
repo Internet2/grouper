@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
@@ -19,15 +20,6 @@ public class GrouperProvisioningDataIndex {
   
   private GrouperProvisioner grouperProvisioner = null;
 
-  /**
-   * note some entries could be for deleting
-   */
-  private Map<Object, ProvisioningGroupWrapper> groupMatchingIdToProvisioningGroupWrapper = new HashMap<Object, ProvisioningGroupWrapper>();
-
-  private Map<Object, ProvisioningEntityWrapper> entityMatchingIdToProvisioningEntityWrapper = new HashMap<Object, ProvisioningEntityWrapper>();
-
-  private Map<Object, ProvisioningMembershipWrapper> membershipMatchingIdToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
-  
   private Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
 
   private Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = new HashMap<String, ProvisioningEntityWrapper>();
@@ -98,29 +90,8 @@ public class GrouperProvisioningDataIndex {
 
 
 
-  public Map<Object, ProvisioningGroupWrapper> getGroupMatchingIdToProvisioningGroupWrapper() {
-    return groupMatchingIdToProvisioningGroupWrapper;
-  }
-
-
-
 
   
-  public Map<Object, ProvisioningEntityWrapper> getEntityMatchingIdToProvisioningEntityWrapper() {
-    return entityMatchingIdToProvisioningEntityWrapper;
-  }
-
-
-
-
-  
-  public Map<Object, ProvisioningMembershipWrapper> getMembershipMatchingIdToProvisioningMembershipWrapper() {
-    return membershipMatchingIdToProvisioningMembershipWrapper;
-  }
-
-
-
-
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
   }

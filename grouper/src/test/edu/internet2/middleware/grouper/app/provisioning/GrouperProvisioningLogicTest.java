@@ -471,10 +471,6 @@ public class GrouperProvisioningLogicTest extends GrouperTest {
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.groupMatchingIdExpression", 
 //        "${targetGroup.retrieveAttributeValueString('groupName')}");
 //    
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.membershipMatchingIdExpression", 
-//        "new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('groupName'), "
-//        + "targetMembership.retrieveAttributeValueString('subjectId'))");
-//    
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.sqlProvTest.entityMatchingIdExpression", 
 //        "${targetEntity.retrieveAttributeValueString('subjectId')}");
 //

@@ -2310,8 +2310,7 @@ public class GrouperProvisioningLogicIncremental {
         
         Set<Object> attributeValueSet = (Set<Object>)provisioningGroupFromTarget.retrieveAttributeValueSet(attributeForMemberships);
         
-        ProvisioningGroupWrapper originalTargetGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
-            .getGroupMatchingIdToProvisioningGroupWrapper().get(provisioningGroupFromTarget.getMatchingId());
+        ProvisioningGroupWrapper originalTargetGroupWrapper = provisioningGroupFromTarget.getProvisioningGroupWrapper();
         
         ProvisioningGroup originalTargetGroup = originalTargetGroupWrapper.getTargetProvisioningGroup();
         
@@ -2383,8 +2382,7 @@ public class GrouperProvisioningLogicIncremental {
         
         Set<Object> attributeValueSet = (Set<Object>)provisioningEntityFromTarget.retrieveAttributeValueSet(attributeForMemberships);
         
-        ProvisioningEntityWrapper originalTargetEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
-            .getEntityMatchingIdToProvisioningEntityWrapper().get(provisioningEntityFromTarget.getMatchingId());
+        ProvisioningEntityWrapper originalTargetEntityWrapper = provisioningEntityFromTarget.getProvisioningEntityWrapper();
         
         ProvisioningEntity originalTargetEntity = originalTargetEntityWrapper.getTargetProvisioningEntity();
         
@@ -2417,17 +2415,6 @@ public class GrouperProvisioningLogicIncremental {
       List<Object> targetMemberships = membershipsResponse.getTargetMemberships();
       
       this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetMemberships((List<ProvisioningMembership>)(Object)targetMemberships);
-      
-      for (Object provisioningMembershipObject: GrouperUtil.nonNull(targetMemberships)) {
-        
-        ProvisioningMembership targetProvisioningMembership = (ProvisioningMembership) provisioningMembershipObject;
-        
-        ProvisioningMembershipWrapper originalTargetMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
-            .getMembershipMatchingIdToProvisioningMembershipWrapper().get(targetProvisioningMembership.getMatchingId());
-        
-        originalTargetMembershipWrapper.setTargetProvisioningMembership(targetProvisioningMembership);
-        
-      }
       
     } else {
       throw new RuntimeException("Not expecting membership type: " + this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType());

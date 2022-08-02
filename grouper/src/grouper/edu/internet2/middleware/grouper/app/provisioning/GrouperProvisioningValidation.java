@@ -352,72 +352,65 @@ public class GrouperProvisioningValidation {
   /**
    * validate memberships based on attribute constraints and set the error code in the sync
    * object and the wrapper object
-   * @param provisioningEntities
+   * @param provisioningMemberships
    * @param removeInvalid
    */
-  public void validateMemberships(Collection<ProvisioningMembership> provisioningEntities, boolean removeInvalid) {
+  public void validateMemberships(Collection<ProvisioningMembership> provisioningMemberships, boolean removeInvalid) {
     int membershipsMissingRequiredData = 0;
     int membershipsViolateMaxLength = 0;
     int membershipsViolateValidExpression = 0;
     //check for required attributes
-    Iterator<ProvisioningMembership> iterator = provisioningEntities.iterator();
+    Iterator<ProvisioningMembership> iterator = provisioningMemberships.iterator();
     MEMBERSHIPS: while (iterator.hasNext()) {
       ProvisioningMembership provisioningMembership = iterator.next();
       ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningMembership.getProvisioningMembershipWrapper();
       if (provisioningMembershipWrapper.getErrorCode() != null) {
         continue;
       }
-      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGcGrouperSyncMembership();
-      
-      Object matchingId = provisioningMembershipWrapper.getMatchingId();
-      if (matchingId instanceof MultiKey) {
-        MultiKey matchingIdMultiKey = (MultiKey)matchingId;
-        for (int i=0;i<matchingIdMultiKey.size();i++) {
-          if (matchingIdMultiKey.getKey(i) == null) {
-            GcGrouperSyncErrorCode errorCode = GcGrouperSyncErrorCode.REQ;
-            String errorMessage = "membership multiKey has blank value in index: " + i;
-            this.assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
-            if (removeInvalid) {
-              iterator.remove();
+      for (ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue : provisioningMembership.getMatchingIdAttributeNameToValues()) {
+        Object matchingId = provisioningUpdatableAttributeAndValue.getAttributeValue();
+        if (matchingId instanceof MultiKey) {
+          MultiKey matchingIdMultiKey = (MultiKey)matchingId;
+          for (int i=0;i<matchingIdMultiKey.size();i++) {
+            if (matchingIdMultiKey.getKey(i) == null) {
+              GcGrouperSyncErrorCode errorCode = GcGrouperSyncErrorCode.REQ;
+              String errorMessage = "membership multiKey has blank value in index: " + i;
+              this.assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
+              if (removeInvalid) {
+                iterator.remove();
+              }
+              continue MEMBERSHIPS;
             }
-            continue MEMBERSHIPS;
           }
         }
       }
-      
-      for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
-        new Collection[] {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values(),
-          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()}) {
-        // look for required fields
-        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-            grouperProvisioningConfigurationAttributes) {
-          MultiKey validationError = this.validFieldOrAttributeValue(provisioningMembership, grouperProvisioningConfigurationAttribute);
-          if (validationError != null) {
-            GcGrouperSyncErrorCode errorCode = (GcGrouperSyncErrorCode)validationError.getKey(0);
-            String errorMessage = (String)validationError.getKey(1);
-            this.assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
-            switch (errorCode) {
-              case INV:
-                membershipsViolateValidExpression++;
-                break;
-              case LEN:
-                membershipsViolateMaxLength++;
-                break;
-              case REQ:
-                membershipsMissingRequiredData++;
-                break;
-              default:
-                throw new RuntimeException("Not expecting error code: " + errorCode);
-            }
-            if (removeInvalid) {
-              iterator.remove();
-            }
-            continue MEMBERSHIPS;
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
+          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()) {
+        MultiKey validationError = this.validFieldOrAttributeValue(provisioningMembership, grouperProvisioningConfigurationAttribute);
+        if (validationError != null) {
+          GcGrouperSyncErrorCode errorCode = (GcGrouperSyncErrorCode)validationError.getKey(0);
+          String errorMessage = (String)validationError.getKey(1);
+          this.assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
+          switch (errorCode) {
+            case INV:
+              membershipsViolateValidExpression++;
+              break;
+            case LEN:
+              membershipsViolateMaxLength++;
+              break;
+            case REQ:
+              membershipsMissingRequiredData++;
+              break;
+            default:
+              throw new RuntimeException("Not expecting error code: " + errorCode);
           }
+          if (removeInvalid) {
+            iterator.remove();
+          }
+          continue MEMBERSHIPS;
         }
-        
       }
+      
     }
       
     if (membershipsMissingRequiredData > 0) {

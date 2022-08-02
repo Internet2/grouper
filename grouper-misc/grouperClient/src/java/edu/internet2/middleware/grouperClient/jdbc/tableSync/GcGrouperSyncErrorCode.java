@@ -18,6 +18,9 @@ public enum GcGrouperSyncErrorCode {
   /** object is missing in the target and not able to be inserted */
   DNE,
   
+  /** grouper object matches multiple target objects */
+  MAT,
+  
   /** group has no members, and configured to be not provisionable */
   MEM;
 }

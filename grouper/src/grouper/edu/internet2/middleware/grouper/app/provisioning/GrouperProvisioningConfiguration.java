@@ -185,6 +185,33 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
+   * # If the grouper translated objects match to multiple target objects on the same attribute, then this problem happens
+   * # {valueType: "boolean", order: 130065, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingMatchingValidationIsAnError = 
+   */
+  private boolean errorHandlingMatchingValidationIsAnError = true;
+
+  /**
+   * # If the grouper translated objects match to multiple target objects on the same attribute, then this problem happens
+   * # {valueType: "boolean", order: 130065, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingMatchingValidationIsAnError = 
+   * @return true if so
+   */
+  public boolean isErrorHandlingMatchingValidationIsAnError() {
+    return this.errorHandlingMatchingValidationIsAnError;
+  }
+
+  /**
+   * # If the grouper translated objects match to multiple target objects on the same attribute, then this problem happens
+   * # {valueType: "boolean", order: 130065, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
+   * # provisioner.genericProvisioner.errorHandlingMatchingValidationIsAnError = 
+   * @param errorHandlingMatchingValidationIsAnError1
+   */
+  public void setErrorHandlingMatchingValidationIsAnError(boolean errorHandlingMatchingValidationIsAnError1) {
+    this.errorHandlingMatchingValidationIsAnError = errorHandlingMatchingValidationIsAnError1;
+  }
+
+  /**
    * # If required but missing attributes count as an error.  Attribute can be marked as required, if they are blank then this problem happens
    * # {valueType: "boolean", order: 130060, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
    * # provisioner.genericProvisioner.errorHandlingRequiredValidationIsAnError = 
@@ -2470,9 +2497,9 @@ public abstract class GrouperProvisioningConfiguration {
       this.errorHandlingProvisionerDaemonShouldFailOnObjectError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingProvisionerDaemonShouldFailOnObjectError", false), true);
       this.errorHandlingInvalidDataIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingInvalidDataIsAnError", false), true);
       this.errorHandlingLengthValidationIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingLengthValidationIsAnError", false), true);
+      this.errorHandlingMatchingValidationIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingMatchingValidationIsAnError", false), true);
       this.errorHandlingRequiredValidationIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingRequiredValidationIsAnError", false), true);
       this.errorHandlingTargetObjectDoesNotExistIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingTargetObjectDoesNotExistIsAnError", false), true);
-      
       
     }
     
@@ -2577,7 +2604,7 @@ public abstract class GrouperProvisioningConfiguration {
       }
     }
 
-    boolean entityMatchingAttributeSameAsSearchAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityMatchingAttributeSameAsSearchAttribute", false), true);
+    this.entityMatchingAttributeSameAsSearchAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean("entityMatchingAttributeSameAsSearchAttribute", false), true);
     int entityMatchingAttributeCount = GrouperUtil.intValue(this.retrieveConfigInt("entityMatchingAttributeCount", false), 0);
     this.entityMatchingAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
     this.entitySearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
@@ -2607,7 +2634,7 @@ public abstract class GrouperProvisioningConfiguration {
       }
     }
 
-    boolean groupMatchingAttributeSameAsSearchAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupMatchingAttributeSameAsSearchAttribute", false), true);
+    this.groupMatchingAttributeSameAsSearchAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupMatchingAttributeSameAsSearchAttribute", false), true);
     int groupMatchingAttributeCount = GrouperUtil.intValue(this.retrieveConfigInt("groupMatchingAttributeCount", false), 0);
     this.groupMatchingAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
     this.groupSearchAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>();
@@ -2719,6 +2746,22 @@ public abstract class GrouperProvisioningConfiguration {
     
   }
   
+  private boolean groupMatchingAttributeSameAsSearchAttribute;
+  
+  
+  
+  public boolean isGroupMatchingAttributeSameAsSearchAttribute() {
+    return groupMatchingAttributeSameAsSearchAttribute;
+  }
+
+  private boolean entityMatchingAttributeSameAsSearchAttribute;
+  
+  
+  
+  public boolean isEntityMatchingAttributeSameAsSearchAttribute() {
+    return entityMatchingAttributeSameAsSearchAttribute;
+  }
+
   public boolean isGroupsRequireMembers() {
     return groupsRequireMembers;
   }

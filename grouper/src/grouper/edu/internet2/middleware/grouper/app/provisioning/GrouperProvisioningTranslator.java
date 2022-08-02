@@ -3,8 +3,10 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -725,49 +727,114 @@ public class GrouperProvisioningTranslator {
     return hasMatchingIdStrategyForEntities;
   }
 
+  /**
+   * get the matching and search ids for a target group (could be grouperTargetGroup or targetProvisioningGroup)
+   * @param targetGroups
+   */
   public void idTargetGroups(List<ProvisioningGroup> targetGroups) {
 
     if (GrouperUtil.isBlank(targetGroups)) {
       return;
     }
 
-    String groupIdScript = null; // this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingIdExpression(); 
-
-    String groupIdAttribute = null;
-    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) > 0) {
-      groupIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes().get(0).getName();
-    }
-
-    if (StringUtils.isBlank(groupIdScript) && StringUtils.isBlank(groupIdAttribute)) {
-      return;
-    }
-    hasMatchingIdStrategyForGroups = true;
     for (ProvisioningGroup targetGroup: GrouperUtil.nonNull(targetGroups)) {
       
-      Object id = null;
+      Set<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new LinkedHashSet<ProvisioningUpdatableAttributeAndValue>();
+      targetGroup.setMatchingIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
+
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupMatchingAttributeSameAsSearchAttribute()) {
+        targetGroup.setSearchIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
+      }
+
+      // first do all current values, then do all past values
+      for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) {
+        String matchingAttributeName = matchingAttribute.getName();
         
-      if (!StringUtils.isBlank(groupIdAttribute)) {
-        Object idValue = targetGroup.retrieveAttributeValue(groupIdAttribute);
-        if (idValue instanceof Collection) {
-          throw new RuntimeException("Cant have a multivalued matching id attribute: '" + groupIdAttribute + "', " + targetGroup);
+        // dont worry if dupes... oh well
+        Object targetCurrentValue = massageToString(targetGroup.retrieveAttributeValue(matchingAttributeName), 2);
+
+        if(!GrouperUtil.isBlank(targetCurrentValue)) {
+          
+          ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(matchingAttributeName, targetCurrentValue);
+          provisioningUpdatableAttributeAndValue.setCurrentValue(true);
+          provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
         }
-        id = idValue;
+      }
+      
+      // dont get old values for target side objects
+      if (!targetGroup.isGrouperTargetObject()) {
+        continue;
+      }
+      
+      //old values
+      for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) {
+        String matchingAttributeName = matchingAttribute.getName();
 
-      } else if (!StringUtils.isBlank(groupIdScript)) {
-        Map<String, Object> elVariableMap = new HashMap<String, Object>();
-        elVariableMap.put("targetGroup", targetGroup);
+        Set<Object> cachedValues = GrouperProvisioningConfigurationAttributeDbCache.cachedValuesForGroup(targetGroup, matchingAttributeName);
+
+        for (Object cachedValue : GrouperUtil.nonNull(cachedValues)) {
+          
+          if (!GrouperUtil.isEmpty(cachedValue)) {
+            cachedValue = massageToString(cachedValue, 2);
+            ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(matchingAttributeName, cachedValue);
+            provisioningUpdatableAttributeAndValue.setCurrentValue(false);
+            
+            // keep the order so see if its there before adding
+            if (!provisioningUpdatableAttributeAndValues.contains(provisioningUpdatableAttributeAndValue)) {
+              provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
+            }
+          }
+        }
+      }
+    }
+    // search attributes
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupMatchingAttributeSameAsSearchAttribute()) {
+      for (ProvisioningGroup targetGroup: GrouperUtil.nonNull(targetGroups)) {
         
-        id = runScript(groupIdScript, elVariableMap);
+        Set<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new LinkedHashSet<ProvisioningUpdatableAttributeAndValue>();
+        targetGroup.setSearchIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
 
-      } else {
-        throw new RuntimeException("Must have groupMatchingIdAttribute, or groupMatchingIdExpression");
-      }
-      id = massageToString(id, 2);
-      if (!GrouperUtil.isBlank(id) && targetGroup.getProvisioningGroupWrapper() != null) {
-        targetGroup.getProvisioningGroupWrapper().setMatchingId(id);
-      }
-      targetGroup.setMatchingId(id);
+        // first do all current values, then do all past values
+        for (GrouperProvisioningConfigurationAttribute searchAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes()) {
+          String searchAttributeName = searchAttribute.getName();
+          
+          // dont worry if dupes... oh well
+          Object targetCurrentValue = massageToString(targetGroup.retrieveAttributeValue(searchAttributeName), 2);
 
+          if(!GrouperUtil.isBlank(targetCurrentValue)) {
+            
+            ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(searchAttributeName, targetCurrentValue);
+            provisioningUpdatableAttributeAndValue.setCurrentValue(true);
+            provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
+          }
+        }
+        
+        // dont get old values for target side objects
+        if (!targetGroup.isGrouperTargetObject()) {
+          continue;
+        }
+        
+        //old values
+        for (GrouperProvisioningConfigurationAttribute searchAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes()) {
+          String searchAttributeName = searchAttribute.getName();
+
+          Set<Object> cachedValues = GrouperProvisioningConfigurationAttributeDbCache.cachedValuesForGroup(targetGroup, searchAttributeName);
+
+          for (Object cachedValue : GrouperUtil.nonNull(cachedValues)) {
+            
+            if (!GrouperUtil.isEmpty(cachedValue)) {
+              cachedValue = massageToString(cachedValue, 2);
+              ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(searchAttributeName, cachedValue);
+              provisioningUpdatableAttributeAndValue.setCurrentValue(false);
+              // keep the order so see if its there before adding
+              if (!provisioningUpdatableAttributeAndValues.contains(provisioningUpdatableAttributeAndValue)) {
+                provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
+              }
+            }
+          }
+        }
+      }
+      
     }
   }
 
@@ -777,46 +844,107 @@ public class GrouperProvisioningTranslator {
       return;
     }
 
-    String entityIdScript = null; // this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingIdExpression(); 
-
-    String entityIdAttribute = null;
-    
-    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) > 0) {
-      entityIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes().get(0).getName();
-    }
-            
-    if (StringUtils.isBlank(entityIdScript) && StringUtils.isBlank(entityIdAttribute)) {
-      return;
-    }
-    
-    hasMatchingIdStrategyForEntities = true;
-
     for (ProvisioningEntity targetEntity: GrouperUtil.nonNull(targetEntities)) {
       
-      Object id = null;
-      if (!StringUtils.isBlank(entityIdAttribute)) {
-        Object idValue = targetEntity.retrieveAttributeValue(entityIdAttribute);
-        if (idValue instanceof Collection) {
-          throw new RuntimeException("Cant have a multivalued matching id attribute: '" + entityIdAttribute + "', " + targetEntity);
-        }
-        id = idValue;
-      } else if (!StringUtils.isBlank(entityIdScript)) {
-        Map<String, Object> elVariableMap = new HashMap<String, Object>();
-        elVariableMap.put("targetEntity", targetEntity);
+      Set<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new LinkedHashSet<ProvisioningUpdatableAttributeAndValue>();
+      targetEntity.setMatchingIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
+
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isEntityMatchingAttributeSameAsSearchAttribute()) {
+        targetEntity.setSearchIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
+      }
+
+      boolean grouperTargetObject = targetEntity.isGrouperTargetObject();
+
+      // first do all current values, then do all past values
+      for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) {
+        String matchingAttributeName = matchingAttribute.getName();
         
-        id = runScript(entityIdScript, elVariableMap);
-                
-      } else {
-        throw new RuntimeException("Must have entityMatchingIdAttribute, or entityMatchingIdExpression");
+        // dont worry if dupes... oh well
+        Object targetCurrentValue = massageToString(targetEntity.retrieveAttributeValue(matchingAttributeName), 2);
+
+        if(!GrouperUtil.isBlank(targetCurrentValue)) {
+          
+          ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(matchingAttributeName, targetCurrentValue);
+          provisioningUpdatableAttributeAndValue.setCurrentValue(true);
+          provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
+        }
       }
-
-      id = massageToString(id, 2);
-      if (!GrouperUtil.isBlank(id) && targetEntity.getProvisioningEntityWrapper() != null) {
-        targetEntity.getProvisioningEntityWrapper().setMatchingId(id);
+      
+      // dont get old values for target side objects
+      if (!grouperTargetObject) {
+        continue;
       }
+      
+      //old values
+      for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) {
+        String matchingAttributeName = matchingAttribute.getName();
 
-      targetEntity.setMatchingId(id);
+        Set<Object> cachedValues = GrouperProvisioningConfigurationAttributeDbCache.cachedValuesForEntity(targetEntity, matchingAttributeName);
 
+        for (Object cachedValue : GrouperUtil.nonNull(cachedValues)) {
+          
+          if (!GrouperUtil.isEmpty(cachedValue)) {
+            cachedValue = massageToString(cachedValue, 2);
+            ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(matchingAttributeName, cachedValue);
+            provisioningUpdatableAttributeAndValue.setCurrentValue(false);
+            
+            // keep the order so see if its there before adding
+            if (!provisioningUpdatableAttributeAndValues.contains(provisioningUpdatableAttributeAndValue)) {
+              provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
+            }
+          }
+        }
+      }
+    }
+    // search attributes
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isEntityMatchingAttributeSameAsSearchAttribute()) {
+      for (ProvisioningEntity targetEntity: GrouperUtil.nonNull(targetEntities)) {
+        
+        Set<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new LinkedHashSet<ProvisioningUpdatableAttributeAndValue>();
+        targetEntity.setSearchIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
+
+        // first do all current values, then do all past values
+        for (GrouperProvisioningConfigurationAttribute searchAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes()) {
+          String searchAttributeName = searchAttribute.getName();
+          
+          // dont worry if dupes... oh well
+          Object targetCurrentValue = massageToString(targetEntity.retrieveAttributeValue(searchAttributeName), 2);
+
+          if(!GrouperUtil.isBlank(targetCurrentValue)) {
+            
+            ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(searchAttributeName, targetCurrentValue);
+            provisioningUpdatableAttributeAndValue.setCurrentValue(true);
+
+            provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
+          }
+        }
+        
+        // dont get old values for target side objects
+        if (!targetEntity.isGrouperTargetObject()) {
+          continue;
+        }
+        
+        //old values
+        for (GrouperProvisioningConfigurationAttribute searchAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes()) {
+          String searchAttributeName = searchAttribute.getName();
+
+          Set<Object> cachedValues = GrouperProvisioningConfigurationAttributeDbCache.cachedValuesForEntity(targetEntity, searchAttributeName);
+
+          for (Object cachedValue : GrouperUtil.nonNull(cachedValues)) {
+            
+            if (!GrouperUtil.isEmpty(cachedValue)) {
+              cachedValue = massageToString(cachedValue, 2);
+              ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(searchAttributeName, cachedValue);
+              provisioningUpdatableAttributeAndValue.setCurrentValue(false);
+              
+              // keep the order so see if its there before adding
+              if (!provisioningUpdatableAttributeAndValues.contains(provisioningUpdatableAttributeAndValue)) {
+                provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
+              }
+            }
+          }
+        }
+      }
       
     }
   }
@@ -893,11 +1021,12 @@ public class GrouperProvisioningTranslator {
         throw new RuntimeException("Must have membershipMatchingIdAttribute, or membershipMatchingIdExpression");
       }
       id = massageToString(id, 2);
-      if (!GrouperUtil.isBlank(id) && targetMembership.getProvisioningMembershipWrapper() != null) {
-        targetMembership.getProvisioningMembershipWrapper().setMatchingId(id);
-      }
 
-      targetMembership.setMatchingId(id);
+      // just hard code to "id" since memberships just have one matching id
+      ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue("id", id);
+      provisioningUpdatableAttributeAndValue.setCurrentValue(true);
+
+      targetMembership.setMatchingIdAttributeNameToValues(GrouperUtil.toSet(provisioningUpdatableAttributeAndValue));
 
     }
 

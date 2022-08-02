@@ -349,15 +349,17 @@ public class GrouperProvisioningDiagnosticsContainer {
 
           this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningGroup (filtered, attributes manipulated, matchingId calculated): ").append(GrouperUtil.xmlEscape(grouperTargetGroup.toString())).append("\n");
           
-          if (GrouperUtil.isBlank(grouperTargetGroup.getMatchingId())) {
+          if (GrouperUtil.length(grouperTargetGroup.getMatchingIdAttributeNameToValues()) == 0) {
             
-            // TODO handle multiple matching IDs
-            GrouperProvisioningConfigurationAttribute matchingAttribute = null;
-            if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) > 0) {
-              matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes().get(0);
+            boolean attributeInsertOrUpdate = false;
+            
+            for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) {
+              if (matchingAttribute.isInsert() || matchingAttribute.isUpdate()) {
+                attributeInsertOrUpdate = true;
+              }
             }
 
-            if (matchingAttribute == null) {
+            if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) == 0) {
               
               if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isUpdateGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
                 this.report.append("<font color='red'><b>Error:</b></font> Cannot find the group matching attribute/field\n");
@@ -365,7 +367,7 @@ public class GrouperProvisioningDiagnosticsContainer {
                 this.report.append("<font color='gray'><b>Note:</b></font> Cannot find the group matching attribute/field\n");
               }
             } else {
-              if (!matchingAttribute.isInsert() && !matchingAttribute.isUpdate()) {
+              if (!attributeInsertOrUpdate) {
                 if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isInTarget()) {
                   this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank and it is currently in target\n");
                 } else {
@@ -375,7 +377,6 @@ public class GrouperProvisioningDiagnosticsContainer {
                 this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank\n");
               }
             }
-            
           }
           
           // validate
@@ -473,22 +474,24 @@ public class GrouperProvisioningDiagnosticsContainer {
   
               this.report.append("<font color='gray'><b>Note:</b></font> ProvisioningEntity (filtered, attributes manipulated, matchingId calculated): ").append(GrouperUtil.xmlEscape(grouperTargetEntity.toString())).append("\n");
               
-              if (GrouperUtil.isBlank(grouperTargetEntity.getMatchingId())) {
+              if (GrouperUtil.length(grouperTargetEntity.getMatchingIdAttributeNameToValues()) == 0) {
                 
-                // TODO handle multiple matching IDs
-                GrouperProvisioningConfigurationAttribute matchingAttribute = null;
-                if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) > 0) {
-                  matchingAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes().get(0);
+                boolean attributeInsertOrUpdate = false;
+                
+                for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) {
+                  if (matchingAttribute.isInsert() || matchingAttribute.isUpdate()) {
+                    attributeInsertOrUpdate = true;
+                  }
                 }
 
-                if (matchingAttribute == null) {
+                if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) == 0) {
                   if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isUpdateEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteEntities()) {
                     this.report.append("<font color='red'><b>Error:</b></font> Cannot find the entity matching attribute/field\n");
                   } else {
                     this.report.append("<font color='gray'><b>Note:</b></font> Cannot find the entity matching attribute/field\n");
                   }
                 } else {
-                  if (!matchingAttribute.isInsert() && !matchingAttribute.isUpdate()) {
+                  if (!attributeInsertOrUpdate) {
                     if (gcGrouperSyncMember != null && gcGrouperSyncMember.isInTarget()) {
                       this.report.append("<font color='red'><b>Error:</b></font> Grouper target entity matching id is blank and it is currently in target\n");
                     } else {
@@ -983,10 +986,7 @@ public class GrouperProvisioningDiagnosticsContainer {
 
     // index
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(targetGroups);
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
-
-    // index the groups and entity matching ids
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(targetGroups);
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(targetGroups);
       
     this.provisioningGroupWrapper.setTargetProvisioningGroup(targetGroups.get(0));
     this.provisioningGroupWrapper.setCreate(false);
@@ -1188,8 +1188,7 @@ public class GrouperProvisioningDiagnosticsContainer {
 
     // index
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(targetEntities);
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntitiesUnmatched(targetEntities);
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(targetEntities);
 
     this.provisioningEntityWrapper.setTargetProvisioningEntity(targetEntities.get(0));
     this.provisioningEntityWrapper.setCreate(false);
@@ -1329,15 +1328,18 @@ public class GrouperProvisioningDiagnosticsContainer {
                 targetGroupsForOne);
             this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(
                 targetGroupsForOne);
+            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(
+                targetGroupsForOne);
 
             this.report.append("<font color='gray'><b>Note:</b></font> Target group (filtered, attributes manipulated, matchingId calculated):\n  ")
               .append(GrouperUtil.xmlEscape(targetDaoRetrieveGroupResponse.getTargetGroup().toString())).append("\n");
 
-            if (GrouperUtil.isBlank(targetDaoRetrieveGroupResponse.getTargetGroup().getMatchingId())) {
+            if (GrouperUtil.length(targetDaoRetrieveGroupResponse.getTargetGroup().getMatchingIdAttributeNameToValues()) == 0) {
               this.report.append("<font color='red'><b>Error:</b></font> Target group matching id is blank\n");
             }
             
-            if (!GrouperUtil.equals(this.provisioningGroupWrapper.getGrouperTargetGroup().getMatchingId(), targetDaoRetrieveGroupResponse.getTargetGroup().getMatchingId())) {
+            if (this.provisioningGroupWrapper.getGrouperTargetGroup().getProvisioningGroupWrapper() == null || 
+                this.provisioningGroupWrapper.getGrouperTargetGroup().getProvisioningGroupWrapper() != targetDaoRetrieveGroupResponse.getTargetGroup().getProvisioningGroupWrapper()) {
               this.report.append("<font color='red'><b>Error:</b></font> Matching id's do not match!\n");
             }
             
@@ -1395,18 +1397,21 @@ public class GrouperProvisioningDiagnosticsContainer {
                 targetEntitiesForOne);
             this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(
                 targetEntitiesForOne);
+            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(
+                targetEntitiesForOne);
 
             this.report.append("<font color='gray'><b>Note:</b></font> Target entity (filtered, attributes manipulated, matchingId calculated):\n  ")
               .append(GrouperUtil.xmlEscape(targetDaoRetrieveEntityResponse.getTargetEntity().toString())).append("\n");
 
-            if (GrouperUtil.isBlank(targetDaoRetrieveEntityResponse.getTargetEntity().getMatchingId())) {
+            if (GrouperUtil.length(targetDaoRetrieveEntityResponse.getTargetEntity().getMatchingIdAttributeNameToValues()) == 0) {
               this.report.append("<font color='red'><b>Error:</b></font> Target entity matching id is blank\n");
             }
             
-            if (!GrouperUtil.equals(this.provisioningEntityWrapper.getGrouperTargetEntity().getMatchingId(), targetDaoRetrieveEntityResponse.getTargetEntity().getMatchingId())) {
+            if (this.provisioningEntityWrapper.getGrouperTargetEntity().getProvisioningEntityWrapper() == null || 
+                this.provisioningEntityWrapper.getGrouperTargetEntity().getProvisioningEntityWrapper() != targetDaoRetrieveEntityResponse.getTargetEntity().getProvisioningEntityWrapper()) {
               this.report.append("<font color='red'><b>Error:</b></font> Matching id's do not match!\n");
             }
-            
+
           }
           
           
@@ -1549,7 +1554,7 @@ public class GrouperProvisioningDiagnosticsContainer {
             int countWithoutMatchingId = 0;
             for (int i=0;i<GrouperUtil.length(targetGroups);i++) {
               ProvisioningGroup targetGroup = targetGroups.get(i);
-              if (GrouperUtil.isBlank(targetGroup.getMatchingId())) {
+              if (GrouperUtil.length(targetGroup.getMatchingIdAttributeNameToValues()) == 0) {
                 countWithoutMatchingId++;
               }
             }
@@ -1564,18 +1569,18 @@ public class GrouperProvisioningDiagnosticsContainer {
           
           {
             int countWithDuplicateMatchingId = 0;
-            Set<Object> matchingIds = new HashSet<Object>();
+            Set<ProvisioningUpdatableAttributeAndValue> matchingIds = new HashSet<ProvisioningUpdatableAttributeAndValue>();
             Set<Object> firstTen = new HashSet<Object>();
             for (int i=0;i<GrouperUtil.length(targetGroups);i++) {
               ProvisioningGroup targetGroup = targetGroups.get(i);
-              if (!GrouperUtil.isBlank(targetGroup.getMatchingId())) {
-                if (matchingIds.contains(targetGroup.getMatchingId())) {
+              for (ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue : GrouperUtil.nonNull(targetGroup.getMatchingIdAttributeNameToValues())) {
+                if (matchingIds.contains(provisioningUpdatableAttributeAndValue)) {
                   countWithDuplicateMatchingId++;
                   if (firstTen.size() <= 10) {
-                    firstTen.add(targetGroup.getMatchingId());
+                    firstTen.add(provisioningUpdatableAttributeAndValue);
                   }
                 } else {
-                  matchingIds.add(targetGroup.getMatchingId());
+                  matchingIds.add(provisioningUpdatableAttributeAndValue);
                 }
               }
             }

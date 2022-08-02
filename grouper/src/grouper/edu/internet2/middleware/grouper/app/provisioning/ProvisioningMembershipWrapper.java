@@ -32,21 +32,6 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
   
   private MultiKey syncGroupIdSyncMemberId = null;
   
-  private Object matchingId = null;
-  
-  
-  public Object getMatchingId() {
-    return matchingId;
-  }
-
-
-
-  
-  public void setMatchingId(Object matchingId) {
-    this.matchingId = matchingId;
-  }
-
-
 
   public MultiKey getGroupIdMemberId() {
     return groupIdMemberId;

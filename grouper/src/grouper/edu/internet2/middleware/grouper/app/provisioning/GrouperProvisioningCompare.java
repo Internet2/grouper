@@ -1394,8 +1394,14 @@ public class GrouperProvisioningCompare {
       ProvisioningMembership grouperTargetMembership = (provisioningMembershipWrapper.isDelete() && provisioningMembershipWrapper.isRecalcObject()) ? null : provisioningMembershipWrapper.getGrouperTargetMembership();
       ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
       
-      Object grouperMatchingId = grouperTargetMembership == null ? null : grouperTargetMembership.getMatchingId();
-      Object targetMatchingId = targetProvisioningMembership == null ? null : targetProvisioningMembership.getMatchingId();
+      Object grouperMatchingId = null;
+      if (grouperTargetMembership != null && GrouperUtil.length(grouperTargetMembership.getMatchingIdAttributeNameToValues()) > 0) {
+        grouperMatchingId = grouperTargetMembership.getMatchingIdAttributeNameToValues().iterator().next().getAttributeValue(); 
+      }
+      Object targetMatchingId = null;
+      if (targetProvisioningMembership != null && GrouperUtil.length(targetProvisioningMembership.getMatchingIdAttributeNameToValues()) > 0) {
+        targetMatchingId = targetProvisioningMembership.getMatchingIdAttributeNameToValues().iterator().next().getAttributeValue(); 
+      }
       
       if (!GrouperUtil.isBlank(grouperMatchingId)) {
         grouperMatchingIdToTargetMembership.put(grouperMatchingId, grouperTargetMembership);

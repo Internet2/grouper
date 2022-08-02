@@ -48,20 +48,6 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
   }
 
 
-  private Object matchingId = null;
-  
-  
-  public Object getMatchingId() {
-    return matchingId;
-  }
-
-
-
-  
-  public void setMatchingId(Object matchingId) {
-    this.matchingId = matchingId;
-  }
-
   /**
    * grouper member id
    */

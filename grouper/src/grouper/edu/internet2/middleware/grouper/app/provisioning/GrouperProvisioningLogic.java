@@ -210,22 +210,11 @@ public class GrouperProvisioningLogic {
       debugMap.put("state", "indexMatchingIdGroups");
       
       // index the groups and entity matching ids
-      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(null);
       
       debugMap.put("state", "indexMatchingIdEntities");
       
-      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
-    }
-
-    {
-      debugMap.put("state", "indexMatchingIdGroupsUnmatched");
-      
-      // index the groups and entity matching ids
-      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(null);
-      
-      debugMap.put("state", "indexMatchingIdEntitiesUnmatched");
-      
-      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntitiesUnmatched(null);
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
     }
 
     {
@@ -319,7 +308,7 @@ public class GrouperProvisioningLogic {
     }
 
     // index the memberships
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships(null);
 
     this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
     this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectEntitiesFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
@@ -879,11 +868,11 @@ public class GrouperProvisioningLogic {
             debugMap.put("state", "indexMatchingIdGroups");
             
             // index the groups and entity matching ids
-            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
+            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(null);
             
             debugMap.put("state", "indexMatchingIdEntities");
             
-            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
+            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
             
           }
           
@@ -930,49 +919,23 @@ public class GrouperProvisioningLogic {
           } finally {
             this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.targetAttributeManipulation);
           }
-  
+
           // ######### STEP 29: matching id target objects
           try {
             debugMap.put("state", "matchingIdTargetObjects");
             this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningGroups());
-            for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningGroups())) {
-              ProvisioningGroupWrapper provisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper().get(targetGroup.getMatchingId());
-              if (provisioningGroupWrapper != null) {
-                provisioningGroupWrapper.setTargetProvisioningGroup(targetGroup);
-              }
-            }
-            
-            this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningEntities());
-            for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningEntities())) {
-              ProvisioningEntityWrapper provisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper().get(targetEntity.getMatchingId());
-              if (provisioningEntityWrapper != null) {
-                provisioningEntityWrapper.setTargetProvisioningEntity(targetEntity);
-              }
-            }
+            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningGroups());
 
-            {
-              debugMap.put("state", "indexMatchingIdGroupsUnmatched");
-              
-              // index the groups and entity matching ids
-              this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningGroups());
-              
-//              debugMap.put("state", "indexMatchingIdEntities");
-//              
-//              this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
-            }
+            this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningEntities());
+            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningEntities());
 
             this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetMemberships(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningMemberships());
-            for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningMemberships())) {
-              ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMembershipMatchingIdToProvisioningMembershipWrapper().get(targetMembership.getMatchingId());
-              if (provisioningMembershipWrapper != null) {
-                provisioningMembershipWrapper.setTargetProvisioningMembership(targetMembership);
-              }
-            }
+            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningMemberships());
 
           } finally {
             this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdTargetObjects);
           }
-      
+
           // ######### STEP 30: create groups / entities
           debugMap.put("state", "insertGroups");
           createMissingGroupsFull();
@@ -1031,19 +994,10 @@ public class GrouperProvisioningLogic {
 
           // ######### STEP 35: index matching ID of grouper and target objects
           debugMap.put("state", "indexMatchingIdOfGrouperObjects");
-          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
-          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
-          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
-          
-          for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningMemberships())) {
-            ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMembershipMatchingIdToProvisioningMembershipWrapper().get(targetMembership.getMatchingId());
-            if (provisioningMembershipWrapper != null) {
-              provisioningMembershipWrapper.setTargetProvisioningMembership(targetMembership);
-            }
-            
-          }
-            
-          
+          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(null);
+          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
+          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships(null);
+                    
           // ######## Retrieve memberships from target that are recalc where the group is not recalc
           try {
             debugMap.put("state", "retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc");
@@ -1232,6 +1186,12 @@ public class GrouperProvisioningLogic {
         if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingRequiredValidationIsAnError()) {
           errorCodeIsError = false;
         }
+        break;
+      case MAT:
+        if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isErrorHandlingMatchingValidationIsAnError()) {
+          errorCodeIsError = false;
+        }
+        break;
       case ERR:
         break;
       default:
@@ -1422,8 +1382,7 @@ public class GrouperProvisioningLogic {
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroupsToInsert);
 
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(grouperTargetGroupsToInsert);
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(null);
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(null);
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().setProvisioningGroups(grouperTargetGroupsToInsert);
     
@@ -1487,32 +1446,22 @@ public class GrouperProvisioningLogic {
 
       // index
       this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(targetGroups);
-      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups();
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(targetGroups);
       
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().setProvisioningGroups(targetGroups);
+
+      for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetGroups)) {
+        ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroup.getProvisioningGroupWrapper();
+        if (provisioningGroupWrapper != null) {
+          // this is already created!  :)
+          provisioningGroupWrapper.setCreate(false);
+        }
+      }
       
     }
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetGroupsCreated);
-     
-    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
-      Map<Object, ProvisioningGroupWrapper> matchingIdToProvisioningGroupWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupMatchingIdToProvisioningGroupWrapper();
-      
-      // match these up with retrieved groups
-      // set these in the wrapper so they are linked with grouper group
-      for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroups)) {
-        
-        // look up the grouper group that looked this up
-        ProvisioningGroupWrapper provisioningGroupWrapper = matchingIdToProvisioningGroupWrapper.get(targetGroup.getMatchingId());
-        
-        // not sure why it wouldnt match or exist...
-        provisioningGroupWrapper.setTargetProvisioningGroup(targetGroup);
-        
-        // this is already created!  :)
-        provisioningGroupWrapper.setCreate(false);
-      }
-    }
-    
+
   }
 
   //TODO duplicate method in the translator. Try to merge to have only one copy.
@@ -1555,7 +1504,7 @@ public class GrouperProvisioningLogic {
       }
 
       // index the memberships
-      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships(null);
 
     }
   }
@@ -1711,7 +1660,7 @@ public class GrouperProvisioningLogic {
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterEntityFieldsAndAttributes(grouperTargetEntitiesToInsert, false, true, false);
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesEntities(grouperTargetEntitiesToInsert);
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(grouperTargetEntitiesToInsert);
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().setProvisioningEntities(grouperTargetEntitiesToInsert);
     // validate
     this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(grouperTargetEntitiesToInsert, true, null, true);
@@ -1761,28 +1710,20 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesEntities(targetEntities);
       // index
       this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(targetEntities);
-      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities();
+      this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(targetEntities);
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().setProvisioningEntities(targetEntities);
+      
+      for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(targetEntities)) {
+        ProvisioningEntityWrapper provisioningEntityWrapper = provisioningEntity.getProvisioningEntityWrapper();
+        if (provisioningEntityWrapper != null) {
+          // this is already created!  :)
+          provisioningEntityWrapper.setCreate(false);
+        }
+      }
+
     }
     
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetEntitiesCreated);
-    
-    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
-      Map<Object, ProvisioningEntityWrapper> matchingIdToProvisioningEntityWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getEntityMatchingIdToProvisioningEntityWrapper();
-      
-      // match these up with retrieved entities
-      // set these in the wrapper so they are linked with grouper entity
-      for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetEntities)) {
-        
-        // look up the grouper group that looked this up
-        ProvisioningEntityWrapper provisioningEntityWrapper = matchingIdToProvisioningEntityWrapper.get(targetEntity.getMatchingId());
-        
-        // not sure why it wouldnt match or exist...
-        provisioningEntityWrapper.setTargetProvisioningEntity(targetEntity);
-        // this is already created!  :)
-        provisioningEntityWrapper.setCreate(false);
-      }
-    }
     
   }
 
@@ -2615,10 +2556,10 @@ public class GrouperProvisioningLogic {
     
     for (ProvisioningUpdatable provisioningUpdatable : GrouperUtil.nonNull(provisioningUpdatables)) {
 
-      MultiKey multiKey = new MultiKey(provisioningObjectChangeAction, provisioningUpdatable.provisioningUpdatableTypeShort(), provisioningUpdatable.getMatchingId());
+      MultiKey multiKey = new MultiKey(provisioningObjectChangeAction, provisioningUpdatable.provisioningUpdatableTypeShort(), provisioningUpdatable);
       
       // if this is an update, dont doublecount the inserts if we are only updating the membership objects
-      MultiKey insertMultiKey = provisioningObjectChangeAction == ProvisioningObjectChangeAction.update ? new MultiKey(ProvisioningObjectChangeAction.insert, provisioningUpdatable.provisioningUpdatableTypeShort(), provisioningUpdatable.getMatchingId()) : null;
+      MultiKey insertMultiKey = provisioningObjectChangeAction == ProvisioningObjectChangeAction.update ? new MultiKey(ProvisioningObjectChangeAction.insert, provisioningUpdatable.provisioningUpdatableTypeShort(), provisioningUpdatable) : null;
       
       if (!alreadyCounted.contains(multiKey) && provisioningUpdatable.getProvisioned() != null && provisioningUpdatable.getProvisioned()) {
         switch(provisioningObjectChangeAction) {
@@ -2683,7 +2624,7 @@ public class GrouperProvisioningLogic {
                 break;
               }
 
-              multiKey = new MultiKey(attributeProvisioningObjectChangeAction, provisioningUpdatable.provisioningUpdatableTypeShort(), provisioningUpdatable.getMatchingId(), value);
+              multiKey = new MultiKey(attributeProvisioningObjectChangeAction, provisioningUpdatable.provisioningUpdatableTypeShort(), provisioningUpdatable, value);
 
               if (alreadyCounted.contains(multiKey)) {
                 continue;
@@ -3059,9 +3000,6 @@ public class GrouperProvisioningLogic {
     // index
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(grouperTargetGroups);
     
-    // log this
-    //TODO this.getGrouperProvisioner().getGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetGroups);
-    
     //lets retrieve these
     TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
         this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(new TargetDaoRetrieveGroupsRequest(grouperTargetGroups, false));
@@ -3070,27 +3008,13 @@ public class GrouperProvisioningLogic {
     
     // index
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(targetGroups);
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(targetGroups);
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingRetrieved().setProvisioningGroups(targetGroups);
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetGroupsRetrieved);
-    
-    Map<Object, ProvisioningGroup> matchingIdToGrouperTargetGroup = new HashMap<Object, ProvisioningGroup>();
-    
-    for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(grouperTargetGroups)) {
-      matchingIdToGrouperTargetGroup.put(grouperTargetGroup.getMatchingId(), grouperTargetGroup);
-    }
-    
-    // set these in the wrapper so they are linked with grouper group
-    for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroups)) {
-      
-      // look up the grouper group that looked this up
-      ProvisioningGroup grouperTargetGroup = matchingIdToGrouperTargetGroup.get(targetGroup.getMatchingId());
-      
-      // not sure why it wouldnt match or exist...
-      grouperTargetGroup.getProvisioningGroupWrapper().setTargetProvisioningGroup(targetGroup);
-    }
 
+    
   }
 
   /**
@@ -3187,7 +3111,7 @@ public class GrouperProvisioningLogic {
       .idTargetGroups(targetGroups);
 
     // index the groups and entity matching ids
-    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroupsUnmatched(targetGroups);
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(targetGroups);
 
   }
 

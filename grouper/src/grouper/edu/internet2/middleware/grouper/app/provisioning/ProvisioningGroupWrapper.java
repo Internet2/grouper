@@ -79,20 +79,6 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     this.incrementalSyncMemberships = incrementalSyncMemberships1;
   }
 
-  private Object matchingId = null;
-  
-  
-  public Object getMatchingId() {
-    return matchingId;
-  }
-
-
-
-  
-  public void setMatchingId(Object matchingId) {
-    this.matchingId = matchingId;
-  }
-
   private String groupId;
   
   
