@@ -922,10 +922,10 @@ public abstract class ProvisioningUpdatable {
     
     // generally we dont need to print these...
     boolean printSearchAttrs = true;
-    if (this instanceof ProvisioningGroup && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupMatchingAttributeSameAsSearchAttribute()) { 
+    if (this instanceof ProvisioningGroup && this.getGrouperProvisioner()!=null && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupMatchingAttributeSameAsSearchAttribute()) { 
       printSearchAttrs = false;
     }
-    if (this instanceof ProvisioningEntity && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isEntityMatchingAttributeSameAsSearchAttribute()) { 
+    if (this instanceof ProvisioningEntity && this.getGrouperProvisioner()!=null && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isEntityMatchingAttributeSameAsSearchAttribute()) { 
       printSearchAttrs = false;
     }
     if (printSearchAttrs) {
