@@ -1,12 +1,9 @@
 package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class TargetDaoRetrieveIncrementalDataRequest {
 
@@ -142,53 +139,6 @@ public class TargetDaoRetrieveIncrementalDataRequest {
   public void setTargetMembershipObjectsForMembershipSync(
       List<Object> targetMembershipObjectsForMembershipSync) {
     this.targetMembershipObjectsForMembershipSync = targetMembershipObjectsForMembershipSync;
-  }
-  
-  /**
-   * make sure that all the target requests that include memberships also are requesting the group or entities in the "only" lists.
-   */
-  public void ensureAllMembershipRequestsAreInTheOnlyRequestsAlso() {
-    
-    if (GrouperUtil.length(targetGroupsForGroupMembershipSync) > 0) {
-      
-      Set<ProvisioningGroup> targetGroupsForGroupOnlySet = new HashSet<ProvisioningGroup>();
-      this.targetGroupsForGroupOnly = GrouperUtil.nonNull(this.targetGroupsForGroupOnly);
-      
-      // indexing the groups that are already there
-      for (ProvisioningGroup targetGroupForGroupOnly: targetGroupsForGroupOnly) {
-        targetGroupsForGroupOnlySet.add(targetGroupForGroupOnly);
-      }
-      
-      // if a membership object is not there then add it
-      for (ProvisioningGroup targetGroupForGroupMembershipSync: targetGroupsForGroupMembershipSync) {
-        if (!targetGroupsForGroupOnlySet.contains(targetGroupForGroupMembershipSync)) {
-          this.targetGroupsForGroupOnly.add(targetGroupForGroupMembershipSync);
-          targetGroupsForGroupOnlySet.add(targetGroupForGroupMembershipSync);
-        }
-      }
-      
-    }
-    
-    if (GrouperUtil.length(targetEntitiesForEntityMembershipSync) > 0) {
-      
-      Set<ProvisioningEntity> targetEntitiesForEntityOnlySet = new HashSet<ProvisioningEntity>();
-      this.targetEntitiesForEntityOnly = GrouperUtil.nonNull(this.targetEntitiesForEntityOnly);
-      
-      // indexing the groups that are already there
-      for (ProvisioningEntity targetEntityForEntityOnly: targetEntitiesForEntityOnly) {
-        targetEntitiesForEntityOnlySet.add(targetEntityForEntityOnly);
-      }
-      
-      // if a membership object is not there then add it
-      for (ProvisioningEntity targetEntityForEntityMembershipSync: targetEntitiesForEntityMembershipSync) {
-        if (!targetEntitiesForEntityOnlySet.contains(targetEntityForEntityMembershipSync)) {
-          this.targetEntitiesForEntityOnly.add(targetEntityForEntityMembershipSync);
-          targetEntitiesForEntityOnlySet.add(targetEntityForEntityMembershipSync);
-        }
-      }
-      
-    }
-    
   }
   
 }

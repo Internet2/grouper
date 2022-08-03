@@ -302,7 +302,9 @@ public class GrouperProvisioningMatchingIdIndex {
         provisioningGroupWrappersWithNoMatchingId++;
         continue;
       }
-      provisioningGroupWrappersWithNoMatch++;
+      if (provisioningGroupWrapper.isRecalcObject()) {
+        provisioningGroupWrappersWithNoMatch++;
+      }
       continue;
     }
     

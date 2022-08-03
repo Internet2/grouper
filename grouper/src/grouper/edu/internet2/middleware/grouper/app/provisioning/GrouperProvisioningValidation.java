@@ -63,19 +63,9 @@ public class GrouperProvisioningValidation {
    * @return true if has matching id
    */
   public boolean validateGroupHasMatchingId(ProvisioningGroup provisioningGroup, boolean forInsert) {
-    
-    for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) {
-      String matchingAttributeName = matchingAttribute.getName();
-      Object targetProvisioningGroupCurrentValue = provisioningGroup.retrieveAttributeValue(matchingAttributeName);
-      if(!GrouperUtil.isBlank(targetProvisioningGroupCurrentValue)) {
-        return true;
-      }
-      Set<Object> cachedValues = GrouperProvisioningConfigurationAttributeDbCache.cachedValuesForGroup(provisioningGroup, matchingAttributeName);
-      for (Object cachedValue : GrouperUtil.nonNull(cachedValues)) {
-        if (!GrouperUtil.isEmpty(cachedValue)) {
-          return true;
-        }
-      }
+
+    if (GrouperUtil.length(provisioningGroup.getMatchingIdAttributeNameToValues()) > 0) {
+      return true;
     }
     if (forInsert) {
       for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) {
@@ -83,7 +73,6 @@ public class GrouperProvisioningValidation {
         if (matchingAttribute.getTranslateExpressionType() == null && matchingAttribute.getTranslateExpressionTypeCreateOnly() == null) {
           return true;
         }
-        // TODO check if in object cache
       }
     }
     return false;
@@ -95,19 +84,9 @@ public class GrouperProvisioningValidation {
    * @return true if has matching id
    */
   public boolean validateEntityHasMatchingId(ProvisioningEntity provisioningEntity, boolean forInsert) {
-    
-    for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) {
-      String matchingAttributeName = matchingAttribute.getName();
-      Object targetProvisioningEntityCurrentValue = provisioningEntity.retrieveAttributeValue(matchingAttributeName);
-      if(!GrouperUtil.isBlank(targetProvisioningEntityCurrentValue)) {
-        return true;
-      }
-      Set<Object> cachedValues = GrouperProvisioningConfigurationAttributeDbCache.cachedValuesForEntity(provisioningEntity, matchingAttributeName);
-      for (Object cachedValue : GrouperUtil.nonNull(cachedValues)) {
-        if (!GrouperUtil.isEmpty(cachedValue)) {
-          return true;
-        }
-      }
+
+    if (GrouperUtil.length(provisioningEntity.getMatchingIdAttributeNameToValues()) > 0) {
+      return true;
     }
     if (forInsert) {
       for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) {
@@ -115,7 +94,6 @@ public class GrouperProvisioningValidation {
         if (matchingAttribute.getTranslateExpressionType() == null && matchingAttribute.getTranslateExpressionTypeCreateOnly() == null) {
           return true;
         }
-        // TODO check if in object cache
       }
     }
     return false;
