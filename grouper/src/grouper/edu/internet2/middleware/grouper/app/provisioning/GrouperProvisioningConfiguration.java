@@ -3183,12 +3183,12 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
 
-
-
-
-
   public String getEntityAttributesLdapSubjectSource() {
     return entityAttributesLdapSubjectSource;
+  }
+  
+  public int getDaoSleepBeforeSelectAfterInsertMillis() {
+    return 0;
   }
   
 }

@@ -9,10 +9,13 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.logging.Log;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
@@ -31,6 +34,7 @@ import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfig
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -40,8 +44,13 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
+import edu.internet2.middleware.subject.Subject;
 
 public abstract class ProvisioningConfiguration extends GrouperConfigurationModuleBase {
+  
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(ProvisioningConfiguration.class);
   
   public static ProvisioningConfiguration retrieveConfigurationByConfigSuffix(String propertyValueThatIdentifiesThisDaemon) {
     for (ProvisioningConfiguration provisionerConfiguration : GrouperUtil.nonNull(retrieveAllProvisioningConfigurationTypes())) {
@@ -90,6 +99,109 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
    */
   public static List<ProvisioningConfiguration> retrieveAllProvisioningConfigurations() {
    return (List<ProvisioningConfiguration>) (Object) retrieveAllConfigurations(provisionerConfigClassNames);
+  }
+  
+  
+  
+  /**
+   * list of configured provisioner systems that are viewable for the subject
+   * @param subject - subject for whom to retrive all viewable provisioning configs
+   * @return
+   */
+  public static List<ProvisioningConfiguration> retrieveAllViewableProvisioningConfigurations(Subject subject) {
+    
+    List<ProvisioningConfiguration> allProvisioningConfigurations = retrieveAllProvisioningConfigurations();
+    
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return allProvisioningConfigurations;
+    }
+    
+    List<ProvisioningConfiguration> result = new ArrayList<>();
+    
+    for (ProvisioningConfiguration provisioningConfiguration: allProvisioningConfigurations) {
+      if (isSubjectInAssignOrViewGroup("groupAllowedToAssign", subject, provisioningConfiguration)) {
+        result.add(provisioningConfiguration);
+        continue;
+      }
+      
+      if (isSubjectInAssignOrViewGroup("groupAllowedToView", subject, provisioningConfiguration)) {
+        result.add(provisioningConfiguration);
+      }
+    } 
+    
+    
+    return result;
+  }
+  
+  /**
+   * list of configured provisioner systems that are assignable for the subject
+   * @param subject - subject for whom to retrive all assignable provisioning configs
+   * @return
+   */
+  public static List<ProvisioningConfiguration> retrieveAllAssignableProvisioningConfigurations(Subject subject) {
+    
+    List<ProvisioningConfiguration> allProvisioningConfigurations = retrieveAllProvisioningConfigurations();
+    
+    if (PrivilegeHelper.isWheelOrRoot(subject)) {
+      return allProvisioningConfigurations;
+    }
+    
+    List<ProvisioningConfiguration> result = new ArrayList<>();
+    
+    for (ProvisioningConfiguration provisioningConfiguration: allProvisioningConfigurations) {
+      if (isSubjectInAssignOrViewGroup("groupAllowedToAssign", subject, provisioningConfiguration)) {
+        result.add(provisioningConfiguration);
+      }
+    } 
+    
+    return result;
+  }
+  
+  
+  /**
+   * check if subject is member of allowedToAssign or allowedToView group
+   * @param suffix
+   * @param subject
+   * @param provisioningConfiguration
+   * @return
+   */
+  public static boolean isSubjectInAssignOrViewGroup(String suffix, Subject subject, ProvisioningConfiguration provisioningConfiguration) {
+    
+    String groupUuidOrNameString = provisioningConfiguration.retrieveAttributeValueFromConfig(suffix, false);
+    
+    boolean result = false;
+    
+    if (StringUtils.isNotBlank(groupUuidOrNameString)) {
+      
+      boolean isSubjectInGroup = (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          Group group = GroupFinder.findByUuid(groupUuidOrNameString, false);
+          
+          if (group == null) {
+            group = GroupFinder.findByName(groupUuidOrNameString, false);
+          }
+          
+          if (group == null) {
+            LOG.warn(suffix + " = "+groupUuidOrNameString +" which is not a valid group id or name for provisioner "+provisioningConfiguration.getConfigId());
+          }
+          
+          if (group != null && group.hasMember(subject)) {
+            return true;
+          }
+          
+          return false;
+        }
+      });
+      
+      result = isSubjectInGroup;
+      
+    }
+    
+    return result;
+    
   }
   
   @Override

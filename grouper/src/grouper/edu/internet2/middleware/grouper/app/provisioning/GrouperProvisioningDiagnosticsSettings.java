@@ -137,45 +137,43 @@ public class GrouperProvisioningDiagnosticsSettings {
   }
   
   /**
-   * if the entity should be added to the group as a group attribute
+   * if the membership should be added
    */
-  private boolean diagnosticsGroupAttributesMembershipInsert;
+  private boolean diagnosticsMembershipInsert;
   
   /**
-   * @return if the entity should be added to the group as a group attribute
+   * @return if the membership should be added
    */
-  public boolean isDiagnosticsGroupAttributesMembershipInsert() {
-    return diagnosticsGroupAttributesMembershipInsert;
+  public boolean isDiagnosticsMembershipInsert() {
+    return diagnosticsMembershipInsert;
   }
 
   /**
-   * if the entity should be added to the group as a group attribute
-   * @param diagnosticsGroupAttributesMembershipInsert
+   * if the membership should be added
+   * @param diagnosticsMembershipInsert
    */
-  public void setDiagnosticsGroupAttributesMembershipInsert(
-      boolean diagnosticsGroupAttributesMembershipInsert) {
-    this.diagnosticsGroupAttributesMembershipInsert = diagnosticsGroupAttributesMembershipInsert;
+  public void setDiagnosticsMembershipInsert(boolean diagnosticsMembershipInsert) {
+    this.diagnosticsMembershipInsert = diagnosticsMembershipInsert;
   }
 
   /**
-   * if the entity should be removed from the group as a group attribute
+   * if the membership should be removed
    */
-  private boolean diagnosticsGroupAttributesMembershipDelete;
+  private boolean diagnosticsMembershipDelete;
   
   /**
-   * @return if the entity should be removed from the group as a group attribute
+   * @return if the membership should be removed
    */
-  public boolean isDiagnosticsGroupAttributesMembershipDelete() {
-    return diagnosticsGroupAttributesMembershipDelete;
+  public boolean isDiagnosticsMembershipDelete() {
+    return diagnosticsMembershipDelete;
   }
 
   /**
-   * if the entity should be removed from the group as a group attribute
-   * @param diagnosticsGroupAttributesMembershipDelete
+   * if the membership should be removed
+   * @param diagnosticsMembershipDelete
    */
-  public void setDiagnosticsGroupAttributesMembershipDelete(
-      boolean diagnosticsGroupAttributesMembershipDelete) {
-    this.diagnosticsGroupAttributesMembershipDelete = diagnosticsGroupAttributesMembershipDelete;
+  public void setDiagnosticsMembershipDelete(boolean diagnosticsMembershipDelete) {
+    this.diagnosticsMembershipDelete = diagnosticsMembershipDelete;
   }
   
   /**
@@ -243,45 +241,4 @@ public class GrouperProvisioningDiagnosticsSettings {
     this.diagnosticsSubjectIdOrIdentifier = diagnosticsSubjectIdOrIdentifier;
   }
   
-  /**
-   * if the group should be added to the entity as an entity attribute
-   */
-  private boolean diagnosticsEntityAttributesMembershipInsert;
-  
-  /**
-   * @return if the group should be added to the entity as an entity attribute
-   */
-  public boolean isDiagnosticsEntityAttributesMembershipInsert() {
-    return diagnosticsEntityAttributesMembershipInsert;
-  }
-
-  /**
-   * if the group should be added to the entity as an entity attribute
-   * @param diagnosticsEntityAttributesMembershipInsert
-   */
-  public void setDiagnosticsEntityAttributesMembershipInsert(
-      boolean diagnosticsEntityAttributesMembershipInsert) {
-    this.diagnosticsEntityAttributesMembershipInsert = diagnosticsEntityAttributesMembershipInsert;
-  }
-
-  /**
-   * if the group should be removed from the entity as an entity attribute
-   */
-  private boolean diagnosticsEntityAttributesMembershipDelete;
-  
-  /**
-   * @return if the group should be removed from the entity as an entity attribute
-   */
-  public boolean isDiagnosticsEntityAttributesMembershipDelete() {
-    return diagnosticsEntityAttributesMembershipDelete;
-  }
-
-  /**
-   * if the group should be removed from the entity as an entity attribute
-   * @param diagnosticsEntityAttributesMembershipDelete
-   */
-  public void setDiagnosticsEntityAttributesMembershipDelete(
-      boolean diagnosticsEntityAttributesMembershipDelete) {
-    this.diagnosticsEntityAttributesMembershipDelete = diagnosticsEntityAttributesMembershipDelete;
-  }
 }

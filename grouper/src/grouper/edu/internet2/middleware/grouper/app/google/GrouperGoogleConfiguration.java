@@ -17,6 +17,13 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
   private boolean whoCanPostMessage;
   private boolean allowWebPosting;
   
+  private String defaultMessageDenyNotificationText;
+  private String handleDeletedGroup;
+  private String messageModerationLevel;
+  private String replyTo;
+  private boolean sendMessageDenyNotification;
+  private String spamModerationLevel;
+  
   
   public boolean isWhoCanAdd() {
     return whoCanAdd;
@@ -105,6 +112,80 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
   public void setGoogleExternalSystemConfigId(String googleExternalSystemConfigId) {
     this.googleExternalSystemConfigId = googleExternalSystemConfigId;
   }
+  
+  
+
+  
+  public String getDefaultMessageDenyNotificationText() {
+    return defaultMessageDenyNotificationText;
+  }
+
+
+  
+  public void setDefaultMessageDenyNotificationText(String defaultMessageDenyNotificationText) {
+    this.defaultMessageDenyNotificationText = defaultMessageDenyNotificationText;
+  }
+  
+
+  
+  public String getHandleDeletedGroup() {
+    return handleDeletedGroup;
+  }
+
+
+  
+  public void setHandleDeletedGroup(String handleDeletedGroup) {
+    this.handleDeletedGroup = handleDeletedGroup;
+  }
+  
+
+  
+  public String getMessageModerationLevel() {
+    return messageModerationLevel;
+  }
+
+
+  
+  public void setMessageModerationLevel(String messageModerationLevel) {
+    this.messageModerationLevel = messageModerationLevel;
+  }
+  
+  
+  public String getReplyTo() {
+    return replyTo;
+  }
+
+
+  
+  public void setReplyTo(String replyTo) {
+    this.replyTo = replyTo;
+  }
+  
+  
+  public boolean isSendMessageDenyNotification() {
+    return sendMessageDenyNotification;
+  }
+
+
+  
+  public void setSendMessageDenyNotification(boolean sendMessageDenyNotification) {
+    this.sendMessageDenyNotification = sendMessageDenyNotification;
+  }
+  
+  
+
+
+  
+  public String getSpamModerationLevel() {
+    return spamModerationLevel;
+  }
+
+
+  
+  public void setSpamModerationLevel(String spamModerationLevel) {
+    this.spamModerationLevel = spamModerationLevel;
+  }
+
 
   @Override
   public void configureSpecificSettings() {
@@ -118,7 +199,18 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
     this.allowExternalMembers = GrouperUtil.booleanValue(this.retrieveConfigString("allowExternalMembers", false), false);
     this.whoCanPostMessage = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanPostMessage", false), false);
     this.allowWebPosting = GrouperUtil.booleanValue(this.retrieveConfigString("allowWebPosting", false), false);
+    this.defaultMessageDenyNotificationText = this.retrieveConfigString("defaultMessageDenyNotificationText", false);
+    this.handleDeletedGroup = this.retrieveConfigString("handleDeletedGroup", false);
+    this.messageModerationLevel = this.retrieveConfigString("messageModerationLevel", false);
+    this.replyTo = this.retrieveConfigString("replyTo", false);
+    this.spamModerationLevel = this.retrieveConfigString("spamModerationLevel", false);
+    this.sendMessageDenyNotification = GrouperUtil.booleanValue(this.retrieveConfigString("sendMessageDenyNotification", false), false);
     
+  }
+  
+  @Override
+  public int getDaoSleepBeforeSelectAfterInsertMillis() {
+    return 10000;
   }
   
 }

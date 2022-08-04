@@ -3,19 +3,31 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class ProvisionerConfigurationContainer {
   
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(ProvisionerConfigurationContainer.class);
+
   /**
    * provisioner configuration user is currently viewing/editing/adding
    */
@@ -144,15 +156,60 @@ public class ProvisionerConfigurationContainer {
     this.grouperSyncJob = grouperSyncJob;
   }
 
+  
   /**
-   * @return true if can view provisioner configurations
+   * @param provisionerConfigId
+   * @return true if the logged in subject can view the given provisioner config
+   */
+  public boolean isCanViewProvisionerConfiguration(String provisionerConfigId) {
+    
+    if (isCanEditProvisionerConfiguration()) {
+      return true;
+    }
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    List<ProvisioningConfiguration> allViewableProvisioningConfigurations = ProvisioningConfiguration.retrieveAllViewableProvisioningConfigurations(loggedInSubject);
+    
+    for (ProvisioningConfiguration provisioningConfiguration: allViewableProvisioningConfigurations) {
+      if (StringUtils.equals(provisionerConfigId, provisioningConfiguration.getConfigId())) {
+        return true;
+      }
+    }
+    
+    return false;
+    
+  }
+  
+  /**
+   * @return true if the logged in subject can view at least one provisioner configuration
    */
   public boolean isCanViewProvisionerConfiguration() {
+    
+    if (isCanEditProvisionerConfiguration()) {
+      return true;
+    }
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    if (ProvisioningConfiguration.retrieveAllViewableProvisioningConfigurations(loggedInSubject).size() > 0) {
+      return true;
+    }
+    
+    return false;
+  }
+  
+  /**
+   * 
+   * @return true if the logged in user can edit/add/delete provisioner configs
+   */
+  public boolean isCanEditProvisionerConfiguration() {
     
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
     }
+    
     return false;
   }
   

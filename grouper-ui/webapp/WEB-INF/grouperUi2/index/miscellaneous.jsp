@@ -35,6 +35,11 @@
                       >${textContainer.text['adminInstrumentationLink'] }</a>
                     </c:if>
                     
+                    <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canViewProvisionerConfiguration}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations');" style="white-space: nowrap;">
+                        ${textContainer.text['adminProvisionerConfigurationsLink'] }</a>
+                    </c:if>
+                    
                   </div>
                 </div>
                 
@@ -81,11 +86,6 @@
                     <c:if test="${grouperRequestContainer.gshTemplateContainer.canViewGshTemplates}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.viewGshTemplates');" style="white-space: nowrap;"
                       >${textContainer.text['gshTemplatesMainLink'] }</a>
-                    </c:if>
-                    
-                    <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canViewProvisionerConfiguration}">
-                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations');" style="white-space: nowrap;">
-                      	${textContainer.text['adminProvisionerConfigurationsLink'] }</a>
                     </c:if>
                     
                     <c:if test="${grouperRequestContainer.sqlSyncConfigurationContainer.canViewSqlSyncConfigs}">

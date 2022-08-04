@@ -242,7 +242,9 @@ public class ProvisioningContainer {
       
     }
     
-    return false;
+    return getEditableTargets().size() > 0;
+    
+//    return false;
   }
   
   
@@ -378,6 +380,21 @@ public class ProvisioningContainer {
     }
     
     return false;
+    
+  }
+  
+  /**
+   * 
+   * @return true if can write
+   */
+  public boolean isCanAssignProvisioning() {
+
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    return getEditableTargets().size() > 0;
     
   }
 

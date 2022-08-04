@@ -474,6 +474,37 @@ public enum GrouperProvisioningObjectLogType {
         } else if (field != null) {
           throw new RuntimeException("Not expecting field '" + field + "'");
         }
+      } else {
+        if (bean instanceof ProvisioningGroup) {
+          ProvisioningGroupWrapper provisioningGroupWrapper = ((ProvisioningGroup)bean).getProvisioningGroupWrapper();
+          if (provisioningGroupWrapper != null) {
+            ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+            if (grouperTargetGroup != null) {
+              bean = grouperTargetGroup;
+            }
+          }
+        }
+        
+        if (bean instanceof ProvisioningEntity) {
+          ProvisioningEntityWrapper provisioningEntityWrapper = ((ProvisioningEntity)bean).getProvisioningEntityWrapper();
+          if (provisioningEntityWrapper != null) {
+            ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+            if (grouperTargetEntity != null) {
+              bean = grouperTargetEntity;
+            }
+          }
+        }
+        
+        if (bean instanceof ProvisioningMembership) {
+          ProvisioningMembershipWrapper provisioningMembershipWrapper = ((ProvisioningMembership)bean).getProvisioningMembershipWrapper();
+          if (provisioningMembershipWrapper != null) {
+            ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
+            if (grouperTargetMembership != null) {
+              bean = grouperTargetMembership;
+            }
+          }
+        }
+          
       }
       logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
       if (objectCount >= 10) {
@@ -534,6 +565,7 @@ public enum GrouperProvisioningObjectLogType {
       logMessage.append("\n");
     }
   }
+  
   private static void appendProvisioningObjectsOfType(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
       Collection beans, String type) {
     appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label,

@@ -7,40 +7,35 @@ import java.util.Map;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
-import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
-import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
 
 public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testIncrementalSyncAzure"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzure"));
   }
 
   public GrouperAzureProvisionerTest(String name) {
@@ -72,6 +67,19 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     }
     
     try {
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      RegistrySubject.add(grouperSession, "Fred@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred@erviveksachdevagrouperoutlo.onmicrosoft.com");
+      Subject fred = SubjectFinder.findById("Fred@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
+      
+      RegistrySubject.add(grouperSession, "Fred1@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred1@erviveksachdevagrouperoutlo.onmicrosoft.com");
+      Subject fred1 = SubjectFinder.findById("Fred1@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
+      
+      RegistrySubject.add(grouperSession, "Fred2@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred2@erviveksachdevagrouperoutlo.onmicrosoft.com");
+      Subject fred2 = SubjectFinder.findById("Fred2@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
+      
+      RegistrySubject.add(grouperSession, "Fred3@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred3@erviveksachdevagrouperoutlo.onmicrosoft.com");
+      Subject fred3 = SubjectFinder.findById("Fred3@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
+      
       AzureProvisionerTestUtils.configureAzureProvisioner(
           new AzureProvisionerTestConfigInput().assignGroupAttributeCount(9));
       
@@ -82,8 +90,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_group").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_user").executeSql();
       
-      GrouperSession grouperSession = GrouperSession.startRootSession();
-      
       Stem stem = new StemSave(grouperSession).assignName("test").save();
       Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
       
@@ -91,11 +97,11 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
       Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
       
-      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
-      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+      testGroup.addMember(fred, false);
+      testGroup.addMember(fred1, false);
       
-      testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
-      testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+      testGroup2.addMember(fred2, false);
+      testGroup2.addMember(fred3, false);
       
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);

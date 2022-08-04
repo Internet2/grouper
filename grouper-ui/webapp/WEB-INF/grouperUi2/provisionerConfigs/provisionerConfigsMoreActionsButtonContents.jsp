@@ -8,7 +8,11 @@
 
                       <ul class="dropdown-menu dropdown-menu-right" id="provisioner-configs-more-options">
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.diagnostics&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableDiagnosticsActionOption'] }</a></li>
-                       <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.editProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableEditDetailsActionOption'] }</a></li>
+                       
+                       <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canEditProvisionerConfiguration}">
+                         <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.editProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableEditDetailsActionOption'] }</a></li>
+                       </c:if>
+                       
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerActivity&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewActivityActionOption'] }</a></li>
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerJobs&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewJobsActionOption'] }</a></li>
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerLogs&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewLogsActionOption'] }</a></li>
@@ -16,7 +20,11 @@
                             >${textContainer.text['provisionerConfigMoreActionsViewButton'] }</a></li>
                        <%-- <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.runFullSync&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableRunFullSyncActionOption'] }</a></li> --%>
                        <li>&nbsp;</li>
-                       <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['provisionerConfigConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2ProvisionerConfiguration.deleteProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');}">${textContainer.text['provisionerConfigsTableDeleteDetailsActionOption'] }</a></li>
+                       
+                       <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canEditProvisionerConfiguration}">
+                         <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['provisionerConfigConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2ProvisionerConfiguration.deleteProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');}">${textContainer.text['provisionerConfigsTableDeleteDetailsActionOption'] }</a></li>
+                       </c:if>
+                      
                       </ul>
 
                     </div>

@@ -816,7 +816,7 @@ public class GrouperGoogleApiCommands {
       boolean firstRequest = true;
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId+"/members?maxResults=200&fields=nextPageToken,members(id)";
-      String urlSuffixConstant = "/groups/"+groupId+"/members?maxResults=200&fields=nextPageToken,members(id)";
+      String urlSuffixConstant = "/groups/"+groupId+"/members?maxResults=200&role=MEMBERS&fields=nextPageToken,members(id)";
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
         
         firstRequest = false;

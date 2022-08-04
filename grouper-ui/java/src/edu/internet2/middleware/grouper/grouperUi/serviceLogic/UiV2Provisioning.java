@@ -1035,6 +1035,11 @@ public class UiV2Provisioning {
       }
       
       guiGrouperProvisioningAttributeValue.setMetadataItems(itemsToShow);
+      
+//      GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(provisionerName);
+//      
+//      boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
+//      guiGrouperProvisioningAttributeValue.setCanAssignProvisioning(canAssignProvisioning);
     }
     
     final ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
@@ -1059,15 +1064,15 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false).getStem();
       
       if (stem == null) {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        throw new RuntimeException("Cannot access provisioning.");
+//      }
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -1083,11 +1088,11 @@ public class UiV2Provisioning {
             return false;
           }
           
-          if (!provisioningContainer.isCanWriteProvisioning()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteStem")));
-            return false;
-          }
+//          if (!provisioningContainer.isCanWriteProvisioning()) {
+//            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+//                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteStem")));
+//            return false;
+//          }
   
           return true;
         }
@@ -1098,7 +1103,7 @@ public class UiV2Provisioning {
       }
       
       final Stem STEM = stem;
-      String previousTargetName = request.getParameter("provisioningPreviousTargetName");
+//      String previousTargetName = request.getParameter("provisioningPreviousTargetName");
       final String targetName = request.getParameter("provisioningTargetName");
       
       //switch over to admin so attributes work
@@ -1117,22 +1122,35 @@ public class UiV2Provisioning {
         }
       });
       
+      
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
       }
       
-      if (StringUtils.equals(targetName, previousTargetName)) {
+//      if (StringUtils.equals(targetName, previousTargetName)) {
         String configurationType = request.getParameter("provisioningHasConfigurationName");
         if (!StringUtils.isBlank(configurationType)) {
           boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
           provisioningAttributeValue.setDirectAssignment(isDirect);
         }
-      }
+//      }
       
       GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue = new GuiGrouperProvisioningAttributeValue(provisioningAttributeValue);
       provisioningContainer.setCurrentGuiGrouperProvisioningAttributeValue(guiGrouperProvisioningAttributeValue);
 
       if (StringUtils.isNotBlank(targetName)) {
+        
+        Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+        
+        GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+        if (grouperProvisioningTarget == null) {
+          throw new RuntimeException("Invalid target: "+targetName);
+        }
+        
+        boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, stem);
+        if (!canAssignProvisioning) {
+          throw new RuntimeException("Cannot access provisioning.");
+        }
         
         List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
         
@@ -1145,33 +1163,38 @@ public class UiV2Provisioning {
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
         List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
-        // variableMap is used only when there's at least one metadata item which has showEl non blank
-        Map<String, Object> variableMap = new HashMap<>();
+        
+        Map<String, Object> elVariableMap = new HashMap<>();
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
           String name = metadataItem.getName();
           String value = request.getParameter(name);
-          String defaultValue = GrouperUtil.stringValue(metadataItem.getDefaultValue());
-          if (!StringUtils.equals(defaultValue, value)) {
-            metadataItem.setDefaultValue(value); // override the value so that screen can show the right value after rerendering
+          
+          if (value != null) {
+            elVariableMap.put(name, value);
+          } else if (metadataNameValues.containsKey(metadataItem.getName())) {
+            elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
+          } else {
+            elVariableMap.put(name,  metadataItem.getDefaultValue());
           }
-          variableMap.put(name, value);
+          
         }
         
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
+          
+          boolean showBoolean = true;
+          
           if (StringUtils.isNotBlank(metadataItem.getShowEl())) {
             
             String showElExpression = metadataItem.getShowEl();
             
-            String showString = GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(showElExpression, variableMap, true, false, false));
+            String showString = GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(showElExpression, elVariableMap, true, false, false));
             
-            boolean showBoolean = GrouperUtil.booleanValue(showString, false);
-//            metadataItem.setShowForFolder(showBoolean);
-            if (showBoolean) {
-              metadataItems.add(metadataItem);
-            }
+            showBoolean = GrouperUtil.booleanValue(showString, false);
             
-          } else if (metadataItem.isShowForFolder()) {
-            Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
+          }
+          
+          if (showBoolean && metadataItem.isShowForFolder()) {
+            Object value = elVariableMap.get(metadataItem.getName());
             metadataItem.setDefaultValue(value);
             
             if (!metadataItem.isCanUpdate()) {
@@ -1241,9 +1264,9 @@ public class UiV2Provisioning {
         return;
       }
 
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        throw new RuntimeException("Cannot access provisioning.");
+//      }
       
       final Member member = MemberFinder.findBySubject(grouperSession, subject, true);
       
@@ -1297,6 +1320,18 @@ public class UiV2Provisioning {
       }
       
       if (StringUtils.isNotBlank(targetName)) {
+        
+        Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+        
+        GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+        if (grouperProvisioningTarget == null) {
+          throw new RuntimeException("Invalid target: "+targetName);
+        }
+        
+        boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
+        if (!canAssignProvisioning) {
+          throw new RuntimeException("Cannot access provisioning.");
+        }
         
         List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
         
@@ -1386,9 +1421,9 @@ public class UiV2Provisioning {
         return;
       }
 
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        throw new RuntimeException("Cannot access provisioning.");
+//      }
       
       final Member member = MemberFinder.findBySubject(grouperSession, subject, true);
       
@@ -1438,6 +1473,18 @@ public class UiV2Provisioning {
       }
       
       if (StringUtils.isNotBlank(targetName)) {
+        
+        Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+        
+        GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+        if (grouperProvisioningTarget == null) {
+          throw new RuntimeException("Invalid target: "+targetName);
+        }
+        
+        boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
+        if (!canAssignProvisioning) {
+          throw new RuntimeException("Cannot access provisioning.");
+        }
         
         List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
         
@@ -1517,9 +1564,9 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        throw new RuntimeException("Cannot access provisioning.");
+//      }
   
       subject = UiV2Subject.retrieveSubjectHelper(request, true);
 
@@ -1575,6 +1622,19 @@ public class UiV2Provisioning {
       }
       
       if (StringUtils.isNotBlank(targetName)) {
+        
+        Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+        
+        GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+        if (grouperProvisioningTarget == null) {
+          throw new RuntimeException("Invalid target: "+targetName);
+        }
+        
+        //TODO check with Chris if null is fine here
+        boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, null);
+        if (!canAssignProvisioning) {
+          throw new RuntimeException("Cannot access provisioning.");
+        }
         
         List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
         
@@ -1638,12 +1698,222 @@ public class UiV2Provisioning {
 
   }
   
+  
   /**
    * edit provisioning settings for a group
    * @param request
    * @param response
    */
   public void editProvisioningOnGroup(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Group group = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+      
+//      if (group != null) {
+//        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+//      }
+      
+      if (group == null) {
+        return;
+      }
+      
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        throw new RuntimeException("Cannot access provisioning.");
+//      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
+      
+      //switch over to admin so attributes work
+      boolean shouldContinue = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkProvisioning()) {
+            return false;
+          }
+          
+//          if (!provisioningContainer.isCanWriteProvisioning()) {
+//            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+//                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteGroup")));
+//            return false;
+//          }
+  
+          return true;
+        }
+      });
+      
+      if (!shouldContinue) {
+        return;
+      }
+      
+      final Group GROUP = group;
+//      String previousTargetName = request.getParameter("provisioningPreviousTargetName");
+      final String targetName = request.getParameter("provisioningTargetName");
+      
+//      if (StringUtils.isBlank(targetName)) {
+//        throw new RuntimeException("provisioningTargetName cannot be blank!!");
+//      }
+      
+      if (StringUtils.isNotBlank(targetName)) {
+        Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+        
+        GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+        if (grouperProvisioningTarget == null) {
+          throw new RuntimeException("Invalid target: "+targetName);
+        }
+        
+        boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
+        if (!canAssignProvisioning) {
+          throw new RuntimeException("Cannot access provisioning.");
+        }
+      }
+      
+      //switch over to admin so attributes work
+      GrouperProvisioningAttributeValue provisioningAttributeValue = (GrouperProvisioningAttributeValue)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (StringUtils.isNotBlank(targetName)) {
+            provisioningContainer.setTargetName(targetName);
+            
+            return GrouperProvisioningService.getProvisioningAttributeValue(GROUP, targetName);
+          }
+          
+          return null;
+        }
+      });
+      
+      if (provisioningAttributeValue == null) {
+        provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+      }
+      
+//      if (StringUtils.equals(targetName, previousTargetName)) {
+        String configurationType = request.getParameter("provisioningHasConfigurationName");
+        if (!StringUtils.isBlank(configurationType)) {
+          boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
+          provisioningAttributeValue.setDirectAssignment(isDirect);
+        }
+        String shouldDoProvisionString = request.getParameter("provisioningProvisionName");
+        boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
+        provisioningAttributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);
+
+//      }
+      
+      
+      if (StringUtils.isNotBlank(targetName)) {
+        
+        GcGrouperSyncGroup gcGrouperSyncGroup = null;
+        
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
+        
+        if (gcGrouperSync != null) {
+          gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(group.getId());
+        }
+        
+        List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
+        
+        Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
+        
+        GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        provisioningContainer.setGrouperProvisioner(provisioner);
+
+        GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+        
+        Map<String, Object> elVariableMap = new HashMap<>();
+        for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
+          String name = metadataItem.getName();
+          String value = request.getParameter(name);
+          
+          if (value != null) {
+            elVariableMap.put(name, value);
+          } else if (metadataNameValues.containsKey(metadataItem.getName())) {
+            elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
+          } else {
+            elVariableMap.put(name,  metadataItem.getDefaultValue());
+          }
+          
+        }
+        
+        for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
+          
+          boolean showBoolean = true;
+          
+          if (StringUtils.isNotBlank(metadataItem.getShowEl())) {
+            
+            String showElExpression = metadataItem.getShowEl();
+            
+            String showString = GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(showElExpression, elVariableMap, true, false, false));
+            showBoolean = GrouperUtil.booleanValue(showString, false);
+          }
+          
+          if (showBoolean && metadataItem.isShowForGroup()) {
+            
+            Object value = elVariableMap.get(metadataItem.getName());
+            metadataItem.setDefaultValue(value);
+            
+            if (!metadataItem.isCanUpdate()) {
+              if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable()) {
+                metadataItem.setReadOnly(true);
+              }
+            }
+            
+            if (!metadataItem.isCanChange() && value != null) {
+              metadataItem.setReadOnly(true);
+            }
+            
+            metadataItems.add(metadataItem);
+          }
+        }
+        
+        provisioningContainer.setGrouperProvisioningObjectMetadataItems(metadataItems);
+      }
+      
+      provisioningContainer.setGrouperProvisioningAttributeValue(provisioningAttributeValue);
+            
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+          
+          addProvisioningBreadcrumbs(guiGroup, null, null, null, null);
+          
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/provisioning/provisioningGroupSettingsEdit.jsp"));
+          
+          return null;
+        }
+      });
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
+   * edit provisioning settings for a group
+   * @param request
+   * @param response
+   */
+  public void editProvisioningOnGroup2(final HttpServletRequest request, final HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -1756,32 +2026,42 @@ public class UiV2Provisioning {
         List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
         // variableMap is used only when there's at least one metadata item which has showEl non blank
-        Map<String, Object> variableMap = new HashMap<>();
+        Map<String, Object> elVariableMap = new HashMap<>();
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
           String name = metadataItem.getName();
           String value = request.getParameter(name);
-          String defaultValue = GrouperUtil.stringValue(metadataItem.getDefaultValue());
-          if (!StringUtils.equals(defaultValue, value)) {
-            metadataItem.setDefaultValue(value); // override the value so that screen can show the right value after rerendering
+//          String defaultValue = GrouperUtil.stringValue(metadataItem.getDefaultValue());
+//          if (!StringUtils.equals(defaultValue, value)) {
+//            metadataItem.setDefaultValue(value); // override the value so that screen can show the right value after rerendering
+//          }
+          
+          if (value != null) {
+            elVariableMap.put(name, value);
+          } else if (metadataNameValues.containsKey(metadataItem.getName())) {
+            elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
+          } else {
+            elVariableMap.put(name,  metadataItem.getDefaultValue());
           }
-          variableMap.put(name, value);
+          
         }
         
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
+          
+          boolean showBoolean = true;
           
           if (StringUtils.isNotBlank(metadataItem.getShowEl())) {
             
             String showElExpression = metadataItem.getShowEl();
             
-            String showString = GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(showElExpression, variableMap, true, false, false));
-            boolean showBoolean = GrouperUtil.booleanValue(showString, false);
+            String showString = GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(showElExpression, elVariableMap, true, false, false));
+            showBoolean = GrouperUtil.booleanValue(showString, false);
 //            metadataItem.setShowForGroup(showBoolean);
-            if (showBoolean) {
-              metadataItems.add(metadataItem);
-            }
             
-          } else if (metadataItem.isShowForGroup()) {
-            Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
+          }
+          
+          if (showBoolean && metadataItem.isShowForGroup()) {
+            
+            Object value = elVariableMap.get(metadataItem.getName());
             metadataItem.setDefaultValue(value);
             
             if (!metadataItem.isCanUpdate()) {
@@ -1924,15 +2204,15 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false).getStem();
       
       if (stem == null) {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        throw new RuntimeException("Cannot access provisioning.");
+//      }
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       final ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
@@ -1947,11 +2227,11 @@ public class UiV2Provisioning {
             return false;
           }
           
-          if (!provisioningContainer.isCanWriteProvisioning()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteStem")));
-            return false;
-          }
+//          if (!provisioningContainer.isCanWriteProvisioning()) {
+//            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+//                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteStem")));
+//            return false;
+//          }
   
           return true;
         }
@@ -2114,10 +2394,9 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
-      
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        throw new RuntimeException("Cannot access provisioning.");
+//      }
   
       subject = UiV2Subject.retrieveSubjectHelper(request, true);
 
@@ -2252,9 +2531,9 @@ public class UiV2Provisioning {
         return;
       }
 
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        throw new RuntimeException("Cannot access provisioning.");
+//      }
       
       final Group GROUP = group;
       final Subject SUBJECT = subject;
@@ -2385,9 +2664,9 @@ public class UiV2Provisioning {
         return;
       }
 
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        throw new RuntimeException("Cannot access provisioning.");
+//      }
       
       final Group GROUP = group;
       final Subject SUBJECT = subject;
@@ -2504,19 +2783,19 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
-      if (group != null) {
-        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
-      }
+//      if (group == null) {
+//        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
+//      }
       
       if (group == null) {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        throw new RuntimeException("Cannot access provisioning.");
+//      }
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       final ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
@@ -2531,11 +2810,11 @@ public class UiV2Provisioning {
             return false;
           }
           
-          if (!provisioningContainer.isCanWriteProvisioning()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteGroup")));
-            return false;
-          }
+//          if (!provisioningContainer.isCanWriteProvisioning()) {
+//            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+//                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteGroup")));
+//            return false;
+//          }
   
           return true;
         }
