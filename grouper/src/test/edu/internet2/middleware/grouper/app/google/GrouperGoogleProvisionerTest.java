@@ -351,7 +351,6 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
 //      
 //      //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
-      GrouperUtil.sleep(10000);
 //      
 //      // now run the full sync again and the member should be deleted from mock_google_membership also
       grouperProvisioningOutput = fullProvision();
@@ -363,7 +362,6 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
 //      //now add one subject
       testGroup.addMember(SubjectTestHelper.SUBJ3);
 //      
-      GrouperUtil.sleep(10000);
 //      // now run the full sync again
       grouperProvisioningOutput = fullProvision();
 //      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
@@ -387,7 +385,6 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       attributeValue.setMetadataNameValues(metadataNameValues);
   
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
-      GrouperUtil.sleep(10000);
       grouperProvisioningOutput = fullProvision();
 //      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
 //      
@@ -397,7 +394,6 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
 //      
 //      //now delete the group and sync again
       testGroup.delete();
-      GrouperUtil.sleep(10000);
 //      
       grouperProvisioningOutput = fullProvision();
 //      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();

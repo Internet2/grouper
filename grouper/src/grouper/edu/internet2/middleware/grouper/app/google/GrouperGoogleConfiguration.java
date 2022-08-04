@@ -210,7 +210,7 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
   
   @Override
   public int getDaoSleepBeforeSelectAfterInsertMillis() {
-    return 3000;
+    return 10000;
   }
   
 }
