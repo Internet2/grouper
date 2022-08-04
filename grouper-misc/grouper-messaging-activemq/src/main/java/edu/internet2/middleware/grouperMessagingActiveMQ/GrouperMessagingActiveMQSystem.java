@@ -296,7 +296,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
           try {
             connection.stop();
           } catch(Exception e) {
-            throw new RuntimeException("Error occurred while closing ActiveMQ connection for "+messagingSystemName);
+            throw new RuntimeException("Error occurred while closing ActiveMQ connection for "+messagingSystemName, e);
           } finally {
             messagingSystemNameConnection.remove(messagingSystemName);
           }
