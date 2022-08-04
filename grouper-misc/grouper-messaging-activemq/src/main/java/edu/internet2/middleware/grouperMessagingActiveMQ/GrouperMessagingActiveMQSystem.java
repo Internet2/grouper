@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouperMessagingActiveMQ;
 
 import static edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType.topic;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -85,6 +86,12 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
       }
     } catch (JMSException e) {
       LOG.error("Error occurred while sending message to messaging system name: "+systemParam.getMessageSystemName(), e);
+      try {
+        closeConnection(systemParam.getMessageSystemName());
+      } catch (Exception ex) {
+        // do nothing
+      }
+      throw new RuntimeException("Error occurred while closing channel for messaging system: "+systemParam.getMessageSystemName(), e);
     }
     
     return new GrouperMessageSendResult();
@@ -246,6 +253,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
           GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(messagingSystemName);
 
           String host = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "host");
+          String uri =  grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "uri");
           String username = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "username");
           String password = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "password");
           
@@ -253,8 +261,14 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
             password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
           }
           Integer port = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "port", -1);
-          
-          String connectionUrl = "amqp://"+host+":"+port;
+
+          String connectionUrl;
+          if (StringUtils.isNotBlank(uri)) {
+            connectionUrl = uri;
+          } else {
+            connectionUrl = "amqp://"+host+":"+port;
+          }
+
           JmsConnectionFactory factory = new JmsConnectionFactory(connectionUrl);
           if (StringUtils.isNotBlank(username)) {
             factory.setUsername(username);
@@ -279,8 +293,13 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
       Connection connection = messagingSystemNameConnection.get(messagingSystemName);
       synchronized(ActiveMQClientConnectionFactory.class) {
         if (connection != null) {
-          connection.stop();
-          connection = null;         
+          try {
+            connection.stop();
+          } catch(Exception e) {
+            throw new RuntimeException("Error occurred while closing ActiveMQ connection for "+messagingSystemName);
+          } finally {
+            messagingSystemNameConnection.remove(messagingSystemName);
+          }
         }
       }
     }
