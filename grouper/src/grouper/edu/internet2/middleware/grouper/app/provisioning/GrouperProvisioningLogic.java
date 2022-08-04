@@ -1428,6 +1428,10 @@ public class GrouperProvisioningLogic {
     
     List<ProvisioningGroup> targetGroups = null;
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+      
+      int sleepMillis = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getDaoSleepBeforeSelectAfterInsertMillis();
+      GrouperUtil.sleep(sleepMillis);
+      
       //retrieve so we have a copy
       TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
           this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(new TargetDaoRetrieveGroupsRequest(grouperTargetGroupsToInsert, true));
@@ -1694,6 +1698,10 @@ public class GrouperProvisioningLogic {
 
     List<ProvisioningEntity> targetEntities = null;
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+      
+      int sleepMillis = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getDaoSleepBeforeSelectAfterInsertMillis();
+      GrouperUtil.sleep(sleepMillis);
+      
      //retrieve so we have a copy
       TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = 
           this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntities(new TargetDaoRetrieveEntitiesRequest(grouperTargetEntitiesToInsert, false));

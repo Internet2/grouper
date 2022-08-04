@@ -85,6 +85,9 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setName("md_grouper_assignableToRole");
       grouperProvisioningObjectMetadataItem.setShowEl("${md_grouper_azureGroupType == 'security' || md_grouper_azureGroupType == 'securityMailEnabled' || md_grouper_azureGroupType == 'unifiedSecurityEnabled'}");
       
+      grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
+      
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
       
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);

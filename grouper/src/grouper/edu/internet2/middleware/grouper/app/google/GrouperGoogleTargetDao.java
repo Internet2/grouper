@@ -80,6 +80,13 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
       
+      fieldNamesToInsert.add("defaultMessageDenyNotificationText");
+      fieldNamesToInsert.add("handleDeletedGroup");
+      fieldNamesToInsert.add("messageModerationLevel");
+      fieldNamesToInsert.add("replyTo");
+      fieldNamesToInsert.add("sendMessageDenyNotification");
+      fieldNamesToInsert.add("spamModerationLevel");
+      
       GrouperGoogleGroup grouperGoogleGroup = GrouperGoogleGroup.fromProvisioningGroup(targetGroup, null);
       
       GrouperGoogleGroup createdGAG = GrouperGoogleApiCommands.createGoogleGroup(googleConfiguration.getGoogleExternalSystemConfigId(), grouperGoogleGroup, fieldNamesToInsert);

@@ -43,6 +43,8 @@ public class GuiGrouperProvisioningAttributeValue {
   
   private boolean hasDirectSettings;
   
+//  private boolean canAssignProvisioning;
+  
   private List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
   
   public Timestamp getLastTimeWorkWasDone() {
@@ -149,5 +151,15 @@ public class GuiGrouperProvisioningAttributeValue {
   public void setHasDirectSettings(boolean hasDirectSettings) {
     this.hasDirectSettings = hasDirectSettings;
   }
+
+//  public boolean isCanAssignProvisioning() {
+//    return canAssignProvisioning;
+//  }
+//
+//
+//  
+//  public void setCanAssignProvisioning(boolean canAssignProvisioning) {
+//    this.canAssignProvisioning = canAssignProvisioning;
+//  }
   
 }

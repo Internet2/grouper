@@ -105,5 +105,10 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
     this.resourceProvisioningOptionsTeam = resourceProvisioningOptionsTeam;
   }
 
+  @Override
+  public int getDaoSleepBeforeSelectAfterInsertMillis() {
+   return 3000;
+  }
+  
   
 }

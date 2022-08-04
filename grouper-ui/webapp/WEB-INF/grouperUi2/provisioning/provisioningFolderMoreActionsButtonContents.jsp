@@ -13,7 +13,7 @@
                               >${textContainer.text['provisioningMoreActionsViewSettings'] }</a></li>
                         </c:if>
 
-                        <c:if test="${grouperRequestContainer.provisioningContainer.canWriteProvisioning}" >
+                        <c:if test="${grouperRequestContainer.provisioningContainer.canAssignProvisioning}" >
 	                        <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.editProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
 	                            >${textContainer.text['provisioningMoreActionsEditSettings'] }</a></li>
                         </c:if>

@@ -34,6 +34,10 @@
     <property name="name" column="name" />
     <property name="email" column="email" />
     
+    <property name="defaultMessageDenyNotificationText" column="default_message_deny_text" />
+    <property name="messageModerationLevel" column="message_moderation_level" />
+    <property name="replyTo" column="reply_to" />
+    <property name="spamModerationLevel" column="spam_moderation_level" />
     <property name="whoCanAdd" column="who_can_add" />
     <property name="whoCanJoin" column="who_can_join" />
     <property name="whoCanViewMembership" column="who_can_view_membership" />
@@ -41,7 +45,9 @@
     <property name="whoCanInvite" column="who_can_invite" />
     <property name="whoCanPostMessage" column="who_can_post_message" />
     <property name="allowExternalMembersDb" column="allow_external_members" />
+    <property name="sendMessageDenyNotificationDb" column="send_msg_dny_notif" />
     <property name="allowWebPostingDb" column="allow_web_posting" />
+    <property name="allowGoogleCommunicationDb" column="allow_google_communication" />
 
   </class>
 </hibernate-mapping>
