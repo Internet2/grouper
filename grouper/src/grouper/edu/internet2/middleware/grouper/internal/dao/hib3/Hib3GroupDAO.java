@@ -33,6 +33,7 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -2662,6 +2663,12 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
       throw new RuntimeException("If stem is set, then stem scope must be set.  If stem isnt set, then stem scope must not be set: " + stem + ", " + stemScope);
     }
     
+    Member member = MemberFinder.internal_findBySubject(subject, null, false);
+    
+    if (member == null) {
+      return new LinkedHashSet<Group>();
+    }
+    
     if (queryOptions == null) {
       queryOptions = new QueryOptions();
     }
@@ -2692,15 +2699,19 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   
     //make sure the session can read the privs, if looking at own groups, then allow UPDATE, OPTIN, or OPTOUT since
     //if you have those you can essentially see if you are in the group or not due to optin / optout buttons
-    Set<Privilege> inPrivSet = (field.isGroupListField() && SubjectHelper.eq(subject, grouperSession.getSubject())) ? 
+    Set<Privilege> inPrivSetInitial = (field.isGroupListField() && SubjectHelper.eq(subject, grouperSession.getSubject())) ? 
         AccessPrivilege.OPT_OR_READ_PRIVILEGES :  AccessPrivilege.READ_PRIVILEGES;
+    
+    Set<Privilege> inPrivSetFinal = new LinkedHashSet<Privilege>(inPrivSetInitial);
+    
+    Hib3MembershipDAO.addViewPrivilegeIfSelfMembershipQuery(grouperSession, Collections.singleton(member.getId()), Collections.singleton(field), null, inPrivSetFinal);
     
     //subject to check privileges for
     Subject accessSubject = grouperSession.getSubject();
     
     //see if we are adding more to the query
     boolean changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(accessSubject, byHqlStatic, 
-        sql, "theGroup.uuid", inPrivSet);
+        sql, "theGroup.uuid", inPrivSetFinal);
   
     if (changedQuery && sql.toString().contains(" where ")) {
       sql.append(" and ");
@@ -2743,12 +2754,6 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     //this must be last due to and's
     sql.append(" listMembership.ownerGroupId = theGroup.uuid and listMembership.fieldId = :listId " +
       " and listMembership.memberUuid = :memberId ");
-
-    Member member = MemberFinder.internal_findBySubject(subject, null, false);
-    
-    if (member == null) {
-      new LinkedHashSet<Group>();
-    }
     
     try {
       byHqlStatic.createQuery(sql.toString())
@@ -2767,7 +2772,7 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
   
       //if the hql didnt filter, this will
       Set<Group> filteredGroups = grouperSession.getAccessResolver()
-        .postHqlFilterGroups(groups, accessSubject, inPrivSet);
+        .postHqlFilterGroups(groups, accessSubject, inPrivSetFinal);
   
       return filteredGroups;
     } catch (GroupNotFoundException gnfe) {
