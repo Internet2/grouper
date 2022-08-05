@@ -4,6 +4,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -12,21 +13,15 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -359,7 +354,34 @@ public class GuiMembershipSubjectContainer {
       
     }
     
-    return false;
+    return getViewableTargets().size() > 0;
+    
+  }
+  
+  /**
+   * get viewable targets for current group/stem and logged in subject
+   * @return
+   */
+  public Set<GrouperProvisioningTarget> getViewableTargets() {
+    
+    GrouperObject grouperObject = null;
+    
+    if (guiGroup != null) {
+      grouperObject = guiGroup.getGrouperObject();
+    }
+    
+    Map<String, GrouperProvisioningTarget> targets = GrouperProvisioningSettings.getTargets(true);
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    Set<GrouperProvisioningTarget> viewableTargets = new HashSet<GrouperProvisioningTarget>();
+    
+    for (GrouperProvisioningTarget target: targets.values()) {
+      if (GrouperProvisioningService.isTargetViewable(target, loggedInSubject, grouperObject)) {
+        viewableTargets.add(target);
+      }
+    }
+    
+    return viewableTargets;
   }
   
 }

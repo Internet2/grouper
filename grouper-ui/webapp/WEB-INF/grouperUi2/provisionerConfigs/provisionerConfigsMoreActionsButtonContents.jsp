@@ -7,8 +7,10 @@
                           ${textContainer.text['provisionerConfigsMoreActionsButton'] } <span class="caret"></span></a>
 
                       <ul class="dropdown-menu dropdown-menu-right" id="provisioner-configs-more-options">
-                       <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.diagnostics&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableDiagnosticsActionOption'] }</a></li>
-                       
+                      
+                       <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canEditProvisionerConfiguration}">
+                         <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.diagnostics&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableDiagnosticsActionOption'] }</a></li>
+                       </c:if>
                        <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canEditProvisionerConfiguration}">
                          <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.editProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableEditDetailsActionOption'] }</a></li>
                        </c:if>

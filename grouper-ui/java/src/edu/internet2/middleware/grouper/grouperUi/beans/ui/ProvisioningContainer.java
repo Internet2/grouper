@@ -242,7 +242,7 @@ public class ProvisioningContainer {
       
     }
     
-    return getEditableTargets().size() > 0;
+    return getViewableTargets().size() > 0;
     
 //    return false;
   }
