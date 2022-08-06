@@ -680,6 +680,13 @@ public class PrivilegeHelper {
             if (canOptout(grouperSession, membership.getOwnerGroup(), grouperSession.getSubject())) {
               return true;
             }
+            
+            boolean allowSelfRead = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.membership.allowSelfRead", false);
+            if (allowSelfRead) {
+              if (canView(grouperSession, membership.getOwnerGroup(), grouperSession.getSubject())) {
+                return true;
+              }
+            }
           }
         }
         

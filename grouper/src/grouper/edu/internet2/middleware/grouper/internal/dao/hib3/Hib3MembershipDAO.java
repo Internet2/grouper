@@ -785,6 +785,11 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
       privilegesTheUserHasFinal.addAll(AccessPrivilege.ADMIN_PRIVILEGES);
     }
     
+    // not sure how the service option plays into this so excluding for now
+    if (serviceRole == null) {
+      addViewPrivilegeIfSelfMembershipQuery(grouperSession, totalMemberIds, fields, fieldType, privilegesTheUserHasFinal);
+    }
+    
     //just check security on one stem to help performance
     if (checkSecurity && GrouperUtil.length(totalGroupIds) == 1) {
       boolean allowed = (Boolean)GrouperSession.callbackGrouperSession(
@@ -1418,7 +1423,54 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     return totalResults;
     
   }
-  
+
+  /**
+   * @param grouperSession
+   * @param totalMemberIds
+   * @param fields
+   * @param fieldType
+   * @param privilegesTheUserHasFinal
+   */
+  public static void addViewPrivilegeIfSelfMembershipQuery(GrouperSession grouperSession, Collection<String> totalMemberIds, Collection<Field> fields, FieldType fieldType, Set<Privilege> privilegesTheUserHasFinal) {
+    
+    boolean allowSelfRead = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.membership.allowSelfRead", false);
+
+    if (!allowSelfRead) {
+      return;
+    }
+    
+    if (fieldType != null && fieldType != FieldType.LIST) {
+      return;
+    }
+    
+    if (GrouperUtil.length(fields) > 1) {
+      return;
+    }
+    
+    if (GrouperUtil.length(fields) == 1 && fields.iterator().next() != Group.getDefaultList()) {
+      return;
+    }
+    
+    if (GrouperUtil.length(totalMemberIds) != 1) {
+      return;
+    }
+    
+    if (!privilegesTheUserHasFinal.contains(AccessPrivilege.READ)) {
+      return;
+    }
+    
+    Subject grouperSessionSubject = grouperSession.getSubject();
+    Member grouperSessionMember = MemberFinder.internal_findBySubject(grouperSessionSubject, null, false);
+
+    if (grouperSessionMember == null || !grouperSessionMember.getId().equals(totalMemberIds.iterator().next())) {
+      return;
+    }
+    
+    privilegesTheUserHasFinal.add(AccessPrivilege.VIEW);
+    privilegesTheUserHasFinal.add(AccessPrivilege.OPTIN);
+    privilegesTheUserHasFinal.add(AccessPrivilege.OPTOUT);
+  }
+
   /**
    * @param ownerGroupId 
    * @param f 
