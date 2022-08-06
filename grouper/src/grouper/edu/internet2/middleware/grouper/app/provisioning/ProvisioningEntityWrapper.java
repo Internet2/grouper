@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
 public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
