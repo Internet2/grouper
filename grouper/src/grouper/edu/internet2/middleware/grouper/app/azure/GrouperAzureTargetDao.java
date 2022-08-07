@@ -139,17 +139,11 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
       GrouperAzureUser grouperAzureUser = null;
 
-      if (!StringUtils.isBlank(grouperTargetEntity.getId())) {
+      String attributeValue = grouperTargetEntity.retrieveAttributeValueString(targetDaoRetrieveEntityRequest.getSearchAttribute());
+      if (!StringUtils.isBlank(attributeValue)) {
         grouperAzureUser = GrouperAzureApiCommands.retrieveAzureUser(
-            azureConfiguration.getAzureExternalSystemConfigId(), "id", 
-            grouperTargetEntity.getId());
-      }
-
-      String userPrincipalName = grouperTargetEntity
-          .retrieveAttributeValueString("userPrincipalName");
-      if (grouperAzureUser == null && !StringUtils.isBlank(userPrincipalName)) {
-        grouperAzureUser = GrouperAzureApiCommands.retrieveAzureUser(
-            azureConfiguration.getAzureExternalSystemConfigId(), "userPrincipalName", userPrincipalName);
+            azureConfiguration.getAzureExternalSystemConfigId(), targetDaoRetrieveEntityRequest.getSearchAttribute(),
+            attributeValue);
       }
 
       ProvisioningEntity targetEntity = grouperAzureUser == null ? null
