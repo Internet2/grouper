@@ -698,7 +698,7 @@ public class GrouperProvisioningMatchingIdIndex {
           String matchingAttributeName = matchingAttribute.getName();
           
           // go through unmatched grouper objects and try to find a match
-          LOOP_THROUGH_GROUPS: for (ProvisioningEntityWrapper provisioningEntityWrapper : new ArrayList<ProvisioningEntityWrapper>(
+          LOOP_THROUGH_ENTITIES: for (ProvisioningEntityWrapper provisioningEntityWrapper : new ArrayList<ProvisioningEntityWrapper>(
               GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()))) {
   
             if (provisioningEntityWrapper.getGrouperTargetEntity() == null) {
@@ -810,7 +810,7 @@ public class GrouperProvisioningMatchingIdIndex {
               }
   
               targetProvisioningEntityToMatchCount.put(targetProvisioningEntity, 1);
-              continue LOOP_THROUGH_GROUPS;
+              continue LOOP_THROUGH_ENTITIES;
             }
           }
           
@@ -884,7 +884,9 @@ public class GrouperProvisioningMatchingIdIndex {
         provisioningEntityWrappersWithNoMatchingId++;
         continue;
       }
-      provisioningEntityWrappersWithNoMatch++;
+      if (provisioningEntityWrapper.isRecalcObject()) {
+        provisioningEntityWrappersWithNoMatch++;
+      }
       continue;
     }
     

@@ -10,6 +10,28 @@ public class TargetDaoRetrieveMembershipsByEntityResponse {
   }
 
   /**
+   * some native representation of the target entity, only pass around if needed
+   */
+  private Object targetNativeEntity;
+  
+  
+  /**
+   * some native representation of the target entity, only pass around if needed
+   * @return
+   */
+  public Object getTargetNativeEntity() {
+    return targetNativeEntity;
+  }
+
+  /**
+   * some native representation of the target entity, only pass around if needed
+   * @param targetNativeEntity
+   */
+  public void setTargetNativeEntity(Object targetNativeEntity) {
+    this.targetNativeEntity = targetNativeEntity;
+  }
+
+  /**
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    */
   private List<Object> targetMemberships;

@@ -251,9 +251,9 @@ public class SqlProvisionerTestUtils {
         configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "entityAttribute");
         configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0entityAttribute", "uuid");
         configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1has", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1source", "target");
-        configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1type", "entityAttribute");
-        configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1entityAttribute", "name");
+        configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1source", "grouper");
+        configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1type", "subjectTranslationScript");
+        configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1translationScript", "${subject.name}");
       }
       
       configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");

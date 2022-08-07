@@ -1643,22 +1643,15 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
 
-    List<GrouperProvisioningConfigurationAttribute> searchAttributes = sqlProvisioningConfiguration.getEntitySearchAttributes();
-    if (searchAttributes.size() != 1) {
-      throw new RuntimeException("Can currently only have one searchAttribute! " + GrouperUtil.toStringForLog(searchAttributes));
-    }
-
-    GrouperProvisioningConfigurationAttribute searchAttribute = searchAttributes.get(0);
-    
     for (String attributeName: entityAttributeNameToConfigAttribute.keySet()) {
       SqlGrouperProvisioningConfigurationAttribute configurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) entityAttributeNameToConfigAttribute.get(attributeName);
       GrouperUtil.assertion(configurationAttribute!=null, "Configuration attribute is null: '" + attributeName + "'");
-      if (!configurationAttribute.isSelect() && !StringUtils.equals(searchAttribute.getName(), attributeName)) {
+      if (!configurationAttribute.isSelect() && !StringUtils.equals(targetDaoRetrieveEntitiesRequest.getSearchAttribute(), attributeName)) {
         continue;
       }
       
       boolean isMembershipAttribute = false;
-      if (isEntityAttributes && !StringUtils.isBlank(sqlProvisioningConfiguration.getGroupMembershipAttributeName()) && StringUtils.equals(sqlProvisioningConfiguration.getGroupMembershipAttributeName(), attributeName)) {
+      if (isEntityAttributes && !StringUtils.isBlank(sqlProvisioningConfiguration.getEntityMembershipAttributeName()) && StringUtils.equals(sqlProvisioningConfiguration.getEntityMembershipAttributeName(), attributeName)) {
         isMembershipAttribute = true;
       }
 
@@ -1679,9 +1672,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       }
     }
 
-    boolean filterByColumn = entityTablePrimaryColNamesList.contains(searchAttribute.getName());
-
-    boolean filterByAttribute = searchAttribute != null && attributeTableAttributesNamesList.contains(searchAttribute.getName());
+    boolean filterByColumn = entityTablePrimaryColNamesList.contains(targetDaoRetrieveEntitiesRequest.getSearchAttribute());
+    
+    boolean filterByAttribute = attributeTableAttributesNamesList.contains(targetDaoRetrieveEntitiesRequest.getSearchAttribute());
     
     GrouperUtil.assertion(filterByAttribute || filterByColumn, "Must filter by attribute or column");
 
@@ -1692,24 +1685,20 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       entityTableAttributesColNamesList = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
     }
      
-    if (GrouperUtil.length(targetDaoRetrieveEntitiesRequest.getTargetEntities()) > 0) {
+    if (GrouperUtil.length(targetDaoRetrieveEntitiesRequest.getSearchAttributeValues()) > 0) {
       
-      List<Object> idsToRetrieve = new ArrayList<Object>();
-      for (ProvisioningEntity provisioningEntity : targetDaoRetrieveEntitiesRequest.getTargetEntities()) {
-        idsToRetrieve.add(provisioningEntity.retrieveAttributeValue(searchAttribute.getName()));
-      }
+      List<Object> idsToRetrieve = new ArrayList<Object>(targetDaoRetrieveEntitiesRequest.getSearchAttributeValues());
       
       List<Object[]> entityPrimaryAttributeValues = null;
-  
 
       if (filterByColumn) {
         entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
-            dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName, null, null, GrouperUtil.toList(searchAttribute.getName()), idsToRetrieve);
+            dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName, null, null, GrouperUtil.toList(targetDaoRetrieveEntitiesRequest.getSearchAttribute()), idsToRetrieve);
         
       } else if (filterByAttribute) {
         entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsAttributeFilter(dbExternalSystemConfigId, 
             entityTablePrimaryColNamesList, entityTableName, entityTableIdColumn, entityAttributesTableName, entityAttributesEntityForeignKeyColumn, 
-            entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn, searchAttribute.getName(), idsToRetrieve);
+            entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn, targetDaoRetrieveEntitiesRequest.getSearchAttribute(), idsToRetrieve);
             
       }
       
