@@ -174,30 +174,33 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 
       GrouperDuoGroup grouperDuoGroup = null;
 
-      if (StringUtils.isNotBlank(grouperTargetGroup.getId())) {
-        grouperDuoGroup = GrouperDuoApiCommands.retrieveDuoGroup(duoConfiguration.getDuoExternalSystemConfigId(), grouperTargetGroup.getId());
-      }
-      
-      String name = grouperTargetGroup.getName();
-      if (grouperDuoGroup == null && StringUtils.isNotBlank(name)) {
-        
-        Map<String, GrouperDuoGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
-        
-        grouperDuoGroup = groupNameToGroup == null ? null : groupNameToGroup.get(name);
-        
-        if (grouperDuoGroup == null) {
-          List<GrouperDuoGroup> allDuoGroups = GrouperDuoApiCommands.retrieveDuoGroups(duoConfiguration.getDuoExternalSystemConfigId());
+      if (StringUtils.equals("id", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
+        grouperDuoGroup = GrouperDuoApiCommands.retrieveDuoGroup(duoConfiguration.getDuoExternalSystemConfigId(), GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()));
+      } else if (StringUtils.equals("name", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
+        String name = GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue());
+        if (grouperDuoGroup == null && StringUtils.isNotBlank(name)) {
           
-          groupNameToGroup = new HashMap<String, GrouperDuoGroup>();
-          for (GrouperDuoGroup currentDuoGroup: GrouperUtil.nonNull(allDuoGroups)) {
-            groupNameToGroup.put(currentDuoGroup.getName(), currentDuoGroup);
+          Map<String, GrouperDuoGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+          
+          grouperDuoGroup = groupNameToGroup == null ? null : groupNameToGroup.get(name);
+          
+          if (grouperDuoGroup == null) {
+            List<GrouperDuoGroup> allDuoGroups = GrouperDuoApiCommands.retrieveDuoGroups(duoConfiguration.getDuoExternalSystemConfigId());
+            
+            groupNameToGroup = new HashMap<String, GrouperDuoGroup>();
+            for (GrouperDuoGroup currentDuoGroup: GrouperUtil.nonNull(allDuoGroups)) {
+              groupNameToGroup.put(currentDuoGroup.getName(), currentDuoGroup);
+            }
+            cacheGroupNameToGroup.put(Boolean.TRUE, groupNameToGroup);
+            
+            grouperDuoGroup = groupNameToGroup.get(name);
+            
           }
-          cacheGroupNameToGroup.put(Boolean.TRUE, groupNameToGroup);
-          
-          grouperDuoGroup = groupNameToGroup.get(name);
           
         }
         
+      } else {
+        throw new RuntimeException("Not expecting search attribute '" + targetDaoRetrieveGroupRequest.getSearchAttribute() + "'");
       }
 
       ProvisioningGroup targetGroup = grouperDuoGroup == null ? null : grouperDuoGroup.toProvisioningGroup();
