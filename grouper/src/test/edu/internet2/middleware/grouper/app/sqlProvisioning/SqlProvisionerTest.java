@@ -1166,8 +1166,6 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
-    assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("provisioningGroupWrappersMatchedFromCache"), -1));
-    
     groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group").selectList(Object[].class);
     assertEquals(1, groups.size());
     
@@ -1294,7 +1292,6 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
     assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("retrieveGroupsFromCache"), -1));
-    assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("provisioningGroupWrappersMatchedFromCache"), -1));
     
     groups = new GcDbAccess().sql("select uuid, posix_id, name from testgrouper_prov_group").selectList(Object[].class);
     assertEquals(1, groups.size());
@@ -4501,8 +4498,6 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(testSubject0member.getId());
     assertEquals("my name is test.subject.0_new", gcGrouperSyncMember.getEntityAttributeValueCache1());
 
-    assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("provisioningEntityWrappersMatchedFromCache"), -1));
-    
     entities = new GcDbAccess().sql("select uuid, name, subject_id_or_identifier, description from testgrouper_prov_entity").selectList(Object[].class);
     assertEquals(2, entities.size());
     
@@ -4557,6 +4552,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     fullProvision();
     incrementalProvision();
     
+    String subject0name = SubjectTestHelper.SUBJ0.getName()+"_new";
+
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
     
@@ -4669,8 +4666,6 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(testSubject0member.getId());
     assertEquals("my name is test.subject.0_new", gcGrouperSyncMember.getEntityAttributeValueCache1());
   
-    assertEquals(1, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("provisioningEntityWrappersMatchedFromCache"), -1));
-    
     entities = new GcDbAccess().sql("select uuid, name, subject_id_or_identifier, description from testgrouper_prov_entity").selectList(Object[].class);
     assertEquals(2, entities.size());
     
@@ -4680,7 +4675,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     entityNameToAllAttributes = new HashMap<String, Object[]>();
     for (Object[] entityAttributes: entities) {
       entityNameToAllAttributes.put(entityAttributes[1].toString(), entityAttributes);
-      if (StringUtils.equals(entityAttributes[1].toString(), SubjectTestHelper.SUBJ0.getName()+"_new")) {
+      if (StringUtils.equals(entityAttributes[1].toString(), subject0name)) {
         subject0EntityUUID = entityAttributes[0].toString();
       }
       if (StringUtils.equals(entityAttributes[1].toString(), SubjectTestHelper.SUBJ1.getName())) {
@@ -4690,7 +4685,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
     assertEquals(subject0EntityUUID, gcGrouperSyncMember.getEntityAttributeValueCache0());
   
-    assertTrue(entityNameToAllAttributes.containsKey(SubjectTestHelper.SUBJ0.getName()+"_new"));
+    assertTrue(entityNameToAllAttributes.containsKey(subject0name));
     assertTrue(entityNameToAllAttributes.containsKey(SubjectTestHelper.SUBJ1.getName()));
   
     
