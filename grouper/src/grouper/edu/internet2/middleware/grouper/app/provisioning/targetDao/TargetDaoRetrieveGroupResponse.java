@@ -7,6 +7,28 @@ public class TargetDaoRetrieveGroupResponse {
   public TargetDaoRetrieveGroupResponse() {
   }
 
+  /**
+   * some native representation of the target group, only pass around if needed
+   */
+  private Object targetNativeGroup;
+  
+  
+  /**
+   * some native representation of the target group, only pass around if needed
+   * @return
+   */
+  public Object getTargetNativeGroup() {
+    return targetNativeGroup;
+  }
+
+  /**
+   * some native representation of the target group, only pass around if needed
+   * @param targetNativeGroup
+   */
+  public void setTargetNativeGroup(Object targetNativeGroup) {
+    this.targetNativeGroup = targetNativeGroup;
+  }
+
   private ProvisioningGroup targetGroup;
 
   

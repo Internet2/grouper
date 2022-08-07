@@ -775,6 +775,14 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                       retrieveGroupsFromAlternateSearchAttr++;
                     }
                     groupsRemainingToFind.remove(grouperTargetGroup);
+                    ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
+                    if (provisioningGroupWrapper != null) {
+                      provisioningGroupWrapper.setTargetProvisioningGroup(retrievedTargetGroup);
+                      retrievedTargetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
+                      if (targetDaoRetrieveGroupsResponse.getTargetGroupToTargetNativeGroup() != null) {
+                        provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveGroupsResponse.getTargetGroupToTargetNativeGroup().get(retrievedTargetGroup));
+                      }
+                    }
                   }
                 }
               }
@@ -959,6 +967,15 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                       retrieveGroupsFromAlternateSearchAttr++;
                     }
                     groupsRemainingToFind.remove(grouperTargetGroup);
+                    ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
+                    if (provisioningGroupWrapper != null) {
+                      provisioningGroupWrapper.setTargetProvisioningGroup(retrievedTargetGroup);
+                      retrievedTargetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
+                      if (targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup() != null) {
+                        provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup().get(retrievedTargetGroup));
+                      }
+                    }
+
                   }
                 }
               }
@@ -1077,6 +1094,14 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 } else if (!first) {
                   retrieveGroupsFromAlternateSearchAttr++;
                 }
+                ProvisioningGroupWrapper provisioningGroupWrapper = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup().getProvisioningGroupWrapper();
+                if (provisioningGroupWrapper != null && GrouperUtil.length(targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships()) == 1
+                    && targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships().get(0) instanceof ProvisioningGroup ){
+                  provisioningGroupWrapper.setTargetProvisioningGroup((ProvisioningGroup)targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships().get(0));
+                  ((ProvisioningGroup)targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships().get(0)).setProvisioningGroupWrapper(provisioningGroupWrapper);
+                  provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveMembershipsByGroupResponse.getTargetNativeGroup());
+                }
+
                 return targetDaoRetrieveMembershipsByGroupResponse;
               }
 
@@ -1746,6 +1771,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                   retrieveGroupsFromAlternateSearchAttr++;
                 }
                 hasError = logGroup(targetDaoRetrieveGroupResponse.getTargetGroup()) || hasError;
+                ProvisioningGroupWrapper provisioningGroupWrapper = targetDaoRetrieveGroupRequest.getTargetGroup().getProvisioningGroupWrapper();
+                if (provisioningGroupWrapper != null) {
+                  provisioningGroupWrapper.setTargetProvisioningGroup(targetDaoRetrieveGroupResponse.getTargetGroup());
+                  targetDaoRetrieveGroupResponse.getTargetGroup().setProvisioningGroupWrapper(provisioningGroupWrapper);
+                  provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveGroupResponse.getTargetNativeGroup());
+                }
                 return targetDaoRetrieveGroupResponse;
               }
             }
