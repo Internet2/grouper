@@ -219,7 +219,7 @@ public class GrouperProvisioningLogic {
 
     {
       debugMap.put("state", "assignRecalc");
-      // everything in a full sync is a recalc
+      // everything in a full sync is a recalc if it can be
       for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
         provisioningGroupWrapper.setRecalcObject(true);
         provisioningGroupWrapper.setRecalcGroupMemberships(true);

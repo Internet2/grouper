@@ -2446,12 +2446,15 @@ public class GrouperProvisioningLogicIncremental {
             grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
             continue;
           }
-          if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
-            // we need to retrieve or create this, its probably already a recalc but...
-            grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
-            provisioningGroupWrapper.setRecalcObject(true);
-            provisioningGroupWrapper.setRecalcGroupMemberships(true);
-            continue;
+          // for messaging we arent selecting groups
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+            if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+              // we need to retrieve or create this, its probably already a recalc but...
+              grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
+              provisioningGroupWrapper.setRecalcObject(true);
+              provisioningGroupWrapper.setRecalcGroupMemberships(true);
+              continue;
+            }
           }
         }
       }
@@ -2500,12 +2503,15 @@ public class GrouperProvisioningLogicIncremental {
             grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
             continue;
           }
-          if (provisioningEntityWrapper.getGcGrouperSyncMember() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
-            // we need to retrieve or create this, its probably already a recalc but...
-            grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
-            provisioningEntityWrapper.setRecalcObject(true);
-            provisioningEntityWrapper.setRecalcEntityMemberships(true);
-            continue;
+          // for messaging we arent selecting groups
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+            if (provisioningEntityWrapper.getGcGrouperSyncMember() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
+              // we need to retrieve or create this, its probably already a recalc but...
+              grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
+              provisioningEntityWrapper.setRecalcObject(true);
+              provisioningEntityWrapper.setRecalcEntityMemberships(true);
+              continue;
+            }
           }
         }
       }

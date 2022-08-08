@@ -67,6 +67,12 @@ public class GrouperProvisioningValidation {
     if (GrouperUtil.length(provisioningGroup.getMatchingIdAttributeNameToValues()) > 0) {
       return true;
     }
+
+    // cant have one
+    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes())==0) {
+      return true;
+    }
+    
     if (forInsert) {
       for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) {
         // if there is no translation, then thats ok... its retrieved from the target so it will be null until after create
@@ -88,6 +94,12 @@ public class GrouperProvisioningValidation {
     if (GrouperUtil.length(provisioningEntity.getMatchingIdAttributeNameToValues()) > 0) {
       return true;
     }
+    
+    // cant have one
+    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes())==0) {
+      return true;
+    }
+
     if (forInsert) {
       for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) {
         // if there is no translation, then thats ok... its retrieved from the target so it will be null until after create
@@ -133,7 +145,7 @@ public class GrouperProvisioningValidation {
       // matching ID must be there
       // lets see which attribute is the matching id
       if (!validateGroupHasMatchingId(provisioningGroup, forInsert)) {
-        this.assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
+        this.assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.MAT, "matching ID is required and missing");
         if (removeInvalid) {
           iterator.remove();
           continue;
