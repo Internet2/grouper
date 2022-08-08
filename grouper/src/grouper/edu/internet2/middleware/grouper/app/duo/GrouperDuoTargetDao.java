@@ -371,7 +371,13 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      List<GrouperDuoGroup> duoGroups = GrouperDuoApiCommands.retrieveDuoGroupsByUser(duoConfiguration.getDuoExternalSystemConfigId(), targetEntity.getId());
+      String targetEntityId = resolveTargetEntityId(targetEntity);
+      
+      if (StringUtils.isBlank(targetEntityId)) {
+        return new TargetDaoRetrieveMembershipsByEntityResponse(new ArrayList<Object>());
+      }
+
+      List<GrouperDuoGroup> duoGroups = GrouperDuoApiCommands.retrieveDuoGroupsByUser(duoConfiguration.getDuoExternalSystemConfigId(), targetEntityId);
       
       List<Object> provisioningMemberships = new ArrayList<Object>();
       
@@ -418,7 +424,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 //  }
 
   
-  private String resolveTargetGroupId(ProvisioningGroup targetGroup) {
+  public String resolveTargetGroupId(ProvisioningGroup targetGroup) {
     
     if (targetGroup == null) {
       return null;
@@ -428,7 +434,10 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       return targetGroup.getId();
     }
     
-    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.retrieveGroup(new TargetDaoRetrieveGroupRequest(targetGroup, false));
+    TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest = new TargetDaoRetrieveGroupRequest(targetGroup, false);
+    targetDaoRetrieveGroupRequest.setSearchAttribute("name");
+    targetDaoRetrieveGroupRequest.setSearchAttributeValue(targetGroup.getName());
+    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.retrieveGroup(targetDaoRetrieveGroupRequest);
     
     if (targetDaoRetrieveGroupResponse == null || targetDaoRetrieveGroupResponse.getTargetGroup() == null) {
       return null;
@@ -676,5 +685,55 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
   }
+
+  //  @Override
+  //  public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
+  //    long startNanos = System.nanoTime();
+  //    ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
+  //
+  //    try {
+  //      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+  //
+  //      Set<String> userIds = GrouperDuoApiCommands.retrieveDuoGroupMembers(duoConfiguration.getDuoExternalSystemConfigId(), targetGroup.getId());
+  //      
+  //      List<Object> provisioningMemberships = new ArrayList<Object>();
+  //      
+  //      for (String userId : userIds) {
+  //
+  //        ProvisioningMembership targetMembership = new ProvisioningMembership();
+  //        targetMembership.setProvisioningGroupId(targetGroup.getId());
+  //        targetMembership.setProvisioningEntityId(userId);
+  //        provisioningMemberships.add(targetMembership);
+  //      }
+  //  
+  //      return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
+  //    } finally {
+  //      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
+  //    }
+  //  }
+  
+    
+    public String resolveTargetEntityId(ProvisioningEntity targetEntity) {
+      
+      if (targetEntity == null) {
+        return null;
+      }
+      
+      if (StringUtils.isNotBlank(targetEntity.getId())) {
+        return targetEntity.getId();
+      }
+      
+      TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest = new TargetDaoRetrieveEntityRequest(targetEntity, false);
+      targetDaoRetrieveEntityRequest.setSearchAttribute("loginId");
+      targetDaoRetrieveEntityRequest.setSearchAttributeValue(targetEntity.retrieveAttributeValueString("loginId"));
+      TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = this.retrieveEntity(targetDaoRetrieveEntityRequest);
+      
+      if (targetDaoRetrieveEntityResponse == null || targetDaoRetrieveEntityResponse.getTargetEntity() == null) {
+        return null;
+      }
+      
+      return targetDaoRetrieveEntityResponse.getTargetEntity().getId();
+      
+    }
 
 }

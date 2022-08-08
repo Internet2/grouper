@@ -870,7 +870,7 @@ public class GrouperDuoApiCommands {
       if (usersArray == null || usersArray.size() == 0) {
         return null;
       } else if (usersArray.size() > 1) {
-        throw new RuntimeException("How can there be more than one user with the same username in duo??");
+        throw new RuntimeException("How can there be more than one user with the same username in duo?? '" + username + "'");
       } else {
         JsonNode userNode = usersArray.get(0);
         GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, false);

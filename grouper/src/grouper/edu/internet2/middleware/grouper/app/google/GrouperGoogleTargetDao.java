@@ -557,7 +557,10 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       return targetGroup.getId();
     }
     
-    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.retrieveGroup(new TargetDaoRetrieveGroupRequest(targetGroup, false));
+    TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest = new TargetDaoRetrieveGroupRequest(targetGroup, false);
+    targetDaoRetrieveGroupRequest.setSearchAttribute("name");
+    targetDaoRetrieveGroupRequest.setSearchAttributeValue(targetGroup.getName());
+    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.retrieveGroup(targetDaoRetrieveGroupRequest);
     
     if (targetDaoRetrieveGroupResponse == null || targetDaoRetrieveGroupResponse.getTargetGroup() == null) {
       return null;
@@ -662,6 +665,29 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+  }
+
+  private String resolveTargetEntityId(ProvisioningEntity targetEntity) {
+    
+    if (targetEntity == null) {
+      return null;
+    }
+    
+    if (StringUtils.isNotBlank(targetEntity.getId())) {
+      return targetEntity.getId();
+    }
+    
+    TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest = new TargetDaoRetrieveEntityRequest(targetEntity, false);
+    targetDaoRetrieveEntityRequest.setSearchAttribute("email");
+    targetDaoRetrieveEntityRequest.setSearchAttributeValue(targetEntity.getEmail());
+    TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = this.retrieveEntity(targetDaoRetrieveEntityRequest);
+    
+    if (targetDaoRetrieveEntityResponse == null || targetDaoRetrieveEntityResponse.getTargetEntity() == null) {
+      return null;
+    }
+    
+    return targetDaoRetrieveEntityResponse.getTargetEntity().getId();
+    
   }
 
 }
