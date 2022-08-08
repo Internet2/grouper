@@ -131,16 +131,12 @@ public class GrouperProvisioningValidation {
       }
 
       // matching ID must be there
-      // if a matching id is configured on groups even
-      if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isHasMatchingIdStrategyForGroups()) {
-          
-        // lets see which attribute is the matching id
-        if (!validateGroupHasMatchingId(provisioningGroup, forInsert)) {
-          this.assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
-          if (removeInvalid) {
-            iterator.remove();
-            continue;
-          }
+      // lets see which attribute is the matching id
+      if (!validateGroupHasMatchingId(provisioningGroup, forInsert)) {
+        this.assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
+        if (removeInvalid) {
+          iterator.remove();
+          continue;
         }
       }
       
@@ -203,19 +199,16 @@ public class GrouperProvisioningValidation {
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGcGrouperSyncMember();
 
       //if we're not provisioning this entity, maybe this is used in membership that needs to be removed so we shouldn't validate.  
-      if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable()) {
+      if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable() && !gcGrouperSyncMember.isInTarget()) {
         continue;
       }
       
-      // if a matching id is configured on entities even
-      if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isHasMatchingIdStrategyForEntities()) {
-        // matching ID must be there
-        if (!validateEntityHasMatchingId(provisioningEntity, forInsert)) {
-          this.assignEntityError(provisioningEntityWrapper, GcGrouperSyncErrorCode.REQ, "matching ID is required and missing");
-          if (removeInvalid) {
-            iterator.remove();
-            continue;
-          }
+      // matching ID must be there
+      if (!validateEntityHasMatchingId(provisioningEntity, forInsert)) {
+        this.assignEntityError(provisioningEntityWrapper, GcGrouperSyncErrorCode.MAT, "matching ID is required and missing");
+        if (removeInvalid) {
+          iterator.remove();
+          continue;
         }
       }
       

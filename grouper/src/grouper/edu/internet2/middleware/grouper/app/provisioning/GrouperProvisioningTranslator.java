@@ -711,22 +711,6 @@ public class GrouperProvisioningTranslator {
     
   }
   
-  private boolean hasMatchingIdStrategyForGroups = false;
-  
-  
-  
-  public boolean isHasMatchingIdStrategyForGroups() {
-    return hasMatchingIdStrategyForGroups;
-  }
-
-  private boolean hasMatchingIdStrategyForEntities = false;
-  
-  
-  
-  public boolean isHasMatchingIdStrategyForEntities() {
-    return hasMatchingIdStrategyForEntities;
-  }
-
   /**
    * get the matching and search ids for a target group (could be grouperTargetGroup or targetProvisioningGroup)
    * @param targetGroups
