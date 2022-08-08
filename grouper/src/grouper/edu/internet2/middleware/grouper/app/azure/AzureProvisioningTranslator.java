@@ -45,10 +45,6 @@ public class AzureProvisioningTranslator extends GrouperProvisioningTranslator {
         if (grouperTargetGroup == null) {
           continue;
         }
-        String translatedValue = grouperTargetGroup.retrieveAttributeValueString(attributeName);
-        if (!StringUtils.isBlank(translatedValue)) {
-          continue;
-        }
         grouperTargetGroup.assignAttributeValue(attributeName, newValue);
         
       }

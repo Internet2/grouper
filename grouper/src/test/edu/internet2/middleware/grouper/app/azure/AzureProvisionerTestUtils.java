@@ -74,8 +74,8 @@ public class AzureProvisionerTestUtils {
 
     AzureProvisionerTestUtils.setupAzureExternalSystem(provisioningTestConfigInput.isRealAzure());
 
-    if (5 != provisioningTestConfigInput.getGroupAttributeCount() && 9 != provisioningTestConfigInput.getGroupAttributeCount() && 8 != provisioningTestConfigInput.getGroupAttributeCount()) {
-      throw new RuntimeException("Expecting 5, 8, 9 for groupAttributeCount but was '" + provisioningTestConfigInput.getGroupAttributeCount() + "'");
+    if (3 != provisioningTestConfigInput.getGroupAttributeCount() && 5 != provisioningTestConfigInput.getGroupAttributeCount()) {
+      throw new RuntimeException("Expecting 3, 5 for groupAttributeCount but was '" + provisioningTestConfigInput.getGroupAttributeCount() + "'");
     }
     
     configureProvisionerSuffix(provisioningTestConfigInput, "azureExternalSystemConfigId", "myAzure");
