@@ -547,13 +547,13 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("test:testGroup", grouperAzureGroup.getDisplayName());
       assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsAllowOnlyMembersToPostDb());
       assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsWelcomeEmailDisabledDb());
-      assertEquals("F", grouperAzureGroup.getResourceProvisioningOptionsTeamDb());
+      assertEquals("T", grouperAzureGroup.getResourceProvisioningOptionsTeamDb());
       
       assertTrue(grouperAzureGroup.isSecurityEnabled());
       assertFalse(grouperAzureGroup.isMailEnabled());
       assertFalse(grouperAzureGroup.isGroupTypeUnified());
       assertFalse(grouperAzureGroup.isGroupTypeDynamic());
-      assertFalse(grouperAzureGroup.isAssignableToRole());
+      assertTrue(grouperAzureGroup.isAssignableToRole());
       
     } finally {
       
