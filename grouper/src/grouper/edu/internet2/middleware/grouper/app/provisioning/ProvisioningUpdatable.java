@@ -524,11 +524,6 @@ public abstract class ProvisioningUpdatable {
   public abstract boolean canDeleteAttributeValue(String name, Object deleteValue);
 
   /**
-   * if searching for this object, this is the search filter, translated and ready to use
-   */
-  private String searchFilter;
-  
-  /**
    * see if this object is empty e.g. after translating if empty then dont keep track of group
    * since the translation might have affected another object
    * @return true if empty
@@ -539,25 +534,6 @@ public abstract class ProvisioningUpdatable {
     }
     return false;
   }
-
-
-  /**
-   * 
-   * @return
-   */
-  public String getSearchFilter() {
-    return searchFilter;
-  }
-
-  /**
-   * 
-   * @param searchFilter
-   */
-  public void setSearchFilter(String searchFilter) {
-    this.searchFilter = searchFilter;
-  }
-
-
 
   /**
    * if this object has been provisioned or deprovisioned successfully, set this to true. 
@@ -937,7 +913,7 @@ public abstract class ProvisioningUpdatable {
     if (this.removeFromList) {
       firstField = toStringAppendField(result, firstField, "removeFromList", this.removeFromList);
     }
-    firstField = toStringAppendField(result, firstField, "searchFilter", this.searchFilter);
+
     if (GrouperUtil.length(this.attributes) > 0) {
       int attrCount = 0;
       // order these
@@ -1079,7 +1055,6 @@ public abstract class ProvisioningUpdatable {
     provisioningUpdatable.exception = exception;
     provisioningUpdatable.provisioned = provisioned;
     provisioningUpdatable.removeFromList = removeFromList;
-    provisioningUpdatable.searchFilter = searchFilter;
     provisioningUpdatable.matchingIdAttributeNameToValues = GrouperUtil.cloneValue(matchingIdAttributeNameToValues);
     provisioningUpdatable.searchIdAttributeNameToValues = GrouperUtil.cloneValue(searchIdAttributeNameToValues);
     

@@ -700,10 +700,6 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       return new TargetDaoRetrieveGroupsResponse();
     }
 
-    for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsRequest.getTargetGroups()) {
-      provisioningGroup.assignSearchFilter();
-    }
-    
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)) {
       boolean hasError = false;
       boolean commandLogStarted = false;
@@ -1683,10 +1679,6 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       return new TargetDaoRetrieveEntitiesResponse();
     }
 
-    for (ProvisioningEntity provisioningEntity : targetDaoRetrieveEntitiesRequest.getTargetEntities()) {
-      provisioningEntity.assignSearchFilter();
-    }
-    
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntities(), false)) {
       boolean hasError = false;
       boolean commandLogStarted = false;
@@ -1820,8 +1812,6 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     if (targetDaoRetrieveGroupRequest.getTargetGroup() == null) {
       return new TargetDaoRetrieveGroupResponse();
     }
-
-    targetDaoRetrieveGroupRequest.getTargetGroup().assignSearchFilter();
     
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)) {
 
@@ -1923,8 +1913,6 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     if (targetDaoRetrieveEntityRequest.getTargetEntity() == null) {
       return new TargetDaoRetrieveEntityResponse();
     }
-
-    targetDaoRetrieveEntityRequest.getTargetEntity().assignSearchFilter();
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntity(), false)) {
       boolean hasError = false;

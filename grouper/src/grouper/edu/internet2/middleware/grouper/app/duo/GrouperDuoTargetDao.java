@@ -139,7 +139,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       if (StringUtils.equals("id", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
         grouperDuoUser = GrouperDuoApiCommands.retrieveDuoUser(duoConfiguration.getDuoExternalSystemConfigId(), 
             GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue()));
-      } else if (StringUtils.equals("username", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
+      } else if (StringUtils.equals("loginId", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
         grouperDuoUser = GrouperDuoApiCommands.retrieveDuoUserByName(
             duoConfiguration.getDuoExternalSystemConfigId(), GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue()));
       } else {
@@ -174,7 +174,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
         grouperDuoGroup = GrouperDuoApiCommands.retrieveDuoGroup(duoConfiguration.getDuoExternalSystemConfigId(), GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()));
       } else if (StringUtils.equals("name", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
         String name = GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue());
-        if (grouperDuoGroup == null && StringUtils.isNotBlank(name)) {
+        if (StringUtils.isNotBlank(name)) {
           
           Map<String, GrouperDuoGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
           

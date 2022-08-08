@@ -171,16 +171,6 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     return provisioningGroup;
   }
 
-  public void assignSearchFilter() {
-    String groupSearchFilter = this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchFilter();
-    if (!StringUtils.isBlank(groupSearchFilter)) {
-      Map<String, Object> variableMap = new HashMap<String, Object>();
-      variableMap.put("targetGroup", this);
-      String result = GrouperUtil.stringValue(this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningTranslator().runExpression(groupSearchFilter, variableMap));
-      this.setSearchFilter(result);
-    }
-  }
-
   @Override
   public boolean canInsertAttribute(String name) {
 

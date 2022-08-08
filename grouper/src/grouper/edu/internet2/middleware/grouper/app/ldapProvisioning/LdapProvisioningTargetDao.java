@@ -500,16 +500,6 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   /**
    * @param dn
    * @param includeAllMemberships
-   * @return provisioning group
-   * @deprecated
-   */
-  public ProvisioningGroup retrieveGroupByDn(String dn, boolean includeAllMemberships) {
-    return retrieveGroupByDn(dn, includeAllMemberships, true);
-  }
-  
-  /**
-   * @param dn
-   * @param includeAllMemberships
    * @param exceptionIfNotFound
    * @return provisioning group
    */
@@ -592,6 +582,91 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
   }
   
+  /**
+   * @param dn
+   * @param includeAllMemberships
+   * @param exceptionIfNotFound
+   * @return provisioning entity
+   */
+  public ProvisioningEntity retrieveEntityByDn(String dn, boolean includeAllMemberships, boolean exceptionIfNotFound) {
+    
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
+    
+    Set<String> entitySearchAttributeNames = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    entitySearchAttributeNames.addAll(ldapSyncConfiguration.getEntitySelectAttributes());
+      
+    Set<String> entityAttributesMultivalued = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+    if (ldapSyncConfiguration.getEntityAttributesMultivalued() != null) {
+      entityAttributesMultivalued.addAll(ldapSyncConfiguration.getEntityAttributesMultivalued());
+    }
+    
+    entityAttributesMultivalued.add("objectClass");
+    
+    String entityAttributeNameForMemberships = ldapSyncConfiguration.getEntityMembershipAttributeName();
+    if (!StringUtils.isBlank(entityAttributeNameForMemberships)) {
+      if (includeAllMemberships) {
+        entitySearchAttributeNames.add(entityAttributeNameForMemberships);
+        entityAttributesMultivalued.add(entityAttributeNameForMemberships);
+      } else {
+        entitySearchAttributeNames.remove(entityAttributeNameForMemberships);
+        entityAttributesMultivalued.remove(entityAttributeNameForMemberships);
+      }
+    }
+    
+    long startNanos = System.nanoTime();
+
+    try {
+      
+      LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
+      List<LdapEntry> ldapEntries = new ArrayList<LdapEntry>();
+      
+      try {
+        ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, dn, "(objectclass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
+      } catch (Exception e) {
+        if (exceptionIfNotFound) {
+          throw e;
+        }
+        
+        if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+          return null;
+        } else {
+          throw e;
+        }
+      }
+      
+      if (GrouperUtil.length(ldapEntries) == 0) {
+        return null;
+      }
+      if (GrouperUtil.length(ldapEntries) == 1) {
+        LdapEntry ldapEntry = ldapEntries.get(0);
+        ProvisioningEntity targetEntity = new ProvisioningEntity();
+        targetEntity.assignAttributeValue(ldap_dn, ldapEntry.getDn());
+        
+        for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
+          if (ldapAttribute.getValues().size() > 0) {
+            Object value = null;
+            if (entityAttributesMultivalued.contains(ldapAttribute.getName())) {
+              value = new HashSet<Object>(ldapAttribute.getValues());
+            } else if (ldapAttribute.getValues().size() == 1) {
+              value = ldapAttribute.getValues().iterator().next();
+            }
+            
+            targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
+          }
+        }
+
+        return targetEntity;
+
+      }
+
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntities", startNanos));
+    }
+    throw new RuntimeException("Why are we here?");
+
+  }
+  
   public TargetDaoRetrieveGroupsResponse retrieveGroups(TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest) {
 
     List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
@@ -603,8 +678,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     List<Object> values = new ArrayList<Object>(targetDaoRetrieveGroupsRequest.getSearchAttributeValues());
 
+    boolean includeAllMembershipsIfApplicable = targetDaoRetrieveGroupsRequest.isIncludeAllMembershipsIfApplicable();
     if (!StringUtils.equals("ldap_dn", targetDaoRetrieveGroupsRequest.getSearchAttribute())) {
-      boolean includeAllMembershipsIfApplicable = targetDaoRetrieveGroupsRequest.isIncludeAllMembershipsIfApplicable();
       
       LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
@@ -618,7 +693,6 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         groupAttributesMultivalued.addAll(ldapSyncConfiguration.getGroupAttributesMultivalued());
       }
       
-      //groupSearchAttributeNames.add("objectClass");
       groupAttributesMultivalued.add("objectClass");
       
       String groupAttributeNameForMemberships = ldapSyncConfiguration.getGroupMembershipAttributeName();
@@ -633,7 +707,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       int batchSize = LdapConfiguration.getConfig(ldapConfigId).getQueryBatchSize();
-      int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(targetDaoRetrieveGroupsRequest.getSearchAttributeValues()), batchSize, false);
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(values, batchSize, false);
       for (int i = 0; i < numberOfBatches; i++) {
         long startNanos = System.nanoTime();
 
@@ -641,45 +715,46 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           List<Object> batchValues = GrouperUtil.batchList(values, batchSize, i);
           StringBuilder filterBuilder = new StringBuilder();
           
-          for (Object valueObject : batchValues) {
+          if (!StringUtils.isBlank(targetDaoRetrieveGroupsRequest.getSearchAttribute())) {
+            for (Object attributeValueObject : GrouperUtil.nonNull(batchValues)) {
+              
+              String value = GrouperUtil.stringValue(attributeValueObject);
+              String searchFilter = "(" + targetDaoRetrieveGroupsRequest.getSearchAttribute() + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
+    
+              filterBuilder.append(searchFilter);
+    
+            }
+    
+            String filter = filterBuilder.toString();
             
-            String value = GrouperUtil.stringValue(valueObject);
-            String searchFilter = "(" + targetDaoRetrieveGroupsRequest.getSearchAttribute() + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
-  
-            filterBuilder.append(searchFilter);
-  
-          }
-  
-          String filter = filterBuilder.toString();
-          
-          if (GrouperUtil.length(batchValues) > 1) {
-            filter = "(|" + filter + ")";
-          }
-          
-          LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
-          List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, groupSearchBaseDn, filter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
-          
-          for (LdapEntry ldapEntry : ldapEntries) {
-            ProvisioningGroup targetGroup = new ProvisioningGroup();
-            targetGroup.assignAttributeValue(ldap_dn, ldapEntry.getDn());
-            
-            for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
-              if (ldapAttribute.getValues().size() > 0) {
-                Object value = null;
-                if (groupAttributesMultivalued.contains(ldapAttribute.getName())) {
-                  value = new HashSet<Object>(ldapAttribute.getValues());
-                } else if (ldapAttribute.getValues().size() == 1) {
-                  value = ldapAttribute.getValues().iterator().next();
-                }
-                
-                targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
-              }
+            if (GrouperUtil.length(batchValues) > 1) {
+              filter = "(|" + filter + ")";
             }
             
-            results.add(targetGroup);
+            LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
+            List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, groupSearchBaseDn, filter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
+            
+            for (LdapEntry ldapEntry : ldapEntries) {
+              ProvisioningGroup targetGroup = new ProvisioningGroup();
+              targetGroup.assignAttributeValue(ldap_dn, ldapEntry.getDn());
               
-          }
-        
+              for (LdapAttribute ldapAttribute : ldapEntry.getAttributes()) {
+                if (ldapAttribute.getValues().size() > 0) {
+                  Object value = null;
+                  if (groupAttributesMultivalued.contains(ldapAttribute.getName())) {
+                    value = new HashSet<Object>(ldapAttribute.getValues());
+                  } else if (ldapAttribute.getValues().size() == 1) {
+                    value = ldapAttribute.getValues().iterator().next();
+                  }
+                  
+                  targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
+                }
+              }
+              
+              results.add(targetGroup);
+                
+            }
+          }        
         } finally {
           this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveGroups", startNanos));
         }
@@ -690,7 +765,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         long startNanos = System.nanoTime();
         try {
           LdapProvisioningTargetDao ldapProvisioningTargetDao = (LdapProvisioningTargetDao)this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao();
-          ProvisioningGroup provisioningGroup = ldapProvisioningTargetDao.retrieveGroupByDn(GrouperUtil.stringValue(dnObject), true, false);
+          ProvisioningGroup provisioningGroup = ldapProvisioningTargetDao.retrieveGroupByDn(GrouperUtil.stringValue(dnObject), includeAllMembershipsIfApplicable, false);
           if (provisioningGroup != null) {
             results.add(provisioningGroup);
           }
@@ -815,42 +890,31 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
     }
     
-    List<ProvisioningEntity> targetEntities = targetDaoRetrieveEntitiesRequest.getTargetEntities();
     int batchSize = LdapConfiguration.getConfig(ldapConfigId).getQueryBatchSize();
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities.size(), batchSize);
+    List<Object> searchAttributeValues = new ArrayList<Object>(GrouperUtil.nonNull(targetDaoRetrieveEntitiesRequest.getSearchAttributeValues()));
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(searchAttributeValues), batchSize, false);
 
     for (int i = 0; i < numberOfBatches; i++) {
       long startNanos = System.nanoTime();
 
       try {
-        List<ProvisioningEntity> currentBatchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
+        List<Object> currentBatchAttributeValues = GrouperUtil.batchList(searchAttributeValues, batchSize, i);
         StringBuilder filterBuilder = new StringBuilder();
-        for (ProvisioningEntity targetEntity : currentBatchTargetEntities) {
-          String searchFilter = targetEntity.getSearchFilter();
-          if (StringUtils.isBlank(searchFilter)) {
-            List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = ldapSyncConfiguration.getEntitySearchAttributes();
-            if (grouperProvisioningConfigurationAttributes.size() > 1) {
-              //TODO add this to validation
-              throw new RuntimeException("Can currently only have one searchAttribute! " + grouperProvisioningConfigurationAttributes);
-            }
+        if (!StringUtils.isBlank(targetDaoRetrieveEntitiesRequest.getSearchAttribute())) {
+          for (Object attributeValueObject : GrouperUtil.nonNull(currentBatchAttributeValues)) {
             
-            if (grouperProvisioningConfigurationAttributes.size() == 1) {
-              
-              GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
-              String value = targetEntity.retrieveAttributeValueString(grouperProvisioningConfigurationAttribute);
-              searchFilter = "(" + grouperProvisioningConfigurationAttribute.getName() + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
-
-            } else {
-              throw new RuntimeException("Why is entitySearchFilter empty?");
-            }
+            GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = ldapSyncConfiguration.getTargetEntityAttributeNameToConfig().get(
+                targetDaoRetrieveEntitiesRequest.getSearchAttribute());
+            String value = GrouperUtil.stringValue(attributeValueObject);
+            String searchFilter = "(" + grouperProvisioningConfigurationAttribute.getName() + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
+            filterBuilder.append(searchFilter);
 
           }
-          filterBuilder.append(searchFilter);
         }
         
         String filter = filterBuilder.toString();
         
-        if (currentBatchTargetEntities.size() > 1) {
+        if (GrouperUtil.length(currentBatchAttributeValues) > 1) {
           filter = "(|" + filter + ")";
         }
         
@@ -874,7 +938,6 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             }
           }
           
-          //targetEntity.assignAttributeValue("dn", ldapEntry.getDn());
           results.add(targetEntity);
         }    
       } finally {

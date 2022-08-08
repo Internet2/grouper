@@ -256,16 +256,6 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     return provisioningEntity;
   }
 
-  public void assignSearchFilter() {
-    String userSearchFilter = this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchFilter();
-    if (!StringUtils.isBlank(userSearchFilter)) {
-      Map<String, Object> variableMap = new HashMap<String, Object>();
-      variableMap.put("targetEntity", this);
-      String result = GrouperUtil.stringValue(this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperProvisioningTranslator().runExpression(userSearchFilter, variableMap));
-      this.setSearchFilter(result);
-    }
-  }
-
   @Override
   public boolean canInsertAttribute(String name) {
 

@@ -35,7 +35,7 @@ import junit.textui.TestRunner;
 public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureDisplayName"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzure"));
   }
 
   public GrouperAzureProvisionerTest(String name) {
@@ -68,17 +68,17 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       GrouperSession grouperSession = GrouperSession.startRootSession();
-      RegistrySubject.add(grouperSession, "Fred@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred@erviveksachdevagrouperoutlo.onmicrosoft.com");
-      Subject fred = SubjectFinder.findById("Fred@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
-      
-      RegistrySubject.add(grouperSession, "Fred1@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred1@erviveksachdevagrouperoutlo.onmicrosoft.com");
-      Subject fred1 = SubjectFinder.findById("Fred1@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
-      
-      RegistrySubject.add(grouperSession, "Fred2@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred2@erviveksachdevagrouperoutlo.onmicrosoft.com");
-      Subject fred2 = SubjectFinder.findById("Fred2@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
-      
-      RegistrySubject.add(grouperSession, "Fred3@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred3@erviveksachdevagrouperoutlo.onmicrosoft.com");
-      Subject fred3 = SubjectFinder.findById("Fred3@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
+//      RegistrySubject.add(grouperSession, "Fred@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred@erviveksachdevagrouperoutlo.onmicrosoft.com");
+//      Subject fred = SubjectFinder.findById("Fred@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
+//      
+//      RegistrySubject.add(grouperSession, "Fred1@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred1@erviveksachdevagrouperoutlo.onmicrosoft.com");
+//      Subject fred1 = SubjectFinder.findById("Fred1@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
+//      
+//      RegistrySubject.add(grouperSession, "Fred2@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred2@erviveksachdevagrouperoutlo.onmicrosoft.com");
+//      Subject fred2 = SubjectFinder.findById("Fred2@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
+//      
+//      RegistrySubject.add(grouperSession, "Fred3@erviveksachdevagrouperoutlo.onmicrosoft.com", "person", "Fred3@erviveksachdevagrouperoutlo.onmicrosoft.com");
+//      Subject fred3 = SubjectFinder.findById("Fred3@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
       
       AzureProvisionerTestUtils.configureAzureProvisioner(
           new AzureProvisionerTestConfigInput().assignGroupAttributeCount(5));
@@ -97,12 +97,18 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
       Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
       
-      testGroup.addMember(fred, false);
-      testGroup.addMember(fred1, false);
+//      testGroup.addMember(fred, false);
+//      testGroup.addMember(fred1, false);
+//      
+//      testGroup2.addMember(fred2, false);
+//      testGroup2.addMember(fred3, false);
       
-      testGroup2.addMember(fred2, false);
-      testGroup2.addMember(fred3, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
       
+      testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+      testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+
       final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);
       attributeValue.setDoProvision("myAzureProvisioner");
