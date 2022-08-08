@@ -464,14 +464,20 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
   public TargetDaoRetrieveMembershipsByEntityResponse retrieveMembershipsByEntity(
       TargetDaoRetrieveMembershipsByEntityRequest targetDaoRetrieveMembershipsByEntityRequest) {
     long startNanos = System.nanoTime();
+    
     ProvisioningEntity targetEntity = targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity();
+
+    String targetEntityId = resolveTargetEntityId(targetEntity);
+    List<Object> provisioningMemberships = new ArrayList<Object>();
+    
+    if (StringUtils.isBlank(targetEntityId)) {
+      return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
+    }
 
     try {
       GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      Set<String> groupIds = GrouperAzureApiCommands.retrieveAzureUserGroups(azureConfiguration.getAzureExternalSystemConfigId(), targetEntity.getId());
-      
-      List<Object> provisioningMemberships = new ArrayList<Object>();
+      Set<String> groupIds = GrouperAzureApiCommands.retrieveAzureUserGroups(azureConfiguration.getAzureExternalSystemConfigId(), targetEntityId);
       
       for (String groupId : groupIds) {
 
@@ -488,7 +494,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   
-  private String resolveTargetGroupId(ProvisioningGroup targetGroup) {
+  public String resolveTargetGroupId(ProvisioningGroup targetGroup) {
     
     if (targetGroup == null) {
       return null;
@@ -621,6 +627,26 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+  }
+
+  public String resolveTargetEntityId(ProvisioningEntity targetEntity) {
+    
+    if (targetEntity == null) {
+      return null;
+    }
+    
+    if (StringUtils.isNotBlank(targetEntity.getId())) {
+      return targetEntity.getId();
+    }
+    
+    TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntity(new TargetDaoRetrieveEntityRequest(targetEntity, false));
+    
+    if (targetDaoRetrieveEntityResponse == null || targetDaoRetrieveEntityResponse.getTargetEntity() == null) {
+      return null;
+    }
+    
+    return targetDaoRetrieveEntityResponse.getTargetEntity().getId();
+    
   }
 
 }

@@ -10,10 +10,27 @@ import java.util.Map;
  */
 public class AzureProvisionerTestConfigInput {
   
+  private boolean realAzure = false;
+  
+  /**
+   * 
+   * @param theRealAzure
+   * @return this for chaining
+   */
+  public AzureProvisionerTestConfigInput assignRealAzure(boolean theRealAzure) {
+    this.realAzure = theRealAzure;
+    return this;
+  }
+  
   private String displayNameMapping = "name";
   
   
   
+  public boolean isRealAzure() {
+    return realAzure;
+  }
+
+
   public String getDisplayNameMapping() {
     return displayNameMapping;
   }
