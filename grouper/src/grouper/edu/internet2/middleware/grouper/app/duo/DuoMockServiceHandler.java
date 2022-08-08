@@ -377,7 +377,17 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     
     List<GrouperDuoUser> grouperDuoUsers = null;
     
-    ByHqlStatic query = HibernateSession.byHqlStatic().createQuery("select distinct user from GrouperDuoUser user left join user.groups groups");
+    String hql = "select distinct user from GrouperDuoUser user left join user.groups groups";
+    
+    String userName = mockServiceRequest.getHttpServletRequest().getParameter("username");
+    if (!StringUtils.isBlank(userName)) {
+      hql += " where user.userName = :userName";
+    }
+    
+    ByHqlStatic query = HibernateSession.byHqlStatic().createQuery(hql);
+    if (!StringUtils.isBlank(userName)) {
+      query.setString("userName", userName);
+    }
     
     QueryOptions queryOptions = new QueryOptions();
     QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber, true);
