@@ -136,7 +136,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapDao"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaMatchingIdMissingValidation"));
     
   }
   
@@ -2487,8 +2487,12 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(provisioningGroup3retrieved.retrieveAttributeValueSet("subjectId").contains("subjectId5"));
     
     // retrieve some groups with memberships
+    List<ProvisioningGroup> grouperTargetGroups = GrouperUtil.toList(provisioningGroup1, provisioningGroup2);
+    grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(
+        grouperTargetGroups);
+
     TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(
-        GrouperUtil.toList(provisioningGroup1, provisioningGroup2), true);
+        grouperTargetGroups, true);
     TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
         grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(targetDaoRetrieveGroupsRequest);
     idToGroup = new HashMap<String, ProvisioningGroup>();
@@ -2509,7 +2513,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
     // retrieve some groups without memberships
     targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(
-        GrouperUtil.toList(provisioningGroup1, provisioningGroup2), false);
+        grouperTargetGroups, false);
     targetDaoRetrieveGroupsResponse = 
         grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(targetDaoRetrieveGroupsRequest);
     idToGroup = new HashMap<String, ProvisioningGroup>();
@@ -2578,7 +2582,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
     // delete groups
     grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().deleteGroups(new TargetDaoDeleteGroupsRequest(
-        GrouperUtil.toList(provisioningGroup1, provisioningGroup2)));
+        grouperTargetGroups));
 
     groupNamesInTable = selectGroupLikeLdapRecords();
     
@@ -4154,7 +4158,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("T", gcGrouperSyncGroup.getProvisionableDb());
       assertFalse("T".equals(gcGrouperSyncGroup.getInTargetDb()));
       assertFalse("T".equals(gcGrouperSyncGroup.getInTargetInsertOrExistsDb()));
-      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncGroup.getErrorCode());
+      assertEquals(GcGrouperSyncErrorCode.MAT, gcGrouperSyncGroup.getErrorCode());
     }
     
     {
@@ -4215,20 +4219,20 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("T", gcGrouperSyncMember4.getProvisionableDb());
       assertFalse("T".equals(gcGrouperSyncMember4.getInTargetDb()));
       assertFalse("F".equals(gcGrouperSyncMember4.getInTargetInsertOrExistsDb()));
-      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMember4.getErrorCode());
+      assertEquals(GcGrouperSyncErrorCode.MAT, gcGrouperSyncMember4.getErrorCode());
     }  
     
     {
       GcGrouperSyncMembership gcGrouperSyncMembership0 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member0.getId());
       assertFalse("T".equals(gcGrouperSyncMembership0.getInTargetDb()));
       assertFalse("T".equals(gcGrouperSyncMembership0.getInTargetInsertOrExistsDb()));
-      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMembership0.getErrorCode());
+      assertEquals(GcGrouperSyncErrorCode.MAT, gcGrouperSyncMembership0.getErrorCode());
     }  
     {
       GcGrouperSyncMembership gcGrouperSyncMembership1 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), member1.getId());
       assertFalse("T".equals(gcGrouperSyncMembership1.getInTargetDb()));
       assertFalse("T".equals(gcGrouperSyncMembership1.getInTargetInsertOrExistsDb()));
-      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMembership1.getErrorCode());
+      assertEquals(GcGrouperSyncErrorCode.MAT, gcGrouperSyncMembership1.getErrorCode());
     }  
     
     {
@@ -4249,7 +4253,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       GcGrouperSyncMembership gcGrouperSyncMembership4 = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup2.getId(), member4.getId());
       assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetDb()));
       assertFalse("T".equals(gcGrouperSyncMembership4.getInTargetInsertOrExistsDb()));
-      assertEquals(GcGrouperSyncErrorCode.REQ, gcGrouperSyncMembership4.getErrorCode());
+      assertEquals(GcGrouperSyncErrorCode.MAT, gcGrouperSyncMembership4.getErrorCode());
     }  
 
     // this should not retry

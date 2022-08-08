@@ -96,12 +96,31 @@ public class GrouperProvisioningConfigurationAttributeDbCache {
       // see if there is an attribute cached
       for (GrouperProvisioningConfigurationAttributeDbCache cache :
         grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
-        if (cache == null || cache.getSource() != source || !StringUtils.equals(attributeName, cache.getAttributeName())) {
+        if (cache == null || cache.getSource() != source) {
           continue;
         }
-        Object value = gcGrouperSyncMember.retrieveField("entityAttributeValueCache" + cache.getIndex());
-        if (!GrouperUtil.isBlank(value) && !GrouperUtil.equals(value, currentValue) && !cachedValues.contains(value)) {
-          cachedValues.add(value);
+        
+        String cacheAttributeName = cache.getAttributeName();
+        
+        if (StringUtils.isBlank(cacheAttributeName) && source == GrouperProvisioningConfigurationAttributeDbCacheSource.grouper
+            && cache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript) {
+          for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
+              grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
+            if (grouperProvisioningConfigurationAttribute.getTranslateExpressionType() == GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningEntityField
+                && StringUtils.equals(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField(), cache.getCacheName())) {
+              cacheAttributeName = grouperProvisioningConfigurationAttribute.getName();
+              break;
+            }
+          }
+        }
+        
+        if (StringUtils.equals(attributeName, cacheAttributeName)) {
+          Object value = gcGrouperSyncMember.retrieveField("entityAttributeValueCache" + cache.getIndex());
+          if (!GrouperUtil.isBlank(value) && !GrouperUtil.equals(value, currentValue) && !cachedValues.contains(value)) {
+            cachedValues.add(value);
+          }
+        } else {
+          
         }
       }
 
