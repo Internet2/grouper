@@ -642,6 +642,8 @@ public abstract class GrouperProvisioner {
 
       this.retrieveGrouperProvisioningObjectMetadata().initBuiltInMetadata();
 
+      this.retrieveGrouperProvisioningConfiguration().configureAfterMetadata();
+      
       // let the provisioner tell the framework how the provisioner should behave with respect to the target
       this.registerProvisioningBehaviors(this.retrieveGrouperProvisioningBehavior());
 

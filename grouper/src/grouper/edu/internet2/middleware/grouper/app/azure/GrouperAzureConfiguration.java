@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.azure;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration {
@@ -15,6 +17,35 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   private boolean azureGroupType;
   
   private boolean resourceProvisioningOptionsTeam;
+
+  @Override
+  public void configureAfterMetadata() {
+    super.configureAfterMetadata();
+    
+    for (String attributeName : new String[] {"assignableToRole", "azureGroupType", 
+        "allowOnlyMembersToPost", "hideGroupInOutlook", "subscribeNewGroupMembers", 
+        "welcomeEmailDisabled", "resourceProvisioningOptionsTeam"}) {
+      
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getTargetGroupAttributeNameToConfig().get(attributeName);
+    
+      if (grouperProvisioningConfigurationAttribute != null) {
+        continue;
+      }
+      // if metadata exists
+      String metadataName = "md_grouper_" + attributeName;
+      if (!this.getMetadataNameToMetadataItem().containsKey(metadataName)) {
+        continue;
+      }
+      
+      // add an attribute
+      GrouperProvisioningConfigurationAttribute nameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+      nameConfigurationAttribute.setGrouperProvisioner(this.getGrouperProvisioner());
+      nameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+      nameConfigurationAttribute.setName(attributeName);
+      this.getTargetGroupAttributeNameToConfig().put(attributeName, nameConfigurationAttribute);
+    }
+  }
+    
 
   @Override
   public void configureSpecificSettings() {

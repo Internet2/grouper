@@ -1,10 +1,12 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
 public class GrouperAzureProvisioner extends GrouperProvisioner {
@@ -26,6 +28,11 @@ public class GrouperAzureProvisioner extends GrouperProvisioner {
   @Override
   protected Class<? extends GrouperProvisioningObjectMetadata> grouperProvisioningObjectMetadataClass() {
     return AzureSyncObjectMetadata.class;
+  }
+
+  @Override
+  protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
+    return AzureProvisioningTranslator.class;
   }
 
 }

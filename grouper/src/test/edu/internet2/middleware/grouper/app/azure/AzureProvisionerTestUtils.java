@@ -185,73 +185,40 @@ public class AzureProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "displayName");
 
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "mailEnabled");
-    if (provisioningTestConfigInput.getGroupAttributeCount() == 5 || provisioningTestConfigInput.getGroupAttributeCount() == 9) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpression", "${'true'}");
-    } else {
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpression", "${'false'}");
-    }
-    
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.showAttributeCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "translationScript");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.update", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.insert", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "mailNickname");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.select", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "grouperProvisioningGroupField");
-    if (provisioningTestConfigInput.getGroupAttributeCount() == 5) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateFromGrouperProvisioningGroupField", "name");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.insert", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "mailNickname");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.select", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
+    if (provisioningTestConfigInput.getGroupAttributeCount() == 3) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "name");
     } else {
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateFromGrouperProvisioningGroupField", "extension");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "extension");
     }
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.update", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAttributeCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.insert", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "securityEnabled");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.select", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpression", "${'true'}");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpressionType", "translationScript");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.update", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.update", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
 
-    if (provisioningTestConfigInput.getGroupAttributeCount() >= 6) {
+    if (provisioningTestConfigInput.getGroupAttributeCount() >= 4) {
       configureProvisionerSuffix(provisioningTestConfigInput, "allowOnlyMembersToPost", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "resourceProvisioningOptionsTeam", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "hideGroupInOutlook", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAttributeCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.insert", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.name", "allowOnlyMembersToPost");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.select", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateExpression", "${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_allowOnlyMembersToPost'), 'false')}");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.update", "false");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.6.showAttributeCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.6.insert", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.6.name", "welcomeEmailDisabled");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.6.select", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.6.translateExpression", "${'true'}");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.6.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.6.update", "false");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.showAttributeCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.insert", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.name", "resourceProvisioningOptionsTeam");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.select", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.translateExpression", "${'true'}");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.7.update", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.insert", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "allowOnlyMembersToPost");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.select", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpression", "${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_allowOnlyMembersToPost'), 'false')}");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "translationScript");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.update", "false");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAttributeCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.insert", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "welcomeEmailDisabled");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.select", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpression", "${'true'}");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpressionType", "translationScript");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.update", "false");
     }
     
-    if (provisioningTestConfigInput.getGroupAttributeCount() >= 9) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.showAttributeCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.insert", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.name", "isAssignableToRole");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.select", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.translateExpression", "${'true'}");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.8.update", "false");
-    }
     
     for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {
       String theValue = provisioningTestConfigInput.getExtraConfig().get(key);

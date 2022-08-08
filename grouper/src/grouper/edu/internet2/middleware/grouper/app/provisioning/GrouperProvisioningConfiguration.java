@@ -3190,5 +3190,11 @@ public abstract class GrouperProvisioningConfiguration {
   public int getDaoSleepBeforeSelectAfterInsertMillis() {
     return 0;
   }
+
+  /**
+   * finish configuration after figuring out metadata
+   */
+  public void configureAfterMetadata() {
+  }
   
 }

@@ -35,7 +35,7 @@ import junit.textui.TestRunner;
 public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureDisplayName"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureGroupType"));
   }
 
   public GrouperAzureProvisionerTest(String name) {
@@ -81,7 +81,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       Subject fred3 = SubjectFinder.findById("Fred3@erviveksachdevagrouperoutlo.onmicrosoft.com", true);
       
       AzureProvisionerTestUtils.configureAzureProvisioner(
-          new AzureProvisionerTestConfigInput().assignGroupAttributeCount(9));
+          new AzureProvisionerTestConfigInput().assignGroupAttributeCount(5));
       
       // this will create tables
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
@@ -216,7 +216,9 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       AzureProvisionerTestUtils.configureAzureProvisioner(
-          new AzureProvisionerTestConfigInput().assignGroupAttributeCount(9).assignDisplayNameMapping("displayName"));
+          new AzureProvisionerTestConfigInput().assignGroupAttributeCount(5).assignDisplayNameMapping("displayName")
+          .addExtraConfig("allowOnlyMembersToPost", "true")
+          .addExtraConfig("resourceProvisioningOptionsTeam", "true"));
       
       // this will create tables
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
@@ -463,7 +465,11 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       AzureProvisionerTestUtils.configureAzureProvisioner(
-          new AzureProvisionerTestConfigInput().assignGroupAttributeCount(9));
+          new AzureProvisionerTestConfigInput().assignGroupAttributeCount(5)
+            .addExtraConfig("azureGroupType", "true")
+            .addExtraConfig("allowOnlyMembersToPost", "true")
+            .addExtraConfig("assignableToRole", "true")
+            .addExtraConfig("resourceProvisioningOptionsTeam", "true"));
       
       // this will create tables
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
@@ -535,13 +541,13 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("test:testGroup", grouperAzureGroup.getDisplayName());
       assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsAllowOnlyMembersToPostDb());
       assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsWelcomeEmailDisabledDb());
-      assertEquals("T", grouperAzureGroup.getResourceProvisioningOptionsTeamDb());
+      assertEquals("F", grouperAzureGroup.getResourceProvisioningOptionsTeamDb());
       
       assertTrue(grouperAzureGroup.isSecurityEnabled());
       assertFalse(grouperAzureGroup.isMailEnabled());
       assertFalse(grouperAzureGroup.isGroupTypeUnified());
       assertFalse(grouperAzureGroup.isGroupTypeDynamic());
-      assertTrue(grouperAzureGroup.isAssignableToRole());
+      assertFalse(grouperAzureGroup.isAssignableToRole());
       
     } finally {
       
