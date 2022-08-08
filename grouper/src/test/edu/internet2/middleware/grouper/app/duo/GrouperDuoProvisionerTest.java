@@ -31,7 +31,7 @@ public class GrouperDuoProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
     GrouperStartup.startup();
-    TestRunner.run(new GrouperDuoProvisionerTest("testFullProvisionGroupAndThenDeleteTheGroup"));
+    TestRunner.run(new GrouperDuoProvisionerTest("testIncrementalProvisionDuo"));
   }
   
   @Override

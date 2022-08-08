@@ -608,11 +608,13 @@ public class GrouperProvisioningLogic {
     
     // add wrappers for all groups
     for (ProvisioningEntity targetProvisioningEntity : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningEntities())) {
-      ProvisioningEntityWrapper provisioningEntityWrapper = new ProvisioningEntityWrapper();
-      provisioningEntityWrapper.setGrouperProvisioner(this.grouperProvisioner);
-      provisioningEntityWrappers.add(provisioningEntityWrapper);
-
-      provisioningEntityWrapper.setTargetProvisioningEntity(targetProvisioningEntity);
+      if (targetProvisioningEntity.getProvisioningEntityWrapper() == null) {
+        ProvisioningEntityWrapper provisioningEntityWrapper = new ProvisioningEntityWrapper();
+        provisioningEntityWrapper.setGrouperProvisioner(this.grouperProvisioner);
+        provisioningEntityWrappers.add(provisioningEntityWrapper);
+  
+        provisioningEntityWrapper.setTargetProvisioningEntity(targetProvisioningEntity);
+      }
     }
     
     // Step 3 - Go through the full logic and see if any other processing is done on the target entities
@@ -3098,11 +3100,13 @@ public class GrouperProvisioningLogic {
     // add wrappers for all groups
     for (ProvisioningGroup targetProvisioningGroup : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget()
         .getTargetProvisioningObjects().getProvisioningGroups())) {
-      ProvisioningGroupWrapper provisioningGroupWrapper = new ProvisioningGroupWrapper();
-      provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
-      provisioningGroupWrappers.add(provisioningGroupWrapper);
-  
-      provisioningGroupWrapper.setTargetProvisioningGroup(targetProvisioningGroup);
+      if (targetProvisioningGroup.getProvisioningGroupWrapper() == null) {
+        ProvisioningGroupWrapper provisioningGroupWrapper = new ProvisioningGroupWrapper();
+        provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
+        provisioningGroupWrappers.add(provisioningGroupWrapper);
+    
+        provisioningGroupWrapper.setTargetProvisioningGroup(targetProvisioningGroup);
+      }
     }
     
     // Step 3 - Go through the full logic and see if any other processing is done on the target entities

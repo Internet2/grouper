@@ -434,10 +434,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       return targetGroup.getId();
     }
     
-    TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest = new TargetDaoRetrieveGroupRequest(targetGroup, false);
-    targetDaoRetrieveGroupRequest.setSearchAttribute("name");
-    targetDaoRetrieveGroupRequest.setSearchAttributeValue(targetGroup.getName());
-    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.retrieveGroup(targetDaoRetrieveGroupRequest);
+    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroup(new TargetDaoRetrieveGroupRequest(targetGroup, false));
     
     if (targetDaoRetrieveGroupResponse == null || targetDaoRetrieveGroupResponse.getTargetGroup() == null) {
       return null;
@@ -723,10 +720,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
         return targetEntity.getId();
       }
       
-      TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest = new TargetDaoRetrieveEntityRequest(targetEntity, false);
-      targetDaoRetrieveEntityRequest.setSearchAttribute("loginId");
-      targetDaoRetrieveEntityRequest.setSearchAttributeValue(targetEntity.retrieveAttributeValueString("loginId"));
-      TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = this.retrieveEntity(targetDaoRetrieveEntityRequest);
+      TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntity(new TargetDaoRetrieveEntityRequest(targetEntity, false));
       
       if (targetDaoRetrieveEntityResponse == null || targetDaoRetrieveEntityResponse.getTargetEntity() == null) {
         return null;

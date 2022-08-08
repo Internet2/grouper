@@ -557,10 +557,7 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       return targetGroup.getId();
     }
     
-    TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest = new TargetDaoRetrieveGroupRequest(targetGroup, false);
-    targetDaoRetrieveGroupRequest.setSearchAttribute("name");
-    targetDaoRetrieveGroupRequest.setSearchAttributeValue(targetGroup.getName());
-    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.retrieveGroup(targetDaoRetrieveGroupRequest);
+    TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroup(new TargetDaoRetrieveGroupRequest(targetGroup, false));
     
     if (targetDaoRetrieveGroupResponse == null || targetDaoRetrieveGroupResponse.getTargetGroup() == null) {
       return null;
@@ -675,6 +672,10 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     
     if (StringUtils.isNotBlank(targetEntity.getId())) {
       return targetEntity.getId();
+    }
+    
+    if (StringUtils.isBlank(targetEntity.getEmail())) {
+      return null;
     }
     
     TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest = new TargetDaoRetrieveEntityRequest(targetEntity, false);
