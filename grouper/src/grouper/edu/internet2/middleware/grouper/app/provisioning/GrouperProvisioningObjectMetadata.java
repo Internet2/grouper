@@ -34,6 +34,19 @@ public class GrouperProvisioningObjectMetadata {
   private List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
 
   /**
+   * map of metadata items for this metadata object by name
+   */
+  private Map<String, GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItemsByName = null;
+
+  /**
+   * map of metadata items for this metadata object by name
+   * @return map
+   */
+  public Map<String, GrouperProvisioningObjectMetadataItem> getGrouperProvisioningObjectMetadataItemsByName() {
+    return grouperProvisioningObjectMetadataItemsByName;
+  }
+
+  /**
    * cache patterns since there will only be a few of them, return groupExtension|groupName|folderExtension|folderName, boolean for if matches,  and regex
    */
   private static Map<String, MultiKey> regexConfigToComponentIfMatchesAndRegex = new HashMap<String, MultiKey>();
@@ -245,6 +258,16 @@ public class GrouperProvisioningObjectMetadata {
    */
   public Map<String, String> validateMetadataInputForMembership(Map<String, Object> nameToValueFromUsersInput) {
     return null;
+  }
+
+  /**
+   * index metadata
+   */
+  public void indexBuiltInMetadata() {
+    this.grouperProvisioningObjectMetadataItemsByName = new HashMap<String, GrouperProvisioningObjectMetadataItem>();
+    for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : GrouperUtil.nonNull(this.grouperProvisioningObjectMetadataItems)) {
+      this.grouperProvisioningObjectMetadataItemsByName.put(grouperProvisioningObjectMetadataItem.getName(), grouperProvisioningObjectMetadataItem);
+    }
   }
   
   

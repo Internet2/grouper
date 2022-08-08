@@ -134,22 +134,18 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 
       // we can retrieve by id or username, prefer id
 
-      ProvisioningEntity grouperTargetEntity = targetDaoRetrieveEntityRequest
-          .getTargetEntity();
-
       GrouperDuoUser grouperDuoUser = null;
 
-      if (!StringUtils.isBlank(grouperTargetEntity.getId())) {
-        grouperDuoUser = GrouperDuoApiCommands.retrieveDuoUser(
-            duoConfiguration.getDuoExternalSystemConfigId(), grouperTargetEntity.getId());
-      }
-
-      String userName = grouperTargetEntity.retrieveAttributeValueString("username");
-      if (grouperDuoUser == null && !StringUtils.isBlank(userName)) {
+      if (StringUtils.equals("id", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
+        grouperDuoUser = GrouperDuoApiCommands.retrieveDuoUser(duoConfiguration.getDuoExternalSystemConfigId(), 
+            GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue()));
+      } else if (StringUtils.equals("username", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
         grouperDuoUser = GrouperDuoApiCommands.retrieveDuoUserByName(
-            duoConfiguration.getDuoExternalSystemConfigId(), userName);
+            duoConfiguration.getDuoExternalSystemConfigId(), GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue()));
+      } else {
+        throw new RuntimeException("Not expecting search attribute '" + targetDaoRetrieveEntityRequest.getSearchAttribute() + "'");
       }
-
+      
       ProvisioningEntity targetEntity = grouperDuoUser == null ? null
           : grouperDuoUser.toProvisioningEntity();
 

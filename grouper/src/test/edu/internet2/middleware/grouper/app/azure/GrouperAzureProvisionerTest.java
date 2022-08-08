@@ -35,7 +35,7 @@ import junit.textui.TestRunner;
 public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureGroupType"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureDisplayName"));
   }
 
   public GrouperAzureProvisionerTest(String name) {

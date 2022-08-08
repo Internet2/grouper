@@ -18,57 +18,45 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AzureProvisioningTranslator extends GrouperProvisioningTranslator {
 
-  /**
-   * auto translate metadata
-   */
   @Override
-  public Object attributeTranslation(Object currentValue, Map<String, Object> elVariableMap,
-      boolean forCreate,
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
-      ProvisioningGroupWrapper provisioningGroupWrapper,
-      ProvisioningEntityWrapper provisioningEntityWrapper) {
-
-    Object attributeValue = super.attributeTranslation(currentValue, elVariableMap, forCreate,
-        grouperProvisioningConfigurationAttribute, provisioningGroupWrapper,
-        provisioningEntityWrapper);
+  public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups,
+      boolean includeDelete, boolean forCreate) {
     
-    if (grouperProvisioningConfigurationAttribute == null) {
-      return attributeValue;
-    }
-
-    if (forCreate && grouperProvisioningConfigurationAttribute.getTranslateExpressionTypeCreateOnly() != null) {
-      return attributeValue;
-    }
+    GrouperAzureConfiguration grouperAzureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    List<ProvisioningGroup> grouperTargetGroups = super.translateGrouperToTargetGroups(grouperProvisioningGroups, includeDelete, forCreate);
     
-    if (grouperProvisioningConfigurationAttribute.getTranslateExpressionType() != null) {
-      return attributeValue;
-    }
-    String expressionToUse = grouperProvisioningConfigurationAttribute == null ? null : getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
-    String translateFromGrouperProvisioningGroupField = grouperProvisioningConfigurationAttribute == null ? null : getTranslateFromGrouperProvisioningGroupField(forCreate, grouperProvisioningConfigurationAttribute);
+    for (ProvisioningGroup grouperProvisioningGroup : GrouperUtil.nonNull(grouperProvisioningGroups)) {
+      
+      for (String attributeName : new String[] { "assignableToRole", "azureGroupType", "allowOnlyMembersToPost", "hideGroupInOutlook", "subscribeNewGroupMembers", 
+          "welcomeEmailDisabled", "resourceProvisioningOptionsTeam"}) {
+        String metadataName = "md_grouper_" + attributeName;
 
-    if (grouperProvisioningConfigurationAttribute != null 
-        && !StringUtils.isBlank(translateFromGrouperProvisioningGroupField)
-        && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() 
-          == GrouperProvisioningConfigurationAttributeType.group
-        && StringUtils.isBlank(expressionToUse)) {
-      
-      if (StringUtils.equalsAny(grouperProvisioningConfigurationAttribute.getName(), 
-          "assignableToRole", "azureGroupType", "allowOnlyMembersToPost", "hideGroupInOutlook", "subscribeNewGroupMembers", 
-          "welcomeEmailDisabled", "resourceProvisioningOptionsTeam")) {
-      
-      
-        GrouperAzureConfiguration grouperAzureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-        String metadataName = "md_grouper_" + grouperProvisioningConfigurationAttribute.getName();
-        if (grouperAzureConfiguration.getMetadataNameToMetadataItem().containsKey(metadataName)) {
-          String newValue = provisioningGroupWrapper.getGrouperProvisioningGroup().retrieveAttributeValueString(metadataName);
-          if (!StringUtils.isBlank(newValue)) {
-            attributeValue = newValue;
-          }
+        if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(metadataName)) {
+          continue;
         }
+        
+        String newValue = grouperProvisioningGroup.retrieveAttributeValueString(metadataName);
+        if (StringUtils.isBlank(newValue)) {
+          continue;
+        }
+            
+        ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getProvisioningGroupWrapper();
+        ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperTargetGroup();
+        if (grouperTargetGroup == null) {
+          continue;
+        }
+        String translatedValue = grouperTargetGroup.retrieveAttributeValueString(attributeName);
+        if (!StringUtils.isBlank(translatedValue)) {
+          continue;
+        }
+        grouperTargetGroup.assignAttributeValue(attributeName, newValue);
+        
       }
+      
     }
+    return grouperTargetGroups;
     
-    return attributeValue;
   }
+
   
 }

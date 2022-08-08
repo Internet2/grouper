@@ -161,15 +161,15 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
     long startNanos = System.nanoTime();
-    ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
+    ProvisioningEntity grouperTargetEntity = targetDaoInsertEntityRequest.getTargetEntity();
 
     try {
       
       GrouperDuoRoleConfiguration duoConfiguration = (GrouperDuoRoleConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
-      GrouperDuoRoleUser grouperDuoUser = GrouperDuoRoleUser.fromProvisioningEntity(targetEntity, null);
+      GrouperDuoRoleUser grouperDuoUser = GrouperDuoRoleUser.fromProvisioningEntity(grouperTargetEntity, null);
       
-      String memberId = targetEntity.getProvisioningEntityWrapper().getGrouperProvisioningEntity().getId();
+      String memberId = grouperTargetEntity.getProvisioningEntityWrapper().getGrouperProvisioningEntity().getId();
       
       //TODO only find groups where the memberId is member of and group has provisioner enabled 
       Set<Group> groups = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, false).getGroups();
@@ -195,18 +195,18 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
         GrouperDuoRoleUser createdDuoUser = GrouperDuoRoleApiCommands.createDuoAdministrator(
             duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser, roleNameToBeSet);
 
-        targetEntity.setId(createdDuoUser.getId());
-        targetEntity.setProvisioned(true);
+        grouperTargetEntity.setId(createdDuoUser.getId());
+        grouperTargetEntity.setProvisioned(true);
 
-        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetEntity.getInternal_objectChanges())) {
           provisioningObjectChange.setProvisioned(true);
         }
       }
       
       return new TargetDaoInsertEntityResponse();
     } catch (Exception e) {
-      targetEntity.setProvisioned(false);
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+      grouperTargetEntity.setProvisioned(false);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetEntity.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(false);
       }
       

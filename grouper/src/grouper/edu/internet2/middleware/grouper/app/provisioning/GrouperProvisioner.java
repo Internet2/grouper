@@ -641,6 +641,7 @@ public abstract class GrouperProvisioner {
           );
 
       this.retrieveGrouperProvisioningObjectMetadata().initBuiltInMetadata();
+      this.retrieveGrouperProvisioningObjectMetadata().indexBuiltInMetadata();
 
       this.retrieveGrouperProvisioningConfiguration().configureAfterMetadata();
       

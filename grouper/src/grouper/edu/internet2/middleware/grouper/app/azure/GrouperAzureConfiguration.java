@@ -33,7 +33,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
       }
       // if metadata exists
       String metadataName = "md_grouper_" + attributeName;
-      if (!this.getMetadataNameToMetadataItem().containsKey(metadataName)) {
+      if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(metadataName)) {
         continue;
       }
       
@@ -42,6 +42,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
       nameConfigurationAttribute.setGrouperProvisioner(this.getGrouperProvisioner());
       nameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
       nameConfigurationAttribute.setName(attributeName);
+      nameConfigurationAttribute.setConfigIndex(this.getTargetGroupAttributeNameToConfig().size());
       this.getTargetGroupAttributeNameToConfig().put(attributeName, nameConfigurationAttribute);
     }
   }
