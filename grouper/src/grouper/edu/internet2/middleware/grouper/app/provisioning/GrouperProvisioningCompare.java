@@ -1355,7 +1355,7 @@ public class GrouperProvisioningCompare {
       Map<ProvisioningGroup, List<ProvisioningMembership>> provisioningMembershipsToReplace = new HashMap<ProvisioningGroup, List<ProvisioningMembership>>();
       
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(provisioningMembershipWrappers)) { 
-        if (provisioningMembershipWrapper.isRecalcObject()) {
+        if (provisioningMembershipWrapper.isRecalcObject() || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) {
           
           ProvisioningGroup provisioningGroup = provisioningMembershipWrapper.getGrouperTargetMembership().getProvisioningGroup();
           if (provisioningGroup.getProvisioningGroupWrapper().isDelete()) {

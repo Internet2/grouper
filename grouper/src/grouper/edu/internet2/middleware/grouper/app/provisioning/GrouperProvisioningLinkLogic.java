@@ -217,19 +217,22 @@ public class GrouperProvisioningLinkLogic {
     
     GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache1 = 
         this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[1];
-    boolean hasGroupLinkAttributeValueCache1 = grouperProvisioningConfigurationAttributeDbCache1 != null;
+    boolean hasGroupLinkAttributeValueCache1 = grouperProvisioningConfigurationAttributeDbCache1 != null
+        && grouperProvisioningConfigurationAttributeDbCache1.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
     GrouperProvisioningConfigurationAttribute groupLinkGroupAttributeValueCache1Attribute = 
         grouperProvisioningConfigurationAttributeDbCache1 == null ? null : grouperProvisioningConfigurationAttributeDbCache1.retrieveAttribute();
 
     GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache2 = 
         this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[2];
-    boolean hasGroupLinkAttributeValueCache2 = grouperProvisioningConfigurationAttributeDbCache2 != null;
+    boolean hasGroupLinkAttributeValueCache2 = grouperProvisioningConfigurationAttributeDbCache2 != null
+      && grouperProvisioningConfigurationAttributeDbCache2.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
     GrouperProvisioningConfigurationAttribute groupLinkGroupAttributeValueCache2Attribute = 
         grouperProvisioningConfigurationAttributeDbCache2 == null ? null : grouperProvisioningConfigurationAttributeDbCache2.retrieveAttribute();
 
     GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache3 = 
         this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[3];
-    boolean hasGroupLinkAttributeValueCache3 = grouperProvisioningConfigurationAttributeDbCache3 != null;
+    boolean hasGroupLinkAttributeValueCache3 = grouperProvisioningConfigurationAttributeDbCache3 != null
+        && grouperProvisioningConfigurationAttributeDbCache3.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
     GrouperProvisioningConfigurationAttribute groupLinkGroupAttributeValueCache3Attribute = 
         grouperProvisioningConfigurationAttributeDbCache3 == null ? null : grouperProvisioningConfigurationAttributeDbCache3.retrieveAttribute();
 
@@ -250,6 +253,24 @@ public class GrouperProvisioningLinkLogic {
     for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappers) {
   
       boolean hasChange = false;
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+      
+      if (gcGrouperSyncGroup != null && !gcGrouperSyncGroup.isInTarget()) {
+        if (hasGroupLinkAttributeValueCache0) {
+          gcGrouperSyncGroup.setGroupAttributeValueCache0(null);
+        }
+        if (hasGroupLinkAttributeValueCache1) {
+          gcGrouperSyncGroup.setGroupAttributeValueCache1(null);
+        }
+        if (hasGroupLinkAttributeValueCache2) {
+          gcGrouperSyncGroup.setGroupAttributeValueCache2(null);
+        }
+        if (hasGroupLinkAttributeValueCache3) {
+          gcGrouperSyncGroup.setGroupAttributeValueCache3(null);
+        }
+      }
+      
       
       if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
         targetGroupsForLinkNull++;
@@ -278,7 +299,6 @@ public class GrouperProvisioningLinkLogic {
         }
       }
       
-      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
       
       if (gcGrouperSyncGroup == null) {
         groupsCannotFindSyncGroup++;
@@ -402,6 +422,133 @@ public class GrouperProvisioningLinkLogic {
       }
     }    
     
+  }
+
+  
+  /**
+   * delete group link for these groups
+   * @param provisioningGroupWrappers
+   */
+  public void deleteGroupLink(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers) {
+  
+    if (GrouperUtil.length(provisioningGroupWrappers) == 0) {
+      return;
+    }
+    
+    // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isGroupAttributeValueCacheHas()) {
+      return;
+    }
+    // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache0 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[0];
+    boolean hasGroupLinkAttributeValueCache0 = grouperProvisioningConfigurationAttributeDbCache0 != null
+        && grouperProvisioningConfigurationAttributeDbCache0.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
+
+    GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache1 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[1];
+    boolean hasGroupLinkAttributeValueCache1 = grouperProvisioningConfigurationAttributeDbCache1 != null
+        && grouperProvisioningConfigurationAttributeDbCache1.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
+
+    GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache2 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[2];
+    boolean hasGroupLinkAttributeValueCache2 = grouperProvisioningConfigurationAttributeDbCache2 != null
+      && grouperProvisioningConfigurationAttributeDbCache2.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
+
+    GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache3 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[3];
+    boolean hasGroupLinkAttributeValueCache3 = grouperProvisioningConfigurationAttributeDbCache3 != null
+        && grouperProvisioningConfigurationAttributeDbCache3.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
+
+    if (!hasGroupLinkAttributeValueCache0 && !hasGroupLinkAttributeValueCache1 && !hasGroupLinkAttributeValueCache2 && !hasGroupLinkAttributeValueCache3) {
+      return;
+    }
+
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappers) {
+  
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+      
+      if (gcGrouperSyncGroup != null) {
+        if (hasGroupLinkAttributeValueCache0) {
+          gcGrouperSyncGroup.setGroupAttributeValueCache0(null);
+        }
+        if (hasGroupLinkAttributeValueCache1) {
+          gcGrouperSyncGroup.setGroupAttributeValueCache1(null);
+        }
+        if (hasGroupLinkAttributeValueCache2) {
+          gcGrouperSyncGroup.setGroupAttributeValueCache2(null);
+        }
+        if (hasGroupLinkAttributeValueCache3) {
+          gcGrouperSyncGroup.setGroupAttributeValueCache3(null);
+        }
+      }
+     
+    }
+
+  }
+  
+  /**
+   * delete entity link for these entities
+   * @param provisioningEntityWrappers
+   */
+  public void deleteEntityLink(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers) {
+  
+    if (GrouperUtil.length(provisioningEntityWrappers) == 0) {
+      return;
+    }
+    
+    // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    
+    if (!this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isEntityAttributeValueCacheHas()) {
+      return;
+    }
+    // If using subject attributes and those are not in the member sync object, then resolve the subject, and put in the member sync object
+    GrouperProvisioningConfigurationAttributeDbCache entityerProvisioningConfigurationAttributeDbCache0 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[0];
+    boolean hasEntityLinkAttributeValueCache0 = entityerProvisioningConfigurationAttributeDbCache0 != null
+        && entityerProvisioningConfigurationAttributeDbCache0.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
+
+    GrouperProvisioningConfigurationAttributeDbCache entityerProvisioningConfigurationAttributeDbCache1 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[1];
+    boolean hasEntityLinkAttributeValueCache1 = entityerProvisioningConfigurationAttributeDbCache1 != null
+        && entityerProvisioningConfigurationAttributeDbCache1.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
+
+    GrouperProvisioningConfigurationAttributeDbCache entityerProvisioningConfigurationAttributeDbCache2 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[2];
+    boolean hasEntityLinkAttributeValueCache2 = entityerProvisioningConfigurationAttributeDbCache2 != null
+      && entityerProvisioningConfigurationAttributeDbCache2.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
+
+    GrouperProvisioningConfigurationAttributeDbCache entityerProvisioningConfigurationAttributeDbCache3 = 
+        this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[3];
+    boolean hasEntityLinkAttributeValueCache3 = entityerProvisioningConfigurationAttributeDbCache3 != null
+        && entityerProvisioningConfigurationAttributeDbCache3.getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.target;
+
+    if (!hasEntityLinkAttributeValueCache0 && !hasEntityLinkAttributeValueCache1 && !hasEntityLinkAttributeValueCache2 && !hasEntityLinkAttributeValueCache3) {
+      return;
+    }
+
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
+  
+      GcGrouperSyncMember gcGrouperSyncEntity = provisioningEntityWrapper.getGcGrouperSyncMember();
+      
+      if (gcGrouperSyncEntity != null) {
+        if (hasEntityLinkAttributeValueCache0) {
+          gcGrouperSyncEntity.setEntityAttributeValueCache0(null);
+        }
+        if (hasEntityLinkAttributeValueCache1) {
+          gcGrouperSyncEntity.setEntityAttributeValueCache1(null);
+        }
+        if (hasEntityLinkAttributeValueCache2) {
+          gcGrouperSyncEntity.setEntityAttributeValueCache2(null);
+        }
+        if (hasEntityLinkAttributeValueCache3) {
+          gcGrouperSyncEntity.setEntityAttributeValueCache3(null);
+        }
+      }
+     
+    }
+
   }
 
   public void updateGroupLinkFull() {
