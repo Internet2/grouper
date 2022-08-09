@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
@@ -37,6 +38,9 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.D
  *
  */
 public abstract class GrouperProvisioner {
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperProvisioner.class);
 
   /**
    * job name from full or incremental
@@ -724,6 +728,8 @@ public abstract class GrouperProvisioner {
           
       return this.retrieveGrouperProvisioningOutput();
     } catch (RuntimeException re) {
+      LOG.error(this.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+          "Error"), re);
       if (gcGrouperSyncLog != null) {
         if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
           gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
@@ -755,6 +761,8 @@ public abstract class GrouperProvisioner {
           this.gcGrouperSyncJob.assignHeartbeatAndEndJob();
         }
       } catch (RuntimeException re2) {
+        LOG.error(this.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+            "Error2"), re2);
         if (this.gcGrouperSyncLog != null) {
           if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
             this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
@@ -781,6 +789,9 @@ public abstract class GrouperProvisioner {
         gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
       }
     } catch (RuntimeException re3) {
+      LOG.error(this.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+          "Error3"), re3);
+
       debugMap.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
       debugString = GrouperClientUtils.mapToString(debugMap);
     }
