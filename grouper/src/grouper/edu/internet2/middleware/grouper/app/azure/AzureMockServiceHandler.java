@@ -284,6 +284,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 //      }
 //    }
     
+    
     String userJsonString = mockServiceRequest.getRequestBody();
     JsonNode userJsonNode = GrouperUtil.jsonJacksonNode(userJsonString);
 

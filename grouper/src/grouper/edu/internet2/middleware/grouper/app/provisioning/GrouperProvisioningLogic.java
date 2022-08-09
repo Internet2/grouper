@@ -1346,12 +1346,27 @@ public class GrouperProvisioningLogic {
       
       ProvisioningGroup provisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
       
-      if (provisioningGroup == null || !provisioningGroupWrapper.isRecalcObject()) {
+      boolean shouldSkip = provisioningGroup == null || !provisioningGroupWrapper.isRecalcObject();
+
+      // shouldnt be null at this point
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+
+      if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups() 
+          && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()
+          && provisioningGroupWrapper.isCreate()
+          && gcGrouperSyncGroup != null
+          && !gcGrouperSyncGroup.isInTarget()) {
+        shouldSkip = false;
+      }
+      
+      if (provisioningGroupWrapper.isDelete()) {
+        shouldSkip = true;
+      }
+
+      if (shouldSkip) {
         continue;
       }
       
-      // shouldnt be null at this point
-      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
 
       if (!gcGrouperSyncGroup.isProvisionable()) {
         continue;
@@ -1466,15 +1481,15 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(targetGroups);
       
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().setProvisioningGroups(targetGroups);
-
-      for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetGroups)) {
-        ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroup.getProvisioningGroupWrapper();
-        if (provisioningGroupWrapper != null) {
-          // this is already created!  :)
-          provisioningGroupWrapper.setCreate(false);
-        }
-      }
       
+    }
+
+    for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(grouperTargetGroupsToInsert)) {
+      ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroup.getProvisioningGroupWrapper();
+      if (provisioningGroupWrapper != null) {
+        // this is already created!  :)
+        provisioningGroupWrapper.setCreate(true);
+      }
     }
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetGroupsCreated);
@@ -1631,13 +1646,27 @@ public class GrouperProvisioningLogic {
       
       ProvisioningEntity provisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
       
-      if (provisioningEntity == null || !provisioningEntityWrapper.isRecalcObject() || provisioningEntityWrapper.isDelete()) {
-        continue;
-      }
-      
+      boolean shouldSkip = provisioningEntity == null || !provisioningEntityWrapper.isRecalcObject();
+
       // shouldnt be null at this point
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+
+      if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() 
+          && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()
+          // && provisioningEntityWrapper.isCreate()
+          && gcGrouperSyncMember != null
+          && !gcGrouperSyncMember.isInTarget()) {
+        shouldSkip = false;
+      }
       
+      if (provisioningEntityWrapper.isDelete()) {
+        shouldSkip = true;
+      }
+
+      if (shouldSkip) {
+        continue;
+      }
+
       if (!gcGrouperSyncMember.isProvisionable()) {
         continue;
       }
@@ -1736,14 +1765,14 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(targetEntities);
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().setProvisioningEntities(targetEntities);
       
-      for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(targetEntities)) {
-        ProvisioningEntityWrapper provisioningEntityWrapper = provisioningEntity.getProvisioningEntityWrapper();
-        if (provisioningEntityWrapper != null) {
-          // this is already created!  :)
-          provisioningEntityWrapper.setCreate(false);
-        }
-      }
 
+    }
+    for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(grouperTargetEntitiesToInsert)) {
+      ProvisioningEntityWrapper provisioningEntityWrapper = provisioningEntity.getProvisioningEntityWrapper();
+      if (provisioningEntityWrapper != null) {
+        // this is already created!  :)
+        provisioningEntityWrapper.setCreate(true);
+      }
     }
     
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetEntitiesCreated);
@@ -2762,6 +2791,7 @@ public class GrouperProvisioningLogic {
       if (grouperProvisioningEntity == null) {
         
         GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+        
         grouperProvisioningEntity = new ProvisioningEntity();
         grouperProvisioningEntity.setId(gcGrouperSyncMember.getMemberId());
         grouperProvisioningEntity.setSubjectId(gcGrouperSyncMember.getSubjectId());

@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
@@ -26,17 +28,21 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
         "allowOnlyMembersToPost", "hideGroupInOutlook", "subscribeNewGroupMembers", 
         "welcomeEmailDisabled", "resourceProvisioningOptionsTeam"}) {
       
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getTargetGroupAttributeNameToConfig().get(attributeName);
-    
-      if (grouperProvisioningConfigurationAttribute != null) {
-        continue;
-      }
       // if metadata exists
       String metadataName = "md_grouper_" + attributeName;
       if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(metadataName)) {
         continue;
       }
       
+      if (StringUtils.equals(attributeName, "assignableToRole")) {
+        attributeName = "isAssignableToRole";
+      }
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getTargetGroupAttributeNameToConfig().get(attributeName);
+      
+      if (grouperProvisioningConfigurationAttribute != null) {
+        continue;
+      }
+
       // add an attribute
       GrouperProvisioningConfigurationAttribute nameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
       nameConfigurationAttribute.setGrouperProvisioner(this.getGrouperProvisioner());

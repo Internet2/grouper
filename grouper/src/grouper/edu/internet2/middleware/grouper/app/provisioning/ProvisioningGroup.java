@@ -20,6 +20,10 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
  */
 public class ProvisioningGroup extends ProvisioningUpdatable {
   
+  public ProvisioningGroup() {
+    super();
+  }
+
   public static void main(String[] args) {
     ProvisioningGroup provisioningGroup = new ProvisioningGroup();
     provisioningGroup.assignAttributeValue("name", "someName");

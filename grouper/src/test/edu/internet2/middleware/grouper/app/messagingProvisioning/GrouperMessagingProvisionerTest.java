@@ -101,7 +101,7 @@ public class GrouperMessagingProvisionerTest extends GrouperProvisioningBaseTest
       
       incrementalProvision();
       
-      // one group add, two members add, two memberships add
+      // (5) one group add, two members add, two memberships add
       assertEquals(new Integer(5), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
       
       // update group description and it should generate one message
@@ -111,26 +111,37 @@ public class GrouperMessagingProvisionerTest extends GrouperProvisioningBaseTest
       
       incrementalProvision();
       
-      // one group add, two members add, two memberships add, one group update
+      // (5) one group add, two members add, two memberships add
+      // (1) one group update
       assertEquals(new Integer(6), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
       
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       incrementalProvision();
       
-      // one group add, two members add, two memberships add, one group update, one member remove, one membership remove
+      // (5) one group add, two members add, two memberships add
+      // (1) one group update
+      // (2) one member remove, one membership remove
       assertEquals(new Integer(8), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
       
       testGroup.addMember(SubjectTestHelper.SUBJ3);
       incrementalProvision();
       
-      // one group add, three members add, three memberships add, one group update, one member remove, one membership remove
+      // (5) one group add, two members add, two memberships add
+      // (1) one group update
+      // (2) one member remove, one membership remove
+      // (2) one member add, one membership add
       assertEquals(new Integer(10), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
       
       //now delete the group and sync again
       testGroup.delete();
       incrementalProvision();
       
+      // (5) one group add, two members add, two memberships add
+      // (1) one group update
+      // (2) one membership remove, one member remove
+      // (2) one member add, one membership add
+      // (5) two membership remove, two member remove, one group delete
       assertEquals(new Integer(15), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_message").select(int.class));
       
     } finally {

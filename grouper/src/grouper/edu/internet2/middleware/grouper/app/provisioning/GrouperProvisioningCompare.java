@@ -857,16 +857,14 @@ public class GrouperProvisioningCompare {
               provisioningEntityWrappersForInsert.add(provisioningEntityWrapper);
               continue;
             }
-          } else {
-            // isCreate is applicable only for non-recalc 
-            if (provisioningEntityWrapper.isCreate()) {
-              // non recalc inserts happen at previous points in the workflow (createMissingEntities)
-              //provisioningEntityWrappersForInsert.add(provisioningEntityWrapper);
-              continue;
-            }
-            
           }
-        } 
+        }
+        if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable() 
+            && provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget() 
+            && provisioningEntityWrapper.isCreate()) {
+          //inserts happen at previous points in the workflow (createMissingEntities)
+          continue;
+        }
       }
       
       // deletes
@@ -1081,16 +1079,16 @@ public class GrouperProvisioningCompare {
               provisioningGroupWrappersForInsert.add(provisioningGroupWrapper);
               continue;
             }
-          } else {
-            // isCreate is applicable only for non-recalc 
-            if (provisioningGroupWrapper.isCreate()) {
-              // non recalc inserts happen at previous points in the workflow (createMissingGroups)
-              //provisioningGroupWrappersForInsert.add(provisioningGroupWrapper);
-              continue;
-            }
-            
           }
-        } 
+        }
+        
+        if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable() 
+            && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()
+            && provisioningGroupWrapper.isCreate()) {
+          //inserts happen at previous points in the workflow (createMissingGroups)
+          continue;
+        }
+
       }
       
       // deletes
@@ -1459,7 +1457,9 @@ public class GrouperProvisioningCompare {
         ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(key);
         if (!grouperTargetMembership.getProvisioningMembershipWrapper().isRecalcObject()) {
           if (grouperTargetMembership.getProvisioningMembershipWrapper().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.delete || 
-              grouperTargetMembership.getProvisioningMembershipWrapper().isDelete()) {
+              (grouperTargetMembership.getProvisioningMembershipWrapper().isDelete()
+                  && (grouperTargetMembership.getProvisioningMembershipWrapper().getTargetProvisioningMembership() != null 
+                  || grouperTargetMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership().isInTarget() ))) {
             groupIdEntityIdsToDelete.add(key);
           }
         }
