@@ -861,6 +861,8 @@ public class GrouperProvisioningCompare {
         }
         if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable() 
             && provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget() 
+            // if its entity attributes there could be memberships
+            && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.entityAttributes
             && provisioningEntityWrapper.isCreate()) {
           //inserts happen at previous points in the workflow (createMissingEntities)
           continue;
@@ -1084,7 +1086,9 @@ public class GrouperProvisioningCompare {
         
         if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable() 
             && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()
-            && provisioningGroupWrapper.isCreate()) {
+            && provisioningGroupWrapper.isCreate()
+            // if its group attributes there could be memberships
+            && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.groupAttributes ) {
           //inserts happen at previous points in the workflow (createMissingGroups)
           continue;
         }

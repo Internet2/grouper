@@ -136,7 +136,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaMatchingIdMissingValidation"));
+    TestRunner.run(new SqlProvisionerTest("testGroupEntityMembershipRenameEntityIncrementalMatchOnOld"));
     
   }
   
