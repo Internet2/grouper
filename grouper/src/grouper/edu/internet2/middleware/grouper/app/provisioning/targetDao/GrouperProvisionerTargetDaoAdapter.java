@@ -154,9 +154,9 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       String theLog = "Command log for provisioner '" + this.getGrouperProvisioner().getConfigId() 
           + "' - '" + this.getGrouperProvisioner().getInstanceId() + "', " + method + ": " + debugInfo;
       if (hasError) {
-        GrouperProvisioningLogCommands.errorLog(theLog);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningLogCommands().errorLog(theLog);
       } else {
-        GrouperProvisioningLogCommands.infoLog(theLog);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningLogCommands().infoLog(theLog);
       }     
     }
   }

@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.sql.Timestamp;
+
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -8,29 +10,47 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * provisioning log
  */
 public class GrouperProvisioningLogCommands {
-
+  
+  private GrouperProvisioner grouperProvisioner;
+  
   /**
-   * debug log
-   * @param string
+   * reference back up to the provisioner
+   * @return the provisioner
    */
-  public static void debugLog(String string) {
-    LOG.debug(string);
+  public GrouperProvisioner getGrouperProvisioner() {
+    return this.grouperProvisioner;
   }
 
   /**
+   * reference back up to the provisioner
+   * @param grouperProvisioner1
+   */
+  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner1) {
+    this.grouperProvisioner = grouperProvisioner1;
+  }
+
+  private int infoCount = 0;
+  /**
    * debug log
    * @param string
    */
-  public static void infoLog(String string) {
+  public void infoLog(String string) {
     LOG.info(string);
+    if (infoCount++ < 1000) {
+      this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": INFO: ").append(string).append("\n\n");
+    }
   }
+  private int errorCount = 0;
 
   /**
    * debug log
    * @param string
    */
-  public static void errorLog(String string) {
+  public void errorLog(String string) {
     LOG.error(string);
+    if (errorCount++ < 1000) {
+      this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": ERROR: ").append(string).append("\n\n");
+    }
   }
 
   /** logger */
