@@ -1837,7 +1837,9 @@ public class GrouperProvisioningLogic {
 
 
         } catch (RuntimeException re) {
-          LOG.error("error querying target: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId(), re);
+          String logMessage = "error querying target: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId();
+          LOG.error(logMessage, re);
+          GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": ERRROR: ").append(logMessage).append("\n\n");
           RUNTIME_EXCEPTION[0] = re;
         }
         
