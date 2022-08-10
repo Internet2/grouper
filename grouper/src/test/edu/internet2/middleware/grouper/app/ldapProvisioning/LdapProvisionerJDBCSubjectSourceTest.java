@@ -804,7 +804,12 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     SubjectFinder.flushCache();
     SubjectFinder.findById("b-anderson", true);
 
-    grouperProvisioningOutput = fullProvision();
+    try {
+      grouperProvisioningOutput = fullProvision(this.defaultConfigId(), true);
+      fail();
+    } catch (Exception e) {
+      // matching error on banderson
+    }
 
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
     assertEquals(1, ldapEntries.size());
