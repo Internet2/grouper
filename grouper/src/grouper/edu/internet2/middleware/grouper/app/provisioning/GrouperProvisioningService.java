@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -1624,7 +1625,7 @@ public class GrouperProvisioningService {
           }
         }
         
-        return group.hasMember(subject);
+        return group.hasPrivilege(subject, AccessPrivilege.VIEW.getName());
         
       }
       
