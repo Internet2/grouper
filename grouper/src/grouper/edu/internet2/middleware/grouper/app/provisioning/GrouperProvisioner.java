@@ -613,7 +613,13 @@ public abstract class GrouperProvisioner {
     if (System.currentTimeMillis() - this.lastLog > (1000 * 60) - 10) {
     
       String debugString = GrouperClientUtils.mapToString(debugMap);
-      grouperProvisioningOutput.setMessage(debugString);
+      String theMessage = debugString;
+      StringBuilder objectLog = this.retrieveGrouperProvisioningObjectLog().getObjectLog();
+      if (objectLog.length() > 0) {
+        theMessage = objectLog + "\n\n" + debugString;
+      }
+
+      grouperProvisioningOutput.setMessage(theMessage);
       GrouperProvisioningLog.debugLog(debugString);
       this.lastLog = System.currentTimeMillis();
 
@@ -800,11 +806,17 @@ public abstract class GrouperProvisioner {
       GrouperProvisioningLog.debugLog(debugString);
     }
     
+    this.retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.end);
+
     // already set total
     //gcTableSyncOutput.setTotal();
-    this.retrieveGrouperProvisioningOutput().setMessage(debugString);
-
-    this.retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.end);
+    String theMessage = debugString;
+    StringBuilder objectLog = this.retrieveGrouperProvisioningObjectLog().getObjectLog();
+    if (objectLog.length() > 0) {
+      theMessage = objectLog + "\n\n" + debugString;
+    }
+    
+    this.retrieveGrouperProvisioningOutput().setMessage(theMessage);
 
     // this isnt good
     if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {

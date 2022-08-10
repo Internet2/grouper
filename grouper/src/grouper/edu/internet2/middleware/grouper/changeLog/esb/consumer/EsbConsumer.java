@@ -538,7 +538,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       debugMapOverall.put("tookMillis", tookMillis);
       String debugMapToString = GrouperUtil.mapToString(debugMapOverall);
 
-      if (this.changeLogProcessorMetadata != null && this.changeLogProcessorMetadata.getHib3GrouperLoaderLog() != null) {
+      if (this.changeLogProcessorMetadata != null && this.changeLogProcessorMetadata.getHib3GrouperLoaderLog() != null
+          && StringUtils.isBlank(this.changeLogProcessorMetadata.getHib3GrouperLoaderLog().getJobMessage())) {
         this.changeLogProcessorMetadata.getHib3GrouperLoaderLog().setJobMessage(debugMapToString);
       }
       

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -76,11 +77,24 @@ public class GrouperProvisioningObjectLog {
     if (logMessage.charAt(logMessage.length()-1) == '\n') {
       logMessage.setLength(logMessage.length() - 1);
     }
-    if (LOG.isDebugEnabled()) {
-      // put id on each line
-      String logMessageString = this.grouperProvisioner.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(logMessage.toString()); 
+    // put id on each line
+    String logMessageString = this.grouperProvisioner.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(logMessage.toString()); 
+    if (LOG.isDebugEnabled() && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerboseToLogFile()) {
       LOG.debug(logMessageString);      
     }
+    if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerboseToDaemonDbLog()) {
+      this.objectLog.append(new Timestamp(System.currentTimeMillis()).toString()).append(": ").append(logMessageString).append("\n\n");
+    }
+  }
+
+  private StringBuilder objectLog = new StringBuilder();
+  
+  /**
+   * put this in daemon logs
+   * @return object log
+   */
+  public StringBuilder getObjectLog() {
+    return objectLog;
   }
 
   /** logger */

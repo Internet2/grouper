@@ -897,9 +897,28 @@ public abstract class GrouperProvisioningConfiguration {
   
   private boolean logAllObjectsVerbose = false;
   
+  private boolean logAllObjectsVerboseToLogFile = false;
+
+  private boolean logAllObjectsVerboseToDaemonDbLog = false;
   
   
   
+  public boolean isLogAllObjectsVerboseToLogFile() {
+    return logAllObjectsVerboseToLogFile;
+  }
+
+  public void setLogAllObjectsVerboseToLogFile(boolean logAllObjectsVerboseToLogFile) {
+    this.logAllObjectsVerboseToLogFile = logAllObjectsVerboseToLogFile;
+  }
+
+  public boolean isLogAllObjectsVerboseToDaemonDbLog() {
+    return logAllObjectsVerboseToDaemonDbLog;
+  }
+
+  public void setLogAllObjectsVerboseToDaemonDbLog(boolean logAllObjectsVerboseToDaemonDbLog) {
+    this.logAllObjectsVerboseToDaemonDbLog = logAllObjectsVerboseToDaemonDbLog;
+  }
+
   public boolean isLogAllObjectsVerbose() {
     return logAllObjectsVerbose;
   }
@@ -2358,6 +2377,10 @@ public abstract class GrouperProvisioningConfiguration {
     this.membershipMatchingIdExpression = this.retrieveConfigString("membershipMatchingIdExpression", false);
 
     this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
+
+    this.logAllObjectsVerboseToDaemonDbLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerboseToDaemonDbLog", false), true);
+
+    this.logAllObjectsVerboseToLogFile = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerboseToLogFile", false), true);
 
     this.logCommandsAlways = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsAlways", false), false);
     

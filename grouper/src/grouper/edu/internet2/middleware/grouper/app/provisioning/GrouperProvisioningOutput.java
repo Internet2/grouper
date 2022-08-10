@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -548,7 +550,9 @@ public class GrouperProvisioningOutput {
     hib3GrouperLoaderLog.setInsertCount(this.insert);
     hib3GrouperLoaderLog.setUpdateCount(this.update);
     hib3GrouperLoaderLog.setTotalCount(this.totalCount);
-    hib3GrouperLoaderLog.appendJobMessage(this.message);
+    if (!StringUtils.isBlank(this.message)) {
+      hib3GrouperLoaderLog.setJobMessage(this.message);
+    }
   }
 
   public GrouperProvisioner getGrouperProvisioner() {
