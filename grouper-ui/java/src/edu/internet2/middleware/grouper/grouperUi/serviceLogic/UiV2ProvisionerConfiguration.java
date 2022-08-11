@@ -18,7 +18,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
@@ -1106,8 +1105,10 @@ public class UiV2ProvisionerConfiguration {
           guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
-              validationErrorsToDisplay.get(validationKey)));
+          //make error message clickable and navigate to the element when clicked
+          String errorMessage = validationErrorsToDisplay.get(validationKey);
+          String clickableErrorMessage = "<a href='"+validationKey+"'>"+errorMessage+"</a>";
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, clickableErrorMessage));
         }
 
         return;
@@ -1271,8 +1272,11 @@ public class UiV2ProvisionerConfiguration {
           guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
         }
         for (String validationKey: validationErrorsToDisplay.keySet()) {
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
-              validationErrorsToDisplay.get(validationKey)));
+          
+          String errorMessage = validationErrorsToDisplay.get(validationKey);
+          //make error message clickable and navigate to the element when clicked
+          String clickableErrorMessage = "<a href='"+validationKey+"'>"+errorMessage+"</a>";
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, clickableErrorMessage));
         }
 
         return;
