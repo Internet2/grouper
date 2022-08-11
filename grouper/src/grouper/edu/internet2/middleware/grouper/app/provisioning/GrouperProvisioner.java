@@ -1080,6 +1080,7 @@ public abstract class GrouperProvisioner {
 
   private GrouperProvisioningFailsafe grouperProvisioningFailsafe;
 
+  private GrouperProvisioningLogCommands grouperProvisioningLogCommands;
 
 
   
@@ -1189,6 +1190,24 @@ public abstract class GrouperProvisioner {
       this.grouperProvisioningFailsafe.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningFailsafe;
+    
+  }
+  
+  protected Class<? extends GrouperProvisioningLogCommands> grouperProvisioningLogCommandsClass() {
+    return GrouperProvisioningLogCommands.class;
+  }
+
+  /**
+   * return the instance of the LogCommands logic
+   * @return the logic
+   */
+  public GrouperProvisioningLogCommands retrieveGrouperProvisioningLogCommands() {
+    if (this.grouperProvisioningLogCommands == null) {
+      Class<? extends GrouperProvisioningLogCommands> grouperProvisioningLogicClass = this.grouperProvisioningLogCommandsClass();
+      this.grouperProvisioningLogCommands = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningLogCommands.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningLogCommands;
     
   }
   
