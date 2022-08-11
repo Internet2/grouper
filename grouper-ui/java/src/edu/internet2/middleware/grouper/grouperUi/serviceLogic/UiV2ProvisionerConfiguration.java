@@ -776,10 +776,12 @@ public class UiV2ProvisionerConfiguration {
         
         provisionerConfiguration.setConfigId(provisionerConfigId);
         
-        if (provisionerConfiguration.retrieveConfigurationConfigIds().contains(provisionerConfigId)) {
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
-              "#provisionerConfigId", TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdUsed")));
-          return;
+        for (ProvisioningConfiguration provisioningConfiguration : ProvisioningConfiguration.retrieveAllProvisioningConfigurations()) {
+          if (StringUtils.equals(provisioningConfiguration.getConfigId(), provisionerConfigId)) {
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+                "#provisionerConfigId", TextContainer.retrieveFromRequest().getText().get("grouperConfigurationValidationConfigIdUsed")));
+            return;
+          }
         }
         
         List<ProvisionerStartWithBase> startWithConfigClasses = provisionerConfiguration.getStartWithConfigClasses();
