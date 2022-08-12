@@ -162,11 +162,11 @@ public class GcGrouperSyncGroupDao {
             .bindVars(this.getGcGrouperSync().getId()).executeSql();
       }
       rowDeleteCount += new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql(
-          "delete from grouper_sync_membership where grouper_sync_id = ?)")
+          "delete from grouper_sync_membership where grouper_sync_id = ?")
           .bindVars(this.getGcGrouperSync().getId()).executeSql();
     }
     rowDeleteCount += new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql(
-        "delete from grouper_sync_group where grouper_sync_id = ?)")
+        "delete from grouper_sync_group where grouper_sync_id = ?")
         .bindVars(this.getGcGrouperSync().getId()).executeSql();
     
     return rowDeleteCount;

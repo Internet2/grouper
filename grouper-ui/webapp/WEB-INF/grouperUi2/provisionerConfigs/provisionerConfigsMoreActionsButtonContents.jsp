@@ -24,6 +24,9 @@
                        <li>&nbsp;</li>
                        
                        <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.canEditProvisionerConfiguration}">
+                         
+                         <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['provisionerConfigConfirmAllCacheDelete']}')) { return guiV2link('operation=UiV2ProvisionerConfiguration.deleteAllCache&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');}">${textContainer.text['provisionerConfigsTableRemoveAllCachedValuesDetailsActionOption'] }</a></li>
+                         <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['provisionerConfigConfirmGroupMemberCacheDelete']}')) { return guiV2link('operation=UiV2ProvisionerConfiguration.deleteGroupMemberCache&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');}">${textContainer.text['provisionerConfigsTableDeleteGroupMemberCacheValuesDetailsActionOption'] }</a></li>
                          <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['provisionerConfigConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2ProvisionerConfiguration.deleteProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');}">${textContainer.text['provisionerConfigsTableDeleteDetailsActionOption'] }</a></li>
                        </c:if>
                       
