@@ -68,27 +68,27 @@ public class GrouperPluginManager {
       if (initted) {
         return;
       }
-
+      
       // Create a configuration property map.
       Map<String, String> configMap = new HashMap<String, String>();
-
+      
       //configMap.put("felix.log.level", "4");
-
+      
       // if it caches modules, they might not ever get reloaded
       configMap.put("org.osgi.framework.storage.clean", "onFirstInit");
-
-
+      
+      
       Pattern pattern = Pattern.compile("^grouperOsgiPlugin\\.([^.]+)\\.jarName$");
       Set<String> configIds = GrouperConfig.retrieveConfig().propertyConfigIds(pattern);
       if (GrouperUtil.length(configIds) > 0) {
-
+        
         Set<String> packagesForPlugins = new HashSet<String>();
-
+        
         for (String configId: configIds) {
-
+          
           try {
             Map<Class<?>, Set<String>> interfaceClassToImplementations = new HashMap<Class<?>, Set<String>>();
-
+            
             //  grouperOsgiPlugin.<configId>.jarName = my-plugin-with-embedded-dependencies-1.2.3.jar
             //  grouperOsgiPlugin.<configId>.numberOfImplementations = 1
             String jarName = GrouperConfig.retrieveConfig().propertyValueString("grouperOsgiPlugin." + configId + ".jarName");
@@ -102,31 +102,31 @@ public class GrouperPluginManager {
               String implementationClassName = GrouperConfig.retrieveConfig().propertyValueString("grouperOsgiPlugin." + configId + ".osgiImplementation." + i + ".implementationClass");
               String implementsInterfaceName = GrouperConfig.retrieveConfig().propertyValueString("grouperOsgiPlugin." + configId + ".osgiImplementation." + i + ".implementsInterface");
               Class<?> implementsInterface = GrouperUtil.forName(implementsInterfaceName);
-
+              
               Set<String> implementationClasses = interfaceClassToImplementations.get(implementsInterface);
               if (implementationClasses == null) {
                 implementationClasses = new HashSet<String>();
                 interfaceClassToImplementations.put(implementsInterface, implementationClasses);
-
+                
                 packagesForPlugins.add(implementsInterface.getPackage().getName());
               }
               implementationClasses.add(implementationClassName);
             }
-
+            
           } catch (Exception e) {
             LOG.error("Problem with plugin: " + configId, e);
             // dont throw so we dont hose all plugins since one is hosed
           }
-
+          
         }
-
-
+      
+      
         // declare which packages to send to modules
         configMap.put("org.osgi.framework.system.packages.extra", GrouperUtil.join(packagesForPlugins.iterator(), ","));
 
         String grouperFelixCacheDirDefault = "/opt/grouper/grouperWebapp/WEB-INF/grouperFelixCache";
         felixCacheDir = GrouperConfig.retrieveConfig().propertyValueString("grouper.felix.cache.rootdir", grouperFelixCacheDirDefault);
-
+        
         if (StringUtils.equals(felixCacheDir, grouperFelixCacheDirDefault) && new File("/opt/grouper/grouperWebapp/WEB-INF").exists()
             && !new File(grouperFelixCacheDirDefault).exists()) {
           new File(grouperFelixCacheDirDefault).mkdir();
@@ -134,7 +134,7 @@ public class GrouperPluginManager {
         }
 
         configMap.put("felix.cache.rootdir", felixCacheDir);
-
+            
         felix = new Felix(configMap);
         // Now start Felix instance.
         try {
@@ -144,12 +144,12 @@ public class GrouperPluginManager {
         } catch (Exception e) {
           throw new RuntimeException("Cant init felix", e);
         }
-
+        
         final BundleContext context = felix.getBundleContext();
 
         String bundleDirWithLastSlash = GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.jar.dir", "/opt/grouper/grouperWebapp/WEB-INF/grouperPlugins");
         bundleDirWithLastSlash = GrouperUtil.stripLastSlashIfExists(bundleDirWithLastSlash) + File.separator;
-
+        
         // this would come from a configuration
         for (String pluginJarName : pluginJarNameToInterfaceToImplementationClasses.keySet()) {
           try {
@@ -162,7 +162,7 @@ public class GrouperPluginManager {
         }
       }
       initted = true;
-
+      
     }
   }
 
@@ -176,7 +176,7 @@ public class GrouperPluginManager {
   public static <T> T retrievePluginImplementation(String moduleJarNameInput, Class<T> theInterface) {
     return retrievePluginImplementation(moduleJarNameInput, theInterface, null);
   }
-
+  
   /**
    * get the implementation of an interface from a plugin
    * @param <T>
@@ -187,7 +187,7 @@ public class GrouperPluginManager {
    */
   public static <T> T retrievePluginImplementation(String moduleJarNameInput, Class<T> theInterface, String pluginClassName) {
     initIfNotInitted();
-
+    
     String moduleFullName = moduleJarNameInput;
     Bundle bundle = pluginJarNameToBundleMap.get(moduleJarNameInput);
     
@@ -247,7 +247,7 @@ public class GrouperPluginManager {
 
     // this converts that instance to the interface which is implements (but cant be typecast since different classloader)
     DynamicClassProxy providerServiceHandler = new DynamicClassProxy(providerImpl);
-
+    
     @SuppressWarnings("unchecked")
     T providerService = (T)Enhancer.create(theInterface,providerServiceHandler);
     
