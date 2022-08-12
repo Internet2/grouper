@@ -637,7 +637,6 @@ public class GrouperAzureApiCommands {
 
       //lets get the group node
       ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
-      jsonNode = null;
       if (value != null && value.size() > 0) {
         if (value.size() == 1) {
           jsonNode = value.get(0);
