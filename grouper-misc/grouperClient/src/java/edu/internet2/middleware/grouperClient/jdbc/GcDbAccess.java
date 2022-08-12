@@ -2482,7 +2482,7 @@ public class GcDbAccess {
       Map<Object, Object> results = new LinkedHashMap<Object, Object>();
       for (int columnNumber = 1; columnNumber <= columnCount; columnNumber++){
         Object value = retrieveObjectFromResultSetByIndex(resultSet, columnNumber);
-        results.put(resultSet.getMetaData().getColumnName(columnNumber), value);
+        results.put(resultSet.getMetaData().getColumnName(columnNumber).toLowerCase(), value);
       }
       @SuppressWarnings("unchecked")
       T t = (T)results;

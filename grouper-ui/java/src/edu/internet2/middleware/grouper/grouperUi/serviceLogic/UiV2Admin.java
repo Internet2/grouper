@@ -1068,6 +1068,8 @@ public class UiV2Admin extends UiServiceLogicBase {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
   
     GrouperSession grouperSession = null;
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
   
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
@@ -1078,7 +1080,10 @@ public class UiV2Admin extends UiServiceLogicBase {
       List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
       guiDaemonJobs.add(new GuiDaemonJob(jobName));
       adminContainer.setGuiDaemonJobs(guiDaemonJobs);
-
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#adminDaemonJobsMoreActionsId", 
+          "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogsMoreActions.jsp"));
+      
       viewLogsHelper(request, response);
       
     } catch (RuntimeException re) {
@@ -1288,9 +1293,12 @@ public class UiV2Admin extends UiServiceLogicBase {
       List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
       guiDaemonJobs.add(new GuiDaemonJob(jobName));
       adminContainer.setGuiDaemonJobs(guiDaemonJobs);
-
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogs.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#adminDaemonJobsMoreActionsId", 
+          "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogsMoreActions.jsp"));
       
       viewLogsHelper(request, response);
       
