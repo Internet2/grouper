@@ -242,6 +242,10 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
 
   
   public void setTargetProvisioningGroup(ProvisioningGroup targetProvisioningGroup) {
+    // clear out old pointers...
+    if (this.targetProvisioningGroup != null) {
+      this.targetProvisioningGroup.setProvisioningGroupWrapper(null);
+    }
     this.targetProvisioningGroup = targetProvisioningGroup;
     if (this.targetProvisioningGroup != null && this != this.targetProvisioningGroup.getProvisioningGroupWrapper()) {
       if (this.targetProvisioningGroup.getProvisioningGroupWrapper() != null) {

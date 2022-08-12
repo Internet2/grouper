@@ -154,6 +154,10 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
 
   
   public void setTargetProvisioningEntity(ProvisioningEntity targetProvisioningEntity) {
+    if (this.targetProvisioningEntity != null) {
+      this.targetProvisioningEntity.setProvisioningEntityWrapper(null);
+    }
+
     this.targetProvisioningEntity = targetProvisioningEntity;
     if (this.targetProvisioningEntity != null && this != this.targetProvisioningEntity.getProvisioningEntityWrapper()) {
       if (this.targetProvisioningEntity.getProvisioningEntityWrapper() != null) {

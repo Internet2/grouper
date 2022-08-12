@@ -134,6 +134,21 @@ public class GrouperProvisioningData {
   }
 
   /**
+   * extract list of non null grouper target groups
+   * @return groups
+   */
+  public List<ProvisioningGroup> retrieveGrouperTarget() {
+    List<ProvisioningGroup> grouperTarget = new ArrayList<ProvisioningGroup>();
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : this.provisioningGroupWrappers) {
+      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+      if (grouperTargetGroup != null) {
+        grouperTarget.add(grouperTargetGroup);
+      }
+    }
+    return grouperTarget;
+  }
+
+  /**
    * extract list of non null grouper target memberships
    * @param forCreate - null means all, true means only if we're in the create and we're creating memberships while we create groups and entities, 
    * false means we're just doing updates and deletes

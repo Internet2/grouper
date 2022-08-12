@@ -1440,7 +1440,20 @@ public abstract class GrouperProvisioningConfiguration {
    */
   private boolean selectAllEntities = true;
   
+  /**
+   * should the provisioner select all groups from the target
+   */
+  private boolean selectAllGroups = true;
   
+  
+  public boolean isSelectAllGroups() {
+    return selectAllGroups;
+  }
+
+  public void setSelectAllGroups(boolean selectAllGroups) {
+    this.selectAllGroups = selectAllGroups;
+  }
+
   /**
    * delete entities if grouper deleted them
    * @return
@@ -2556,6 +2569,7 @@ public abstract class GrouperProvisioningConfiguration {
           
     }
     this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
+    this.selectAllGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllGroups", false), true);
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
     

@@ -935,10 +935,20 @@ public class GrouperProvisioningBehavior {
     if (this.selectGroupsAll != null) {
       return selectGroupsAll;
     }
+    //can the provisioner even do this?
     if (!this.isSelectGroups()) {
+      selectGroupsAll = false;
       return false;
     }
-    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false);
+  
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false)) {
+      selectGroupsAll = false;
+      return selectGroupsAll;
+    }
+    selectGroupsAll = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups();
+    return selectGroupsAll;
+
+  
   }
   
   public void setSelectGroupsAll(Boolean groupsRetrieveAll) {

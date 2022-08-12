@@ -150,6 +150,10 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
   
   public void setTargetProvisioningMembership(
       ProvisioningMembership targetProvisioningMembership) {
+    if (this.targetProvisioningMembership != null) {
+      this.targetProvisioningMembership.setProvisioningMembershipWrapper(null);
+    }
+
     this.targetProvisioningMembership = targetProvisioningMembership;
     if (this.targetProvisioningMembership != null && this != this.targetProvisioningMembership.getProvisioningMembershipWrapper()) {
       if (this.targetProvisioningMembership.getProvisioningMembershipWrapper() != null) {

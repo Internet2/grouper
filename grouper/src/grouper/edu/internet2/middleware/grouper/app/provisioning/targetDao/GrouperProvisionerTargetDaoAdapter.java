@@ -817,10 +817,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                     groupsRemainingToFind.remove(grouperTargetGroup);
                     ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
                     if (provisioningGroupWrapper != null) {
-                      provisioningGroupWrapper.setTargetProvisioningGroup(retrievedTargetGroup);
-                      retrievedTargetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
-                      if (targetDaoRetrieveGroupsResponse.getTargetGroupToTargetNativeGroup() != null) {
-                        provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveGroupsResponse.getTargetGroupToTargetNativeGroup().get(retrievedTargetGroup));
+                      // if its not null, we should not mess up the object model...
+                      if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+                        provisioningGroupWrapper.setTargetProvisioningGroup(retrievedTargetGroup);
+                        retrievedTargetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
+                        if (targetDaoRetrieveGroupsResponse.getTargetGroupToTargetNativeGroup() != null) {
+                          provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveGroupsResponse.getTargetGroupToTargetNativeGroup().get(retrievedTargetGroup));
+                        }
                       }
                     }
                   }
@@ -1009,10 +1012,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                     groupsRemainingToFind.remove(grouperTargetGroup);
                     ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
                     if (provisioningGroupWrapper != null) {
-                      provisioningGroupWrapper.setTargetProvisioningGroup(retrievedTargetGroup);
-                      retrievedTargetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
-                      if (targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup() != null) {
-                        provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup().get(retrievedTargetGroup));
+                      // if its not null, we should not mess up the object model...
+                      if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+                        provisioningGroupWrapper.setTargetProvisioningGroup(retrievedTargetGroup);
+                        retrievedTargetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
+                        if (targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup() != null) {
+                          provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup().get(retrievedTargetGroup));
+                        }
                       }
                     }
 
@@ -1137,9 +1143,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 ProvisioningGroupWrapper provisioningGroupWrapper = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup().getProvisioningGroupWrapper();
                 if (provisioningGroupWrapper != null && GrouperUtil.length(targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships()) == 1
                     && targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships().get(0) instanceof ProvisioningGroup ){
-                  provisioningGroupWrapper.setTargetProvisioningGroup((ProvisioningGroup)targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships().get(0));
-                  ((ProvisioningGroup)targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships().get(0)).setProvisioningGroupWrapper(provisioningGroupWrapper);
-                  provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveMembershipsByGroupResponse.getTargetNativeGroup());
+                  // if its not null, we should not mess up the object model...
+                  if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+                    provisioningGroupWrapper.setTargetProvisioningGroup((ProvisioningGroup)targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships().get(0));
+                    ((ProvisioningGroup)targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships().get(0)).setProvisioningGroupWrapper(provisioningGroupWrapper);
+                    provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveMembershipsByGroupResponse.getTargetNativeGroup());
+                  }
                 }
 
                 return targetDaoRetrieveMembershipsByGroupResponse;
@@ -1267,10 +1276,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                     entitiesRemainingToFind.remove(grouperTargetEntity);
                     ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntity.getProvisioningEntityWrapper();
                     if (provisioningEntityWrapper != null) {
-                      provisioningEntityWrapper.setTargetProvisioningEntity(retrievedTargetEntity);
-                      retrievedTargetEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
-                      if (targetDaoRetrieveMembershipsByEntitiesResponse.getTargetEntityToTargetNativeEntity() != null) {
-                        provisioningEntityWrapper.setTargetNativeEntity(targetDaoRetrieveMembershipsByEntitiesResponse.getTargetEntityToTargetNativeEntity().get(retrievedTargetEntity));
+                      // if its not null, we should not mess up the object model...
+                      if (provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+                        provisioningEntityWrapper.setTargetProvisioningEntity(retrievedTargetEntity);
+                        retrievedTargetEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
+                        if (targetDaoRetrieveMembershipsByEntitiesResponse.getTargetEntityToTargetNativeEntity() != null) {
+                          provisioningEntityWrapper.setTargetNativeEntity(targetDaoRetrieveMembershipsByEntitiesResponse.getTargetEntityToTargetNativeEntity().get(retrievedTargetEntity));
+                        }
                       }
                     }
 
@@ -1394,9 +1406,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 ProvisioningEntityWrapper provisioningEntityWrapper = targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity().getProvisioningEntityWrapper();
                 if (provisioningEntityWrapper != null && GrouperUtil.length(targetDaoRetrieveMembershipsByEntityResponse.getTargetMemberships()) == 1
                     && targetDaoRetrieveMembershipsByEntityResponse.getTargetMemberships().get(0) instanceof ProvisioningEntity ){
-                  provisioningEntityWrapper.setTargetProvisioningEntity((ProvisioningEntity)targetDaoRetrieveMembershipsByEntityResponse.getTargetMemberships().get(0));
-                  ((ProvisioningEntity)targetDaoRetrieveMembershipsByEntityResponse.getTargetMemberships().get(0)).setProvisioningEntityWrapper(provisioningEntityWrapper);
-                  provisioningEntityWrapper.setTargetNativeEntity(targetDaoRetrieveMembershipsByEntityResponse.getTargetNativeEntity());
+                  // if its not null, we should not mess up the object model...
+                  if (provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+                    provisioningEntityWrapper.setTargetProvisioningEntity((ProvisioningEntity)targetDaoRetrieveMembershipsByEntityResponse.getTargetMemberships().get(0));
+                    ((ProvisioningEntity)targetDaoRetrieveMembershipsByEntityResponse.getTargetMemberships().get(0)).setProvisioningEntityWrapper(provisioningEntityWrapper);
+                    provisioningEntityWrapper.setTargetNativeEntity(targetDaoRetrieveMembershipsByEntityResponse.getTargetNativeEntity());
+                  }
                 }
 
                 return targetDaoRetrieveMembershipsByEntityResponse;
@@ -1796,10 +1811,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                     entitiesRemainingToFind.remove(grouperTargetEntity);
                     ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntity.getProvisioningEntityWrapper();
                     if (provisioningEntityWrapper != null) {
-                      provisioningEntityWrapper.setTargetProvisioningEntity(retrievedTargetEntity);
-                      retrievedTargetEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
-                      if (targetDaoRetrieveEntitiesResponse.getTargetEntityToTargetNativeEntity() != null) {
-                        provisioningEntityWrapper.setTargetNativeEntity(targetDaoRetrieveEntitiesResponse.getTargetEntityToTargetNativeEntity().get(retrievedTargetEntity));
+                      // if its not null, we should not mess up the object model...
+                      if (provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+                        provisioningEntityWrapper.setTargetProvisioningEntity(retrievedTargetEntity);
+                        retrievedTargetEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
+                        if (targetDaoRetrieveEntitiesResponse.getTargetEntityToTargetNativeEntity() != null) {
+                          provisioningEntityWrapper.setTargetNativeEntity(targetDaoRetrieveEntitiesResponse.getTargetEntityToTargetNativeEntity().get(retrievedTargetEntity));
+                        }
                       }
                     }
                   }
@@ -1907,9 +1925,15 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 hasError = logGroup(targetDaoRetrieveGroupResponse.getTargetGroup()) || hasError;
                 ProvisioningGroupWrapper provisioningGroupWrapper = targetDaoRetrieveGroupRequest.getTargetGroup().getProvisioningGroupWrapper();
                 if (provisioningGroupWrapper != null) {
-                  provisioningGroupWrapper.setTargetProvisioningGroup(targetDaoRetrieveGroupResponse.getTargetGroup());
-                  targetDaoRetrieveGroupResponse.getTargetGroup().setProvisioningGroupWrapper(provisioningGroupWrapper);
-                  provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveGroupResponse.getTargetNativeGroup());
+                  // if its not null, we should not mess up the object model...
+                  if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+                    // if its not null, we should not mess up the object model...
+                    if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+                      provisioningGroupWrapper.setTargetProvisioningGroup(targetDaoRetrieveGroupResponse.getTargetGroup());
+                      targetDaoRetrieveGroupResponse.getTargetGroup().setProvisioningGroupWrapper(provisioningGroupWrapper);
+                      provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveGroupResponse.getTargetNativeGroup());
+                    }                    
+                  }
                 }
                 return targetDaoRetrieveGroupResponse;
               }
@@ -2007,9 +2031,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 hasError = logEntity(targetDaoRetrieveEntityResponse.getTargetEntity()) || hasError;
                 ProvisioningEntityWrapper provisioningEntityWrapper = targetDaoRetrieveEntityRequest.getTargetEntity().getProvisioningEntityWrapper();
                 if (provisioningEntityWrapper != null) {
-                  provisioningEntityWrapper.setTargetProvisioningEntity(targetDaoRetrieveEntityResponse.getTargetEntity());
-                  targetDaoRetrieveEntityResponse.getTargetEntity().setProvisioningEntityWrapper(provisioningEntityWrapper);
-                  provisioningEntityWrapper.setTargetNativeEntity(targetDaoRetrieveEntityResponse.getTargetNativeEntity());
+                  // if its not null, we should not mess up the object model...
+                  if (provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+                    provisioningEntityWrapper.setTargetProvisioningEntity(targetDaoRetrieveEntityResponse.getTargetEntity());
+                    targetDaoRetrieveEntityResponse.getTargetEntity().setProvisioningEntityWrapper(provisioningEntityWrapper);
+                    provisioningEntityWrapper.setTargetNativeEntity(targetDaoRetrieveEntityResponse.getTargetNativeEntity());
+                  }
                 }
                 return targetDaoRetrieveEntityResponse;
               }

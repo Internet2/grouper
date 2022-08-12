@@ -210,9 +210,9 @@ public class GrouperAzureGroup {
 
   private String id;
   private String displayName;
-  private boolean mailEnabled;
+  private boolean mailEnabled = false;
   private String mailNickname;
-  private boolean securityEnabled;
+  private boolean securityEnabled = true;
   private boolean resourceBehaviorOptionsAllowOnlyMembersToPost;
   private boolean resourceBehaviorOptionsHideGroupInOutlook;
   private boolean resourceBehaviorOptionsSubscribeNewGroupMembers;
@@ -406,7 +406,7 @@ public class GrouperAzureGroup {
     grouperAzureGroup.mailEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "mailEnabled", false);
     grouperAzureGroup.isAssignableToRole = GrouperUtil.jsonJacksonGetBoolean(groupNode, "isAssignableToRole", false);
     grouperAzureGroup.mailNickname = GrouperUtil.jsonJacksonGetString(groupNode, "mailNickname");
-    grouperAzureGroup.securityEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "securityEnabled", false);
+    grouperAzureGroup.securityEnabled = GrouperUtil.jsonJacksonGetBoolean(groupNode, "securityEnabled", true);
     grouperAzureGroup.setVisibilityDb(GrouperUtil.jsonJacksonGetString(groupNode, "visibility", defaultVisibility));
     
     Set<String> resourceBehaviorOptions = GrouperUtil.jsonJacksonGetStringSet(groupNode, "resourceBehaviorOptions");

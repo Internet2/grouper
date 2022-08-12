@@ -141,6 +141,16 @@ public class AzureProvisionerTestUtils {
 //  configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
 //  configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "name");
   
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
+
+    if (provisioningTestConfigInput.getEntityAttributeCount() == 5) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "displayName");
+      
+    } else {
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "userPrincipalName");
+      
+    }
+
     if (provisioningTestConfigInput.getEntityAttributeCount() == 5) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache0");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
@@ -149,9 +159,6 @@ public class AzureProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "name");
       
-      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
-      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "displayName");
-
       
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.name", "mailNickname");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");

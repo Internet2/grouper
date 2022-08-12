@@ -544,7 +544,7 @@ public class GrouperAzureApiCommands {
 
     long startTime = System.nanoTime();
     
-    String nextLink =  "/groups?$top=999&$select=" + GrouperAzureGroup.fieldsToSelect;
+    String nextLink =  "/groups?$top=100&$select=" + GrouperAzureGroup.fieldsToSelect;
 
     // dont endless loop
     int j = -1;
@@ -663,6 +663,10 @@ public class GrouperAzureApiCommands {
 
       //lets get the group node
       ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
+      if (value != null) {
+        jsonNode = null;
+      }
+
       if (value != null && value.size() > 0) {
         if (value.size() == 1) {
           jsonNode = value.get(0);
@@ -836,6 +840,9 @@ public class GrouperAzureApiCommands {
 
       //lets get the group node
       ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
+      if (value != null) {
+        jsonNode = null;
+      }
       if (value != null && value.size() > 0) {
         if (value.size() == 1) {
           jsonNode = value.get(0);

@@ -280,6 +280,7 @@ public class GrouperProvisioningMatchingIdIndex {
     
     int provisioningGroupWrappersWithNoMatchingId = 0;
     int provisioningGroupWrappersWithNoMatch = 0;
+    int provisioningGroupWrappersWithMatch = 0;
     
 
     // go through unmatched grouper objects and try to find a match
@@ -290,6 +291,7 @@ public class GrouperProvisioningMatchingIdIndex {
       ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
 
       if (grouperTargetGroup != null && targetProvisioningGroup != null) {
+        provisioningGroupWrappersWithMatch++;
         continue;
       }
       
@@ -308,6 +310,10 @@ public class GrouperProvisioningMatchingIdIndex {
       continue;
     }
     
+    if (provisioningGroupWrappersWithMatch > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("provisioningGroupWrappersWithMatch"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("provisioningGroupWrappersWithMatch", oldCount + provisioningGroupWrappersWithMatch);
+    }
     if (provisioningGroupWrappersWithNoMatchingId > 0) {
       Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("provisioningGroupWrappersWithNoMatchingId"), 0);
       this.getGrouperProvisioner().getDebugMap().put("provisioningGroupWrappersWithNoMatchingId", oldCount + provisioningGroupWrappersWithNoMatchingId);
@@ -862,6 +868,7 @@ public class GrouperProvisioningMatchingIdIndex {
     
     int provisioningEntityWrappersWithNoMatchingId = 0;
     int provisioningEntityWrappersWithNoMatch = 0;
+    int provisioningEntityWrappersWithMatch = 0;
     
   
     // go through unmatched grouper objects and try to find a match
@@ -872,6 +879,7 @@ public class GrouperProvisioningMatchingIdIndex {
       ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
   
       if (grouperTargetEntity != null && targetProvisioningEntity != null) {
+        provisioningEntityWrappersWithMatch++;
         continue;
       }
       
@@ -890,6 +898,10 @@ public class GrouperProvisioningMatchingIdIndex {
       continue;
     }
     
+    if (provisioningEntityWrappersWithMatch > 0) {
+      Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("provisioningEntityWrappersWithMatch"), 0);
+      this.getGrouperProvisioner().getDebugMap().put("provisioningEntityWrappersWithMatch", oldCount + provisioningEntityWrappersWithMatch);
+    }
     if (provisioningEntityWrappersWithNoMatchingId > 0) {
       Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("provisioningEntityWrappersWithNoMatchingId"), 0);
       this.getGrouperProvisioner().getDebugMap().put("provisioningEntityWrappersWithNoMatchingId", oldCount + provisioningEntityWrappersWithNoMatchingId);

@@ -107,6 +107,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
         if (grouperAzureGroup == null) {
           grouperAzureGroup = new GrouperAzureGroup();
           grouperAzureGroup.setDisplayName(name);
+          grouperAzureGroup.setMailNickname(name);
           GrouperAzureApiCommands.createAzureGroup("myAzure", grouperAzureGroup, null);
         } else {
           break;
@@ -120,7 +121,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
       
       // mark some folders to provision
-      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:test0").save();
       Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
       
       testGroup.addMember(fred, false);
@@ -179,10 +180,11 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
         assertTrue(provisioningMembershipWrapper.isRecalcObject());
       }
       
-//      assertEquals("test:testGroup", grouperAzureGroup.getDisplayName());
-//      assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsAllowOnlyMembersToPostDb());
-//      assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsWelcomeEmailDisabledDb());
-//      assertEquals("T", grouperAzureGroup.getResourceProvisioningOptionsTeamDb());
+      GrouperAzureGroup grouperAzureGroup = GrouperAzureApiCommands.retrieveAzureGroup("myAzure", "displayName", testGroup.getExtension());
+      assertEquals("test0", grouperAzureGroup.getDisplayName());
+      assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsAllowOnlyMembersToPostDb());
+      assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsWelcomeEmailDisabledDb());
+      assertEquals("T", grouperAzureGroup.getResourceProvisioningOptionsTeamDb());
       
       GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "myAzureProvisioner");
       assertEquals(1, gcGrouperSync.getGroupCount().intValue());
@@ -194,7 +196,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       
       
       //now remove one of the subjects from the testGroup
-      testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+      testGroup.deleteMember(fred1);
       
       // now run the full sync again and the member should be deleted from mock_azure_membership also
       
@@ -206,7 +208,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 //      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
       
       //now add one subject
-      testGroup.addMember(SubjectTestHelper.SUBJ3);
+      testGroup.addMember(fred3);
       
       // now run the full sync again
       grouperProvisioningOutput = fullProvision();
