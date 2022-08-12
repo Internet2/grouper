@@ -66,6 +66,21 @@ public class AzureProvisionerTestConfigInput {
     return this.extraConfig;
   }
 
+  private boolean udelUseCase = false;
+  
+  
+  
+  public boolean isUdelUseCase() {
+    return udelUseCase;
+  }
+
+
+  public AzureProvisionerTestConfigInput assignUdelUseCase(boolean udelUseCase) {
+    this.udelUseCase = udelUseCase;
+    return this;
+  }
+
+
   /**
    * 3 (default), or 5
    */
@@ -85,6 +100,29 @@ public class AzureProvisionerTestConfigInput {
    * default to myAzureProvisioner
    */
   private String configId = "myAzureProvisioner";
+
+  /**
+   * 2, or 5 (default)
+   */
+  private int entityAttributeCount = 5;
+
+  
+  /**
+   * 2, or 5 (default)
+   * @return
+   */
+  public int getEntityAttributeCount() {
+    return entityAttributeCount;
+  }
+
+  /**
+   * 2, or 5 (default)
+   * @param entityAttributeCount
+   */
+  public AzureProvisionerTestConfigInput assignEntityAttributeCount(int entityAttributeCount) {
+    this.entityAttributeCount = entityAttributeCount;
+    return this;
+  }
 
   /**
    * 3 (default), or 5
