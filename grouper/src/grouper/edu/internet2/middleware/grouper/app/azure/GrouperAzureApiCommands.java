@@ -538,35 +538,48 @@ public class GrouperAzureApiCommands {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
+    List<GrouperAzureGroup> results = new ArrayList<GrouperAzureGroup>();
+
     debugMap.put("method", "retrieveAzureGroups");
 
     long startTime = System.nanoTime();
+    
+    String nextLink =  "/groups?$top=999&$select=" + GrouperAzureGroup.fieldsToSelect;
 
-    try {
+    // dont endless loop
+    int j = -1;
+    int maxPages = 10000;
+    for (j=0;j<maxPages;j++) {
 
-      List<GrouperAzureGroup> results = new ArrayList<GrouperAzureGroup>();
-
-      JsonNode jsonNode = executeGetMethod(debugMap, configId,
-          "/groups?$select=" + GrouperAzureGroup.fieldsToSelect);
-
-      ArrayNode groupsArray = (ArrayNode) jsonNode.get("value");
-
-      for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
-        JsonNode groupNode = groupsArray.get(i);
-        GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromJson(groupNode);
-        results.add(grouperAzureGroup);
+      try {
+  
+        JsonNode jsonNode = executeGetMethod(debugMap, configId, nextLink);
+  
+        ArrayNode groupsArray = (ArrayNode) jsonNode.get("value");
+  
+        for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
+          JsonNode groupNode = groupsArray.get(i);
+          GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromJson(groupNode);
+          results.add(grouperAzureGroup);
+        }
+  
+        nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
+        
+        if (StringUtils.isBlank(nextLink)) {
+          break;
+        }
+  
+      } catch (RuntimeException re) {
+        debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+        throw re;
+      } finally {
+        GrouperAzureLog.azureLog(debugMap, startTime);
       }
-
-      debugMap.put("size", GrouperClientUtils.length(results));
-
-      return results;
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      GrouperAzureLog.azureLog(debugMap, startTime);
     }
+    GrouperUtil.assertion(j<maxPages, "Too many groups! " + GrouperClientUtils.length(results));
+    debugMap.put("size", GrouperClientUtils.length(results));
 
+    return results;
   }
 
   public static List<GrouperAzureUser> retrieveAzureUsers(String configId) {
@@ -577,30 +590,43 @@ public class GrouperAzureApiCommands {
 
     long startTime = System.nanoTime();
 
-    try {
+    List<GrouperAzureUser> results = new ArrayList<GrouperAzureUser>();
+    String nextLink = "/users?$top=999&$select=" + GrouperAzureUser.fieldsToSelect;
 
-      List<GrouperAzureUser> results = new ArrayList<GrouperAzureUser>();
+    // dont endless loop
+    int j = -1;
+    int maxPages = 10000;
+    for (j=0;j<maxPages;j++) {
 
-      JsonNode jsonNode = executeGetMethod(debugMap, configId,
-          "/users?$select=" + GrouperAzureUser.fieldsToSelect);
+      try {
 
-      ArrayNode usersArray = (ArrayNode) jsonNode.get("value");
-
-      for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
-        JsonNode userNode = usersArray.get(i);
-        GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromJson(userNode);
-        results.add(grouperAzureUser);
+        JsonNode jsonNode = executeGetMethod(debugMap, configId, nextLink);
+  
+        ArrayNode usersArray = (ArrayNode) jsonNode.get("value");
+  
+        for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
+          JsonNode userNode = usersArray.get(i);
+          GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromJson(userNode);
+          results.add(grouperAzureUser);
+        }
+        nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
+        
+        if (StringUtils.isBlank(nextLink)) {
+          break;
+        }
+      } catch (RuntimeException re) {
+        debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+        throw re;
+      } finally {
+        GrouperAzureLog.azureLog(debugMap, startTime);
       }
-
-      debugMap.put("size", GrouperClientUtils.length(results));
-
-      return results;
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      GrouperAzureLog.azureLog(debugMap, startTime);
+      
     }
+
+    GrouperUtil.assertion(j<maxPages, "Too many users! " + GrouperClientUtils.length(results));
+    debugMap.put("size", GrouperClientUtils.length(results));
+
+    return results;
 
   }
 
@@ -810,7 +836,6 @@ public class GrouperAzureApiCommands {
 
       //lets get the group node
       ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
-      jsonNode = null;
       if (value != null && value.size() > 0) {
         if (value.size() == 1) {
           jsonNode = value.get(0);

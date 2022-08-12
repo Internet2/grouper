@@ -97,6 +97,10 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
         }
       }
       
+      List<GrouperAzureUser> grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
+      
+      assertTrue(GrouperUtil.length(grouperAzureUsers) > 210);
+      
       for (int i=0;i<350;i++) {
         String name = "test" + i;
         GrouperAzureGroup grouperAzureGroup = GrouperAzureApiCommands.retrieveAzureGroup("myAzure", "displayName", name);
