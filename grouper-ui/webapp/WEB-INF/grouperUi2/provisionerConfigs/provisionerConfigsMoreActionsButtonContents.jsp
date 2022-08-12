@@ -18,6 +18,15 @@
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerActivity&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewActivityActionOption'] }</a></li>
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerJobs&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewJobsActionOption'] }</a></li>
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerLogs&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewLogsActionOption'] }</a></li>
+                       
+                       <c:if test="${not empty guiProvisionerConfiguration.fullSyncJobName}">
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${guiProvisionerConfiguration.fullSyncJobName}'); return false;">${textContainer.text['provisionerConfigsTableViewFullSyncDaemonLogsActionOption'] }</a></li>
+                       </c:if>
+                       
+                       <c:if test="${not empty guiProvisionerConfiguration.incrementalSyncJobName}">
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${guiProvisionerConfiguration.incrementalSyncJobName}'); return false;">${textContainer.text['provisionerConfigsTableViewIncrementalSyncDaemonLogsActionOption'] }</a></li>
+                       </c:if>
+                       
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations'); return false;"
                             >${textContainer.text['provisionerConfigMoreActionsViewButton'] }</a></li>
                        <%-- <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.runFullSync&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableRunFullSyncActionOption'] }</a></li> --%>

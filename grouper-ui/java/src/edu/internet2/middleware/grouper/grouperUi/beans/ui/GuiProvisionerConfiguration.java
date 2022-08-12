@@ -2,8 +2,15 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 
 public class GuiProvisionerConfiguration {
   
@@ -17,6 +24,9 @@ public class GuiProvisionerConfiguration {
   private int groupCount;
   private int userCount;
   private int membershipCount;
+  
+  private String fullSyncJobName;
+  private String incrementalSyncJobName;
   
   private GuiProvisionerConfiguration() {}
   
@@ -70,12 +80,78 @@ public class GuiProvisionerConfiguration {
     
     List<GuiProvisionerConfiguration> guiProvisioningConfigurations = new ArrayList<GuiProvisionerConfiguration>();
     
+    Pattern fullSyncPattern = Pattern.compile("^otherJob\\.(.*)\\.provisionerConfigId$");
+    Set<String> fullSyncMatchingConfigIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(fullSyncPattern);
+    
+    Pattern incrementalSyncPattern = Pattern.compile("^changeLog\\.consumer\\.(.*)\\.provisionerConfigId$");
+    Set<String> incrementalSyncMatchingConfigIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(incrementalSyncPattern);
+    
     for (ProvisioningConfiguration provisioningConfiguration: provisioningConfigurations) {
-      guiProvisioningConfigurations.add(convertFromProvisioningConfiguration(provisioningConfiguration));
+      
+      GuiProvisionerConfiguration guiProvisionerConfiguration = convertFromProvisioningConfiguration(provisioningConfiguration);
+      guiProvisioningConfigurations.add(guiProvisionerConfiguration);
+      
+      List<String> fullSyncConfigIds = new ArrayList<>();
+      
+      for (String configId: fullSyncMatchingConfigIds) {
+        String className = "otherJob."+configId+".class";
+        String provisionerConfigId = "otherJob."+configId+".provisionerConfigId";
+        if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), GrouperProvisioningFullSyncJob.class.getName()) && 
+            StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), provisioningConfiguration.getConfigId())) {
+          fullSyncConfigIds.add(provisioningConfiguration.getConfigId());
+        }
+      }
+      
+      if (fullSyncConfigIds.size() == 1) {
+        
+        String fullSyncJobName = "OTHER_JOB_"+provisioningConfiguration.getConfigId();
+        guiProvisionerConfiguration.setFullSyncJobName(fullSyncJobName);
+      }
+      
+      List<String> incrementalSyncConfigIds = new ArrayList<>();
+      
+      for (String configId: incrementalSyncMatchingConfigIds) {
+        String className = "changeLog.consumer."+configId+".publisher.class";
+        String provisionerConfigId = "changeLog.consumer."+configId+".provisionerConfigId";
+        if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), ProvisioningConsumer.class.getName()) && 
+            StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), provisioningConfiguration.getConfigId() )) {
+          incrementalSyncConfigIds.add(provisioningConfiguration.getConfigId());
+        }
+      }
+      
+      if (incrementalSyncConfigIds.size() == 1) {
+        String incrementalSyncJobName = "CHANGE_LOG_consumer_"+provisioningConfiguration.getConfigId();
+        guiProvisionerConfiguration.setIncrementalSyncJobName(incrementalSyncJobName);
+      }
+      
     }
     
     return guiProvisioningConfigurations;
     
   }
+
+  
+  public String getFullSyncJobName() {
+    return fullSyncJobName;
+  }
+
+  
+  public void setFullSyncJobName(String fullSyncJobName) {
+    this.fullSyncJobName = fullSyncJobName;
+  }
+
+  
+  public String getIncrementalSyncJobName() {
+    return incrementalSyncJobName;
+  }
+
+  
+  public void setIncrementalSyncJobName(String incrementalSyncJobName) {
+    this.incrementalSyncJobName = incrementalSyncJobName;
+  }
+  
+  
+  
+  
 
 }
