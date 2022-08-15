@@ -220,6 +220,14 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     return grouperProvisioningGroup;
   }
 
+  private void calculateGroupId() {
+    this.groupId = null;
+    if (this.grouperProvisioningGroup != null) {
+      this.groupId = this.grouperProvisioningGroup.getId();
+    } else if (this.gcGrouperSyncGroup != null) {
+      this.groupId = this.gcGrouperSyncGroup.getGroupId();
+    }
+  }
   
   public void setGrouperProvisioningGroup(ProvisioningGroup grouperProvisioningGroup) {
     if (this.grouperProvisioningGroup == grouperProvisioningGroup) {
@@ -240,6 +248,7 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     if (oldProvisioningGroupWrapper != null && oldProvisioningGroupWrapper != this) {
       oldProvisioningGroupWrapper.grouperProvisioningGroup = null;
     }
+    this.calculateGroupId();
   }
 
   
@@ -321,6 +330,7 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     if (this.gcGrouperSyncGroup != null) {
       this.syncGroupId = this.getGcGrouperSyncGroup().getId();
     }
+    this.calculateGroupId();
 
   }
   

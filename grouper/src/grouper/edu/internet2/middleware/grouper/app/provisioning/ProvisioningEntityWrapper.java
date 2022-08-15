@@ -134,6 +134,7 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
   }
 
   
+  
   public void setGrouperProvisioningEntity(ProvisioningEntity grouperProvisioningEntity) {
     ProvisioningEntity oldGrouperProvisioningEntity = this.grouperProvisioningEntity;
     ProvisioningEntityWrapper oldProvisioningEntityWrapper = oldGrouperProvisioningEntity == null ? null : oldGrouperProvisioningEntity.getProvisioningEntityWrapper();
@@ -150,9 +151,20 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
     if (oldProvisioningEntityWrapper != null) {
       oldProvisioningEntityWrapper.grouperProvisioningEntity = null;
     }
+    this.calculateMemberId();
+
   }
 
   
+  private void calculateMemberId() {
+    this.memberId = null;
+    if (this.grouperProvisioningEntity != null) {
+      this.memberId = this.grouperProvisioningEntity.getId();
+    } else if (this.gcGrouperSyncMember != null) {
+      this.memberId = this.gcGrouperSyncMember.getMemberId();
+    }
+  }
+
   public ProvisioningEntity getTargetProvisioningEntity() {
     return targetProvisioningEntity;
   }
@@ -229,6 +241,7 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
     if (this.gcGrouperSyncMember != null) {
       this.syncMemberId = this.getGcGrouperSyncMember().getId();
     }
+    this.calculateMemberId();
   }
 
   /**

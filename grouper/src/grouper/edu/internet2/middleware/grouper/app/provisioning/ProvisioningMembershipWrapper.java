@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper {
@@ -148,9 +150,25 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     if (oldProvisioningMembershipWrapper != null && oldProvisioningMembershipWrapper != this) {
       oldProvisioningMembershipWrapper.grouperProvisioningMembership = null;
     }
+    this.calculateGroupIdMemberId();
   }
 
   
+  private void calculateGroupIdMemberId() {
+    this.groupIdMemberId = null;
+    if (this.grouperProvisioningMembership != null) {
+      this.groupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
+
+    } else if (this.gcGrouperSyncMembership != null) {
+      GcGrouperSyncGroup gcGrouperSyncGroup = this.gcGrouperSyncMembership.getGrouperSyncGroup();
+      GcGrouperSyncMember gcGrouperSyncMember = this.gcGrouperSyncMembership.getGrouperSyncMember();
+      if (gcGrouperSyncGroup != null && gcGrouperSyncMember != null) {
+        this.groupIdMemberId = new MultiKey(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getId());
+      }
+    }
+    
+  }
+
   public ProvisioningMembership getTargetProvisioningMembership() {
     return targetProvisioningMembership;
   }
@@ -230,6 +248,8 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     if (gcGrouperSyncMembership != null) {
       this.syncGroupIdSyncMemberId = new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId());
     }
+    this.calculateGroupIdMemberId();
+
   }
 
 
