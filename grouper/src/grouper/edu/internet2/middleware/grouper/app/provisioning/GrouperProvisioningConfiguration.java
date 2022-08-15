@@ -2089,7 +2089,17 @@ public abstract class GrouperProvisioningConfiguration {
         boolean showForMembership = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".showForMembership", false), false);
         grouperProvisioningObjectMetadataItem.setShowForMembership(showForMembership);
       }
+      
+      {
+        boolean canChange = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canChange", false), false);
+        grouperProvisioningObjectMetadataItem.setCanChange(canChange);
+      }
 
+      {
+        boolean canUpdate = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canUpdate", false), false);
+        grouperProvisioningObjectMetadataItem.setCanUpdate(canUpdate);
+      }
+      
       {
         String valueType = this.retrieveConfigString("metadata."+i+".valueType", false);
         GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
