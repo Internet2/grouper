@@ -69,14 +69,18 @@ public class GrouperProvisioningData {
     
     if (grouperProvisioningMembership != null && !StringUtils.isBlank(grouperProvisioningMembership.getProvisioningGroupId())
         && !StringUtils.isBlank(grouperProvisioningMembership.getProvisioningEntityId())) {
+      MultiKey groupIdEntityId = new MultiKey(grouperProvisioningMembership.getProvisioningGroupId(), grouperProvisioningMembership.getProvisioningEntityId());
+      provisioningMembershipWrapper.setGroupIdMemberId(groupIdEntityId);
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
         .getGroupUuidMemberUuidToProvisioningMembershipWrapper().put(
-            new MultiKey(grouperProvisioningMembership.getProvisioningGroupId(), grouperProvisioningMembership.getProvisioningEntityId()), provisioningMembershipWrapper);
+            groupIdEntityId, provisioningMembershipWrapper);
     }
     
     if (gcGrouperSyncMembership != null) {
+      MultiKey syncGroupIdSyncMemberId = new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId());
+      provisioningMembershipWrapper.setSyncGroupIdSyncMemberId(syncGroupIdSyncMemberId);
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(
-          new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), provisioningMembershipWrapper);
+          syncGroupIdSyncMemberId, provisioningMembershipWrapper);
     }
   }
   

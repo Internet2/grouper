@@ -642,8 +642,7 @@ public class GrouperProvisioningGrouperDao {
           if (provisioningGroupWrapper == null) {
             provisioningGroupWrapper = new ProvisioningGroupWrapper();
             provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
-            this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers().add(provisioningGroupWrapper);
-            groupUuidToProvisioningGroupWrapper.put(provisioningMembership.getProvisioningGroupId(), provisioningGroupWrapper);
+            this.grouperProvisioner.retrieveGrouperProvisioningData().addAndIndexGroupWrapper(provisioningGroupWrapper);
           }
           // all the data is in the membership query
           provisioningGroupWrapper.setGrouperProvisioningGroup(provisioningMembership.getProvisioningGroup());

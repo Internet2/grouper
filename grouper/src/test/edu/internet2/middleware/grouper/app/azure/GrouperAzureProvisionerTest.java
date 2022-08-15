@@ -37,7 +37,7 @@ import junit.textui.TestRunner;
 public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzure"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testUdelFull"));
 //    realAzureDeleteUsers();
   }
 
