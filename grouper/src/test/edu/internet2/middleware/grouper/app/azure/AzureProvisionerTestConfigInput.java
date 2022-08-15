@@ -102,13 +102,13 @@ public class AzureProvisionerTestConfigInput {
   private String configId = "myAzureProvisioner";
 
   /**
-   * 2, or 5 (default)
+   * 4, or 5 (default)
    */
   private int entityAttributeCount = 5;
 
   
   /**
-   * 2, or 5 (default)
+   * 4, or 5 (default)
    * @return
    */
   public int getEntityAttributeCount() {
@@ -116,7 +116,7 @@ public class AzureProvisionerTestConfigInput {
   }
 
   /**
-   * 2, or 5 (default)
+   * 4, or 5 (default)
    * @param entityAttributeCount
    */
   public AzureProvisionerTestConfigInput assignEntityAttributeCount(int entityAttributeCount) {

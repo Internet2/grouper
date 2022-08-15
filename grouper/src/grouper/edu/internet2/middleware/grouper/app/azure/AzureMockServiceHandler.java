@@ -142,6 +142,10 @@ public class AzureMockServiceHandler extends MockServiceHandler {
         deleteGroups(mockServiceRequest, mockServiceResponse);
         return;
       }
+      if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
+        deleteUsers(mockServiceRequest, mockServiceResponse);
+        return;
+      }
       if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 5 == mockServiceRequest.getPostMockNamePaths().length
           && "members".equals(mockServiceRequest.getPostMockNamePaths()[2]) && "$ref".equals(mockServiceRequest.getPostMockNamePaths()[4])) {
         deleteMembership(mockServiceRequest, mockServiceResponse);
@@ -538,6 +542,36 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       mockServiceResponse.setResponseCode(404);
     } else {
       throw new RuntimeException("groupsDeleted: " + groupsDeleted);
+    }
+        
+  }
+
+
+
+  public void deleteUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    checkAuthorization(mockServiceRequest);
+
+    checkRequestContentType(mockServiceRequest);
+
+    String id = mockServiceRequest.getPostMockNamePaths()[1];
+    
+    GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
+
+    int membershipsDeleted = HibernateSession.byHqlStatic()
+        .createQuery("delete from GrouperAzureMembership where userId = :theId")
+        .setString("theId", id).executeUpdateInt();
+    mockServiceRequest.getDebugMap().put("membershipsDeleted", membershipsDeleted);
+    
+    int groupsDeleted = HibernateSession.byHqlStatic()
+        .createQuery("delete from GrouperAzureUser where id = :theId")
+        .setString("theId", id).executeUpdateInt();
+
+    if (groupsDeleted == 1) {
+      mockServiceResponse.setResponseCode(204);
+    } else if (groupsDeleted == 0) {
+      mockServiceResponse.setResponseCode(404);
+    } else {
+      throw new RuntimeException("usersDeleted: " + groupsDeleted);
     }
         
   }

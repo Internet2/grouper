@@ -1,8 +1,9 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,8 +42,8 @@ public class GrouperProvisioningAttributeManipulation {
     return false;
   }
   
-  public void manipulateAttributesGroups(List<ProvisioningGroup> provisioningGroups) {
-    
+  public Set<ProvisioningGroup> manipulateAttributesGroups(List<ProvisioningGroup> provisioningGroups) {
+    Set<ProvisioningGroup> changedGroups = new LinkedHashSet<>();
     int[] manipulateAttributesGroupsCount = new int[] {0};
     int[] convertNullsEmptyCount = new int[] {0};
 
@@ -50,8 +51,8 @@ public class GrouperProvisioningAttributeManipulation {
     
     for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(provisioningGroups)) {
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : groupAttributeNameToConfig.values() ) {
-        manipulateValue(provisioningGroup, grouperProvisioningConfigurationAttribute, manipulateAttributesGroupsCount);
-        convertNullsEmpties(provisioningGroup, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
+        manipulateValue((Collection<Object>)(Object)changedGroups, provisioningGroup, grouperProvisioningConfigurationAttribute, manipulateAttributesGroupsCount);
+        convertNullsEmpties((Collection<Object>)(Object)changedGroups, provisioningGroup, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
       }
     }
     if (manipulateAttributesGroupsCount[0] > 0) {
@@ -64,10 +65,12 @@ public class GrouperProvisioningAttributeManipulation {
       this.grouperProvisioner.getDebugMap().put("convertNullsEmptyCount", convertNullsEmptyCount[0]);
       
     }
-
+    return changedGroups;
   }
 
-  public void manipulateAttributesEntities(List<ProvisioningEntity> provisioningEntities) {
+  public Set<ProvisioningEntity> manipulateAttributesEntities(List<ProvisioningEntity> provisioningEntities) {
+    
+    Set<ProvisioningEntity> changedEntities = new LinkedHashSet<ProvisioningEntity>();
     
     int[] manipulateAttributesEntitiesCount = new int[] {0};
     int[] convertNullsEmptyCount = new int[] {0};
@@ -77,8 +80,8 @@ public class GrouperProvisioningAttributeManipulation {
     for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(provisioningEntities)) {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : entityAttributeNameToConfig.values() ) {
-        manipulateValue(provisioningEntity, grouperProvisioningConfigurationAttribute, manipulateAttributesEntitiesCount);
-        convertNullsEmpties(provisioningEntity, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
+        manipulateValue((Collection<Object>)(Object)changedEntities, provisioningEntity, grouperProvisioningConfigurationAttribute, manipulateAttributesEntitiesCount);
+        convertNullsEmpties((Collection<Object>)(Object)changedEntities, provisioningEntity, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
       }
     }
     if (manipulateAttributesEntitiesCount[0] > 0) {
@@ -91,9 +94,12 @@ public class GrouperProvisioningAttributeManipulation {
       this.grouperProvisioner.getDebugMap().put("convertNullsEmptyCount", convertNullsEmptyCount[0]);
       
     }
+    return changedEntities;
   }
 
-  public void manipulateAttributesMemberships(List<ProvisioningMembership> provisioningMemberships) {
+  public Set<ProvisioningMembership> manipulateAttributesMemberships(List<ProvisioningMembership> provisioningMemberships) {
+    
+    Set<ProvisioningMembership> changedObjects = new LinkedHashSet<ProvisioningMembership>();
     
     int[] manipulateAttributesMembershipsCount = new int[] {0};
     int[] convertNullsEmptyCount = new int[] {0};
@@ -103,8 +109,8 @@ public class GrouperProvisioningAttributeManipulation {
     for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(provisioningMemberships)) {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : membershipAttributeNameToConfig.values() ) {
-        manipulateValue(provisioningMembership, grouperProvisioningConfigurationAttribute, manipulateAttributesMembershipsCount);
-        convertNullsEmpties(provisioningMembership, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
+        manipulateValue((Collection<Object>)(Object)changedObjects, provisioningMembership, grouperProvisioningConfigurationAttribute, manipulateAttributesMembershipsCount);
+        convertNullsEmpties((Collection<Object>)(Object)changedObjects, provisioningMembership, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
       }
     }
     if (manipulateAttributesMembershipsCount[0] > 0) {
@@ -117,14 +123,17 @@ public class GrouperProvisioningAttributeManipulation {
       this.grouperProvisioner.getDebugMap().put("convertNullsEmptyCount", convertNullsEmptyCount[0]);
       
     }
+    return changedObjects;
   }
 
   /**
    * @param provisioningGroups
    * @param attribute null for all or an attribute name for a specific one
+   * @return changed groups
    */
-  public void assignDefaultsForGroups(List<ProvisioningGroup> provisioningGroups, GrouperProvisioningConfigurationAttribute attribute) {
+  public Set<ProvisioningGroup> assignDefaultsForGroups(List<ProvisioningGroup> provisioningGroups, GrouperProvisioningConfigurationAttribute attribute) {
     
+    Set<ProvisioningGroup> changedGroups = new LinkedHashSet<>();
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
     Map<String, GrouperProvisioningConfigurationAttribute> groupFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
 
@@ -138,24 +147,24 @@ public class GrouperProvisioningAttributeManipulation {
     for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(provisioningGroups)) {
       
       if (attribute == null || attribute == grouperProvisioningConfigurationAttributeId) {
-        provisioningGroup.setId((String)assignDefaultField(provisioningGroup.getId(), grouperProvisioningConfigurationAttributeId,  assignDefaultFieldsAndAttributesCount));
+        provisioningGroup.setId((String)assignDefaultField((Collection<Object>)(Object)changedGroups, provisioningGroup, provisioningGroup.getId(), grouperProvisioningConfigurationAttributeId,  assignDefaultFieldsAndAttributesCount));
       }
       
       if (attribute == null || attribute == grouperProvisioningConfigurationAttributeDisplayName) {
-        provisioningGroup.setDisplayName((String)assignDefaultField(provisioningGroup.getDisplayName(), grouperProvisioningConfigurationAttributeDisplayName,  assignDefaultFieldsAndAttributesCount));
+        provisioningGroup.setDisplayName((String)assignDefaultField((Collection<Object>)(Object)changedGroups, provisioningGroup, provisioningGroup.getDisplayName(), grouperProvisioningConfigurationAttributeDisplayName,  assignDefaultFieldsAndAttributesCount));
       }
       
       if (attribute == null || attribute == grouperProvisioningConfigurationAttributeName) {
-        provisioningGroup.setName((String)assignDefaultField(provisioningGroup.getName(), grouperProvisioningConfigurationAttributeName,  assignDefaultFieldsAndAttributesCount));
+        provisioningGroup.setName((String)assignDefaultField((Collection<Object>)(Object)changedGroups, provisioningGroup, provisioningGroup.getName(), grouperProvisioningConfigurationAttributeName,  assignDefaultFieldsAndAttributesCount));
       }
       
       if (attribute == null || attribute == grouperProvisioningConfigurationAttributeIdIndex) {
-        provisioningGroup.setIdIndex(GrouperUtil.longObjectValue(assignDefaultField(provisioningGroup.getIdIndex(), grouperProvisioningConfigurationAttributeIdIndex, assignDefaultFieldsAndAttributesCount), true));
+        provisioningGroup.setIdIndex(GrouperUtil.longObjectValue(assignDefaultField((Collection<Object>)(Object)changedGroups, provisioningGroup, provisioningGroup.getIdIndex(), grouperProvisioningConfigurationAttributeIdIndex, assignDefaultFieldsAndAttributesCount), true));
       }
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : groupAttributeNameToConfig.values() ) {
         if (attribute == null || attribute == grouperProvisioningConfigurationAttribute) {
-          assignDefault(provisioningGroup, grouperProvisioningConfigurationAttribute, assignDefaultFieldsAndAttributesCount);
+          assignDefault((Collection<Object>)(Object)changedGroups, provisioningGroup, grouperProvisioningConfigurationAttribute, assignDefaultFieldsAndAttributesCount);
         }
       }
     }
@@ -163,14 +172,72 @@ public class GrouperProvisioningAttributeManipulation {
       assignDefaultFieldsAndAttributesCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("assignDefaultFieldsAndAttributesCount"), 0);
       this.grouperProvisioner.getDebugMap().put("assignDefaultFieldsAndAttributesCount", assignDefaultFieldsAndAttributesCount[0]);
     }
+    return changedGroups;
   }
 
   /**
+   * 
+   * @param provisioningEntities
+   * @param checkProcessedFlag true if not process if already processed
+   * @param filterSelect
+   * @param filterInsert
+   * @param filterUpdate
+   * @return changed entities
+   */
+  public Set<ProvisioningEntity> manipulateDefaultsFilterAttributesEntities(List<ProvisioningEntity> provisioningEntities, boolean assignDefaults, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
+
+    Set<ProvisioningEntity> changedEntities = new LinkedHashSet<ProvisioningEntity>();
+    
+    if (GrouperUtil.length(provisioningEntities) > 0) {
+
+      if (assignDefaults) {
+        changedEntities.addAll(assignDefaultsForEntities(provisioningEntities, null));
+      }
+
+      changedEntities.addAll(filterEntityFieldsAndAttributes(provisioningEntities, filterSelect, filterInsert, filterUpdate));
+      
+      changedEntities.addAll(manipulateAttributesEntities(provisioningEntities));
+
+    }
+    
+    return changedEntities;
+  }
+  
+  /**
+   * 
+   * @param provisioningGroups
+   * @param checkProcessedFlag true if not process if already processed
+   * @param filterSelect
+   * @param filterInsert
+   * @param filterUpdate
+   */
+  public Set<ProvisioningGroup> manipulateDefaultsFilterAttributesGroups(List<ProvisioningGroup> provisioningGroups, boolean assignDefaults, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
+    
+    Set<ProvisioningGroup> changedGroups = new LinkedHashSet<ProvisioningGroup>();
+    
+    if (GrouperUtil.length(provisioningGroups) == 0) {
+      return changedGroups;
+    }
+    
+    if (assignDefaults) {
+      changedGroups.addAll(assignDefaultsForGroups(provisioningGroups, null));
+    }
+
+    changedGroups.addAll(filterGroupFieldsAndAttributes(provisioningGroups, filterSelect, filterInsert, filterUpdate));
+    
+    changedGroups.addAll(manipulateAttributesGroups(provisioningGroups));
+
+    return changedGroups;
+  }
+  
+  /**
    * @param provisioningEntities
    * @param attribute null for all or an attribute name for a specific one
+   * @return changedEntities
    */
-  public void assignDefaultsForEntities(List<ProvisioningEntity> provisioningEntities, GrouperProvisioningConfigurationAttribute attribute) {
+  public Set<ProvisioningEntity> assignDefaultsForEntities(List<ProvisioningEntity> provisioningEntities, GrouperProvisioningConfigurationAttribute attribute) {
     
+    Set<ProvisioningEntity> changedEntities = new LinkedHashSet<ProvisioningEntity>();
     Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
     Map<String, GrouperProvisioningConfigurationAttribute> entityFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
     
@@ -184,24 +251,24 @@ public class GrouperProvisioningAttributeManipulation {
     for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(provisioningEntities)) {
       
       if (attribute == null || attribute == grouperProvisioningConfigurationAttributeId) {
-        provisioningEntity.setId((String)assignDefaultField(provisioningEntity.getId(), grouperProvisioningConfigurationAttributeId,  assignDefaultFieldsAndAttributesCount));
+        provisioningEntity.setId((String)assignDefaultField((Collection<Object>)(Object)changedEntities, provisioningEntity, provisioningEntity.getId(), grouperProvisioningConfigurationAttributeId,  assignDefaultFieldsAndAttributesCount));
       }
       
       if (attribute == null || attribute == grouperProvisioningConfigurationAttributeLoginId) {
-        provisioningEntity.setLoginId((String)assignDefaultField(provisioningEntity.getLoginId(), grouperProvisioningConfigurationAttributeLoginId,  assignDefaultFieldsAndAttributesCount));
+        provisioningEntity.setLoginId((String)assignDefaultField((Collection<Object>)(Object)changedEntities, provisioningEntity, provisioningEntity.getLoginId(), grouperProvisioningConfigurationAttributeLoginId,  assignDefaultFieldsAndAttributesCount));
       }
       
       if (attribute == null || attribute == grouperProvisioningConfigurationAttributeName) {
-        provisioningEntity.setName((String)assignDefaultField(provisioningEntity.getName(), grouperProvisioningConfigurationAttributeName,  assignDefaultFieldsAndAttributesCount));
+        provisioningEntity.setName((String)assignDefaultField((Collection<Object>)(Object)changedEntities, provisioningEntity, provisioningEntity.getName(), grouperProvisioningConfigurationAttributeName,  assignDefaultFieldsAndAttributesCount));
       }
 
       if (attribute == null || attribute == grouperProvisioningConfigurationAttributeEmail) {
-        provisioningEntity.setEmail((String)assignDefaultField(provisioningEntity.getEmail(), grouperProvisioningConfigurationAttributeEmail, assignDefaultFieldsAndAttributesCount));
+        provisioningEntity.setEmail((String)assignDefaultField((Collection<Object>)(Object)changedEntities, provisioningEntity, provisioningEntity.getEmail(), grouperProvisioningConfigurationAttributeEmail, assignDefaultFieldsAndAttributesCount));
       }
 
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : entityAttributeNameToConfig.values() ) {
         if (attribute == null || attribute == grouperProvisioningConfigurationAttribute) {
-          assignDefault(provisioningEntity, grouperProvisioningConfigurationAttribute, assignDefaultFieldsAndAttributesCount);
+          assignDefault((Collection<Object>)(Object)changedEntities, provisioningEntity, grouperProvisioningConfigurationAttribute, assignDefaultFieldsAndAttributesCount);
         }
       }
     }
@@ -209,10 +276,17 @@ public class GrouperProvisioningAttributeManipulation {
       assignDefaultFieldsAndAttributesCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("assignDefaultFieldsAndAttributesCount"), 0);
       this.grouperProvisioner.getDebugMap().put("assignDefaultFieldsAndAttributesCount", assignDefaultFieldsAndAttributesCount[0]);
     }
+    return changedEntities;
   }
 
-  public void assignDefaultsForMemberships(List<ProvisioningMembership> provisioningMemberships) {
-    
+  /**
+   * 
+   * @param provisioningMemberships
+   * @return changedEntities
+   */
+  public Set<ProvisioningMembership> assignDefaultsForMemberships(List<ProvisioningMembership> provisioningMemberships) {
+    Set<ProvisioningMembership> changedMemberships = new LinkedHashSet<ProvisioningMembership>();
+
     Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
     Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
     
@@ -220,18 +294,19 @@ public class GrouperProvisioningAttributeManipulation {
     
     for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(provisioningMemberships)) {
       
-      provisioningMembership.setId((String)assignDefaultField(provisioningMembership.getId(), membershipFieldNameToConfig.get("id"),  assignDefaultFieldsAndAttributesCount));
-      provisioningMembership.setProvisioningEntityId((String)assignDefaultField(provisioningMembership.getProvisioningEntityId(), membershipFieldNameToConfig.get("provisioningEntityId"),  assignDefaultFieldsAndAttributesCount));
-      provisioningMembership.setProvisioningGroupId((String)assignDefaultField(provisioningMembership.getProvisioningGroupId(), membershipFieldNameToConfig.get("provisioningGroupId"),  assignDefaultFieldsAndAttributesCount));
+      provisioningMembership.setId((String)assignDefaultField((Collection<Object>)(Object)changedMemberships, provisioningMembership, provisioningMembership.getId(), membershipFieldNameToConfig.get("id"),  assignDefaultFieldsAndAttributesCount));
+      provisioningMembership.setProvisioningEntityId((String)assignDefaultField((Collection<Object>)(Object)changedMemberships, provisioningMembership, provisioningMembership.getProvisioningEntityId(), membershipFieldNameToConfig.get("provisioningEntityId"),  assignDefaultFieldsAndAttributesCount));
+      provisioningMembership.setProvisioningGroupId((String)assignDefaultField((Collection<Object>)(Object)changedMemberships, provisioningMembership, provisioningMembership.getProvisioningGroupId(), membershipFieldNameToConfig.get("provisioningGroupId"),  assignDefaultFieldsAndAttributesCount));
 
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : membershipAttributeNameToConfig.values() ) {
-        assignDefault(provisioningMembership, grouperProvisioningConfigurationAttribute, assignDefaultFieldsAndAttributesCount);
+        assignDefault((Collection<Object>)(Object)changedMemberships, provisioningMembership, grouperProvisioningConfigurationAttribute, assignDefaultFieldsAndAttributesCount);
       }
     }
     if (assignDefaultFieldsAndAttributesCount[0] > 0) {
       assignDefaultFieldsAndAttributesCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("assignDefaultFieldsAndAttributesCount"), 0);
       this.grouperProvisioner.getDebugMap().put("assignDefaultFieldsAndAttributesCount", assignDefaultFieldsAndAttributesCount[0]);
     }
+    return changedMemberships;
   }
 
   /**
@@ -241,13 +316,14 @@ public class GrouperProvisioningAttributeManipulation {
    * @param assignDefaultFieldsAndAttributesCount
    * @return return the current or new field
    */
-  public Object assignDefaultField(Object currentValue, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
+  public Object assignDefaultField(Collection<Object> changedObjects, ProvisioningUpdatable provisioningUpdatable, Object currentValue, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
       int[] assignDefaultFieldsAndAttributesCount) {
 
     if (grouperProvisioningConfigurationAttribute != null) {
 
       // set a default value if blank and is a grouper object
       if (currentValue == null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getDefaultValue())) {
+        changedObjects.add(provisioningUpdatable);
         assignDefaultFieldsAndAttributesCount[0]++;
         if (grouperProvisioningConfigurationAttribute.getDefaultValue().equals(DEFAULT_VALUE_EMPTY_STRING_CONFIG)) {
           return "";
@@ -260,7 +336,7 @@ public class GrouperProvisioningAttributeManipulation {
     return currentValue;
   }
 
-  public void assignDefault(ProvisioningUpdatable provisioningUpdatable,
+  public void assignDefault(Collection<Object> changedObjects, ProvisioningUpdatable provisioningUpdatable,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, int[] count) {
 
     if (grouperProvisioningConfigurationAttribute == null || StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getDefaultValue())) {
@@ -279,11 +355,13 @@ public class GrouperProvisioningAttributeManipulation {
       if (currentValue == null) {
         provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), defaultValue);
         count[0]++;
+        changedObjects.add(provisioningUpdatable);
       }
       return;
     }
 
     if (currentValue == null) {
+      changedObjects.add(provisioningUpdatable);
       count[0]++;
       provisioningUpdatable.addAttributeValue(grouperProvisioningConfigurationAttribute.getName(), defaultValue);
       return;
@@ -291,6 +369,7 @@ public class GrouperProvisioningAttributeManipulation {
     if (currentValue instanceof Collection) {
       Collection currentValueCollection = (Collection)currentValue;
       if (currentValueCollection.size() == 0) {
+        changedObjects.add(provisioningUpdatable);
         currentValueCollection.add(defaultValue);
         count[0]++;
       }
@@ -299,7 +378,7 @@ public class GrouperProvisioningAttributeManipulation {
     throw new RuntimeException("Not expecting attribute type: " + currentValue.getClass());
   }
 
-  public void manipulateValue(ProvisioningUpdatable provisioningUpdatable,
+  public void manipulateValue(Collection<Object> changedObjects, ProvisioningUpdatable provisioningUpdatable,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, int[] count) {
 
     if (grouperProvisioningConfigurationAttribute == null) {
@@ -333,8 +412,11 @@ public class GrouperProvisioningAttributeManipulation {
         }
         currentValue = newValue;
       }
-      if (originalValue != currentValue && count!= null) {
-        count[0]++;
+      if (originalValue != currentValue) {
+        if (count!= null) {
+          count[0]++;
+        }
+        changedObjects.add(provisioningUpdatable);
       }
       provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), currentValue);
       return;
@@ -351,8 +433,11 @@ public class GrouperProvisioningAttributeManipulation {
       }
     }
     Object newValue = valueType.convert(currentValue);
-    if (originalValue != newValue && count!= null) {
-      count[0]++;
+    if (originalValue != newValue) {
+      if (count!= null) {
+        count[0]++;
+      }
+      changedObjects.add(provisioningUpdatable);
     }
     provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), newValue);
   }
@@ -363,7 +448,7 @@ public class GrouperProvisioningAttributeManipulation {
    * @param grouperProvisioningConfigurationAttribute
    * @param count
    */
-  public void convertNullsEmpties(ProvisioningUpdatable provisioningUpdatable,
+  public void convertNullsEmpties(Collection<Object> changedObjects, ProvisioningUpdatable provisioningUpdatable,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, int[] count) {
 
     // should we convert null to empty?
@@ -394,6 +479,8 @@ public class GrouperProvisioningAttributeManipulation {
       return;
     }
     
+    changedObjects.add(provisioningUpdatable);
+    
     // keep a count if supposed to
     if (count!= null) {
       count[0]++;
@@ -402,10 +489,11 @@ public class GrouperProvisioningAttributeManipulation {
     provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), "");
   }
 
-  public void filterGroupFieldsAndAttributes(List<ProvisioningGroup> provisioningGroups, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
+  public Set<ProvisioningGroup> filterGroupFieldsAndAttributes(List<ProvisioningGroup> provisioningGroups, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
     
+    Set<ProvisioningGroup> changedGroups = new LinkedHashSet<ProvisioningGroup>();
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
-      return;
+      return changedGroups;
     }
     
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
@@ -415,10 +503,10 @@ public class GrouperProvisioningAttributeManipulation {
     
     for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(provisioningGroups)) {
       
-      provisioningGroup.setId((String)filterField(provisioningGroup.getId(), groupFieldNameToConfig.get("id"),  filterSelect,  filterInsert,  filterUpdate, filterGroupFieldsAndAttributesCount));
-      provisioningGroup.setDisplayName((String)filterField(provisioningGroup.getDisplayName(), groupFieldNameToConfig.get("displayName"),  filterSelect,  filterInsert,  filterUpdate, filterGroupFieldsAndAttributesCount));
-      provisioningGroup.setName((String)filterField(provisioningGroup.getName(), groupFieldNameToConfig.get("name"),  filterSelect,  filterInsert,  filterUpdate, filterGroupFieldsAndAttributesCount));
-      provisioningGroup.setIdIndex((Long)filterField(provisioningGroup.getIdIndex(), groupFieldNameToConfig.get("idIndex"),  filterSelect,  filterInsert,  filterUpdate, filterGroupFieldsAndAttributesCount));
+      provisioningGroup.setId((String)filterField((Collection<Object>)(Object) changedGroups, provisioningGroup, provisioningGroup.getId(), groupFieldNameToConfig.get("id"),  filterSelect,  filterInsert,  filterUpdate, filterGroupFieldsAndAttributesCount));
+      provisioningGroup.setDisplayName((String)filterField((Collection<Object>)(Object) changedGroups, provisioningGroup, provisioningGroup.getDisplayName(), groupFieldNameToConfig.get("displayName"),  filterSelect,  filterInsert,  filterUpdate, filterGroupFieldsAndAttributesCount));
+      provisioningGroup.setName((String)filterField((Collection<Object>)(Object) changedGroups, provisioningGroup, provisioningGroup.getName(), groupFieldNameToConfig.get("name"),  filterSelect,  filterInsert,  filterUpdate, filterGroupFieldsAndAttributesCount));
+      provisioningGroup.setIdIndex((Long)filterField((Collection<Object>)(Object) changedGroups, provisioningGroup, provisioningGroup.getIdIndex(), groupFieldNameToConfig.get("idIndex"),  filterSelect,  filterInsert,  filterUpdate, filterGroupFieldsAndAttributesCount));
 
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : groupAttributeNameToConfig.values() ) {
         
@@ -431,6 +519,7 @@ public class GrouperProvisioningAttributeManipulation {
             || (filterUpdate && !grouperProvisioningConfigurationAttribute.isUpdate())){
           provisioningGroup.removeAttribute(attributeName);
           filterGroupFieldsAndAttributesCount[0]++;
+          changedGroups.add(provisioningGroup);
         }
       }
       
@@ -442,12 +531,21 @@ public class GrouperProvisioningAttributeManipulation {
       this.grouperProvisioner.getDebugMap().put("filterGroupFieldsAndAttributesCount", filterGroupFieldsAndAttributesCount[0]);
       
     }
+    return changedGroups;
   }
 
-  public void filterEntityFieldsAndAttributes(List<ProvisioningEntity> provisioningEntities, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
-    
+  /**
+   * 
+   * @param provisioningEntities
+   * @param filterSelect
+   * @param filterInsert
+   * @param filterUpdate
+   * @return changed entities
+   */
+  public Set<ProvisioningEntity> filterEntityFieldsAndAttributes(List<ProvisioningEntity> provisioningEntities, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
+    Set<ProvisioningEntity> changedEntities = new LinkedHashSet<ProvisioningEntity>();
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
-      return;
+      return changedEntities;
     }
     
     Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
@@ -457,10 +555,10 @@ public class GrouperProvisioningAttributeManipulation {
 
     for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(provisioningEntities)) {
       
-      provisioningEntity.setId((String)filterField(provisioningEntity.getId(), entityFieldNameToConfig.get("id"),  filterSelect,  filterInsert,  filterUpdate, filterEntityFieldsAndAttributesCount));
-      provisioningEntity.setLoginId((String)filterField(provisioningEntity.getLoginId(), entityFieldNameToConfig.get("loginId"),  filterSelect,  filterInsert,  filterUpdate, filterEntityFieldsAndAttributesCount));
-      provisioningEntity.setName((String)filterField(provisioningEntity.getName(), entityFieldNameToConfig.get("name"),  filterSelect,  filterInsert,  filterUpdate, filterEntityFieldsAndAttributesCount));
-      provisioningEntity.setEmail((String)filterField(provisioningEntity.getEmail(), entityFieldNameToConfig.get("email"),  filterSelect,  filterInsert,  filterUpdate, filterEntityFieldsAndAttributesCount));
+      provisioningEntity.setId((String)filterField((Collection<Object>)(Object)changedEntities, provisioningEntity, provisioningEntity.getId(), entityFieldNameToConfig.get("id"),  filterSelect,  filterInsert,  filterUpdate, filterEntityFieldsAndAttributesCount));
+      provisioningEntity.setLoginId((String)filterField((Collection<Object>)(Object)changedEntities, provisioningEntity, provisioningEntity.getLoginId(), entityFieldNameToConfig.get("loginId"),  filterSelect,  filterInsert,  filterUpdate, filterEntityFieldsAndAttributesCount));
+      provisioningEntity.setName((String)filterField((Collection<Object>)(Object)changedEntities, provisioningEntity, provisioningEntity.getName(), entityFieldNameToConfig.get("name"),  filterSelect,  filterInsert,  filterUpdate, filterEntityFieldsAndAttributesCount));
+      provisioningEntity.setEmail((String)filterField((Collection<Object>)(Object)changedEntities, provisioningEntity, provisioningEntity.getEmail(), entityFieldNameToConfig.get("email"),  filterSelect,  filterInsert,  filterUpdate, filterEntityFieldsAndAttributesCount));
 
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : entityAttributeNameToConfig.values() ) {
         
@@ -472,6 +570,7 @@ public class GrouperProvisioningAttributeManipulation {
             || (filterInsert && !grouperProvisioningConfigurationAttribute.isInsert())
             || (filterUpdate && !grouperProvisioningConfigurationAttribute.isUpdate())){
           filterEntityFieldsAndAttributesCount[0]++;
+          changedEntities.add(provisioningEntity);
           provisioningEntity.removeAttribute(attributeName);
         }
       }
@@ -484,27 +583,29 @@ public class GrouperProvisioningAttributeManipulation {
       this.grouperProvisioner.getDebugMap().put("filterEntityFieldsAndAttributesCount", filterEntityFieldsAndAttributesCount[0]);
       
     }
-
+    return changedEntities;
   }
 
-  public void filterMembershipFieldsAndAttributes(List<ProvisioningMembership> provisioningMemberships, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
+  public Set<ProvisioningMembership> filterMembershipFieldsAndAttributes(List<ProvisioningMembership> provisioningMemberships, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
+    
+    Set<ProvisioningMembership> changedMemberships = new LinkedHashSet<ProvisioningMembership>();
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().isTranslateGrouperToTargetAutomatically()) {
-      return;
+      return changedMemberships;
     }
     
     Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
     Map<String, GrouperProvisioningConfigurationAttribute> membershipFieldNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
     if (GrouperUtil.length(membershipAttributeNameToConfig) == 0 && GrouperUtil.length(membershipFieldNameToConfig) == 0) {
-      return;
+      return changedMemberships;
     }
     int[] filterMembershipFieldsAndAttributesCount = new int[] {0};
 
     for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(provisioningMemberships)) {
       
-      provisioningMembership.setId((String)filterField(provisioningMembership.getId(), membershipFieldNameToConfig.get("id"),  filterSelect,  filterInsert,  filterUpdate, filterMembershipFieldsAndAttributesCount));
-      provisioningMembership.setProvisioningEntityId((String)filterField(provisioningMembership.getProvisioningEntityId(), membershipFieldNameToConfig.get("provisioningEntityId"),  filterSelect,  filterInsert,  filterUpdate, filterMembershipFieldsAndAttributesCount));
-      provisioningMembership.setProvisioningGroupId((String)filterField(provisioningMembership.getProvisioningGroupId(), membershipFieldNameToConfig.get("provisioningGroupId"),  filterSelect,  filterInsert,  filterUpdate, filterMembershipFieldsAndAttributesCount));
+      provisioningMembership.setId((String)filterField((Collection<Object>)(Object)changedMemberships, provisioningMembership, provisioningMembership.getId(), membershipFieldNameToConfig.get("id"),  filterSelect,  filterInsert,  filterUpdate, filterMembershipFieldsAndAttributesCount));
+      provisioningMembership.setProvisioningEntityId((String)filterField((Collection<Object>)(Object)changedMemberships, provisioningMembership, provisioningMembership.getProvisioningEntityId(), membershipFieldNameToConfig.get("provisioningEntityId"),  filterSelect,  filterInsert,  filterUpdate, filterMembershipFieldsAndAttributesCount));
+      provisioningMembership.setProvisioningGroupId((String)filterField((Collection<Object>)(Object)changedMemberships, provisioningMembership, provisioningMembership.getProvisioningGroupId(), membershipFieldNameToConfig.get("provisioningGroupId"),  filterSelect,  filterInsert,  filterUpdate, filterMembershipFieldsAndAttributesCount));
 
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : membershipAttributeNameToConfig.values() ) {
         
@@ -514,6 +615,7 @@ public class GrouperProvisioningAttributeManipulation {
             || (filterUpdate && !grouperProvisioningConfigurationAttribute.isUpdate())){
           filterMembershipFieldsAndAttributesCount[0]++;
           provisioningMembership.removeAttribute(attributeName);
+          changedMemberships.add(provisioningMembership);
         }
       }
       GrouperUtil.nonNull(provisioningMembership.getAttributes()).keySet().retainAll(membershipAttributeNameToConfig.keySet());
@@ -524,10 +626,10 @@ public class GrouperProvisioningAttributeManipulation {
       this.grouperProvisioner.getDebugMap().put("filterMembershipFieldsAndAttributesCount", filterMembershipFieldsAndAttributesCount[0]);
       
     }
-
+    return changedMemberships;
   }
 
-  private Object filterField(Object value,
+  private Object filterField(Collection<Object> changedObjects, ProvisioningUpdatable provisioningUpdatable, Object value,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, boolean filterSelect, boolean filterInsert, boolean filterUpdate, int[] count) {
     if (value == null || grouperProvisioningConfigurationAttribute == null) {
       // if not configured to have this field, then dont
@@ -536,11 +638,40 @@ public class GrouperProvisioningAttributeManipulation {
     if ((filterSelect && !grouperProvisioningConfigurationAttribute.isSelect())
         || (filterInsert && !grouperProvisioningConfigurationAttribute.isInsert())
         || (filterUpdate && !grouperProvisioningConfigurationAttribute.isUpdate())){
+      changedObjects.add(provisioningUpdatable);
       count[0]++;
       return null;
     }
     return value;
       
+  }
+
+  /**
+   * 
+   * @param provisioningMemberships
+   * @param checkProcessedFlag true if not process if already processed
+   * @param filterSelect
+   * @param filterInsert
+   * @param filterUpdate
+   * @return changed entities
+   */
+  public Set<ProvisioningMembership> manipulateDefaultsFilterAttributesMemberships(List<ProvisioningMembership> provisioningMemberships, boolean assignDefaults, boolean filterSelect, boolean filterInsert, boolean filterUpdate) {
+  
+    Set<ProvisioningMembership> changedMemberships = new LinkedHashSet<ProvisioningMembership>();
+    
+    if (GrouperUtil.length(provisioningMemberships) > 0) {
+  
+      if (assignDefaults) {
+        changedMemberships.addAll(assignDefaultsForMemberships(provisioningMemberships));
+      }
+  
+      changedMemberships.addAll(filterMembershipFieldsAndAttributes(provisioningMemberships, filterSelect, filterInsert, filterUpdate));
+      
+      changedMemberships.addAll(manipulateAttributesMemberships(provisioningMemberships));
+  
+    }
+    
+    return changedMemberships;
   }
 
 

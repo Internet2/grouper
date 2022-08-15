@@ -352,6 +352,11 @@ public class GrouperProvisioningBehavior {
    */
   private Boolean selectGroupMissingIncremental;
 
+  /**
+   * 
+   */
+  private Boolean selectEntityMissingIncremental;
+
   
   /**
    * 
@@ -362,12 +367,36 @@ public class GrouperProvisioningBehavior {
       return selectGroupMissingIncremental;
     }
     if (!this.getGrouperProvisioningType().isIncrementalSync()) {
-      return false;
+      selectGroupMissingIncremental = false;
+      return selectGroupMissingIncremental;
     }
     if (this.isSelectGroups()) {
-      return true;
+      selectGroupMissingIncremental = true;
+      return selectGroupMissingIncremental;
     }
-    return false;
+    selectGroupMissingIncremental = false;
+    return selectGroupMissingIncremental;
+  }
+
+
+  /**
+   * 
+   * @return
+   */
+  public boolean isSelectEntityMissingIncremental() {
+    if (selectEntityMissingIncremental != null) {
+      return selectEntityMissingIncremental;
+    }
+    if (!this.getGrouperProvisioningType().isIncrementalSync()) {
+      selectEntityMissingIncremental = false;
+      return selectEntityMissingIncremental;
+    }
+    if (this.isSelectEntities()) {
+      selectEntityMissingIncremental = true;
+      return selectEntityMissingIncremental;
+    }
+    selectEntityMissingIncremental = false;
+    return selectEntityMissingIncremental;
   }
 
 

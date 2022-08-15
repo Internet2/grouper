@@ -544,7 +544,7 @@ public class GrouperAzureApiCommands {
 
     long startTime = System.nanoTime();
     
-    String nextLink =  "/groups?$top=100&$select=" + GrouperAzureGroup.fieldsToSelect;
+    String nextLink =  "/groups?$top=999&$select=" + GrouperAzureGroup.fieldsToSelect;
 
     // dont endless loop
     int j = -1;
@@ -761,7 +761,7 @@ public class GrouperAzureApiCommands {
 
     try {
 
-      int azureGetMembershipPagingSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetMembershipPagingSize", 100);
+      int azureGetMembershipPagingSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetMembershipPagingSize", 999);
       
       String urlSuffix = "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members?$select=id&$top=" + azureGetMembershipPagingSize;
 
@@ -894,6 +894,33 @@ public class GrouperAzureApiCommands {
       GrouperAzureLog.azureLog(debugMap, startTime);
     }
   
+  }
+
+
+
+  public static void deleteAzureUser(String configId,
+      String userId) {
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  
+    debugMap.put("method", "deleteAzureUser");
+  
+    long startTime = System.nanoTime();
+  
+    try {
+    
+      if (StringUtils.isBlank(userId)) {
+        throw new RuntimeException("id is null");
+      }
+    
+      executeMethod(debugMap, "DELETE", configId, "/users/" + GrouperUtil.escapeUrlEncode(userId),
+          GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
+  
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
   }
 
 }

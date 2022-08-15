@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,14 +17,14 @@ public enum GrouperProvisioningObjectLogType {
   end {
 
     @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog, GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog, GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       
     }
   }, 
   configure {
 
     @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog, GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog, GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       appendProvisioner(grouperProvisioner, logMessage, "Provisioner");
       appendConfiguration(grouperProvisioner, logMessage, "Configuration");
       appendTargetDaoCapabilities(grouperProvisioner, logMessage, "Target Dao capabilities");
@@ -31,27 +32,24 @@ public enum GrouperProvisioningObjectLogType {
       
     }
   }, 
-  retrieveAllDataFromGrouperAndTarget {
+  retrieveAllDataFromTarget {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperProvisioningGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships(null), "memberships");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
 
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
+      GrouperProvisioningLists targetProvisioningData = (GrouperProvisioningLists)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", targetProvisioningData.getProvisioningGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", targetProvisioningData.getProvisioningEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", targetProvisioningData.getProvisioningMemberships(), "memberships");
 
-      appendSyncObjects(grouperProvisioner, logMessage, "Sync objects");
     }
   }, 
   retrieveTargetDataIncremental {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request group only", 
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupOnly(), "groups");
@@ -74,59 +72,96 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
     }
   }, 
-  targetAttributeManipulation {
+  manipulateTargetGroups {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
+      Set<ProvisioningGroup> groups = (Set<ProvisioningGroup>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", groups, "groups");
 
     }
   }, 
-  retrieveIncrementalDataFromGrouper {
+  manipulateTargetEntities {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      
+      Set<ProvisioningEntity> entities = (Set<ProvisioningEntity>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", entities, "entities");
+
+    }
+  }, 
+  manipulateTargetMemberships {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      
+      Set<ProvisioningMembership> memberships = (Set<ProvisioningMembership>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", memberships, "memberships");
+
+    }
+  }, 
+  manipulateGrouperTargetGroups {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      
+      Set<ProvisioningGroup> groups = (Set<ProvisioningGroup>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", groups, "groups");
+
+    }
+  }, 
+  manipulateGrouperTargetEntities {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      
+      Set<ProvisioningEntity> entities = (Set<ProvisioningEntity>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", entities, "entities");
+
+    }
+  }, 
+  manipulateGrouperTargetMemberships {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      
+      Set<ProvisioningMembership> memberships = (Set<ProvisioningMembership>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", memberships, "memberships");
+
+    }
+  }, 
+  retrieveDataFromGrouper {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperProvisioningGroups(), "groups");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities(), "entities");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships(null), "memberships");
       appendSyncObjects(grouperProvisioner, logMessage, "Sync objects");
     }
   }, 
-  missingGroups {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing groups", grouperProvisioner.retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsMissing().getProvisioningGroups(), "groups");
-      
-    }
-  }, 
   missingGroupsForCreate {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing groups for create", grouperProvisioner.retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsMissing().getProvisioningGroups(), "groups");
-
-    }
-  }, 
-  missingGrouperTargetGroups {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing grouper target groups", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().getProvisioningGroups(), "groups");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningGroup> missingGroups = (Collection<ProvisioningGroup>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing groups for create", missingGroups, "groups");
 
     }
   }, 
@@ -134,17 +169,30 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing target groups retrieved", grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingRetrieved().getProvisioningGroups(), "groups");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningGroup> missingGroups = (Collection<ProvisioningGroup>)data[0];
+
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing target groups retrieved", missingGroups, "groups");
+    }
+  },
+  missingTargetEntitiesRetrieved {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningEntity> missingEntities = (Collection<ProvisioningEntity>)data[0];
+
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing target entities retrieved", missingEntities, "entities");
     }
   },
   missingGrouperTargetGroupsForCreate {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing grouper target groups for create", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().getProvisioningGroups(), "groups");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningGroup> missingGroups = (Collection<ProvisioningGroup>)data[0];
+
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing grouper target groups for create", missingGroups, "groups");
       
     }
   }, 
@@ -152,53 +200,29 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing target groups created", grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().getProvisioningGroups(), "groups");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningGroup> missingGroups = (Collection<ProvisioningGroup>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing target groups created", missingGroups, "groups");
 
-    }
-  }, 
-  missingEntities {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing entities", grouperProvisioner.retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsMissing().getProvisioningEntities(), "entities");
-      
     }
   }, 
   missingEntitiesForCreate {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing entities for create", grouperProvisioner.retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjectsMissing().getProvisioningEntities(), "entities");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningGroup> missingGroups = (Collection<ProvisioningGroup>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing entities for create", missingGroups, "entities");
       
-    }
-  }, 
-  missingTargetEntities {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing target entities", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().getProvisioningEntities(), "entities");
-      
-    }
-  }, 
-  missingTargetEntitiesRetrieved {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing target entities retrieved", grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingRetrieved().getProvisioningEntities(), "entities");
- 
     }
   }, 
   missingGrouperTargetEntitiesForCreate {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing grouper target entities for create", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().getProvisioningEntities(), "entities");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningEntity> missingEntities = (Collection<ProvisioningEntity>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing grouper target entities for create", missingEntities, "entities");
 
     }
   }, 
@@ -206,22 +230,33 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing target entities created", grouperProvisioner.retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjectsMissingCreated().getProvisioningEntities(), "entities");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningEntity> missingEntities = (Collection<ProvisioningEntity>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Missing target entities created", missingEntities, "entities");
 
     }
   }, 
-  linkData {
+  linkDataGroups {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
 
+      Collection<ProvisioningGroup> syncGroups = (Collection<ProvisioningGroup>)data[0];
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target objects changed in link", 
-          grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsChangedInLink().getProvisioningGroups(), "groups");
+          syncGroups, "groups");
+      
+    }
+  },
+  linkDataEntities {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+
+      Collection<ProvisioningEntity> syncEntities = (Collection<ProvisioningEntity>)data[0];
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target objects changed in link", 
-          grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsChangedInLink().getProvisioningEntities(), "entities");
-      appendSyncObjects(grouperProvisioner, logMessage, "Sync objects");
+          syncEntities, "entities");
       
     }
   },
@@ -229,38 +264,31 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      // TODO this is not the list of subject links...
-      //appendSyncObjectsOfTypeEntity(grouperProvisioner, logMessage, "Sync objects", grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper(), "members");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Set<GcGrouperSyncMember> gcSyncMembersChangedInSubjectLink = (Set<GcGrouperSyncMember>)data[0];
+      appendSyncObjectsOfTypeGcSyncMember(grouperProvisioner, logMessage, "Sync objects", gcSyncMembersChangedInSubjectLink, "members");
 
     }
   }, 
-  manipulateGrouperTargetMembershipsAttributes {
+  translateGrouperGroupsToTarget {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(null), "memberships");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningGroup> provisioningGroups = (Collection<ProvisioningGroup>)data[0];
+
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", provisioningGroups, "groups");
 
     }
   }, 
-  manipulateGrouperTargetGroupsEntitiesAttributes {
+  translateGrouperEntitiesToTarget {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningEntity> provisioningEntities = (Collection<ProvisioningEntity>)data[0];
 
-    }
-  }, 
-  translateGrouperGroupsEntitiesToTarget {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", provisioningEntities, "entities");
 
     }
   }, 
@@ -268,7 +296,7 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
 
         appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "grouperTargetGroup", "groups");
@@ -287,7 +315,7 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target inserts", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts());
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target updates", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates());
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target deletes", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
@@ -300,8 +328,21 @@ public enum GrouperProvisioningObjectLogType {
   
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target memberships", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection collection = (Collection)data[0];
+      if (GrouperUtil.length(collection) > 0) {
+        if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+
+          appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target groups", collection, "grouperTargetGroup", "groups");
+
+        } else if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+
+          appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target entities", collection, "grouperTargetEntity", "entities");
+
+        } else {
+          appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target memberships", collection, "memberships");
+        }
+      }
     }
     
   },
@@ -309,20 +350,43 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
       
     }
   }, 
   
-  validateGrouperGroupsEntities {
+  validateGrouperGroups {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), "entities");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Set<ProvisioningGroup> invalidGroups = (Set<ProvisioningGroup>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", invalidGroups, "groups");
+      
+    }
+  }, 
+  
+  validateGrouperEntities {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Set<ProvisioningEntity> invalidEntities = (Set<ProvisioningEntity>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", invalidEntities, "entities");
+      
+    }
+  }, 
+  
+  validateGrouperMemberships {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+
+      Set<ProvisioningMembership> invalidMemberships = (Set<ProvisioningMembership>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", invalidMemberships, "memberships");
       
     }
   }, 
@@ -331,8 +395,11 @@ public enum GrouperProvisioningObjectLogType {
     
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+
+      Collection<ProvisioningEntity> retrieveEntities = (Collection<ProvisioningEntity>)data[0];
+
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", retrieveEntities, "entities");
       
     }
     
@@ -342,8 +409,9 @@ public enum GrouperProvisioningObjectLogType {
     
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningGroup> retrieveGroups = (Collection<ProvisioningGroup>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", retrieveGroups, "groups");
       
     }
     
@@ -353,8 +421,20 @@ public enum GrouperProvisioningObjectLogType {
     
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), "groups");
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningGroup> targetGroups = (Collection<ProvisioningGroup>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", targetGroups, "groups");
+      
+    }
+    
+  },
+  retrieveIndividualMissingEntities {
+    
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningEntity> targetEntities = (Collection<ProvisioningEntity>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", targetEntities, "entities");
       
     }
     
@@ -363,7 +443,7 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(null), "memberships");
 
     }
@@ -372,7 +452,7 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
@@ -385,7 +465,7 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       appendIncomingData(grouperProvisioner, logMessage, "Incoming data unprocessed", "(with recalc from target)",     
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc());
       appendIncomingData(grouperProvisioner, logMessage, "Incoming data unprocessed", "(without recalc from target)",     
@@ -398,7 +478,7 @@ public enum GrouperProvisioningObjectLogType {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage) {
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       appendIncomingData(grouperProvisioner, logMessage, "Incoming data to process", "(with recalc from target)",     
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc());
       appendIncomingData(grouperProvisioner, logMessage, "Incoming data to process", "(without recalc from target)",     
@@ -408,7 +488,7 @@ public enum GrouperProvisioningObjectLogType {
     
   };
 
-  abstract void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog, GrouperProvisioner grouperProvisioner, StringBuilder logMessage);
+  abstract void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog, GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data);
 
   public static void appendConfiguration(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label) {
     if (logMessage.charAt(logMessage.length()-1) != '\n') {
@@ -627,9 +707,6 @@ public enum GrouperProvisioningObjectLogType {
 
   private static void appendSyncObjectsOfTypeEntity(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
       Map<String, ProvisioningEntityWrapper> memberIdToWrapper, String type) {
-    if (logMessage.charAt(logMessage.length()-1) != '\n') {
-      logMessage.append("\n");
-    }
     Set<GcGrouperSyncMember> gcGrouperSyncMembers = new HashSet<GcGrouperSyncMember>();
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(memberIdToWrapper).values()) {
@@ -637,6 +714,14 @@ public enum GrouperProvisioningObjectLogType {
       if (gcGrouperSyncMember != null) {
         gcGrouperSyncMembers.add(gcGrouperSyncMember);
       }
+    }
+    appendSyncObjectsOfTypeGcSyncMember(grouperProvisioner, logMessage, label, gcGrouperSyncMembers, type);
+  }
+
+  private static void appendSyncObjectsOfTypeGcSyncMember(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
+      Set<GcGrouperSyncMember> gcGrouperSyncMembers, String type) {
+    if (logMessage.charAt(logMessage.length()-1) != '\n') {
+      logMessage.append("\n");
     }
     
     logMessage.append(label).append(" ").append(type).append(" (")

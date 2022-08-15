@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -557,6 +558,8 @@ public class GrouperProvisioningGrouperSyncDao {
     Map<MultiKey, Subject> sourceIdSubjectIdToSubject = SubjectFinder
         .findBySourceIdsAndSubjectIds(sourceIdSubjectIds, false, true);
 
+    Set<GcGrouperSyncMember> gcSyncMembersChangedInSubjectLink = new LinkedHashSet<GcGrouperSyncMember>();
+    
     for (GcGrouperSyncMember gcGrouperSyncMember : gcGrouperSyncMembersToRefreshSubjectLink) {
 
       MultiKey sourceIdSubjectId = new MultiKey(gcGrouperSyncMember.getSourceId(),
@@ -595,13 +598,17 @@ public class GrouperProvisioningGrouperSyncDao {
             .substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache3.getTranslationScript(), variableMap);
         gcGrouperSyncMember.setEntityAttributeValueCache3(entityAttributeValueCache3Value);
       }
-
+      gcSyncMembersChangedInSubjectLink.add(gcGrouperSyncMember);
     }
 
     if (subjectsCannotFindLinkData > 0) {
       this.grouperProvisioner.getDebugMap().put("subjectsCannotFindLinkData",
           subjectsCannotFindLinkData);
     }
+    if (GrouperUtil.length(gcSyncMembersChangedInSubjectLink) > 0) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveSubjectLink, gcSyncMembersChangedInSubjectLink);
+    }
+
   }
 
   /**

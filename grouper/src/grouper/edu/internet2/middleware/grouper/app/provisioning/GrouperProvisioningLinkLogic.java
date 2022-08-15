@@ -299,7 +299,11 @@ public class GrouperProvisioningLinkLogic {
         }
       }
       
-      
+      if (targetGroup.getProvisioningGroupWrapper() == null) {
+        targetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
+        provisioningGroupWrapper.getTargetProvisioningGroup().setProvisioningGroupWrapper(provisioningGroupWrapper);
+      }
+
       if (gcGrouperSyncGroup == null) {
         groupsCannotFindSyncGroup++;
         continue;
@@ -376,22 +380,15 @@ public class GrouperProvisioningLinkLogic {
         
         translateAndManipulateMembershipsForGroupsEntitiesCreate();
         
-        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsChangedInLink().setProvisioningGroups(grouperTargetGroups);
-        
-        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForGroups(grouperTargetGroups, null);
-        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterGroupFieldsAndAttributes(grouperTargetGroups, true, false, false);
-        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesGroups(grouperTargetGroups);
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesGroups(grouperTargetGroups, true, true, false, false);
 
         // index
         this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(grouperTargetGroups);
 
         this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(grouperTargetGroups);
-        
-        for (ProvisioningGroup grouperTargetGroup : grouperTargetGroups) {
-          grouperTargetGroup.getProvisioningGroupWrapper().setGrouperTargetGroup(grouperTargetGroup);
-        }
+
+        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.linkDataGroups, grouperTargetGroups);
       }
-      
     }
     
     if (copyFromTargetOrGrouperTarget) {
@@ -577,7 +574,6 @@ public class GrouperProvisioningLinkLogic {
           
           List<ProvisioningMembership> grouperTargetMemberships = this.grouperProvisioner.retrieveGrouperProvisioningTranslator().translateGrouperToTargetMemberships(
               grouperProvisioningMemberships, false);
-          this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjects().setProvisioningMemberships(grouperTargetMemberships);
         }    
 
       } finally {
@@ -585,14 +581,14 @@ public class GrouperProvisioningLinkLogic {
       }
 
       List<ProvisioningMembership> grouperTargetMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(true);
-      try {
+      {
         debugMap.put("state", "manipulateGrouperMembershipTargetAttributes");
-        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForMemberships(grouperTargetMemberships);
-        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterMembershipFieldsAndAttributes(grouperTargetMemberships, true, false, false);
-        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesMemberships(grouperTargetMemberships);
-    
-      } finally {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.manipulateGrouperTargetMembershipsAttributes);
+        Set<ProvisioningMembership> affectedMemberships = this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesMemberships(
+            grouperTargetMemberships, true, true, false, false);
+        if (GrouperUtil.length(affectedMemberships) > 0) {
+          this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.manipulateGrouperTargetMemberships, affectedMemberships);
+        }
+
       }
 
       try {
@@ -698,7 +694,10 @@ public class GrouperProvisioningLinkLogic {
           targetEntity.assignAttributeValue(attribute.getName(), provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValue(attribute));
         }
       }
-      
+      if (targetEntity.getProvisioningEntityWrapper() == null) {
+        targetEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
+        provisioningEntityWrapper.getTargetProvisioningEntity().setProvisioningEntityWrapper(provisioningEntityWrapper);
+      }
       GcGrouperSyncMember gcGrouperSyncEntity = targetEntity.getProvisioningEntityWrapper().getGcGrouperSyncMember();
       
       if (gcGrouperSyncEntity == null) {
@@ -776,18 +775,14 @@ public class GrouperProvisioningLinkLogic {
         
         translateAndManipulateMembershipsForGroupsEntitiesCreate();
         
-        this.grouperProvisioner.retrieveGrouperProvisioningDataGrouperTarget().getGrouperTargetObjectsChangedInLink().setProvisioningEntities(grouperTargetEntities);
-        
-        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().assignDefaultsForEntities(grouperTargetEntities, null);
-        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().filterEntityFieldsAndAttributes(grouperTargetEntities, true, false, false);
-        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateAttributesEntities(grouperTargetEntities);
+        this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesEntities(grouperTargetEntities, true, true, false, false);
+
         // index
         this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(grouperTargetEntities);
         this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(grouperTargetEntities);
         
-        for (ProvisioningEntity grouperTargetEntity : grouperTargetEntities) {
-          grouperTargetEntity.getProvisioningEntityWrapper().setGrouperTargetEntity(grouperTargetEntity);
-        }
+        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.linkDataGroups, grouperTargetEntities);
+
       }
       
     }

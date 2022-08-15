@@ -264,11 +264,7 @@ public class GrouperProvisioningMatchingIdIndex {
             grouperTargetGroupWrapper.setTargetProvisioningGroup(targetProvisioningGroup);
             if (targetProvisioningGroupWrapper != null) {
               grouperTargetGroupWrapper.setTargetNativeGroup(targetProvisioningGroupWrapper.getTargetNativeGroup());
-            }
-            targetProvisioningGroup.setProvisioningGroupWrapper(grouperTargetGroupWrapper);
-            if (targetProvisioningGroupWrapper != null) {
-              targetProvisioningGroupWrapper.setTargetProvisioningGroup(null);
-              targetProvisioningGroupWrapper.setTargetNativeGroup(null);
+              this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers().remove(targetProvisioningGroupWrapper);
             }
           }          
           
@@ -563,11 +559,7 @@ public class GrouperProvisioningMatchingIdIndex {
           grouperTargetMembershipWrapper.setTargetProvisioningMembership(targetProvisioningMembership);
           if (targetProvisioningMembershipWrapper != null) {
             grouperTargetMembershipWrapper.setTargetNativeMembership(targetProvisioningMembershipWrapper.getTargetNativeMembership());
-          }
-          targetProvisioningMembership.setProvisioningMembershipWrapper(grouperTargetMembershipWrapper);
-          if (targetProvisioningMembershipWrapper != null) {
-            targetProvisioningMembershipWrapper.setTargetProvisioningMembership(null);
-            targetProvisioningMembershipWrapper.setTargetNativeMembership(null);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(targetProvisioningMembershipWrapper);
           }
         }          
       }
@@ -852,11 +844,7 @@ public class GrouperProvisioningMatchingIdIndex {
             grouperTargetEntityWrapper.setTargetProvisioningEntity(targetProvisioningEntity);
             if (targetProvisioningEntityWrapper != null) {
               grouperTargetEntityWrapper.setTargetNativeEntity(targetProvisioningEntityWrapper.getTargetNativeEntity());
-            }
-            targetProvisioningEntity.setProvisioningEntityWrapper(grouperTargetEntityWrapper);
-            if (targetProvisioningEntityWrapper != null) {
-              targetProvisioningEntityWrapper.setTargetProvisioningEntity(null);
-              targetProvisioningEntityWrapper.setTargetNativeEntity(null);
+              this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(targetProvisioningEntityWrapper);
             }
           }          
           

@@ -222,17 +222,24 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
 
   
   public void setGrouperProvisioningGroup(ProvisioningGroup grouperProvisioningGroup) {
+    if (this.grouperProvisioningGroup == grouperProvisioningGroup) {
+      return;
+    }
+    ProvisioningGroup oldGrouperProvisioningGroup = this.grouperProvisioningGroup;
+    ProvisioningGroupWrapper oldProvisioningGroupWrapper = oldGrouperProvisioningGroup == null ? null : oldGrouperProvisioningGroup.getProvisioningGroupWrapper();
+
     this.grouperProvisioningGroup = grouperProvisioningGroup;
-    if (this.grouperProvisioningGroup!=null) {
-      this.groupId = this.grouperProvisioningGroup.getId();
-      if (this != this.grouperProvisioningGroup.getProvisioningGroupWrapper()) {
-        if (this.grouperProvisioningGroup.getProvisioningGroupWrapper() != null) {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers().remove(this.grouperProvisioningGroup.getProvisioningGroupWrapper());
-        }
-        this.grouperProvisioningGroup.setProvisioningGroupWrapper(this);
-      }
+    
+    if (this.grouperProvisioningGroup != null) {
+      this.grouperProvisioningGroup.setProvisioningGroupWrapper(this);
     }
 
+    if (oldGrouperProvisioningGroup != null) {
+      oldGrouperProvisioningGroup.setProvisioningGroupWrapper(null);
+    }
+    if (oldProvisioningGroupWrapper != null && oldProvisioningGroupWrapper != this) {
+      oldProvisioningGroupWrapper.grouperProvisioningGroup = null;
+    }
   }
 
   
@@ -242,17 +249,26 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
 
   
   public void setTargetProvisioningGroup(ProvisioningGroup targetProvisioningGroup) {
-    // clear out old pointers...
-    if (this.targetProvisioningGroup != null) {
-      this.targetProvisioningGroup.setProvisioningGroupWrapper(null);
+    
+    if (this.targetProvisioningGroup == targetProvisioningGroup) {
+      return;
     }
+    ProvisioningGroup oldTargetProvisioningGroup = this.targetProvisioningGroup;
+    ProvisioningGroupWrapper oldProvisioningGroupWrapper = oldTargetProvisioningGroup == null ? null : oldTargetProvisioningGroup.getProvisioningGroupWrapper();
+
     this.targetProvisioningGroup = targetProvisioningGroup;
-    if (this.targetProvisioningGroup != null && this != this.targetProvisioningGroup.getProvisioningGroupWrapper()) {
-      if (this.targetProvisioningGroup.getProvisioningGroupWrapper() != null) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers().remove(this.targetProvisioningGroup.getProvisioningGroupWrapper());
-      }
+    
+    if (this.targetProvisioningGroup != null) {
       this.targetProvisioningGroup.setProvisioningGroupWrapper(this);
     }
+
+    if (oldTargetProvisioningGroup != null) {
+      oldTargetProvisioningGroup.setProvisioningGroupWrapper(null);
+    }
+    if (oldProvisioningGroupWrapper != null && oldProvisioningGroupWrapper != this) {
+      oldProvisioningGroupWrapper.targetProvisioningGroup = null;
+    }
+
   }
 
   
@@ -262,12 +278,25 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
 
   
   public void setGrouperTargetGroup(ProvisioningGroup grouperTargetGroup) {
+    
+    if (this.grouperTargetGroup == grouperTargetGroup) {
+      return;
+    }
+    
+    ProvisioningGroup oldGrouperTargetGroup = this.grouperTargetGroup;
+    ProvisioningGroupWrapper oldProvisioningGroupWrapper = oldGrouperTargetGroup == null ? null : oldGrouperTargetGroup.getProvisioningGroupWrapper();
+
     this.grouperTargetGroup = grouperTargetGroup;
-    if (this.grouperTargetGroup != null && this != this.grouperTargetGroup.getProvisioningGroupWrapper()) {
-      if (this.grouperTargetGroup.getProvisioningGroupWrapper() != null) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers().remove(this.grouperTargetGroup.getProvisioningGroupWrapper());
-      }
+    
+    if (this.grouperTargetGroup != null) {
       this.grouperTargetGroup.setProvisioningGroupWrapper(this);
+    }
+
+    if (oldGrouperTargetGroup != null) {
+      oldGrouperTargetGroup.setProvisioningGroupWrapper(null);
+    }
+    if (oldProvisioningGroupWrapper != null && oldProvisioningGroupWrapper != this) {
+      oldProvisioningGroupWrapper.grouperTargetGroup = null;
     }
   }
 

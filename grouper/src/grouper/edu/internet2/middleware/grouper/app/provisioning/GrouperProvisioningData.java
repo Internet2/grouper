@@ -5,6 +5,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
+
 /**
  * main list of wrapper beans
  * @author mchyzer
@@ -13,6 +20,64 @@ import java.util.Set;
 public class GrouperProvisioningData {
 
   public GrouperProvisioningData() {
+  }
+  
+  /**
+   * 
+   * @param provisioningGroupWrapper
+   */
+  public void addAndIndexGroupWrapper(ProvisioningGroupWrapper provisioningGroupWrapper) {
+    this.provisioningGroupWrappers.add(provisioningGroupWrapper);
+    ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
+    GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+    
+    if (grouperProvisioningGroup != null) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().put(grouperProvisioningGroup.getId(), provisioningGroupWrapper);
+    }
+    
+    if (gcGrouperSyncGroup != null) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper().put(gcGrouperSyncGroup.getId(), provisioningGroupWrapper);
+    }    
+  }
+  
+  /**
+   * 
+   * @param provisioningEntityWrapper
+   */
+  public void addAndIndexEntityWrapper(ProvisioningEntityWrapper provisioningEntityWrapper) {
+    this.provisioningEntityWrappers.add(provisioningEntityWrapper);
+    ProvisioningEntity grouperProvisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
+    GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+    
+    if (grouperProvisioningEntity != null) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
+    }
+    
+    if (gcGrouperSyncMember != null) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper().put(gcGrouperSyncMember.getId(), provisioningEntityWrapper);
+    }    
+  }
+  
+  /**
+   * 
+   * @param provisioningMembershipWrapper
+   */
+  public void addAndIndexMembershipWrapper(ProvisioningMembershipWrapper provisioningMembershipWrapper) {
+    this.provisioningMembershipWrappers.add(provisioningMembershipWrapper);
+    ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+    GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+    
+    if (grouperProvisioningMembership != null && !StringUtils.isBlank(grouperProvisioningMembership.getProvisioningGroupId())
+        && !StringUtils.isBlank(grouperProvisioningMembership.getProvisioningEntityId())) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+        .getGroupUuidMemberUuidToProvisioningMembershipWrapper().put(
+            new MultiKey(grouperProvisioningMembership.getProvisioningGroupId(), grouperProvisioningMembership.getProvisioningEntityId()), provisioningMembershipWrapper);
+    }
+    
+    if (gcGrouperSyncMembership != null) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(
+          new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), provisioningMembershipWrapper);
+    }
   }
   
   /**
@@ -131,21 +196,6 @@ public class GrouperProvisioningData {
       }
     }
     return grouperTargetEntities;
-  }
-
-  /**
-   * extract list of non null grouper target groups
-   * @return groups
-   */
-  public List<ProvisioningGroup> retrieveGrouperTarget() {
-    List<ProvisioningGroup> grouperTarget = new ArrayList<ProvisioningGroup>();
-    for (ProvisioningGroupWrapper provisioningGroupWrapper : this.provisioningGroupWrappers) {
-      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
-      if (grouperTargetGroup != null) {
-        grouperTarget.add(grouperTargetGroup);
-      }
-    }
-    return grouperTarget;
   }
 
   /**

@@ -130,15 +130,23 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
   
   public void setGrouperProvisioningMembership(
       ProvisioningMembership grouperProvisioningMembership) {
+    if (this.grouperProvisioningMembership == grouperProvisioningMembership) {
+      return;
+    }
+    ProvisioningMembership oldGrouperProvisioningMembership = this.grouperProvisioningMembership;
+    ProvisioningMembershipWrapper oldProvisioningMembershipWrapper = oldGrouperProvisioningMembership == null ? null : oldGrouperProvisioningMembership.getProvisioningMembershipWrapper();
+
     this.grouperProvisioningMembership = grouperProvisioningMembership;
-    if (this.grouperProvisioningMembership!=null) {
-      this.groupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
-      if (this != this.grouperProvisioningMembership.getProvisioningMembershipWrapper()) {
-        if (this.grouperProvisioningMembership.getProvisioningMembershipWrapper() != null) {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.grouperProvisioningMembership.getProvisioningMembershipWrapper());
-        }
-        this.grouperProvisioningMembership.setProvisioningMembershipWrapper(this);
-      }
+    
+    if (this.grouperProvisioningMembership != null) {
+      this.grouperProvisioningMembership.setProvisioningMembershipWrapper(this);
+    }
+
+    if (oldGrouperProvisioningMembership != null) {
+      oldGrouperProvisioningMembership.setProvisioningMembershipWrapper(null);
+    }
+    if (oldProvisioningMembershipWrapper != null && oldProvisioningMembershipWrapper != this) {
+      oldProvisioningMembershipWrapper.grouperProvisioningMembership = null;
     }
   }
 
@@ -150,16 +158,25 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
   
   public void setTargetProvisioningMembership(
       ProvisioningMembership targetProvisioningMembership) {
-    if (this.targetProvisioningMembership != null) {
-      this.targetProvisioningMembership.setProvisioningMembershipWrapper(null);
+
+    if (this.targetProvisioningMembership == targetProvisioningMembership) {
+      return;
     }
 
+    ProvisioningMembership oldTargetProvisioningMembership = this.targetProvisioningMembership;
+    ProvisioningMembershipWrapper oldProvisioningMembershipWrapper = oldTargetProvisioningMembership == null ? null : oldTargetProvisioningMembership.getProvisioningMembershipWrapper();
+
     this.targetProvisioningMembership = targetProvisioningMembership;
-    if (this.targetProvisioningMembership != null && this != this.targetProvisioningMembership.getProvisioningMembershipWrapper()) {
-      if (this.targetProvisioningMembership.getProvisioningMembershipWrapper() != null) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.targetProvisioningMembership.getProvisioningMembershipWrapper());
-      }
+    
+    if (this.targetProvisioningMembership != null) {
       this.targetProvisioningMembership.setProvisioningMembershipWrapper(this);
+    }
+
+    if (oldTargetProvisioningMembership != null) {
+      oldTargetProvisioningMembership.setProvisioningMembershipWrapper(null);
+    }
+    if (oldProvisioningMembershipWrapper != null && oldProvisioningMembershipWrapper != this) {
+      oldProvisioningMembershipWrapper.targetProvisioningMembership = null;
     }
   }
 
@@ -170,12 +187,25 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
 
   
   public void setGrouperTargetMembership(ProvisioningMembership grouperTargetMembership) {
+    
+    if (this.grouperTargetMembership == grouperTargetMembership) {
+      return;
+    }
+    
+    ProvisioningMembership oldGrouperTargetMembership = this.grouperTargetMembership;
+    ProvisioningMembershipWrapper oldProvisioningMembershipWrapper = oldGrouperTargetMembership == null ? null : oldGrouperTargetMembership.getProvisioningMembershipWrapper();
+
     this.grouperTargetMembership = grouperTargetMembership;
-    if (this.grouperTargetMembership != null && this != this.grouperTargetMembership.getProvisioningMembershipWrapper()) {
-      if (this.grouperTargetMembership.getProvisioningMembershipWrapper() != null) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.grouperTargetMembership.getProvisioningMembershipWrapper());
-      }
+    
+    if (this.grouperTargetMembership != null) {
       this.grouperTargetMembership.setProvisioningMembershipWrapper(this);
+    }
+
+    if (oldGrouperTargetMembership != null) {
+      oldGrouperTargetMembership.setProvisioningMembershipWrapper(null);
+    }
+    if (oldProvisioningMembershipWrapper != null && oldProvisioningMembershipWrapper != this) {
+      oldProvisioningMembershipWrapper.grouperTargetMembership = null;
     }
   }
 

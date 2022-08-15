@@ -135,15 +135,20 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
 
   
   public void setGrouperProvisioningEntity(ProvisioningEntity grouperProvisioningEntity) {
+    ProvisioningEntity oldGrouperProvisioningEntity = this.grouperProvisioningEntity;
+    ProvisioningEntityWrapper oldProvisioningEntityWrapper = oldGrouperProvisioningEntity == null ? null : oldGrouperProvisioningEntity.getProvisioningEntityWrapper();
+
     this.grouperProvisioningEntity = grouperProvisioningEntity;
-    if (this.grouperProvisioningEntity!=null) {
-      this.memberId = this.grouperProvisioningEntity.getId();
-      if (this != this.grouperProvisioningEntity.getProvisioningEntityWrapper()) {
-        if (this.grouperProvisioningEntity.getProvisioningEntityWrapper() != null) {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.grouperProvisioningEntity.getProvisioningEntityWrapper());
-        }
-        this.grouperProvisioningEntity.setProvisioningEntityWrapper(this);
-      }
+    
+    if (this.grouperProvisioningEntity != null) {
+      this.grouperProvisioningEntity.setProvisioningEntityWrapper(this);
+    }
+
+    if (oldGrouperProvisioningEntity != null) {
+      oldGrouperProvisioningEntity.setProvisioningEntityWrapper(null);
+    }
+    if (oldProvisioningEntityWrapper != null) {
+      oldProvisioningEntityWrapper.grouperProvisioningEntity = null;
     }
   }
 
@@ -154,17 +159,26 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
 
   
   public void setTargetProvisioningEntity(ProvisioningEntity targetProvisioningEntity) {
-    if (this.targetProvisioningEntity != null) {
-      this.targetProvisioningEntity.setProvisioningEntityWrapper(null);
+    if (this.targetProvisioningEntity == targetProvisioningEntity) {
+      return;
     }
+    
+    ProvisioningEntity oldTargetProvisioningEntity = this.targetProvisioningEntity;
+    ProvisioningEntityWrapper oldProvisioningEntityWrapper = oldTargetProvisioningEntity == null ? null : oldTargetProvisioningEntity.getProvisioningEntityWrapper();
 
     this.targetProvisioningEntity = targetProvisioningEntity;
-    if (this.targetProvisioningEntity != null && this != this.targetProvisioningEntity.getProvisioningEntityWrapper()) {
-      if (this.targetProvisioningEntity.getProvisioningEntityWrapper() != null) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.targetProvisioningEntity.getProvisioningEntityWrapper());
-      }
+    
+    if (this.targetProvisioningEntity != null) {
       this.targetProvisioningEntity.setProvisioningEntityWrapper(this);
     }
+
+    if (oldTargetProvisioningEntity != null) {
+      oldTargetProvisioningEntity.setProvisioningEntityWrapper(null);
+    }
+    if (oldProvisioningEntityWrapper != null && oldProvisioningEntityWrapper != this) {
+      oldProvisioningEntityWrapper.targetProvisioningEntity = null;
+    }
+
   }
 
   
@@ -174,12 +188,23 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
 
   
   public void setGrouperTargetEntity(ProvisioningEntity grouperTargetEntity) {
+    if (this.grouperTargetEntity == grouperTargetEntity) {
+      return;
+    }
+    ProvisioningEntity oldGrouperTargetEntity = this.grouperTargetEntity;
+    ProvisioningEntityWrapper oldProvisioningEntityWrapper = oldGrouperTargetEntity == null ? null : oldGrouperTargetEntity.getProvisioningEntityWrapper();
+
     this.grouperTargetEntity = grouperTargetEntity;
-    if (this.grouperTargetEntity != null && this != this.grouperTargetEntity.getProvisioningEntityWrapper()) {
-      if (this.grouperTargetEntity.getProvisioningEntityWrapper() != null) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().remove(this.grouperTargetEntity.getProvisioningEntityWrapper());
-      }
+    
+    if (this.grouperTargetEntity != null) {
       this.grouperTargetEntity.setProvisioningEntityWrapper(this);
+    }
+
+    if (oldGrouperTargetEntity != null) {
+      oldGrouperTargetEntity.setProvisioningEntityWrapper(null);
+    }
+    if (oldProvisioningEntityWrapper != null && oldProvisioningEntityWrapper != this) {
+      oldProvisioningEntityWrapper.grouperTargetEntity = null;
     }
   }
 

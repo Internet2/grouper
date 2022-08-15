@@ -846,6 +846,10 @@ public class GrouperProvisioningCompare {
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper: GrouperUtil.nonNull(provisioningEntityWrappers)) {
       
+      if (provisioningEntityWrapper.getTargetProvisioningEntity() != null && provisioningEntityWrapper.getTargetProvisioningEntity().getProvisioningEntityWrapper() == null ) {
+        continue;
+      }
+
       if (!provisioningEntityWrapper.isDelete()) {
         
         if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable() && !provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
@@ -1070,6 +1074,10 @@ public class GrouperProvisioningCompare {
     
     for (ProvisioningGroupWrapper provisioningGroupWrapper: GrouperUtil.nonNull(provisioningGroupWrappers)) {
       
+      if (provisioningGroupWrapper.getTargetProvisioningGroup() != null && provisioningGroupWrapper.getTargetProvisioningGroup().getProvisioningGroupWrapper() == null ) {
+        continue;
+      }
+
       if (!provisioningGroupWrapper.isDelete()) {
         
         if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable() && !provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
@@ -1394,6 +1402,11 @@ public class GrouperProvisioningCompare {
       }
       
       ProvisioningMembership grouperTargetMembership = (provisioningMembershipWrapper.isDelete() && provisioningMembershipWrapper.isRecalcObject()) ? null : provisioningMembershipWrapper.getGrouperTargetMembership();
+      
+      if (grouperTargetMembership != null && grouperTargetMembership.getProvisioningMembershipWrapper() == null ) {
+        continue;
+      }
+      
       ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
       
       Object grouperMatchingId = null;

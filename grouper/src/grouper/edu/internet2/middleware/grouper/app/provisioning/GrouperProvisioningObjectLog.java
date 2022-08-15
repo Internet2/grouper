@@ -36,7 +36,7 @@ public class GrouperProvisioningObjectLog {
     LOG.error(logMessageString);      
   }
 
-  public void debug(GrouperProvisioningObjectLogType state) {
+  public void debug(GrouperProvisioningObjectLogType state, Object... data) {
     if (!grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerbose()) {
       return;
     }
@@ -72,7 +72,7 @@ public class GrouperProvisioningObjectLog {
       }
       logMessage.append(GrouperUtil.toStringForLog(debugLog));
     }
-    state.logState(this, this.grouperProvisioner, logMessage);
+    state.logState(this, this.grouperProvisioner, logMessage, data);
     
     if (logMessage.charAt(logMessage.length()-1) == '\n') {
       logMessage.setLength(logMessage.length() - 1);
