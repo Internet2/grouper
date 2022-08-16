@@ -719,15 +719,16 @@ public abstract class GrouperProvisioner {
           
       return this.retrieveGrouperProvisioningOutput();
     } catch (RuntimeException re) {
+      String fullStackTrace = GrouperClientUtils.getFullStackTrace(re);
       LOG.error(this.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
-          "Error"), re);
+          "Error, " + fullStackTrace));
       if (gcGrouperSyncLog != null) {
         if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
           gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
         }
       }
       if (debugMap != null) {
-        debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+        debugMap.put("exception", fullStackTrace);
       }
       throw re;
     } finally {
@@ -752,14 +753,15 @@ public abstract class GrouperProvisioner {
           this.gcGrouperSyncJob.assignHeartbeatAndEndJob();
         }
       } catch (RuntimeException re2) {
+        String fullStackTrace = GrouperClientUtils.getFullStackTrace(re2);
         LOG.error(this.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
-            "Error2"), re2);
+            "Error2, " + fullStackTrace));
         if (this.gcGrouperSyncLog != null) {
           if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
             this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
           }
         }
-        debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
+        debugMap.put("exception2", fullStackTrace);
       }
     }
 
@@ -780,10 +782,11 @@ public abstract class GrouperProvisioner {
         gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
       }
     } catch (RuntimeException re3) {
+      String fullStackTrace = GrouperClientUtils.getFullStackTrace(re3);
       LOG.error(this.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
-          "Error3"), re3);
+          "Error3, " + fullStackTrace));
 
-      debugMap.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
+      debugMap.put("exception3", fullStackTrace);
       debugString = GrouperClientUtils.mapToString(debugMap);
     }
     
