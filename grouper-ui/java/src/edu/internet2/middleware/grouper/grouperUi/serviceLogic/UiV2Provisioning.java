@@ -1315,11 +1315,15 @@ public class UiV2Provisioning {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
       }
       
-      if (StringUtils.equals(targetName, previousTargetName)) {
-       
-      }
-      
       if (StringUtils.isNotBlank(targetName)) {
+        
+        GcGrouperSyncMembership gcGrouperSyncMembership = null;
+        
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
+        
+        if (gcGrouperSync != null) {
+          gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(group.getId(), member.getId());
+        }
         
         Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
         
@@ -1350,10 +1354,12 @@ public class UiV2Provisioning {
             metadataItem.setDefaultValue(value);
             
             if (!metadataItem.isCanUpdate()) {
-              metadataItem.setReadOnly(true);
+              if (gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
+                metadataItem.setReadOnly(true);
+              }
             }
             
-            if (!metadataItem.isCanChange() && value != null) {
+            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMembership == null || gcGrouperSyncMembership.isInTarget())) {
               metadataItem.setReadOnly(true);
             }
             
@@ -1474,6 +1480,14 @@ public class UiV2Provisioning {
       
       if (StringUtils.isNotBlank(targetName)) {
         
+        GcGrouperSyncMembership gcGrouperSyncMembership = null;
+        
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
+        
+        if (gcGrouperSync != null) {
+          gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(group.getId(), member.getId());
+        }
+        
         Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
         
         GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
@@ -1503,10 +1517,12 @@ public class UiV2Provisioning {
             metadataItem.setDefaultValue(value);
             
             if (!metadataItem.isCanUpdate()) {
-              metadataItem.setReadOnly(true);
+              if (gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
+                metadataItem.setReadOnly(true);
+              }
             }
             
-            if (!metadataItem.isCanChange() && value != null) {
+            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMembership == null || gcGrouperSyncMembership.isInTarget())) {
               metadataItem.setReadOnly(true);
             }
             
@@ -1625,6 +1641,14 @@ public class UiV2Provisioning {
         
         Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
         
+        GcGrouperSyncMember gcGrouperSyncMember = null;
+        
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
+        
+        if (gcGrouperSync != null) {
+          gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+        }
+        
         GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
         if (grouperProvisioningTarget == null) {
           throw new RuntimeException("Invalid target: "+targetName);
@@ -1653,13 +1677,14 @@ public class UiV2Provisioning {
             metadataItem.setDefaultValue(value);
             
             if (!metadataItem.isCanUpdate()) {
-              metadataItem.setReadOnly(true);
+              if (gcGrouperSync != null && gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.isInTarget()) {
+                metadataItem.setReadOnly(true);
+              }
             }
             
-            if (!metadataItem.isCanChange() && value != null) {
+            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMember == null || gcGrouperSyncMember.isInTarget())) {
               metadataItem.setReadOnly(true);
             }
-            
             
             metadataItems.add(metadataItem);
           }
@@ -1820,7 +1845,7 @@ public class UiV2Provisioning {
         GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
         
         if (gcGrouperSync != null) {
-          gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(group.getId());
+          gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(group.getId());
         }
         
         List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
@@ -1867,16 +1892,15 @@ public class UiV2Provisioning {
             metadataItem.setDefaultValue(value);
             
             if (!metadataItem.isCanUpdate()) {
-              if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable()) {
+              if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.isInTarget()) {
                 metadataItem.setReadOnly(true);
               }
             }
             
-            if (!metadataItem.isCanChange() && value != null) {
+            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncGroup == null || gcGrouperSyncGroup.isInTarget())) {
               metadataItem.setReadOnly(true);
             }
             
-            metadataItems.add(metadataItem);
           }
         }
         
