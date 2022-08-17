@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.membership.MembershipType;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.permissions.role.Role;
@@ -77,7 +78,7 @@ public class RuleElUtils {
           + ", membershipType: " + membershipType + ", enabled: " + enabled);
     }
     Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true); 
     
     MembershipType membershipTypeEnum = MembershipType.valueOfIgnoreCase(membershipType, false);
     
@@ -107,7 +108,7 @@ public class RuleElUtils {
       LOG.debug("Removing member: " + memberId + ", from group: " + groupId);
     }
     Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true); 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Removing subject: " + member.getSubjectId() + ", from group: " + group.getName());
     }
@@ -125,7 +126,7 @@ public class RuleElUtils {
       LOG.debug("Removing member: " + memberId + ", from group: " + groupName);
     }
     Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true); 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Removing subject: " + member.getSubjectId() + ", from group: " + group.getName());
     }
@@ -182,7 +183,7 @@ public class RuleElUtils {
       throw new RuntimeException("Why is attributeDefId null?");
     }
 
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true); 
     
     Set<PermissionEntry> permissionEntries = RuleUtils.permissionsForUser(attributeDefId, memberId, true);
 
@@ -292,7 +293,7 @@ public class RuleElUtils {
     }
 
     Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true); 
     Membership membership = group.getImmediateMembership(Group.getDefaultList(), member, true, false);
     if (membership == null) {
       if (!addIfNotThere) {
@@ -407,7 +408,7 @@ public class RuleElUtils {
       LOG.debug("Adding member: " + memberId + ", to group: " + groupId);
     }
     Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, true);
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true); 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Adding subject: " + member.getSubjectId() + ", to group: " + group.getName());
     }
@@ -425,7 +426,7 @@ public class RuleElUtils {
       LOG.debug("Adding member: " + memberId + ", to group: " + groupName);
     }
     Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
-    Member member = MemberFinder.findByUuid(GrouperSession.startRootSession(), memberId, true);
+    Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true); 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Adding subject: " + member.getSubjectId() + ", to group: " + group.getName());
     }
