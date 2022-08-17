@@ -83,24 +83,35 @@ public class LdapSyncConfiguration extends GrouperProvisioningConfiguration {
           String groupAttribute = null;
           String rdnTranslateFromGrouperProvisioningGroupField = createOnly ?  groupRdnAttributeConfig.getTranslateFromGrouperProvisioningGroupFieldCreateOnly() 
               : groupRdnAttributeConfig.getTranslateFromGrouperProvisioningGroupField();
-          if (StringUtils.isBlank(rdnTranslateFromGrouperProvisioningGroupField)) {
-            continue;
+
+          if (!StringUtils.isBlank(rdnTranslateFromGrouperProvisioningGroupField)) {
+            if (StringUtils.equals("name", rdnTranslateFromGrouperProvisioningGroupField)) {
+              groupAttribute = "name";
+            }
+            if (this.getGroupDnType() == LdapSyncGroupDnType.bushy && StringUtils.equals("extension", rdnTranslateFromGrouperProvisioningGroupField)) {
+              groupAttribute = "name";
+            }
+            if (this.getGroupDnType() == LdapSyncGroupDnType.flat && StringUtils.equals("extension", rdnTranslateFromGrouperProvisioningGroupField)) {
+              groupAttribute = "extension";
+            }
+
+            if (!StringUtils.isBlank(groupAttribute)) {
+              if (createOnly) {
+                groupDnAttributeConfig.setTranslateFromGrouperProvisioningGroupFieldCreateOnly(groupAttribute);
+              } else {
+                groupDnAttributeConfig.setTranslateFromGrouperProvisioningGroupField(groupAttribute);
+              }
+            }
           }
-          if (StringUtils.equals("name", rdnTranslateFromGrouperProvisioningGroupField)) {
-            groupAttribute = "name";
-          }
-          if (this.getGroupDnType() == LdapSyncGroupDnType.bushy && StringUtils.equals("extension", rdnTranslateFromGrouperProvisioningGroupField)) {
-            groupAttribute = "name";
-          }
-          if (this.getGroupDnType() == LdapSyncGroupDnType.flat && StringUtils.equals("extension", rdnTranslateFromGrouperProvisioningGroupField)) {
-            groupAttribute = "extension";
-          }
-  
-          if (!StringUtils.isBlank(groupAttribute)) {
+
+          String rdnTranslateExpression = createOnly ?  groupRdnAttributeConfig.getTranslateExpressionCreateOnly()
+                  : groupRdnAttributeConfig.getTranslateExpression();
+          if (!StringUtils.isBlank(rdnTranslateExpression)) {
+            groupDnAttributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.translationScript);
             if (createOnly) {
-              groupDnAttributeConfig.setTranslateFromGrouperProvisioningGroupFieldCreateOnly(groupAttribute);
+              groupDnAttributeConfig.setTranslateExpressionCreateOnly(rdnTranslateExpression);
             } else {
-              groupDnAttributeConfig.setTranslateFromGrouperProvisioningGroupField(groupAttribute);
+              groupDnAttributeConfig.setTranslateExpression(rdnTranslateExpression);
             }
           }
         }
