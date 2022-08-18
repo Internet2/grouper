@@ -109,10 +109,10 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
 
     
     if (grouperProvisioningConfigurationAttribute != null 
-        && !StringUtils.isBlank(translateFromGrouperProvisioningGroupField)
+        //&& !StringUtils.isBlank(translateFromGrouperProvisioningGroupField)
         && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() 
           == GrouperProvisioningConfigurationAttributeType.group
-        && StringUtils.isBlank(expressionToUse)
+        //&& StringUtils.isBlank(expressionToUse)
         && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
       
       String fieldValueString = GrouperUtil.stringValue(attributeValue);
