@@ -291,7 +291,7 @@ public class RuleApi {
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipAdd.name());
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoImmediateEnabledMembership.name());
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoEnabledMembership.name());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleIfOwnerIdName(), mustBeInGroup.getId());
     attributeValueDelegate.assignValue(
@@ -1370,7 +1370,7 @@ public class RuleApi {
     attributeValueDelegate.assignValue(
         RuleUtils.ruleCheckTypeName(), RuleCheckType.permissionAssignToSubject.name());
     attributeValueDelegate.assignValue(
-        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoImmediateEnabledMembership.name());
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasNoEnabledMembership.name());
     attributeValueDelegate.assignValue(
         RuleUtils.ruleIfOwnerIdName(), mustBeInGroup.getId());
     attributeValueDelegate.assignValue(
