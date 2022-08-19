@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
+import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonOtherJobProvisioningFullSyncConfiguration;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonProvisioningIncrementalSyncConfiguration;
 import edu.internet2.middleware.grouper.app.duo.DuoProvisionerConfiguration;
@@ -244,63 +245,64 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     grouperSync.getGcGrouperSyncDao().delete();
     
     // delete full sync and incremental sync daemon
-    boolean foundConfig = false;
-    
     Pattern pattern = Pattern.compile("^otherJob\\.(.*)\\.provisionerConfigId$");
     Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(pattern);
-    
+    String jobConfigId = null;
     for (String configId: configIds) {
       String className = "otherJob."+configId+".class";
       String provisionerConfigId = "otherJob."+configId+".provisionerConfigId";
       if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), GrouperProvisioningFullSyncJob.class.getName()) && 
           StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), getConfigId() )) {
-        foundConfig = true;
+        jobConfigId = configId;
+        break;
       }
     }
     
-    if (foundConfig) {
+    if (StringUtils.isNotBlank(jobConfigId)) {
       
-      GrouperDaemonOtherJobProvisioningFullSyncConfiguration fullSyncConfig = new GrouperDaemonOtherJobProvisioningFullSyncConfiguration();
-      fullSyncConfig.setConfigId("provisioner_full_"+getConfigId());
       
-      fullSyncConfig.deleteConfig(true);
+      GrouperDaemonConfiguration configToDelete = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_"+jobConfigId);
 
+      configToDelete.deleteConfig(true);
+      
       try {
         Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
         
-        JobKey jobKey = new JobKey(fullSyncConfig.getDaemonJobPrefix()+fullSyncConfig.getConfigId());
+        JobKey jobKey = new JobKey(configToDelete.getDaemonJobPrefix()+configToDelete.getConfigId());
         scheduler.deleteJob(jobKey);
       } catch (Exception e) {
-        throw new RuntimeException("Could not delete full sync daemon with job key "+fullSyncConfig.getDaemonJobPrefix()+fullSyncConfig.getConfigId());
+        throw new RuntimeException("Could not delete full sync daemon with job key "+configToDelete.getDaemonJobPrefix()+configToDelete.getConfigId());
       }
       
     }
     
     pattern = Pattern.compile("^changeLog\\.consumer\\.(.*)\\.provisionerConfigId$");
     configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(pattern);
-    foundConfig = false;
-    
+   
+    String incrementalJobConfigId = null;
     for (String configId: configIds) {
       String className = "changeLog.consumer."+configId+".publisher.class";
       String provisionerConfigId = "changeLog.consumer."+configId+".provisionerConfigId";
       if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), ProvisioningConsumer.class.getName()) && 
           StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), getConfigId() )) {
-        foundConfig = true;
+        incrementalJobConfigId = configId;
+        break;
       }
     }
     
-    if (foundConfig) {
-      GrouperDaemonProvisioningIncrementalSyncConfiguration incrementalSyncConfig = new GrouperDaemonProvisioningIncrementalSyncConfiguration();
-      incrementalSyncConfig.setConfigId("provisioner_incremental_"+getConfigId());
-      incrementalSyncConfig.deleteConfig(true);
+    if (StringUtils.isNotBlank(incrementalJobConfigId)) {
+      
+      GrouperDaemonConfiguration configToDelete = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_consumer_"+incrementalJobConfigId);
 
+      configToDelete.deleteConfig(true);
+      
       try {
         Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
         
-        JobKey jobKey = new JobKey(incrementalSyncConfig.getDaemonJobPrefix()+incrementalSyncConfig.getConfigId());
+        JobKey jobKey = new JobKey(configToDelete.getDaemonJobPrefix()+configToDelete.getConfigId());
         scheduler.deleteJob(jobKey);
       } catch (Exception e) {
-        throw new RuntimeException("Could not delete incremental sync daemon with job key "+incrementalSyncConfig.getDaemonJobPrefix()+incrementalSyncConfig.getConfigId());
+        throw new RuntimeException("Could not delete incremental sync daemon with job key "+configToDelete.getDaemonJobPrefix()+configToDelete.getConfigId());
       }
     }
     
