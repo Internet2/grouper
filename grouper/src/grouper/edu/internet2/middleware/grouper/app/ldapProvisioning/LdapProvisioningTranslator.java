@@ -10,7 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
@@ -108,18 +107,13 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
     }
 
     
-    if (grouperProvisioningConfigurationAttribute != null 
-        //&& !StringUtils.isBlank(translateFromGrouperProvisioningGroupField)
-        && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() 
+    if (grouperProvisioningConfigurationAttribute != null
+        && StringUtils.isBlank(translateFromGrouperProvisioningGroupField)
+        && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
           == GrouperProvisioningConfigurationAttributeType.group
-        //&& StringUtils.isBlank(expressionToUse)
+        && StringUtils.isBlank(expressionToUse)
+        && StringUtils.isBlank(GrouperUtil.stringValue(attributeValue))
         && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
-      
-      String fieldValueString = GrouperUtil.stringValue(attributeValue);
-
-      if (StringUtils.isBlank(fieldValueString)) {
-        throw new RuntimeException("Not expecting null DN part! " + provisioningGroupWrapper.getGrouperProvisioningGroup());
-      }
       
       LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
@@ -140,11 +134,11 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
                 && ((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName) != null) {
               groupRdnAttributeValue = (String)((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName).getValue();
             }
-  
-            dn = GrouperUtil.ldapBushyDn(fieldValueString, groupRdnAttributeName, groupRdnAttributeValue, ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
+
+            dn = GrouperUtil.ldapBushyDn(provisioningGroupWrapper.getGrouperProvisioningGroup().getName(), groupRdnAttributeName, groupRdnAttributeValue, ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
           } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat) {
-            dn = GrouperUtil.ldapEscapeRdn(groupRdnAttributeName + "=" + fieldValueString) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
-  
+            String groupRdnAttributeValue = (String)((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName).getValue();
+            dn = GrouperUtil.ldapEscapeRdn(groupRdnAttributeName + "=" + groupRdnAttributeValue) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
           } else {
             throw new RuntimeException("Not expecting group dn type: " + ldapSyncConfiguration.getGroupDnType());
           }
