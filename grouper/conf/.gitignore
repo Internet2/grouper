@@ -1,3 +1,6 @@
 /log4j2.xml
 /secureShare.client.properties
+<<<<<<< GROUPER_2_5_BRANCH
 /spy2.properties
+=======
+>>>>>>> 193b0d1 GRP-4295: run rule if condition with grouper session running with actAs subject

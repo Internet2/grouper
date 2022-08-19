@@ -911,14 +911,15 @@ public class MemberFinder {
    * @param grouperSession
    * @param subject
    * @param exceptionIfNotExist
+   * @param createIfNotExist 
    * @return the member
    * @throws MemberNotFoundException 
    * @throws InsufficientPrivilegeException 
    */
   public static Member internal_findReadableMemberBySubject(GrouperSession grouperSession, 
-      Subject subject, boolean exceptionIfNotExist)
+      Subject subject, boolean exceptionIfNotExist, boolean createIfNotExist)
      throws MemberNotFoundException, InsufficientPrivilegeException {
-    Member member = findBySubject(grouperSession, subject, exceptionIfNotExist);
+    Member member = findBySubject(grouperSession, subject, createIfNotExist);
     
     if (!exceptionIfNotExist && member == null) {
       return null;

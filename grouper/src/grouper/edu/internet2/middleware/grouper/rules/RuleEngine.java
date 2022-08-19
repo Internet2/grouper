@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -423,55 +424,55 @@ public class RuleEngine {
         logData.append(", found " + GrouperUtil.length(ruleDefinitions) + " matching rule definitions");
       }
       
-      int shouldFireCount = 0;
+      final int[] shouldFireCount = new int[] {0};
       
       for (final RuleDefinition ruleDefinition : GrouperUtil.nonNull(ruleDefinitions)) {
         
         boolean shouldLogThisDefinition = LOG.isDebugEnabled() || ruleDefinition.shouldLog();
         final StringBuilder logDataForThisDefinition = shouldLogThisDefinition ? logData : null;
-        if (ruleDefinition.getIfCondition().shouldFire(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition)) {
+        //act as the act as
+        RuleSubjectActAs actAs = ruleDefinition.getActAs();
+        Subject actAsSubject = actAs.subject(false);
+        if (actAsSubject == null) {
+          LOG.error("Cant find subject for rule: " + ruleDefinition);
+          actAsSubject = SubjectFinder.findRootSubject();
+        }
+        //lets get the currect subject and put it in the bean...
+        GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+        Subject subjectGrouperSession = grouperSession == null ? null : grouperSession.getSubject();
+        
+        if (subjectGrouperSession != null) {
+          rulesBean.setSubjectUnderlyingSession(subjectGrouperSession);
+        }
+
+        GrouperSession.callbackGrouperSession(GrouperSession.start(actAsSubject, false), new GrouperSessionHandler() {
           
-          shouldFireCount++;
-          
-          if (shouldLogThisDefinition) {
-            logDataForThisDefinition.append(", ruleDefinition should fire: ").append(ruleDefinition.toString());
-          }
-          
-          //act as the act as
-          RuleSubjectActAs actAs = ruleDefinition.getActAs();
-          Subject actAsSubject = actAs.subject(false);
-          if (actAsSubject == null) {
-            LOG.error("Cant find subject for rule: " + ruleDefinition);
-          } else {
-            
-            //lets get the currect subject and put it in the bean...
-            GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-            Subject subjectGrouperSession = grouperSession == null ? null : grouperSession.getSubject();
-            
-            if (subjectGrouperSession != null) {
-              rulesBean.setSubjectUnderlyingSession(subjectGrouperSession);
+          /**
+           * 
+           */
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+            boolean shouldFire = ruleDefinition.getIfCondition().shouldFire(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition);
+            if (shouldLogThisDefinition) {
+              logDataForThisDefinition.append(", ruleDefinition should fire: ").append(ruleDefinition.toString());
             }
             
-            GrouperSession.callbackGrouperSession(GrouperSession.start(actAsSubject, false), new GrouperSessionHandler() {
-  
-              /**
-               * 
-               */
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                //we are firing, note this isnt synchronized, so might not be exact, but used for testing, so thats ok
-                ruleFirings++;
-                ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition);
-                return null;
-                
-              }
-            });
-          }        
-        }
-        
+            if (shouldFire) {
+              
+              shouldFireCount[0]++;
+              
+              //we are firing, note this isnt synchronized, so might not be exact, but used for testing, so thats ok
+              ruleFirings++;
+              ruleDefinition.getThen().fireRule(ruleDefinition, ruleEngine, rulesBean, logDataForThisDefinition);
+              
+            }
+            return null;
+          }
+        });
       }
       
       if (shouldLog) {
-        logData.append(", shouldFire count: " + shouldFireCount);
+        logData.append(", shouldFire count: " + shouldFireCount[0]);
       }
     } catch (RuntimeException re) {
       if (shouldLog && logData != null) {
