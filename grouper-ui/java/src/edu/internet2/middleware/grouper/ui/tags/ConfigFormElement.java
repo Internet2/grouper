@@ -431,8 +431,8 @@ public class ConfigFormElement extends SimpleTagSupport {
       if (readOnly) {
         for (MultiKey multiKey: valuesAndLabels) {
           
-          String key = (String) multiKey.getKey(0);
-          String optionValue = (String) multiKey.getKey(1);
+          String key = GrouperUtil.stringValue(multiKey.getKey(0));
+          String optionValue = GrouperUtil.stringValue(multiKey.getKey(1));
           
           boolean selected = StringUtils.equals(key, value);
           if (!selected) {
@@ -448,8 +448,8 @@ public class ConfigFormElement extends SimpleTagSupport {
         
         for (MultiKey multiKey: valuesAndLabels) {
           
-          String key = (String) multiKey.getKey(0);
-          String optionValue = (String) multiKey.getKey(1);
+          String key = GrouperUtil.stringValue(multiKey.getKey(0));
+          String optionValue = GrouperUtil.stringValue(multiKey.getKey(1));
           
           boolean selected = StringUtils.equals(key, value);
           
@@ -469,8 +469,8 @@ public class ConfigFormElement extends SimpleTagSupport {
       if (readOnly) {
         for (MultiKey multiKey: valuesAndLabels) {
           
-          String key = (String) multiKey.getKey(0);
-          String radioButtonValue = (String) multiKey.getKey(1);
+          String key = GrouperUtil.stringValue(multiKey.getKey(0));
+          String radioButtonValue = GrouperUtil.stringValue(multiKey.getKey(1));
           boolean checked = StringUtils.equals(key, value);
           if (!checked) {
             continue;
@@ -480,8 +480,8 @@ public class ConfigFormElement extends SimpleTagSupport {
       } else {
         for (MultiKey multiKey: valuesAndLabels) {
           
-          String key = (String) multiKey.getKey(0);
-          String radioButtonValue = (String) multiKey.getKey(1);
+          String key = GrouperUtil.stringValue(multiKey.getKey(0));
+          String radioButtonValue = GrouperUtil.stringValue(multiKey.getKey(1));
           boolean checked = StringUtils.equals(key, value);
 
           field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='config_"+configId+"_id' name='config_"+configId+"' value='"+key+"' ");
@@ -510,8 +510,8 @@ public class ConfigFormElement extends SimpleTagSupport {
       
       for (MultiKey multiKey: checkboxAttributes) {
         
-        String value = (String) multiKey.getKey(0);
-        String label = (String) multiKey.getKey(1);
+        String value = GrouperUtil.stringValue(multiKey.getKey(0));
+        String label = GrouperUtil.stringValue(multiKey.getKey(1));
         boolean checked = (boolean) multiKey.getKey(2);
         
         field.append("<input type='checkbox' style='"+ displayClass + "' id='"+value+"_id' name='config_"+configId+"' ");
