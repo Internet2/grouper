@@ -129,7 +129,7 @@ public enum GshTemplateDropdownValueFormatType {
   
   public boolean doesValuePassValidation(String valueFromUser, List<MultiKey> validKeyValues) {
     for (MultiKey validKeyValue: validKeyValues) {
-      if (StringUtils.equals(valueFromUser, (String)validKeyValue.getKey(0))) {
+      if (StringUtils.equals(valueFromUser, GrouperUtil.stringValue(validKeyValue.getKey(0)))) {
         return true;
       }
     }
