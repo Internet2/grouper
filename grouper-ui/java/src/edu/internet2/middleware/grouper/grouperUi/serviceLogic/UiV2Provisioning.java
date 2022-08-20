@@ -1122,9 +1122,10 @@ public class UiV2Provisioning {
         }
       });
       
-      
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute = true;
       }
       
 //      if (StringUtils.equals(targetName, previousTargetName)) {
@@ -1197,7 +1198,7 @@ public class UiV2Provisioning {
             Object value = elVariableMap.get(metadataItem.getName());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
               metadataItem.setReadOnly(true);
             }
             
@@ -1311,8 +1312,10 @@ public class UiV2Provisioning {
         }
       });
       
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute = true;
       }
       
       if (StringUtils.isNotBlank(targetName)) {
@@ -1353,7 +1356,7 @@ public class UiV2Provisioning {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
               if (gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
                 metadataItem.setReadOnly(true);
               }
@@ -1474,8 +1477,10 @@ public class UiV2Provisioning {
         }
       });
       
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute = true;
       }
       
       if (StringUtils.isNotBlank(targetName)) {
@@ -1516,7 +1521,7 @@ public class UiV2Provisioning {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
               if (gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
                 metadataItem.setReadOnly(true);
               }
@@ -1633,8 +1638,10 @@ public class UiV2Provisioning {
         }
       });
       
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute = true;
       }
       
       if (StringUtils.isNotBlank(targetName)) {
@@ -1676,7 +1683,7 @@ public class UiV2Provisioning {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
               if (gcGrouperSync != null && gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.isInTarget()) {
                 metadataItem.setReadOnly(true);
               }
@@ -1821,8 +1828,10 @@ public class UiV2Provisioning {
         }
       });
       
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute  = true;
       }
       
 //      if (StringUtils.equals(targetName, previousTargetName)) {
@@ -1891,7 +1900,7 @@ public class UiV2Provisioning {
             Object value = elVariableMap.get(metadataItem.getName());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
               if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.isInTarget()) {
                 metadataItem.setReadOnly(true);
               }
@@ -2011,8 +2020,10 @@ public class UiV2Provisioning {
         }
       });
       
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute = true;
       }
       
       if (StringUtils.equals(targetName, previousTargetName)) {
@@ -2088,7 +2099,7 @@ public class UiV2Provisioning {
             Object value = elVariableMap.get(metadataItem.getName());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
               if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable()) {
                 metadataItem.setReadOnly(true);
               }
