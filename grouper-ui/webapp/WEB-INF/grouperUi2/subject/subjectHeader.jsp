@@ -359,7 +359,8 @@
                       <div class="row-fluid">
                         <div class="span2"><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></div>
                         <div class="span10">
-                          <p>${grouper:escapeHtml(attributeValue)}</p>
+                          <p style="margin-bottom: 0px;">${grouper:escapeHtml(attributeValue)}</p>
+                          <p>${grouperRequestContainer.subjectContainer.guiSubject.attributeNameFriendlyDescripton[attributeName]}</p>
                         </div>
                       </div>
                     </c:forEach>
@@ -372,7 +373,10 @@
                             <c:set value="${grouperRequestContainer.subjectContainer.guiSubject.attributes[attributeName]}" var="attributeValue" />
                             <tr>
                               <td><strong>${grouperRequestContainer.subjectContainer.guiSubject.attributeLabel[attributeName] }</strong></td>
-                              <td>${grouper:escapeHtml(attributeValue) }</td>
+                              <td>
+                              <p style="margin-bottom: 0px;">${grouper:escapeHtml(attributeValue) }</p>
+                              <p>${grouperRequestContainer.subjectContainer.guiSubject.attributeNameFriendlyDescripton[attributeName]}</p>
+                              </td>
                             </tr>
                           </c:forEach>
                         </tbody>
