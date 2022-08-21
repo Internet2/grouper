@@ -152,7 +152,11 @@ public class UiV2Provisioning {
           for (GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue: guiGrouperProvisioningAttributeValues) {
             
             GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(guiGrouperProvisioningAttributeValue.getGrouperProvisioningAttributeValue().getTargetName());
-            provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+            try {
+              provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+            } catch (Exception e) {
+              LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+            }
             provisioningContainer.setGrouperProvisioner(provisioner);
             guiGrouperProvisioningAttributeValue.setGrouperProvisioner(provisioner);
             GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -494,7 +498,11 @@ public class UiV2Provisioning {
           }
 
           GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          try {
+            provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          } catch (Exception e) {
+            LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+          }
           provisioningContainer.setGrouperProvisioner(provisioner);
 
           GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -605,7 +613,12 @@ public class UiV2Provisioning {
             guiGrouperSyncObject.setGcGrouperSyncMembership(gcGrouperSyncMembership);
           }
 
-          GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName).initialize(GrouperProvisioningType.fullProvisionFull);
+          GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+          try {
+            grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          } catch (Exception e) {
+            LOG.error("Could not initialize provisioner: "+grouperProvisioner.getConfigId(), e);
+          }
           provisioningContainer.setGrouperProvisioner(grouperProvisioner);
 
           List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
@@ -821,7 +834,11 @@ public class UiV2Provisioning {
           }
 
           GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          try {
+            provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          } catch (Exception e) {
+            LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+          }
           provisioningContainer.setGrouperProvisioner(provisioner);
 
           GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1012,7 +1029,11 @@ public class UiV2Provisioning {
       }
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(provisionerName);
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      try {
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+      }
       guiGrouperProvisioningAttributeValue.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1158,7 +1179,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
         guiGrouperProvisioningAttributeValue.setGrouperProvisioner(provisioner);
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1345,7 +1370,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
 
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1510,7 +1539,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
 
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1672,7 +1705,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
 
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1862,7 +1899,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
 
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2054,7 +2095,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
 
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2308,7 +2353,12 @@ public class UiV2Provisioning {
       attributeValue.setTargetName(targetName);
       attributeValue.setStemScopeString(stemScopeString);
       
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName).initialize(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+      try {
+        grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+grouperProvisioner.getConfigId(), e);
+      }
       provisioningContainer.setGrouperProvisioner(grouperProvisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2484,7 +2534,11 @@ public class UiV2Provisioning {
       attributeValue.setTargetName(targetName);
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      try {
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+      }
       provisioningContainer.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2616,7 +2670,11 @@ public class UiV2Provisioning {
       attributeValue.setTargetName(targetName);
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      try {
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+      }
       provisioningContainer.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2749,7 +2807,11 @@ public class UiV2Provisioning {
       attributeValue.setTargetName(targetName);
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      try {
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+      }
       provisioningContainer.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2890,7 +2952,11 @@ public class UiV2Provisioning {
       attributeValue.setTargetName(targetName);
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      try {
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+      }
       provisioningContainer.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
