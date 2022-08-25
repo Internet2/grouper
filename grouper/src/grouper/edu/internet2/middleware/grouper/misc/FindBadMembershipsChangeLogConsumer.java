@@ -10,7 +10,6 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningProcessingResult;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
@@ -61,6 +60,11 @@ public class FindBadMembershipsChangeLogConsumer extends EsbListenerBase {
         Set<Composite> composites = findAsFactorOrHasMemberOfFactorResults.get(esbEvent.getGroupId());
         for (Composite composite : composites) {
           Group owner = GrouperDAOFactory.getFactory().getGroup().findByUuid(composite.getFactorOwnerUuid(), true);
+          
+          if (!owner.isEnabled()) {
+            continue;
+          }
+          
           Group left = GrouperDAOFactory.getFactory().getGroup().findByUuid(composite.getLeftFactorUuid(), true);
           Group right = GrouperDAOFactory.getFactory().getGroup().findByUuid(composite.getRightFactorUuid(), true);
           
