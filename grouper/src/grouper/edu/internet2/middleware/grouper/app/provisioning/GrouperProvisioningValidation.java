@@ -6,13 +6,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -117,8 +117,10 @@ public class GrouperProvisioningValidation {
    * @param provisioningGroups
    * @param removeInvalid
    */
-  public void validateGroups(Collection<ProvisioningGroup> provisioningGroups, boolean removeInvalid, Boolean forMembershipAttribute, boolean forInsert) {
+  public Set<ProvisioningGroup> validateGroups(Collection<ProvisioningGroup> provisioningGroups, boolean removeInvalid, Boolean forMembershipAttribute, boolean forInsert) {
     
+    Set<ProvisioningGroup> invalidGroups = new LinkedHashSet<ProvisioningGroup>();
+
     String membershipAttributeName =  null;
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       membershipAttributeName =  this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName();
@@ -146,6 +148,7 @@ public class GrouperProvisioningValidation {
       // lets see which attribute is the matching id
       if (!validateGroupHasMatchingId(provisioningGroup, forInsert)) {
         this.assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.MAT, "matching ID is required and missing");
+        invalidGroups.add(provisioningGroup);
         if (removeInvalid) {
           iterator.remove();
           continue;
@@ -167,6 +170,9 @@ public class GrouperProvisioningValidation {
           }
           
           boolean hasErrorCode = assignErrorCodeToGroupWrapper(provisioningGroup, grouperProvisioningConfigurationAttribute, provisioningGroupWrapper);
+          if (hasErrorCode) {
+            invalidGroups.add(provisioningGroup);
+          }
           if (hasErrorCode && removeInvalid) {
             iterator.remove();
           }
@@ -184,7 +190,10 @@ public class GrouperProvisioningValidation {
     if (groupsViolateValidExpression > 0) {
       GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "groupsViolateValidExpression", groupsViolateValidExpression);
     }
-
+    if (GrouperUtil.length(invalidGroups) > 0) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.validateGrouperGroups, invalidGroups);
+    }
+    return invalidGroups;
   }
   
   /**
@@ -193,8 +202,9 @@ public class GrouperProvisioningValidation {
    * @param provisioningEntities
    * @param removeInvalid
    */
-  public void validateEntities(Collection<ProvisioningEntity> provisioningEntities, boolean removeInvalid, Boolean forMembershipAttribute, boolean forInsert) {
+  public Set<ProvisioningEntity> validateEntities(Collection<ProvisioningEntity> provisioningEntities, boolean removeInvalid, Boolean forMembershipAttribute, boolean forInsert) {
     
+    Set<ProvisioningEntity> invalidEntities = new LinkedHashSet<ProvisioningEntity>();
     String membershipAttributeName =  null;
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       membershipAttributeName =  this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName();
@@ -218,6 +228,7 @@ public class GrouperProvisioningValidation {
       // matching ID must be there
       if (!validateEntityHasMatchingId(provisioningEntity, forInsert)) {
         this.assignEntityError(provisioningEntityWrapper, GcGrouperSyncErrorCode.MAT, "matching ID is required and missing");
+        invalidEntities.add(provisioningEntity);
         if (removeInvalid) {
           iterator.remove();
           continue;
@@ -239,6 +250,9 @@ public class GrouperProvisioningValidation {
           }
           
           boolean hasError = assignErrorCodeToEntityWrapper(provisioningEntity, grouperProvisioningConfigurationAttribute, provisioningEntityWrapper);
+          if (hasError) {
+            invalidEntities.add(provisioningEntity);
+          }
           if (hasError && removeInvalid) {
             iterator.remove();
           }
@@ -256,7 +270,10 @@ public class GrouperProvisioningValidation {
     if (entitiesViolateValidExpression > 0) {
       GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "entitiesViolateValidExpression", entitiesViolateValidExpression);
     }
-
+    if (GrouperUtil.length(invalidEntities) > 0) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.validateGrouperEntities, invalidEntities);
+    }
+    return invalidEntities;
   }
   
 /**
@@ -338,7 +355,9 @@ public class GrouperProvisioningValidation {
    * @param provisioningMemberships
    * @param removeInvalid
    */
-  public void validateMemberships(Collection<ProvisioningMembership> provisioningMemberships, boolean removeInvalid) {
+  public Set<ProvisioningMembership> validateMemberships(Collection<ProvisioningMembership> provisioningMemberships, boolean removeInvalid) {
+
+    Set<ProvisioningMembership> invalidMemberships = new LinkedHashSet<ProvisioningMembership>();
     int membershipsMissingRequiredData = 0;
     int membershipsViolateMaxLength = 0;
     int membershipsViolateValidExpression = 0;
@@ -359,6 +378,7 @@ public class GrouperProvisioningValidation {
               GcGrouperSyncErrorCode errorCode = GcGrouperSyncErrorCode.REQ;
               String errorMessage = "membership multiKey has blank value in index: " + i;
               this.assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
+              invalidMemberships.add(provisioningMembership);
               if (removeInvalid) {
                 iterator.remove();
               }
@@ -374,6 +394,7 @@ public class GrouperProvisioningValidation {
           GcGrouperSyncErrorCode errorCode = (GcGrouperSyncErrorCode)validationError.getKey(0);
           String errorMessage = (String)validationError.getKey(1);
           this.assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
+          invalidMemberships.add(provisioningMembership);
           switch (errorCode) {
             case INV:
               membershipsViolateValidExpression++;
@@ -405,6 +426,10 @@ public class GrouperProvisioningValidation {
     if (membershipsViolateValidExpression > 0) {
       GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "membershipsViolateValidExpression", membershipsViolateValidExpression);
     }
+    if (GrouperUtil.length(invalidMemberships) > 0) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.validateGrouperMemberships, invalidMemberships);
+    }
+    return invalidMemberships;
   }  
 
   /**
@@ -597,10 +622,12 @@ public class GrouperProvisioningValidation {
    * @param provisioningGroups
    * @param removeInvalid
    */
-  public void validateGroupsHaveMembers(Collection<ProvisioningGroup> provisioningGroups, boolean removeInvalid) {
+  public Set<ProvisioningGroup> validateGroupsHaveMembers(Collection<ProvisioningGroup> provisioningGroups, boolean removeInvalid) {
+
+    Set<ProvisioningGroup> invalidGroups = new LinkedHashSet<ProvisioningGroup>();
 
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupsRequireMembers()) {
-      return;
+      return invalidGroups;
     }
 
     Map<String, ProvisioningGroupWrapper> groupIdToGroupWrapperToCheck = new HashMap<String, ProvisioningGroupWrapper>();
@@ -625,7 +652,7 @@ public class GrouperProvisioningValidation {
     }      
 
     if (GrouperUtil.length(groupIdToGroupWrapperToCheck) == 0) {
-      return;
+      return invalidGroups;
     }
 
     List<String> groupIdsList = new ArrayList<String>(groupIdToGroupWrapperToCheck.keySet());
@@ -657,6 +684,7 @@ public class GrouperProvisioningValidation {
       if (count == null || count == 0) {
         groupsMissingMembers++;
         assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.MEM, "Group has no members and members are required");
+        invalidGroups.add(provisioningGroup);
         if (removeInvalid) {
           iterator.remove();
         } else {
@@ -671,7 +699,10 @@ public class GrouperProvisioningValidation {
     if (groupsMissingMembers > 0) {
       GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "groupsMissingMembers", groupsMissingMembers);
     }
-  
+    if (GrouperUtil.length(invalidGroups) > 0) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.validateGrouperGroups, invalidGroups);
+    }
+    return invalidGroups;
   }
 
   private int groupsMissingMembers = 0;

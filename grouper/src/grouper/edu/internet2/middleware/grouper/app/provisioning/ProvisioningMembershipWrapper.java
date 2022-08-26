@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper {
@@ -130,19 +132,43 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
   
   public void setGrouperProvisioningMembership(
       ProvisioningMembership grouperProvisioningMembership) {
-    this.grouperProvisioningMembership = grouperProvisioningMembership;
-    if (this.grouperProvisioningMembership!=null) {
-      this.groupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
-      if (this != this.grouperProvisioningMembership.getProvisioningMembershipWrapper()) {
-        if (this.grouperProvisioningMembership.getProvisioningMembershipWrapper() != null) {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.grouperProvisioningMembership.getProvisioningMembershipWrapper());
-        }
-        this.grouperProvisioningMembership.setProvisioningMembershipWrapper(this);
-      }
+    if (this.grouperProvisioningMembership == grouperProvisioningMembership) {
+      return;
     }
+    ProvisioningMembership oldGrouperProvisioningMembership = this.grouperProvisioningMembership;
+    ProvisioningMembershipWrapper oldProvisioningMembershipWrapper = oldGrouperProvisioningMembership == null ? null : oldGrouperProvisioningMembership.getProvisioningMembershipWrapper();
+
+    this.grouperProvisioningMembership = grouperProvisioningMembership;
+    
+    if (this.grouperProvisioningMembership != null) {
+      this.grouperProvisioningMembership.setProvisioningMembershipWrapper(this);
+    }
+
+    if (oldGrouperProvisioningMembership != null) {
+      oldGrouperProvisioningMembership.setProvisioningMembershipWrapper(null);
+    }
+    if (oldProvisioningMembershipWrapper != null && oldProvisioningMembershipWrapper != this) {
+      oldProvisioningMembershipWrapper.grouperProvisioningMembership = null;
+    }
+    this.calculateGroupIdMemberId();
   }
 
   
+  private void calculateGroupIdMemberId() {
+    this.groupIdMemberId = null;
+    if (this.grouperProvisioningMembership != null) {
+      this.groupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
+
+    } else if (this.gcGrouperSyncMembership != null) {
+      GcGrouperSyncGroup gcGrouperSyncGroup = this.gcGrouperSyncMembership.getGrouperSyncGroup();
+      GcGrouperSyncMember gcGrouperSyncMember = this.gcGrouperSyncMembership.getGrouperSyncMember();
+      if (gcGrouperSyncGroup != null && gcGrouperSyncMember != null) {
+        this.groupIdMemberId = new MultiKey(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getId());
+      }
+    }
+    
+  }
+
   public ProvisioningMembership getTargetProvisioningMembership() {
     return targetProvisioningMembership;
   }
@@ -150,12 +176,25 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
   
   public void setTargetProvisioningMembership(
       ProvisioningMembership targetProvisioningMembership) {
+
+    if (this.targetProvisioningMembership == targetProvisioningMembership) {
+      return;
+    }
+
+    ProvisioningMembership oldTargetProvisioningMembership = this.targetProvisioningMembership;
+    ProvisioningMembershipWrapper oldProvisioningMembershipWrapper = oldTargetProvisioningMembership == null ? null : oldTargetProvisioningMembership.getProvisioningMembershipWrapper();
+
     this.targetProvisioningMembership = targetProvisioningMembership;
-    if (this.targetProvisioningMembership != null && this != this.targetProvisioningMembership.getProvisioningMembershipWrapper()) {
-      if (this.targetProvisioningMembership.getProvisioningMembershipWrapper() != null) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.targetProvisioningMembership.getProvisioningMembershipWrapper());
-      }
+    
+    if (this.targetProvisioningMembership != null) {
       this.targetProvisioningMembership.setProvisioningMembershipWrapper(this);
+    }
+
+    if (oldTargetProvisioningMembership != null) {
+      oldTargetProvisioningMembership.setProvisioningMembershipWrapper(null);
+    }
+    if (oldProvisioningMembershipWrapper != null && oldProvisioningMembershipWrapper != this) {
+      oldProvisioningMembershipWrapper.targetProvisioningMembership = null;
     }
   }
 
@@ -166,12 +205,25 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
 
   
   public void setGrouperTargetMembership(ProvisioningMembership grouperTargetMembership) {
+    
+    if (this.grouperTargetMembership == grouperTargetMembership) {
+      return;
+    }
+    
+    ProvisioningMembership oldGrouperTargetMembership = this.grouperTargetMembership;
+    ProvisioningMembershipWrapper oldProvisioningMembershipWrapper = oldGrouperTargetMembership == null ? null : oldGrouperTargetMembership.getProvisioningMembershipWrapper();
+
     this.grouperTargetMembership = grouperTargetMembership;
-    if (this.grouperTargetMembership != null && this != this.grouperTargetMembership.getProvisioningMembershipWrapper()) {
-      if (this.grouperTargetMembership.getProvisioningMembershipWrapper() != null) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().remove(this.grouperTargetMembership.getProvisioningMembershipWrapper());
-      }
+    
+    if (this.grouperTargetMembership != null) {
       this.grouperTargetMembership.setProvisioningMembershipWrapper(this);
+    }
+
+    if (oldGrouperTargetMembership != null) {
+      oldGrouperTargetMembership.setProvisioningMembershipWrapper(null);
+    }
+    if (oldProvisioningMembershipWrapper != null && oldProvisioningMembershipWrapper != this) {
+      oldProvisioningMembershipWrapper.grouperTargetMembership = null;
     }
   }
 
@@ -196,6 +248,8 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     if (gcGrouperSyncMembership != null) {
       this.syncGroupIdSyncMemberId = new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId());
     }
+    this.calculateGroupIdMemberId();
+
   }
 
 

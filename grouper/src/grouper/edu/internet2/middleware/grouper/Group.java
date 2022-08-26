@@ -1581,6 +1581,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     final String errorMessageSuffix = ", group name: " + this.name 
       + ", subject: " + GrouperUtil.subjectToString(subj) + ", field: " + (f == null ? null : f.getName());
   
+    // do this outside of transaction so that if gets vetoed, the member is there for other things
+    MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, true);
+    
     return (Boolean)HibernateSession.callbackHibernateSession(
         GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,
         new HibernateHandler() {
@@ -4375,6 +4378,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
 
     final String errorMessageSuffix = ", group name: " + this.name 
       + ", subject: " + GrouperUtil.subjectToString(subj) + ", privilege: " + (priv == null ? null : priv.getName());
+
+    // do this outside of transaction so that if gets vetoed, the member is there for other things
+    MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, true);
 
     return (Boolean)HibernateSession.callbackHibernateSession(
       GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT,

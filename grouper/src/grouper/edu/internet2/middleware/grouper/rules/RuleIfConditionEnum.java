@@ -358,43 +358,43 @@ public enum RuleIfConditionEnum {
     public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
         RulesBean rulesBean) {
       
-      String memberId = null;
-      try {
-        memberId = rulesBean.getMemberId();
-      } catch (Exception e) {
-        //ignore
-      }
+          String memberId = null;
+          try {
+            memberId = rulesBean.getMemberId();
+          } catch (Exception e) {
+            //ignore
+          }
       
       GrouperSession rootSession = GrouperSession.startRootSession(false);
       try {
         
-        if (StringUtils.isBlank(memberId)) {
-          
+          if (StringUtils.isBlank(memberId)) {
+            
           Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
-          memberId = member == null ? null : member.getUuid();
+            memberId = member == null ? null : member.getUuid();
 
-          if (StringUtils.isBlank(memberId )) {
+            if (StringUtils.isBlank(memberId )) {
+              return false;
+            }
+          }
+          Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
+            ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, false);
+          if (group == null) {
+            LOG.error("Group doesnt exist in rule! " + ruleDefinition);
             return false;
           }
-        }
-        Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
-            ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, false);
-        if (group == null) {
-          LOG.error("Group doesnt exist in rule! " + ruleDefinition);
-          return false;
-        }
-        String groupId = group.getId();
-        
-        Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
-              groupId, Group.getDefaultList(), 
-              GrouperUtil.toSet(memberId), "immediate", true);
-        
-        return GrouperUtil.length(memberships) == 0;
+          String groupId = group.getId();
+          
+          Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+            .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
+                groupId, Group.getDefaultList(), 
+                GrouperUtil.toSet(memberId), "immediate", true);
+          
+          return GrouperUtil.length(memberships) == 0;
         
       } finally {
         GrouperSession.stopQuietly(rootSession);
-      }
+        }
     }
 
     /**
@@ -723,36 +723,36 @@ public enum RuleIfConditionEnum {
         //ignore
       }
       
-      GrouperSession rootSession = GrouperSession.startRootSession(false);
-      try {
+      if (StringUtils.isBlank(memberId)) {
         
-        if (StringUtils.isBlank(memberId)) {
-          
-          Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
+        GrouperSession rootSession = GrouperSession.startRootSession(false);
+        Member member = null;
+        try {
+          member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
           memberId = member == null ? null : member.getUuid();
-  
-          if (StringUtils.isBlank(memberId )) {
-            return false;
-          }
+        } finally {
+          GrouperSession.stopQuietly(rootSession);
         }
-        Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
-            ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, false);
-        if (group == null) {
-          LOG.error("Group doesnt exist in rule! " + ruleDefinition);
+
+        if (StringUtils.isBlank(memberId )) {
           return false;
         }
-        String groupId = group.getId();
-        
-        Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
-              groupId, Group.getDefaultList(), 
-              GrouperUtil.toSet(memberId), null, true);
-        
-        return GrouperUtil.length(memberships) == 0;
-        
-      } finally {
-        GrouperSession.stopQuietly(rootSession);
       }
+      Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
+          ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, false);
+      if (group == null) {
+        LOG.error("Group doesnt exist in rule! " + ruleDefinition);
+        return false;
+      }
+      String groupId = group.getId();
+      
+      Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+        .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
+            groupId, Group.getDefaultList(), 
+            GrouperUtil.toSet(memberId), null, true);
+      
+      return GrouperUtil.length(memberships) == 0;
+      
     }
   
     /**

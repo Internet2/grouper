@@ -1267,7 +1267,7 @@ public class Membership extends GrouperAPI implements
             + ", group: " + g.getName() + ", " + g.getUuid());
       }
       
-      Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
+      Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true, true);
       
       Membership ms = new Membership();
       
@@ -1318,7 +1318,7 @@ public class Membership extends GrouperAPI implements
     throws  MemberAddException  {
     try {
       GrouperSession.validate(s);
-      Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
+      Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true, true);
       
       Membership ms = new Membership();
       
@@ -2783,7 +2783,7 @@ public class Membership extends GrouperAPI implements
     throws  MemberAddException  {
     try {
       GrouperSession.validate(s);
-      Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true);
+      Member member = MemberFinder.internal_findReadableMemberBySubject(s, subj, true, true);
       
       Membership ms = new Membership();
       

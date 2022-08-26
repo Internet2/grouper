@@ -1440,7 +1440,20 @@ public abstract class GrouperProvisioningConfiguration {
    */
   private boolean selectAllEntities = true;
   
+  /**
+   * should the provisioner select all groups from the target
+   */
+  private boolean selectAllGroups = true;
   
+  
+  public boolean isSelectAllGroups() {
+    return selectAllGroups;
+  }
+
+  public void setSelectAllGroups(boolean selectAllGroups) {
+    this.selectAllGroups = selectAllGroups;
+  }
+
   /**
    * delete entities if grouper deleted them
    * @return
@@ -2076,7 +2089,17 @@ public abstract class GrouperProvisioningConfiguration {
         boolean showForMembership = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".showForMembership", false), false);
         grouperProvisioningObjectMetadataItem.setShowForMembership(showForMembership);
       }
+      
+      {
+        boolean canChange = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canChange", false), false);
+        grouperProvisioningObjectMetadataItem.setCanChange(canChange);
+      }
 
+      {
+        boolean canUpdate = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canUpdate", false), false);
+        grouperProvisioningObjectMetadataItem.setCanUpdate(canUpdate);
+      }
+      
       {
         String valueType = this.retrieveConfigString("metadata."+i+".valueType", false);
         GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
@@ -2556,6 +2579,7 @@ public abstract class GrouperProvisioningConfiguration {
           
     }
     this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
+    this.selectAllGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllGroups", false), true);
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
     

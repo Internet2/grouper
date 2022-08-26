@@ -158,7 +158,7 @@ public class GcGrouperSyncMembershipDao {
    * @param deleteLogs delete logs too
    * @return the syncs
    */
-  public int membershipDeleteAll(boolean deleteMemberships, boolean deleteLogs) {
+  public int membershipDeleteAll(boolean deleteLogs) {
     this.internalCacheSyncMemberships.clear();
     this.internalCacheSyncMembershipsById.clear();
     
@@ -170,18 +170,8 @@ public class GcGrouperSyncMembershipDao {
         .bindVars(this.getGcGrouperSync().getId()).executeSql();
     }
     
-    if (deleteMemberships) {
-      if (deleteLogs) {
-        rowDeleteCount += new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql(
-            "delete from grouper_sync_log where grouper_sync_owner_id in ( select id from grouper_sync_membership gsm where gsm.grouper_sync_id = ?)")
-            .bindVars(this.getGcGrouperSync().getId()).executeSql();
-      }
-      rowDeleteCount += new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql(
-          "delete from grouper_sync_membership where grouper_sync_id = ?)")
-          .bindVars(this.getGcGrouperSync().getId()).executeSql();
-    }
     rowDeleteCount += new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql(
-        "delete from grouper_sync_membership where grouper_sync_id = ?)")
+        "delete from grouper_sync_membership where grouper_sync_id = ?")
         .bindVars(this.getGcGrouperSync().getId()).executeSql();
     
     return rowDeleteCount;

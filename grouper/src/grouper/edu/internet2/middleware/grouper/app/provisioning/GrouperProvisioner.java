@@ -163,12 +163,6 @@ public abstract class GrouperProvisioner {
     if (!(this.retrieveGrouperProvisioningDataChanges().getClass().equals(GrouperProvisioningDataChanges.class))) {
       result.append(", DataChanges: ").append(this.retrieveGrouperProvisioningDataChanges().getClass().getName());
     }
-    if (!(this.retrieveGrouperProvisioningDataGrouper().getClass().equals(GrouperProvisioningDataGrouper.class))) {
-      result.append(", DataGrouper: ").append(this.retrieveGrouperProvisioningDataGrouper().getClass().getName());
-    }
-    if (!(this.retrieveGrouperProvisioningDataGrouperTarget().getClass().equals(GrouperProvisioningDataGrouperTarget.class))) {
-      result.append(", DataGrouperTarget: ").append(this.retrieveGrouperProvisioningDataGrouperTarget().getClass().getName());
-    }
     if (!(this.retrieveGrouperProvisioningDataIncrementalInput().getClass().equals(GrouperProvisioningDataIncrementalInput.class))) {
       result.append(", DataIncrementalInput: ").append(this.retrieveGrouperProvisioningDataIncrementalInput().getClass().getName());
     }
@@ -177,9 +171,6 @@ public abstract class GrouperProvisioner {
     }
     if (!(this.retrieveGrouperProvisioningDataSync().getClass().equals(GrouperProvisioningDataSync.class))) {
       result.append(", DataSync: ").append(this.retrieveGrouperProvisioningDataSync().getClass().getName());
-    }
-    if (!(this.retrieveGrouperProvisioningDataTarget().getClass().equals(GrouperProvisioningDataTarget.class))) {
-      result.append(", DataTarget: ").append(this.retrieveGrouperProvisioningDataTarget().getClass().getName());
     }
     if (!(this.retrieveGrouperProvisioningDiagnosticsContainer().getClass().equals(GrouperProvisioningDiagnosticsContainer.class))) {
       result.append(", DiagnosticsContainer: ").append(this.retrieveGrouperProvisioningDiagnosticsContainer().getClass().getName());
@@ -264,13 +255,7 @@ public abstract class GrouperProvisioner {
 
   private GrouperProvisioningData grouperProvisioningData;
 
-  private GrouperProvisioningDataGrouper grouperProvisioningDataGrouper;
-
-  private GrouperProvisioningDataGrouperTarget grouperProvisioningDataGrouperTarget;
-
   private GrouperProvisioningDataSync grouperProvisioningDataSync;
-
-  private GrouperProvisioningDataTarget grouperProvisioningDataTarget;
 
   private GrouperProvisioningDataIncrementalInput grouperProvisioningDataIncrementalInput ;
 
@@ -734,15 +719,16 @@ public abstract class GrouperProvisioner {
           
       return this.retrieveGrouperProvisioningOutput();
     } catch (RuntimeException re) {
+      String fullStackTrace = GrouperClientUtils.getFullStackTrace(re);
       LOG.error(this.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
-          "Error"), re);
+          "Error, " + fullStackTrace));
       if (gcGrouperSyncLog != null) {
         if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
           gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
         }
       }
       if (debugMap != null) {
-        debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+        debugMap.put("exception", fullStackTrace);
       }
       throw re;
     } finally {
@@ -767,14 +753,15 @@ public abstract class GrouperProvisioner {
           this.gcGrouperSyncJob.assignHeartbeatAndEndJob();
         }
       } catch (RuntimeException re2) {
+        String fullStackTrace = GrouperClientUtils.getFullStackTrace(re2);
         LOG.error(this.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
-            "Error2"), re2);
+            "Error2, " + fullStackTrace));
         if (this.gcGrouperSyncLog != null) {
           if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
             this.gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
           }
         }
-        debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
+        debugMap.put("exception2", fullStackTrace);
       }
     }
 
@@ -795,10 +782,11 @@ public abstract class GrouperProvisioner {
         gcGrouperSync.getGcGrouperSyncLogDao().internal_logStore(gcGrouperSyncLog);
       }
     } catch (RuntimeException re3) {
+      String fullStackTrace = GrouperClientUtils.getFullStackTrace(re3);
       LOG.error(this.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
-          "Error3"), re3);
+          "Error3, " + fullStackTrace));
 
-      debugMap.put("exception3", GrouperClientUtils.getFullStackTrace(re3));
+      debugMap.put("exception3", fullStackTrace);
       debugString = GrouperClientUtils.mapToString(debugMap);
     }
     
@@ -914,14 +902,6 @@ public abstract class GrouperProvisioner {
   }
 
   
-  public GrouperProvisioningDataGrouper retrieveGrouperProvisioningDataGrouper() {
-    if (this.grouperProvisioningDataGrouper == null) {
-      this.grouperProvisioningDataGrouper = new GrouperProvisioningDataGrouper();
-      this.grouperProvisioningDataGrouper.setGrouperProvisioner(this);
-    }
-    return grouperProvisioningDataGrouper;
-  }
-  
   public GrouperProvisioningDataSync retrieveGrouperProvisioningDataSync() {
     if (this.grouperProvisioningDataSync == null) {
       this.grouperProvisioningDataSync = new GrouperProvisioningDataSync();
@@ -938,23 +918,6 @@ public abstract class GrouperProvisioner {
     return grouperProvisioningData;
   }
 
-  public GrouperProvisioningDataGrouperTarget retrieveGrouperProvisioningDataGrouperTarget() {
-    if (this.grouperProvisioningDataGrouperTarget == null) {
-      this.grouperProvisioningDataGrouperTarget = new GrouperProvisioningDataGrouperTarget();
-      this.grouperProvisioningDataGrouperTarget.setGrouperProvisioner(this);
-    }
-    return grouperProvisioningDataGrouperTarget;
-  }
-
-  public GrouperProvisioningDataTarget retrieveGrouperProvisioningDataTarget() {
-    if (this.grouperProvisioningDataTarget == null) {
-      this.grouperProvisioningDataTarget = new GrouperProvisioningDataTarget();
-      this.grouperProvisioningDataTarget.setGrouperProvisioner(this);
-    }
-    return grouperProvisioningDataTarget;
-  }
-
-  
   public GrouperProvisioningDataIncrementalInput retrieveGrouperProvisioningDataIncrementalInput() {
     if (this.grouperProvisioningDataIncrementalInput == null) {
       this.grouperProvisioningDataIncrementalInput = new GrouperProvisioningDataIncrementalInput();

@@ -26,7 +26,7 @@ public class LdapSyncLogic extends GrouperProvisioningLogic {
     // first are we even doing this?
     if (((LdapSyncConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isAllowLdapGroupDnOverride()) {
       
-      List<ProvisioningGroup> grouperProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningDataGrouper().getGrouperProvisioningObjects().getProvisioningGroups();
+      List<ProvisioningGroup> grouperProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningGroups();
 
       Set<String> grouperDnOverrides = new HashSet<String>();
       
@@ -38,7 +38,7 @@ public class LdapSyncLogic extends GrouperProvisioningLogic {
       }
 
       if (grouperDnOverrides.size() > 0) {
-        List<ProvisioningGroup> targetProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningDataTarget().getTargetProvisioningObjects().getProvisioningGroups();
+        List<ProvisioningGroup> targetProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups();
         Set<String> targetDns = new HashSet<String>();
         for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetProvisioningGroups)) {
           String dn = provisioningGroup.retrieveAttributeValueString(LdapProvisioningTargetDao.ldap_dn);

@@ -139,7 +139,7 @@ public class GcGrouperSyncJobDao {
     }
     
     rowDeleteCount += new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName()).sql(
-        "delete from grouper_sync_job where grouper_sync_id = ?)")
+        "delete from grouper_sync_job where grouper_sync_id = ?")
         .bindVars(this.getGcGrouperSync().getId()).executeSql();
     
     return rowDeleteCount;

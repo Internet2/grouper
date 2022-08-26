@@ -406,10 +406,10 @@ public class FindBadMemberships {
     badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadUnionMemberships());
     badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadIntersectionMemberships());
     
-    Set<Object[]> missingMemberships = new LinkedHashSet<Object[]>();
-    missingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingComplementMemberships());
-    missingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingUnionMemberships());
-    missingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingIntersectionMemberships());
+    Set<Object[]> potentialMissingMemberships = new LinkedHashSet<Object[]>();
+    potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingComplementMemberships());
+    potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingUnionMemberships());
+    potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingIntersectionMemberships());
 
     for (Membership ms : badMemberships) {
       if (printErrorsToSTOUT) {
@@ -419,21 +419,27 @@ public class FindBadMemberships {
       logGshScript("GrouperDAOFactory.getFactory().getMembership().findByImmediateUuid(\"" + ms.getImmediateMembershipId() + "\", true).delete();\n");
     }
     
-    for (Object[] ownerAndCompositeAndMember : missingMemberships) {
+    int missingMembershipsCount = 0;
+    
+    for (Object[] ownerAndCompositeAndMember : potentialMissingMemberships) {
       String ownerGroupId = (String)ownerAndCompositeAndMember[0];
       String compositeId = (String)ownerAndCompositeAndMember[1];
       String memberId = (String)ownerAndCompositeAndMember[2];
-      
-      if (printErrorsToSTOUT) {
-        Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId, true);
-        Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true);
-        out.println("Missing composite membership: groupId=" + group.getId() + ", group name=" + group.getName() + ", subjectId=" + member.getSubjectId() + ".");
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId, true);
+
+      if (group.isEnabled()) {
+        missingMembershipsCount++;
+        
+        if (printErrorsToSTOUT) {
+          Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true);
+          out.println("Missing composite membership: groupId=" + group.getId() + ", group name=" + group.getName() + ", subjectId=" + member.getSubjectId() + ".");
+        }
+        
+        logGshScript("GrouperDAOFactory.getFactory().getMembership().save(Composite.internal_createNewCompositeMembershipObject(\"" + ownerGroupId + "\", \"" + memberId + "\", \"" + compositeId + "\"));\n");
       }
-      
-      logGshScript("GrouperDAOFactory.getFactory().getMembership().save(Composite.internal_createNewCompositeMembershipObject(\"" + ownerGroupId + "\", \"" + memberId + "\", \"" + compositeId + "\"));\n");
     }
     
-    return badMemberships.size() + missingMemberships.size();
+    return badMemberships.size() + missingMembershipsCount;
   }
   
   /**

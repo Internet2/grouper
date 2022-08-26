@@ -313,7 +313,7 @@ public class GshTemplateValidationService {
       
       {
         // required
-        if (gshTemplateInputConfig.isRequired() && StringUtils.isEmpty(valueFromUser)) {
+        if (gshTemplateInputConfig.isRequired() && StringUtils.isBlank(valueFromUser)) {
           
           String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.required.message");
           errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
@@ -416,13 +416,15 @@ public class GshTemplateValidationService {
         if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.DROPDOWN) {
           List<MultiKey> validKeysValues = gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(gshTemplateInputConfig);
           
-          if (!gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().doesValuePassValidation(valueFromUser, validKeysValues)) {
-            // get only keys out of list of multiKeys and convert to comma separated string  
-            String validValuesCommaSeparated = GrouperUtil.collectionToString(validKeysValues.stream().map(multikey -> multikey.getKey(0)).collect(Collectors.toSet()));
-            String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.invalidDropdownValue.message");
-            errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
-            errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$validValues$$", validValuesCommaSeparated);
-            execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
+          if (StringUtils.isNotBlank(valueFromUser)) {
+            if (!gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().doesValuePassValidation(valueFromUser, validKeysValues)) {
+              // get only keys out of list of multiKeys and convert to comma separated string  
+              String validValuesCommaSeparated = GrouperUtil.collectionToString(validKeysValues.stream().map(multikey -> multikey.getKey(0)).collect(Collectors.toSet()));
+              String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.invalidDropdownValue.message");
+              errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
+              errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$validValues$$", validValuesCommaSeparated);
+              execOutput.getGshTemplateOutput().addValidationLine(gshTemplateInput.getName(), errorMessage);
+            }
           }
         }
         

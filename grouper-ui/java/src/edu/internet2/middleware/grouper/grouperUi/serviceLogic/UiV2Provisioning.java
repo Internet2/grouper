@@ -152,7 +152,11 @@ public class UiV2Provisioning {
           for (GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue: guiGrouperProvisioningAttributeValues) {
             
             GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(guiGrouperProvisioningAttributeValue.getGrouperProvisioningAttributeValue().getTargetName());
-            provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+            try {
+              provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+            } catch (Exception e) {
+              LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+            }
             provisioningContainer.setGrouperProvisioner(provisioner);
             guiGrouperProvisioningAttributeValue.setGrouperProvisioner(provisioner);
             GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -494,7 +498,11 @@ public class UiV2Provisioning {
           }
 
           GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          try {
+            provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          } catch (Exception e) {
+            LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+          }
           provisioningContainer.setGrouperProvisioner(provisioner);
 
           GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -605,7 +613,12 @@ public class UiV2Provisioning {
             guiGrouperSyncObject.setGcGrouperSyncMembership(gcGrouperSyncMembership);
           }
 
-          GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName).initialize(GrouperProvisioningType.fullProvisionFull);
+          GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+          try {
+            grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          } catch (Exception e) {
+            LOG.error("Could not initialize provisioner: "+grouperProvisioner.getConfigId(), e);
+          }
           provisioningContainer.setGrouperProvisioner(grouperProvisioner);
 
           List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItems();
@@ -821,7 +834,11 @@ public class UiV2Provisioning {
           }
 
           GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          try {
+            provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+          } catch (Exception e) {
+            LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+          }
           provisioningContainer.setGrouperProvisioner(provisioner);
 
           GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1012,7 +1029,11 @@ public class UiV2Provisioning {
       }
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(provisionerName);
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      try {
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+      }
       guiGrouperProvisioningAttributeValue.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1122,9 +1143,10 @@ public class UiV2Provisioning {
         }
       });
       
-      
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute = true;
       }
       
 //      if (StringUtils.equals(targetName, previousTargetName)) {
@@ -1157,7 +1179,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
         guiGrouperProvisioningAttributeValue.setGrouperProvisioner(provisioner);
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1197,7 +1223,7 @@ public class UiV2Provisioning {
             Object value = elVariableMap.get(metadataItem.getName());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
               metadataItem.setReadOnly(true);
             }
             
@@ -1311,15 +1337,21 @@ public class UiV2Provisioning {
         }
       });
       
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
-      }
-      
-      if (StringUtils.equals(targetName, previousTargetName)) {
-       
+        addProvisioningAttribute = true;
       }
       
       if (StringUtils.isNotBlank(targetName)) {
+        
+        GcGrouperSyncMembership gcGrouperSyncMembership = null;
+        
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
+        
+        if (gcGrouperSync != null) {
+          gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(group.getId(), member.getId());
+        }
         
         Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
         
@@ -1338,7 +1370,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
 
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1349,11 +1385,13 @@ public class UiV2Provisioning {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
-              metadataItem.setReadOnly(true);
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
+              if (gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
+                metadataItem.setReadOnly(true);
+              }
             }
             
-            if (!metadataItem.isCanChange() && value != null) {
+            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMembership == null || gcGrouperSyncMembership.isInTarget())) {
               metadataItem.setReadOnly(true);
             }
             
@@ -1468,11 +1506,21 @@ public class UiV2Provisioning {
         }
       });
       
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute = true;
       }
       
       if (StringUtils.isNotBlank(targetName)) {
+        
+        GcGrouperSyncMembership gcGrouperSyncMembership = null;
+        
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
+        
+        if (gcGrouperSync != null) {
+          gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(group.getId(), member.getId());
+        }
         
         Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
         
@@ -1491,7 +1539,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
 
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1502,11 +1554,13 @@ public class UiV2Provisioning {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
-              metadataItem.setReadOnly(true);
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
+              if (gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
+                metadataItem.setReadOnly(true);
+              }
             }
             
-            if (!metadataItem.isCanChange() && value != null) {
+            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMembership == null || gcGrouperSyncMembership.isInTarget())) {
               metadataItem.setReadOnly(true);
             }
             
@@ -1617,13 +1671,23 @@ public class UiV2Provisioning {
         }
       });
       
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute = true;
       }
       
       if (StringUtils.isNotBlank(targetName)) {
         
         Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+        
+        GcGrouperSyncMember gcGrouperSyncMember = null;
+        
+        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
+        
+        if (gcGrouperSync != null) {
+          gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
+        }
         
         GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
         if (grouperProvisioningTarget == null) {
@@ -1641,7 +1705,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
 
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1652,14 +1720,15 @@ public class UiV2Provisioning {
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
-              metadataItem.setReadOnly(true);
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
+              if (gcGrouperSync != null && gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.isInTarget()) {
+                metadataItem.setReadOnly(true);
+              }
             }
             
-            if (!metadataItem.isCanChange() && value != null) {
+            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMember == null || gcGrouperSyncMember.isInTarget())) {
               metadataItem.setReadOnly(true);
             }
-            
             
             metadataItems.add(metadataItem);
           }
@@ -1796,8 +1865,10 @@ public class UiV2Provisioning {
         }
       });
       
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute  = true;
       }
       
 //      if (StringUtils.equals(targetName, previousTargetName)) {
@@ -1820,7 +1891,7 @@ public class UiV2Provisioning {
         GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
         
         if (gcGrouperSync != null) {
-          gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveById(group.getId());
+          gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(group.getId());
         }
         
         List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
@@ -1828,7 +1899,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
 
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -1866,17 +1941,16 @@ public class UiV2Provisioning {
             Object value = elVariableMap.get(metadataItem.getName());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
-              if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable()) {
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
+              if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.isInTarget()) {
                 metadataItem.setReadOnly(true);
               }
             }
             
-            if (!metadataItem.isCanChange() && value != null) {
+            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncGroup == null || gcGrouperSyncGroup.isInTarget())) {
               metadataItem.setReadOnly(true);
             }
             
-            metadataItems.add(metadataItem);
           }
         }
         
@@ -1987,8 +2061,10 @@ public class UiV2Provisioning {
         }
       });
       
+      boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
         provisioningAttributeValue = new GrouperProvisioningAttributeValue();
+        addProvisioningAttribute = true;
       }
       
       if (StringUtils.equals(targetName, previousTargetName)) {
@@ -2019,7 +2095,11 @@ public class UiV2Provisioning {
         Map<String, Object> metadataNameValues = provisioningAttributeValue.getMetadataNameValues();
         
         GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        try {
+          provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+        } catch (Exception e) {
+          LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+        }
         provisioningContainer.setGrouperProvisioner(provisioner);
 
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2064,7 +2144,7 @@ public class UiV2Provisioning {
             Object value = elVariableMap.get(metadataItem.getName());
             metadataItem.setDefaultValue(value);
             
-            if (!metadataItem.isCanUpdate()) {
+            if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
               if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable()) {
                 metadataItem.setReadOnly(true);
               }
@@ -2273,7 +2353,12 @@ public class UiV2Provisioning {
       attributeValue.setTargetName(targetName);
       attributeValue.setStemScopeString(stemScopeString);
       
-      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName).initialize(GrouperProvisioningType.fullProvisionFull);
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(targetName);
+      try {
+        grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+grouperProvisioner.getConfigId(), e);
+      }
       provisioningContainer.setGrouperProvisioner(grouperProvisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2449,7 +2534,11 @@ public class UiV2Provisioning {
       attributeValue.setTargetName(targetName);
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      try {
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+      }
       provisioningContainer.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2581,7 +2670,11 @@ public class UiV2Provisioning {
       attributeValue.setTargetName(targetName);
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      try {
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+      }
       provisioningContainer.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2714,7 +2807,11 @@ public class UiV2Provisioning {
       attributeValue.setTargetName(targetName);
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      try {
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+      }
       provisioningContainer.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
@@ -2855,7 +2952,11 @@ public class UiV2Provisioning {
       attributeValue.setTargetName(targetName);
       
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner(targetName);
-      provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      try {
+        provisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
+      }
       provisioningContainer.setGrouperProvisioner(provisioner);
 
       GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();

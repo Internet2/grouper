@@ -655,6 +655,56 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
     }
 
   };
+  
+  
+  /**
+   * dynamic map of attribute name to attribute friendly description
+   */
+  private Map<String, String> attributeNameFriendlyDescriptionMap = new HashMap<String, String>() {
+
+    /**
+     * @see java.util.HashMap#get(java.lang.Object)
+     */
+    @Override
+    public String get(Object attributeName) {
+      
+      String sourceId = GuiSubject.this.getSubject().getSourceId();
+      String sourceTextId = GrouperUiUtils.convertSourceIdToTextId(sourceId);
+      
+      String emailAttribute = GrouperEmailUtils.emailAttributeNameForSource(GuiSubject.this.subject.getSourceId());
+      
+      // subjectViewFriendlyDescription__sourceTextId__attributeName
+      String key = "subjectViewFriendlyDescription__" + sourceTextId + "__" + attributeName;
+      
+      if ("sourceId".equals(attributeName)) {
+        key = "subjectViewFriendlyDescriptionSourceId";
+      } else if ("sourceName".equals(attributeName)) {
+        key = "subjectViewFriendlyDescriptionSourceName";
+      } else if ("memberId".equals(attributeName)) {
+        key = "subjectViewFriendlyDescriptionMemberId";
+      } else if ("subjectId".equals(attributeName)) {
+        key = "subjectViewFriendlyDescriptionId";
+      } else if ("name".equals(attributeName)) {
+        key = "subjectViewFriendlyDescriptionName";
+      } else if ("description".equals(attributeName)) {
+        key = "subjectViewFriendlyDescriptionDescription";
+      } else if (!GrouperUtil.isBlank(emailAttribute) && emailAttribute.equals(attributeName)) {
+        key = "subjectViewFriendlyDescriptionEmail";
+      }
+      
+      String value = TextContainer.textOrNull(key);
+      
+      if (StringUtils.isBlank(value)) {
+        return "";
+      }
+      
+      value = StringUtils.replace(value, "$$attributeName$$", GrouperUtil.stringValue(attributeName));
+      
+      return value;
+      
+    }
+
+  };
 
   
   /**
@@ -666,6 +716,13 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
   public Map<String, String> getAttributeLabel() {
     
     return this.attributeLabelMap;
+    
+  }
+  
+  
+  public Map<String, String> getAttributeNameFriendlyDescripton() {
+    
+    return this.attributeNameFriendlyDescriptionMap;
     
   }
   

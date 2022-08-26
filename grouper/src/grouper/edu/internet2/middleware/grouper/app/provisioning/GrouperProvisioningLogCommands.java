@@ -37,7 +37,9 @@ public class GrouperProvisioningLogCommands {
   public void infoLog(String string) {
     LOG.info(string);
     if (infoCount++ < 1000) {
-      this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": INFO: ").append(string).append("\n\n");
+      this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis()))
+        .append(": ").append(this.grouperProvisioner.getInstanceId()).append(", ").append(this.grouperProvisioner.getConfigId())
+        .append(", ").append(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType()).append(": INFO: ").append(string).append("\n\n");
     }
   }
   private int errorCount = 0;
@@ -49,7 +51,9 @@ public class GrouperProvisioningLogCommands {
   public void errorLog(String string) {
     LOG.error(string);
     if (errorCount++ < 1000) {
-      this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": ERROR: ").append(string).append("\n\n");
+      this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": ")
+      .append(this.grouperProvisioner.getInstanceId()).append(", ").append(this.grouperProvisioner.getConfigId())
+      .append(", ").append(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType()).append(": ERROR: ").append(string).append("\n\n");
     }
   }
 

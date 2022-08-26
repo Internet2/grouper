@@ -50,12 +50,14 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -94,7 +96,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleMaxGroupMembersOtherGroup"));
+    TestRunner.run(new RuleTest("testRuleLonghandVetoUserCantSeeIfGroup"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -5585,5 +5587,98 @@ public class RuleTest extends GrouperTest {
     GrouperSession.stopQuietly(grouperSession);
     
   
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandVetoUserCantSeeIfGroup() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group ruleGroup = new GroupSave(grouperSession).assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    Group mustBeInGroup = new GroupSave(grouperSession).assignName("stem:b").assignCreateParentStemsIfNotExist(true).save();
+
+    ruleGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.UPDATE, false);
+    ruleGroup.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.READ, false);
+
+    mustBeInGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+    
+    RuleApi.vetoMembershipIfNotInGroup(SubjectTestHelper.SUBJ1, ruleGroup, mustBeInGroup, 
+        "rule.entity.must.be.a.member.of.stem.b", "Entity cannot be a member of stem:a if not a member of stem:b");
+
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+
+    // caller is root, but act as cannot read mustBeInGroup... should be skipped
+    ruleGroup.addMember(SubjectTestHelper.SUBJ5, false);
+    assertEquals(initialFirings, RuleEngine.ruleFirings);
+
+    mustBeInGroup.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ, false);
+
+
+    // caller is root, but act as can read mustBeInGroup... should work
+    try {
+      ruleGroup.addMember(SubjectTestHelper.SUBJ6, false);
+      fail();
+    } catch (Exception e) {
+      // good
+    }
+
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    initialFirings = RuleEngine.ruleFirings;
+    
+    grouperSession.stop();
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0, false);
+    
+    GrouperSession.callbackGrouperSession(grouperSession, 
+        new GrouperSessionHandler() {
+
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+            try {
+              ruleGroup.addMember(SubjectTestHelper.SUBJ6);
+              fail("Should be vetoed");
+            } catch (RuleVeto rve) {
+              //this is good
+              String stack = ExceptionUtils.getFullStackTrace(rve);
+              assertTrue(stack, stack.contains("Entity cannot be a member of stem:a if not a member of stem:b"));
+            }
+
+            
+            return null;
+          }
+      
+    });
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    initialFirings = RuleEngine.ruleFirings;
+    grouperSession.stop();
+
+    GrouperSession.internal_callbackRootGrouperSession(
+        new GrouperSessionHandler() {
+
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            mustBeInGroup.addMember(SubjectTestHelper.SUBJ6);
+            return null;
+          }
+      
+    });
+    
+    grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0, false);
+    
+    GrouperSession.callbackGrouperSession(grouperSession, 
+        new GrouperSessionHandler() {
+
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+            ruleGroup.addMember(SubjectTestHelper.SUBJ6);
+
+            return null;
+          }
+      
+    });
+    assertEquals("Didnt fire since is a member", initialFirings, RuleEngine.ruleFirings);
+
   }
 }

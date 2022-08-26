@@ -1367,6 +1367,119 @@ public class UiV2ProvisionerConfiguration {
   
   
   /**
+   * delete group member cache for a given provisioner
+   * @param request
+   * @param response
+   */
+  public void deleteGroupMemberCache(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
+      
+      if (!provisionerConfigurationContainer.isCanEditProvisionerConfiguration()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String provisionerConfigId = request.getParameter("provisionerConfigId");
+      
+      if (StringUtils.isBlank(provisionerConfigId)) {
+        throw new RuntimeException("provisionerConfigId cannot be blank");
+      }
+      
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      grouperProvisioner.setGcGrouperSync(GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerConfigId));
+      
+      List<GcGrouperSyncGroup> grouperSyncGroups = grouperProvisioner.getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveAll();
+      
+      for (GcGrouperSyncGroup gcGrouperSyncGroup: grouperSyncGroups) {
+        gcGrouperSyncGroup.setGroupAttributeValueCache0(null);
+        gcGrouperSyncGroup.setGroupAttributeValueCache1(null);
+        gcGrouperSyncGroup.setGroupAttributeValueCache2(null);
+        gcGrouperSyncGroup.setGroupAttributeValueCache3(null);
+      }
+      
+      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncGroupDao().internal_groupStoreAll();
+      
+      List<GcGrouperSyncMember> grouperSyncMembers = grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMemberDao().memberRetrieveAll();
+      
+      for (GcGrouperSyncMember grouperSyncMember: grouperSyncMembers) {
+        grouperSyncMember.setEntityAttributeValueCache0(null);
+        grouperSyncMember.setEntityAttributeValueCache1(null);
+        grouperSyncMember.setEntityAttributeValueCache2(null);
+        grouperSyncMember.setEntityAttributeValueCache3(null);
+      }
+      
+      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMemberDao().internal_memberStoreAll();
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("provisionerGroupMemberCacheDeleteSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * delete all cache for a given provisioner
+   * @param request
+   * @param response
+   */
+  public void deleteAllCache(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
+      
+      if (!provisionerConfigurationContainer.isCanEditProvisionerConfiguration()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String provisionerConfigId = request.getParameter("provisionerConfigId");
+      
+      if (StringUtils.isBlank(provisionerConfigId)) {
+        throw new RuntimeException("provisionerConfigId cannot be blank");
+      }
+      
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      grouperProvisioner.setGcGrouperSync(GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerConfigId));
+      
+      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMembershipDao().membershipDeleteAll(true);
+      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncGroupDao().groupDeleteAll(true, true);
+      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMemberDao().memberDeleteAll(true, true);
+      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncJobDao().jobDeleteAll(true);
+      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncLogDao().logDeleteAll();
+      grouperProvisioner.getGcGrouperSync().getGcGrouperSyncDao().delete();
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerConfigurations')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("provisionerGroupMemberCacheDeleteSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
    * show form to run full sync job
    * @param request
    * @param response

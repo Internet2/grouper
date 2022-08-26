@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 /**
@@ -19,8 +20,6 @@ public class AzureProvisionerTestUtils {
 
     if (realAzure) {
       
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.clientId").value("1ed9f56e-96ef-441d-bf1a-8391747e8c7f").store();
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.clientSecret").value("DUR8Q~WefSB1dRYZjMhrcJOP6Z3W1zmSalxFhdBL").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.graphEndpoint").value("https://graph.microsoft.com").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.graphVersion").value("beta").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.groupLookupAttribute").value("displayName").store();
@@ -28,7 +27,6 @@ public class AzureProvisionerTestUtils {
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.loginEndpoint").value("https://login.microsoftonline.com/").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.resource").value("https://graph.microsoft.com").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.resourceEndpoint").value("https://graph.microsoft.com/beta/").store();
-      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.azureConnector.myAzure.tenantId").value("a443dbb3-818b-432e-95ec-79acff176ff1").store();
 
     } else {
       int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
@@ -82,25 +80,30 @@ public class AzureProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "class", "edu.internet2.middleware.grouper.app.azure.GrouperAzureProvisioner");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntitiesIfNotExistInGrouper", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroupsIfNotExistInGrouper", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsIfNotExistInGrouper", "true");
+    if (provisioningTestConfigInput.getEntityAttributeCount() == 5) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "false");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntitiesIfNotExistInGrouper", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroupsIfNotExistInGrouper", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsIfNotExistInGrouper", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "true");
+    }
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "5");
-    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "" + provisioningTestConfigInput.getGroupAttributeCount() + "");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "" + provisioningTestConfigInput.getEntityAttributeCount());
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "" + provisioningTestConfigInput.getGroupAttributeCount());
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
@@ -109,73 +112,98 @@ public class AzureProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntitiesDuringDiagnostics", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "selectAllGroupsDuringDiagnostics", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "selectAllMembershipsDuringDiagnostics", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "showProvisioningDiagnostics", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
+
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.showAdvancedAttribute", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.showAttributeCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.update", "false");
+    
+    if (provisioningTestConfigInput.getEntityAttributeCount() == 5) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.showAdvancedAttribute", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.showAttributeCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.update", "false");
+    }
     
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "subjectTranslationScript");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0translationScript", "${subject.getAttributeValue('email')}");
+    if (provisioningTestConfigInput.getEntityAttributeCount() == 5) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "subjectTranslationScript");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0translationScript", "${subject.getAttributeValue('email')}");
+    }
     
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2has", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2source", "target");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2type", "entityAttribute");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2entityAttribute", "id");
 
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "accountEnabled");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpression", "${'true'}");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "translationScript");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "userPrincipalName");
+//  configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
+//  configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "name");
+  
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
+
+    if (provisioningTestConfigInput.getEntityAttributeCount() == 5) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "displayName");
+      
+    } else {
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "userPrincipalName");
+      
+    }
+
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "displayName");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "name");
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "displayName");
-
-    
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.name", "mailNickname");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
 
-    if (provisioningTestConfigInput.getGroupAttributeCount() == 5) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "name");
+    if (provisioningTestConfigInput.isUdelUseCase()) {
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "translationScript");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpression", "${grouperUtil.prefixOrSuffix(grouperProvisioningEntity.name, '@', true) }");
     } else {
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "id");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "name");
+    }
+
+
+    if (provisioningTestConfigInput.getEntityAttributeCount() == 5) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache0");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
+
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "accountEnabled");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpression", "${'true'}");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "translationScript");
+      
+    } else {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
     }
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "userPrincipalName");
-//    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "grouperProvisioningEntityField");
-//    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateFromGrouperProvisioningEntityField", "name");
-    
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache0");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "grouperProvisioningEntityField");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "id");
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.showAdvancedAttribute", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.showAttributeCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.update", "false");
-
+    if (!provisioningTestConfigInput.isUdelUseCase()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.showAdvancedAttribute", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.showAttributeCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.update", "false");
+    }
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2has", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2source", "target");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2type", "groupAttribute");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2groupAttribute", "id");
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "target");
-    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupAttribute");
-    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0groupAttribute", "displayName");
-
+    if (!provisioningTestConfigInput.isUdelUseCase()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "target");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupAttribute");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0groupAttribute", "displayName");
+    }
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "displayName");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
     
@@ -186,40 +214,44 @@ public class AzureProvisionerTestUtils {
 
     
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.showAttributeCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.insert", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "mailNickname");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.select", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
-    if (provisioningTestConfigInput.getGroupAttributeCount() == 3) {
+    if (provisioningTestConfigInput.getGroupAttributeCount() == 5) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "name");
     } else {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "extension");
     }
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.update", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
-
-    if (provisioningTestConfigInput.getGroupAttributeCount() >= 4) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "allowOnlyMembersToPost", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "resourceProvisioningOptionsTeam", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "hideGroupInOutlook", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.insert", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "allowOnlyMembersToPost");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.select", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpression", "${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_allowOnlyMembersToPost'), 'false')}");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.update", "false");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAttributeCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.insert", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "welcomeEmailDisabled");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.select", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpression", "${'true'}");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpressionType", "translationScript");
-      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.update", "false");
+    if (!provisioningTestConfigInput.isUdelUseCase()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.select", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.insert", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.update", "true");
     }
     
-    
+    if (!provisioningTestConfigInput.isUdelUseCase()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "updateEntities", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
+  
+      if (provisioningTestConfigInput.getGroupAttributeCount() >= 4) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "allowOnlyMembersToPost", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "resourceProvisioningOptionsTeam", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "hideGroupInOutlook", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeCrud", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.insert", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "allowOnlyMembersToPost");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.select", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpression", "${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_allowOnlyMembersToPost'), 'false')}");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "translationScript");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.update", "false");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAttributeCrud", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.insert", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "welcomeEmailDisabled");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.select", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpression", "${'true'}");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpressionType", "translationScript");
+        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.update", "false");
+      }
+      
+    }    
     for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {
       String theValue = provisioningTestConfigInput.getExtraConfig().get(key);
       if (!StringUtils.isBlank(theValue)) {

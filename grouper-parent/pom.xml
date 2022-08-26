@@ -66,6 +66,7 @@
         <maven-gpg-plugin.version>1.5</maven-gpg-plugin.version>
         <maven-assembly-plugin.version>2.4</maven-assembly-plugin.version>
         <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+        <dependency-check-maven-plugin.varsion>7.1.2</dependency-check-maven-plugin.varsion>
         <cobertura-maven-plugin.version>2.6</cobertura-maven-plugin.version>
         <coveralls-maven-plugin.version>2.2.0</coveralls-maven-plugin.version>
         <maven-surefire-plugin.version>2.17</maven-surefire-plugin.version>
@@ -1268,6 +1269,29 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>taglist-maven-plugin</artifactId>
                 <version>${maven-taglist-plugin.version}</version>
+              </plugin>
+              <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>${dependency-check-maven-plugin.varsion}</version>
+                  <configuration>
+                    <!-- the grouper module has a dependency on ant, which depends on com.sun tools.jar. The
+                                error can be avoided by skipping checks for system scope dependencies
+                               (note: show usage with `mvn dependency:tree -Dincludes=com.sun:tools -f grouper-parent`)
+                    -->
+                    <skipSystemScope>true</skipSystemScope>
+                    <!-- skip .net assembly checking to avoid warning ".NET Assembly Analyzer could not be initialized
+                                and at least one 'exe' or 'dll' was scanned ..."
+                    -->
+                    <assemblyAnalyzerEnabled>false</assemblyAnalyzerEnabled>
+                  </configuration>
+                <reportSets>
+                  <reportSet>
+                    <reports>
+                      <report>aggregate</report>
+                    </reports>
+                  </reportSet>
+                </reportSets>
               </plugin>
         </plugins>
     </reporting>

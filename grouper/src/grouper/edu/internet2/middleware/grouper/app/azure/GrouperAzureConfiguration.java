@@ -37,6 +37,9 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
       if (StringUtils.equals(attributeName, "assignableToRole")) {
         attributeName = "isAssignableToRole";
       }
+      if (StringUtils.equals(attributeName, "azureGroupType")) {
+        attributeName = "groupType";
+      }
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getTargetGroupAttributeNameToConfig().get(attributeName);
       
       if (grouperProvisioningConfigurationAttribute != null) {
