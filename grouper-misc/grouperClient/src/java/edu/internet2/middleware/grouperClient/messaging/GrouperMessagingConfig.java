@@ -137,6 +137,29 @@ public class GrouperMessagingConfig {
     
     return null;
   }
+
+  /**
+    *
+    * @param grouperClientConfig
+    * @param propertyNameSuffix
+    * @param defaultValue
+    * @return the value or the override
+    */
+   public boolean propertyValueBoolean(GrouperClientConfig grouperClientConfig, String propertyNameSuffix, boolean defaultValue) {
+
+     String propertyValueString = this.propertyValueString(grouperClientConfig, propertyNameSuffix);
+
+     if (!StringUtils.isBlank(propertyValueString)) {
+       try {
+         return ConfigPropertiesCascadeUtils.booleanValue(propertyValueString);
+       } catch (Exception e) {
+
+       }
+       throw new RuntimeException("Invalid boolean value: '" + propertyValueString + "' for property sufffix: "
+           + propertyNameSuffix + " in messaging system: " + this.name + " in config file: grouper.client.properties file");
+     }
+     return defaultValue;
+   }
   
 }
 
