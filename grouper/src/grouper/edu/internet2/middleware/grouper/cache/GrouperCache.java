@@ -28,7 +28,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
-import net.sf.ehcache.Statistics;
+import net.sf.ehcache.statistics.StatisticsGateway;
 
 
 /**
@@ -195,7 +195,7 @@ public class GrouperCache<K,V> {
    * @return  ehcache statistics for <i>cache</i>.
    * @since   1.2.1
    */
-  public Statistics getStats() {
+  public StatisticsGateway getStats() {
     return this.cache.getStatistics();
   }
 

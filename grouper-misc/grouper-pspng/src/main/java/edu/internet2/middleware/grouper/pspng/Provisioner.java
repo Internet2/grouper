@@ -839,10 +839,10 @@ public abstract class Provisioner
   }
 
   protected void warnAboutCacheSizeConcerns() {
-    warnAboutCacheSizeConcerns(grouperGroupInfoCache.getStats().getObjectCount(), config.getGrouperGroupCacheSize(), "grouper groups", "grouperGroupCacheSize");
-    warnAboutCacheSizeConcerns(targetSystemGroupCache.getStats().getObjectCount(), config.getTargetSystemGroupCacheSize(), "provisioned groups", "targetSystemGroupCacheSize");
-    warnAboutCacheSizeConcerns(grouperSubjectCache.getStats().getObjectCount(), config.getGrouperSubjectCacheSize(), "grouper subjects", "grouperSubjectCacheSize");
-    warnAboutCacheSizeConcerns(targetSystemUserCache.getStats().getObjectCount(), config.getTargetSystemUserCacheSize(), "provisioned subjects", "targetSystemUserCacheSize");
+    warnAboutCacheSizeConcerns(grouperGroupInfoCache.getStats().getSize(), config.getGrouperGroupCacheSize(), "grouper groups", "grouperGroupCacheSize");
+    warnAboutCacheSizeConcerns(targetSystemGroupCache.getStats().getSize(), config.getTargetSystemGroupCacheSize(), "provisioned groups", "targetSystemGroupCacheSize");
+    warnAboutCacheSizeConcerns(grouperSubjectCache.getStats().getSize(), config.getGrouperSubjectCacheSize(), "grouper subjects", "grouperSubjectCacheSize");
+    warnAboutCacheSizeConcerns(targetSystemUserCache.getStats().getSize(), config.getTargetSystemUserCacheSize(), "provisioned subjects", "targetSystemUserCacheSize");
   }
 
   private void warnAboutCacheSizeConcerns(long cacheObjectCount, int configuredSize, String objectType, String configurationProperty) {
