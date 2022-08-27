@@ -136,6 +136,7 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
     try {
       // we need to get another one
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+      grouperHttpClient.assignDoNotLogHeaders(AzureMockServiceHandler.doNotLogHeaders).assignDoNotLogParameters(AzureMockServiceHandler.doNotLogParameters);
       
       boolean logAuthenticationResponseBody = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.azureConnector." + configId + ".logAuthenticationResponseBody", false);
       if (!logAuthenticationResponseBody) {
