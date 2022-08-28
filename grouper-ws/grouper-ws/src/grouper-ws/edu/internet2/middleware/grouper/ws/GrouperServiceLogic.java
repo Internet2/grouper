@@ -366,13 +366,12 @@ public class GrouperServiceLogic {
                         boolean didntAlreadyExist = false;
 
                         didntAlreadyExist = group.addMember(subject, FIELD_CALCULATED, false);
-
-                        final boolean dealWithDates = enabledTime != null || disabledTime != null;
-                        if (dealWithDates) {
-                          //get the membership
-                          Membership membership = group.getImmediateMembership(FIELD_CALCULATED, subject, true, true);
-
-                          boolean needsUpdate = false;
+                        
+                        boolean needsUpdate = false;
+                        Membership membership = group.getImmediateMembership(FIELD_CALCULATED, subject, true, true);
+                        
+                        // if already existed then use the new dates, the new dates can be null
+                        if (didntAlreadyExist == false) {
                           if (!GrouperUtil.equals(disabledTime, membership.getDisabledTime())) {
                             membership.setDisabledTime(disabledTime);
                             needsUpdate = true;
@@ -381,9 +380,23 @@ public class GrouperServiceLogic {
                             membership.setEnabledTime(enabledTime);
                             needsUpdate = true;
                           }
-                          if (needsUpdate) {
-                            membership.update();
+                        } else {
+                          // if we're adding this membership for the first time, let's see if we need to set the dates
+                          final boolean dealWithDates = enabledTime != null || disabledTime != null;
+                          if (dealWithDates) {
+                            if (!GrouperUtil.equals(disabledTime, membership.getDisabledTime())) {
+                              membership.setDisabledTime(disabledTime);
+                              needsUpdate = true;
+                            }
+                            if (!GrouperUtil.equals(enabledTime, membership.getEnabledTime())) {
+                              membership.setEnabledTime(enabledTime);
+                              needsUpdate = true;
+                            }
                           }
+                        }
+                        
+                        if (needsUpdate) {
+                          membership.update();
                         }
 
                         wsAddMemberResult.assignResultCode(GrouperWsVersionUtils.addMemberSuccessResultCode(
