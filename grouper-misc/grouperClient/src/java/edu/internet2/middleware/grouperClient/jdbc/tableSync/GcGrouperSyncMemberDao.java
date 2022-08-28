@@ -76,7 +76,7 @@ public class GcGrouperSyncMemberDao {
   public GcGrouperSyncMember internal_memberRetrieveFromDbByMemberNameFromMemberId(String memberId) {
     
     List<GcGrouperSyncMember> gcGrouperSyncMembers = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
-        .sql("select gsm.* from grouper_sync_member gsm, grouper_members gm where gsm.grouper_sync_id = ? and gm.id = ? and gm.subject_id = gsm.subject_id")
+        .sql("select gsm.* from grouper_sync_member gsm, grouper_members gm where gsm.grouper_sync_id = ? and gm.id = ? and gm.subject_id = gsm.subject_id and gsm.source_id = gm.subject_source")
           .addBindVar(this.getGcGrouperSync().getId()).addBindVar(memberId).selectList(GcGrouperSyncMember.class);
     
     if (GrouperClientUtils.length(gcGrouperSyncMembers) == 0) {
