@@ -628,16 +628,48 @@ public class GrouperProvisioningTranslator {
         return gcGrouperSyncMember.getSubjectIdentifier();
       }
       if (StringUtils.equals("entityAttributeValueCache0", field)) {
-        return gcGrouperSyncMember.getEntityAttributeValueCache0();
+        String cacheValue = gcGrouperSyncMember.getEntityAttributeValueCache0();
+        if (GrouperUtil.isBlank(cacheValue) || !cacheValue.contains("{")) {
+          return cacheValue;
+        }
+        GrouperProvisioningConfigurationAttributeDbCache cache = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[0];
+        if (cache == null || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          return cacheValue;
+        }
+        return this.grouperProvisioner.retrieveGrouperProvisioningData().parseJsonCacheEntity(cacheValue);
       }
       if (StringUtils.equals("entityAttributeValueCache1", field)) {
-        return gcGrouperSyncMember.getEntityAttributeValueCache1();
+        String cacheValue = gcGrouperSyncMember.getEntityAttributeValueCache1();
+        if (GrouperUtil.isBlank(cacheValue) || !cacheValue.contains("{")) {
+          return cacheValue;
+        }
+        GrouperProvisioningConfigurationAttributeDbCache cache = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[1];
+        if (cache == null || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          return cacheValue;
+        }
+        return this.grouperProvisioner.retrieveGrouperProvisioningData().parseJsonCacheEntity(cacheValue);
       }
       if (StringUtils.equals("entityAttributeValueCache2", field)) {
-        return gcGrouperSyncMember.getEntityAttributeValueCache2();
+        String cacheValue = gcGrouperSyncMember.getEntityAttributeValueCache2();
+        if (GrouperUtil.isBlank(cacheValue) || !cacheValue.contains("{")) {
+          return cacheValue;
+        }
+        GrouperProvisioningConfigurationAttributeDbCache cache = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[2];
+        if (cache == null || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          return cacheValue;
+        }
+        return this.grouperProvisioner.retrieveGrouperProvisioningData().parseJsonCacheEntity(cacheValue);
       }
       if (StringUtils.equals("entityAttributeValueCache3", field)) {
-        return gcGrouperSyncMember.getEntityAttributeValueCache3();
+        String cacheValue = gcGrouperSyncMember.getEntityAttributeValueCache3();
+        if (GrouperUtil.isBlank(cacheValue) || !cacheValue.contains("{")) {
+          return cacheValue;
+        }
+        GrouperProvisioningConfigurationAttributeDbCache cache = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()[3];
+        if (cache == null || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          return cacheValue;
+        }
+        return this.grouperProvisioner.retrieveGrouperProvisioningData().parseJsonCacheEntity(cacheValue);
       }
     }
 
@@ -1150,16 +1182,48 @@ public class GrouperProvisioningTranslator {
         return gcGrouperSyncGroup.getGroupName();
       }
       if (StringUtils.equals("groupAttributeValueCache0", field)) {
-        return gcGrouperSyncGroup.getGroupAttributeValueCache0();
+        String cacheValue = gcGrouperSyncGroup.getGroupAttributeValueCache0();
+        if (GrouperUtil.isBlank(cacheValue) || !cacheValue.contains("{")) {
+          return cacheValue;
+        }
+        GrouperProvisioningConfigurationAttributeDbCache cache = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[0];
+        if (cache == null || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          return cacheValue;
+        }
+        return this.grouperProvisioner.retrieveGrouperProvisioningData().parseJsonCacheGroup(cacheValue);
       }
       if (StringUtils.equals("groupAttributeValueCache1", field)) {
-        return gcGrouperSyncGroup.getGroupAttributeValueCache1();
+        String cacheValue = gcGrouperSyncGroup.getGroupAttributeValueCache1();
+        if (GrouperUtil.isBlank(cacheValue) || !cacheValue.contains("{")) {
+          return cacheValue;
+        }
+        GrouperProvisioningConfigurationAttributeDbCache cache = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[1];
+        if (cache == null || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          return cacheValue;
+        }
+        return this.grouperProvisioner.retrieveGrouperProvisioningData().parseJsonCacheGroup(cacheValue);
       }
       if (StringUtils.equals("groupAttributeValueCache2", field)) {
-        return gcGrouperSyncGroup.getGroupAttributeValueCache2();
+        String cacheValue = gcGrouperSyncGroup.getGroupAttributeValueCache2();
+        if (GrouperUtil.isBlank(cacheValue) || !cacheValue.contains("{")) {
+          return cacheValue;
+        }
+        GrouperProvisioningConfigurationAttributeDbCache cache = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[2];
+        if (cache == null || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          return cacheValue;
+        }
+        return this.grouperProvisioner.retrieveGrouperProvisioningData().parseJsonCacheGroup(cacheValue);
       }
       if (StringUtils.equals("groupAttributeValueCache3", field)) {
-        return gcGrouperSyncGroup.getGroupAttributeValueCache3();
+        String cacheValue = gcGrouperSyncGroup.getGroupAttributeValueCache3();
+        if (GrouperUtil.isBlank(cacheValue) || !cacheValue.contains("{")) {
+          return cacheValue;
+        }
+        GrouperProvisioningConfigurationAttributeDbCache cache = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()[3];
+        if (cache == null || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          return cacheValue;
+        }
+        return this.grouperProvisioner.retrieveGrouperProvisioningData().parseJsonCacheGroup(cacheValue);
       }
       
     }

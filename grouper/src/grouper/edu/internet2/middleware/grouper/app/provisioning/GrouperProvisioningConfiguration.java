@@ -2446,6 +2446,8 @@ public abstract class GrouperProvisioningConfiguration {
           this.groupAttributeDbCaches[i].setAttributeName(this.retrieveConfigString("groupAttributeValueCache" + i + "groupAttribute", true));
         } else if (this.groupAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.translationScript) {
           this.groupAttributeDbCaches[i].setTranslationScript(this.retrieveConfigString("groupAttributeValueCache" + i + "translationScript", true));
+        } else if (this.groupAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          // nuthin
         } else {
           throw new RuntimeException("Invalid attribute cache type: " + "groupAttributeValueCache" + i + "type" + ", " 
               + this.groupAttributeDbCaches[i].getType());
@@ -2477,6 +2479,8 @@ public abstract class GrouperProvisioningConfiguration {
           this.entityAttributeDbCaches[i].setTranslationScript(this.retrieveConfigString("entityAttributeValueCache" + i + "translationScript", true));
         } else if (this.entityAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.subjectTranslationScript) {
           this.entityAttributeDbCaches[i].setTranslationScript(this.retrieveConfigString("entityAttributeValueCache" + i + "translationScript", true));
+        } else if (this.entityAttributeDbCaches[i].getType() == GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          // nuthin
         } else {
           throw new RuntimeException("Invalid attribute cache type: " + "entityAttributeValueCache" + i + "type" + ", " 
               + this.entityAttributeDbCaches[i].getType());

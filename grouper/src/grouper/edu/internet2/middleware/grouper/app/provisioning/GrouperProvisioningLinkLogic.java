@@ -316,6 +316,8 @@ public class GrouperProvisioningLinkLogic {
         String groupAttributeValueCache0Value = null;
         if (groupLinkGroupAttributeValueCache0Attribute != null) {
           groupAttributeValueCache0Value = targetGroup.retrieveAttributeValueString(groupLinkGroupAttributeValueCache0Attribute);
+        } else if (grouperProvisioningConfigurationAttributeDbCache0.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          groupAttributeValueCache0Value = targetGroup.toJsonForCache();
         } else {
           groupAttributeValueCache0Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache0.getTranslationScript(), variableMap, true, false, true));
         }
@@ -329,6 +331,8 @@ public class GrouperProvisioningLinkLogic {
         String groupAttributeValueCache1Value = null;
         if (groupLinkGroupAttributeValueCache1Attribute != null) {
           groupAttributeValueCache1Value = targetGroup.retrieveAttributeValueString(groupLinkGroupAttributeValueCache1Attribute);
+        } else if (grouperProvisioningConfigurationAttributeDbCache1.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          groupAttributeValueCache1Value = targetGroup.toJsonForCache();
         } else {
           groupAttributeValueCache1Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache1.getTranslationScript(), variableMap, true, false, true));
         }
@@ -342,6 +346,8 @@ public class GrouperProvisioningLinkLogic {
         String groupAttributeValueCache2Value = null;
         if (groupLinkGroupAttributeValueCache2Attribute != null) {
           groupAttributeValueCache2Value = targetGroup.retrieveAttributeValueString(groupLinkGroupAttributeValueCache2Attribute);
+        } else if (grouperProvisioningConfigurationAttributeDbCache2.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          groupAttributeValueCache2Value = targetGroup.toJsonForCache();
         } else {
           groupAttributeValueCache2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache2.getTranslationScript(), variableMap, true, false, true));
         }
@@ -355,6 +361,8 @@ public class GrouperProvisioningLinkLogic {
         String groupAttributeValueCache3Value = null;
         if (groupLinkGroupAttributeValueCache3Attribute != null) {
           groupAttributeValueCache3Value = targetGroup.retrieveAttributeValueString(groupLinkGroupAttributeValueCache3Attribute);
+        } else if (grouperProvisioningConfigurationAttributeDbCache3.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          groupAttributeValueCache3Value = targetGroup.toJsonForCache();
         } else {
           groupAttributeValueCache3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache3.getTranslationScript(), variableMap, true, false, true));
         }
@@ -712,6 +720,9 @@ public class GrouperProvisioningLinkLogic {
         String entityFromId2Value = null;
         if (entityLinkGroupAttributeValueCache0Attribute != null) {
           entityFromId2Value = targetEntity.retrieveAttributeValueString(entityLinkGroupAttributeValueCache0Attribute);
+        } else if (grouperProvisioningConfigurationAttributeDbCache0.getType() 
+            == GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          entityFromId2Value = targetEntity.toJsonForCache();
         } else {
           entityFromId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache0.getTranslationScript(), variableMap, true, false, true));
         }
@@ -725,6 +736,9 @@ public class GrouperProvisioningLinkLogic {
         String entityFromId3Value = null;
         if (entityLinkGroupAttributeValueCache1Attribute != null) {
           entityFromId3Value = targetEntity.retrieveAttributeValueString(entityLinkGroupAttributeValueCache1Attribute);
+        } else if (grouperProvisioningConfigurationAttributeDbCache1.getType() 
+            == GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          entityFromId3Value = targetEntity.toJsonForCache();
         } else {
           entityFromId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache1.getTranslationScript(), variableMap, true, false, true));
         }
@@ -738,6 +752,9 @@ public class GrouperProvisioningLinkLogic {
         String entityToId2Value = null;
         if (entityLinkGroupAttributeValueCache2Attribute != null) {
           entityToId2Value = targetEntity.retrieveAttributeValueString(entityLinkGroupAttributeValueCache2Attribute);
+        } else if (grouperProvisioningConfigurationAttributeDbCache2.getType() 
+            == GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          entityToId2Value = targetEntity.toJsonForCache();
         } else {
           entityToId2Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache2.getTranslationScript(), variableMap, true, false, true));
         }
@@ -751,6 +768,9 @@ public class GrouperProvisioningLinkLogic {
         String entityToId3Value = null;
         if (entityLinkGroupAttributeValueCache3Attribute != null) {
           entityToId3Value = targetEntity.retrieveAttributeValueString(entityLinkGroupAttributeValueCache3Attribute);
+        } else if (grouperProvisioningConfigurationAttributeDbCache3.getType() 
+            == GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          entityToId3Value = targetEntity.toJsonForCache();
         } else {
           entityToId3Value = StringUtils.trimToNull(GrouperUtil.substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache3.getTranslationScript(), variableMap, true, false, true));
         }

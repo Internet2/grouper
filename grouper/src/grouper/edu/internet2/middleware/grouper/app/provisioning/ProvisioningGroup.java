@@ -37,7 +37,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     provisioningGroup.assignAttributeValue("description", "This is the description of the group");
     provisioningGroup.assignAttributeValue("displayName", "Some name");
     provisioningGroup.assignAttributeValue("uuid", "abc123xyz456");
-    String json = provisioningGroup.toJsonForCache("member");
+    String json = provisioningGroup._internalal_toJsonForCache("member");
     System.out.println(json);    
   }
   
