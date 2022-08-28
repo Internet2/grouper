@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
@@ -58,11 +57,11 @@ public class GcGrouperSyncGroupDao {
         .sql("select gsg.* from grouper_sync_group gsg, grouper_groups gg where gsg.grouper_sync_id = ? and gg.id = ? and gg.name = gsg.group_name")
           .addBindVar(this.getGcGrouperSync().getId()).addBindVar(groupId).selectList(GcGrouperSyncGroup.class);
     
-    if (GrouperUtil.length(gcGrouperSyncGroups) == 0) {
+    if (GrouperClientUtils.length(gcGrouperSyncGroups) == 0) {
       return null;
     }
     
-    if (GrouperUtil.length(gcGrouperSyncGroups) == 1) {
+    if (GrouperClientUtils.length(gcGrouperSyncGroups) == 1) {
       return gcGrouperSyncGroups.iterator().next();
     }
     
