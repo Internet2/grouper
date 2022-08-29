@@ -488,7 +488,7 @@
                     <argLine>-Dgrouper.allow.db.changes=true</argLine>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${basedir}/misc/ci-test/confForTestPGSQL</additionalClasspathElement>
-                        <additionalClasspathElement>${basedir}/conf</additionalClasspathElement>
+                        <!--<additionalClasspathElement>${basedir}/conf</additionalClasspathElement>-->
                     </additionalClasspathElements>
                 </configuration>
             </plugin>
