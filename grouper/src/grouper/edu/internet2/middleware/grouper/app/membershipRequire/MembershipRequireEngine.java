@@ -17,6 +17,8 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -287,7 +289,22 @@ public class MembershipRequireEngine {
             membershipRequireConfigBean.setUiKey(uiKey);
             membershipRequireConfigBean.setAttributeName(attributeName);
             membershipRequireConfigBean.setRequireGroupName(groupName);
+            membershipRequireConfigBean.setConfigId(configId);
+            
+            AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeName, false);
+            if (attributeDefName == null) {
+              LOG.error("cant find attribute def name: '" + attributeName + "'");
+              continue;
+            }
+            membershipRequireConfigBean.setAttributeDefNameId(attributeDefName.getId());
 
+            Group requireGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, false);
+            if (requireGroup == null) {
+              LOG.error("cant find group: '" + groupName + "'");
+              continue;
+            }
+            membershipRequireConfigBean.setRequireGroupId(requireGroup.getId());
+            
             result.add(membershipRequireConfigBean);
             
             Set<MembershipRequireConfigBean> theSet = resultAttributeDefNameNameToConfigBean.get(attributeName);
@@ -479,9 +496,10 @@ public class MembershipRequireEngine {
    * @param groupName
    * @param membershipRequireConfigBean
    * @param memberId optional member id
+   * @param membershipRequireEngineEnum 
    * @return number of members removed
    */
-  public static int removeInvalidMembers(String groupName, MembershipRequireConfigBean membershipRequireConfigBean, String memberId) {
+  public static int removeInvalidMembers(String groupName, MembershipRequireConfigBean membershipRequireConfigBean, String memberId, MembershipRequireEngineEnum membershipRequireEngineEnum) {
     GcDbAccess gcDbAccess = new GcDbAccess().sql("select gm.id, gm.subject_id, gm.subject_source "
       + " from grouper_memberships gms, grouper_members gm, grouper_fields gf, grouper_groups gg where gg.name = ? "
       + (StringUtils.isBlank(memberId) ? "" : " and gm.id = ? ")
@@ -513,6 +531,14 @@ public class MembershipRequireEngine {
         continue;
       }
       if (group.deleteMember(member, false)) {
+        GrouperMembershipRequireChange grouperMembershipRequireChange = new GrouperMembershipRequireChange();
+        grouperMembershipRequireChange.setEngine(membershipRequireEngineEnum);
+        grouperMembershipRequireChange.setGroupId(group.getId());
+        grouperMembershipRequireChange.setMemberId(member.getId());
+        grouperMembershipRequireChange.setAttributeDefNameId(membershipRequireConfigBean.getAttributeDefNameId());
+        grouperMembershipRequireChange.setRequireGroupId(membershipRequireConfigBean.getRequireGroupId());
+        grouperMembershipRequireChange.setConfigId(membershipRequireConfigBean.getConfigId());
+        grouperMembershipRequireChange.store();
         count++;
       }
     }

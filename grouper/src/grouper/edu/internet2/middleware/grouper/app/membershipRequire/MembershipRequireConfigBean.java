@@ -14,6 +14,69 @@ public class MembershipRequireConfigBean {
   }
 
   /**
+   * attribute uuid of attribute assigned
+   */
+  private String attributeDefNameId;
+  
+  /**
+   * attribute uuid of attribute assigned
+   * @return attribute id
+   */
+  public String getAttributeDefNameId() {
+    return this.attributeDefNameId;
+  }
+
+  /**
+   * attribute uuid of attribute assigned
+   * @param attributeId1
+   */
+  public void setAttributeDefNameId(String attributeId1) {
+    this.attributeDefNameId = attributeId1;
+  }
+
+  /**
+   * group uuid of the require group
+   */
+  private String requireGroupId;
+
+  /**
+   * group uuid of the require group
+   * @return group uuid
+   */
+  public String getRequireGroupId() {
+    return this.requireGroupId;
+  }
+
+  /**
+   * group uuid of the require group
+   * @param requireGroupId1
+   */
+  public void setRequireGroupId(String requireGroupId1) {
+    this.requireGroupId = requireGroupId1;
+  }
+
+  /**
+   * configId of this config bean
+   */
+  private String configId;
+
+  /**
+   * configId of this config bean
+   * @return config id
+   */
+  public String getConfigId() {
+    return this.configId;
+  }
+
+  /**
+   * configId of this config bean
+   * @param configId1
+   */
+  public void setConfigId(String configId1) {
+    this.configId = configId1;
+  }
+  
+  /**
    *  # ui key to externalize text
    *  # {valueType: "string", regex: "^grouper\\.membershipVeto\\.customComposite\\.uiKey\\.\\d+$"}
    *  #grouper.membershipVeto.customComposite.uiKey.0 = customVetoCompositeRequireEmployee

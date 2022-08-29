@@ -91,7 +91,7 @@ public class MembershipRequireFullSyncJob extends OtherJobBase {
         Set<String> groupNames = MembershipRequireEngine.attributeDefNameNameToGroupNames(attributeName);
         
         for (String groupName : GrouperUtil.nonNull(groupNames)) {
-          int removes = MembershipRequireEngine.removeInvalidMembers(groupName, membershipRequireConfigBean, null);
+          int removes = MembershipRequireEngine.removeInvalidMembers(groupName, membershipRequireConfigBean, null, MembershipRequireEngineEnum.fullSync);
           hib3GrouperLoaderLog.addDeleteCount(removes);
         }
         

@@ -607,10 +607,13 @@ public class GrouperStartup {
     if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.tableIndex.verifyOnStartup", true)) {
       return;
     }
-        
+
     //lets see if there are any nulls
     for (TableIndexType tableIndexType : TableIndexType.values()) {
       
+      if (tableIndexType == TableIndexType.membershipRequire) {
+        continue;
+      }
       List<String> ids = HibernateSession.bySqlStatic().listSelect(
           String.class, "select id from " + tableIndexType.tableName() + " where id_index is null order by id" , null, null);
 

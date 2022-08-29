@@ -172,7 +172,7 @@ public class MembershipRequireEsbListener extends EsbListenerBase {
           if (!configBeansAssignedToGroup.contains(membershipRequireConfigBean)) {
             continue;
           }
-          int removed = MembershipRequireEngine.removeInvalidMembers(group.getName(), membershipRequireConfigBean, null);
+          int removed = MembershipRequireEngine.removeInvalidMembers(group.getName(), membershipRequireConfigBean, null, MembershipRequireEngineEnum.changeLogConsumer);
           hib3GrouperLoaderLog.addDeleteCount(removed);
         }
       } else if (StringUtils.equals("stem", attributeType)) {
@@ -189,7 +189,7 @@ public class MembershipRequireEsbListener extends EsbListenerBase {
           }
           for (String groupName : GrouperUtil.nonNull(groupNames)) {
             int removed = MembershipRequireEngine.
-                removeInvalidMembers(groupName, membershipRequireConfigBean, null);
+                removeInvalidMembers(groupName, membershipRequireConfigBean, null, MembershipRequireEngineEnum.changeLogConsumer);
             hib3GrouperLoaderLog.addDeleteCount(removed);
           }
         }
@@ -205,7 +205,7 @@ public class MembershipRequireEsbListener extends EsbListenerBase {
         continue;
       }
       for (MembershipRequireConfigBean membershipRequireConfigBean : GrouperUtil.nonNull(membershipRequireConfigBeans)) {
-        int removed = MembershipRequireEngine.removeInvalidMembers(groupName, membershipRequireConfigBean, memberId);
+        int removed = MembershipRequireEngine.removeInvalidMembers(groupName, membershipRequireConfigBean, memberId, MembershipRequireEngineEnum.changeLogConsumer);
         hib3GrouperLoaderLog.addDeleteCount(removed);
       }
     }

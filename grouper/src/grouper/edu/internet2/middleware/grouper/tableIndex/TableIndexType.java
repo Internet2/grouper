@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.ddl.GrouperDdl2_6_16;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -57,6 +58,16 @@ public enum TableIndexType {
     @Override
     public String tableName() {
       return AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME;
+    }
+
+  },
+  
+  /** index assigned to a membership require change */
+  membershipRequire {
+
+    @Override
+    public String tableName() {
+      return GrouperDdl2_6_16.TABLE_GROUPER_MSHIP_REQ_CHANGE;
     }
   };
 
