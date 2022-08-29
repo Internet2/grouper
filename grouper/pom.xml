@@ -485,7 +485,9 @@
                     <includes>
                         <include>**/edu/internet2/middleware/grouper/AllTests.java</include>
                     </includes>
+                    <argLine>-Dgrouper.allow.db.changes=true</argLine>
                     <additionalClasspathElements>
+                        <additionalClasspathElement>${basedir}/misc/ci-test/confForTestPGSQL</additionalClasspathElement>
                         <additionalClasspathElement>${basedir}/conf</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
