@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
@@ -26,6 +27,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 
@@ -35,6 +37,8 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
  *
  */
 public class MembershipRequireEsbListener extends EsbListenerBase {
+
+  private static final Log LOG = GrouperUtil.getLog(MembershipRequireEsbListener.class);
 
   @Override
   public final boolean dispatchEvent(String eventJsonString, String consumerName) {
@@ -62,7 +66,7 @@ public class MembershipRequireEsbListener extends EsbListenerBase {
     
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("membershipRequire");
     
-    gcGrouperSync.setSyncEngine(GcGrouperSync.STEM_VIEW_PRIVILEGES);
+    gcGrouperSync.setSyncEngine(GcGrouperSync.MEMBERSHIP_REQUIRE);
     gcGrouperSync.getGcGrouperSyncDao().store();
     GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("incremental");
     gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(false);
@@ -94,135 +98,166 @@ public class MembershipRequireEsbListener extends EsbListenerBase {
     Set<MultiKey> attributeNameTypeOwnerIds = new HashSet<MultiKey>();
     Set<MultiKey> groupNameMemberIds = new HashSet<MultiKey>();
     
-    boolean membershipEnableVeto = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.membershipRequirement.changeLogMembershipVetoEnable", false);
-
-    for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
-      EsbEvent esbEvent = esbEventContainer.getEsbEvent();
-      EsbEventType esbEventType = esbEventContainer.getEsbEventType();
-  
-      // this cant be null
-      long createdOnMillis = esbEvent.getCreatedOnMicros()/1000;
+    RuntimeException runtimeException = null;
+    try {
       
-      // if this is before last full then ignore
-      if (createdOnMillis < millisLastFullStart) {
-        continue;
-      }
-      
-      boolean syncThisMembership = false;
-      Field membersField = Group.getDefaultList();
-      switch (esbEventType) {
-        
-        case ATTRIBUTE_ASSIGN_ADD:
-          {
-            String attributeAssignType = esbEvent.getAttributeAssignType();
-            if (!StringUtils.equals("group", attributeAssignType) && !StringUtils.equals("stem", attributeAssignType)) {
-              continue;
-            }
-            String attributeDefNameName = esbEvent.getAttributeDefNameName();
-            Set<MembershipRequireConfigBean> membershipRequireConfigBeans = MembershipRequireEngine.attributeDefNameNameToConfigBean(attributeDefNameName);
-            
-            if (GrouperUtil.length(membershipRequireConfigBeans) == 0) {
-              continue;
-            }
-            attributeNameTypeOwnerIds.add(new MultiKey(attributeDefNameName, attributeAssignType, esbEvent.getOwnerId()));
-          }
-          break;
-        case MEMBERSHIP_DELETE:
-          {
-            if (membershipEnableVeto) {
-              continue;
-            }
-            // skip if wrong source
-            if (!StringUtils.isBlank(esbEvent.getSourceId()) && GrouperUtil.equals("g:gsa", esbEvent.getSourceId())) {
-              continue;
-            }
-            if (!StringUtils.equals(membersField.getId(), esbEvent.getFieldId())) {
-              continue;
-            }
-            String groupName = esbEvent.getGroupName();
-            Set<MembershipRequireConfigBean> membershipRequireConfigBeans = MembershipRequireEngine.requiredGroupNameToConfigBean(groupName);
-            
-            if (GrouperUtil.length(membershipRequireConfigBeans) == 0) {
-              continue;
-            }
-            groupNameMemberIds.add(new MultiKey(groupName, esbEvent.getMemberId()));
-          }
-          break;
-        
-        default:
-      }
-    }
+      for (EsbEventContainer esbEventContainer : GrouperUtil.nonNull(esbEventContainers)) {
+        EsbEvent esbEvent = esbEventContainer.getEsbEvent();
+        EsbEventType esbEventType = esbEventContainer.getEsbEventType();
     
-    for (MultiKey attributeNameTypeOwnerId : attributeNameTypeOwnerIds) {
-      String attributeName = (String)attributeNameTypeOwnerId.getKey(0);
-      String attributeType = (String)attributeNameTypeOwnerId.getKey(1);
-      String ownerId = (String)attributeNameTypeOwnerId.getKey(2);
-      Set<MembershipRequireConfigBean> membershipRequireConfigBeans = MembershipRequireEngine.attributeDefNameNameToConfigBean(attributeName);
-      if (GrouperUtil.length(membershipRequireConfigBeans) == 0) {
-        continue;
+        // this cant be null
+        long createdOnMillis = esbEvent.getCreatedOnMicros()/1000;
+        
+        // if this is before last full then ignore
+        if (createdOnMillis < millisLastFullStart) {
+          continue;
+        }
+        
+        boolean syncThisMembership = false;
+        Field membersField = Group.getDefaultList();
+        switch (esbEventType) {
+          
+          case ATTRIBUTE_ASSIGN_ADD:
+            {
+              String attributeAssignType = esbEvent.getAttributeAssignType();
+              if (!StringUtils.equals("group", attributeAssignType) && !StringUtils.equals("stem", attributeAssignType)) {
+                continue;
+              }
+              String attributeDefNameName = esbEvent.getAttributeDefNameName();
+              Set<MembershipRequireConfigBean> membershipRequireConfigBeans = MembershipRequireEngine.attributeDefNameNameToConfigBean(attributeDefNameName);
+              
+              if (GrouperUtil.length(membershipRequireConfigBeans) == 0) {
+                continue;
+              }
+              attributeNameTypeOwnerIds.add(new MultiKey(attributeDefNameName, attributeAssignType, esbEvent.getOwnerId()));
+            }
+            break;
+          case MEMBERSHIP_DELETE:
+            {
+              // skip if wrong source
+              if (!StringUtils.isBlank(esbEvent.getSourceId()) && GrouperUtil.equals("g:gsa", esbEvent.getSourceId())) {
+                continue;
+              }
+              if (!StringUtils.equals(membersField.getId(), esbEvent.getFieldId())) {
+                continue;
+              }
+              String groupName = esbEvent.getGroupName();
+              Set<MembershipRequireConfigBean> membershipRequireConfigBeans = MembershipRequireEngine.requiredGroupNameToConfigBean(groupName);
+              
+              if (GrouperUtil.length(membershipRequireConfigBeans) == 0) {
+                continue;
+              }
+              groupNameMemberIds.add(new MultiKey(groupName, esbEvent.getMemberId()));
+            }
+            break;
+          
+          default:
+        }
       }
-      if (StringUtils.equals("group", attributeType)) {
-        Group group = GroupFinder.findByUuid(ownerId, false);
-        if (group == null) {
+      
+      for (MultiKey attributeNameTypeOwnerId : attributeNameTypeOwnerIds) {
+        String attributeName = (String)attributeNameTypeOwnerId.getKey(0);
+        String attributeType = (String)attributeNameTypeOwnerId.getKey(1);
+        String ownerId = (String)attributeNameTypeOwnerId.getKey(2);
+        Set<MembershipRequireConfigBean> membershipRequireConfigBeans = MembershipRequireEngine.attributeDefNameNameToConfigBean(attributeName);
+        if (GrouperUtil.length(membershipRequireConfigBeans) == 0) {
           continue;
         }
-        Set<MembershipRequireConfigBean> configBeansAssignedToGroup = MembershipRequireEngine.groupNameToConfigBeanAssigned(group.getName());
-        for (MembershipRequireConfigBean membershipRequireConfigBean : GrouperUtil.nonNull(membershipRequireConfigBeans)) {
-          // maybe its a loader group or was unassigned or something
-          if (!configBeansAssignedToGroup.contains(membershipRequireConfigBean)) {
+        if (StringUtils.equals("group", attributeType)) {
+          Group group = GroupFinder.findByUuid(ownerId, false);
+          if (group == null) {
             continue;
           }
-          int removed = MembershipRequireEngine.removeInvalidMembers(group.getName(), membershipRequireConfigBean, null, MembershipRequireEngineEnum.changeLogConsumer);
-          hib3GrouperLoaderLog.addDeleteCount(removed);
+          Set<MembershipRequireConfigBean> configBeansAssignedToGroup = MembershipRequireEngine.groupNameToConfigBeanAssigned(group.getName());
+          for (MembershipRequireConfigBean membershipRequireConfigBean : GrouperUtil.nonNull(membershipRequireConfigBeans)) {
+            // maybe its a loader group or was unassigned or something
+            if (!configBeansAssignedToGroup.contains(membershipRequireConfigBean)) {
+              continue;
+            }
+            int removed = MembershipRequireEngine.removeInvalidMembers(group.getName(), membershipRequireConfigBean, null, MembershipRequireEngineEnum.changeLogConsumer);
+            hib3GrouperLoaderLog.addDeleteCount(removed);
+          }
+        } else if (StringUtils.equals("stem", attributeType)) {
+          Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerId, false);
+          if (stem == null) {
+            continue;
+          }
+          Set<MembershipRequireConfigBean> configBeansAssignedToStem = MembershipRequireEngine.stemNameToConfigBeanAssigned(stem.getName());
+          Set<String> groupNames = MembershipRequireEngine.groupsInStems(GrouperUtil.toSet(stem.getName()));
+          for (MembershipRequireConfigBean membershipRequireConfigBean : GrouperUtil.nonNull(membershipRequireConfigBeans)) {
+            // maybe its a loader group or was unassigned or something
+            if (!configBeansAssignedToStem.contains(membershipRequireConfigBean)) {
+              continue;
+            }
+            for (String groupName : GrouperUtil.nonNull(groupNames)) {
+              int removed = MembershipRequireEngine.
+                  removeInvalidMembers(groupName, membershipRequireConfigBean, null, MembershipRequireEngineEnum.changeLogConsumer);
+              hib3GrouperLoaderLog.addDeleteCount(removed);
+            }
+          }
+        } else {
+          throw new RuntimeException("Not expecting attributeType: " + attributeType);
         }
-      } else if (StringUtils.equals("stem", attributeType)) {
-        Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerId, false);
-        if (stem == null) {
+      }
+      for (MultiKey groupNameMemberId : groupNameMemberIds) {
+        String requireGroupName = (String)groupNameMemberId.getKey(0);
+        String memberId = (String)groupNameMemberId.getKey(1);
+        Set<MembershipRequireConfigBean> membershipRequireConfigBeans = MembershipRequireEngine.requiredGroupNameToConfigBean(requireGroupName);
+        if (GrouperUtil.length(membershipRequireConfigBeans) == 0) {
           continue;
         }
-        Set<MembershipRequireConfigBean> configBeansAssignedToStem = MembershipRequireEngine.stemNameToConfigBeanAssigned(stem.getName());
-        Set<String> groupNames = MembershipRequireEngine.groupsInStems(GrouperUtil.toSet(stem.getName()));
         for (MembershipRequireConfigBean membershipRequireConfigBean : GrouperUtil.nonNull(membershipRequireConfigBeans)) {
-          // maybe its a loader group or was unassigned or something
-          if (!configBeansAssignedToStem.contains(membershipRequireConfigBean)) {
-            continue;
-          }
+          Set<String> groupNames = MembershipRequireEngine.attributeDefNameNameToGroupNames(membershipRequireConfigBean.getAttributeName());
           for (String groupName : GrouperUtil.nonNull(groupNames)) {
-            int removed = MembershipRequireEngine.
-                removeInvalidMembers(groupName, membershipRequireConfigBean, null, MembershipRequireEngineEnum.changeLogConsumer);
+            int removed = MembershipRequireEngine.removeInvalidMembers(groupName, membershipRequireConfigBean, memberId, MembershipRequireEngineEnum.changeLogConsumer);
             hib3GrouperLoaderLog.addDeleteCount(removed);
           }
         }
-      } else {
-        throw new RuntimeException("Not expecting attributeType: " + attributeType);
       }
-    }
-    for (MultiKey groupNameMemberId : groupNameMemberIds) {
-      String groupName = (String)groupNameMemberId.getKey(0);
-      String memberId = (String)groupNameMemberId.getKey(1);
-      Set<MembershipRequireConfigBean> membershipRequireConfigBeans = MembershipRequireEngine.requiredGroupNameToConfigBean(groupName);
-      if (GrouperUtil.length(membershipRequireConfigBeans) == 0) {
-        continue;
+      
+      // if we didnt throw an exception, then we processed all of them
+      // get the last sequence before the provisioner re-orders them
+      Long lastSequenceNumber = -1L;
+      if (GrouperUtil.length(esbEventContainers) > 0) {
+        EsbEventContainer lastEvent = esbEventContainers.get(esbEventContainers.size()-1);
+        lastSequenceNumber = lastEvent.getSequenceNumber();
       }
-      for (MembershipRequireConfigBean membershipRequireConfigBean : GrouperUtil.nonNull(membershipRequireConfigBeans)) {
-        int removed = MembershipRequireEngine.removeInvalidMembers(groupName, membershipRequireConfigBean, memberId, MembershipRequireEngineEnum.changeLogConsumer);
-        hib3GrouperLoaderLog.addDeleteCount(removed);
+  
+      hib3GrouperLoaderLog.store();
+  
+      ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
+      provisioningSyncConsumerResult.setLastProcessedSequenceNumber(lastSequenceNumber);
+      return provisioningSyncConsumerResult;
+    } catch (RuntimeException re) {
+      runtimeException = re;
+      debugMapOverall.put("exception", GrouperClientUtils.getFullStackTrace(re));
+    } finally {
+      GcGrouperSyncHeartbeat.endAndWaitForThread(gcGrouperSyncHeartbeat);
+      debugMapOverall.put("finalLog", true);
+      synchronized (MembershipRequireEsbListener.class) {
+        try {
+          if (gcGrouperSyncJob != null) {
+            gcGrouperSyncJob.assignHeartbeatAndEndJob();
+          }
+        } catch (RuntimeException re2) {
+          debugMapOverall.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
+          if (runtimeException == null) {
+            throw re2;
+          }
+          
+        }
       }
-    }
-    
-    // if we didnt throw an exception, then we processed all of them
-    // get the last sequence before the provisioner re-orders them
-    Long lastSequenceNumber = -1L;
-    if (GrouperUtil.length(esbEventContainers) > 0) {
-      EsbEventContainer lastEvent = esbEventContainers.get(esbEventContainers.size()-1);
-      lastSequenceNumber = lastEvent.getSequenceNumber();
-    }
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMapOverall));
+      }
+      
+      if (runtimeException != null) {
+        throw runtimeException;
+      }
 
-    hib3GrouperLoaderLog.store();
-
-    ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
-    provisioningSyncConsumerResult.setLastProcessedSequenceNumber(lastSequenceNumber);
-    return provisioningSyncConsumerResult;
+    }
+    throw new RuntimeException("Shouldnt get here");
   }
 
   @Override

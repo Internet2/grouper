@@ -102,7 +102,7 @@ public class MembershipRequireFullSyncJob extends OtherJobBase {
     } finally {
       GcGrouperSyncHeartbeat.endAndWaitForThread(gcGrouperSyncHeartbeat);
       this.debugMap.put("finalLog", true);
-      synchronized (StemViewPrivilegeFullDaemonLogic.class) {
+      synchronized (MembershipRequireFullSyncJob.class) {
         try {
           if (gcGrouperSyncJob != null) {
             gcGrouperSyncJob.assignHeartbeatAndEndJob();
