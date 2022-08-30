@@ -911,15 +911,18 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
     this.jobName = GrouperUtil.truncateAscii(this.jobName, 512);
     this.jobType = GrouperUtil.truncateAscii(this.jobType, 128);
     this.jobScheduleType = GrouperUtil.truncateAscii(this.jobScheduleType, 128);
+    if (!StringUtils.isBlank(this.jobDescription)) {
+      this.jobDescription = this.jobDescription.replaceAll("\u0000", "");
+    }
     this.jobDescription = GrouperUtil.truncateAscii(this.jobDescription, 4000);
     
     this.jobMessageClob = null;
     
-    if (this.jobMessage!= null) {
-      String jobMessageString = this.jobMessage.toString();
+    if (this.jobMessage != null) {
+      String jobMessageString = this.jobMessage.toString().replaceAll("\u0000", "");
       int length = GrouperUtil.lengthAscii(jobMessageString);
       if (length > 3500) {
-        this.jobMessageClob = GrouperUtil.abbreviate(jobMessageString, GrouperConfig.retrieveConfig().propertyValueInt("grouper.loader.log.maxJobMessageBytes", 200000));
+        this.jobMessageClob = GrouperUtil.abbreviate(jobMessageString, GrouperConfig.retrieveConfig().propertyValueInt("grouper.loader.log.maxJobMessageBytes", 400000));
         this.jobMessageDb = null;
       } else {
         this.jobMessageDb = this.jobMessage == null ? null : this.jobMessage.toString();

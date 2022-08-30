@@ -1844,27 +1844,6 @@ CREATE UNIQUE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (use
 
 CREATE UNIQUE INDEX grouper_duo_user_id_idx ON grouper_prov_duo_user (user_id, config_id);
 
-CREATE TABLE grouper_mship_req_change
-(
-    id BIGINT NOT NULL,
-    member_id VARCHAR(40) NOT NULL,
-    group_id VARCHAR(40) NOT NULL,
-    the_timestamp DATETIME NOT NULL,
-    engine VARCHAR(1) NOT NULL,
-    attribute_def_name_id VARCHAR(40),
-    require_group_id VARCHAR(40),
-    config_id VARCHAR(80),
-    PRIMARY KEY (id)
-);
-
-CREATE INDEX grouper_mship_req_mem_gr_idx ON grouper_mship_req_change (group_id, member_id);
-
-CREATE INDEX grouper_mship_req_mem_idx ON grouper_mship_req_change (member_id);
-
-CREATE INDEX grouper_mship_req_time_idx ON grouper_mship_req_change (the_timestamp);
-
-CREATE INDEX grouper_mship_req_conf_id_idx ON grouper_mship_req_change (config_id);
-
 CREATE TABLE grouper_failsafe
 (
     id VARCHAR(40) NOT NULL,
@@ -2499,6 +2478,6 @@ CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, rece
 CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject_id) AS select grmc.group_name_to as group_name, gpmglv.subject_source as subject_source_id, gpmglv.subject_id as subject_id from grouper_recent_mships_conf grmc,  grouper_pit_mship_group_lw_v gpmglv, grouper_time gt, grouper_members gm where gm.id = gpmglv.member_id and gm.subject_resolution_deleted = 'F' and gt.time_label = 'now' and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) and gpmglv.subject_source != 'g:gsa' and gpmglv.field_name = 'members' and (gpmglv.the_end_time is null or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) and ( grmc.include_eligible = 'T' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'));
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 43, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V43, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 42, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V42, '));
 commit;

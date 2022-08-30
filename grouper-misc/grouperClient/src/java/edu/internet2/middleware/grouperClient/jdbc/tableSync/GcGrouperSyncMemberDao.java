@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -51,10 +52,51 @@ public class GcGrouperSyncMemberDao {
    * @return the member
    */
   public GcGrouperSyncMember internal_memberCreateByMemberIdHelper(String memberId) {
-    GcGrouperSyncMember gcGrouperSyncMember = new GcGrouperSyncMember();
+    
+    GcGrouperSyncMember gcGrouperSyncMember = internal_memberRetrieveFromDbByMemberNameFromMemberId(memberId);
+    
+    if (gcGrouperSyncMember != null) {
+      gcGrouperSyncMember.setMemberId(memberId);
+      return gcGrouperSyncMember;
+    }
+    
+    gcGrouperSyncMember = new GcGrouperSyncMember();
     gcGrouperSyncMember.setGrouperSync(this.getGcGrouperSync());
     gcGrouperSyncMember.setMemberId(memberId);
     return gcGrouperSyncMember;
+  }
+
+  
+  /**
+   * select grouper sync member by member id
+   * @param connectionName
+   * @param memberId
+   * @return the group
+   */
+  public GcGrouperSyncMember internal_memberRetrieveFromDbByMemberNameFromMemberId(String memberId) {
+    
+    List<GcGrouperSyncMember> gcGrouperSyncMembers = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select gsm.* from grouper_sync_member gsm, grouper_members gm where gsm.grouper_sync_id = ? and gm.id = ? and gm.subject_id = gsm.subject_id and gsm.source_id = gm.subject_source")
+          .addBindVar(this.getGcGrouperSync().getId()).addBindVar(memberId).selectList(GcGrouperSyncMember.class);
+    
+    if (GrouperClientUtils.length(gcGrouperSyncMembers) == 0) {
+      return null;
+    }
+    
+    if (GrouperClientUtils.length(gcGrouperSyncMembers) == 1) {
+      return gcGrouperSyncMembers.iterator().next();
+    }
+    
+    gcGrouperSyncMembers.sort(new Comparator<GcGrouperSyncMember>() {
+
+      @Override
+      public int compare(GcGrouperSyncMember o1, GcGrouperSyncMember o2) {
+        return o2.getLastUpdated().compareTo(o1.getLastUpdated());
+      }
+    });
+    
+    return gcGrouperSyncMembers.iterator().next();
+    
   }
 
   /**

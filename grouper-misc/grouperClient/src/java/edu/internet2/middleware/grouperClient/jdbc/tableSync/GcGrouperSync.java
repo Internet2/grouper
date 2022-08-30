@@ -304,6 +304,11 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   public static final String STEM_VIEW_PRIVILEGES = "stemViewPrivileges";
 
   /**
+   * use this to full sync membership require
+   */
+  public static final String MEMBERSHIP_REQUIRE = "membershipRequire";
+
+  /**
    * 
    */
   private static Log LOG = GrouperClientUtils.retrieveLog(GcGrouperSync.class);

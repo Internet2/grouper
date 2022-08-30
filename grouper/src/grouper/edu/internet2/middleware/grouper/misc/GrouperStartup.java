@@ -607,25 +607,28 @@ public class GrouperStartup {
     if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.tableIndex.verifyOnStartup", true)) {
       return;
     }
-        
+
     //lets see if there are any nulls
     for (TableIndexType tableIndexType : TableIndexType.values()) {
       
+      if (tableIndexType == TableIndexType.membershipRequire) {
+        continue;
+      }
       List<String> ids = HibernateSession.bySqlStatic().listSelect(
-          String.class, "select id from " + tableIndexType.tableName() + " where id_index is null order by id" , null, null);
+          String.class, "select id from " + tableIndexType.tableName() + " where " + tableIndexType.getIncrementingColumn() + " is null order by id" , null, null);
 
       if (GrouperUtil.length(ids) > 0) {
-        LOG.error("Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null id_index... correcting... please wait...");
+        LOG.error("Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null " + tableIndexType.getIncrementingColumn() + "... correcting... please wait...");
         for (int i=0;i<GrouperUtil.length(ids); i++) {
           HibernateSession.bySqlStatic().executeSql("update " + tableIndexType.tableName() 
-              + " set id_index = ? where id = ?", 
+              + " set " + tableIndexType.getIncrementingColumn() + " = ? where id = ?", 
               GrouperUtil.toListObject(TableIndex.reserveId(tableIndexType), ids.get(i)),
               HibUtils.listType(LongType.INSTANCE, StringType.INSTANCE));
           if (i+1 % 1000 == 0) {
-            LOG.warn("Updated " + (i-1) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " id_index records...");
+            LOG.warn("Updated " + (i-1) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
           }
         }
-        LOG.warn("Finished " + GrouperUtil.length(ids) + " " + tableIndexType + " id_index records...");
+        LOG.warn("Finished " + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
       }
     }
   }

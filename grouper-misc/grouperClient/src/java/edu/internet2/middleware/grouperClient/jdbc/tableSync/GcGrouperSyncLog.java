@@ -470,6 +470,9 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
    * @param description
    */
   public void setDescriptionToSave(String description) {
+    if (description != null) {
+      description = description.replaceAll("\u0000", "");
+    }
     int lengthAscii = GrouperClientUtils.lengthAscii(description);
     if (GrouperClientUtils.lengthAscii(description) <= 3000) {
       this.description = description;

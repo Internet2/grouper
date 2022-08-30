@@ -19,9 +19,13 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.ddl.GrouperDdl2_6_16;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-
+/**
+ * 
+ * @author mchyzer
+ */
 public enum TableIndexType {
   
   /** index assigned to a group */
@@ -30,6 +34,11 @@ public enum TableIndexType {
     @Override
     public String tableName() {
       return Group.TABLE_GROUPER_GROUPS;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "id_index";
     }
   },
   
@@ -40,6 +49,11 @@ public enum TableIndexType {
     public String tableName() {
       return Stem.TABLE_GROUPER_STEMS;
     }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "id_index";
+    }
   },
   
   /** index assigned to an attribute def */
@@ -49,6 +63,11 @@ public enum TableIndexType {
     public String tableName() {
       return AttributeDef.TABLE_GROUPER_ATTRIBUTE_DEF;
     }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "id_index";
+    }
   },
   
   /** index assigned to an attribute name */
@@ -57,6 +76,26 @@ public enum TableIndexType {
     @Override
     public String tableName() {
       return AttributeDefName.TABLE_GROUPER_ATTRIBUTE_DEF_NAME;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "id_index";
+    }
+
+  },
+  
+  /** index assigned to a membership require change */
+  membershipRequire {
+
+    @Override
+    public String tableName() {
+      return GrouperDdl2_6_16.TABLE_GROUPER_MSHIP_REQ_CHANGE;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "id";
     }
   };
 
@@ -78,5 +117,11 @@ public enum TableIndexType {
         string, exceptionOnNull);
 
   }
+
+  /**
+   * column of table which is incrementing
+   * @return column name
+   */
+  public abstract String getIncrementingColumn();
 
 }

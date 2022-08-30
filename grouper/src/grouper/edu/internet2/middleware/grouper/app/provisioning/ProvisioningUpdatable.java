@@ -247,10 +247,29 @@ public abstract class ProvisioningUpdatable {
 
   /**
    * convert to json for cache, keep under 4k, keep track of truncated fields
-   * @param membershipAttribute 
    * @return the json of this group for cache
    */
-  public String toJsonForCache(String membershipAttribute) {
+  public String toJsonForCache() {
+    String membershipAttribute = null;
+    GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
+    if (this instanceof ProvisioningGroup 
+        && grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+          == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      membershipAttribute = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName();
+    }
+    if (this instanceof ProvisioningEntity 
+        && grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+          == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      membershipAttribute = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName();
+    }
+    return _internalal_toJsonForCache(membershipAttribute);
+  }
+  
+  /**
+   * convert to json for cache, keep under 4k, keep track of truncated fields
+   * @return the json of this group for cache
+   */
+  public String _internalal_toJsonForCache(String membershipAttribute) {
 
     Map<String, ProvisioningAttribute> theAttributes = this.getAttributes();
     Map<String, Integer> attributeSize = new HashMap<String, Integer>();

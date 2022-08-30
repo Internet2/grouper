@@ -286,6 +286,8 @@ public class UiV2Admin extends UiServiceLogicBase {
       if (StringUtils.equals(source, "logs")) {
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogs.jsp"));
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#adminDaemonJobsMoreActionsId", 
+            "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogsMoreActions.jsp"));
         viewLogsHelper(request, response);
       } else {
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#daemonJobsResultsId", "/WEB-INF/grouperUi2/admin/adminDaemonJobsContents.jsp"));

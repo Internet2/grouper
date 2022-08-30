@@ -98,13 +98,13 @@ public class GuiProvisionerConfiguration {
         String provisionerConfigId = "otherJob."+configId+".provisionerConfigId";
         if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), GrouperProvisioningFullSyncJob.class.getName()) && 
             StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), provisioningConfiguration.getConfigId())) {
-          fullSyncConfigIds.add(provisioningConfiguration.getConfigId());
+          fullSyncConfigIds.add(configId);
         }
       }
       
       if (fullSyncConfigIds.size() == 1) {
         
-        String fullSyncJobName = "OTHER_JOB_"+provisioningConfiguration.getConfigId();
+        String fullSyncJobName = "OTHER_JOB_"+fullSyncConfigIds.get(0);
         guiProvisionerConfiguration.setFullSyncJobName(fullSyncJobName);
       }
       
@@ -115,12 +115,12 @@ public class GuiProvisionerConfiguration {
         String provisionerConfigId = "changeLog.consumer."+configId+".provisionerConfigId";
         if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), ProvisioningConsumer.class.getName()) && 
             StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), provisioningConfiguration.getConfigId() )) {
-          incrementalSyncConfigIds.add(provisioningConfiguration.getConfigId());
+          incrementalSyncConfigIds.add(configId);
         }
       }
       
       if (incrementalSyncConfigIds.size() == 1) {
-        String incrementalSyncJobName = "CHANGE_LOG_consumer_"+provisioningConfiguration.getConfigId();
+        String incrementalSyncJobName = "CHANGE_LOG_consumer_"+incrementalSyncConfigIds.get(0);
         guiProvisionerConfiguration.setIncrementalSyncJobName(incrementalSyncJobName);
       }
       
