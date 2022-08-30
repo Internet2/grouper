@@ -172,7 +172,7 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
               int rowCount = HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from " + tableIndexType.tableName());
               if (rowCount > 0) {
                 int maxInTable = numberOfIndicesToReserve + GrouperUtil.defaultIfNull(
-                    HibernateSession.bySqlStatic().select(Integer.class, "select max(id_index) from " + tableIndexType.tableName()), 0);
+                    HibernateSession.bySqlStatic().select(Integer.class, "select max(" + tableIndexType.getIncrementingColumn() + ") from " + tableIndexType.tableName()), 0);
                 if (maxInTable > lastReservedIndex) {
                   lastReservedIndex = maxInTable;
                   if (LOG.isDebugEnabled()) {
@@ -208,7 +208,7 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
                 int rowCount = HibernateSession.bySqlStatic().select(Integer.class, "select count(*) from " + tableIndexType.tableName());
                 if (rowCount > 0) {
                   int maxInTable = numberOfIndicesToReserve + GrouperUtil.defaultIfNull(HibernateSession.bySqlStatic().select(Integer.class, 
-                      "select max(id_index) from " + tableIndexType.tableName()), 0);
+                      "select max(" + tableIndexType.getIncrementingColumn() + ") from " + tableIndexType.tableName()), 0);
                   if (maxInTable > nextIndex) {
                     nextIndex = maxInTable;
                   }

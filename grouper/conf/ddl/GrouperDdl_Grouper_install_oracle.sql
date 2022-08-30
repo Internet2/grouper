@@ -1964,6 +1964,26 @@ CREATE UNIQUE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (use
 
 CREATE UNIQUE INDEX grouper_duo_user_id_idx ON grouper_prov_duo_user (user_id, config_id);
 
+CREATE TABLE grouper_mship_req_change
+(
+    id NUMBER(38) NOT NULL,
+    member_id VARCHAR2(40) NOT NULL,
+    group_id VARCHAR2(40) NOT NULL,
+    the_timestamp DATE NOT NULL,
+    engine VARCHAR2(1) NOT NULL,
+    attribute_def_name_id VARCHAR2(40),
+    require_group_id VARCHAR2(40),
+    config_id VARCHAR2(80),
+    PRIMARY KEY (id)
+);
+
+CREATE INDEX grouper_mship_req_mem_gr_idx ON grouper_mship_req_change (group_id, member_id);
+
+CREATE INDEX grouper_mship_req_mem_idx ON grouper_mship_req_change (member_id);
+
+CREATE INDEX grouper_mship_req_time_idx ON grouper_mship_req_change (the_timestamp);
+
+CREATE INDEX grouper_mship_req_conf_id_idx ON grouper_mship_req_change (config_id);
 
 CREATE TABLE grouper_failsafe
 (
@@ -7070,8 +7090,25 @@ COMMENT ON COLUMN grouper_prov_duo_user.created_at IS 'When the user was created
 
 COMMENT ON COLUMN grouper_prov_duo_user.last_login_time IS 'When the user last logged in to duo';
 
+COMMENT ON TABLE grouper_mship_req_change IS 'table to log membership requirements when memberships fall out';
+
+COMMENT ON COLUMN grouper_mship_req_change.id IS 'integer id for this table';
+
+COMMENT ON COLUMN grouper_mship_req_change.member_id IS 'grouper_members uuid reference';
+
+COMMENT ON COLUMN grouper_mship_req_change.group_id IS 'grouper_groups id reference';
+
+COMMENT ON COLUMN grouper_mship_req_change.the_timestamp IS 'when the event took place';
+
+COMMENT ON COLUMN grouper_mship_req_change.engine IS 'H = hook, C = change log consumer, F = full sync';
+
+COMMENT ON COLUMN grouper_mship_req_change.attribute_def_name_id IS 'grouper_attribute_def_name id reference';
+
+COMMENT ON COLUMN grouper_mship_req_change.require_group_id IS 'grouper_groups id reference for the require group';
+
+COMMENT ON COLUMN grouper_mship_req_change.config_id IS 'config id in the grouper.properties config file';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 42, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V42, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 43, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V43, ');
 commit;

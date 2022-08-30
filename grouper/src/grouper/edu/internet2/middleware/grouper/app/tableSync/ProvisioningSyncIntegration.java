@@ -537,10 +537,10 @@ public class ProvisioningSyncIntegration {
         // keep it
         if (grouperProvisioningEntity != null || gcGrouperSyncMember.isProvisionable() || gcGrouperSyncMember.isInTarget()) {
           
-          if (StringUtils.isBlank(gcGrouperSyncMember.getSubjectId())) {
+          if (grouperProvisioningEntity != null && StringUtils.isBlank(gcGrouperSyncMember.getSubjectId())) {
             gcGrouperSyncMember.setSubjectId(grouperProvisioningEntity.getSubjectId());
           }
-          if (StringUtils.isBlank(gcGrouperSyncMember.getSourceId())) {
+          if (grouperProvisioningEntity != null && StringUtils.isBlank(gcGrouperSyncMember.getSourceId())) {
             gcGrouperSyncMember.setSourceId(grouperProvisioningEntity.getSubjectSourceId());
           }
           

@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -48,23 +50,28 @@ public class GrouperProvisioningConfigurationAttributeDbCache {
         }
       }
 
-      // TODO finish this for object cache
-//      // see if there is an object cached
-//      for (GrouperProvisioningConfigurationAttributeDbCache cache :
-//        grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
-//        if (cache == null || cache.getSource() != source || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
-//          continue;
-//        }
-//        
-//        
-//        
-//        Object value = gcGrouperSyncGroup.retrieveField("groupAttributeValueCache" + cache.getIndex());
-//        if (!GrouperUtil.isBlank(value) && !GrouperUtil.equals(value, currentValue) && !cachedValues.contains(value)) {
-//          cachedValues.add(value);
-//        }
-//      }
-
-      
+      // see if there is an object cached
+      for (GrouperProvisioningConfigurationAttributeDbCache cache :
+        grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
+        if (cache == null || cache.getSource() != source || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          continue;
+        }
+        
+        Object value = gcGrouperSyncGroup.retrieveField("groupAttributeValueCache" + cache.getIndex());
+        if (!GrouperUtil.isBlank(value)) {
+          try {
+            ProvisioningGroup provisioningGroup = grouperProvisioner.retrieveGrouperProvisioningData().parseJsonCacheGroup((String)value);
+            if (provisioningGroup != null) {
+              value = provisioningGroup.retrieveAttributeValue(attributeName);
+              if (!GrouperUtil.equals(value, currentValue) && !cachedValues.contains(value)) {
+                cachedValues.add(value);
+              }
+            }
+          } catch (Exception e) {
+            LOG.error("Error retrieving from cache! " + gcGrouperSyncGroup.getId() + ", " + gcGrouperSyncGroup.getGroupName(), e);
+          }
+        }
+      }
     }
     return cachedValues;
   }
@@ -124,23 +131,28 @@ public class GrouperProvisioningConfigurationAttributeDbCache {
         }
       }
 
-      // TODO finish this for object cache
-//      // see if there is an object cached
-//      for (GrouperProvisioningConfigurationAttributeDbCache cache :
-//        grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
-//        if (cache == null || cache.getSource() != source || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
-//          continue;
-//        }
-//        
-//        
-//        
-//        Object value = gcGrouperSyncGroup.retrieveField("entityAttributeValueCache" + cache.getIndex());
-//        if (!GrouperUtil.isBlank(value) && !GrouperUtil.equals(value, currentValue) && !cachedValues.contains(value)) {
-//          cachedValues.add(value);
-//        }
-//      }
-
-      
+      // see if there is an object cached
+      for (GrouperProvisioningConfigurationAttributeDbCache cache :
+        grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
+        if (cache == null || cache.getSource() != source || cache.getType() != GrouperProvisioningConfigurationAttributeDbCacheType.object) {
+          continue;
+        }
+        
+        Object value = gcGrouperSyncMember.retrieveField("entityAttributeValueCache" + cache.getIndex());
+        if (!GrouperUtil.isBlank(value)) {
+          try {
+            ProvisioningEntity provisioningEntity = grouperProvisioner.retrieveGrouperProvisioningData().parseJsonCacheEntity((String)value);
+            if (provisioningEntity != null) {
+              value = provisioningEntity.retrieveAttributeValue(attributeName);
+              if (!GrouperUtil.equals(value, currentValue) && !cachedValues.contains(value)) {
+                cachedValues.add(value);
+              }
+            }
+          } catch (Exception e) {
+            LOG.error("Error retrieving from cache! " + gcGrouperSyncMember.getId() + ", " + gcGrouperSyncMember.getSubjectId(), e);
+          }
+        }
+      }
     }
     return cachedValues;
   }
@@ -223,6 +235,9 @@ public class GrouperProvisioningConfigurationAttributeDbCache {
   private String attributeName;
   
   private String translationScript;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperProvisioningConfigurationAttributeDbCache.class);
 
   public int getIndex() {
     return index;

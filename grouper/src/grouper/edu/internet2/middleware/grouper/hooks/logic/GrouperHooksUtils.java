@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.hibernate.Transaction;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
+import edu.internet2.middleware.grouper.app.membershipRequire.MembershipRequireMembershipHook;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -567,6 +568,7 @@ public class GrouperHooksUtils {
     MembershipCannotAddSelfToGroupHook.clearHook();
     MembershipOneInFolderMaxHook.clearHook();
     StemUniqueNameCaseInsensitiveHook.clearHook();
+    MembershipRequireMembershipHook.clearHook();
 
   }
 

@@ -80,6 +80,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.NotificationDaemon;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
+import edu.internet2.middleware.grouper.app.membershipRequire.MembershipRequireMembershipHook;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames;
@@ -2447,6 +2448,8 @@ public class GrouperCheckConfig {
       inCheckConfig = true;
     }
 
+    MembershipRequireMembershipHook.registerHookIfNecessary();
+    
     GrouperSession grouperSession = null;
     boolean startedGrouperSession = false;
     try {

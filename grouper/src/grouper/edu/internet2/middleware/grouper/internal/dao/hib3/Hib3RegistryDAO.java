@@ -49,6 +49,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.tool.hbm2ddl.SchemaExport;
 
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.membershipRequire.GrouperMembershipRequireChangeDao;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -103,6 +104,7 @@ class Hib3RegistryDAO implements RegistryDAO {
             new GcDbAccess().sql("delete from grouper_stem_view_privilege").executeSql();
             new GcDbAccess().sql("delete from grouper_prov_zoom_user").executeSql();
             new GcDbAccess().sql("delete from grouper_prov_duo_user").executeSql();
+            GrouperMembershipRequireChangeDao.deleteAllRecords();
             hibernateSession.getSession().flush();
             
             Hib3TableIndexDAO.reset(hibernateSession);

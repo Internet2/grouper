@@ -10,8 +10,6 @@ CREATE TABLE grouper_ddl_worker
 
 CREATE UNIQUE INDEX grouper_ddl_worker_grp_idx ON grouper_ddl_worker (grouper);
 
-
-
 COMMENT ON TABLE grouper_ddl_worker IS 'JVMs register a uuid so only one JVM does the DDL upgrades at a time';
 
 COMMENT ON COLUMN grouper_ddl_worker.grouper IS 'this just holds the word grouper, so there is only one row here';

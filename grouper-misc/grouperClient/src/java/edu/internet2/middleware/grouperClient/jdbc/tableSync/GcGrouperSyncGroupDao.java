@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,11 +38,43 @@ public class GcGrouperSyncGroupDao {
    * @return the group
    */
   public GcGrouperSyncGroup groupCreateByGroupId(String groupId) {
-    GcGrouperSyncGroup gcGrouperSyncGroup = this.internal_groupCreateByGroupIdHelper(groupId);
-    this.internal_groupStore(gcGrouperSyncGroup);
-    this.gcGrouperSync.addObjectCreatedCount(1);
-    this.internal_groupCacheAdd(gcGrouperSyncGroup);
+      GcGrouperSyncGroup gcGrouperSyncGroup = this.internal_groupCreateByGroupIdHelper(groupId);
+      this.internal_groupStore(gcGrouperSyncGroup);
+      this.gcGrouperSync.addObjectCreatedCount(1);
+      this.internal_groupCacheAdd(gcGrouperSyncGroup);
     return gcGrouperSyncGroup;
+  }
+  
+  /**
+   * select grouper sync group by group id
+   * @param connectionName
+   * @param groupId
+   * @return the group
+   */
+  public GcGrouperSyncGroup internal_groupRetrieveFromDbByGroupNameFromGroupId(String groupId) {
+    
+    List<GcGrouperSyncGroup> gcGrouperSyncGroups = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
+        .sql("select gsg.* from grouper_sync_group gsg, grouper_groups gg where gsg.grouper_sync_id = ? and gg.id = ? and gg.name = gsg.group_name")
+          .addBindVar(this.getGcGrouperSync().getId()).addBindVar(groupId).selectList(GcGrouperSyncGroup.class);
+    
+    if (GrouperClientUtils.length(gcGrouperSyncGroups) == 0) {
+      return null;
+    }
+    
+    if (GrouperClientUtils.length(gcGrouperSyncGroups) == 1) {
+      return gcGrouperSyncGroups.iterator().next();
+    }
+    
+    gcGrouperSyncGroups.sort(new Comparator<GcGrouperSyncGroup>() {
+
+      @Override
+      public int compare(GcGrouperSyncGroup o1, GcGrouperSyncGroup o2) {
+        return o2.getLastUpdated().compareTo(o1.getLastUpdated());
+      }
+    });
+    
+    return gcGrouperSyncGroups.iterator().next();
+    
   }
 
   /**
@@ -51,7 +84,15 @@ public class GcGrouperSyncGroupDao {
    * @return the group
    */
   public GcGrouperSyncGroup internal_groupCreateByGroupIdHelper(String groupId) {
-    GcGrouperSyncGroup gcGrouperSyncGroup = new GcGrouperSyncGroup();
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = internal_groupRetrieveFromDbByGroupNameFromGroupId(groupId);
+    
+    if (gcGrouperSyncGroup != null) {
+      gcGrouperSyncGroup.setGroupId(groupId);
+      return gcGrouperSyncGroup;
+    }
+    
+    gcGrouperSyncGroup = new GcGrouperSyncGroup();
     gcGrouperSyncGroup.setGrouperSync(this.getGcGrouperSync());
     gcGrouperSyncGroup.setGroupId(groupId);
     return gcGrouperSyncGroup;

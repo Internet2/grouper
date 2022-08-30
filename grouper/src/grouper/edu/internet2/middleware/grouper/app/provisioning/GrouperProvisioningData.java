@@ -1,12 +1,17 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -18,6 +23,95 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
  *
  */
 public class GrouperProvisioningData {
+
+  /**
+   * cache json to provisioning group so the json doesnt have to be parsed repeatedly
+   */
+  private Map<String, ProvisioningGroup> cacheJsonToProvisioningGroup = new HashMap<String, ProvisioningGroup>();
+
+  /**
+   * cache json to provisioning group so the json doesnt have to be parsed repeatedly
+   * @return
+   */
+  public Map<String, ProvisioningGroup> getCacheJsonToProvisioningGroup() {
+    return this.cacheJsonToProvisioningGroup;
+  }
+
+  /**
+   * convert from json to provisioningEntity
+   * @param json
+   * @return the provisioningEntity
+   */
+  public ProvisioningEntity parseJsonCacheEntity(String json) {
+    if (StringUtils.isBlank(json)) {
+      return null;
+    }
+    ProvisioningEntity provisioningEntity = this.cacheJsonToProvisioningEntity.get(json);
+    
+    if (provisioningEntity != null) {
+      return provisioningEntity;
+    }
+    
+    try {
+      provisioningEntity = new ProvisioningEntity();
+      provisioningEntity.fromJsonForCache(json);
+      
+    } catch (Exception e) {
+      LOG.error("Problem parsing json '" + json + "'", e);
+      provisioningEntity = null;
+    }
+    
+    this.cacheJsonToProvisioningEntity.put(json, provisioningEntity);
+    return provisioningEntity;
+    
+  }
+  
+
+  /**
+   * convert from json to provisioningGroup
+   * @param json
+   * @return the provisioningGroup
+   */
+  public ProvisioningGroup parseJsonCacheGroup(String json) {
+    if (StringUtils.isBlank(json)) {
+      return null;
+    }
+    ProvisioningGroup provisioningGroup = this.cacheJsonToProvisioningGroup.get(json);
+    
+    if (provisioningGroup != null) {
+      return provisioningGroup;
+    }
+    
+    try {
+      provisioningGroup = new ProvisioningGroup();
+      provisioningGroup.fromJsonForCache(json);
+      
+    } catch (Exception e) {
+      LOG.error("Problem parsing json '" + json + "'", e);
+      provisioningGroup = null;
+    }
+    
+    this.cacheJsonToProvisioningGroup.put(json, provisioningGroup);
+    return provisioningGroup;
+    
+  }
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperProvisioningData.class);
+
+  /**
+   * cache json to provisioning entity so the json doesnt have to be parsed repeatedly
+   */
+  private Map<String, ProvisioningEntity> cacheJsonToProvisioningEntity = new HashMap<String, ProvisioningEntity>();
+
+  
+  /**
+   * cache json to provisioning entity so the json doesnt have to be parsed repeatedly
+   * @return
+   */
+  public Map<String, ProvisioningEntity> getCacheJsonToProvisioningEntity() {
+    return this.cacheJsonToProvisioningEntity;
+  }
 
   public GrouperProvisioningData() {
   }
