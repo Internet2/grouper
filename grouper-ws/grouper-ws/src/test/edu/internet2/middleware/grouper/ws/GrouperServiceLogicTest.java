@@ -223,7 +223,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testGetGroupsPIT"));
+    TestRunner.run(new GrouperServiceLogicTest("testAddRemoveMember"));
   }
 
   /**
@@ -9514,6 +9514,30 @@ public class GrouperServiceLogicTest extends GrouperTest {
         WsAddMemberResults wsAddMemberResults = GrouperServiceLogic.addMember(
             GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, false, 
             null, null, null, false, false, null, null, null, null, false);
+  
+        assertEquals(wsAddMemberResults.getResultMetadata().getResultMessage(),
+            WsAddMemberResultsCode.SUCCESS.name(), 
+            wsAddMemberResults.getResultMetadata().getResultCode());
+  
+        WsGroup wsGroup = wsAddMemberResults.getWsGroupAssigned();
+        assertEquals(group1.getUuid(), wsGroup.getUuid());
+        assertEquals(group1.getName(), wsGroup.getName());
+        
+        assertEquals(1, GrouperUtil.length(wsAddMemberResults.getResults()));
+        WsSubject wsSubject5 = wsAddMemberResults.getResults()[0].getWsSubject();
+        
+        assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject5.getId());
+        assertEquals(WsAddMemberResultCode.SUCCESS_ALREADY_EXISTED.name(), wsAddMemberResults.getResults()[0].resultCode().name());
+      }
+      
+      //###############################################
+      //valid query, add member again with enabled/disabled date
+      {
+        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+        WsAddMemberResults wsAddMemberResults = GrouperServiceLogic.addMember(
+            GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, false, 
+            null, null, null, false, false, null, null, new Timestamp(System.currentTimeMillis() + 10000), new Timestamp(System.currentTimeMillis() + 5000), false);
   
         assertEquals(wsAddMemberResults.getResultMetadata().getResultMessage(),
             WsAddMemberResultsCode.SUCCESS.name(), 

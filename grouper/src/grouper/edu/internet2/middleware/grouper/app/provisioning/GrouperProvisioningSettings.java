@@ -26,7 +26,7 @@ public class GrouperProvisioningSettings {
   
   private static ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>> __targetsCacheInternal;
 
-  private static ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>> targetsCache() {
+  private static synchronized ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>> targetsCache() {
     if (__targetsCacheInternal == null) {
       __targetsCacheInternal = new ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>>(5);
       __targetsCacheInternal.registerDatabaseClearableCache("grouperProvisioningTargetsCache");
