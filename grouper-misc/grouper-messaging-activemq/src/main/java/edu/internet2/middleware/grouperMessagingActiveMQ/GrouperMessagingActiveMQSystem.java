@@ -240,8 +240,6 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
 
     private Map<String,Session> messagingSystemNameSession = new HashMap<>();
 
-    private Map<String,Boolean> useSharedSessionsMap = new HashMap<>();
-
     private Session getActiveMQSendSession(String messagingSystemName) throws JMSException {
       if (StringUtils.isBlank(messagingSystemName)) {
         throw new IllegalArgumentException("messagingSystemName is required.");
@@ -252,11 +250,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
       if (connection == null) {
         throw new JMSException("Connection does not exist. Create a connection first");
       }
-
-      if (!(useSharedSessionsMap.get(messagingSystemName))) {
-        return connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-      }
-
+      
       Session session =  messagingSystemNameSession.get(messagingSystemName);
 
       if (session == null) {
@@ -285,8 +279,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
           String uri =  grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "uri");
           String username = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "username");
           String password = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "password");
-          boolean useSharedSession = grouperMessagingConfig.propertyValueBoolean(GrouperClientConfig.retrieveConfig(), "useSharedSession", true);
-          
+
           if (StringUtils.isNotBlank(password)) {
             password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
           }
@@ -310,10 +303,6 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
           connection = factory.createConnection();
           connection.start();
           messagingSystemNameConnection.put(messagingSystemName, connection);
-          useSharedSessionsMap.put(messagingSystemName,useSharedSession);
-          if (!useSharedSession) {
-            LOG.info("Warning: Using a session per ActiveMQ message can lead to memory exhaustion");
-          }
         }
       }
       return connection;
