@@ -84,6 +84,11 @@
         <!--<checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>-->
         <checkstyle.config.location>src/checkstyle/checkstyle-legacy.xml</checkstyle.config.location>
 
+        <!-- unit testing is turned off by default. If it's hardcoded in the plugin config, there is no way
+             to override it from the command line if you want to run tests. Using a property solves that;
+        -->
+        <skipTests>true</skipTests>
+
         <!-- Dependency Versions -->
         <json.version>20140107</json.version>
         <charon.version>2.1.3</charon.version>
@@ -1006,7 +1011,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                     <configuration>
-                        <skipTests>true</skipTests>
+                        <skipTests>${skipTests}</skipTests>
                     </configuration>
                 </plugin>
                 <plugin>

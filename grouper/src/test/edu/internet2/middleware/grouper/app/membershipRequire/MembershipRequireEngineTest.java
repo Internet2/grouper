@@ -6,13 +6,12 @@ package edu.internet2.middleware.grouper.app.membershipRequire;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefNameSave;
@@ -24,6 +23,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
 
 /**
@@ -47,6 +47,8 @@ public class MembershipRequireEngineTest extends GrouperTest {
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.membershipRequirement.hookEnable", "false");
     
+    assertEquals(0, GrouperUtil.intValue(new GcDbAccess().sql("select count(1) from grouper_mship_req_change").select(Integer.class)));
+    
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
     Stem testStem = new StemSave().assignName("test").assignCreateParentStemsIfNotExist(true).save();
@@ -60,6 +62,8 @@ public class MembershipRequireEngineTest extends GrouperTest {
 
     Group populationGroup = new GroupSave().assignName("test:populationGroup").assignCreateParentStemsIfNotExist(true).save();
     Group populationGroup2 = new GroupSave().assignName("test:populationGroup2").assignCreateParentStemsIfNotExist(true).save();
+    
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
     
     populationGroup.addMember(SubjectTestHelper.SUBJ2);
     populationGroup.addMember(SubjectTestHelper.SUBJ3);
@@ -116,6 +120,14 @@ public class MembershipRequireEngineTest extends GrouperTest {
     appStem.getAttributeDelegate().assignAttribute(testRequirePopulationGroup2);
     
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperMembershipRequireFull");
+
+    assertEquals(2, GrouperUtil.intValue(new GcDbAccess().sql("select count(1) from grouper_mship_req_change").select(Integer.class)));
+    assertEquals(1, GrouperUtil.intValue(
+        new GcDbAccess().sql("select count(1) from grouper_mship_req_change where group_id = ? and member_id = ? and engine = 'F'")
+        .addBindVar(testPolicyGroupProtected.getId()).addBindVar(member1.getId()).select(Integer.class)));
+    assertEquals(1, GrouperUtil.intValue(
+        new GcDbAccess().sql("select count(1) from grouper_mship_req_change where group_id = ? and member_id = ? and engine = 'F'")
+        .addBindVar(testPolicyGroupProtectedByStem.getId()).addBindVar(member1.getId()).select(Integer.class)));
     
     Hib3GrouperLoaderLog hib3loaderLog = MembershipRequireFullSyncJob.internal_mostRecentHib3GrouperLoaderLog;
     
@@ -223,6 +235,8 @@ public class MembershipRequireEngineTest extends GrouperTest {
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
+    assertEquals(0, GrouperUtil.intValue(new GcDbAccess().sql("select count(1) from grouper_mship_req_change").select(Integer.class)));
+
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperMembershipRequireFull");
 
     Stem testStem = new StemSave().assignName("test").assignCreateParentStemsIfNotExist(true).save();
@@ -237,6 +251,8 @@ public class MembershipRequireEngineTest extends GrouperTest {
     Group populationGroup = new GroupSave().assignName("test:populationGroup").assignCreateParentStemsIfNotExist(true).save();
     Group populationGroup2 = new GroupSave().assignName("test:populationGroup2").assignCreateParentStemsIfNotExist(true).save();
     
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+
     populationGroup.addMember(SubjectTestHelper.SUBJ2);
     populationGroup.addMember(SubjectTestHelper.SUBJ3);
     populationGroup.addMember(SubjectTestHelper.SUBJ4);
@@ -296,6 +312,8 @@ public class MembershipRequireEngineTest extends GrouperTest {
     GrouperUtil.sleep(2000);
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("CHANGE_LOG_consumer_membershipRequire");
         
+    assertEquals(0, GrouperUtil.intValue(new GcDbAccess().sql("select count(1) from grouper_mship_req_change").select(Integer.class)));
+
     assertEquals(0, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount()));
   
     assertEquals(3, testPolicyGroupProtectedByStem.getMembers().size());
@@ -313,6 +331,14 @@ public class MembershipRequireEngineTest extends GrouperTest {
     GrouperUtil.sleep(2000);
 
     hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("CHANGE_LOG_consumer_membershipRequire");
+
+    assertEquals(2, GrouperUtil.intValue(new GcDbAccess().sql("select count(1) from grouper_mship_req_change").select(Integer.class)));
+    assertEquals(1, GrouperUtil.intValue(
+        new GcDbAccess().sql("select count(1) from grouper_mship_req_change where group_id = ? and member_id = ? and engine = 'C'")
+        .addBindVar(testPolicyGroupProtected.getId()).addBindVar(member1.getId()).select(Integer.class)));
+    assertEquals(1, GrouperUtil.intValue(
+        new GcDbAccess().sql("select count(1) from grouper_mship_req_change where group_id = ? and member_id = ? and engine = 'C'")
+        .addBindVar(testPolicyGroupProtectedByStem.getId()).addBindVar(member1.getId()).select(Integer.class)));
 
     assertEquals(2, GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount()));
     

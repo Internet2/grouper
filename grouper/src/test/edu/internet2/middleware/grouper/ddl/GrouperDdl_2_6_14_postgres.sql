@@ -1964,27 +1964,6 @@ CREATE UNIQUE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (use
 
 CREATE UNIQUE INDEX grouper_duo_user_id_idx ON grouper_prov_duo_user (user_id, config_id);
 
-CREATE TABLE grouper_mship_req_change
-(
-    id BIGINT NOT NULL,
-    member_id VARCHAR(40) NOT NULL,
-    group_id VARCHAR(40) NOT NULL,
-    the_timestamp TIMESTAMP NOT NULL,
-    engine VARCHAR(1) NOT NULL,
-    attribute_def_name_id VARCHAR(40),
-    require_group_id VARCHAR(40),
-    config_id VARCHAR(80),
-    PRIMARY KEY (id)
-);
-
-CREATE INDEX grouper_mship_req_mem_gr_idx ON grouper_mship_req_change (group_id, member_id);
-
-CREATE INDEX grouper_mship_req_mem_idx ON grouper_mship_req_change (member_id);
-
-CREATE INDEX grouper_mship_req_time_idx ON grouper_mship_req_change (the_timestamp);
-
-CREATE INDEX grouper_mship_req_conf_id_idx ON grouper_mship_req_change (config_id);
-
 CREATE TABLE grouper_failsafe
 (
     id VARCHAR(40) NOT NULL,
@@ -7095,24 +7074,9 @@ COMMENT ON COLUMN grouper_prov_duo_user.created_at IS 'When the user was created
 
 COMMENT ON COLUMN grouper_prov_duo_user.last_login_time IS 'When the user last logged in to duo';
 
-COMMENT ON TABLE grouper_ddl_worker IS 'JVMs register a uuid so only one JVM does the DDL upgrades at a time';
-
-COMMENT ON COLUMN grouper_ddl_worker.grouper IS 'this just holds the word grouper, so there is only one row here';
-
-COMMENT ON COLUMN grouper_ddl_worker.worker_uuid IS 'random uuid from a jvm to do work on the database';
-
-COMMENT ON COLUMN grouper_ddl_worker.heartbeat IS 'while the ddl is running, keep a heartbeat updated';
-
-COMMENT ON COLUMN grouper_ddl_worker.last_updated IS 'when this record was last updated';
-
-COMMENT ON COLUMN grouper_mship_req_change.attribute_def_name_id IS 'grouper_attribute_def_name id reference';
-
-COMMENT ON COLUMN grouper_mship_req_change.require_group_id IS 'grouper_groups id reference for the require group';
-
-COMMENT ON COLUMN grouper_mship_req_change.config_id IS 'config id in the grouper.properties config file';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 43, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V43, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 42, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V42, ');
 commit;
 
