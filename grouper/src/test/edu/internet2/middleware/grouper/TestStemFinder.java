@@ -868,6 +868,16 @@ public class TestStemFinder extends GrouperTest {
 
     foundStems = new StemFinder().assignScope("stem-a%").assignExcludeAlternateNames(true).findStems();
     assertEquals("find 0 stems by alternate name with scope excluding alternate name", foundStems.size(), 0);
+
+    foundStems = new StemFinder().addStemName("stem-name").findStems();
+    assertEquals("find 1 stem by name name with addStemName()", foundStems.size(), 1);
+
+    foundStems = new StemFinder().addStemName("stem-alternate").findStems();
+    assertEquals("find 1 stem by alternate name with addStemName()", foundStems.size(), 1);
+
+    foundStems = new StemFinder().addStemName("stem-alternate").assignExcludeAlternateNames(true).findStems();
+    assertEquals("find 0 stems by alternate name with addStemName() and excludeAlternatenames", foundStems.size(), 0);
+
   }
 
 }

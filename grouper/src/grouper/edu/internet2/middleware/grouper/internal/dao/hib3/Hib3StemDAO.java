@@ -1425,10 +1425,9 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
                                             Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
                                             Collection<String> totalStemIds, String idOfAttributeDefName, Object attributeValue,
                                             Boolean attributeCheckReadOnAttributeDef, Set<Object> attributeValuesOnAssignment, String idOfAttributeDefName2, Object attributeValue2,
-                                            Set<Object> attributeValuesOnAssignment2, boolean attributeNotAssigned) throws GrouperDAOException {
-    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet,
-            queryOptions, splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields,
-            totalStemIds, idOfAttributeDefName, attributeValue, attributeCheckReadOnAttributeDef, attributeValuesOnAssignment, idOfAttributeDefName2, attributeValue2, attributeValuesOnAssignment2, attributeNotAssigned, false);
+                                            Set<Object> attributeValuesOnAssignment2, boolean attributeNotAssigned, boolean excludeAlternateNames)
+          throws GrouperDAOException {
+    return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions, splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields, totalStemIds, null, idOfAttributeDefName, attributeValue, attributeCheckReadOnAttributeDef, attributeValuesOnAssignment, idOfAttributeDefName2, attributeValue2, attributeValuesOnAssignment2, attributeNotAssigned, excludeAlternateNames);
   }
 
     /**
@@ -1444,6 +1443,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
      * @param userHasInGroupFields find stems where the user has these fields in a group
      * @param userHasInAttributeFields find stems where the user has these fields in an attribute
      * @param totalStemIds
+     * @param totalStemNames
      * @param idOfAttributeDefName
      * @param attributeValue
      * @param attributeCheckReadOnAttributeDef
@@ -1461,7 +1461,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       QueryOptions queryOptions, boolean splitScope,
       String parentStemId, Scope stemScope, boolean findByUuidOrName,
       Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
-      Collection<String> totalStemIds, String idOfAttributeDefName, Object attributeValue, 
+      Collection<String> totalStemIds, Collection<String> totalStemNames, String idOfAttributeDefName, Object attributeValue,
       Boolean attributeCheckReadOnAttributeDef, Set<Object> attributeValuesOnAssignment, String idOfAttributeDefName2, Object attributeValue2,
       Set<Object> attributeValuesOnAssignment2, boolean attributeNotAssigned, boolean excludeAlternateNames)
           throws GrouperDAOException {
@@ -1516,358 +1516,386 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       for (int stemIndex = 0; stemIndex < stemBatches; stemIndex++) {
         
         List<String> stemIds = GrouperUtil.batchList(totalStemIdsList, 100, stemIndex);
-  
-        StringBuilder sql = new StringBuilder("select distinct ns from Stem ns ");
-    
-        if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
-    
-          if (StringUtils.isBlank(parentStemId) || stemScope == null) {
-            throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
-          }
-    
-          if (stemScope == Scope.SUB) {
-            sql.append(", StemSet theStemSet ");
-          }
-        }      
-    
-        ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-    
-        boolean changedQueryForPrivs = false;
-        boolean changedQueryForAdminPrivs = false;
-        
-        //see if we are adding more to the query
-        boolean changedQuery = false;
-        
-        if (GrouperUtil.length(inPrivSet) > 0) {
-          changedQueryForPrivs = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic, 
-              sql, "ns.uuid", inPrivSet);
-          changedQuery = changedQuery || changedQueryForPrivs;
 
-//          changedQueryForAdminPrivs = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(grouperSession.getSubject(), byHqlStatic, 
+        int stemNameBatches = GrouperUtil.batchNumberOfBatches(totalStemNames, 50);
+
+        List<String> totalStemNamesList = new ArrayList<String>(GrouperUtil.nonNull(totalStemNames));
+
+        for (int stemNameIndex = 0; stemNameIndex < stemNameBatches; stemNameIndex++) {
+
+          List<String> stemNames = GrouperUtil.batchList(totalStemNamesList, 50, stemNameIndex);
+
+          StringBuilder sql = new StringBuilder("select distinct ns from Stem ns ");
+
+
+          if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+
+            if (StringUtils.isBlank(parentStemId) || stemScope == null) {
+              throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
+            }
+
+            if (stemScope == Scope.SUB) {
+              sql.append(", StemSet theStemSet ");
+            }
+          }
+
+          ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
+          boolean changedQueryForPrivs = false;
+          boolean changedQueryForAdminPrivs = false;
+
+          //see if we are adding more to the query
+          boolean changedQuery = false;
+
+          if (GrouperUtil.length(inPrivSet) > 0) {
+            changedQueryForPrivs = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(subject, byHqlStatic,
+                    sql, "ns.uuid", inPrivSet);
+            changedQuery = changedQuery || changedQueryForPrivs;
+
+//          changedQueryForAdminPrivs = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(grouperSession.getSubject(), byHqlStatic,
 //              sql, "ns.uuid", GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN));
 //          changedQuery = changedQuery || changedQueryForAdminPrivs;
 
-        } else {
-          if (!GrouperConfig.retrieveConfig().propertyValueBoolean("security.folders.are.viewable.by.all", false)) {
-            // if finding stems that someone can view
-            if (subject != null && !SubjectHelper.eq(subject, grouperSession.getSubject())) {
-              changedQueryForAdminPrivs = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(grouperSession.getSubject(), byHqlStatic, 
-                  sql, "ns.uuid", GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN));
-              changedQuery = changedQuery || changedQueryForAdminPrivs;
+          } else {
+            if (!GrouperConfig.retrieveConfig().propertyValueBoolean("security.folders.are.viewable.by.all", false)) {
+              // if finding stems that someone can view
+              if (subject != null && !SubjectHelper.eq(subject, grouperSession.getSubject())) {
+                changedQueryForAdminPrivs = grouperSession.getNamingResolver().hqlFilterStemsWhereClause(grouperSession.getSubject(), byHqlStatic,
+                        sql, "ns.uuid", GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN));
+                changedQuery = changedQuery || changedQueryForAdminPrivs;
+              }
             }
           }
-        }
-    
-        if (findByUuidOrName && StringUtils.isBlank(scope)) {
-          throw new RuntimeException("If you are looking by uuid or name, you need to pass in a scope");
-        }
-        
-        //see if there is a scope
-        if (!StringUtils.isBlank(scope)) {
-          
-          StringBuilder whereClause = new StringBuilder();
-          
-          if (changedQuery && sql.toString().contains("where")) {
-            whereClause.append(" and ");
-          } else {
-            whereClause.append(" where ");
-          }
-  
-          scope = assignFilterToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, excludeAlternateNames, "ns");
 
-          sql.append(whereClause);
-          changedQuery = true;
-        }
-  
-        if (!StringUtils.isBlank(idOfAttributeDefName)) {
-  
-          if (changedQuery && sql.toString().contains(" where ")) {
-            sql.append(" and ");
-          }  else {
-            sql.append(" where ");
+          if (findByUuidOrName && StringUtils.isBlank(scope)) {
+            throw new RuntimeException("If you are looking by uuid or name, you need to pass in a scope");
           }
-          changedQuery = true;
-  
-          //make sure user can READ the attribute
-          AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName);
-  
-          //default to check security
-          if (attributeCheckReadOnAttributeDef == null || attributeCheckReadOnAttributeDef) {
-            attributeDefNameFinder.assignPrivileges(AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
-          }
-          
-          AttributeDefName attributeDefName = attributeDefNameFinder.findAttributeName();
-  
-          //cant read the attribute????
-          if (attributeDefName == null) {
-            return new HashSet<Stem>();
-          }
-            
-          AttributeDef attributeDef = attributeDefName.getAttributeDef();
-          
-          if (GrouperUtil.length(attributeValuesOnAssignment) > 0) {
-            
-            if (attributeNotAssigned) {
-              sql.append(" not exists ( select aav ");
+
+          //see if there is a scope
+          if (!StringUtils.isBlank(scope)) {
+
+            StringBuilder whereClause = new StringBuilder();
+
+            if (changedQuery && sql.toString().contains("where")) {
+              whereClause.append(" and ");
             } else {
-              sql.append(" exists ( select aav ");
+              whereClause.append(" where ");
             }
-            
-            sql.append(" from AttributeAssign aa, AttributeAssign aaOnAssign, AttributeAssignValue aav ");
-            
-            sql.append(" where ns.uuid = aa.ownerStemId ");
-            sql.append(" and aa.id = aaOnAssign.ownerAttributeAssignId ");
-            
-            sql.append(" and aaOnAssign.attributeDefNameId = :idOfAttributeDefName ");
-            byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
-            sql.append(" and aa.enabledDb = 'T' ");
-    
-            AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
-    
-            Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType, attributeValuesOnAssignment, "aaOnAssign");
-            
-            sql.append(" ) ");
-            
-            
-          } else {
-          
-            if (attributeNotAssigned) {
-              sql.append(" not exists ( select ");
+
+            scope = assignFilterToQuery(scope, splitScope, whereClause, byHqlStatic, findByUuidOrName, excludeAlternateNames, "ns");
+
+            sql.append(whereClause);
+            changedQuery = true;
+          }
+
+          if (!StringUtils.isBlank(idOfAttributeDefName)) {
+
+            if (changedQuery && sql.toString().contains(" where ")) {
+              sql.append(" and ");
             } else {
-              sql.append(" exists ( select ");
+              sql.append(" where ");
             }
-            
-            sql.append(attributeValue == null ? "aa" : "aav");
-            
-            sql.append(" from AttributeAssign aa ");
-    
-            if (attributeValue != null) {
-              sql.append(", AttributeAssignValue aav ");
+            changedQuery = true;
+
+            //make sure user can READ the attribute
+            AttributeDefNameFinder attributeDefNameFinder = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName);
+
+            //default to check security
+            if (attributeCheckReadOnAttributeDef == null || attributeCheckReadOnAttributeDef) {
+              attributeDefNameFinder.assignPrivileges(AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
             }
-            
-            sql.append(" where ns.uuid = aa.ownerStemId ");
-            sql.append(" and aa.attributeDefNameId = :idOfAttributeDefName ");
-            byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
-            sql.append(" and aa.enabledDb = 'T' ");
-    
-            if (attributeValue != null) {
-    
+
+            AttributeDefName attributeDefName = attributeDefNameFinder.findAttributeName();
+
+            //cant read the attribute????
+            if (attributeDefName == null) {
+              return new HashSet<Stem>();
+            }
+
+            AttributeDef attributeDef = attributeDefName.getAttributeDef();
+
+            if (GrouperUtil.length(attributeValuesOnAssignment) > 0) {
+
+              if (attributeNotAssigned) {
+                sql.append(" not exists ( select aav ");
+              } else {
+                sql.append(" exists ( select aav ");
+              }
+
+              sql.append(" from AttributeAssign aa, AttributeAssign aaOnAssign, AttributeAssignValue aav ");
+
+              sql.append(" where ns.uuid = aa.ownerStemId ");
+              sql.append(" and aa.id = aaOnAssign.ownerAttributeAssignId ");
+
+              sql.append(" and aaOnAssign.attributeDefNameId = :idOfAttributeDefName ");
+              byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
+              sql.append(" and aa.enabledDb = 'T' ");
+
               AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
-    
-              Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType, attributeValue);
-              
-            }
-            
-            sql.append(" ) ");
-          }        
-        }
-        
-        
-        if (!StringUtils.isBlank(idOfAttributeDefName2)) {
-  
-          if (changedQuery && sql.toString().contains(" where ")) {
-            sql.append(" and ");
-          }  else {
-            sql.append(" where ");
-          }
-          changedQuery = true;
-  
-          //make sure user can READ the attribute
-          AttributeDefNameFinder attributeDefNameFinder2 = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName2);
-  
-          //default to check security
-          if (attributeCheckReadOnAttributeDef == null || attributeCheckReadOnAttributeDef) {
-            attributeDefNameFinder2.assignPrivileges(AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
-          }
-          
-          AttributeDefName attributeDefName2 = attributeDefNameFinder2.findAttributeName();
-  
-          //cant read the attribute????
-          if (attributeDefName2 == null) {
-            return new HashSet<Stem>();
-          }
-            
-          AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
-          
-          if (GrouperUtil.length(attributeValuesOnAssignment2) > 0) {
-            
-            if (attributeNotAssigned) {
-              sql.append(" not exists ( select aav ");
+
+              Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType, attributeValuesOnAssignment, "aaOnAssign");
+
+              sql.append(" ) ");
+
+
             } else {
-              sql.append(" exists ( select aav ");
+
+              if (attributeNotAssigned) {
+                sql.append(" not exists ( select ");
+              } else {
+                sql.append(" exists ( select ");
+              }
+
+              sql.append(attributeValue == null ? "aa" : "aav");
+
+              sql.append(" from AttributeAssign aa ");
+
+              if (attributeValue != null) {
+                sql.append(", AttributeAssignValue aav ");
+              }
+
+              sql.append(" where ns.uuid = aa.ownerStemId ");
+              sql.append(" and aa.attributeDefNameId = :idOfAttributeDefName ");
+              byHqlStatic.setString("idOfAttributeDefName", idOfAttributeDefName);
+              sql.append(" and aa.enabledDb = 'T' ");
+
+              if (attributeValue != null) {
+
+                AttributeDefValueType attributeDefValueType = attributeDef.getValueType();
+
+                Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType, attributeValue);
+
+              }
+
+              sql.append(" ) ");
             }
-            
-            sql.append(" from AttributeAssign aa, AttributeAssign aaOnAssign, AttributeAssignValue aav ");
-            
-            sql.append(" where ns.uuid = aa.ownerStemId ");
-            sql.append(" and aa.id = aaOnAssign.ownerAttributeAssignId ");
-            
-            sql.append(" and aaOnAssign.attributeDefNameId = :idOfAttributeDefName2 ");
-            byHqlStatic.setString("idOfAttributeDefName2", idOfAttributeDefName2);
-            sql.append(" and aa.enabledDb = 'T' ");
-    
-            AttributeDefValueType attributeDefValueType2 = attributeDef2.getValueType();
-    
-            Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType2, attributeValuesOnAssignment2, "aaOnAssign");
-            
-            sql.append(" ) ");
-            
-            
-          } else {
-          
-            if (attributeNotAssigned) {
-              sql.append(" not exists ( select ");
+          }
+
+
+          if (!StringUtils.isBlank(idOfAttributeDefName2)) {
+
+            if (changedQuery && sql.toString().contains(" where ")) {
+              sql.append(" and ");
             } else {
-              sql.append(" exists ( select ");
+              sql.append(" where ");
             }
-            
-            sql.append(attributeValue2 == null ? "aa" : "aav");
-            
-            sql.append(" from AttributeAssign aa ");
-    
-            if (attributeValue2 != null) {
-              sql.append(", AttributeAssignValue aav ");
+            changedQuery = true;
+
+            //make sure user can READ the attribute
+            AttributeDefNameFinder attributeDefNameFinder2 = new AttributeDefNameFinder().addIdOfAttributeDefName(idOfAttributeDefName2);
+
+            //default to check security
+            if (attributeCheckReadOnAttributeDef == null || attributeCheckReadOnAttributeDef) {
+              attributeDefNameFinder2.assignPrivileges(AttributeDefPrivilege.ATTR_READ_PRIVILEGES);
             }
-            
-            sql.append(" where ns.uuid = aa.ownerStemId ");
-            sql.append(" and aa.attributeDefNameId = :idOfAttributeDefName2 ");
-            byHqlStatic.setString("idOfAttributeDefName2", idOfAttributeDefName2);
-            sql.append(" and aa.enabledDb = 'T' ");
-    
-            if (attributeValue2 != null) {
-    
+
+            AttributeDefName attributeDefName2 = attributeDefNameFinder2.findAttributeName();
+
+            //cant read the attribute????
+            if (attributeDefName2 == null) {
+              return new HashSet<Stem>();
+            }
+
+            AttributeDef attributeDef2 = attributeDefName2.getAttributeDef();
+
+            if (GrouperUtil.length(attributeValuesOnAssignment2) > 0) {
+
+              if (attributeNotAssigned) {
+                sql.append(" not exists ( select aav ");
+              } else {
+                sql.append(" exists ( select aav ");
+              }
+
+              sql.append(" from AttributeAssign aa, AttributeAssign aaOnAssign, AttributeAssignValue aav ");
+
+              sql.append(" where ns.uuid = aa.ownerStemId ");
+              sql.append(" and aa.id = aaOnAssign.ownerAttributeAssignId ");
+
+              sql.append(" and aaOnAssign.attributeDefNameId = :idOfAttributeDefName2 ");
+              byHqlStatic.setString("idOfAttributeDefName2", idOfAttributeDefName2);
+              sql.append(" and aa.enabledDb = 'T' ");
+
               AttributeDefValueType attributeDefValueType2 = attributeDef2.getValueType();
-    
-              Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType2, attributeValue2);
-              
-            }
-            
-            sql.append(" ) ");
-          }        
-        }
-        
-        
-        
-        if (GrouperUtil.length(stemIds) > 0) {
-  
-          if (changedQuery && sql.toString().contains(" where ")) {
-            sql.append(" and ");
-          }  else {
-            sql.append(" where ");
-          }
-          changedQuery = true;
-          sql.append(" ns.uuid in (");
-          sql.append(HibUtils.convertToInClause(stemIds, byHqlStatic));
-          sql.append(") ");
-          
-        }
-  
-        if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
-          if (changedQuery && sql.toString().contains(" where ")) {
-            sql.append(" and ");
-          }  else {
-            sql.append(" where ");
-          }
-          changedQuery = true;
-          switch(stemScope) {
-            case ONE:
-              sql.append(" ns.parentUuid = :theStemId ");
-              byHqlStatic.setString("theStemId", parentStemId);
-              break;
-            case SUB:
-              
-              sql.append(" ns.parentUuid = theStemSet.ifHasStemId " +
-                " and theStemSet.thenHasStemId = :theStemId ");
-              byHqlStatic.setString("theStemId", parentStemId);
-              
-              break;
-            
-          }
-        }
-    
-    
-        if (GrouperUtil.length(userHasInGroupFields) > 0) {
-          
-          if (changedQuery && sql.toString().contains(" where ")) {
-            sql.append(" and ");
-          } else {
-            sql.append(" where ");
-          }
-          changedQuery = true;
-          
-          Member membershipMember = MemberFinder.findBySubject(grouperSession, subject, false);
-          
-          if (membershipMember == null) {
-            return new HashSet<Stem>();
-          }
-          
-          sql.append(" exists (select 1 from Group theGroup, MembershipEntry fieldMembership " +
-          		" where fieldMembership.ownerGroupId = theGroup.uuid " +
-              " and theGroup.parentUuid = ns.uuid ");
-          HibUtils.convertFieldsToSqlInString(userHasInGroupFields, byHqlStatic, sql, "fieldMembership.fieldId");
-      		sql.append(" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
-          byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
-          
-        }
-        
-        if (GrouperUtil.length(userHasInAttributeFields) > 0) {
-          
-          if (changedQuery && sql.toString().contains(" where ")) {
-            sql.append(" and ");
-          } else {
-            sql.append(" where ");
-          }
-          changedQuery = true;
-          
-          Member membershipMember = MemberFinder.findBySubject(grouperSession, subject, false);
-          
-          if (membershipMember == null) {
-            return new HashSet<Stem>();
-          }
-          
-          sql.append(" exists (select 1 from AttributeDef theAttributeDef, MembershipEntry fieldMembership " +
-              " where fieldMembership.ownerAttrDefId = theAttributeDef.id " +
-              " and theAttributeDef.stemId = ns.uuid ");
-          HibUtils.convertFieldsToSqlInString(userHasInGroupFields, byHqlStatic, sql, "fieldMembership.fieldId");
-          sql.append(" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
-          byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
-          
-        }
-  
-        // some choices... if we are looking for privs, then then we might not need to check
-        if (GrouperUtil.length(inPrivSet) == 0) {
-          // we are filtering based on what the grouper session can see...  not the underlying subject
-          changedQuery = appendQueryFilterIfNeededViewChildObjects("ns", 
-              subject == null ? grouperSession.getSubject() : subject, 
-              sql, byHqlStatic, changedQuery);
-          
-        }
-        
-        if (queryOptions != null) {
-          massageSortFields(queryOptions.getQuerySort());
-        }
-        Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
-            .setCacheable(false)
-            .setCacheRegion(KLASS + ".GetAllStemsSecure")
-            .options(queryOptions)
-            .listSet(Stem.class);
-          
-        if (!changedQueryForPrivs && GrouperUtil.length(inPrivSet) > 0) {
-          //if the hql didnt filter, this will
-          stems = grouperSession.getNamingResolver()
-            .postHqlFilterStems(stems, subject, inPrivSet);
-        }
-        if (!changedQueryForAdminPrivs) {
-          if (!GrouperConfig.retrieveConfig().propertyValueBoolean("security.folders.are.viewable.by.all", false)) {
-            if (GrouperUtil.length(inPrivSet) > 0 || (subject != null && !SubjectHelper.eq(subject, grouperSession.getSubject())) ) {
-              stems = grouperSession.getNamingResolver()
-                  .postHqlFilterStems(stems, grouperSession.getSubject(), GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN));
+
+              Hib3AttributeAssignDAO.queryByValuesAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType2, attributeValuesOnAssignment2, "aaOnAssign");
+
+              sql.append(" ) ");
+
+
+            } else {
+
+              if (attributeNotAssigned) {
+                sql.append(" not exists ( select ");
+              } else {
+                sql.append(" exists ( select ");
+              }
+
+              sql.append(attributeValue2 == null ? "aa" : "aav");
+
+              sql.append(" from AttributeAssign aa ");
+
+              if (attributeValue2 != null) {
+                sql.append(", AttributeAssignValue aav ");
+              }
+
+              sql.append(" where ns.uuid = aa.ownerStemId ");
+              sql.append(" and aa.attributeDefNameId = :idOfAttributeDefName2 ");
+              byHqlStatic.setString("idOfAttributeDefName2", idOfAttributeDefName2);
+              sql.append(" and aa.enabledDb = 'T' ");
+
+              if (attributeValue2 != null) {
+
+                AttributeDefValueType attributeDefValueType2 = attributeDef2.getValueType();
+
+                Hib3AttributeAssignDAO.queryByValueAddTablesWhereClause(byHqlStatic, null, sql, attributeDefValueType2, attributeValue2);
+
+              }
+
+              sql.append(" ) ");
             }
           }
-        }
-        overallResults.addAll(GrouperUtil.nonNull(stems));
-        if (queryOptions != null && queryOptions.isRetrieveCount()) {
-          count += queryOptions.getCount();
+
+          
+          if (GrouperUtil.length(stemIds) > 0) {
+
+            if (changedQuery && sql.toString().contains(" where ")) {
+              sql.append(" and ");
+            } else {
+              sql.append(" where ");
+            }
+            changedQuery = true;
+            sql.append(" ns.uuid in (");
+            sql.append(HibUtils.convertToInClause(stemIds, byHqlStatic));
+            sql.append(") ");
+
+          }
+
+          if (GrouperUtil.length(stemNames) > 0) {
+
+            if (changedQuery && sql.toString().contains(" where ")) {
+              sql.append(" and ");
+            } else {
+              sql.append(" where ");
+            }
+            changedQuery = true;
+            sql.append("(ns.nameDb in (");
+            sql.append(HibUtils.convertToInClause(stemNames, byHqlStatic));
+
+            if (!excludeAlternateNames) {
+              sql.append(") or ns.alternateNameDb in (");
+              sql.append(HibUtils.convertToInClause(stemNames, byHqlStatic));
+            }
+            sql.append(")) ");
+
+          }
+
+          if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+            if (changedQuery && sql.toString().contains(" where ")) {
+              sql.append(" and ");
+            } else {
+              sql.append(" where ");
+            }
+            changedQuery = true;
+            switch (stemScope) {
+              case ONE:
+                sql.append(" ns.parentUuid = :theStemId ");
+                byHqlStatic.setString("theStemId", parentStemId);
+                break;
+              case SUB:
+
+                sql.append(" ns.parentUuid = theStemSet.ifHasStemId " +
+                        " and theStemSet.thenHasStemId = :theStemId ");
+                byHqlStatic.setString("theStemId", parentStemId);
+
+                break;
+
+            }
+          }
+
+
+          if (GrouperUtil.length(userHasInGroupFields) > 0) {
+
+            if (changedQuery && sql.toString().contains(" where ")) {
+              sql.append(" and ");
+            } else {
+              sql.append(" where ");
+            }
+            changedQuery = true;
+
+            Member membershipMember = MemberFinder.findBySubject(grouperSession, subject, false);
+
+            if (membershipMember == null) {
+              return new HashSet<Stem>();
+            }
+
+            sql.append(" exists (select 1 from Group theGroup, MembershipEntry fieldMembership " +
+                    " where fieldMembership.ownerGroupId = theGroup.uuid " +
+                    " and theGroup.parentUuid = ns.uuid ");
+            HibUtils.convertFieldsToSqlInString(userHasInGroupFields, byHqlStatic, sql, "fieldMembership.fieldId");
+            sql.append(" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
+            byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
+
+          }
+
+          if (GrouperUtil.length(userHasInAttributeFields) > 0) {
+
+            if (changedQuery && sql.toString().contains(" where ")) {
+              sql.append(" and ");
+            } else {
+              sql.append(" where ");
+            }
+            changedQuery = true;
+
+            Member membershipMember = MemberFinder.findBySubject(grouperSession, subject, false);
+
+            if (membershipMember == null) {
+              return new HashSet<Stem>();
+            }
+
+            sql.append(" exists (select 1 from AttributeDef theAttributeDef, MembershipEntry fieldMembership " +
+                    " where fieldMembership.ownerAttrDefId = theAttributeDef.id " +
+                    " and theAttributeDef.stemId = ns.uuid ");
+            HibUtils.convertFieldsToSqlInString(userHasInGroupFields, byHqlStatic, sql, "fieldMembership.fieldId");
+            sql.append(" and fieldMembership.memberUuid = :fieldMembershipMemberUuid and fieldMembership.enabledDb = 'T' ) ");
+            byHqlStatic.setString("fieldMembershipMemberUuid", membershipMember.getUuid());
+
+          }
+
+          // some choices... if we are looking for privs, then then we might not need to check
+          if (GrouperUtil.length(inPrivSet) == 0) {
+            // we are filtering based on what the grouper session can see...  not the underlying subject
+            changedQuery = appendQueryFilterIfNeededViewChildObjects("ns",
+                    subject == null ? grouperSession.getSubject() : subject,
+                    sql, byHqlStatic, changedQuery);
+
+          }
+
+          if (queryOptions != null) {
+            massageSortFields(queryOptions.getQuerySort());
+          }
+          Set<Stem> stems = byHqlStatic.createQuery(sql.toString())
+                  .setCacheable(false)
+                  .setCacheRegion(KLASS + ".GetAllStemsSecure")
+                  .options(queryOptions)
+                  .listSet(Stem.class);
+
+          if (!changedQueryForPrivs && GrouperUtil.length(inPrivSet) > 0) {
+            //if the hql didnt filter, this will
+            stems = grouperSession.getNamingResolver()
+                    .postHqlFilterStems(stems, subject, inPrivSet);
+          }
+          if (!changedQueryForAdminPrivs) {
+            if (!GrouperConfig.retrieveConfig().propertyValueBoolean("security.folders.are.viewable.by.all", false)) {
+              if (GrouperUtil.length(inPrivSet) > 0 || (subject != null && !SubjectHelper.eq(subject, grouperSession.getSubject())) ) {
+                stems = grouperSession.getNamingResolver()
+                        .postHqlFilterStems(stems, grouperSession.getSubject(), GrouperUtil.toSet(NamingPrivilege.STEM_ADMIN));
+              }
+            }
+          }
+          overallResults.addAll(GrouperUtil.nonNull(stems));
+          if (queryOptions != null && queryOptions.isRetrieveCount()) {
+            count += queryOptions.getCount();
+          }
         }
       }
         
@@ -2687,14 +2715,14 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
                                      Subject subject, Set<Privilege> inPrivSet, QueryOptions queryOptions,
                                      boolean splitScope, String parentStemId, Scope stemScope, boolean findByUuidOrName,
                                      Collection<Field> userHasInGroupFields, Collection<Field> userHasInAttributeFields,
-                                     Collection<String> stemIds, String idOfAttributeDefName, Object attributeValue,
+                                     Collection<String> stemIds, Collection<String> stemNames, String idOfAttributeDefName, Object attributeValue,
                                      Boolean attributeCheckReadOnAttributeDef, Set<Object> attributeValuesOnAssignment,
                                      String idOfAttributeDefName2, Object attributeValue2,
                                      Set<Object> attributeValuesOnAssignment2, boolean attributeNotAssigned,
                                      boolean excludeAlternateName) throws GrouperDAOException {
     return getAllStemsSecureHelper(scope, grouperSession, subject, inPrivSet, queryOptions,
             splitScope, parentStemId, stemScope, findByUuidOrName, userHasInGroupFields, userHasInAttributeFields,
-            stemIds, idOfAttributeDefName, attributeValue, attributeCheckReadOnAttributeDef, attributeValuesOnAssignment,
+            stemIds, stemNames, idOfAttributeDefName, attributeValue, attributeCheckReadOnAttributeDef, attributeValuesOnAssignment,
             idOfAttributeDefName2, attributeValue2,
             attributeValuesOnAssignment2, attributeNotAssigned, excludeAlternateName);
   }
