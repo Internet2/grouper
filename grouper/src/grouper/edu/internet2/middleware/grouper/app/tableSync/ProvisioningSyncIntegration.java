@@ -490,7 +490,7 @@ public class ProvisioningSyncIntegration {
           gcGrouperSyncMember.setSourceId(member.getSubjectSourceId());
         }
         if (GrouperClientUtils.isBlank(gcGrouperSyncMember.getSubjectId())) {
-          gcGrouperSyncMember.setSourceId(member.getSubjectId());
+          gcGrouperSyncMember.setSubjectId(member.getSubjectId());
         }
       }
     }
