@@ -211,6 +211,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** new uuid col in db */
   public static final String COLUMN_ID = "id";
   
+  /** new id_index col in db */
+  public static final String COLUMN_ID_INDEX = "id_index";
+  
   /** old id col for id conversion */
   public static final String COLUMN_OLD_ID = "old_id";
   

@@ -1819,7 +1819,7 @@ public class GrouperProvisioningLogic {
       throw RUNTIME_EXCEPTION[0];
     }
     
-    retrieveAllTargetAndGrouperDataPost();
+    retrieveAllTargetAndGrouperDataPost(targetProvisioningLists[0]);
     
     processTargetWrappers(targetProvisioningLists[0]);
 
@@ -2297,7 +2297,7 @@ public class GrouperProvisioningLogic {
   /** 
    * override this method to do some logic after all grouper and target data is retrieved (e.g. if there are DN overrides)
    */
-  public void retrieveAllTargetAndGrouperDataPost() {
+  public void retrieveAllTargetAndGrouperDataPost(GrouperProvisioningLists targetProvisioningLists) {
     
     
   }

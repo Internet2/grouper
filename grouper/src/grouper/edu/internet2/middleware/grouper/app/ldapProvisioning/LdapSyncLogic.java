@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDao;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -19,9 +20,9 @@ public class LdapSyncLogic extends GrouperProvisioningLogic {
   }
 
   @Override
-  public void retrieveAllTargetAndGrouperDataPost() {
+  public void retrieveAllTargetAndGrouperDataPost(GrouperProvisioningLists targetProvisioningLists) {
     
-    super.retrieveAllTargetAndGrouperDataPost();
+    super.retrieveAllTargetAndGrouperDataPost(targetProvisioningLists);
     
     // first are we even doing this?
     if (((LdapSyncConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isAllowLdapGroupDnOverride()) {
@@ -49,13 +50,17 @@ public class LdapSyncLogic extends GrouperProvisioningLogic {
         
         Set<String> dnsToFind = new HashSet<String>(grouperDnOverrides);
         dnsToFind.removeAll(targetDns);
-        
+        int notFound = 0;
         for (String dn : dnsToFind) {
           
           LdapProvisioningTargetDao ldapProvisioningTargetDao = (LdapProvisioningTargetDao)this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao();
           ProvisioningGroup provisioningGroup = ldapProvisioningTargetDao.retrieveGroupByDn(dn, true, false);
           if (provisioningGroup != null) {
             targetProvisioningGroups.add(provisioningGroup);
+          } else {
+            if (notFound++ < 5) {
+              this.getGrouperProvisioner().getDebugMap().put("dnNotFound_" + notFound, dn);
+            }
           }
         }
         

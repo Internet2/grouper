@@ -800,7 +800,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       
       this.grouperProvisioner.retrieveGrouperProvisioningLogic().assignSyncObjectsToWrappers();
 
-      this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().retrieveAllTargetAndGrouperDataPost();
+      this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().retrieveAllTargetAndGrouperDataPost(null);
       
       // TODO do we need this???  
       // this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().processTargetWrappers();

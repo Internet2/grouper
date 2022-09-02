@@ -2740,6 +2740,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl2_6_16.addGrouperMembershipRequireTable(database, ddlVersionBean);
       GrouperDdl2_6_16.addGrouperMembershipRequireIndex(ddlVersionBean, database);
       GrouperDdl2_6_16.addGrouperMembershipRequireComments(database, ddlVersionBean);
+      GrouperDdl2_6_16.addMemberIdIndexColumn(database, ddlVersionBean);
+      GrouperDdl2_6_16.addMemberIdIndexIndex(database, ddlVersionBean);
+      GrouperDdl2_6_16.addMemberIdIndexComment(database, ddlVersionBean);
     }
   },
   V44 {

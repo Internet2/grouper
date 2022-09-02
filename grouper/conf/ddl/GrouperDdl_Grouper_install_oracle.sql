@@ -128,6 +128,7 @@ CREATE TABLE grouper_members
     subject_identifier0 VARCHAR2(255),
     subject_identifier1 VARCHAR2(255),
     subject_identifier2 VARCHAR2(255),
+    id_index NUMBER(38),
     email0 VARCHAR2(255),
     sort_string0 VARCHAR2(50),
     sort_string1 VARCHAR2(50),
@@ -177,6 +178,8 @@ CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0)
 CREATE INDEX member_subjidentifier1_idx ON grouper_members (subject_identifier1);
 
 CREATE INDEX member_subjidentifier2_idx ON grouper_members (subject_identifier2);
+
+CREATE UNIQUE INDEX member_id_index_idx ON grouper_members (id_index);
 
 CREATE INDEX member_email0_idx ON grouper_members (email0);
 
@@ -2367,6 +2370,8 @@ COMMENT ON COLUMN grouper_members.subject_identifier0 IS 'subject identifier of 
 COMMENT ON COLUMN grouper_members.subject_identifier1 IS 'subject identifier of the subject';
 
 COMMENT ON COLUMN grouper_members.subject_identifier2 IS 'subject identifier of the subject';
+
+COMMENT ON COLUMN grouper_members.id_index IS 'Sequential id index integer that can we used outside of Grouper';
 
 COMMENT ON COLUMN grouper_members.email0 IS 'email of the subject';
 
