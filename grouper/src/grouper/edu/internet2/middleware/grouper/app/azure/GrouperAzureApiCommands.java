@@ -294,22 +294,7 @@ public class GrouperAzureApiCommands {
             
             if (statusCode != 201) {
               
-              StringBuilder error = new StringBuilder("statusCode = "+statusCode);
-              
-              if (bodyNode != null) {
-                JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
-                if (errorNode != null) {
-                  String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
-                  if (StringUtils.isNotBlank(errorCode)) {
-                    error.append(", errorCode = "+errorCode);
-                  }
-                  
-                  String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
-                  if (StringUtils.isNotBlank(errorMessage)) {
-                    error.append(", errorMessage = "+errorMessage);
-                  }
-                }
-              }
+              StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
               
               groupToMayBeException.put(grouperAzureGroup, new RuntimeException(error.toString()));
               
@@ -336,6 +321,34 @@ public class GrouperAzureApiCommands {
       GrouperAzureLog.azureLog(debugMap, startTime);
     }
 
+  }
+
+
+  /**
+   * 
+   * @param oneResponse
+   * @param statusCode
+   * @param bodyNode
+   * @return
+   */
+  private static StringBuilder buildError(JsonNode oneResponse, Integer statusCode, JsonNode bodyNode) {
+    StringBuilder error = new StringBuilder("statusCode = "+statusCode);
+    
+    if (bodyNode != null) {
+      JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
+      if (errorNode != null) {
+        String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
+        if (StringUtils.isNotBlank(errorCode)) {
+          error.append(", errorCode = "+errorCode);
+        }
+        
+        String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
+        if (StringUtils.isNotBlank(errorMessage)) {
+          error.append(", errorMessage = "+errorMessage);
+        }
+      }
+    }
+    return error;
   }
   
   
@@ -433,22 +446,7 @@ public class GrouperAzureApiCommands {
             
             if (statusCode != 201) {
               
-              StringBuilder error = new StringBuilder("statusCode = "+statusCode);
-              
-              if (bodyNode != null) {
-                JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
-                if (errorNode != null) {
-                  String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
-                  if (StringUtils.isNotBlank(errorCode)) {
-                    error.append(", errorCode = "+errorCode);
-                  }
-                  
-                  String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
-                  if (StringUtils.isNotBlank(errorMessage)) {
-                    error.append(", errorMessage = "+errorMessage);
-                  }
-                }
-              }
+              StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
               
               userToMayBeException.put(grouperAzureUser, new RuntimeException(error.toString()));
               
@@ -482,7 +480,7 @@ public class GrouperAzureApiCommands {
    * @param grouperAzureGroup
    * @return the result
    */
-  public static void createAzureMembership(String configId,
+  private static void createAzureMembership(String configId,
       String groupId, String userId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -757,22 +755,7 @@ public class GrouperAzureApiCommands {
             
             if (statusCode != 204) {
               
-              StringBuilder error = new StringBuilder("statusCode = "+statusCode);
-              
-              if (bodyNode != null) {
-                JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
-                if (errorNode != null) {
-                  String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
-                  if (StringUtils.isNotBlank(errorCode)) {
-                    error.append(", errorCode = "+errorCode);
-                  }
-                  
-                  String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
-                  if (StringUtils.isNotBlank(errorMessage)) {
-                    error.append(", errorMessage = "+errorMessage);
-                  }
-                }
-              }
+              StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
               
               groupToMayBeException.put(grouperAzureGroup, new RuntimeException(error.toString()));
               
@@ -869,22 +852,7 @@ public class GrouperAzureApiCommands {
             
             if (statusCode != 204) {
               
-              StringBuilder error = new StringBuilder("statusCode = "+statusCode);
-              
-              if (bodyNode != null) {
-                JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
-                if (errorNode != null) {
-                  String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
-                  if (StringUtils.isNotBlank(errorCode)) {
-                    error.append(", errorCode = "+errorCode);
-                  }
-                  
-                  String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
-                  if (StringUtils.isNotBlank(errorMessage)) {
-                    error.append(", errorMessage = "+errorMessage);
-                  }
-                }
-              }
+              StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
               
               userToMayBeException.put(grouperAzureUser, new RuntimeException(error.toString()));
               
@@ -965,23 +933,7 @@ public class GrouperAzureApiCommands {
             
             if (statusCode != 204 && statusCode != 404) {
               
-              StringBuilder error = new StringBuilder("statusCode = "+statusCode);
-              
-              if (bodyNode != null) {
-                JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
-                if (errorNode != null) {
-                  String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
-                  if (StringUtils.isNotBlank(errorCode)) {
-                    error.append(", errorCode = "+errorCode);
-                  }
-                  
-                  String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
-                  if (StringUtils.isNotBlank(errorMessage)) {
-                    error.append(", errorMessage = "+errorMessage);
-                  }
-                }
-              }
-              
+              StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
               groupToMayBeException.put(grouperAzureGroup, new RuntimeException(error.toString()));
               
             } else {
@@ -1178,24 +1130,9 @@ public class GrouperAzureApiCommands {
             
             if (statusCode != 200 && statusCode != 404) {
               
-              StringBuilder error = new StringBuilder("statusCode = "+statusCode);
+              StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
               
-              if (bodyNode != null) {
-                JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
-                if (errorNode != null) {
-                  String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
-                  if (StringUtils.isNotBlank(errorCode)) {
-                    error.append(", errorCode = "+errorCode);
-                  }
-                  
-                  String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
-                  if (StringUtils.isNotBlank(errorMessage)) {
-                    error.append(", errorMessage = "+errorMessage);
-                  }
-                }
-              }
-              
-              LOG.error(error);
+              LOG.error(error.toString());
               
             } else {
             
@@ -1416,24 +1353,9 @@ public class GrouperAzureApiCommands {
             
             if (statusCode != 200 && statusCode != 404) {
               
-              StringBuilder error = new StringBuilder("statusCode = "+statusCode);
+              StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
               
-              if (bodyNode != null) {
-                JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
-                if (errorNode != null) {
-                  String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
-                  if (StringUtils.isNotBlank(errorCode)) {
-                    error.append(", errorCode = "+errorCode);
-                  }
-                  
-                  String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
-                  if (StringUtils.isNotBlank(errorMessage)) {
-                    error.append(", errorMessage = "+errorMessage);
-                  }
-                }
-              }
-              
-              LOG.error(error);
+              LOG.error(error.toString());
               
             } else {
             
@@ -1525,24 +1447,7 @@ public class GrouperAzureApiCommands {
             ProvisioningMembership provisioningMembership = membershipsInOneHttpRequest.get(userIndex);
             
             if (statusCode != 204 && statusCode != 404) {
-              
-              StringBuilder error = new StringBuilder("statusCode = "+statusCode);
-              
-              if (bodyNode != null) {
-                JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
-                if (errorNode != null) {
-                  String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
-                  if (StringUtils.isNotBlank(errorCode)) {
-                    error.append(", errorCode = "+errorCode);
-                  }
-                  
-                  String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
-                  if (StringUtils.isNotBlank(errorMessage)) {
-                    error.append(", errorMessage = "+errorMessage);
-                  }
-                }
-              }
-              
+              StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
               membershipToMayBeException.put(provisioningMembership, new RuntimeException(error.toString()));
               
             } else {
@@ -1621,22 +1526,7 @@ public class GrouperAzureApiCommands {
             
             if (statusCode != 204 && statusCode != 404) {
               
-              StringBuilder error = new StringBuilder("statusCode = "+statusCode);
-              
-              if (bodyNode != null) {
-                JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
-                if (errorNode != null) {
-                  String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
-                  if (StringUtils.isNotBlank(errorCode)) {
-                    error.append(", errorCode = "+errorCode);
-                  }
-                  
-                  String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
-                  if (StringUtils.isNotBlank(errorMessage)) {
-                    error.append(", errorMessage = "+errorMessage);
-                  }
-                }
-              }
+              StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
               
               userToMayBeException.put(grouperAzureUser, new RuntimeException(error.toString()));
               
