@@ -128,6 +128,31 @@ public class GrouperProvisionerDaoCapabilities {
     this.canDeleteGroup = canDeleteGroup;
   }
   
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int deleteGroupsBatchSize = 20;
+
+  
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return delete group batch size
+   */
+  public int getDeleteGroupsBatchSize() {
+    return this.deleteGroupsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param deleteGroupsBatchSize1
+   */
+  public void setDeleteGroupsBatchSize(int deleteGroupsBatchSize1) {
+    this.deleteGroupsBatchSize = deleteGroupsBatchSize1;
+  }
+
   public Boolean getCanDeleteGroups() {
     return canDeleteGroups;
   }

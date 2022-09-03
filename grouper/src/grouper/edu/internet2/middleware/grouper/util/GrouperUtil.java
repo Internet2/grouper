@@ -13892,6 +13892,29 @@ public class GrouperUtil {
   }
   
   /**
+   * 
+   * @param executorService if null just run it in this thread
+   * @param callable
+   * @param willRetry 
+   * @return the future
+   */
+  public static void executorServiceSubmit(ExecutorService executorService, List<GrouperCallable<Void>> callables) {
+    if (executorService == null) {
+      for (GrouperCallable grouperCallable : GrouperUtil.nonNull(callables)) {
+        grouperCallable.callLogic();
+      }
+      return;
+    }
+    List<GrouperFuture> grouperFutures = new ArrayList<GrouperFuture>();
+    for (GrouperCallable grouperCallable : GrouperUtil.nonNull(callables)) {
+      Future future = executorService.submit(grouperCallable);
+      GrouperFuture grouperFuture = new GrouperFuture(future, grouperCallable);
+      grouperFutures.add(grouperFuture);
+    }
+    GrouperFuture.waitForJob(grouperFutures, 0, null);
+  }
+  
+  /**
    * concat two strings
    * @param a
    * @param b

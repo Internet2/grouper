@@ -19,7 +19,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogCommands;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
@@ -30,6 +29,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipW
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningUpdatableAttributeAndValue;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -222,59 +222,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   }
 
 
+  /**
+   * dont call this, call the plural
+   */
   @Override
   public TargetDaoDeleteGroupResponse deleteGroup(
       TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
-    
-    if (targetDaoDeleteGroupRequest.getTargetGroup() == null) {
-      return new TargetDaoDeleteGroupResponse();
-    }
-
-    ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
-    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteGroup(), false)) {
-      boolean hasError = false;
-      boolean commandLogStarted = false;
-      try {
-        commandLogStarted = commandLogStartLoggingIfConfigured();
-        TargetDaoDeleteGroupResponse targetDaoDeleteGroupResponse = this.wrappedDao.deleteGroup(targetDaoDeleteGroupRequest);
-        hasError = logGroup(targetGroup);
-        if (targetGroup.getProvisioned() == null) {
-          throw new RuntimeException("Dao did not set deleted group as provisioned: " + this.wrappedDao);
-        }
-        
-        if (targetGroup.getProvisioned()) {
-          // update the cache
-          this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateGroupLink(GrouperUtil.toSet(targetGroup.getProvisioningGroupWrapper()), false);
-        }
-        
-        return targetDaoDeleteGroupResponse;
-      } catch (RuntimeException e) {
-
-        GrouperUtil.injectInException(e, targetGroup.toString());
-        hasError = true;
-        if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("groupDelete")) {
-          logError(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
-              "Error deleting group, " + GrouperUtil.getFullStackTrace(e)));
-        }
-
-        if (targetGroup.getProvisioned() == null) {
-          targetGroup.setProvisioned(false);
-        }
-        if (targetGroup.getException() == null) {
-          targetGroup.setException(e);
-        }
-        logGroup(targetGroup);
-      } finally {
-        commandLogFinallyBlock(commandLogStarted, hasError, "deleteGroup");
-      }
-      return new TargetDaoDeleteGroupResponse();
-    }
-    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteGroups(), false)) {
-      this.deleteGroups(new TargetDaoDeleteGroupsRequest(GrouperUtil.toList(targetGroup)));
-      return new TargetDaoDeleteGroupResponse();
-    }
-
-    throw new RuntimeException("Dao cannot delete group or groups");
+    throw new RuntimeException("Dont call this, call the plural");
   }
 
   private int errorCountForDbLogs = 0;
@@ -282,7 +236,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public void logError(String error) {
     LOG.error(error);
     if (errorCountForDbLogs++ < 100) {
-      this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": ERRROR: ").append(error).append("\n\n");
+      this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": ERROR: ").append(error).append("\n\n");
     }
   }
   
@@ -2520,9 +2474,21 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       return new TargetDaoDeleteEntitiesResponse();
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteEntity(), false)) {
+      List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
       for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(targetDaoDeleteEntitiesRequest.getTargetEntities())) {
-        deleteEntity(new TargetDaoDeleteEntityRequest(provisioningEntity));
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteGroup_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
+  
+          @Override
+          public Void callLogic() {
+            
+            deleteEntity(new TargetDaoDeleteEntityRequest(provisioningEntity));
+            return null;
+          }
+        };
+        grouperCallables.add(grouperCallable);
+        
       }
+      GrouperUtil.executorServiceSubmit(this.getGrouperProvisioner().retrieveExecutorService(), grouperCallables);
       return new TargetDaoDeleteEntitiesResponse();
     }
 
@@ -2927,65 +2893,61 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     if (GrouperUtil.length(targetDaoDeleteGroupsRequest.getTargetGroups()) == 0) {
       return new TargetDaoDeleteGroupsResponse();
     }
-
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteGroups(), false)) {
-      boolean hasError = false;
-      boolean commandLogStarted = false;
-      try {
-        commandLogStarted = commandLogStartLoggingIfConfigured();
-        TargetDaoDeleteGroupsResponse targetDaoDeleteGroupsResponse = this.wrappedDao.deleteGroups(targetDaoDeleteGroupsRequest);
-        hasError = logGroups(targetDaoDeleteGroupsRequest.getTargetGroups());
-        
-        Set<ProvisioningGroupWrapper> provisioningGroupWrappersSuccessfullyDeleted = new HashSet<ProvisioningGroupWrapper>();
-        for (ProvisioningGroup provisioningGroup : targetDaoDeleteGroupsRequest.getTargetGroups()) { 
-          if (provisioningGroup.getProvisioned() != null && provisioningGroup.getProvisioned()) {
-            provisioningGroupWrappersSuccessfullyDeleted.add(provisioningGroup.getProvisioningGroupWrapper());
-          }
-        }
-        
-        // update the cache
-        this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateGroupLink(provisioningGroupWrappersSuccessfullyDeleted, false);
-        
-        for (ProvisioningGroup provisioningGroup : targetDaoDeleteGroupsRequest.getTargetGroups()) { 
-          if (provisioningGroup.getProvisioned() == null) {
-            throw new RuntimeException("Dao did not set deleted group as provisioned: " + this.wrappedDao);
-          }
-        }
-        
-        return targetDaoDeleteGroupsResponse;
-      } catch (RuntimeException e) {
-        hasError = true;
-        
-        boolean first = true;
+      
+      List<ProvisioningGroup> targetGroups = targetDaoDeleteGroupsRequest.getTargetGroups();
+      
+      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getDeleteGroupsBatchSize();
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
-        for (ProvisioningGroup targetGroup : targetDaoDeleteGroupsRequest.getTargetGroups()) { 
-          if(first) {
-            if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("groupDelete")) {
-              logError(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
-                  "Error deleting groups, e.g. " + (targetGroup == null ? null : targetGroup.toString()) + "\n" + GrouperUtil.getFullStackTrace(e)));
+      List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
 
-            }
-          }
+      for (int i=0;i<numberOfBatches;i++) {
+        
+        final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
-          first = false;
-
-          if (targetGroup.getProvisioned() == null) {
-            targetGroup.setProvisioned(false);
+          @Override
+          public Void callLogic() {
+            
+            deleteGroupsHelper(batchTargetGroups);
+            return null;
           }
-          if (targetGroup.getException() == null) {
-            targetGroup.setException(e);
-          }
-        }
-        logGroups(targetDaoDeleteGroupsRequest.getTargetGroups());
-      } finally {
-        commandLogFinallyBlock(commandLogStarted, hasError, "deleteGroups");
+        };
+        grouperCallables.add(grouperCallable);
+        
       }
+      GrouperUtil.executorServiceSubmit(this.getGrouperProvisioner().retrieveExecutorService(), grouperCallables);
+      
+      Set<ProvisioningGroupWrapper> provisioningGroupWrappersSuccessfullyDeleted = new HashSet<ProvisioningGroupWrapper>();
+      for (ProvisioningGroup targetGroup : targetGroups) { 
+        if (targetGroup.getProvisioned() != null && targetGroup.getProvisioned()) {
+          provisioningGroupWrappersSuccessfullyDeleted.add(targetGroup.getProvisioningGroupWrapper());
+        }
+      }
+      
+      // update the cache
+      this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateGroupLink(provisioningGroupWrappersSuccessfullyDeleted, false);
+      
       return new TargetDaoDeleteGroupsResponse();
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteGroup(), false)) {
-      for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetDaoDeleteGroupsRequest.getTargetGroups())) {
-        deleteGroup(new TargetDaoDeleteGroupRequest(provisioningGroup));
+      List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
+
+      for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetDaoDeleteGroupsRequest.getTargetGroups())) {
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteGroup_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
+  
+          @Override
+          public Void callLogic() {
+            
+            deleteGroupHelper(targetGroup);
+            return null;
+          }
+        };
+        grouperCallables.add(grouperCallable);
+        
       }
+      GrouperUtil.executorServiceSubmit(this.getGrouperProvisioner().retrieveExecutorService(), grouperCallables);
       return new TargetDaoDeleteGroupsResponse();
     }
 
@@ -2993,6 +2955,99 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
   }
 
+  /**
+   * delete groups logic
+   * @param targetGroups
+   */
+  private void deleteGroupsHelper(List<ProvisioningGroup> targetGroups) {
+    boolean hasError = false;
+    boolean commandLogStarted = false;
+    try {
+      commandLogStarted = commandLogStartLoggingIfConfigured();
+      TargetDaoDeleteGroupsRequest targetDaoDeleteGroupsRequest = new TargetDaoDeleteGroupsRequest(targetGroups);
+      this.wrappedDao.deleteGroups(targetDaoDeleteGroupsRequest);
+
+      for (ProvisioningGroup provisioningGroup : targetGroups) { 
+        if (provisioningGroup.getProvisioned() == null) {
+          throw new RuntimeException("Dao did not set deleted group as provisioned: " + this.wrappedDao);
+        }
+      }
+      
+
+      hasError = logGroups(targetDaoDeleteGroupsRequest.getTargetGroups());
+      
+    } catch (RuntimeException e) {
+      hasError = true;
+      
+      boolean first = true;
+
+      for (ProvisioningGroup targetGroup : targetGroups) { 
+        if(first) {
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("groupDelete")) {
+            logError(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+                "Error deleting groups, e.g. " + (targetGroup == null ? null : targetGroup.toString()) + "\n" + GrouperUtil.getFullStackTrace(e)));
+
+          }
+        }
+        
+        first = false;
+
+        if (targetGroup.getProvisioned() == null) {
+          targetGroup.setProvisioned(false);
+        }
+        if (targetGroup.getException() == null) {
+          targetGroup.setException(e);
+        }
+      }
+      logGroups(targetGroups);
+    } finally {
+      commandLogFinallyBlock(commandLogStarted, hasError, "deleteGroups");
+    }
+
+  }
+  
+  /**
+   * logic to delete a group
+   * @param targetGroup
+   */
+  private void deleteGroupHelper(ProvisioningGroup targetGroup) {
+    TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest = new TargetDaoDeleteGroupRequest(targetGroup);
+    boolean hasError = false;
+    boolean commandLogStarted = false;
+    try {
+      commandLogStarted = commandLogStartLoggingIfConfigured();
+      this.wrappedDao.deleteGroup(targetDaoDeleteGroupRequest);
+      hasError = logGroup(targetGroup);
+      if (targetGroup.getProvisioned() == null) {
+        throw new RuntimeException("Dao did not set deleted group as provisioned: " + this.wrappedDao);
+      }
+      
+      if (targetGroup.getProvisioned()) {
+        // update the cache
+        this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateGroupLink(GrouperUtil.toSet(targetGroup.getProvisioningGroupWrapper()), false);
+      }
+      
+    } catch (RuntimeException e) {
+
+      GrouperUtil.injectInException(e, targetGroup.toString());
+      hasError = true;
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningLog().shouldLogError("groupDelete")) {
+        logError(this.getGrouperProvisioner().retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(
+            "Error deleting group, " + GrouperUtil.getFullStackTrace(e)));
+      }
+
+      if (targetGroup.getProvisioned() == null) {
+        targetGroup.setProvisioned(false);
+      }
+      if (targetGroup.getException() == null) {
+        targetGroup.setException(e);
+      }
+      logGroup(targetGroup);
+    } finally {
+      commandLogFinallyBlock(commandLogStarted, hasError, "deleteGroup");
+    }
+
+  }
 
   @Override
   public TargetDaoInsertMembershipResponse insertMembership(

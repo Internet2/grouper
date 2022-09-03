@@ -1,22 +1,27 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import com.amazonaws.endpointdiscovery.DaemonThreadFactory;
+
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.OtherJobException;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
@@ -38,6 +43,77 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.D
  *
  */
 public abstract class GrouperProvisioner {
+
+  /**
+   * cache the thread pool
+   */
+  public static Map<String, ExecutorService> executorConfigIdToThreadPool = new HashMap<String, ExecutorService>();
+  
+  /**
+   * if running threads, this is the pool.  if null then dont use threads
+   */
+  private ExecutorService executorService = null;
+
+  /**
+   * cache if has executor service
+   */
+  private boolean executorServiceInitted = false;
+
+  /**
+   * if running threads, this is the pool.  if null then dont use threads
+   * @return executor service
+   */
+  public ExecutorService retrieveExecutorService() {
+    if (!this.executorServiceInitted) {
+
+      this.executorServiceInitted = true;
+
+      ThreadPoolExecutor cachedExecutorService = (ThreadPoolExecutor)executorConfigIdToThreadPool.get(this.getConfigId());
+
+      int threadPoolSize = this.retrieveGrouperProvisioningConfiguration().getThreadPoolSize();
+
+      boolean changeExecutorService = false;
+
+      // if this is the first time...
+      if (cachedExecutorService == null) {
+        if (threadPoolSize > 1) {
+          this.getDebugMap().put("initThreadPool", true);
+          changeExecutorService = true;
+        }
+      } else {
+        if (cachedExecutorService.getMaximumPoolSize() != threadPoolSize) {
+          changeExecutorService = true;
+        }
+      }
+
+      if (changeExecutorService) {
+        
+        // shut down old
+        if (cachedExecutorService != null) {
+          this.getDebugMap().put("shutdownCachedThreadPool", true);
+          try {
+            cachedExecutorService.shutdown();
+          } catch (Exception e) {
+            LOG.error("Error shutting down executor service", e);
+          }
+        }
+
+        if (threadPoolSize > 1) {
+          this.getDebugMap().put("createThreadPool", true);
+          this.executorService = Executors.newFixedThreadPool(
+              threadPoolSize, new DaemonThreadFactory());
+        } else {
+          this.getDebugMap().put("noThreadPool", true);
+          this.executorService = null;
+        }
+        executorConfigIdToThreadPool.put(this.getConfigId(), this.executorService);
+      } else {
+        this.executorService = cachedExecutorService;
+      }
+      
+    }
+    return this.executorService;
+  }
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperProvisioner.class);

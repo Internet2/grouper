@@ -32,11 +32,25 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public abstract class GrouperProvisioningConfiguration {
   
+  /**
+   * thread pool size
+   */
+  private int threadPoolSize = 5;
 
+  
+  
 // grouper-loader.base.properties 3090
 //  # If the group requires members then if there are no members it is not valid and could be deleted
 //  # {valueType: "boolean", subSection: "advanced", defaultValue: "false", order: 113000, showEl: "${showAdvanced}"}
 //  # provisioner.genericProvisioner.groupsRequireMembers =
+
+  /**
+   * thread pool size
+   * @return thread pool size
+   */
+  public int getThreadPoolSize() {
+    return this.threadPoolSize;
+  }
 
   private boolean customizeEntityCrud;
   
@@ -2625,6 +2639,11 @@ public abstract class GrouperProvisioningConfiguration {
     this.entityAttributesLdapLastUpdatedAttribute = this.retrieveConfigString("entityResolver.lastUpdatedAttribute", false);
     this.entityAttributesLdapLastUpdatedAttributeFormat = this.retrieveConfigString("entityResolver.lastUpdatedFormat", false);
 
+    this.threadPoolSize = GrouperUtil.intValue(this.retrieveConfigInt("threadPoolSize", false), 5);
+    if (this.threadPoolSize < 1) {
+      this.threadPoolSize = 1;
+    }
+    
     // init this in the behavior
     this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().setGroupIdOfUsersToProvision(this.groupIdOfUsersToProvision);
     
