@@ -1957,7 +1957,7 @@ public class UiV2Provisioning {
             if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncGroup == null || gcGrouperSyncGroup.isInTarget())) {
               metadataItem.setReadOnly(true);
             }
-            
+            metadataItems.add(metadataItem);
           }
         }
         
