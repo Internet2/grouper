@@ -1156,6 +1156,13 @@ public class UiV2Provisioning {
           provisioningAttributeValue.setDirectAssignment(isDirect);
         }
 //      }
+        
+      String shouldDoProvisionString = request.getParameter("provisioningProvisionName");
+      boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
+      provisioningAttributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);
+      
+      String stemScopeString = request.getParameter("provisioningStemScopeName");
+      provisioningAttributeValue.setStemScopeString(stemScopeString);
       
       GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue = new GuiGrouperProvisioningAttributeValue(provisioningAttributeValue);
       provisioningContainer.setCurrentGuiGrouperProvisioningAttributeValue(guiGrouperProvisioningAttributeValue);
