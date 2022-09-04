@@ -2474,21 +2474,9 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       return new TargetDaoDeleteEntitiesResponse();
     }
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteEntity(), false)) {
-      List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
       for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(targetDaoDeleteEntitiesRequest.getTargetEntities())) {
-        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteGroup_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-  
-          @Override
-          public Void callLogic() {
-            
             deleteEntity(new TargetDaoDeleteEntityRequest(provisioningEntity));
-            return null;
-          }
-        };
-        grouperCallables.add(grouperCallable);
-        
       }
-      GrouperUtil.executorServiceSubmit(this.getGrouperProvisioner().retrieveExecutorService(), grouperCallables);
       return new TargetDaoDeleteEntitiesResponse();
     }
 
