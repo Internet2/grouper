@@ -1,12 +1,12 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDao;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogic;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
@@ -39,7 +39,11 @@ public class LdapSyncLogic extends GrouperProvisioningLogic {
       }
 
       if (grouperDnOverrides.size() > 0) {
-        List<ProvisioningGroup> targetProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups();
+        List<ProvisioningGroup> targetProvisioningGroups = targetProvisioningLists.getProvisioningGroups();
+        if (targetProvisioningGroups == null) {
+          targetProvisioningGroups = new ArrayList<ProvisioningGroup>();
+          targetProvisioningLists.setProvisioningGroups(targetProvisioningGroups);
+        }
         Set<String> targetDns = new HashSet<String>();
         for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetProvisioningGroups)) {
           String dn = provisioningGroup.retrieveAttributeValueString(LdapProvisioningTargetDao.ldap_dn);

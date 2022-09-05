@@ -144,6 +144,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
     
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    if (ldapSyncConfiguration.isOnlyLdapGroupDnOverride()) {
+      return new TargetDaoRetrieveAllGroupsResponse();
+    }
+    
     long startNanos = System.nanoTime();
 
     try {
@@ -151,7 +156,6 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       
       List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
       
-      LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
       String groupSearchAllFilter = ldapSyncConfiguration.getGroupSearchAllFilter();
       
