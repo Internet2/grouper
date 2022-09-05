@@ -13900,7 +13900,7 @@ public class GrouperUtil {
    * @return the future
    */
   public static void executorServiceSubmit(ExecutorService executorService, List<GrouperCallable<Void>> callables) {
-    if (executorService == null) {
+    if (executorService == null || GrouperUtil.length(callables) <= 1) {
       for (GrouperCallable grouperCallable : GrouperUtil.nonNull(callables)) {
         grouperCallable.callLogic();
       }

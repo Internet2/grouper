@@ -833,20 +833,35 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
+    
+    grouperProvisionerDaoCapabilities.setDefaultBatchSize(20);
+    
     grouperProvisionerDaoCapabilities.setCanDeleteGroups(true);
+    
     grouperProvisionerDaoCapabilities.setCanDeleteEntities(true);
+
     grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
+
     grouperProvisionerDaoCapabilities.setCanInsertEntities(true);
+
     grouperProvisionerDaoCapabilities.setCanInsertGroups(true);
+
     grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
+    grouperProvisionerDaoCapabilities.setInsertMembershipsBatchSize(400);
+
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
+
     grouperProvisionerDaoCapabilities.setCanRetrieveEntities(true);
+
     grouperProvisionerDaoCapabilities.setCanRetrieveGroups(true);
+
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
+
     grouperProvisionerDaoCapabilities.setCanUpdateEntities(true);
+
     grouperProvisionerDaoCapabilities.setCanUpdateGroups(true);
   }
 

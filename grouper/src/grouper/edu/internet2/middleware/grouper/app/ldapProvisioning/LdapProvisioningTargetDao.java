@@ -1043,19 +1043,29 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
+
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
+    int queryBatchSize = LdapConfiguration.getConfig(ldapConfigId).getQueryBatchSize();
+    grouperProvisionerDaoCapabilities.setDefaultBatchSize(queryBatchSize);
+    
     grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
+    
     grouperProvisionerDaoCapabilities.setCanRetrieveGroups(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroups(true);
+
     grouperProvisionerDaoCapabilities.setCanRetrieveGroupWithOrWithoutMembershipAttribute(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroupMembershipAttribute(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
+
     grouperProvisionerDaoCapabilities.setCanRetrieveEntities(true);
+    
     grouperProvisionerDaoCapabilities.setCanRetrieveEntityWithOrWithoutMembershipAttribute(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroups(true);
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembership(true);
   }

@@ -1157,141 +1157,82 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups(
       TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest) {
     
-    if (GrouperUtil.length(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups()) == 0) {
-      return new TargetDaoRetrieveMembershipsByGroupsResponse();
+    List<ProvisioningGroup> targetGroups = new ArrayList<ProvisioningGroup>(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups()));
+    TargetDaoRetrieveMembershipsByGroupsResponse targetDaoRetrieveMembershipsByGroupsResponse = new TargetDaoRetrieveMembershipsByGroupsResponse();
+    
+    if (GrouperUtil.length(targetGroups) == 0) {
+      return targetDaoRetrieveMembershipsByGroupsResponse;
     }
-
+    List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
+    
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
-      boolean hasError = false;
-      boolean commandLogStarted = false;
-      try {
-        commandLogStarted = commandLogStartLoggingIfConfigured();
+      
+      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveGroupsBatchSize();
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
-        TargetDaoRetrieveMembershipsByGroupsResponse overallResponse = new TargetDaoRetrieveMembershipsByGroupsResponse();
-
-        if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes()) == 0) {
-          TargetDaoRetrieveMembershipsByGroupsResponse targetDaoRetrieveMembershipsByGroupsResponse = this.wrappedDao.retrieveMembershipsByGroups(targetDaoRetrieveMembershipsByGroupsRequest);
-          hasError = logObjects(targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships());
-          return overallResponse;
-        }
-                
-        List<ProvisioningGroup> targetGroupsFound = new ArrayList<ProvisioningGroup>();
+      for (int i=0;i<numberOfBatches;i++) {
         
-        Set<ProvisioningGroup> groupsRemainingToFind = new HashSet<ProvisioningGroup>(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups());
-
-        // cycle through search attributes and past values
-        int retrieveGroupsFromCache = 0;
-        int retrieveGroupsFromAlternateSearchAttr = 0;
-        boolean first = true;
-        // current value or historical values
-        OUTER: for (boolean currentValue : new boolean[] {true, false}) {
-          for (GrouperProvisioningConfigurationAttribute searchAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupSearchAttributes()) {
-            String searchAttributeName = searchAttribute.getName();
-
-            Set<Object> searchAttributeValues = new HashSet<Object>();
-            Map<Object, ProvisioningGroup> searchValueToSearchGrouperTargetGroup = new HashMap<Object, ProvisioningGroup>();
-            for (ProvisioningGroup grouperTargetGroup : groupsRemainingToFind) {
-              for (ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue : GrouperUtil.nonNull(grouperTargetGroup.getSearchIdAttributeNameToValues())) {
-
-                if (currentValue != provisioningUpdatableAttributeAndValue.getCurrentValue().booleanValue()) {
-                  continue;
-                }
-                if (!StringUtils.equals(searchAttributeName, provisioningUpdatableAttributeAndValue.getAttributeName())) {
-                  continue;
-                }
-  
-                searchValueToSearchGrouperTargetGroup.put(GrouperUtil.stringValue(provisioningUpdatableAttributeAndValue.getAttributeValue()), grouperTargetGroup);
-                searchAttributeValues.add(provisioningUpdatableAttributeAndValue.getAttributeValue());
-              }              
-              
-            }
-            if (searchValueToSearchGrouperTargetGroup.size() > 0) {
-              // search based on those
-              TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequestNew = new TargetDaoRetrieveMembershipsByGroupsRequest();
-              targetDaoRetrieveMembershipsByGroupsRequestNew.setTargetGroups(new ArrayList<ProvisioningGroup>(searchValueToSearchGrouperTargetGroup.values()));
-              targetDaoRetrieveMembershipsByGroupsRequestNew.setSearchAttribute(searchAttributeName);
-              targetDaoRetrieveMembershipsByGroupsRequestNew.setSearchAttributeValues(searchAttributeValues);
-              
-              TargetDaoRetrieveMembershipsByGroupsResponse targetDaoRetrieveMembershipsByGroupsResponse = this.wrappedDao.retrieveMembershipsByGroups(targetDaoRetrieveMembershipsByGroupsRequestNew);
-              hasError = logObjects(targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships()) || hasError;
-
-              // we cant keep track of what groups were retrieved if not doing group memberships
-              if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-                return targetDaoRetrieveMembershipsByGroupsResponse;
+        final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
+          
+          @Override
+          public Void callLogic() {
+            TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequestLocal = new TargetDaoRetrieveMembershipsByGroupsRequest();
+            targetDaoRetrieveMembershipsByGroupsRequestLocal.setTargetGroups(batchTargetGroups);
+            TargetDaoRetrieveMembershipsByGroupsResponse targetDaoRetrieveGroupsResponseLocal = retrieveMembershipsByGroupsHelper(targetDaoRetrieveMembershipsByGroupsRequestLocal);
+            synchronized(targetDaoRetrieveMembershipsByGroupsResponse) {
+              if (targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships() == null) {
+                targetDaoRetrieveMembershipsByGroupsResponse.setTargetMemberships(new ArrayList<Object>());
               }
-
-              // add these to the overall result
-              for (Object membershipObject : targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships()) {
-                ProvisioningGroup retrievedTargetGroup = (ProvisioningGroup)membershipObject;
-                targetGroupsFound.add(retrievedTargetGroup);
-
-                // pluck each one out from the remaining groups to find
-                Object targetGroupValue = retrievedTargetGroup.retrieveAttributeValue(searchAttributeName);
-                if(!GrouperUtil.isBlank(targetGroupValue)) {
-                  ProvisioningGroup grouperTargetGroup = searchValueToSearchGrouperTargetGroup.get(GrouperUtil.stringValue(targetGroupValue));
-                  if (grouperTargetGroup != null) {
-                    if (!currentValue) {
-                      retrieveGroupsFromCache++;
-                    } else if (!first) {
-                      retrieveGroupsFromAlternateSearchAttr++;
-                    }
-                    groupsRemainingToFind.remove(grouperTargetGroup);
-                    ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
-                    if (provisioningGroupWrapper != null) {
-                      // if its not null, we should not mess up the object model...
-                      if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
-                        provisioningGroupWrapper.setTargetProvisioningGroup(retrievedTargetGroup);
-                        retrievedTargetGroup.setProvisioningGroupWrapper(provisioningGroupWrapper);
-                        if (targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup() != null) {
-                          provisioningGroupWrapper.setTargetNativeGroup(targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup().get(retrievedTargetGroup));
-                        }
-                      }
-                    }
-
-                  }
-                }
+              if (targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup() == null) {
+                targetDaoRetrieveMembershipsByGroupsResponse.setTargetGroupToTargetNativeGroup(new HashMap<ProvisioningGroup,Object>());
               }
+              targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships().addAll(GrouperUtil.nonNull(targetDaoRetrieveGroupsResponseLocal.getTargetMemberships()));
+              targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup().putAll(GrouperUtil.nonNull(targetDaoRetrieveGroupsResponseLocal.getTargetGroupToTargetNativeGroup()));
             }
-            if (groupsRemainingToFind.size() == 0) {
-              break OUTER;
-            }
+            return null;
           }
-          first = false;
-        }
+        };
+        grouperCallables.add(grouperCallable);
         
-        if (retrieveGroupsFromAlternateSearchAttr > 0) {
-          Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("retrieveGroupsFromAlternateSearchAttr"), 0);
-          this.getGrouperProvisioner().getDebugMap().put("retrieveGroupsFromAlternateSearchAttr", oldCount + retrieveGroupsFromAlternateSearchAttr);
-        }
-        if (retrieveGroupsFromCache > 0) {
-          Integer oldCount = GrouperUtil.defaultIfNull((Integer)this.getGrouperProvisioner().getDebugMap().get("retrieveGroupsFromCache"), 0);
-          this.getGrouperProvisioner().getDebugMap().put("retrieveGroupsFromCache", oldCount + retrieveGroupsFromCache);
-        }
-        overallResponse.setTargetMemberships((List<Object>)(Object)targetGroupsFound);
-        return overallResponse;
+      }
+    } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)) {
+
+      for (ProvisioningGroup targetGroup : targetGroups) {
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveGroup_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
+  
+          @Override
+          public Void callLogic() {
+            
+            TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequestLocal = new TargetDaoRetrieveMembershipsByGroupRequest();
+            targetDaoRetrieveMembershipsByGroupRequestLocal.setTargetGroup(targetGroup);
+            TargetDaoRetrieveMembershipsByGroupResponse targetDaoRetrieveMembershipsByGroupResponseLocal = retrieveMembershipsByGroupHelper(targetDaoRetrieveMembershipsByGroupRequestLocal);
+            synchronized(targetDaoRetrieveMembershipsByGroupsResponse) {
+              if (targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships() == null) {
+                targetDaoRetrieveMembershipsByGroupsResponse.setTargetMemberships(new ArrayList<Object>());
+              }
+              if (targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup() == null) {
+                targetDaoRetrieveMembershipsByGroupsResponse.setTargetGroupToTargetNativeGroup(new HashMap<ProvisioningGroup,Object>());
+              }
+              targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships().addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByGroupResponseLocal.getTargetMemberships()));
+              if (targetDaoRetrieveMembershipsByGroupResponseLocal.getTargetNativeGroup() != null) {
+                targetDaoRetrieveMembershipsByGroupsResponse.getTargetGroupToTargetNativeGroup().put(targetGroup, targetDaoRetrieveMembershipsByGroupResponseLocal.getTargetNativeGroup());
+              }
+            }
+            return null;
+          }
+        };
+        grouperCallables.add(grouperCallable);
         
-      } catch (RuntimeException e) {
-        hasError = true;
-        throw e;
-      } finally {
-        commandLogFinallyBlock(commandLogStarted, hasError, "retrieveMembershipsByGroups");
       }
-    }
-    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)) {
-      
-      List<Object> results = new ArrayList<Object>();
-      
-      for (ProvisioningGroup provisioningGroup : targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups()) {
+    } else {
 
-        TargetDaoRetrieveMembershipsByGroupResponse targetDaoRetrieveMembershipsByGroupResponse = this.retrieveMembershipsByGroup(
-            new TargetDaoRetrieveMembershipsByGroupRequest(provisioningGroup));
-        results.addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByGroupResponse.getTargetMemberships()));
-      }
-      return new TargetDaoRetrieveMembershipsByGroupsResponse(results);
-
+      throw new RuntimeException("Dao cannot retrieve memberships by group or groups");
     }
     
-    throw new RuntimeException("Dao cannot retrieve memberships by group or groups");
+    GrouperUtil.executorServiceSubmit(this.getGrouperProvisioner().retrieveExecutorService(), grouperCallables);
+    
+    return targetDaoRetrieveMembershipsByGroupsResponse;
   }
 
 
@@ -1528,27 +1469,82 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveMembershipsByEntitiesResponse retrieveMembershipsByEntities(
       TargetDaoRetrieveMembershipsByEntitiesRequest targetDaoRetrieveMembershipsByEntitiesRequest) {
     
-    if (GrouperUtil.length(targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities()) == 0) {
-      return new TargetDaoRetrieveMembershipsByEntitiesResponse();
+    List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities()));
+    TargetDaoRetrieveMembershipsByEntitiesResponse targetDaoRetrieveMembershipsByEntitiesResponse = new TargetDaoRetrieveMembershipsByEntitiesResponse();
+    
+    if (GrouperUtil.length(targetEntities) == 0) {
+      return targetDaoRetrieveMembershipsByEntitiesResponse;
     }
-
+    List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
+    
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)) {
-    }
-    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)) {
       
-      List<Object> results = new ArrayList<Object>();
-      
-      for (ProvisioningEntity provisioningEntity : targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities()) {
+      int batchSize = this.wrappedDao.getGrouperProvisionerDaoCapabilities().getRetrieveEntitiesBatchSize();
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
-        TargetDaoRetrieveMembershipsByEntityResponse targetDaoRetrieveMembershipsByEntityResponse = this.retrieveMembershipsByEntity(
-            new TargetDaoRetrieveMembershipsByEntityRequest(provisioningEntity));
-        results.addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByEntityResponse.getTargetMemberships()));
+      for (int i=0;i<numberOfBatches;i++) {
+        
+        final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
+          
+          @Override
+          public Void callLogic() {
+            TargetDaoRetrieveMembershipsByEntitiesRequest targetDaoRetrieveMembershipsByEntitiesRequestLocal = new TargetDaoRetrieveMembershipsByEntitiesRequest();
+            targetDaoRetrieveMembershipsByEntitiesRequestLocal.setTargetEntities(batchTargetEntities);
+            TargetDaoRetrieveMembershipsByEntitiesResponse targetDaoRetrieveMembershipsByEntitiesResponseLocal = retrieveMembershipsByEntitiesHelper(targetDaoRetrieveMembershipsByEntitiesRequestLocal);
+            synchronized(targetDaoRetrieveMembershipsByEntitiesResponse) {
+              if (targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships() == null) {
+                targetDaoRetrieveMembershipsByEntitiesResponse.setTargetMemberships(new ArrayList<Object>());
+              }
+              if (targetDaoRetrieveMembershipsByEntitiesResponse.getTargetEntityToTargetNativeEntity() == null) {
+                targetDaoRetrieveMembershipsByEntitiesResponse.setTargetEntityToTargetNativeEntity(new HashMap<ProvisioningEntity,Object>());
+              }
+              targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships().addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByEntitiesResponseLocal.getTargetMemberships()));
+              targetDaoRetrieveMembershipsByEntitiesResponse.getTargetEntityToTargetNativeEntity().putAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByEntitiesResponseLocal.getTargetEntityToTargetNativeEntity()));
+            }
+            return null;
+          }
+        };
+        grouperCallables.add(grouperCallable);
+        
       }
-      return new TargetDaoRetrieveMembershipsByEntitiesResponse(results);
+    } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)) {
 
+      for (ProvisioningEntity targetEntity : targetEntities) {
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveEntity_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
+  
+          @Override
+          public Void callLogic() {
+            
+            TargetDaoRetrieveMembershipsByEntityRequest targetDaoRetrieveMembershipsByEntityRequestLocal = new TargetDaoRetrieveMembershipsByEntityRequest();
+            targetDaoRetrieveMembershipsByEntityRequestLocal.setTargetEntity(targetEntity);
+            TargetDaoRetrieveMembershipsByEntityResponse targetDaoRetrieveMembershipsByEntityResponseLocal = retrieveMembershipsByEntityHelper(targetDaoRetrieveMembershipsByEntityRequestLocal);
+            synchronized(targetDaoRetrieveMembershipsByEntitiesResponse) {
+              if (targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships() == null) {
+                targetDaoRetrieveMembershipsByEntitiesResponse.setTargetMemberships(new ArrayList<Object>());
+              }
+              if (targetDaoRetrieveMembershipsByEntitiesResponse.getTargetEntityToTargetNativeEntity() == null) {
+                targetDaoRetrieveMembershipsByEntitiesResponse.setTargetEntityToTargetNativeEntity(new HashMap<ProvisioningEntity,Object>());
+              }
+              if (targetDaoRetrieveMembershipsByEntityResponseLocal.getTargetNativeEntity() != null) {
+                targetDaoRetrieveMembershipsByEntitiesResponse.getTargetEntityToTargetNativeEntity().put(targetEntity, targetDaoRetrieveMembershipsByEntityResponseLocal.getTargetNativeEntity());
+              }
+              targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships().addAll(GrouperUtil.nonNull(targetDaoRetrieveMembershipsByEntityResponseLocal.getTargetMemberships()));
+            }
+            return null;
+          }
+        };
+        grouperCallables.add(grouperCallable);
+        
+      }
+    } else {
+
+      throw new RuntimeException("Dao cannot retrieve memberships by entity or entities");
     }
     
-    throw new RuntimeException("Dao cannot retrieve memberships by entity or entities");
+    GrouperUtil.executorServiceSubmit(this.getGrouperProvisioner().retrieveExecutorService(), grouperCallables);
+    
+    return targetDaoRetrieveMembershipsByEntitiesResponse;
   }
 
   /**

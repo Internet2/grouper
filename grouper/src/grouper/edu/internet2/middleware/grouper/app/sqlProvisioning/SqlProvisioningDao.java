@@ -1733,10 +1733,14 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public void registerGrouperProvisionerDaoCapabilities(GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
     
-    grouperProvisionerDaoCapabilities.setCanDeleteGroups(true);
-    grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
-    grouperProvisionerDaoCapabilities.setCanDeleteEntities(true);
+    grouperProvisionerDaoCapabilities.setDefaultBatchSize(1000);
     
+    grouperProvisionerDaoCapabilities.setCanDeleteGroups(true);
+
+    grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
+
+    grouperProvisionerDaoCapabilities.setCanDeleteEntities(true);
+
     grouperProvisionerDaoCapabilities.setCanInsertEntities(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroups(true);
     grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
