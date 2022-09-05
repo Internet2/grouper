@@ -132,9 +132,272 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
+  private int deleteMembershipsBatchSize = 20;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getDeleteMembershipsBatchSize() {
+    return this.deleteMembershipsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param deleteMembershipsBatchSize1
+   */
+  public void setDeleteMembershipsBatchSize(int deleteMembershipsBatchSize1) {
+    this.deleteMembershipsBatchSize = deleteMembershipsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int updateMembershipsBatchSize = 20;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getUpdateMembershipsBatchSize() {
+    return this.updateMembershipsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param updateMembershipsBatchSize1
+   */
+  public void setUpdateMembershipsBatchSize(int updateMembershipsBatchSize1) {
+    this.updateMembershipsBatchSize = updateMembershipsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int insertMembershipsBatchSize = 20;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getInsertMembershipsBatchSize() {
+    return this.insertMembershipsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param insertMembershipsBatchSize1
+   */
+  public void setInsertMembershipsBatchSize(int insertMembershipsBatchSize1) {
+    this.insertMembershipsBatchSize = insertMembershipsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int insertGroupsBatchSize = 20;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getInsertGroupsBatchSize() {
+    return this.insertGroupsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param insertGroupsBatchSize1
+   */
+  public void setInsertGroupsBatchSize(int insertGroupsBatchSize1) {
+    this.insertGroupsBatchSize = insertGroupsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int updateGroupsBatchSize = 20;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getUpdateGroupsBatchSize() {
+    return this.updateGroupsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param updateGroupsBatchSize1
+   */
+  public void setUpdateGroupsBatchSize(int updateGroupsBatchSize1) {
+    this.updateGroupsBatchSize = updateGroupsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int updateEntitiesBatchSize = 20;
+  
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return update entities batch size
+   */
+  public int getUpdateEntitiesBatchSize() {
+    return this.updateEntitiesBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param updateEntitiesBatchSize1
+   */
+  public void setUpdateEntitiesBatchSize(int updateEntitiesBatchSize1) {
+    this.updateEntitiesBatchSize = updateEntitiesBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int insertEntitiesBatchSize = 20;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return insert entities batch size
+   */
+  public int getInsertEntitiesBatchSize() {
+    return this.insertEntitiesBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param insertEntitiesBatchSize1
+   */
+  public void setInsertEntitiesBatchSize(int insertEntitiesBatchSize1) {
+    this.insertEntitiesBatchSize = insertEntitiesBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int retrieveMembershipsBatchSize = 20;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getRetrieveMembershipsBatchSize() {
+    return this.retrieveMembershipsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param selectMembershipsBatchSize1
+   */
+  public void setRetrieveMembershipsBatchSize(int selectMembershipsBatchSize1) {
+    this.retrieveMembershipsBatchSize = selectMembershipsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int retrieveGroupsBatchSize = 20;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getRetrieveGroupsBatchSize() {
+    return this.retrieveGroupsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param selectGroupsBatchSize1
+   */
+  public void setRetrieveGroupsBatchSize(int selectGroupsBatchSize1) {
+    this.retrieveGroupsBatchSize = selectGroupsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int retrieveEntitiesBatchSize = 20;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getRetrieveEntitiesBatchSize() {
+    return this.retrieveEntitiesBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param selectEntitiesBatchSize1
+   */
+  public void setRetrieveEntitiesBatchSize(int selectEntitiesBatchSize1) {
+    this.retrieveEntitiesBatchSize = selectEntitiesBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int deleteEntitiesBatchSize = 20;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getDeleteEntitiesBatchSize() {
+    return this.deleteEntitiesBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param deleteEntitiesBatchSize1
+   */
+  public void setDeleteEntitiesBatchSize(int deleteEntitiesBatchSize1) {
+    this.deleteEntitiesBatchSize = deleteEntitiesBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
   private int deleteGroupsBatchSize = 20;
 
-  
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1

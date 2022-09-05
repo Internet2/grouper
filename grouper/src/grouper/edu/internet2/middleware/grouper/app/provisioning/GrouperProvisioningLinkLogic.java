@@ -198,6 +198,8 @@ public class GrouperProvisioningLinkLogic {
    */
   public void updateGroupLink(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers, boolean copyFromTargetOrGrouperTarget) {
   
+    GrouperUtil.collectionRemoveNulls(provisioningGroupWrappers);
+
     if (GrouperUtil.length(provisioningGroupWrappers) == 0) {
       return;
     }
@@ -620,6 +622,8 @@ public class GrouperProvisioningLinkLogic {
    */
   public void updateEntityLink(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers, boolean copyFromTargetOrGrouperTarget) {
   
+    GrouperUtil.collectionRemoveNulls(provisioningEntityWrappers);
+    
     if (GrouperUtil.length(provisioningEntityWrappers) == 0) {
       return;
     }

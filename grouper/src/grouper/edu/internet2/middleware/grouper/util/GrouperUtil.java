@@ -148,6 +148,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -15066,5 +15067,19 @@ public class GrouperUtil {
       newName = newName.substring(0, maxLength);
     }
     return newName;
+  }
+
+  public static void collectionRemoveNulls(Collection<?> input) {
+    
+    if (input == null) {
+      return;
+    }
+    Iterator<?> iterator = input.iterator();
+    while(iterator.hasNext()) {
+      Object object = iterator.next();
+      if (object == null) {
+        iterator.remove();
+      }
+    }
   }
 }

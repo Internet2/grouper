@@ -17,10 +17,12 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipResponse;
-import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsResponse;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.config.SubjectConfig;
@@ -150,47 +152,60 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
-      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
-      assertNotNull(targetDaoRetrieveMembershipResponse.getTargetMembership());
+      
+      TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest = new TargetDaoRetrieveMembershipsRequest();
+      targetDaoRetrieveMembershipsRequest.setTargetMemberships(GrouperUtil.toList(targetGroup));
+      TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(
+          targetDaoRetrieveMembershipsRequest);
+
+      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
+      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetMemberships().get(0));
     }
     
     {
       ProvisioningGroup targetGroup = new ProvisioningGroup();
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=banderson,ou=People,dc=example,dc=edu");
-      TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequest = new TargetDaoRetrieveMembershipRequest();
-      targetDaoRetrieveMembershipRequest.setTargetMembership(targetGroup);
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
-      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
-      assertNotNull(targetDaoRetrieveMembershipResponse.getTargetMembership());
+      TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest = new TargetDaoRetrieveMembershipsRequest();
+      targetDaoRetrieveMembershipsRequest.setTargetMemberships(GrouperUtil.toList(targetGroup));
+      TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(
+          targetDaoRetrieveMembershipsRequest);
+
+      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
+      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetMemberships().get(0));
     }
     
     {
       ProvisioningGroup targetGroup = new ProvisioningGroup();
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=hdavis,ou=People,dc=example,dc=edu");
-      TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequest = new TargetDaoRetrieveMembershipRequest();
-      targetDaoRetrieveMembershipRequest.setTargetMembership(targetGroup);
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
-      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
-      assertNull(targetDaoRetrieveMembershipResponse.getTargetMembership());
+      TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest = new TargetDaoRetrieveMembershipsRequest();
+      targetDaoRetrieveMembershipsRequest.setTargetMemberships(GrouperUtil.toList(targetGroup));
+      TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(
+          targetDaoRetrieveMembershipsRequest);
+
+      assertEquals(0, GrouperUtil.length(targetDaoRetrieveMembershipsResponse.getTargetMemberships()));
     }
     
     {
       ProvisioningGroup targetGroup = new ProvisioningGroup();
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup:does:not:exist,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=hdavis,ou=People,dc=example,dc=edu");
-      TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequest = new TargetDaoRetrieveMembershipRequest();
-      targetDaoRetrieveMembershipRequest.setTargetMembership(targetGroup);
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
-      TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembership(targetDaoRetrieveMembershipRequest);
-      assertNull(targetDaoRetrieveMembershipResponse.getTargetMembership());
+      TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest = new TargetDaoRetrieveMembershipsRequest();
+      targetDaoRetrieveMembershipsRequest.setTargetMemberships(GrouperUtil.toList(targetGroup));
+      TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(
+          targetDaoRetrieveMembershipsRequest);
+
+      assertEquals(0, GrouperUtil.length(targetDaoRetrieveMembershipsResponse.getTargetMemberships()));
     }
   }
 }
