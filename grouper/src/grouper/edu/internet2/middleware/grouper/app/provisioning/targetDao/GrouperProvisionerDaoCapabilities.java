@@ -132,7 +132,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int deleteMembershipsBatchSize = 20;
+  private int deleteMembershipsBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -140,7 +140,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return size
    */
   public int getDeleteMembershipsBatchSize() {
-    return this.deleteMembershipsBatchSize;
+    return this.deleteMembershipsBatchSize == -1 ? this.defaultBatchSize : this.deleteMembershipsBatchSize;
   }
 
   /**
@@ -156,7 +156,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int updateMembershipsBatchSize = 20;
+  private int updateMembershipsBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -164,7 +164,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return size
    */
   public int getUpdateMembershipsBatchSize() {
-    return this.updateMembershipsBatchSize;
+    return this.updateMembershipsBatchSize == -1 ? this.defaultBatchSize : this.updateMembershipsBatchSize;
   }
 
   /**
@@ -180,7 +180,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int insertMembershipsBatchSize = 20;
+  private int insertMembershipsBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -188,7 +188,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return size
    */
   public int getInsertMembershipsBatchSize() {
-    return this.insertMembershipsBatchSize;
+    return this.insertMembershipsBatchSize == -1 ? this.defaultBatchSize : this.insertMembershipsBatchSize;
   }
 
   /**
@@ -204,7 +204,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int insertGroupsBatchSize = 20;
+  private int insertGroupsBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -212,7 +212,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return size
    */
   public int getInsertGroupsBatchSize() {
-    return this.insertGroupsBatchSize;
+    return this.insertGroupsBatchSize == -1 ? this.defaultBatchSize : this.insertGroupsBatchSize;
   }
 
   /**
@@ -228,7 +228,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int updateGroupsBatchSize = 20;
+  private int updateGroupsBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -236,7 +236,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return size
    */
   public int getUpdateGroupsBatchSize() {
-    return this.updateGroupsBatchSize;
+    return this.updateGroupsBatchSize == -1 ? this.defaultBatchSize : this.updateGroupsBatchSize;
   }
 
   /**
@@ -252,7 +252,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int updateEntitiesBatchSize = 20;
+  private int updateEntitiesBatchSize = -1;
   
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -260,7 +260,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return update entities batch size
    */
   public int getUpdateEntitiesBatchSize() {
-    return this.updateEntitiesBatchSize;
+    return this.updateEntitiesBatchSize == -1 ? this.defaultBatchSize : this.updateEntitiesBatchSize;
   }
 
   /**
@@ -276,7 +276,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int insertEntitiesBatchSize = 20;
+  private int insertEntitiesBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -284,7 +284,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return insert entities batch size
    */
   public int getInsertEntitiesBatchSize() {
-    return this.insertEntitiesBatchSize;
+    return this.insertEntitiesBatchSize == -1 ? this.defaultBatchSize : this.insertEntitiesBatchSize;
   }
 
   /**
@@ -300,7 +300,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int retrieveMembershipsBatchSize = 20;
+  private int retrieveMembershipsBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -308,7 +308,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return size
    */
   public int getRetrieveMembershipsBatchSize() {
-    return this.retrieveMembershipsBatchSize;
+    return this.retrieveMembershipsBatchSize == -1 ? this.defaultBatchSize : this.retrieveMembershipsBatchSize;
   }
 
   /**
@@ -324,7 +324,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int retrieveGroupsBatchSize = 20;
+  private int retrieveGroupsBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -332,7 +332,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return size
    */
   public int getRetrieveGroupsBatchSize() {
-    return this.retrieveGroupsBatchSize;
+    return this.retrieveGroupsBatchSize == -1 ? this.defaultBatchSize : this.retrieveGroupsBatchSize;
   }
 
   /**
@@ -348,7 +348,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int retrieveEntitiesBatchSize = 20;
+  private int retrieveEntitiesBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -356,7 +356,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return size
    */
   public int getRetrieveEntitiesBatchSize() {
-    return this.retrieveEntitiesBatchSize;
+    return this.retrieveEntitiesBatchSize == -1 ? this.defaultBatchSize : this.retrieveEntitiesBatchSize;
   }
 
   /**
@@ -369,10 +369,31 @@ public class GrouperProvisionerDaoCapabilities {
   }
 
   /**
+   * default batch size will be used for all batch sizes unless overridden
+   */
+  private int defaultBatchSize = 20;
+
+  /**
+   * default batch size will be used for all batch sizes unless overridden
+   * @return default batch size
+   */
+  public int getDefaultBatchSize() {
+    return this.defaultBatchSize;
+  }
+
+  /**
+   * default batch size will be used for all batch sizes unless overridden
+   * @param defaultBatchSize1
+   */
+  public void setDefaultBatchSize(int defaultBatchSize1) {
+    this.defaultBatchSize = defaultBatchSize1;
+  }
+
+  /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int deleteEntitiesBatchSize = 20;
+  private int deleteEntitiesBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -380,7 +401,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return size
    */
   public int getDeleteEntitiesBatchSize() {
-    return this.deleteEntitiesBatchSize;
+    return this.deleteEntitiesBatchSize == -1 ? this.defaultBatchSize : this.deleteEntitiesBatchSize;
   }
 
   /**
@@ -396,7 +417,7 @@ public class GrouperProvisionerDaoCapabilities {
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
    * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
    */
-  private int deleteGroupsBatchSize = 20;
+  private int deleteGroupsBatchSize = -1;
 
   /**
    * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
@@ -404,7 +425,7 @@ public class GrouperProvisionerDaoCapabilities {
    * @return delete group batch size
    */
   public int getDeleteGroupsBatchSize() {
-    return this.deleteGroupsBatchSize;
+    return this.deleteGroupsBatchSize == -1 ? this.defaultBatchSize : this.deleteGroupsBatchSize;
   }
 
   /**

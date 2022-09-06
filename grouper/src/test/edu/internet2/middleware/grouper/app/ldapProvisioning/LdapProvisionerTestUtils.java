@@ -23,10 +23,10 @@ public class LdapProvisionerTestUtils {
   
   public static void main(String args[]) throws Exception {
     GrouperSession.startRootSession();
-//    stopAndRemoveLdapContainer();
-//    startLdapContainer();
-//    setupSubjectSource();
+    stopAndRemoveLdapContainer();
+    startLdapContainer();
     setupLdapExternalSystem();
+    setupSubjectSource();
   }
   
   private static String dockerPath = null;
@@ -325,6 +325,10 @@ public class LdapProvisionerTestUtils {
             } else {
               configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField",
                   dnAttribute);
+              configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+              configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "false");
+              configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "false");
+
             }
             
           }

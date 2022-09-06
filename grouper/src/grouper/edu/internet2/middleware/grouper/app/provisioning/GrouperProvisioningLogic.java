@@ -1826,7 +1826,14 @@ public class GrouperProvisioningLogic {
     long retrieveDataPass1 = System.currentTimeMillis()-start;
     this.getGrouperProvisioner().getDebugMap().put("retrieveDataPass1_millis", retrieveDataPass1);
 
+    this.getGrouperProvisioner().getDebugMap().put("grouperGroupsRetrieved", GrouperUtil.length(targetProvisioningLists[0].getProvisioningGroups()));
+    this.getGrouperProvisioner().getDebugMap().put("grouperEntitiesRetrieved", GrouperUtil.length(targetProvisioningLists[0].getProvisioningEntities()));
+    this.getGrouperProvisioner().getDebugMap().put("grouperMembershipsRetrieved", GrouperUtil.length(targetProvisioningLists[0].getProvisioningMemberships()));
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveDataFromGrouper);
+    
+    this.getGrouperProvisioner().getDebugMap().put("targetGroupsRetrieved", GrouperUtil.length(targetProvisioningLists[0].getProvisioningGroups()));
+    this.getGrouperProvisioner().getDebugMap().put("targetEntitiesRetrieved", GrouperUtil.length(targetProvisioningLists[0].getProvisioningEntities()));
+    this.getGrouperProvisioner().getDebugMap().put("targetMembershipsRetrieved", GrouperUtil.length(targetProvisioningLists[0].getProvisioningMemberships()));
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveAllDataFromTarget, targetProvisioningLists[0]);
 
   }
