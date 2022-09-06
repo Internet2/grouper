@@ -67,7 +67,6 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -79,7 +78,9 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.authentication.GrouperOidc;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -327,7 +328,12 @@ public class GrouperUiFilter implements Filter {
     return subject;
   }
 
-
+  
+  private void redirectToOidcProvider() {
+    
+  }
+  
+  
   /**
    * retrieve the subject logged in
    * @param allowNoUserLoggedIn true if allowed to have no user, false if expecting a user
@@ -666,6 +672,76 @@ public class GrouperUiFilter implements Filter {
         if (LOG.isDebugEnabled()) {
           debugLog.put("session.getAttribute(authUser)", remoteUser);
         }
+      }
+      
+      boolean runGrouperUiWithOidcAuth = GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouper.ui.authentication.useOidc", false);
+      
+      if (runGrouperUiWithOidcAuth && StringUtils.isBlank(remoteUser)) {
+        
+        String oidcClientConfigId = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("grouper.ui.authentication.oidcClientConfigId");
+        
+        GrouperOidc grouperOidc = new GrouperOidc();
+        grouperOidc.assignClientConfigId(oidcClientConfigId);
+        grouperOidc.retrieveMetadata();
+        
+        String responseType = grouperOidc.retrieveResponseType();
+        
+        String authorizationCodeReturnedFromOidc = httpServletRequest.getParameter(responseType);
+        
+        if (StringUtils.isBlank(authorizationCodeReturnedFromOidc)) {
+          // it means we need to redirect to OIDC
+          String loginUrl = grouperOidc.generateLoginUrl();
+          
+          // before redirecting, set session attributes 
+          
+          if (StringUtils.equals(httpServletRequest.getMethod(), "GET")) {
+            String requestUri = GrouperUtil.defaultString(httpServletRequest.getRequestURI());
+            String queryString = GrouperUtil.defaultString(httpServletRequest.getQueryString());
+            if (StringUtils.isBlank(queryString)) {
+              httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri);
+            } else {
+              httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri + "?"+ queryString);
+            }
+          } else {
+            String grouperUiUrl = GrouperConfig.getGrouperUiUrl(false);
+            httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", grouperUiUrl);
+          }
+         
+          try {
+            retrieveHttpServletResponse().sendRedirect(loginUrl);
+            throw new ControllerDone();
+          } catch (IOException e) {
+            throw new RuntimeException("could not redirect to oidc url "+loginUrl);
+          }
+          
+        } 
+        
+        // it means OIDC redirected back to grouper after successful auth
+        
+        grouperOidc.assignAuthorizationCode(authorizationCodeReturnedFromOidc);
+        
+        grouperOidc.retrieveAccessToken();
+        
+        grouperOidc.decodeAccessToken();
+        remoteUser = grouperOidc.findSubjectClaim();
+        
+        remoteUser = StringUtils.trim(remoteUser);
+        
+        httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
+        httpServletRequest.getSession().setAttribute("authUser", remoteUser);
+        
+        String grouperUrl = (String)httpServletRequest.getSession().getAttribute("oidcRedirectToGrouper");
+        httpServletRequest.getSession().removeAttribute("oidcRedirectToGrouper");
+        try {
+          if (StringUtils.isBlank(grouperUrl)) {
+            grouperUrl = GrouperConfig.getGrouperUiUrl(false);
+          }
+          retrieveHttpServletResponse().sendRedirect(grouperUrl);
+          throw new ControllerDone();
+        } catch (IOException e) {
+          throw new RuntimeException("could not redirect to grouper url "+grouperUrl);
+        }
+        
       }
       
       remoteUser = StringUtils.trim(remoteUser);
@@ -1037,6 +1113,9 @@ public class GrouperUiFilter implements Filter {
       
       return httpServletRequest;
     } catch (RuntimeException re) {
+      if (re instanceof ControllerDone) {
+        throw re;
+      }
       //log always since might get preempted
       LOG.error("error in init", re);
       if (alreadyInInit) {

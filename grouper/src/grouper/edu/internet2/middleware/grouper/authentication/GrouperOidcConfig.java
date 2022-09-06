@@ -17,18 +17,30 @@ public class GrouperOidcConfig {
   
   /**
    * retrieve from config or cache
-   * @param configId
+   * @param clientConfigId
    * @return the config
    */
-  public static GrouperOidcConfig retrieveFromConfigOrCache(String configId) {
+  public static GrouperOidcConfig retrieveFromConfigOrCache(String clientConfigId) {
     
-    GrouperOidcConfig grouperOidcConfig = grouperOidcConfigCache.get(configId);
+    GrouperOidcConfig grouperOidcConfig = grouperOidcConfigCache.get(clientConfigId);
     if (grouperOidcConfig == null) {
-      grouperOidcConfig = retrieveFromConfig(configId);
-      grouperOidcConfigCache.put(configId, grouperOidcConfig);
+      grouperOidcConfig = retrieveFromConfig(clientConfigId);
+      grouperOidcConfigCache.put(clientConfigId, grouperOidcConfig);
     }
     
     return grouperOidcConfig;
+  }
+
+  private String responseType;
+  
+  
+  public String getResponseType() {
+    return responseType;
+  }
+
+  
+  public void setResponseType(String responseType) {
+    this.responseType = responseType;
   }
 
   private String tokenEndpointUri = null;
@@ -64,6 +76,16 @@ public class GrouperOidcConfig {
     this.userInfoUri = userInfoUri;
   }
 
+  private String clientConfigId;
+  
+  public String getClientConfigId() {
+    return clientConfigId;
+  }
+  
+  public void setClientConfigId(String clientConfigId) {
+    this.clientConfigId = clientConfigId;
+  }
+
   private String clientId;
 
   
@@ -88,6 +110,18 @@ public class GrouperOidcConfig {
   
   public void setClientSecret(String clientSecret) {
     this.clientSecret = clientSecret;
+  }
+
+  private String configurationMetadataUri;
+  
+  
+  public String getConfigurationMetadataUri() {
+    return configurationMetadataUri;
+  }
+
+  
+  public void setConfigurationMetadataUri(String configurationMetadataUri) {
+    this.configurationMetadataUri = configurationMetadataUri;
   }
 
   /**
@@ -180,70 +214,75 @@ public class GrouperOidcConfig {
 
   /**
    * retrieve from config or cache
-   * @param configId
+   * @param clientConfigId
    * @return the config
    */
-  private static GrouperOidcConfig retrieveFromConfig(String configId) {
+  private static GrouperOidcConfig retrieveFromConfig(String clientConfigId) {
 
     GrouperOidcConfig grouperOidcConfig = new GrouperOidcConfig();
   
+    
     // # config id of the external system
-    String externalSystemConfigId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidc." + configId + ".oidcExternalSystemConfigId");
+    grouperOidcConfig.externalSystemConfigId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidc." + clientConfigId + ".oidcExternalSystemConfigId");
+    
     
     //  # url to decode the oidc code into an access token: https://idp.institution.edu/idp/profile/oidc/token
     //  # grouper.oidcExternalSystem.myOidcConfigId.tokenEndpointUri =
-    grouperOidcConfig.tokenEndpointUri = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".tokenEndpointUri");
-    
+    grouperOidcConfig.tokenEndpointUri = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + grouperOidcConfig.externalSystemConfigId + ".tokenEndpointUri");
+
+    grouperOidcConfig.configurationMetadataUri = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + grouperOidcConfig.externalSystemConfigId + ".configurationMetadataUri");
     
     //   
     //  # url to get the user info from the access token https://idp.pennkey.upenn.edu/idp/profile/oidc/userinfo
     //  # grouper.oidcExternalSystem.myOidcConfigId.userInfoUri =
-    grouperOidcConfig.userInfoUri = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".userInfoUri");
+    grouperOidcConfig.userInfoUri = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + grouperOidcConfig.externalSystemConfigId + ".userInfoUri");
     
     
     //    
     //  # client id to authorize url
     //  # grouper.oidcExternalSystem.myOidcConfigId.clientId =
-    grouperOidcConfig.clientId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".clientId");
+    grouperOidcConfig.clientId = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + grouperOidcConfig.externalSystemConfigId + ".clientId");
 
     //   
     //  # secret to ws
     //  # grouper.oidcExternalSystem.myOidcConfigId.clientSecret =
-    grouperOidcConfig.clientSecret = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".clientSecret");
+    grouperOidcConfig.clientSecret = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + grouperOidcConfig.externalSystemConfigId + ".clientSecret");
     grouperOidcConfig.clientSecret = Morph.decryptIfFile(grouperOidcConfig.clientSecret);
     
     //   
     //  # if this oidc connector is enabled
     //  # grouper.oidcExternalSystem.myOidcConfigId.enabled =    
-    grouperOidcConfig.enabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem." + externalSystemConfigId + ".enabled", true);
+    grouperOidcConfig.enabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem." + grouperOidcConfig.externalSystemConfigId + ".enabled", true);
 
     
     //   
     //  # needed for retrieving an access token, e.g. https://my.app/someUrlBackFromIdp
     //  grouper.oidc.configId.redirectUri =
-    grouperOidcConfig.redirectUri = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidc." + configId + ".redirectUri");
+    grouperOidcConfig.redirectUri = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidc." + clientConfigId + ".redirectUri");
 
     //   
     //  # scope to retrieve from oidc, e.g. openid email profile
     //  grouper.oidc.configId.scope =
-    grouperOidcConfig.scope = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidc." + configId + ".scope");
+    grouperOidcConfig.scope = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidc." + clientConfigId + ".scope");
 
     //   
     //  # optional, could be in claim as "subjectSourceId", e.g. myPeople
     //  grouper.oidc.configId.subjectSourceId =
-    grouperOidcConfig.subjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidc." + configId + ".subjectSourceId");
+    grouperOidcConfig.subjectSourceId = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidc." + clientConfigId + ".subjectSourceId");
 
     //   
     //  # subjectId, subjectIdentifier, or subjectIdOrIdentifier
     //  grouper.oidc.configId.subjectIdType =
-    grouperOidcConfig.subjectIdType = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidc." + configId + ".subjectIdType");
+    grouperOidcConfig.subjectIdType = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidc." + clientConfigId + ".subjectIdType");
+    
+    grouperOidcConfig.responseType = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidc." + clientConfigId + ".oidcResponseType");
 
     //  # some claim name that has the subjectId / subjectIdentifier / subjectIdOrIdentifier in it.  e.g. employeeId
     //  grouper.oidc.configId.subjectIdClaimName =
-    grouperOidcConfig.subjectIdClaimName = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidc." + configId + ".subjectIdClaimName");
+    grouperOidcConfig.subjectIdClaimName = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidc." + clientConfigId + ".subjectIdClaimName");
     
-    grouperOidcConfig.proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidc." + configId + ".proxyUrl");
-    grouperOidcConfig.proxyType = GrouperProxyType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString("grouper.oidc." + configId + ".proxyType"), false);    
+    grouperOidcConfig.proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidc." + clientConfigId + ".proxyUrl");
+    grouperOidcConfig.proxyType = GrouperProxyType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString("grouper.oidc." + clientConfigId + ".proxyType"), false);    
     
     return grouperOidcConfig;
   }
