@@ -678,6 +678,9 @@ public class GrouperUiFilter implements Filter {
       
       if (runGrouperUiWithOidcAuth && StringUtils.isBlank(remoteUser)) {
         
+        String grouperUiUrl = GrouperConfig.getGrouperUiUrl(false);
+        String requestUrl = httpServletRequest.getRequestURL().toString();
+        
         String oidcClientConfigId = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("grouper.ui.authentication.oidcClientConfigId");
         
         GrouperOidc grouperOidc = new GrouperOidc();
@@ -703,7 +706,6 @@ public class GrouperUiFilter implements Filter {
               httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri + "?"+ queryString);
             }
           } else {
-            String grouperUiUrl = GrouperConfig.getGrouperUiUrl(false);
             httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", grouperUiUrl);
           }
          
@@ -714,9 +716,17 @@ public class GrouperUiFilter implements Filter {
             throw new RuntimeException("could not redirect to oidc url "+loginUrl);
           }
           
-        } 
+        }
         
         // it means OIDC redirected back to grouper after successful auth
+        
+        
+        // let's validate the url first
+        String shouldBeUrl = GrouperUtil.stripLastSlashIfExists(grouperUiUrl) + "/grouperUi/app/UiV2Main.oidc";
+        
+        if (!StringUtils.equals(requestUrl, shouldBeUrl)) {
+          throw new RuntimeException("requestUrl "+requestUrl + " is not valid.");
+        }
         
         grouperOidc.assignAuthorizationCode(authorizationCodeReturnedFromOidc);
         
