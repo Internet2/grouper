@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.misc;
 import static edu.internet2.middleware.grouper.util.GrouperUtil.isBlank;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
@@ -619,13 +620,21 @@ public class GrouperStartup {
 
       if (GrouperUtil.length(ids) > 0) {
         LOG.error("Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null " + tableIndexType.getIncrementingColumn() + "... correcting... please wait...");
-        for (int i=0;i<GrouperUtil.length(ids); i++) {
-          HibernateSession.bySqlStatic().executeSql("update " + tableIndexType.tableName() 
-              + " set " + tableIndexType.getIncrementingColumn() + " = ? where id = ?", 
-              GrouperUtil.toListObject(TableIndex.reserveId(tableIndexType), ids.get(i)),
-              HibUtils.listType(LongType.INSTANCE, StringType.INSTANCE));
-          if (i+1 % 1000 == 0) {
-            LOG.warn("Updated " + (i-1) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
+        
+        int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 1000, false);
+        List<Long> idIndexes = TableIndex.reserveIds(tableIndexType, ids.size());
+        int idIndexIndex = 0;
+        for (int i=0;i<numberOfBatches; i++) {
+          List<String> idBatch = GrouperUtil.batchList(ids, 1000, i);
+          String sql = "update " + tableIndexType.tableName() 
+              + " set " + tableIndexType.getIncrementingColumn() + " = ? where id = ?";
+          List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+          for (String id : idBatch) {
+            batchBindVars.add(GrouperUtil.toListObject(idIndexes.get(idIndexIndex++), id));
+          }
+          new GcDbAccess().sql(sql).batchBindVars(batchBindVars).executeBatchSql();
+          if (i+1 % 100 == 0) {
+            LOG.warn("Updated " + ((i+1)*1000) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
           }
         }
         LOG.warn("Finished " + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");

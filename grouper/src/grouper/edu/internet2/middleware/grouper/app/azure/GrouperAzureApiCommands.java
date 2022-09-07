@@ -335,14 +335,14 @@ public class GrouperAzureApiCommands {
     StringBuilder error = new StringBuilder("statusCode = "+statusCode);
     
     if (bodyNode != null) {
-      JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "error");
+      JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(bodyNode, "error");
       if (errorNode != null) {
-        String errorCode = GrouperUtil.jsonJacksonGetString(oneResponse, "code");
+        String errorCode = GrouperUtil.jsonJacksonGetString(errorNode, "code");
         if (StringUtils.isNotBlank(errorCode)) {
           error.append(", errorCode = "+errorCode);
         }
         
-        String errorMessage = GrouperUtil.jsonJacksonGetString(oneResponse, "message");
+        String errorMessage = GrouperUtil.jsonJacksonGetString(errorNode, "message");
         if (StringUtils.isNotBlank(errorMessage)) {
           error.append(", errorMessage = "+errorMessage);
         }
@@ -984,7 +984,9 @@ public class GrouperAzureApiCommands {
         for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
           JsonNode groupNode = groupsArray.get(i);
           GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromJson(groupNode);
-          results.add(grouperAzureGroup);
+          if (grouperAzureGroup != null) {
+            results.add(grouperAzureGroup);
+          }
         }
   
         nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
@@ -1031,7 +1033,9 @@ public class GrouperAzureApiCommands {
         for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
           JsonNode userNode = usersArray.get(i);
           GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromJson(userNode);
-          results.add(grouperAzureUser);
+          if (grouperAzureUser != null) {
+            results.add(grouperAzureUser);
+          }
         }
         nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
         
@@ -1137,14 +1141,23 @@ public class GrouperAzureApiCommands {
             } else {
             
               GrouperAzureUser grouperAzureUser = null;
+              JsonNode userNode = bodyNode;
+              
               ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(bodyNode, "value");
 
+              boolean hasError = false;
               if (value != null && value.size() > 0) {
                 if (value.size() == 1) {
-                  grouperAzureUser = GrouperAzureUser.fromJson(value.get(0));
-                  result.add(grouperAzureUser);
+                  userNode = value.get(0);
                 } else {
+                  hasError = true;
                   LOG.error("Query returned multiple results for field name: "+fieldName +" and fieldValue: "+fieldValue);
+                }
+              }
+              if (!hasError) {
+                grouperAzureUser = GrouperAzureUser.fromJson(userNode);
+                if (grouperAzureUser != null) {
+                  result.add(grouperAzureUser);
                 }
               }
             }
@@ -1360,14 +1373,24 @@ public class GrouperAzureApiCommands {
             } else {
             
               GrouperAzureGroup grouperAzureGroup = null;
+              JsonNode groupNode = bodyNode;
+              boolean hasError = false;
+              
               ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(bodyNode, "value");
 
               if (value != null && value.size() > 0) {
                 if (value.size() == 1) {
-                  grouperAzureGroup = GrouperAzureGroup.fromJson(value.get(0));
-                  result.add(grouperAzureGroup);
+                  groupNode = value.get(0);
                 } else {
+                  hasError = true;
                   LOG.error("Query returned multiple results for field name: "+fieldName +" and fieldValue: "+fieldValue);
+                }
+              }
+              
+              if (!hasError) {
+                grouperAzureGroup = GrouperAzureGroup.fromJson(groupNode);
+                if (grouperAzureGroup != null) {
+                  result.add(grouperAzureGroup);
                 }
               }
             }
