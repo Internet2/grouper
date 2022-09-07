@@ -256,7 +256,8 @@ public class XmlExportMember {
     member.setSearchString4(this.searchString4);
     member.setName(this.name);
     member.setDescription(this.description);
-    
+    member.setIdIndex(this.idIndex);
+
     return member;
   }
 
@@ -783,6 +784,25 @@ public class XmlExportMember {
    */
   public void setDescription(String description) {
     this.description = description;
+  }
+  
+  /** idIndex */
+  private Long idIndex;
+
+  /**
+   * 
+   * @return id index
+   */
+  public Long getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * id index
+   * @param idIndex1
+   */
+  public void setIdIndex(Long idIndex1) {
+    this.idIndex = idIndex1;
   }
 
   /**

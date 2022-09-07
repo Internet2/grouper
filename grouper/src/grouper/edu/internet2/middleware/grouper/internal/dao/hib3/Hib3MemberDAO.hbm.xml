@@ -120,6 +120,7 @@
     <property name="searchString4" column="search_string4"/>
     <property name="name" column="name"/>
     <property name="description" column="description"/>
+    <property name="idIndex" column="id_index"/>
 
     <property name="subjectResolutionResolvableDb" column="subject_resolution_resolvable"/>
     <property name="subjectResolutionDeletedDb" column="subject_resolution_deleted"/>

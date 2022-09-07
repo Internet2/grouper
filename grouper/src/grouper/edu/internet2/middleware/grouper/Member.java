@@ -115,6 +115,8 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
@@ -363,6 +365,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** constant for field name for: description */
   public static final String FIELD_DESCRIPTION = "description";
   
+  /** constant for field name for: idIndex */
+  public static final String FIELD_ID_INDEX = "idIndex";
+  
   /**
    * fields which are included in db version
    */
@@ -371,7 +376,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
       FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_ELIGIBLE, FIELD_SUBJECT_RESOLUTION_RESOLVABLE, 
-      FIELD_SUBJECT_RESOLUTION_DELETED, FIELD_SUBJECT_IDENTIFIER1, FIELD_SUBJECT_IDENTIFIER2, FIELD_EMAIL0);
+      FIELD_SUBJECT_RESOLUTION_DELETED, FIELD_SUBJECT_IDENTIFIER1, FIELD_SUBJECT_IDENTIFIER2, FIELD_EMAIL0, FIELD_ID_INDEX);
 
   /**
    * fields which are included in clone method
@@ -382,7 +387,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
       FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_ELIGIBLE, FIELD_SUBJECT_RESOLUTION_RESOLVABLE,
-      FIELD_SUBJECT_RESOLUTION_DELETED, FIELD_SUBJECT_IDENTIFIER1, FIELD_SUBJECT_IDENTIFIER2, FIELD_EMAIL0);
+      FIELD_SUBJECT_RESOLUTION_DELETED, FIELD_SUBJECT_IDENTIFIER1, FIELD_SUBJECT_IDENTIFIER2, FIELD_EMAIL0, FIELD_ID_INDEX);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -398,7 +403,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /**  */
   private String  memberUUID;
 
-
+  /** id of the member as a unique integer */
+  private Long idIndex;
+  
   /**  */
   private String  subjectID;
 
@@ -1862,6 +1869,22 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   }
   
   /**
+   * id of the member as a unique integer
+   * @return id
+   */
+  public Long getIdIndex() {
+    return this.idIndex;
+  }
+
+  /**
+   * id of the member as a unique integer
+   * @param idIndex1
+   */
+  public void setIdIndex(Long idIndex1) {
+    this.idIndex = idIndex1;
+  }
+  
+  /**
    * Get groups where this member has the ADMIN privilege.
    * <pre class="eg">
    * Set admin = m.hasAdmin();
@@ -2987,6 +3010,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
     
+    if (this.idIndex == null) {
+      this.idIndex = TableIndex.reserveId(TableIndexType.member);
+    }
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
         MemberHooks.METHOD_MEMBER_PRE_INSERT, HooksMemberBean.class, 
@@ -4188,6 +4214,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     if (existingRecord == null) {
       existingRecord = this.clone();
       GrouperDAOFactory.getFactory().getMember().create(existingRecord);
+      
+      if (this.idIndex != null) {
+        existingRecord.assignIdIndex(this.idIndex);
+      }
     }
     this.xmlCopyBusinessPropertiesToExisting(existingRecord);
     //if its an insert or update, then do the rest of the fields
@@ -4244,6 +4274,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     xmlExportMember.setSearchString4(this.getSearchString4());
     xmlExportMember.setName(this.getName());
     xmlExportMember.setDescription(this.getDescription());
+    xmlExportMember.setIdIndex(this.getIdIndex());
 
     return xmlExportMember;
   }
@@ -5062,6 +5093,47 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    */
   public boolean hasStemView(Stem stem) {
     return this._hasPriv(stem, NamingPrivilege.STEM_VIEW);
+  }
+  
+  /**
+   * assign different id index
+   * @param theIdIndex
+   * @return if it was changed
+   */
+  public boolean assignIdIndex(final long theIdIndex) {
+    
+    TableIndex.assertCanAssignIdIndex();
+
+    boolean needsSave = false;
+    
+    synchronized (TableIndexType.member) {
+
+      //ok, if the index is not in use (not, it could be reserved... hmmm)
+      Member tempMember = GrouperDAOFactory.getFactory().getMember().findByIdIndex(theIdIndex, false);
+      if (tempMember == null) {
+        
+        this.setIdIndex(theIdIndex);
+        TableIndex.clearReservedId(TableIndexType.member, theIdIndex);
+        needsSave = true;
+        
+        //do a new session so we don hold on too long
+        HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+          
+          @Override
+          public Object callback(HibernateHandlerBean hibernateHandlerBean)
+              throws GrouperDAOException {
+            //now we might need to increment the index
+            TableIndex tableIndex = GrouperDAOFactory.getFactory().getTableIndex().findByType(TableIndexType.member);
+            if (tableIndex != null && tableIndex.getLastIndexReserved() < theIdIndex) {
+              tableIndex.setLastIndexReserved(theIdIndex);
+              tableIndex.saveOrUpdate();
+            }
+            return null;
+          }
+        });
+      }      
+    }
+    return needsSave;
   }
 } 
 
