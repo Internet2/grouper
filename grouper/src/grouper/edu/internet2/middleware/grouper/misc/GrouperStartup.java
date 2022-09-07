@@ -22,15 +22,11 @@ package edu.internet2.middleware.grouper.misc;
 import static edu.internet2.middleware.grouper.util.GrouperUtil.isBlank;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -50,7 +46,6 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
@@ -58,8 +53,6 @@ import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.log.GrouperLoggingDynamicConfig;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
-import edu.internet2.middleware.grouper.tableIndex.TableIndex;
-import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperToStringStyle;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -376,9 +369,6 @@ public class GrouperStartup {
             // verify member search and sort config
             verifyMemberSortAndSearchConfig();
             
-            // verify id indexes
-            verifyTableIdIndexes();
-
             verifyUtf8andTransactions();
             
             finishedStartupSuccessfully = true;
@@ -597,47 +587,6 @@ public class GrouperStartup {
       
       if (source.getSearchAttributes() == null || source.getSearchAttributes().size() == 0) {
         throw new RuntimeException("At least one search column should be specified for source " + source.getId());
-      }
-    }
-  }
-  
-  /**
-   * verify that table id indexes
-   */
-  public static void verifyTableIdIndexes() {
-    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.tableIndex.verifyOnStartup", true)) {
-      return;
-    }
-
-    //lets see if there are any nulls
-    for (TableIndexType tableIndexType : TableIndexType.values()) {
-      
-      if (tableIndexType == TableIndexType.membershipRequire) {
-        continue;
-      }
-      List<String> ids = HibernateSession.bySqlStatic().listSelect(
-          String.class, "select id from " + tableIndexType.tableName() + " where " + tableIndexType.getIncrementingColumn() + " is null order by id" , null, null);
-
-      if (GrouperUtil.length(ids) > 0) {
-        LOG.error("Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null " + tableIndexType.getIncrementingColumn() + "... correcting... please wait...");
-        
-        int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 1000, false);
-        List<Long> idIndexes = TableIndex.reserveIds(tableIndexType, ids.size());
-        int idIndexIndex = 0;
-        for (int i=0;i<numberOfBatches; i++) {
-          List<String> idBatch = GrouperUtil.batchList(ids, 1000, i);
-          String sql = "update " + tableIndexType.tableName() 
-              + " set " + tableIndexType.getIncrementingColumn() + " = ? where id = ?";
-          List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
-          for (String id : idBatch) {
-            batchBindVars.add(GrouperUtil.toListObject(idIndexes.get(idIndexIndex++), id));
-          }
-          new GcDbAccess().sql(sql).batchBindVars(batchBindVars).executeBatchSql();
-          if (i+1 % 100 == 0) {
-            LOG.warn("Updated " + ((i+1)*1000) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
-          }
-        }
-        LOG.warn("Finished " + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
       }
     }
   }

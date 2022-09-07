@@ -128,7 +128,7 @@ CREATE TABLE grouper_members
     subject_identifier0 VARCHAR(255),
     subject_identifier1 VARCHAR(255),
     subject_identifier2 VARCHAR(255),
-    id_index BIGINT,
+    id_index BIGINT NOT NULL,
     email0 VARCHAR(255),
     sort_string0 VARCHAR(50),
     sort_string1 VARCHAR(50),
