@@ -154,6 +154,11 @@ public class GrouperAzureUser {
    * @return the group
    */
   public static GrouperAzureUser fromJson(JsonNode entityNode) {
+
+    if (entityNode == null || !entityNode.has("userPrincipalName")) {
+      return null;
+    }
+
     GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
     
     /**

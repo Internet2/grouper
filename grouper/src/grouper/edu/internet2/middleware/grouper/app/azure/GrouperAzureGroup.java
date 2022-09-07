@@ -389,6 +389,9 @@ public class GrouperAzureGroup {
    * @return the group
    */
   public static GrouperAzureGroup fromJson(JsonNode groupNode) {
+    if (groupNode == null || !groupNode.has("displayName")) {
+      return null;
+    }
     GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
     grouperAzureGroup.description = GrouperUtil.jsonJacksonGetString(groupNode, "description");
     grouperAzureGroup.displayName = GrouperUtil.jsonJacksonGetString(groupNode, "displayName");
