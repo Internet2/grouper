@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonDeleteOldRecords;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
@@ -37,6 +38,8 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
@@ -201,42 +204,28 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       }
 
     }
-//  } 
-// , V8 { 
-//    
-//    @Override
-//    public void updateVersionFromPrevious() {
-//        
-      //  v8_provisioningLdapDnAttributeChange();
-      // 
-      //  v8_provisioningFieldNameToAttributeChange();
-      //  
-      //  v8_provisioningSelectAllEntitiesDefault();
-      //  
-      //  v8_provisioningEntityResolverRefactor();
-      //  
-      //  v8_provisioningCustomizeMembershipCrud();
-      //
-      //  v8_provisioningCustomizeGroupCrud();
-      //
-      //  v8_provisioningCustomizeEntityCrud();
-      //  
-      //  v8_provisioningMembershipShowValidation();
-      //
-      //  v8_provisioningGroupShowValidation();
-      //
-      //  v8_provisioningEntityShowValidation();
-      //
-      //  v8_provisioningMembershipShowAttributeCrud();
-      //
-      //  v8_provisioningGroupShowAttributeCrud();
-      //  
-      //  v8_provisioningEntityShowAttributeCrud();
-      //  
-      //  v8_provisioningMembershipShowAttributeValueSettings();
-      //  
-      //  v8_provisioningGroupShowAttributeValueSettings();
-//    }
+
+  },
+  V8 {
+    
+    @Override
+    public void updateVersionFromPrevious() {
+      // make sure id_index is populated in grouper_members and make columns not null
+      GrouperDaemonDeleteOldRecords.verifyTableIdIndexes(null);
+      
+      String sql;
+      
+      if (GrouperDdlUtils.isOracle()) {
+        sql = "ALTER TABLE grouper_members MODIFY (id_index NOT NULL)";
+      } else if (GrouperDdlUtils.isMysql()) {
+        sql = "ALTER TABLE grouper_members MODIFY id_index BIGINT NOT NULL";
+      } else {
+        // assume postgres
+        sql = "ALTER TABLE grouper_members ALTER COLUMN id_index SET NOT NULL";
+      }
+      
+      HibernateSession.bySqlStatic().executeSql(sql);
+    }
   };
   
   /** logger */

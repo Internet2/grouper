@@ -530,7 +530,7 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
       
       // note it should be empty but just in case
       longList.clear();
-      for (long currentIdIndex=(lastIndexReserved-idsToReserve) + 1; currentIdIndex<=lastIndexReserved; currentIdIndex++) {
+      for (long currentIdIndex=lastIndexReserved; currentIdIndex>=((lastIndexReserved-idsToReserve) + 1); currentIdIndex--) {
         longList.add(currentIdIndex);
       }
       
