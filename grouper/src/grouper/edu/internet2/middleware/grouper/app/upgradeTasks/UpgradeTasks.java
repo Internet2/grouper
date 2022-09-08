@@ -16,7 +16,11 @@
 
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
-import java.util.HashSet;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -27,9 +31,9 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
-import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSync;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonDeleteOldRecords;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -47,7 +51,6 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.SyncPITTables;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 /**
  * @author shilen
@@ -210,7 +213,54 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     
     @Override
     public void updateVersionFromPrevious() {
-      // make sure id_index is populated in grouper_members and make columns not null
+      // make sure id_index is populated in grouper_members and make column not null
+
+      // check if grouper_members.id_index is already not null - better to use ddlutils here or check the resultset?
+      /*
+      Platform platform = GrouperDdlUtils.retrievePlatform(false);
+      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+      Connection connection = null;
+      try {
+        connection = grouperDb.connection();
+        int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
+        DdlVersionable ddlVersionable = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+        DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionable);
+        platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+        platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+        
+        Database database = platform.readModelFromDatabase(connection, "grouper", null, null, null);
+        Table membersTable = database.findTable(Member.TABLE_GROUPER_MEMBERS);
+        Column idIndexColumn = membersTable.findColumn(Member.COLUMN_ID_INDEX);
+        
+        if (idIndexColumn.isRequired()) {
+          return;
+        }
+      } finally {
+        GrouperUtil.closeQuietly(connection);
+      }
+      */
+      
+      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+      Connection connection = null;
+      PreparedStatement preparedStatement = null;
+      ResultSet resultSet = null;
+      try {
+        connection = grouperDb.connection();
+        preparedStatement = connection.prepareStatement("select id_index from grouper_members where subject_id='GrouperSystem'");
+        resultSet = preparedStatement.executeQuery();
+        ResultSetMetaData metadata = resultSet.getMetaData();
+        if (metadata.isNullable(1) == ResultSetMetaData.columnNoNulls) {
+          return;
+        }
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      } finally {
+        GrouperUtil.closeQuietly(resultSet);
+        GrouperUtil.closeQuietly(preparedStatement);
+        GrouperUtil.closeQuietly(connection);
+      }
+      
+      // ok nulls are allowed so make the change
       GrouperDaemonDeleteOldRecords.verifyTableIdIndexes(null);
       
       String sql;
