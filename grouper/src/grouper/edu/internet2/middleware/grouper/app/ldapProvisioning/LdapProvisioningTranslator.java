@@ -107,6 +107,25 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
     }
 
     
+    if (LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName()) 
+          && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group 
+          && StringUtils.isNotBlank(translateFromGrouperProvisioningGroupField)) {
+      
+      LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
+      String groupRdnAttributeName = ldapSyncConfiguration.getGroupRdnAttribute();
+      
+      GrouperProvisioningConfigurationAttribute rdnConfigurationAttribute = ldapSyncConfiguration.getTargetGroupAttributeNameToConfig().get(groupRdnAttributeName);
+      
+      String rdnTranslateFromGrouperProvisioningGroupField = rdnConfigurationAttribute == null ? null : getTranslateFromGrouperProvisioningGroupField(forCreate, rdnConfigurationAttribute);
+      
+      if (StringUtils.equals(rdnTranslateFromGrouperProvisioningGroupField, translateFromGrouperProvisioningGroupField)) {
+        translateFromGrouperProvisioningGroupField = null;
+        attributeValue = null;
+      }
+    
+    }
+    
     if (grouperProvisioningConfigurationAttribute != null
         && StringUtils.isBlank(translateFromGrouperProvisioningGroupField)
         && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()

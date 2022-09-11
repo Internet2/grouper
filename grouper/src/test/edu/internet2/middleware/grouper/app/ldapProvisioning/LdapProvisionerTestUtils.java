@@ -315,7 +315,14 @@ public class LdapProvisionerTestUtils {
       } else {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "ldap_dn");
         if (provisioningTestConfigInput.isGroupDnTranslate()) {
-          if (!StringUtils.equals("true", provisioningTestConfigInput.getExtraConfig().get("onlyLdapGroupDnOverride"))) {
+          if (StringUtils.equals("true", provisioningTestConfigInput.getExtraConfig().get("onlyLdapGroupDnOverride"))) {
+            
+            configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+            configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "false");
+            configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "false");
+            
+          } else {
+            
             configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", provisioningTestConfigInput.isDnOverrideScript() ? "translationScript" : "grouperProvisioningGroupField");
             String dnAttribute = provisioningTestConfigInput.isGroupDnTypeBushy() ? "name" : provisioningTestConfigInput.getTranslateFromGrouperProvisioningGroupField();
             if (provisioningTestConfigInput.isDnOverrideScript()) {
@@ -325,12 +332,8 @@ public class LdapProvisionerTestUtils {
             } else {
               configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField",
                   dnAttribute);
-              configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
-              configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "false");
-              configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "false");
 
             }
-            
           }
         }
         if (provisioningTestConfigInput.isGroupAttributeValueCache2dn()) {
