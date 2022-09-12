@@ -1,0 +1,6 @@
+dn: dc=redirect,dc=example,dc=edu
+objectClass: referral
+objectClass: extensibleObject
+dc: redirect
+ref: ldap://ldap/dc=example,dc=edu
+

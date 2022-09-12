@@ -1,0 +1,6 @@
+dn: dc=example,dc=edu
+dc: example
+description: LDAP Admin
+objectClass: dcObject
+objectClass: organizationalUnit
+ou: rootobject 

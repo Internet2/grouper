@@ -1,0 +1,19 @@
+FROM arm64v8/ubuntu:jammy
+
+RUN apt update && apt upgrade && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends apt-utils iputils-ping ssh slapd -y && apt-get clean && rm -rf /var/lib/apt/lists/* && mv /etc/ldap /etc/ldap.dist
+
+COPY docker-openldap/modules/ /etc/ldap.dist/modules
+
+COPY docker-openldap/entrypoint.sh /entrypoint.sh
+
+EXPOSE 389
+
+VOLUME ["/etc/ldap", "/var/lib/ldap"]
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+CMD ["slapd", "-d", "32768", "-u", "openldap", "-g", "openldap"]
+
+
+#ENTRYPOINT ["ping"]
+#CMD ["google.com"]

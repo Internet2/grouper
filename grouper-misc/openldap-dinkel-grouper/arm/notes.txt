@@ -1,0 +1,4 @@
+RUN cp /usr/share/openldap-servers/DB_CONFIG.example /var/lib/ldap/DB_CONFIG \
+    && mkdir -p /var/ldap/example \
+    && chown -R ldap:ldap /var/lib/ldap /etc/openldap/slapd.d /var/ldap \
+    && (/usr/sbin/slapd -h "ldap:/// ldaps:/// ldapi:///" -u ldap &) \
