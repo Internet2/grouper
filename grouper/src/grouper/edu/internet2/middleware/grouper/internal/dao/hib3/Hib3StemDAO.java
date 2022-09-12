@@ -194,6 +194,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
               Set<Field> fields = FieldFinder.findAll();
               Iterator<Field> iter = fields.iterator();
               
+              Set<GroupSet> groupSets = new LinkedHashSet<>();
+              
               while (iter.hasNext()) {
                 Field field = iter.next();
                 if (field.isAttributeDefListField()) {
@@ -205,12 +207,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
                   groupSet.setOwnerAttrDefId(attributeDef.getId());
                   groupSet.setParentId(groupSet.getId());
                   groupSet.setFieldId(field.getUuid());
-                  GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+                  groupSets.add(groupSet);
                 }
               }
-
-              
-
+              GrouperDAOFactory.getFactory().getGroupSet().saveBatch(groupSets);
               
               hibernateSession.misc().flush();
               return null;
@@ -407,6 +407,8 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     
     // add group sets
     Set<Field> fields = FieldFinder.findAll();
+    Set<GroupSet> groupSets = new LinkedHashSet<>();
+
     for (Field field : fields) {
       if (field.getType().equals(FieldType.ACCESS) || Group.getDefaultList().getUuid().equals(field.getUuid())) {
         if (group.getTypeOfGroup() != null && group.getTypeOfGroup().supportsField(field)) {
@@ -418,10 +420,11 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
           groupSet.setOwnerGroupId(group.getUuid());
           groupSet.setParentId(groupSet.getId());
           groupSet.setFieldId(field.getUuid());
-          GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+          groupSets.add(groupSet);
         }
       }
     }
+    GrouperDAOFactory.getFactory().getGroupSet().saveBatch(groupSets);
   }
   
   /**
@@ -434,6 +437,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
     Set<Field> fields = FieldFinder.findAll();
     Iterator<Field> iter = fields.iterator();
     
+    Set<GroupSet> groupSets = new LinkedHashSet<>();
     while (iter.hasNext()) {
       Field field = iter.next();
       if (field.isStemListField()) {
@@ -445,9 +449,10 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
         groupSet.setOwnerStemId(stem.getUuid());
         groupSet.setParentId(groupSet.getId());
         groupSet.setFieldId(field.getUuid());
-        GrouperDAOFactory.getFactory().getGroupSet().save(groupSet);
+        groupSets.add(groupSet);
       }
     }
+    GrouperDAOFactory.getFactory().getGroupSet().saveBatch(groupSets);
   }
 
   /**
