@@ -122,6 +122,11 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
       if (StringUtils.equals(rdnTranslateFromGrouperProvisioningGroupField, translateFromGrouperProvisioningGroupField)) {
         translateFromGrouperProvisioningGroupField = null;
         attributeValue = null;
+      } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.bushy &&
+          StringUtils.equals(rdnTranslateFromGrouperProvisioningGroupField, "extension") && 
+          StringUtils.equals(translateFromGrouperProvisioningGroupField, "name")) {
+        translateFromGrouperProvisioningGroupField = null;
+        attributeValue = null;
       }
     
     }

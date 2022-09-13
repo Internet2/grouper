@@ -15,6 +15,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapSyncConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningUpdatable;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningUpdatableAttributeAndValue;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1967,28 +1969,80 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       }
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
 
+      List<Object> processedTargetMemberships = new ArrayList<>();
+      
       for (Object targetMembership : targetMemberships) {
-        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveMembership_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-  
-          @Override
-          public Void callLogic() {
-            TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequestLocal = new TargetDaoRetrieveMembershipRequest();
-            targetDaoRetrieveMembershipRequestLocal.setTargetMembership(targetMembership);
-            TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponseLocal = retrieveMembershipHelper(targetDaoRetrieveMembershipRequestLocal);
-            synchronized(targetDaoRetrieveMembershipsResponse) {
-              if (targetDaoRetrieveMembershipsResponse.getTargetMemberships() == null) {
-                targetDaoRetrieveMembershipsResponse.setTargetMemberships(new ArrayList<Object>());
-              }
-              if (targetDaoRetrieveMembershipResponseLocal.getTargetMembership() != null) {
-                targetDaoRetrieveMembershipsResponse.getTargetMemberships().add(targetDaoRetrieveMembershipResponseLocal.getTargetMembership());
-              }
-            }
-
-            return null;
-          }
-        };
-        grouperCallables.add(grouperCallable);
         
+        if (targetMembership instanceof ProvisioningGroup) {
+          ProvisioningGroup targetGroup = (ProvisioningGroup) targetMembership;
+          
+          LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+          String membershipAttributeName = ldapSyncConfiguration.getGroupMembershipAttributeName();
+          
+          Set<?> membershipAttributeValueSet = targetGroup.retrieveAttributeValueSet(membershipAttributeName);
+         
+          for (Object membershipValue: GrouperUtil.nonNull(membershipAttributeValueSet)) {
+            
+            
+            ProvisioningGroup clonedTargetGroup = targetGroup.clone();
+            ProvisioningAttribute provisioningAttribute = new ProvisioningAttribute();
+            provisioningAttribute.setValue(GrouperUtil.toSet(membershipValue));
+            provisioningAttribute.setName(membershipAttributeName);
+            
+            clonedTargetGroup.getAttributes().put(membershipAttributeName, provisioningAttribute);
+            processedTargetMemberships.add(clonedTargetGroup);
+            
+          }
+          
+          
+        } else  if (targetMembership instanceof ProvisioningEntity) {
+          ProvisioningEntity targetEntity = (ProvisioningEntity) targetMembership;
+          
+          LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+          String membershipAttributeName = ldapSyncConfiguration.getEntityMembershipAttributeName();
+          
+          Set<?> membershipAttributeValueSet = targetEntity.retrieveAttributeValueSet(membershipAttributeName);
+         
+          for (Object membershipValue: GrouperUtil.nonNull(membershipAttributeValueSet)) {
+            
+            ProvisioningEntity clonedTargetEntity = targetEntity.clone();
+            ProvisioningAttribute provisioningAttribute = new ProvisioningAttribute();
+            provisioningAttribute.setValue(GrouperUtil.toSet(membershipValue));
+            provisioningAttribute.setName(membershipAttributeName);
+            
+            clonedTargetEntity.getAttributes().put(membershipAttributeName, provisioningAttribute);
+            processedTargetMemberships.add(clonedTargetEntity);
+            
+          }
+          
+        } else if (targetMembership instanceof ProvisioningMembership) {
+          processedTargetMemberships.add(targetMembership);
+        } else {
+          throw new RuntimeException("Invalid type of " + targetMembership);
+        }
+        
+        for (Object object: processedTargetMemberships) {
+          GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveMembership_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
+            
+            @Override
+            public Void callLogic() {
+              TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequestLocal = new TargetDaoRetrieveMembershipRequest();
+              targetDaoRetrieveMembershipRequestLocal.setTargetMembership(object);
+              TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponseLocal = retrieveMembershipHelper(targetDaoRetrieveMembershipRequestLocal);
+              synchronized(targetDaoRetrieveMembershipsResponse) {
+                if (targetDaoRetrieveMembershipsResponse.getTargetMemberships() == null) {
+                  targetDaoRetrieveMembershipsResponse.setTargetMemberships(new ArrayList<Object>());
+                }
+                if (targetDaoRetrieveMembershipResponseLocal.getTargetMembership() != null) {
+                  targetDaoRetrieveMembershipsResponse.getTargetMemberships().add(targetDaoRetrieveMembershipResponseLocal.getTargetMembership());
+                }
+              }
+
+              return null;
+            }
+          };
+          grouperCallables.add(grouperCallable);
+        }
       }
     } else {
 
