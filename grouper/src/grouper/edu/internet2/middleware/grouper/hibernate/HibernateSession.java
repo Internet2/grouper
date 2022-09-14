@@ -69,6 +69,23 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class HibernateSession {
 
   /**
+   * flush the current session if we are doing something out of band...
+   */
+  public static void flush() {
+    
+    Set<HibernateSession> hibernateSessions = getHibernateSessionSet();
+    for (HibernateSession hibernateSession : GrouperUtil.nonNull(hibernateSessions)) {
+      if (hibernateSession != null && hibernateSession.getSession() != null) {
+        try {
+          hibernateSession.getSession().flush();
+        } catch (Exception e) {
+          // ignore?
+        }
+      }
+    }
+  }
+  
+  /**
    * error message when readonly mode
    */
   private static final String READONLY_ERROR = "Grouper is in readonly mode (perhaps due to maintenance), you cannot perform an operation which changes the data!";
