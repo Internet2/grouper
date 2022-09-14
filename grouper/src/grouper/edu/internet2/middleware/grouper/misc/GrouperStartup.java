@@ -22,8 +22,9 @@ package edu.internet2.middleware.grouper.misc;
 import static edu.internet2.middleware.grouper.util.GrouperUtil.isBlank;
 
 import java.io.File;
+import java.sql.Driver;
+import java.sql.DriverManager;
 
-import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
@@ -52,6 +53,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.log.GrouperLoggingDynamicConfig;
+import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperToStringStyle;
@@ -267,6 +269,14 @@ public class GrouperStartup {
           return false;
         }
 
+        // this has to be loaded first for some reason
+        try {
+          Class clazz = Class.forName("com.p6spy.engine.spy.P6SpyDriver");
+          Object p6SpyDriver = clazz.newInstance();
+          DriverManager.registerDriver((Driver)p6SpyDriver);
+        } catch (Exception e) {
+          // ignore
+        }
         started = true;
         GcDbAccess.setGrouperIsStarted(false);
         finishedStartupSuccessfully = false;
