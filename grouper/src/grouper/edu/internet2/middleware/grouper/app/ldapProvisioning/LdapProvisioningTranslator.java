@@ -65,15 +65,15 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
   }
 
   @Override
-  public Object attributeTranslation(Object currentValue, Map<String, Object> elVariableMap,
-      boolean forCreate,
+  public Object attributeTranslation(Map<String, Object> elVariableMap, boolean forCreate,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
       ProvisioningGroupWrapper provisioningGroupWrapper,
-      ProvisioningEntityWrapper provisioningEntityWrapper) {
+      ProvisioningEntityWrapper provisioningEntityWrapper, boolean[] translate, boolean[] shouldRetrieveFromCache) {
 
-    Object attributeValue = super.attributeTranslation(currentValue, elVariableMap, forCreate,
-        grouperProvisioningConfigurationAttribute, provisioningGroupWrapper,
-        provisioningEntityWrapper);
+    Object attributeValue = super.attributeTranslation(elVariableMap, forCreate,
+         grouperProvisioningConfigurationAttribute,
+         provisioningGroupWrapper,
+         provisioningEntityWrapper, translate, shouldRetrieveFromCache);
     
     String expressionToUse = grouperProvisioningConfigurationAttribute == null ? null : getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
     String translateFromGrouperProvisioningEntityField = grouperProvisioningConfigurationAttribute == null ? null : getTranslateFromGrouperProvisioningEntityField(forCreate, grouperProvisioningConfigurationAttribute);
