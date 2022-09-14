@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
@@ -79,7 +80,8 @@ public class LdapProvisionerTestUtils {
     setupLdapExternalSystem();
 
     // abstract ldap class logs the errors, so just sleep 10 to wait until testing
-    GrouperUtil.sleep(14000);
+    int ldapSleepMillisOnTestStartup = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.ldapSleepMillisOnTestStartup", 14000);
+    GrouperUtil.sleep(ldapSleepMillisOnTestStartup);
     
     RuntimeException lastException = null;
     for (int i = 0; i < 100; i++) {
