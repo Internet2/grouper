@@ -528,7 +528,7 @@ public class UiV2ExternalSystem {
       
       if (errors != null && errors.size() > 0) {
         for (String error: errors) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, error));
         }
         return;
       } else {
