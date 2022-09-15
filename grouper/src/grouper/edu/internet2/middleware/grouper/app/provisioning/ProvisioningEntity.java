@@ -16,6 +16,21 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class ProvisioningEntity extends ProvisioningUpdatable {
 
   /**
+   * id index in target (optional)
+   * @return id index
+   */
+  public Long getIdIndex() {
+    return this.retrieveAttributeValueLong("idIndex");
+  }
+
+  /**
+   * id index in target (optional)
+   * @param idIndex1
+   */
+  public void setIdIndex(Long idIndex1) {
+    this.assignAttributeValue("idIndex", idIndex1);
+  }
+  /**
    * 
    * @return subjectIdentifier0
    */

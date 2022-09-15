@@ -610,6 +610,9 @@ public class GrouperProvisioningTranslator {
       if (StringUtils.equals("subjectIdentifier2", field)) {
         return provisioningEntity.getSubjectIdentifier2();
       }
+      if (StringUtils.equals("idIndex", field)) {
+        return provisioningEntity.getIdIndex();
+      }
     }
     
     GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
@@ -676,7 +679,7 @@ public class GrouperProvisioningTranslator {
     //if we couldnt find the data but the field was ok, its just null
     if (StringUtils.equalsAny(field, "id", "email", "loginid", "memberId", "entityAttributeValueCache0", 
         "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "name", 
-        "subjectId", "subjectSourceId", "description", "subjectIdentifier", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2")) {
+        "subjectId", "subjectSourceId", "description", "subjectIdentifier", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2", "idIndex")) {
       return null;
     }
     

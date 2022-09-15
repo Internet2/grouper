@@ -238,7 +238,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         
         provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".name", userRdnAttribute);
         
-        if (StringUtils.equalsAny(rdnValueForEntities, "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2")) {
+        if (StringUtils.equalsAny(rdnValueForEntities, "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2", "idIndex")) {
           provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateFromGrouperProvisioningEntityField", rdnValueForEntities);
           provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateExpressionType", "grouperProvisioningEntityField");
           
@@ -281,7 +281,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         
         provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".name", matchingSearchAttributeNameForEntities);
         
-        if (StringUtils.equalsAny(matchingSearchAttributeValueForEntities, "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2")) {
+        if (StringUtils.equalsAny(matchingSearchAttributeValueForEntities, "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2", "idIndex")) {
           provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateExpressionType", "grouperProvisioningEntityField");
           provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateFromGrouperProvisioningEntityField", matchingSearchAttributeValueForEntities);
         } else if (StringUtils.equalsAny(matchingSearchAttributeValueForEntities, "script")){

@@ -3010,6 +3010,17 @@ public abstract class GrouperProvisioningConfiguration {
         subjectIdetifier2ConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
         subjectIdetifier2ConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("subjectIdentifier2");
         this.targetEntityAttributeNameToConfig.put("subjectIdentifier2", subjectIdetifier2ConfigurationAttribute);
+        
+        GrouperProvisioningConfigurationAttribute idIndexConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+        idIndexConfigurationAttribute.setGrouperProvisioner(grouperProvisioner);
+        idIndexConfigurationAttribute.setUpdate(this.isUpdateEntities());
+        idIndexConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        idIndexConfigurationAttribute.setInsert(this.isInsertEntities());
+        idIndexConfigurationAttribute.setName("idIndex");
+        idIndexConfigurationAttribute.setSelect(this.isSelectEntities());
+        idIndexConfigurationAttribute.setValueType(GrouperProvisioningConfigurationAttributeValueType.STRING);
+        idIndexConfigurationAttribute.setTranslateFromGrouperProvisioningEntityField("idIndex");
+        this.targetEntityAttributeNameToConfig.put("idIndex", idIndexConfigurationAttribute);
       }
       
     }

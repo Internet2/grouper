@@ -176,7 +176,8 @@ public class GrouperProvisioningGrouperDao {
           "    gsm.metadata_json, " +
           "    gm.email0, " +
           "    gm.subject_identifier1, " +
-          "    gm.subject_identifier2 " +
+          "    gm.subject_identifier2, " +
+          "    gm.id_index " +
           "from " + 
           "    grouper_members gm  join grouper_memberships ms on ms.member_id = gm.id " +
           "    join grouper_group_set gs on ms.owner_id = gs.member_id " + 
@@ -198,7 +199,8 @@ public class GrouperProvisioningGrouperDao {
           "    gsm.metadata_json, " +
           "    gm.email0, " +
           "    gm.subject_identifier1, " +
-          "    gm.subject_identifier2 " +
+          "    gm.subject_identifier2, " +
+          "    gm.id_index " +
           "from " + 
           "    grouper_members gm  join grouper_memberships ms on ms.member_id = gm.id " +
           "    join grouper_group_set gs on ms.owner_id = gs.member_id " + 
@@ -331,7 +333,8 @@ public class GrouperProvisioningGrouperDao {
         "    gsm.metadata_json, " +
         "    gm.email0, " +
         "    gm.subject_identifier1, " +
-        "    gm.subject_identifier2 " +
+        "    gm.subject_identifier2, " +
+        "    gm.id_index " +
         "from " + 
         "    grouper_members gm  " +      
         "    left join grouper_sync_member gsm on  gsm.member_id = gm.id " + 
@@ -405,7 +408,8 @@ public class GrouperProvisioningGrouperDao {
         "    gg.description, " + 
         "    gg.id_index, " + 
         "    gm.subject_identifier1, " + 
-        "    gm.subject_identifier2 " + 
+        "    gm.subject_identifier2, " + 
+        "    gm.id_index " + 
         "from " + 
         "    grouper_groups gg, " +
         "    grouper_members gm, " + 
@@ -761,12 +765,14 @@ public class GrouperProvisioningGrouperDao {
       String email = queryResult[7];
       String subjectIdentifier1 = queryResult[8];
       String subjectIdentifier2 = queryResult[9];
+      String idIndex = queryResult[10];
       
       ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity();
       grouperProvisioningEntity.setId(id);
       grouperProvisioningEntity.setName(name);
       grouperProvisioningEntity.setSubjectId(subjectId);
       grouperProvisioningEntity.setEmail(email);
+      grouperProvisioningEntity.setIdIndex(Long.parseLong(idIndex));
       grouperProvisioningEntity.assignAttributeValue("subjectSourceId", subjectSource);
       grouperProvisioningEntity.assignAttributeValue("description", description);
       grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
@@ -818,6 +824,7 @@ public class GrouperProvisioningGrouperDao {
       Long groupIdIndex = GrouperUtil.longObjectValue(queryResult[11], false);
       String subjectIdentifier1 = queryResult[12];
       String subjectIdentifier2 = queryResult[13];
+      Long memberIdIndex = GrouperUtil.longObjectValue(queryResult[14], false);
 
       ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership();
       grouperProvisioningMembership.setId(membershipId);
@@ -828,6 +835,7 @@ public class GrouperProvisioningGrouperDao {
         targetEntity.setName(name);
         targetEntity.assignAttributeValue("description", description);
         targetEntity.setSubjectId(subjectId);
+        targetEntity.setIdIndex(memberIdIndex);
         targetEntity.assignAttributeValue("subjectSourceId", subjectSourceId);
         targetEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
         targetEntity.assignAttributeValue("subjectIdentifier1", subjectIdentifier1);
@@ -1290,7 +1298,8 @@ public class GrouperProvisioningGrouperDao {
           "    gm.subject_source, " + 
           "    gm.subject_identifier0, " + 
           "    gm.subject_identifier1, " + 
-          "    gm.subject_identifier2 " + 
+          "    gm.subject_identifier2, " + 
+          "    gm.id_index " + 
           "FROM " + 
           "    grouper_members gm, " + 
           "    grouper_attribute_assign gaa_marker, " + 
@@ -1372,6 +1381,7 @@ public class GrouperProvisioningGrouperDao {
         String subjectIdentifier0 = queryResult[6]; 
         String subjectIdentifier1 = queryResult[7]; 
         String subjectIdentifier2 = queryResult[8]; 
+        String idIndex = queryResult[9]; 
         
         GrouperProvisioningObjectAttributes provisioningObjectAttributes = new GrouperProvisioningObjectAttributes(memberId, null, null, markerAttributeAssignId);
         provisioningObjectAttributes.setSubjectId(subjectId);
@@ -1379,6 +1389,7 @@ public class GrouperProvisioningGrouperDao {
         provisioningObjectAttributes.setSubjectIdentifier0(subjectIdentifier0);
         provisioningObjectAttributes.setSubjectIdentifier1(subjectIdentifier1);
         provisioningObjectAttributes.setSubjectIdentifier2(subjectIdentifier2);
+        provisioningObjectAttributes.setIdIndex(Long.parseLong(idIndex));
         
         if (results.get(memberId) == null) {
           results.put(memberId, provisioningObjectAttributes);

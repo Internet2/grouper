@@ -390,7 +390,7 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
     //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
 
-    for (String entityMapping : new String[] {"memberId", "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2", "email", "loginid", "entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "id"}) {
+    for (String entityMapping : new String[] {"memberId", "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2", "email", "loginid", "entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "id", "idIndex"}) {
       for (String name: getTargetMembershipAttributeNameToConfig().keySet()) {
         
         SqlGrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) this.getTargetMembershipAttributeNameToConfig().get(name);
