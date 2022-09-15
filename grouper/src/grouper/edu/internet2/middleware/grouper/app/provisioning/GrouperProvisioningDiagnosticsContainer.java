@@ -1630,12 +1630,12 @@ public class GrouperProvisioningDiagnosticsContainer {
           TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(
               targetDaoRetrieveGroupsRequest);
 
-          if (targetDaoRetrieveGroupsRequest == null) {
+          if (targetDaoRetrieveGroupsResponse == null) {
             this.report.append("<font color='red'><b>Error:</b></font> TargetDaoRetrieveGroupResponse is null\n");
-          } else if (GrouperUtil.length(targetDaoRetrieveGroupsRequest.getTargetGroups()) == 0) {
+          } else if (GrouperUtil.length(targetDaoRetrieveGroupsResponse.getTargetGroups()) == 0) {
             this.report.append("<font color='gray'><b>Note:</b></font> group is not in target\n");
           } else {
-            ProvisioningGroup targetGroup = targetDaoRetrieveGroupsRequest.getTargetGroups().get(0);
+            ProvisioningGroup targetGroup = targetDaoRetrieveGroupsResponse.getTargetGroups().get(0);
             this.provisioningGroupWrapper.setTargetProvisioningGroup(targetGroup);
             this.report.append("<font color='gray'><b>Note:</b></font> Target group (unprocessed): ")
               .append(GrouperUtil.xmlEscape(targetGroup.toString())).append(this.getCurrentDuration()).append("\n");
@@ -1700,13 +1700,13 @@ public class GrouperProvisioningDiagnosticsContainer {
           TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntities(
               targetDaoRetrieveEntitiesRequest);
 
-          if (targetDaoRetrieveEntitiesRequest == null) {
+          if (targetDaoRetrieveEntitiesResponse == null) {
             this.report.append("<font color='red'><b>Error:</b></font> TargetDaoRetrieveEntityResponse is null\n");
-          } else if (GrouperUtil.length(targetDaoRetrieveEntitiesRequest.getTargetEntities()) == 0) {
+          } else if (GrouperUtil.length(targetDaoRetrieveEntitiesResponse.getTargetEntities()) == 0) {
             
             this.report.append("<font color='gray'><b>Note:</b></font> entity is not in target\n");
           } else {
-            ProvisioningEntity targetEntity = targetDaoRetrieveEntitiesRequest.getTargetEntities().get(0);
+            ProvisioningEntity targetEntity = targetDaoRetrieveEntitiesResponse.getTargetEntities().get(0);
             this.provisioningEntityWrapper.setTargetProvisioningEntity(targetEntity);
             this.report.append("<font color='gray'><b>Note:</b></font> Target entity (unprocessed): ")
               .append(GrouperUtil.xmlEscape(targetEntity.toString())).append(this.getCurrentDuration()).append("\n");
