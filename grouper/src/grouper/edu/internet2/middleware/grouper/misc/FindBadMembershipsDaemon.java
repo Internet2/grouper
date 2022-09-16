@@ -126,7 +126,7 @@ public class FindBadMembershipsDaemon implements Job {
       
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
       storeLogInDb(hib3GrouploaderLog, true, startTime);
-    } catch (Exception e) {
+    } catch (Throwable e) {
       LOG.error("Error running job", e);
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
       hib3GrouploaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
