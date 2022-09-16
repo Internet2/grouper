@@ -647,12 +647,13 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
     
     if (licenseDetails != null) {
 
+      result.put("userFound", GrouperUtil.booleanValue(licenseDetails.get("userFound"), false));
       result.put("servicePlans", licenseDetails.get("servicePlans"));
       result.put("servicePlansString", licenseDetails.get("servicePlansString"));
       
       String summary = (String)result.get("summary");
       
-      summary += ", servicePlans: " + licenseDetails.get("servicePlansString");
+      summary += "userFound: " + licenseDetails.get("userFound") + ", servicePlans: " + licenseDetails.get("servicePlansString");
       
       result.put("summary", summary.toString());
 

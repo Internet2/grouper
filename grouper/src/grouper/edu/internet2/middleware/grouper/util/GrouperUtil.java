@@ -3086,6 +3086,16 @@ public class GrouperUtil {
   }
 
   /**
+   * 
+   * @param collection
+   * @param object
+   * @return true if the collection contains this object
+   */
+  public static boolean collectionContains(Collection<Object> collection, Object object) {
+    return collection != null && object != null && collection.contains(object);
+  }
+
+  /**
    * convert a set to a string (comma separate)
    * @param collection
    * @return the String

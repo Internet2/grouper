@@ -618,6 +618,11 @@
       <artifactId>groovy-groovysh</artifactId>
       <version>${groovyall.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-jsr223</artifactId>
+      <version>${groovyall.version}</version>
+    </dependency>
 <!--     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-ant</artifactId>
@@ -661,11 +666,6 @@
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-json</artifactId>
-      <version>${groovyall.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.codehaus.groovy</groupId>
-      <artifactId>groovy-jsr223</artifactId>
       <version>${groovyall.version}</version>
     </dependency>
     <dependency>

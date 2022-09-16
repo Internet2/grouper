@@ -86,7 +86,8 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
 
     if (LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName()) 
         && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity 
-        && StringUtils.isNotBlank(translateFromGrouperProvisioningGroupField)) {
+        && StringUtils.isNotBlank(translateFromGrouperProvisioningGroupField)
+        && !StringUtils.isBlank(entityRdnAttributeName)) {
     
       GrouperProvisioningConfigurationAttribute rdnConfigurationAttribute = ldapSyncConfiguration.getTargetEntityAttributeNameToConfig().get(entityRdnAttributeName);
       
@@ -102,7 +103,8 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
     
     if (LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName()) 
           && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group 
-          && StringUtils.isNotBlank(translateFromGrouperProvisioningGroupField)) {
+          && StringUtils.isNotBlank(translateFromGrouperProvisioningGroupField)
+          && !StringUtils.isBlank(groupRdnAttributeName)) {
       
       GrouperProvisioningConfigurationAttribute rdnConfigurationAttribute = ldapSyncConfiguration.getTargetGroupAttributeNameToConfig().get(groupRdnAttributeName);
       
@@ -125,6 +127,7 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
         && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
           == GrouperProvisioningConfigurationAttributeType.group
         && StringUtils.isBlank(expressionToUse)
+        && !StringUtils.isBlank(groupRdnAttributeName)
         && StringUtils.isBlank(GrouperUtil.stringValue(attributeValue))
         && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
       
@@ -161,6 +164,7 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
         && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
           == GrouperProvisioningConfigurationAttributeType.entity
         && StringUtils.isBlank(expressionToUse)
+        && !StringUtils.isBlank(entityRdnAttributeName)
         && StringUtils.isBlank(GrouperUtil.stringValue(attributeValue))
         && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
       
