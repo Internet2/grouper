@@ -2243,12 +2243,6 @@ ALTER TABLE grouper_sync_log
 ALTER TABLE grouper_last_login
     ADD CONSTRAINT fk_grouper_last_login_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
 
-ALTER TABLE grouper_stem_view_privilege
-    ADD CONSTRAINT fk_grouper_st_v_pr_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
-
-ALTER TABLE grouper_stem_view_privilege
-    ADD CONSTRAINT fk_grouper_st_v_pr_st FOREIGN KEY (stem_uuid) REFERENCES grouper_stems (id) on delete cascade;
-
 CREATE INDEX group_alternate_name_idx ON grouper_groups (alternate_name(255));
 
 CREATE INDEX member_name_idx ON grouper_members (name(255));

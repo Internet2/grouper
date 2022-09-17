@@ -190,10 +190,10 @@ public class GrouperDdl2_6_5 {
       return;
     }
 
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_STEM_VIEW_PRIVILEGE,
-      "fk_grouper_st_v_pr_mem", Member.TABLE_GROUPER_MEMBERS, COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_MEMBER_UUID, Member.COLUMN_ID);
-    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_STEM_VIEW_PRIVILEGE,
-      "fk_grouper_st_v_pr_st", Stem.TABLE_GROUPER_STEMS, COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_STEM_UUID, Stem.COLUMN_ID);
+//    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_STEM_VIEW_PRIVILEGE,
+//      "fk_grouper_st_v_pr_mem", Member.TABLE_GROUPER_MEMBERS, COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_MEMBER_UUID, Member.COLUMN_ID);
+//    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_STEM_VIEW_PRIVILEGE,
+//      "fk_grouper_st_v_pr_st", Stem.TABLE_GROUPER_STEMS, COLUMN_GROUPER_STEM_VIEW_PRIVILEGE_STEM_UUID, Stem.COLUMN_ID);
   }
 
   static void addGrouperStemViewPrivilegeIndex(Database database, DdlVersionBean ddlVersionBean) {

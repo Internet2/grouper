@@ -43,5 +43,8 @@ CREATE UNIQUE INDEX member_id_index_idx ON grouper_members (id_index);
 
 COMMENT ON COLUMN grouper_members.id_index IS 'Sequential id index integer that can we used outside of Grouper';
 
+ALTER TABLE grouper_stem_view_privilege DROP CONSTRAINT fk_grouper_st_v_pr_mem;
+ALTER TABLE grouper_stem_view_privilege DROP CONSTRAINT fk_grouper_st_v_pr_st;
+
 update grouper_ddl set last_updated = to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substring((to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V43, ' || history) from 1 for 3500), db_version = 43 where object_name = 'Grouper';
 commit;
