@@ -443,7 +443,7 @@ public abstract class OtherJobBase implements Job {
           }
           storeLogInDb(hib3GrouperLoaderLog, true, startTime);
           
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
           LOG.error("Error occurred while running job: " + jobName, e);
           hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
           if (e instanceof OtherJobException) {
@@ -456,7 +456,11 @@ public abstract class OtherJobBase implements Job {
           hib3GrouperLoaderLog.appendJobMessage(ExceptionUtils.getFullStackTrace(e));
           
           storeLogInDb(hib3GrouperLoaderLog, false, startTime);
-          throw e;
+          if (e instanceof RuntimeException) {
+            throw (RuntimeException)e;
+          }
+          throw new RuntimeException(e);
+
         } finally {
           if (assignedContext) {
             GrouperContext.deleteDefaultContext();

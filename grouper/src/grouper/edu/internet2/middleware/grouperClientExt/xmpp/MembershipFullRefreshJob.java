@@ -24,6 +24,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -58,9 +59,12 @@ public class MembershipFullRefreshJob implements Job, StatefulJob {
       for (String groupName : grouperClientXmppJob.getGroupNames()) {
         GrouperClientXmppMain.fullRefreshGroup(grouperClientXmppJob, groupName);
       }
-    } catch (RuntimeException re) {
+    } catch (Throwable re) {
       log.error("Error in job: " + jobName, re);
-      throw re;
+      if (re instanceof RuntimeException) {
+        throw (RuntimeException)re;
+      }
+      throw new RuntimeException(re);
     }
 
   }

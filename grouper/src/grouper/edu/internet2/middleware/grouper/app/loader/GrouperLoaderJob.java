@@ -344,7 +344,7 @@ public class GrouperLoaderJob implements Job {
         //all other jobs go through here
         runJob(hib3GrouploaderLog, group, grouperSession);
       }
-    } catch (Exception e) {
+    } catch (Throwable e) {
       LOG.error("Error running up job", e);
       if (!(e instanceof JobExecutionException)) {
         e = new JobExecutionException(e);
