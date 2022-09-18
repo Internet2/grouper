@@ -57,7 +57,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullOnlyDnOverrideFlat"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalOnlyDnOverrideFlat"));    
   }
   
   @Override
@@ -2516,6 +2516,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
           .addExtraConfig("groupSearchAllFilter", null)
+          .addExtraConfig("insertGroups", null)
           .addExtraConfig("onlyLdapGroupDnOverride", "true")
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
           .assignDnOverrideConfig(true)
