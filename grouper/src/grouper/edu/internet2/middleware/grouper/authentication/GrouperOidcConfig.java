@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.authentication;
 
+import java.net.URI;
+
 import org.apache.commons.logging.Log;
 
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
@@ -47,28 +49,9 @@ public class GrouperOidcConfig {
     this.responseType = responseType;
   }
 
-  private String tokenEndpointUri = null;
+  private URI tokenEndpointUri = null;
 
-  public String getTokenEndpointUri() {
-    return tokenEndpointUri;
-  }
-  
-  public void setTokenEndpointUri(String tokenEndpointUri) {
-    this.tokenEndpointUri = tokenEndpointUri;
-  }
-
-  private String userInfoUri;
-
-
-  
-  public String getUserInfoUri() {
-    return userInfoUri;
-  }
-
-  
-  public void setUserInfoUri(String userInfoUri) {
-    this.userInfoUri = userInfoUri;
-  }
+  private URI userInfoUri;
 
   private String clientConfigId;
   
@@ -206,12 +189,48 @@ public class GrouperOidcConfig {
     this.scope = scope;
   }
 
-  private OIDCProviderMetadata oidcProviderMetadata;
-
-  public OIDCProviderMetadata getOidcProviderMetadata() {
-    return oidcProviderMetadata;
+  private URI authorizationEndpointUri;
+  
+  public URI getTokenEndpointUri() {
+    return tokenEndpointUri;
   }
 
+
+  
+  public void setTokenEndpointUri(URI tokenEndpointUri) {
+    this.tokenEndpointUri = tokenEndpointUri;
+  }
+
+
+  
+  public URI getUserInfoUri() {
+    return userInfoUri;
+  }
+
+
+  
+  public void setUserInfoUri(URI userInfoUri) {
+    this.userInfoUri = userInfoUri;
+  }
+
+
+  
+  public URI getAuthorizationEndpointUri() {
+    return authorizationEndpointUri;
+  }
+
+
+  
+  public void setAuthorizationEndpointUri(URI authorizationEndpointUri) {
+    this.authorizationEndpointUri = authorizationEndpointUri;
+  }
+
+  private OIDCProviderMetadata oidcProviderMetadata;
+
+
+//  public OIDCProviderMetadata getOidcProviderMetadata() {
+//    return oidcProviderMetadata;
+//  }
 
   private void retrieveMetadata() {
     try {
@@ -250,18 +269,20 @@ public class GrouperOidcConfig {
       grouperOidcConfig.configurationMetadataUri = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".configurationMetadataUri");
       grouperOidcConfig.retrieveMetadata();
       
-      grouperOidcConfig.userInfoUri = grouperOidcConfig.oidcProviderMetadata.getUserInfoEndpointURI().toString();
-      grouperOidcConfig.tokenEndpointUri = grouperOidcConfig.oidcProviderMetadata.getTokenEndpointURI().toString();
+      grouperOidcConfig.userInfoUri = grouperOidcConfig.oidcProviderMetadata.getUserInfoEndpointURI();
+      grouperOidcConfig.tokenEndpointUri = grouperOidcConfig.oidcProviderMetadata.getTokenEndpointURI();
+      grouperOidcConfig.authorizationEndpointUri = grouperOidcConfig.oidcProviderMetadata.getAuthorizationEndpointURI();
     } else {
-      
       //   
       //  # url to get the user info from the access token https://idp.pennkey.upenn.edu/idp/profile/oidc/userinfo
       //  # grouper.oidcExternalSystem.myOidcConfigId.userInfoUri =
-      grouperOidcConfig.userInfoUri = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".userInfoUri");
+      grouperOidcConfig.userInfoUri = URI.create(GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".userInfoUri"));
       
       //  # url to decode the oidc code into an access token: https://idp.institution.edu/idp/profile/oidc/token
       //  # grouper.oidcExternalSystem.myOidcConfigId.tokenEndpointUri =
-      grouperOidcConfig.tokenEndpointUri = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".tokenEndpointUri");
+      grouperOidcConfig.tokenEndpointUri = URI.create(GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".tokenEndpointUri"));
+
+      grouperOidcConfig.authorizationEndpointUri = URI.create(GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".authorizeUri"));
     }
 
     //    

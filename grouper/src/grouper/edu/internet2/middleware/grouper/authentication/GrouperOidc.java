@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
@@ -177,7 +178,7 @@ public class GrouperOidc {
   public void decodeAccessToken() {
     
     UserInfoRequest userInfoReq = new UserInfoRequest(
-        this.grouperOidcConfig.getOidcProviderMetadata().getUserInfoEndpointURI(),
+        this.grouperOidcConfig.getUserInfoUri(),
         (BearerAccessToken) this.accessTokenObject);
 
     HTTPResponse userInfoHTTPResp = null;
@@ -185,7 +186,7 @@ public class GrouperOidc {
       HTTPRequest httpRequest = userInfoReq.toHTTPRequest();
       
       GrouperProxyBean grouperProxyBean = GrouperProxyBean.proxyConfig(this.grouperOidcConfig.getProxyType(), 
-          this.grouperOidcConfig.getProxyUrl(), this.grouperOidcConfig.getTokenEndpointUri());
+          this.grouperOidcConfig.getProxyUrl(), this.grouperOidcConfig.getTokenEndpointUri().toString());
 
       if (grouperProxyBean != null) {
         Proxy proxy = grouperProxyBean.retrieveProxy();
@@ -239,7 +240,7 @@ public class GrouperOidc {
     }
     
     GrouperUtil.assertion(!StringUtils.isBlank(redirectUriLocal), "redirectUri is required");
-    GrouperUtil.assertion(!StringUtils.isBlank(this.grouperOidcConfig.getTokenEndpointUri()), "tokenEndpoint is required");
+    GrouperUtil.assertion(this.grouperOidcConfig.getTokenEndpointUri() != null, "tokenEndpoint is required");
 
     try {
       // Construct the code grant from the code obtained from the authz endpoint
@@ -254,13 +255,13 @@ public class GrouperOidc {
       ClientAuthentication clientAuth = new ClientSecretBasic(clientIdObject, clientSecretObject);
   
       // The token endpoint
-      URI tokenEndpointUri = new URI(this.grouperOidcConfig.getTokenEndpointUri());
+      URI tokenEndpointUri = this.grouperOidcConfig.getTokenEndpointUri();
   
       // Make the token request
       TokenRequest request = new TokenRequest(tokenEndpointUri, clientAuth, codeGrant);
       
       GrouperProxyBean grouperProxyBean = GrouperProxyBean.proxyConfig(this.grouperOidcConfig.getProxyType(), 
-          this.grouperOidcConfig.getProxyUrl(), this.grouperOidcConfig.getTokenEndpointUri());
+          this.grouperOidcConfig.getProxyUrl(), tokenEndpointUri.toString());
 
       HTTPRequest httpRequest = request.toHTTPRequest();
       if (grouperProxyBean != null) {
@@ -421,7 +422,7 @@ public class GrouperOidc {
       
       // Compose the request
       AuthenticationRequest authenticationRequest = new AuthenticationRequest(
-      grouperOidcConfig.getOidcProviderMetadata().getAuthorizationEndpointURI(),
+      grouperOidcConfig.getAuthorizationEndpointUri(),
       new ResponseType(grouperOidcConfig.getResponseType()),
       scope, new ClientID(grouperOidcConfig.getClientId()), new URI(grouperOidcConfig.getRedirectUri()), state, nonce);
 
