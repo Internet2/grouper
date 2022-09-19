@@ -946,6 +946,30 @@ function ajax(theUrl, options) {
         
       $.unblockUI();
       
+      // for an ajax request, server sent back 401
+      // it's probably because session has timed out
+      // let's refresh the page so that user can log back in
+      if (jqXHR.status == 401) {
+        
+        if (location.href.indexOf('grouperRedirectAuthn') != -1) {
+          
+          if (location.href.indexOf('ajaxError') == -1) {
+            location.href = "../../grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=ajaxError&grouperRedirectAuthn=true";
+          }
+          // it looks like it's not the first time redirect. let's not redirect anymore
+        } else {
+          var newLocation = location.href;
+          if (newLocation.indexOf('?') == -1) {
+            newLocation += '?grouperRedirectAuthn=true';
+          } else {
+            newLocation += '&grouperRedirectAuthn=true';
+          }
+          
+          location.href = newLocation;
+        }
+        return;
+      }
+      
       //what happens is there is an XSRF problem, and ajax will auto-redirect
       //the result of that redirect, to: https://server/grouperAppName/grouperExternal/public/UiV2Public.index?operation=UiV2Public.postIndex&function=UiV2Public.error&code=csrf&OWASP_CSRFTOKEN=abc123
       //that redirect will have an HTTP header of X-Grouper-path, and we should redirect the browser to it

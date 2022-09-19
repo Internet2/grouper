@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.util;
 
+import java.net.Proxy;
+import java.net.Proxy.Type;
+
 public enum GrouperProxyType {
 
   PROXY_HTTP {
@@ -7,6 +10,11 @@ public enum GrouperProxyType {
     @Override
     public String getScheme() {
       return "http";
+    }
+
+    @Override
+    public Type getProxyType() {
+      return Proxy.Type.HTTP;
     }
     
   }, 
@@ -18,6 +26,11 @@ public enum GrouperProxyType {
       return "socks";
     }
     
+    @Override
+    public Type getProxyType() {
+      return Proxy.Type.SOCKS;
+    }
+    
   }, 
   
   PROXY_STREAM {
@@ -25,6 +38,11 @@ public enum GrouperProxyType {
     @Override
     public String getScheme() {
       return "stream";
+    }
+    
+    @Override
+    public Type getProxyType() {
+      return Proxy.Type.DIRECT;
     }
     
   };
@@ -48,5 +66,7 @@ public enum GrouperProxyType {
    * @return the scheme
    */
   public abstract String getScheme();
+  
+  public abstract Proxy.Type getProxyType();
   
 }

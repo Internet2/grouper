@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -113,6 +114,7 @@ import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperThreadLocalState;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -125,6 +127,8 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 
 public class GrouperUiFilter implements Filter {
+  
+  private static ExpirableCache<Boolean, String> oidcConfigIdCache = new ExpirableCache<Boolean, String>(5);
 
   static {
     GrouperStatusServlet.registerStartup();
@@ -327,12 +331,6 @@ public class GrouperUiFilter implements Filter {
     
     return subject;
   }
-
-  
-  private void redirectToOidcProvider() {
-    
-  }
-  
   
   /**
    * retrieve the subject logged in
@@ -344,6 +342,7 @@ public class GrouperUiFilter implements Filter {
     //currently assumes user is in getUserPrincipal
     HttpServletRequest request = retrieveHttpServletRequest();
 
+    
     //this cant change!
     String previousRemoteUser = (String)request.getSession().getAttribute("authUser");
     
@@ -674,84 +673,136 @@ public class GrouperUiFilter implements Filter {
         }
       }
       
-      boolean runGrouperUiWithOidcAuth = GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouper.ui.authentication.useOidc", false);
-      
-      if (runGrouperUiWithOidcAuth && StringUtils.isBlank(remoteUser)) {
+      if (StringUtils.isBlank(remoteUser)) {
         
-        String grouperUiUrl = GrouperConfig.getGrouperUiUrl(false);
-        String requestUrl = httpServletRequest.getRequestURL().toString();
+        String externalSystemConfigIdForUi = oidcConfigIdCache.get(Boolean.TRUE);
         
-        String oidcClientConfigId = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("grouper.ui.authentication.oidcClientConfigId");
-        
-        GrouperOidc grouperOidc = new GrouperOidc();
-        grouperOidc.assignClientConfigId(oidcClientConfigId);
-        grouperOidc.retrieveMetadata();
-        
-        String responseType = grouperOidc.retrieveResponseType();
-        
-        String authorizationCodeReturnedFromOidc = httpServletRequest.getParameter(responseType);
-        
-        if (StringUtils.isBlank(authorizationCodeReturnedFromOidc)) {
-          // it means we need to redirect to OIDC
-          String loginUrl = grouperOidc.generateLoginUrl();
-          
-          // before redirecting, set session attributes 
-          
-          if (StringUtils.equals(httpServletRequest.getMethod(), "GET")) {
-            String requestUri = GrouperUtil.defaultString(httpServletRequest.getRequestURI());
-            String queryString = GrouperUtil.defaultString(httpServletRequest.getQueryString());
-            if (StringUtils.isBlank(queryString)) {
-              httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri);
-            } else {
-              httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri + "?"+ queryString);
+        if(externalSystemConfigIdForUi == null) {
+          synchronized (oidcConfigIdCache) {
+            externalSystemConfigIdForUi = oidcConfigIdCache.get(Boolean.TRUE);
+            if (externalSystemConfigIdForUi == null) {
+              Pattern pattern = Pattern.compile("^grouper\\.oidcExternalSystem\\.(.*)\\.clientId$");
+              Set<String> configIds = GrouperConfig.retrieveConfig().propertyConfigIds(pattern);
+              
+              for (String configId: GrouperUtil.nonNull(configIds)) {
+                if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem."+configId+".useForUi", false) && 
+                    GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem."+configId+".enabled", true)) {
+                  GrouperUtil.assertion(StringUtils.isBlank(externalSystemConfigIdForUi), "Multiple OIDC external systems cannot be enabled for UI at the same time: "+externalSystemConfigIdForUi +" ,"+configId);
+                  externalSystemConfigIdForUi = configId;
+                }
+              }
+              oidcConfigIdCache.put(Boolean.TRUE, GrouperUtil.defaultString(externalSystemConfigIdForUi));
             }
-          } else {
-            httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", grouperUiUrl);
-          }
-         
-          try {
-            retrieveHttpServletResponse().sendRedirect(loginUrl);
-            throw new ControllerDone();
-          } catch (IOException e) {
-            throw new RuntimeException("could not redirect to oidc url "+loginUrl);
+            
           }
           
         }
         
-        // it means OIDC redirected back to grouper after successful auth
-        
-        
-        // let's validate the url first
-        String shouldBeUrl = GrouperUtil.stripLastSlashIfExists(grouperUiUrl) + "/grouperUi/app/UiV2Main.oidc";
-        
-        if (!StringUtils.equals(requestUrl, shouldBeUrl)) {
-          throw new RuntimeException("requestUrl "+requestUrl + " is not valid.");
-        }
-        
-        grouperOidc.assignAuthorizationCode(authorizationCodeReturnedFromOidc);
-        
-        grouperOidc.retrieveAccessToken();
-        
-        grouperOidc.decodeAccessToken();
-        remoteUser = grouperOidc.findSubjectClaim();
-        
-        remoteUser = StringUtils.trim(remoteUser);
-        
-        httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
-        httpServletRequest.getSession().setAttribute("authUser", remoteUser);
-        
-        String grouperUrl = (String)httpServletRequest.getSession().getAttribute("oidcRedirectToGrouper");
-        httpServletRequest.getSession().removeAttribute("oidcRedirectToGrouper");
-        try {
-          if (StringUtils.isBlank(grouperUrl)) {
-            grouperUrl = GrouperConfig.getGrouperUiUrl(false);
+        if (StringUtils.isNotBlank(externalSystemConfigIdForUi)) {
+          
+          String grouperUiUrl = GrouperConfig.getGrouperUiUrl(false);
+          String requestUrl = httpServletRequest.getRequestURL().toString();
+          
+          GrouperOidc grouperOidc = new GrouperOidc();
+          grouperOidc.assignExternalSystemConfigId(externalSystemConfigIdForUi);
+          
+          String responseType = grouperOidc.retrieveResponseType();
+          
+          String authorizationCodeReturnedFromOidc = httpServletRequest.getParameter(responseType);
+          
+          if (StringUtils.isBlank(authorizationCodeReturnedFromOidc)) {
+            // it means we need to redirect to OIDC
+            String loginUrl = grouperOidc.generateLoginUrl();
+            
+            // before redirecting, set session attributes 
+            
+            if (StringUtils.equals(httpServletRequest.getMethod(), "GET")) {
+              String requestUri = GrouperUtil.defaultString(httpServletRequest.getRequestURI());
+              String queryString = GrouperUtil.defaultString(httpServletRequest.getQueryString());
+              if (StringUtils.isBlank(queryString)) {
+                httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri);
+              } else {
+                httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri + "?"+ queryString);
+              }
+            } else {
+              httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", grouperUiUrl);
+            }
+           
+            try {
+              retrieveHttpServletResponse().sendRedirect(loginUrl);
+              throw new ControllerDone();
+            } catch (IOException e) {
+              throw new RuntimeException("could not redirect to oidc url "+loginUrl);
+            }
+            
           }
-          retrieveHttpServletResponse().sendRedirect(grouperUrl);
+          
+          // it means OIDC redirected back to grouper after successful auth
+          
+          
+          // let's validate the url first
+          String shouldBeUrl = GrouperUtil.stripLastSlashIfExists(grouperUiUrl) + "/grouperUi/app/UiV2Main.oidc";
+          
+          if (!StringUtils.equals(requestUrl, shouldBeUrl)) {
+            throw new RuntimeException("requestUrl "+requestUrl + " is not valid.");
+          }
+          
+          grouperOidc.assignAuthorizationCode(authorizationCodeReturnedFromOidc);
+          
+          grouperOidc.retrieveAccessToken();
+          
+          grouperOidc.decodeAccessToken();
+          remoteUser = grouperOidc.findSubjectClaim();
+          
+          remoteUser = StringUtils.trim(remoteUser);
+          
+          httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
+          httpServletRequest.getSession().setAttribute("authUser", remoteUser);
+          
+          String grouperUrl = (String)httpServletRequest.getSession().getAttribute("oidcRedirectToGrouper");
+          httpServletRequest.getSession().removeAttribute("oidcRedirectToGrouper");
+          try {
+            if (StringUtils.isBlank(grouperUrl)) {
+              grouperUrl = GrouperConfig.getGrouperUiUrl(false);
+            }
+            retrieveHttpServletResponse().sendRedirect(grouperUrl);
+          } catch (IOException e) {
+            throw new RuntimeException("could not redirect to grouper url "+grouperUrl);
+          }
           throw new ControllerDone();
-        } catch (IOException e) {
-          throw new RuntimeException("could not redirect to grouper url "+grouperUrl);
+          
+        }
         }
         
+        //only for testing
+//      String redirectAuthn = retrieveHttpServletRequest().getParameter("grouperRedirectAuthn");
+//      
+//      if (!StringUtils.equals(redirectAuthn, "true")) {
+//        
+//        if (retrieveHttpServletRequest().getRequestURL().toString().equalsIgnoreCase("http://localhost:8080/grouper/grouperUi/app/UiV2Stem.stemPrivileges")) {
+//          retrieveHttpServletRequest().getSession().removeAttribute("authUser");
+//          retrieveHttpServletRequest().getSession().removeAttribute("grouperLoginId");
+//          retrieveHttpServletRequest().getSession().removeAttribute("REMOTE_USER");
+//          remoteUser = null;
+//        }
+//        
+//      }
+      
+      // if session is not there and it's an ajax request
+      // send 401 back to javascript client so that it can refresh the page
+      // which will ask the user to log back in
+      if (StringUtils.isBlank(remoteUser)) {
+//        String xRequestedWith = httpServletRequest.getHeader("x-requested-with");
+        boolean isAjaxRequest = RequestContainer.retrieveFromRequest().isAjaxRequest();
+        
+        if (isAjaxRequest) {
+          try {
+            retrieveHttpServletResponse().sendError(401, "Unauthorized");
+          } catch (Exception e) {
+            throw new RuntimeException("could not send 401 Unauthorized to client ");
+          }
+          throw new ControllerDone();
+        }
       }
       
       remoteUser = StringUtils.trim(remoteUser);

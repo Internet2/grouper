@@ -97,7 +97,7 @@ public class GrouperServiceJ2ee implements Filter {
 
   /** logger */
   private static final Log LOG = LogFactory.getLog(GrouperServiceJ2ee.class);
-
+  
   /**
    * if in request, get the start time
    * @return the start time
@@ -970,7 +970,10 @@ public class GrouperServiceJ2ee implements Filter {
           return;
         }
       } else if (StringUtils.isNotBlank(authHeader) && (authHeader.startsWith("Bearer oidc_") || authHeader.startsWith("Bearer oidcWithRedirectUri_"))) {
-        Subject subject = new GrouperOidc().assignBearerTokenHeader(authHeader).decode();
+        
+        Subject subject = new GrouperOidc().assignBearerTokenHeader(authHeader)
+            .assignWs(true)
+            .decode();
         if (subject != null) {
           ((HttpServletRequest) request).setAttribute("REMOTE_USER", subject.getSourceId()+"::::"+subject.getId());
         } else {
