@@ -1,0 +1,20 @@
+[
+  {
+    "id": "SIMPLE_OIDC_USER_ALICE",
+    "email": "alice@example.org",
+    "email_verified": true,
+    "name": "Alice Smith",
+    "nickname": "al",
+    "password": "abc",
+    "groups": ["Everyone", "Engineering"]
+  },
+  {
+    "id": "test.subject.0",
+    "email": "test.subject.0@somewhere.someSchool.edu",
+    "email_verified": true,
+    "name": "Bob Smith",
+    "nickname": "bobby",
+    "password": "pass",
+    "groups": ["Everyone", "Sales"]
+  }
+]
