@@ -10,6 +10,21 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorC
  * @author mchyzer
  */
 public abstract class ProvisioningUpdatableWrapper {
+  
+  /**
+   * after an action happens, process result only once. Do not process twice during inserts and then during sending changes to target.
+   */
+  private boolean resultProcessed;
+  
+  
+  public boolean isResultProcessed() {
+    return resultProcessed;
+  }
+  
+  public void setResultProcessed(boolean resultProcessed) {
+    this.resultProcessed = resultProcessed;
+  }
+
 
   /**
    * if incremental and recalc, this applies to the entity / group / membership, but not the groupMemberships (for that provisioning) or entityMemberships (for that provisioning)

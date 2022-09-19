@@ -621,6 +621,13 @@ public class GrouperProvisioningGrouperSyncDao {
     
     for (ProvisioningGroup grouperTargetGroup : GrouperUtil.nonNull(grouperTargetGroupsToInsert)) {
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup.getProvisioningGroupWrapper();
+      
+      if (provisioningGroupWrapper.isResultProcessed()) {
+        continue;
+      }
+      
+      provisioningGroupWrapper.setResultProcessed(true);
+      
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
 
@@ -832,6 +839,13 @@ public class GrouperProvisioningGrouperSyncDao {
         .nonNull(grouperTargetGroupsToInsert)) {
       ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntity
           .getProvisioningEntityWrapper();
+      
+      if (provisioningEntityWrapper.isResultProcessed()) {
+        continue;
+      }
+      
+      provisioningEntityWrapper.setResultProcessed(true);
+      
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper
           .getGcGrouperSyncMember();
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
@@ -883,6 +897,13 @@ public class GrouperProvisioningGrouperSyncDao {
         .nonNull(grouperTargetMembershipsToInsert)) {
       ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperTargetMembership
           .getProvisioningMembershipWrapper();
+      
+      if (provisioningMembershipWrapper.isResultProcessed()) {
+        continue;
+      }
+      
+      provisioningMembershipWrapper.setResultProcessed(true);
+      
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper
           .getGcGrouperSyncMembership();
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
@@ -925,6 +946,13 @@ public class GrouperProvisioningGrouperSyncDao {
         .nonNull(grouperTargetGroupsToInsert)) {
       ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntity
           .getProvisioningEntityWrapper();
+      
+      if (provisioningEntityWrapper.isResultProcessed()) {
+        continue;
+      }
+      
+      provisioningEntityWrapper.setResultProcessed(true);
+      
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper
           .getGcGrouperSyncMember();
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
@@ -972,6 +1000,13 @@ public class GrouperProvisioningGrouperSyncDao {
         .nonNull(grouperTargetGroupsToInsert)) {
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup
           .getProvisioningGroupWrapper();
+      
+      if (provisioningGroupWrapper.isResultProcessed()) {
+        continue;
+      }
+      
+      provisioningGroupWrapper.setResultProcessed(true);
+      
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper
           .getGcGrouperSyncGroup();
 
@@ -1097,6 +1132,13 @@ public class GrouperProvisioningGrouperSyncDao {
         .nonNull(grouperTargetMembershipsToInsert)) {
       ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperTargetMembership
           .getProvisioningMembershipWrapper();
+      
+      if (provisioningMembershipWrapper.isResultProcessed()) {
+        continue;
+      }
+      
+      provisioningMembershipWrapper.setResultProcessed(true);
+      
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper
           .getGcGrouperSyncMembership();
       Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
@@ -1130,6 +1172,13 @@ public class GrouperProvisioningGrouperSyncDao {
         .nonNull(grouperTargetGroupsToInsert)) {
       ProvisioningEntityWrapper provisioningEntityWrapper = grouperTargetEntity
           .getProvisioningEntityWrapper();
+      
+      if (provisioningEntityWrapper.isResultProcessed()) {
+        continue;
+      }
+      
+      provisioningEntityWrapper.setResultProcessed(true);
+      
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper
           .getGcGrouperSyncMember();
 
@@ -1202,6 +1251,13 @@ public class GrouperProvisioningGrouperSyncDao {
         .nonNull(grouperTargetGroupsToInsert)) {
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup
           .getProvisioningGroupWrapper();
+      
+      if (provisioningGroupWrapper.isResultProcessed()) {
+        continue;
+      }
+      
+      provisioningGroupWrapper.setResultProcessed(true);
+      
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper
           .getGcGrouperSyncGroup();
       if (gcGrouperSyncGroup == null) {
@@ -1279,6 +1335,13 @@ public class GrouperProvisioningGrouperSyncDao {
         .nonNull(grouperTargetMembershipsToDelete)) {
       ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperTargetMembership
           .getProvisioningMembershipWrapper();
+      
+      if (provisioningMembershipWrapper.isResultProcessed()) {
+        continue;
+      }
+      
+      provisioningMembershipWrapper.setResultProcessed(true);
+      
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper
           .getGcGrouperSyncMembership();
 
