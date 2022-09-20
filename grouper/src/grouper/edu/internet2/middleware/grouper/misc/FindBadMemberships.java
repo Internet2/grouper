@@ -50,6 +50,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
@@ -413,21 +414,60 @@ public class FindBadMemberships {
     // batch these up
     int batchSize = GrouperConfig.retrieveConfig().propertyValueInt("findBadMemberships.batchSize", 500);
     // get list of composites
-    List<String> compositeIds = new GcDbAccess().sql("select id from grouper_composites").selectList(String.class);
+    List<Object[]> compositeIdAndTypes = new GcDbAccess().sql("select id, type from grouper_composites").selectList(Object[].class);
     
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(compositeIds, batchSize, false);
-
-    for (int i=0;i<numberOfBatches;i++) {
+    List<String> compositeIds = new ArrayList<String>();
+    List<String> unionCompositeIds = new ArrayList<String>();
+    List<String> complementCompositeIds = new ArrayList<String>();
+    List<String> intersectionCompositeIds = new ArrayList<String>();
+    
+    for (Object[] compositeIdAndType : GrouperUtil.nonNull(compositeIdAndTypes)) {
+      String compositeId = (String) compositeIdAndType[0];
+      String type = (String) compositeIdAndType[1];
       
-      List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(compositeIds, batchSize, i);
+      compositeIds.add(compositeId);
+      if (StringUtils.equals("union", type)) {
+        
+        unionCompositeIds.add(compositeId);
 
-      potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingUnionMemberships(currentBatchOfCompositeIds));
-      potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingComplementMemberships(currentBatchOfCompositeIds));
-      potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingIntersectionMemberships(currentBatchOfCompositeIds));
+      } else if (StringUtils.equals("intersection", type)) {
 
-      
+        intersectionCompositeIds.add(compositeId);
+
+      } else if (StringUtils.equals("complement", type)) {
+
+        complementCompositeIds.add(compositeId);
+
+      } else {
+        throw new RuntimeException("Invalid type: '" + type + "', expecting: union, intersection, or complement");
+      }
     }
     
+    {
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(unionCompositeIds, batchSize, false);
+      for (int i=0;i<numberOfBatches;i++) {
+        List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(unionCompositeIds, batchSize, i);
+        potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingUnionMemberships(currentBatchOfCompositeIds));
+      }
+    }
+    
+    {
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(intersectionCompositeIds, batchSize, false);
+      for (int i=0;i<numberOfBatches;i++) {
+        List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(intersectionCompositeIds, batchSize, i);
+        potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingIntersectionMemberships(currentBatchOfCompositeIds));
+      }
+    }
+    
+    {
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(complementCompositeIds, batchSize, false);
+      for (int i=0;i<numberOfBatches;i++) {
+        List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(complementCompositeIds, batchSize, i);
+        potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingComplementMemberships(currentBatchOfCompositeIds));
+      }
+    }
+    
+
 
     for (Membership ms : badMemberships) {
       if (printErrorsToSTOUT) {
