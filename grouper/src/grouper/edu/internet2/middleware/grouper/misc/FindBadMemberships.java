@@ -50,6 +50,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Composite;
@@ -59,6 +60,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -66,6 +68,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /** 
  * Find bad memberships in the Grouper memberships table.
@@ -399,18 +402,74 @@ public class FindBadMemberships {
    */
   public static long checkComposites() {
     
+    // batch these up
+    int batchSize = GrouperConfig.retrieveConfig().propertyValueInt("findBadMemberships.batchSize", 1);
+    // get list of composites
+    List<Object[]> compositeIdAndTypes = new GcDbAccess().sql("select id, type from grouper_composites").selectList(Object[].class);
+    
+    List<String> compositeIds = new ArrayList<String>();
+    List<String> unionCompositeIds = new ArrayList<String>();
+    List<String> complementCompositeIds = new ArrayList<String>();
+    List<String> intersectionCompositeIds = new ArrayList<String>();
+    
+    for (Object[] compositeIdAndType : GrouperUtil.nonNull(compositeIdAndTypes)) {
+      String compositeId = (String) compositeIdAndType[0];
+      String type = (String) compositeIdAndType[1];
+      
+      compositeIds.add(compositeId);
+      if (StringUtils.equals("union", type)) {
+        
+        unionCompositeIds.add(compositeId);
+
+      } else if (StringUtils.equals("intersection", type)) {
+
+        intersectionCompositeIds.add(compositeId);
+
+      } else if (StringUtils.equals("complement", type)) {
+
+        complementCompositeIds.add(compositeId);
+
+      } else {
+        throw new RuntimeException("Invalid type: '" + type + "', expecting: union, intersection, or complement");
+      }
+    }
+    
+
     Set<Membership> badMemberships = new LinkedHashSet<Membership>();
     badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadMembershipsOnCompositeGroup());
     badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadCompositeMembershipsOnNonCompositeGroup());
-    badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadComplementMemberships());
-    badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadUnionMemberships());
-    badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadIntersectionMemberships());
     
-    Set<Object[]> missingMemberships = new LinkedHashSet<Object[]>();
-    missingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingComplementMemberships());
-    missingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingUnionMemberships());
-    missingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingIntersectionMemberships());
+    Set<Object[]> potentialMissingMemberships = new LinkedHashSet<Object[]>();
+    
+    {
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(unionCompositeIds, batchSize);
+      for (int i=0;i<numberOfBatches;i++) {
+        List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(unionCompositeIds, batchSize, i);
+        badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadUnionMemberships(currentBatchOfCompositeIds));
+        potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingUnionMemberships(currentBatchOfCompositeIds));
+      }
+    }
+    
+    {
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(intersectionCompositeIds, batchSize);
+      for (int i=0;i<numberOfBatches;i++) {
+        List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(intersectionCompositeIds, batchSize, i);
+        badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadIntersectionMemberships(currentBatchOfCompositeIds));
+        potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingIntersectionMemberships(currentBatchOfCompositeIds));
+      }
+    }
+    
+    {
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(complementCompositeIds, batchSize);
+      for (int i=0;i<numberOfBatches;i++) {
+        List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(complementCompositeIds, batchSize, i);
+        badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadComplementMemberships(currentBatchOfCompositeIds));
+        potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingComplementMemberships(currentBatchOfCompositeIds));
+      }
+    }
+    
 
+    
     for (Membership ms : badMemberships) {
       if (printErrorsToSTOUT) {
         out.println("Bad composite membership: groupId=" + ms.getOwnerGroupId() + ", group name=" + ms.getOwnerGroup().getName() + ", subjectId=" + ms.getMember().getSubjectId() + ".");
@@ -419,21 +478,27 @@ public class FindBadMemberships {
       logGshScript("GrouperDAOFactory.getFactory().getMembership().findByImmediateUuid(\"" + ms.getImmediateMembershipId() + "\", true).delete();\n");
     }
     
-    for (Object[] ownerAndCompositeAndMember : missingMemberships) {
+    int missingMembershipsCount = 0;
+    
+    for (Object[] ownerAndCompositeAndMember : potentialMissingMemberships) {
       String ownerGroupId = (String)ownerAndCompositeAndMember[0];
       String compositeId = (String)ownerAndCompositeAndMember[1];
       String memberId = (String)ownerAndCompositeAndMember[2];
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId, true);
+
+      if (group.isEnabled()) {
+        missingMembershipsCount++;
       
-      if (printErrorsToSTOUT) {
-        Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId, true);
-        Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true);
-        out.println("Missing composite membership: groupId=" + group.getId() + ", group name=" + group.getName() + ", subjectId=" + member.getSubjectId() + ".");
+        if (printErrorsToSTOUT) {
+          Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true);
+          out.println("Missing composite membership: groupId=" + group.getId() + ", group name=" + group.getName() + ", subjectId=" + member.getSubjectId() + ".");
+        }
+        
+        logGshScript("GrouperDAOFactory.getFactory().getMembership().save(Composite.internal_createNewCompositeMembershipObject(\"" + ownerGroupId + "\", \"" + memberId + "\", \"" + compositeId + "\"));\n");
       }
-      
-      logGshScript("GrouperDAOFactory.getFactory().getMembership().save(Composite.internal_createNewCompositeMembershipObject(\"" + ownerGroupId + "\", \"" + memberId + "\", \"" + compositeId + "\"));\n");
     }
     
-    return badMemberships.size() + missingMemberships.size();
+    return badMemberships.size() + missingMembershipsCount;
   }
   
   /**

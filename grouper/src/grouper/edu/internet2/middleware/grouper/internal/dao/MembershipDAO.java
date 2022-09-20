@@ -1169,32 +1169,35 @@ TODO update for 1.5
   /**
    * @return set of arrays containing owner ids, composite ids, and member ids that should be added as composite memberships 
    */
-  public Set<Object[]> findMissingComplementMemberships();
+  public Set<Object[]> findMissingComplementMemberships(List<String> compositeIds);
   
   /**
    * @return set of arrays containing owner ids, composite ids, and member ids that should be added as composite memberships 
    */
-  public Set<Object[]> findMissingUnionMemberships();
+  public Set<Object[]> findMissingUnionMemberships(List<String> compositeIds);
   
   /**
    * @return set of arrays containing owner ids, composite ids, and member ids that should be added as composite memberships 
    */
-  public Set<Object[]> findMissingIntersectionMemberships();
+  public Set<Object[]> findMissingIntersectionMemberships(List<String> compositeIds);
   
   /**
+   * @param compositeIds
    * @return set of immediate memberships that are bad
    */
-  public Set<Membership> findBadComplementMemberships();
+  public Set<Membership> findBadComplementMemberships(List<String> compositeIds);
   
   /**
+   * @param compositeIds
    * @return set of immediate memberships that are bad
    */
-  public Set<Membership> findBadUnionMemberships();
+  public Set<Membership> findBadUnionMemberships(List<String> compositeIds);
   
   /**
+   * @param compositeIds
    * @return set of immediate memberships that are bad
    */
-  public Set<Membership> findBadIntersectionMemberships();
+  public Set<Membership> findBadIntersectionMemberships(List<String> compositeIds);
   
   /**
    * This will find "immediate" memberships on composite groups 
