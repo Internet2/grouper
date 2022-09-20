@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -66,6 +67,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /** 
  * Find bad memberships in the Grouper memberships table.
@@ -407,9 +409,25 @@ public class FindBadMemberships {
     badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadIntersectionMemberships());
     
     Set<Object[]> potentialMissingMemberships = new LinkedHashSet<Object[]>();
-    potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingComplementMemberships());
-    potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingUnionMemberships());
-    potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingIntersectionMemberships());
+    
+    // batch these up
+    int batchSize = GrouperConfig.retrieveConfig().propertyValueInt("findBadMemberships.cacheSize", 500);
+    // get list of composites
+    List<String> compositeIds = new GcDbAccess().sql("select id from grouper_composites").selectList(String.class);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(compositeIds, batchSize, false);
+
+    for (int i=0;i<numberOfBatches;i++) {
+      
+      List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(compositeIds, batchSize, i);
+
+      potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingUnionMemberships(currentBatchOfCompositeIds));
+      potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingComplementMemberships(currentBatchOfCompositeIds));
+      potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingIntersectionMemberships(currentBatchOfCompositeIds));
+
+      
+    }
+    
 
     for (Membership ms : badMemberships) {
       if (printErrorsToSTOUT) {

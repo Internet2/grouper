@@ -1170,17 +1170,17 @@ TODO update for 1.5
   /**
    * @return set of arrays containing owner ids, composite ids, and member ids that should be added as composite memberships 
    */
-  public Set<Object[]> findMissingComplementMemberships();
+  public Set<Object[]> findMissingComplementMemberships(List<String> compositeIds);
   
   /**
    * @return set of arrays containing owner ids, composite ids, and member ids that should be added as composite memberships 
    */
-  public Set<Object[]> findMissingUnionMemberships();
+  public Set<Object[]> findMissingUnionMemberships(List<String> compositeIds);
   
   /**
    * @return set of arrays containing owner ids, composite ids, and member ids that should be added as composite memberships 
    */
-  public Set<Object[]> findMissingIntersectionMemberships();
+  public Set<Object[]> findMissingIntersectionMemberships(List<String> compositeIds);
   
   /**
    * @return set of immediate memberships that are bad
