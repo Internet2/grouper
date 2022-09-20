@@ -411,7 +411,7 @@ public class FindBadMemberships {
     Set<Object[]> potentialMissingMemberships = new LinkedHashSet<Object[]>();
     
     // batch these up
-    int batchSize = GrouperConfig.retrieveConfig().propertyValueInt("findBadMemberships.cacheSize", 500);
+    int batchSize = GrouperConfig.retrieveConfig().propertyValueInt("findBadMemberships.batchSize", 500);
     // get list of composites
     List<String> compositeIds = new GcDbAccess().sql("select id from grouper_composites").selectList(String.class);
     
