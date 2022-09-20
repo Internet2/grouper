@@ -3742,8 +3742,12 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findBadComplementMemberships()
    */
-  public Set<Membership> findBadComplementMemberships() {
-    String sql = "select distinct ms from ImmediateMembershipEntry ms, Member m, Composite c " +
+  public Set<Membership> findBadComplementMemberships(List<String> compositeIds) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .setCacheable(false);
+
+    StringBuilder sql = new StringBuilder("select distinct ms from ImmediateMembershipEntry ms, Member m, Composite c " +
         "where c.typeDb = 'complement' " +
         "and c.factorOwnerUuid = ms.ownerGroupId " +
         "and ms.fieldId = :fieldId " +
@@ -3761,22 +3765,30 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         "     where ms3.ownerGroupId = c.leftFactorUuid " +
         "     and ms3.memberUuid = m.uuid " +
         "     and ms3.fieldId = :fieldId " +
-        "     and ms3.enabledDb = 'T')) ";
+        "     and ms3.enabledDb = 'T')) "
+        + "and c.uuid in (");
     
-    Set<Membership> results = HibernateSession.byHqlStatic()
-      .createQuery(sql)
-      .setCacheable(false)
+    byHqlStatic.setCollectionInClause(sql, compositeIds);
+    
+    sql.append(")");
+    
+    Set<Membership> results = byHqlStatic.createQuery(sql.toString())
       .setString("fieldId", Group.getDefaultList().getUuid())
       .listSet(Membership.class);
     
     return results;
+
   }
   
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findBadUnionMemberships()
    */
-  public Set<Membership> findBadUnionMemberships() {
-    String sql = "select distinct ms from ImmediateMembershipEntry ms, Member m, Composite c " +
+  public Set<Membership> findBadUnionMemberships(List<String> compositeIds) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .setCacheable(false);
+
+    StringBuilder sql = new StringBuilder("select distinct ms from ImmediateMembershipEntry ms, Member m, Composite c " +
         "where c.typeDb = 'union' " +
         "and c.factorOwnerUuid = ms.ownerGroupId " +
         "and ms.fieldId = :fieldId " +
@@ -3794,22 +3806,30 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         "     where ms3.ownerGroupId = c.leftFactorUuid " +
         "     and ms3.memberUuid = m.uuid " +
         "     and ms3.fieldId = :fieldId " +
-        "     and ms3.enabledDb = 'T') ";
+        "     and ms3.enabledDb = 'T') "
+        + "and c.uuid in (");
     
-    Set<Membership> results = HibernateSession.byHqlStatic()
-      .createQuery(sql)
-      .setCacheable(false)
+    byHqlStatic.setCollectionInClause(sql, compositeIds);
+    
+    sql.append(")");
+    
+    Set<Membership> results = byHqlStatic.createQuery(sql.toString())
       .setString("fieldId", Group.getDefaultList().getUuid())
       .listSet(Membership.class);
     
     return results;
+
   }
   
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findBadUnionMemberships()
    */
-  public Set<Membership> findBadIntersectionMemberships() {
-    String sql = "select distinct ms from ImmediateMembershipEntry ms, Member m, Composite c " +
+  public Set<Membership> findBadIntersectionMemberships(List<String> compositeIds) {
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .setCacheable(false);
+
+    StringBuilder sql = new StringBuilder("select distinct ms from ImmediateMembershipEntry ms, Member m, Composite c " +
         "where c.typeDb = 'intersection' " +
         "and c.factorOwnerUuid = ms.ownerGroupId " +
         "and ms.fieldId = :fieldId " +
@@ -3827,15 +3847,19 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
         "     where ms3.ownerGroupId = c.leftFactorUuid " +
         "     and ms3.memberUuid = m.uuid " +
         "     and ms3.fieldId = :fieldId " +
-        "     and ms3.enabledDb = 'T')) ";
+        "     and ms3.enabledDb = 'T')) "
+        + "and c.uuid in (");
     
-    Set<Membership> results = HibernateSession.byHqlStatic()
-      .createQuery(sql)
-      .setCacheable(false)
+    byHqlStatic.setCollectionInClause(sql, compositeIds);
+    
+    sql.append(")");
+    
+    Set<Membership> results = byHqlStatic.createQuery(sql.toString())
       .setString("fieldId", Group.getDefaultList().getUuid())
       .listSet(Membership.class);
     
     return results;
+
   }
   
   /**
