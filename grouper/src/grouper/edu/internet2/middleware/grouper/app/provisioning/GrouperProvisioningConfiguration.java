@@ -313,6 +313,15 @@ public abstract class GrouperProvisioningConfiguration {
   public void setCustomizeMembershipCrud(boolean customizeMembershipCrud) {
     this.customizeMembershipCrud = customizeMembershipCrud;
   }
+  
+  private boolean onlyAddMembershipsIfUserExistsInTarget;
+  
+  
+
+  
+  public boolean isOnlyAddMembershipsIfUserExistsInTarget() {
+    return onlyAddMembershipsIfUserExistsInTarget;
+  }
 
   private boolean customizeGroupCrud;
 
@@ -2756,6 +2765,9 @@ public abstract class GrouperProvisioningConfiguration {
 
     this.recalculateAllOperations = GrouperUtil.booleanValue(this.retrieveConfigBoolean("recalculateAllOperations", false), false);
     
+    if (this.recalculateAllOperations) {
+      this.onlyAddMembershipsIfUserExistsInTarget = GrouperUtil.booleanValue(this.retrieveConfigBoolean("onlyAddMembershipsIfUserExistsInTarget", false), false);
+    }
     {
       String grouperProvisioningMembershipFieldTypeString = this.retrieveConfigString("membershipFields", false);
       if (StringUtils.isBlank(grouperProvisioningMembershipFieldTypeString) || StringUtils.equalsIgnoreCase("members", grouperProvisioningMembershipFieldTypeString)) {
