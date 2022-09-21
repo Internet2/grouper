@@ -403,7 +403,7 @@ public class FindBadMemberships {
   public static long checkComposites() {
 
     // batch these up
-    int batchSize = GrouperConfig.retrieveConfig().propertyValueInt("findBadMemberships.batchSize", 500);
+    int batchSize = GrouperConfig.retrieveConfig().propertyValueInt("findBadMemberships.batchSize", 1);
     // get list of composites
     List<Object[]> compositeIdAndTypes = new GcDbAccess().sql("select id, type from grouper_composites").selectList(Object[].class);
     
