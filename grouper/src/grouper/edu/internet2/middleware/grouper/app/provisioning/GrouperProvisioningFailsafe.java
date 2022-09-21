@@ -121,10 +121,10 @@ public class GrouperProvisioningFailsafe {
     // if we are incremental, and there is a failsafe issue, then dont even try...
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
       for (String theJobName : GrouperUtil.nonNull(this.getGrouperProvisioner().getJobNames())) {
-        if (GrouperFailsafe.isFailsafeIssue(theJobName)) {
+        if (!GrouperFailsafe.isApproved(theJobName) && GrouperFailsafe.isFailsafeIssue(theJobName)) {
           this.grouperFailsafeBean.setJobName(theJobName);
           this.grouperFailsafeBean.notifyEmailAboutFailsafe();
-          throw new RuntimeException("Failsafe error from full sync '" + theJobName + "' prevents the incremental from running");
+          throw new RuntimeException("Failsafe error from '" + theJobName + "' prevents the incremental from running");
         }
       }
     }
