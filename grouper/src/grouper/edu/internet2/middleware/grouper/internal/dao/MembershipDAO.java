@@ -1183,19 +1183,22 @@ TODO update for 1.5
   public Set<Object[]> findMissingIntersectionMemberships(List<String> compositeIds);
   
   /**
+   * @param compositeIds
    * @return set of immediate memberships that are bad
    */
-  public Set<Membership> findBadComplementMemberships();
+  public Set<Membership> findBadComplementMemberships(List<String> compositeIds);
   
   /**
+   * @param compositeIds
    * @return set of immediate memberships that are bad
    */
-  public Set<Membership> findBadUnionMemberships();
+  public Set<Membership> findBadUnionMemberships(List<String> compositeIds);
   
   /**
+   * @param compositeIds
    * @return set of immediate memberships that are bad
    */
-  public Set<Membership> findBadIntersectionMemberships();
+  public Set<Membership> findBadIntersectionMemberships(List<String> compositeIds);
   
   /**
    * This will find "immediate" memberships on composite groups 
