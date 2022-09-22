@@ -828,6 +828,13 @@ public abstract class GrouperProvisioningConfiguration {
     return true;
   }
   
+  private boolean readOnly;
+  
+  
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
   /** if the target should be checked before sending actions.  e.g. if an addMember is made to a provisionable group, then check the target to see if the entity is already a member first. */
   private boolean recalculateAllOperations;
 
@@ -2768,6 +2775,9 @@ public abstract class GrouperProvisioningConfiguration {
     if (this.recalculateAllOperations) {
       this.onlyAddMembershipsIfUserExistsInTarget = GrouperUtil.booleanValue(this.retrieveConfigBoolean("onlyAddMembershipsIfUserExistsInTarget", false), false);
     }
+    
+    this.readOnly = GrouperUtil.booleanValue(this.retrieveConfigBoolean("readOnly", false), false);
+
     {
       String grouperProvisioningMembershipFieldTypeString = this.retrieveConfigString("membershipFields", false);
       if (StringUtils.isBlank(grouperProvisioningMembershipFieldTypeString) || StringUtils.equalsIgnoreCase("members", grouperProvisioningMembershipFieldTypeString)) {

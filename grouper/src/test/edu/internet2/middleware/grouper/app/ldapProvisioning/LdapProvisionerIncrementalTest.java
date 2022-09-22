@@ -56,7 +56,7 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerIncrementalTest("testDoNotAddIfNotExistIncremental"));    
+    TestRunner.run(new LdapProvisionerIncrementalTest("testReadonlyTestIncremental"));    
   }
   
   @Override
@@ -760,6 +760,68 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
 
 
+  }
+
+  public void testReadonlyTestFull() {
+    readonlyTest(true);
+  }
+
+  public void testReadonlyTestIncremental() {
+    readonlyTest(false);
+  }
+
+  public void readonlyTest(boolean isFull) {
+  
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput().assignMembershipAttribute("description")
+        .addExtraConfig("recalculateAllOperations", "true")
+        .addExtraConfig("onlyAddMembershipsIfUserExistsInTarget", "true")
+        .addExtraConfig("errorHandlingShow", "true")
+        .addExtraConfig("errorHandlingTargetObjectDoesNotExistIsAnError", "false")
+        .addExtraConfig("readOnly", "true")
+        .assignGroupAttributeCount(5));
+  
+    // init stuff
+    if (!isFull) {
+      fullProvision();
+      incrementalProvision();
+    }
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+  
+    Subject jsmith = SubjectFinder.findById("jsmith", true);
+    Subject banderson = SubjectFinder.findById("banderson", true);
+    
+    testGroup.addMember(jsmith, false);
+    testGroup.addMember(banderson, false);
+    
+    assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory"}, null).size());
+  
+    GrouperProvisioningOutput grouperProvisioningOutput = null;
+    GrouperProvisioner grouperProvisioner = null;
+    if (isFull) {
+      fullProvision();
+    } else {
+      incrementalProvision();
+    }
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+  
+    List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+    assertEquals(0, ldapEntries.size());
+    
+  
   }
 
   private static void addPolicyType(Group group) {
