@@ -256,6 +256,11 @@ private static boolean handleSpecialCase(String[] args) {
   } //private static boolean handleSpecialCase(args)
  
   /**
+   * if ARM processor this wont work, use NONE
+   */
+  private static boolean useTerminalFactoryAuto = true;
+
+  /**
    * helper method to kick off GSH without exiting
    * @param args
    * @param inputStreamParam if passing in an inputStream
@@ -339,7 +344,16 @@ private static boolean handleSpecialCase(String[] args) {
       
       boolean exitOnError = !GrouperShell.runFromGshInteractive && GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnNonInteractiveError", false);
       
-      org.codehaus.groovy.tools.shell.Main.setTerminalType(TerminalFactory.AUTO, false);
+      if (useTerminalFactoryAuto) {
+        try {
+          org.codehaus.groovy.tools.shell.Main.setTerminalType(TerminalFactory.AUTO, false);
+        } catch (UnsatisfiedLinkError e) {
+          useTerminalFactoryAuto = false;
+        }
+      }
+      if (!useTerminalFactoryAuto) {
+        org.codehaus.groovy.tools.shell.Main.setTerminalType(TerminalFactory.NONE, false);
+      }
       IO io = new IO();
       CompilerConfiguration compilerConfiguration = new CompilerConfiguration();
       Logger.io = io;
