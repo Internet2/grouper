@@ -66,7 +66,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     @Override
     public void updateVersionFromPrevious() {
       new AddMissingGroupSets().addMissingSelfGroupSetsForGroups();
-      new SyncPITTables().processMissingActivePITGroupSets();
+      //new SyncPITTables().processMissingActivePITGroupSets();
     }
   },
   

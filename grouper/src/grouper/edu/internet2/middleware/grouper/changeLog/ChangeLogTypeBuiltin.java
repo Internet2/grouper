@@ -542,7 +542,39 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.subjectSourceId,
       ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.memberId,
       ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleId,
-      ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName));
+      ChangeLogLabels.PERMISSION_CHANGE_ON_SUBJECT.roleName)),
+  
+  /**
+   * group set add
+   */
+  GROUP_SET_ADD(new ChangeLogType("groupSet", "addGroupSet",
+      ChangeLogLabels.GROUP_SET_ADD.id,
+      ChangeLogLabels.GROUP_SET_ADD.ownerGroupId,
+      ChangeLogLabels.GROUP_SET_ADD.ownerStemId,
+      ChangeLogLabels.GROUP_SET_ADD.ownerAttributeDefId,
+      ChangeLogLabels.GROUP_SET_ADD.memberGroupId,
+      ChangeLogLabels.GROUP_SET_ADD.memberStemId,
+      ChangeLogLabels.GROUP_SET_ADD.memberAttributeDefId,
+      ChangeLogLabels.GROUP_SET_ADD.fieldId,
+      ChangeLogLabels.GROUP_SET_ADD.memberFieldId,
+      ChangeLogLabels.GROUP_SET_ADD.parentGroupSetId,
+      ChangeLogLabels.GROUP_SET_ADD.depth)),
+  
+  /**
+   * group set delete
+   */
+  GROUP_SET_DELETE(new ChangeLogType("groupSet", "deleteGroupSet",
+      ChangeLogLabels.GROUP_SET_DELETE.id,
+      ChangeLogLabels.GROUP_SET_DELETE.ownerGroupId,
+      ChangeLogLabels.GROUP_SET_DELETE.ownerStemId,
+      ChangeLogLabels.GROUP_SET_DELETE.ownerAttributeDefId,
+      ChangeLogLabels.GROUP_SET_DELETE.memberGroupId,
+      ChangeLogLabels.GROUP_SET_DELETE.memberStemId,
+      ChangeLogLabels.GROUP_SET_DELETE.memberAttributeDefId,
+      ChangeLogLabels.GROUP_SET_DELETE.fieldId,
+      ChangeLogLabels.GROUP_SET_DELETE.memberFieldId,
+      ChangeLogLabels.GROUP_SET_DELETE.parentGroupSetId,
+      ChangeLogLabels.GROUP_SET_DELETE.depth));
       
   /**
    * lookup change log type by category and action

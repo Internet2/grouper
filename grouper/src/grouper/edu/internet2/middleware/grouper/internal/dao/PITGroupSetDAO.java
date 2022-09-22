@@ -79,21 +79,6 @@ public interface PITGroupSetDAO extends GrouperDAO {
   
   /**
    * @param ownerId
-   * @param startTime 
-   * @param contextId 
-   * @param checkIfAlreadyExists 
-   */
-  public void insertSelfPITGroupSetsByOwner(String ownerId, Long startTime, String contextId, boolean checkIfAlreadyExists);
-
-  /**
-   * @param fieldId
-   * @param startTime 
-   * @param contextId 
-   */
-  public void insertSelfPITGroupSetsByField(String fieldId, Long startTime, String contextId);
-  
-  /**
-   * @param ownerId
    * @param endTime
    * @param contextId
    */
@@ -199,11 +184,6 @@ public interface PITGroupSetDAO extends GrouperDAO {
    * @return active group sets that are missing in point in time
    */
   public Set<GroupSet> findMissingActivePITGroupSets(QueryOptions options);
-  
-  /**
-   * @return active group sets that are missing in point in time (this time looking for effective issues)
-   */
-  public Set<GroupSet> findMissingActivePITGroupSetsSecondPass();
   
   /**
    * @return active point in time group sets that should be inactive

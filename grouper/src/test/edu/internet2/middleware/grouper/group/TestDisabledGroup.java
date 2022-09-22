@@ -77,7 +77,7 @@ public class TestDisabledGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestDisabledGroup("testFixEnabledDisabledDisableViaDisableDate"));
+    TestRunner.run(new TestDisabledGroup("testFixEnabledDisabledEnableViaEnableDate"));
   }
   
   /**
@@ -111,6 +111,7 @@ public class TestDisabledGroup extends GrouperTest {
     
     new SyncPITTables().showResults(false).syncAllPITTables();
     grouperSession = GrouperSession.startRootSession();
+    GrouperDaemonEnabledDisabledCheck.internal_clearCache();
   }
   
   /**
@@ -281,7 +282,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     
-    // first change log entry should be group disable, last should be group delete, 11 total
+    // first change log entry should be group disable, last should be group delete, 16 total
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DISABLE.getChangeLogType().getId())
@@ -292,9 +293,9 @@ public class TestDisabledGroup extends GrouperTest {
         .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
-    assertEquals(11L, changeLogEntry.getSequenceNumber().longValue());
+    assertEquals(16L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(11, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(16, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
 
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
@@ -316,7 +317,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     
-    // first change log entry should be group enable, second should be group add, 11 total
+    // first change log entry should be group enable, second should be group add, 16 total
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ENABLE.getChangeLogType().getId())
@@ -329,7 +330,7 @@ public class TestDisabledGroup extends GrouperTest {
         .uniqueResult(ChangeLogEntry.class);
     assertEquals(2L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(11, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(16, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
   }
   
   /**
@@ -365,7 +366,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     
-    // first change log entry should be group disable, last should be group delete, 11 total
+    // first change log entry should be group disable, last should be group delete, 16 total
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DISABLE.getChangeLogType().getId())
@@ -376,9 +377,9 @@ public class TestDisabledGroup extends GrouperTest {
         .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
-    assertEquals(11L, changeLogEntry.getSequenceNumber().longValue());
+    assertEquals(16L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(11, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(16, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
 
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
@@ -400,7 +401,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     
-    // first change log entry should be group enable, second should be group add, 11 total
+    // first change log entry should be group enable, second should be group add, 16 total
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ENABLE.getChangeLogType().getId())
@@ -413,7 +414,7 @@ public class TestDisabledGroup extends GrouperTest {
         .uniqueResult(ChangeLogEntry.class);
     assertEquals(2L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(11, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(16, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
   }
   
   /**
@@ -453,14 +454,14 @@ public class TestDisabledGroup extends GrouperTest {
     assertEquals(0, GrouperDaemonEnabledDisabledCheck.internal_membershipsFixEnabledDisabled(System.currentTimeMillis()));
     assertEquals(0, GrouperDaemonEnabledDisabledCheck.internal_attributeAssignsFixEnabledDisabled(System.currentTimeMillis()));
 
-    // just one delete group change log
+    // one delete group change log plus 9 group sets
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
         .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
     assertNotNull(changeLogEntry);
     
-    assertEquals(1, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(10, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
   }
     
   /**
@@ -643,7 +644,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertTrue(AttributeAssignFinder.findById(group2Assn.getId(), true).isEnabled());
     assertTrue(AttributeAssignFinder.findById(group2AssnAssn.getId(), true).isEnabled());
 
-    // first change log entry should be group enable, second should be group add, 13 total (including 2 attribute assignments)
+    // first change log entry should be group enable, second should be group add, 18 total (including 2 attribute assignments)
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ENABLE.getChangeLogType().getId())
@@ -656,7 +657,7 @@ public class TestDisabledGroup extends GrouperTest {
         .uniqueResult(ChangeLogEntry.class);
     assertEquals(2L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(13, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(18, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
   }
   
 
@@ -724,7 +725,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertFalse(AttributeAssignFinder.findById(group2Assn.getId(), true).isEnabled());
     assertFalse(AttributeAssignFinder.findById(group2AssnAssn.getId(), true).isEnabled());
 
-    // first change log entry should be group disable, last should be group delete, 13 total (including 2 attribute assignments)
+    // first change log entry should be group disable, last should be group delete, 18 total (including 2 attribute assignments)
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DISABLE.getChangeLogType().getId())
@@ -735,9 +736,9 @@ public class TestDisabledGroup extends GrouperTest {
         .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
-    assertEquals(13L, changeLogEntry.getSequenceNumber().longValue());
+    assertEquals(18L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(13, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(18, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
   }
   
   /**
@@ -778,7 +779,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertFalse(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     
-    // first change log entry should be group disable, last should be group delete, 5 total
+    // first change log entry should be group disable, last should be group delete, 7 total
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DISABLE.getChangeLogType().getId())
@@ -789,9 +790,9 @@ public class TestDisabledGroup extends GrouperTest {
         .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
-    assertEquals(5L, changeLogEntry.getSequenceNumber().longValue());
+    assertEquals(7L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(5, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(7, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
 
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
@@ -813,7 +814,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true).getUuid(), FieldFinder.find("updaters", true), "immediate", true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group3.getUuid(), MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true).getUuid(), Group.getDefaultList(), "immediate", true, false).isEnabled());
     
-    // first change log entry should be group enable, second should be group add, 5 total
+    // first change log entry should be group enable, second should be group add, 7 total
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ENABLE.getChangeLogType().getId())
@@ -826,7 +827,7 @@ public class TestDisabledGroup extends GrouperTest {
         .uniqueResult(ChangeLogEntry.class);
     assertEquals(2L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(5, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(7, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
   }
   
 
@@ -916,7 +917,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssn.getId(), true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssnAssn.getId(), true, false).isEnabled());
     
-    // first change log entry should be group disable, last should be group delete, 12 deleteAttributeAssign, 4 deletePrivilege, 5 deleteMembership, 23 total
+    // first change log entry should be group disable, last should be group delete, 12 deleteAttributeAssign, 4 deletePrivilege, 5 deleteMembership, 5 group sets, 28 total
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DISABLE.getChangeLogType().getId())
@@ -927,9 +928,9 @@ public class TestDisabledGroup extends GrouperTest {
         .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
-    assertEquals(23L, changeLogEntry.getSequenceNumber().longValue());
+    assertEquals(28L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(23, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(28, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
 
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
@@ -972,7 +973,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssn.getId(), true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssnAssn.getId(), true, false).isEnabled());
     
-    // first change log entry should be group enable, second should be group add, 23 total
+    // first change log entry should be group enable, second should be group add, 28 total
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ENABLE.getChangeLogType().getId())
@@ -985,7 +986,7 @@ public class TestDisabledGroup extends GrouperTest {
         .uniqueResult(ChangeLogEntry.class);
     assertEquals(2L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(23, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(28, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
   }
   
   /**
@@ -1086,7 +1087,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssn.getId(), true, false).isEnabled());
     assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssnAssn.getId(), true, false).isEnabled());
     
-    // first change log entry should be group disable, last should be group delete, 19 total (2 are disabled using timestamps on assignments and 2 more that are assignments on those0
+    // first change log entry should be group disable, last should be group delete, 24 total (2 are disabled using timestamps on assignments and 2 more that are assignments on those0
     ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DISABLE.getChangeLogType().getId())
@@ -1097,9 +1098,9 @@ public class TestDisabledGroup extends GrouperTest {
         .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
         .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId())
         .uniqueResult(ChangeLogEntry.class);
-    assertEquals(19L, changeLogEntry.getSequenceNumber().longValue());
+    assertEquals(24L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(19, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(24, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
 
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
@@ -1142,7 +1143,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssn.getId(), true, false).isEnabled());
     assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(group2MemberAssnAssn.getId(), true, false).isEnabled());
     
-    // first change log entry should be group enable, second should be group add, 19 total
+    // first change log entry should be group enable, second should be group add, 24 total
     changeLogEntry = HibernateSession.byHqlStatic()
       .createQuery("from ChangeLogEntryEntity where changeLogTypeId = :theChangeLogType")
       .setString("theChangeLogType", ChangeLogTypeBuiltin.GROUP_ENABLE.getChangeLogType().getId())
@@ -1155,7 +1156,7 @@ public class TestDisabledGroup extends GrouperTest {
         .uniqueResult(ChangeLogEntry.class);
     assertEquals(2L, changeLogEntry.getSequenceNumber().longValue());
     
-    assertEquals(19, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(24, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
   }
   
   /**
@@ -1448,7 +1449,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertFalse(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG2ToG3AssnAssn.getId(), true, false).isEnabled());
  
     ChangeLogTempToEntity.convertRecords();
-    assertEquals(17, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(21, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
 
     g1ToG2 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group1.getUuid(), MemberFinder.findBySubject(grouperSession, group2.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false);
     g2ToG3 = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(group2.getUuid(), MemberFinder.findBySubject(grouperSession, group3.toSubject(), true).getUuid(), Group.getDefaultList(), "immediate", true, false);
@@ -1496,7 +1497,7 @@ public class TestDisabledGroup extends GrouperTest {
     assertTrue(GrouperDAOFactory.getFactory().getAttributeAssign().findById(immG2ToG3AssnAssn.getId(), true, false).isEnabled());
  
     ChangeLogTempToEntity.convertRecords();
-    assertEquals(17, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
+    assertEquals(21, HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry").intValue());
   }
   
   /**

@@ -193,9 +193,6 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
         pitStem.setStartTimeDb(System.currentTimeMillis() * 1000);
         
         pitStem.saveOrUpdate();
-        
-        // Add PIT group sets
-        GrouperDAOFactory.getFactory().getPITGroupSet().insertSelfPITGroupSetsByOwner(id, pitStem.getStartTimeDb(), contextId, false);
       }
     }
     

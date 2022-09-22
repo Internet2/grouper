@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
@@ -57,6 +58,7 @@ import edu.internet2.middleware.grouper.pit.PITAttributeDefName;
 import edu.internet2.middleware.grouper.pit.PITAttributeDefNameSet;
 import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITGroupSet;
 import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
@@ -236,6 +238,10 @@ public class ChangeLogTempToEntity {
                   ChangeLogTempToEntity.processAttributeAssignValueAdd(CHANGE_LOG_ENTRY);
                 } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE)) {
                   ChangeLogTempToEntity.processAttributeAssignValueDelete(CHANGE_LOG_ENTRY);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_SET_ADD)) {
+                  ChangeLogTempToEntity.processGroupSetAdd(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
+                } else if (CHANGE_LOG_ENTRY.equalsCategoryAndAction(ChangeLogTypeBuiltin.GROUP_SET_DELETE)) {
+                  ChangeLogTempToEntity.processGroupSetDelete(CHANGE_LOG_ENTRY, changeLogEntriesToSave);
                 }
                 
                 for (ChangeLogEntry currentChangeLogEntry : currentTempChangeLogEntriesBatch) {
@@ -364,9 +370,6 @@ public class ChangeLogTempToEntity {
     pitGroup.setStartTimeDb(time);
     
     pitGroup.saveOrUpdate();
-    
-    // Add PIT group sets
-    GrouperDAOFactory.getFactory().getPITGroupSet().insertSelfPITGroupSetsByOwner(id, changeLogEntry.getCreatedOnDb(), contextId, false);
   }
   
   /**
@@ -487,9 +490,6 @@ public class ChangeLogTempToEntity {
     pitStem.setStartTimeDb(time);
     
     pitStem.saveOrUpdate();
-    
-    // Add PIT group sets
-    GrouperDAOFactory.getFactory().getPITGroupSet().insertSelfPITGroupSetsByOwner(id, changeLogEntry.getCreatedOnDb(), contextId, false);
   }
   
   /**
@@ -592,9 +592,6 @@ public class ChangeLogTempToEntity {
     pitAttributeDef.setStartTimeDb(time);
 
     pitAttributeDef.saveOrUpdate();
-    
-    // Add PIT group sets
-    GrouperDAOFactory.getFactory().getPITGroupSet().insertSelfPITGroupSetsByOwner(id, changeLogEntry.getCreatedOnDb(), contextId, false);
   }
   
   /**
@@ -691,12 +688,6 @@ public class ChangeLogTempToEntity {
     pitField.setStartTimeDb(time);
     
     pitField.saveOrUpdate();
-    
-    // might have to add PIT group sets...
-    Field field = FieldFinder.findById(id, false);
-    if (field != null && field.isGroupListField()) {      
-      GrouperDAOFactory.getFactory().getPITGroupSet().insertSelfPITGroupSetsByField(id, changeLogEntry.getCreatedOnDb(), contextId);
-    }
   }
   
   private static void processFieldDelete(ChangeLogEntry changeLogEntry) {
@@ -756,11 +747,11 @@ public class ChangeLogTempToEntity {
     
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId.name());
 
-    String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId);
-    String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    // String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_ASSIGN.groupId);
+    // String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     
     // add group sets
-    GrouperDAOFactory.getFactory().getPITGroupSet().insertSelfPITGroupSetsByOwner(groupId, changeLogEntry.getCreatedOnDb(), contextId, true);
+    // GrouperDAOFactory.getFactory().getPITGroupSet().insertSelfPITGroupSetsByOwner(groupId, changeLogEntry.getCreatedOnDb(), contextId, true);
   }
   
   /**
@@ -1896,6 +1887,101 @@ public class ChangeLogTempToEntity {
   }
   
   /**
+   * If a group set gets added, insert into pit table.
+   * @param changeLogEntry
+   */
+  private static void processGroupSetAdd(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.id.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.depth.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.fieldId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.memberFieldId.name());
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.parentGroupSetId.name());
+
+    String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.id);
+    String depth = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.depth);
+    String fieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.fieldId);
+    String memberFieldId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.memberFieldId);
+    String parentGroupSetId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.parentGroupSetId);
+    String ownerGroupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.ownerGroupId);
+    String ownerStemId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.ownerStemId);
+    String ownerAttributeDefId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.ownerAttributeDefId);
+    String memberGroupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.memberGroupId);
+    String memberStemId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.memberStemId);
+    String memberAttributeDefId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_ADD.memberAttributeDefId);
+    Long time = changeLogEntry.getCreatedOnDb();
+    String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+    
+    PITGroupSet existing = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(id, false);
+    if (existing != null) {
+      LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    
+    PITGroupSet pitGroupSet = new PITGroupSet();
+    pitGroupSet.setId(GrouperUuid.getUuid());
+    pitGroupSet.setSourceId(id);
+    pitGroupSet.setDepth(Integer.parseInt(depth));
+    pitGroupSet.setActiveDb("T");
+    pitGroupSet.setStartTimeDb(time);
+    pitGroupSet.setContextId(contextId);
+    
+    if (!StringUtils.isEmpty(ownerGroupId)) {
+      PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerGroupId, true, true);
+      pitGroupSet.setOwnerGroupId(pitOwner.getId());
+    } else if (!StringUtils.isEmpty(ownerStemId)) {
+      PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerStemId, true, true);
+      pitGroupSet.setOwnerStemId(pitOwner.getId());
+    } else if (!StringUtils.isEmpty(ownerAttributeDefId)) {
+      PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerAttributeDefId, true);
+      pitGroupSet.setOwnerAttrDefId(pitOwner.getId());
+    } else {
+      throw new RuntimeException("missing owner in change log for group set id " + id);
+    }
+    
+    if (!StringUtils.isEmpty(memberGroupId)) {
+      PITGroup pitMember = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(memberGroupId, true, true);
+      pitGroupSet.setMemberGroupId(pitMember.getId());
+    } else if (!StringUtils.isEmpty(memberStemId)) {
+      PITStem pitMember = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(memberStemId, true, true);
+      pitGroupSet.setMemberStemId(pitMember.getId());
+    } else if (!StringUtils.isEmpty(memberAttributeDefId)) {
+      PITAttributeDef pitMember = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(memberAttributeDefId, true);
+      pitGroupSet.setMemberAttrDefId(pitMember.getId());
+    } else {
+      throw new RuntimeException("missing member in change log for group set id " + id);
+    }
+    
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldId, true);
+    pitGroupSet.setFieldId(pitField.getId());
+    
+    PITField pitMemberField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(memberFieldId, true);
+    pitGroupSet.setMemberFieldId(pitMemberField.getId());
+
+    if (Integer.parseInt(depth) == 0) {
+      pitGroupSet.setParentId(pitGroupSet.getId());
+    } else {
+      PITGroupSet pitParent = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(parentGroupSetId, false);
+      pitGroupSet.setParentId(pitParent.getId());
+    }
+
+    boolean includeFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedMemberships", true);
+    boolean includeFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedPrivileges", true);
+    boolean includeSubjectsWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeSubjectsWithPermissionChanges", false);
+    pitGroupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
+    pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
+    pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
+    
+    pitGroupSet.setSaveChangeLogUpdates(false);
+
+    pitGroupSet.saveOrUpdate();
+    changeLogEntriesToSave.addAll(pitGroupSet.getChangeLogUpdates());
+    pitGroupSet.clearChangeLogUpdates();
+  }
+  
+  /**
    * If a role set set gets delete, add end time to pit row.
    * @param changeLogEntry
    */
@@ -1928,6 +2014,43 @@ public class ChangeLogTempToEntity {
     pitRoleSet.saveOrUpdate();
     changeLogEntriesToSave.addAll(pitRoleSet.getChangeLogUpdates());
     pitRoleSet.clearChangeLogUpdates();
+  }
+  
+  /**
+   * If a group set gets deleted, add end time to pit row.
+   * @param changeLogEntry
+   */
+  private static void processGroupSetDelete(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
+    
+    LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
+    
+    assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_DELETE.id.name());
+
+    String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_SET_DELETE.id);
+    Long time = changeLogEntry.getCreatedOnDb();
+    String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
+
+    PITGroupSet pitGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(id, false);
+    if (pitGroupSet == null) {
+      return;
+    }
+    
+    pitGroupSet.setEndTimeDb(time);
+    pitGroupSet.setActiveDb("F");
+    pitGroupSet.setContextId(contextId);
+    
+    boolean includeFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedMemberships", true);
+    boolean includeFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedPrivileges", true);
+    boolean includeSubjectsWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeSubjectsWithPermissionChanges", false);
+    pitGroupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
+    pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
+    pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
+    
+    pitGroupSet.setSaveChangeLogUpdates(false);
+
+    pitGroupSet.saveOrUpdate();
+    changeLogEntriesToSave.addAll(pitGroupSet.getChangeLogUpdates());
+    pitGroupSet.clearChangeLogUpdates();
   }
   
   /**

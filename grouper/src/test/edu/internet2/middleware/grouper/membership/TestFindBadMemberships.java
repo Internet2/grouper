@@ -119,7 +119,7 @@ public class TestFindBadMemberships extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestFindBadMemberships("testBadEffectiveGroupSets"));
+    TestRunner.run(new TestFindBadMemberships("testWithBadGroupSetsForComposites"));
   }
   
   protected void setUp () {
@@ -997,29 +997,13 @@ public class TestFindBadMemberships extends GrouperTest {
     gs1.setParentId(GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(owner2.getUuid(), Group.getDefaultList().getUuid()).getId());
     GrouperDAOFactory.getFactory().getGroupSet().save(gs1);
     
-    // add pitGroupSet owner2 -> g3
-    PITField pitMemberField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), true);
-    PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(owner2.getUuid(), true);
-    PITGroup pitMember1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(g3.getUuid(), true);
-    PITGroupSet pitParent1 = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(gs1.getParentId(), true);
-    PITGroupSet pitGS1 = new PITGroupSet();
-    pitGS1.setOwnerGroupId(pitOwner1.getId());
-    pitGS1.setId(GrouperUuid.getUuid());
-    pitGS1.setSourceId(gs1.getId());
-    pitGS1.setFieldId(pitMemberField.getId());
-    pitGS1.setMemberFieldId(pitMemberField.getId());
-    pitGS1.setMemberGroupId(pitMember1.getId());
-    pitGS1.setDepth(1);
-    pitGS1.setParentId(pitParent1.getId());
-    pitGS1.setActiveDb("T");
-    pitGS1.setStartTimeDb(System.currentTimeMillis() * 1000);
-    pitGS1.saveOrUpdate();
+    // add to pit
+    ChangeLogTempToEntity.convertRecords();
     
     int newGroupSetCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_group_set");
     int newPitGroupSetCountTotal = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set");
     int newPitGroupSetCountActive = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_pit_group_set where active='T'");
     
-    // verify that 8 group sets were added...
     assertEquals(groupSetCount + 6, newGroupSetCount);
     assertEquals(pitGroupSetCountTotal + 6, newPitGroupSetCountTotal);
     assertEquals(pitGroupSetCountActive + 6, newPitGroupSetCountActive);
