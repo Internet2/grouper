@@ -150,6 +150,14 @@
             <artifactId>csrfguard</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.owasp</groupId>
+            <artifactId>csrfguard-extension-session</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.owasp</groupId>
+            <artifactId>csrfguard-jsp-tags</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.quartz-scheduler</groupId>
             <artifactId>quartz</artifactId>
             <exclusions>
