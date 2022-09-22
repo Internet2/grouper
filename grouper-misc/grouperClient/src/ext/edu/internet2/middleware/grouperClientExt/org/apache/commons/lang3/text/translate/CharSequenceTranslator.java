@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -37,20 +22,25 @@ import java.io.Writer;
 import java.util.Locale;
 
 /**
- * An API for translating text. 
- * Its core use is to escape and unescape text. Because escaping and unescaping 
+ * An API for translating text.
+ * Its core use is to escape and unescape text. Because escaping and unescaping
  * is completely contextual, the API does not present two separate signatures.
- * 
+ *
  * @since 3.0
- * @version $Id: CharSequenceTranslator.java 1146844 2011-07-14 18:49:51Z mbenson $
+ * @deprecated as of 3.6, use commons-text
+ * <a href="https://commons.apache.org/proper/commons-text/javadocs/api-release/org/apache/commons/text/translate/CharSequenceTranslator.html">
+ * CharSequenceTranslator</a> instead
  */
+@Deprecated
 public abstract class CharSequenceTranslator {
 
+    static final char[] HEX_DIGITS = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
     /**
-     * Translate a set of codepoints, represented by an int index into a CharSequence, 
-     * into another set of codepoints. The number of codepoints consumed must be returned, 
-     * and the only IOExceptions thrown must be from interacting with the Writer so that 
-     * the top level API may reliable ignore StringWriter IOExceptions. 
+     * Translate a set of codepoints, represented by an int index into a CharSequence,
+     * into another set of codepoints. The number of codepoints consumed must be returned,
+     * and the only IOExceptions thrown must be from interacting with the Writer so that
+     * the top level API may reliably ignore StringWriter IOExceptions.
      *
      * @param input CharSequence that is being translated
      * @param index int representing the current point of translation
@@ -61,33 +51,33 @@ public abstract class CharSequenceTranslator {
     public abstract int translate(CharSequence input, int index, Writer out) throws IOException;
 
     /**
-     * Helper for non-Writer usage. 
+     * Helper for non-Writer usage.
      * @param input CharSequence to be translated
      * @return String output of translation
      */
-    public final String translate(CharSequence input) {
+    public final String translate(final CharSequence input) {
         if (input == null) {
             return null;
         }
         try {
-            StringWriter writer = new StringWriter(input.length() * 2);
+            final StringWriter writer = new StringWriter(input.length() * 2);
             translate(input, writer);
             return writer.toString();
-        } catch (IOException ioe) {
+        } catch (final IOException ioe) {
             // this should never ever happen while writing to a StringWriter
             throw new RuntimeException(ioe);
         }
     }
 
     /**
-     * Translate an input onto a Writer. This is intentionally final as its algorithm is 
-     * tightly coupled with the abstract method of this class. 
+     * Translate an input onto a Writer. This is intentionally final as its algorithm is
+     * tightly coupled with the abstract method of this class.
      *
      * @param input CharSequence that is being translated
      * @param out Writer to translate the text to
      * @throws IOException if and only if the Writer produces an IOException
      */
-    public final void translate(CharSequence input, Writer out) throws IOException {
+    public final void translate(final CharSequence input, final Writer out) throws IOException {
         if (out == null) {
             throw new IllegalArgumentException("The Writer must not be null");
         }
@@ -95,17 +85,26 @@ public abstract class CharSequenceTranslator {
             return;
         }
         int pos = 0;
-        int len = input.length();
+        final int len = input.length();
         while (pos < len) {
-            int consumed = translate(input, pos, out);
+            final int consumed = translate(input, pos, out);
             if (consumed == 0) {
-                char[] c = Character.toChars(Character.codePointAt(input, pos));
-                out.write(c);
-                pos+= c.length;
+                // inlined implementation of Character.toChars(Character.codePointAt(input, pos))
+                // avoids allocating temp char arrays and duplicate checks
+                final char c1 = input.charAt(pos);
+                out.write(c1);
+                pos++;
+                if (Character.isHighSurrogate(c1) && pos < len) {
+                    final char c2 = input.charAt(pos);
+                    if (Character.isLowSurrogate(c2)) {
+                      out.write(c2);
+                      pos++;
+                    }
+                }
                 continue;
             }
-//          // contract with translators is that they have to understand codepoints 
-//          // and they just took care of a surrogate pair
+            // contract with translators is that they have to understand codepoints
+            // and they just took care of a surrogate pair
             for (int pt = 0; pt < consumed; pt++) {
                 pos += Character.charCount(Character.codePointAt(input, pos));
             }
@@ -113,27 +112,27 @@ public abstract class CharSequenceTranslator {
     }
 
     /**
-     * Helper method to create a merger of this translator with another set of 
+     * Helper method to create a merger of this translator with another set of
      * translators. Useful in customizing the standard functionality.
      *
      * @param translators CharSequenceTranslator array of translators to merge with this one
      * @return CharSequenceTranslator merging this translator with the others
      */
-    public final CharSequenceTranslator with(CharSequenceTranslator... translators) {
-        CharSequenceTranslator[] newArray = new CharSequenceTranslator[translators.length + 1];
+    public final CharSequenceTranslator with(final CharSequenceTranslator... translators) {
+        final CharSequenceTranslator[] newArray = new CharSequenceTranslator[translators.length + 1];
         newArray[0] = this;
         System.arraycopy(translators, 0, newArray, 1, translators.length);
         return new AggregateTranslator(newArray);
     }
 
     /**
-     * <p>Returns an upper case hexadecimal <code>String</code> for the given
+     * <p>Returns an upper case hexadecimal {@code String} for the given
      * character.</p>
      *
      * @param codepoint The codepoint to convert.
-     * @return An upper case hexadecimal <code>String</code>
+     * @return An upper case hexadecimal {@code String}
      */
-    public static String hex(int codepoint) {
+    public static String hex(final int codepoint) {
         return Integer.toHexString(codepoint).toUpperCase(Locale.ENGLISH);
     }
 

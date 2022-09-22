@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -32,11 +17,12 @@
 package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder;
 
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.ObjectUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Validate;
 
 /**
  * <p>Assists in implementing {@link Object#toString()} methods.</p>
  *
- * <p>This class enables a good and consistent <code>toString()</code> to be built for any
+ * <p>This class enables a good and consistent {@code toString()} to be built for any
  * class or object. This class aims to simplify the process by:</p>
  * <ul>
  *  <li>allowing field names</li>
@@ -68,15 +54,15 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Object
  * </pre>
  *
  * <p>This will produce a toString of the format:
- * <code>Person@7f54[name=Stephen,age=29,smoker=false]</code></p>
+ * {@code Person@7f54[name=Stephen,age=29,smoker=false]}</p>
  *
- * <p>To add the superclass <code>toString</code>, use {@link #appendSuper}.
- * To append the <code>toString</code> from an object that is delegated
+ * <p>To add the superclass {@code toString}, use {@link #appendSuper}.
+ * To append the {@code toString} from an object that is delegated
  * to (or any other object), use {@link #appendToString}.</p>
  *
  * <p>Alternatively, there is a method that uses reflection to determine
  * the fields to test. Because these fields are usually private, the method,
- * <code>reflectionToString</code>, uses <code>AccessibleObject.setAccessible</code> to
+ * {@code reflectionToString}, uses {@code AccessibleObject.setAccessible} to
  * change the visibility of the fields. This will fail under a security manager,
  * unless the appropriate permissions are set up correctly. It is also
  * slower than testing explicitly.</p>
@@ -95,11 +81,10 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Object
  * System.out.println("An object: " + ToStringBuilder.reflectionToString(anObject));
  * </pre>
  *
- * <p>The exact format of the <code>toString</code> is determined by
+ * <p>The exact format of the {@code toString} is determined by
  * the {@link ToStringStyle} passed into the constructor.</p>
  *
  * @since 1.0
- * @version $Id: ToStringBuilder.java 1088899 2011-04-05 05:31:27Z bayard $
  */
 public class ToStringBuilder implements Builder<String> {
 
@@ -111,107 +96,104 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Gets the default <code>ToStringStyle</code> to use.</p>
+     * <p>Gets the default {@code ToStringStyle} to use.</p>
      *
      * <p>This method gets a singleton default value, typically for the whole JVM.
      * Changing this default should generally only be done during application startup.
-     * It is recommended to pass a <code>ToStringStyle</code> to the constructor instead
+     * It is recommended to pass a {@code ToStringStyle} to the constructor instead
      * of using this global default.</p>
      *
      * <p>This method can be used from multiple threads.
-     * Internally, a <code>volatile</code> variable is used to provide the guarantee
+     * Internally, a {@code volatile} variable is used to provide the guarantee
      * that the latest value set using {@link #setDefaultStyle} is the value returned.
      * It is strongly recommended that the default style is only changed during application startup.</p>
      *
      * <p>One reason for changing the default could be to have a verbose style during
      * development and a compact style in production.</p>
      *
-     * @return the default <code>ToStringStyle</code>, never null
+     * @return the default {@code ToStringStyle}, never null
      */
     public static ToStringStyle getDefaultStyle() {
         return defaultStyle;
     }
 
     /**
-     * <p>Sets the default <code>ToStringStyle</code> to use.</p>
+     * <p>Sets the default {@code ToStringStyle} to use.</p>
      *
      * <p>This method sets a singleton default value, typically for the whole JVM.
      * Changing this default should generally only be done during application startup.
-     * It is recommended to pass a <code>ToStringStyle</code> to the constructor instead
+     * It is recommended to pass a {@code ToStringStyle} to the constructor instead
      * of changing this global default.</p>
      *
      * <p>This method is not intended for use from multiple threads.
-     * Internally, a <code>volatile</code> variable is used to provide the guarantee
+     * Internally, a {@code volatile} variable is used to provide the guarantee
      * that the latest value set is the value returned from {@link #getDefaultStyle}.</p>
      *
-     * @param style  the default <code>ToStringStyle</code>
-     * @throws IllegalArgumentException if the style is <code>null</code>
+     * @param style  the default {@code ToStringStyle}
+     * @throws IllegalArgumentException if the style is {@code null}
      */
-    public static void setDefaultStyle(ToStringStyle style) {
-        if (style == null) {
-            throw new IllegalArgumentException("The style must not be null");
-        }
-        defaultStyle = style;
+    public static void setDefaultStyle(final ToStringStyle style) {
+        defaultStyle = Validate.notNull(style, "style");
     }
 
     //----------------------------------------------------------------------------
     /**
-     * <p>Uses <code>ReflectionToStringBuilder</code> to generate a
-     * <code>toString</code> for the specified object.</p>
+     * <p>Uses {@code ReflectionToStringBuilder} to generate a
+     * {@code toString} for the specified object.</p>
      *
      * @param object  the Object to be output
      * @return the String result
      * @see ReflectionToStringBuilder#toString(Object)
      */
-    public static String reflectionToString(Object object) {
+    public static String reflectionToString(final Object object) {
         return ReflectionToStringBuilder.toString(object);
     }
 
     /**
-     * <p>Uses <code>ReflectionToStringBuilder</code> to generate a
-     * <code>toString</code> for the specified object.</p>
+     * <p>Uses {@code ReflectionToStringBuilder} to generate a
+     * {@code toString} for the specified object.</p>
      *
      * @param object  the Object to be output
-     * @param style  the style of the <code>toString</code> to create, may be <code>null</code>
+     * @param style  the style of the {@code toString} to create, may be {@code null}
      * @return the String result
      * @see ReflectionToStringBuilder#toString(Object,ToStringStyle)
      */
-    public static String reflectionToString(Object object, ToStringStyle style) {
+    public static String reflectionToString(final Object object, final ToStringStyle style) {
         return ReflectionToStringBuilder.toString(object, style);
     }
 
     /**
-     * <p>Uses <code>ReflectionToStringBuilder</code> to generate a
-     * <code>toString</code> for the specified object.</p>
+     * <p>Uses {@code ReflectionToStringBuilder} to generate a
+     * {@code toString} for the specified object.</p>
      *
      * @param object  the Object to be output
-     * @param style  the style of the <code>toString</code> to create, may be <code>null</code>
+     * @param style  the style of the {@code toString} to create, may be {@code null}
      * @param outputTransients  whether to include transient fields
      * @return the String result
      * @see ReflectionToStringBuilder#toString(Object,ToStringStyle,boolean)
      */
-    public static String reflectionToString(Object object, ToStringStyle style, boolean outputTransients) {
+    public static String reflectionToString(final Object object, final ToStringStyle style, final boolean outputTransients) {
         return ReflectionToStringBuilder.toString(object, style, outputTransients, false, null);
     }
 
     /**
-     * <p>Uses <code>ReflectionToStringBuilder</code> to generate a
-     * <code>toString</code> for the specified object.</p>
+     * <p>Uses {@code ReflectionToStringBuilder} to generate a
+     * {@code toString} for the specified object.</p>
      *
      * @param <T> the type of the object
      * @param object  the Object to be output
-     * @param style  the style of the <code>toString</code> to create, may be <code>null</code>
+     * @param style  the style of the {@code toString} to create, may be {@code null}
      * @param outputTransients  whether to include transient fields
-     * @param reflectUpToClass  the superclass to reflect up to (inclusive), may be <code>null</code>
+     * @param reflectUpToClass  the superclass to reflect up to (inclusive), may be {@code null}
      * @return the String result
      * @see ReflectionToStringBuilder#toString(Object,ToStringStyle,boolean,boolean,Class)
      * @since 2.0
      */
     public static <T> String reflectionToString(
-        T object,
-        ToStringStyle style,
-        boolean outputTransients,
-        Class<? super T> reflectUpToClass) {
+        final T object,
+        final ToStringStyle style,
+        final boolean outputTransients,
+        final Class<? super T> reflectUpToClass) {
         return ReflectionToStringBuilder.toString(object, style, outputTransients, false, reflectUpToClass);
     }
 
@@ -235,36 +217,36 @@ public class ToStringBuilder implements Builder<String> {
      *
      * <p>This default style is obtained from {@link #getDefaultStyle()}.</p>
      *
-     * @param object  the Object to build a <code>toString</code> for, not recommended to be null
+     * @param object  the Object to build a {@code toString} for, not recommended to be null
      */
-    public ToStringBuilder(Object object) {
+    public ToStringBuilder(final Object object) {
         this(object, null, null);
     }
 
     /**
-     * <p>Constructs a builder for the specified object using the a defined output style.</p>
+     * <p>Constructs a builder for the specified object using the defined output style.</p>
      *
-     * <p>If the style is <code>null</code>, the default style is used.</p>
+     * <p>If the style is {@code null}, the default style is used.</p>
      *
-     * @param object  the Object to build a <code>toString</code> for, not recommended to be null
-     * @param style  the style of the <code>toString</code> to create, null uses the default style
+     * @param object  the Object to build a {@code toString} for, not recommended to be null
+     * @param style  the style of the {@code toString} to create, null uses the default style
      */
-    public ToStringBuilder(Object object, ToStringStyle style) {
+    public ToStringBuilder(final Object object, final ToStringStyle style) {
         this(object, style, null);
     }
 
     /**
      * <p>Constructs a builder for the specified object.</p>
      *
-     * <p>If the style is <code>null</code>, the default style is used.</p>
+     * <p>If the style is {@code null}, the default style is used.</p>
      *
-     * <p>If the buffer is <code>null</code>, a new one is created.</p>
+     * <p>If the buffer is {@code null}, a new one is created.</p>
      *
-     * @param object  the Object to build a <code>toString</code> for, not recommended to be null
-     * @param style  the style of the <code>toString</code> to create, null uses the default style
-     * @param buffer  the <code>StringBuffer</code> to populate, may be null
+     * @param object  the Object to build a {@code toString} for, not recommended to be null
+     * @param style  the style of the {@code toString} to create, null uses the default style
+     * @param buffer  the {@code StringBuffer} to populate, may be null
      */
-    public ToStringBuilder(Object object, ToStringStyle style, StringBuffer buffer) {
+    public ToStringBuilder(final Object object, ToStringStyle style, StringBuffer buffer) {
         if (style == null) {
             style = getDefaultStyle();
         }
@@ -281,13 +263,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>boolean</code>
+     * <p>Append to the {@code toString} a {@code boolean}
      * value.</p>
      *
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(boolean value) {
+    public ToStringBuilder append(final boolean value) {
         style.append(buffer, null, value);
         return this;
     }
@@ -295,13 +277,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>boolean</code>
+     * <p>Append to the {@code toString} a {@code boolean}
      * array.</p>
      *
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(boolean[] array) {
+    public ToStringBuilder append(final boolean[] array) {
         style.append(buffer, null, array, null);
         return this;
     }
@@ -309,13 +291,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>byte</code>
+     * <p>Append to the {@code toString} a {@code byte}
      * value.</p>
      *
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(byte value) {
+    public ToStringBuilder append(final byte value) {
         style.append(buffer, null, value);
         return this;
     }
@@ -323,13 +305,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>byte</code>
+     * <p>Append to the {@code toString} a {@code byte}
      * array.</p>
      *
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(byte[] array) {
+    public ToStringBuilder append(final byte[] array) {
         style.append(buffer, null, array, null);
         return this;
     }
@@ -337,13 +319,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>char</code>
+     * <p>Append to the {@code toString} a {@code char}
      * value.</p>
      *
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(char value) {
+    public ToStringBuilder append(final char value) {
         style.append(buffer, null, value);
         return this;
     }
@@ -351,13 +333,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>char</code>
+     * <p>Append to the {@code toString} a {@code char}
      * array.</p>
      *
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(char[] array) {
+    public ToStringBuilder append(final char[] array) {
         style.append(buffer, null, array, null);
         return this;
     }
@@ -365,13 +347,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>double</code>
+     * <p>Append to the {@code toString} a {@code double}
      * value.</p>
      *
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(double value) {
+    public ToStringBuilder append(final double value) {
         style.append(buffer, null, value);
         return this;
     }
@@ -379,13 +361,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>double</code>
+     * <p>Append to the {@code toString} a {@code double}
      * array.</p>
      *
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(double[] array) {
+    public ToStringBuilder append(final double[] array) {
         style.append(buffer, null, array, null);
         return this;
     }
@@ -393,13 +375,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>float</code>
+     * <p>Append to the {@code toString} a {@code float}
      * value.</p>
      *
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(float value) {
+    public ToStringBuilder append(final float value) {
         style.append(buffer, null, value);
         return this;
     }
@@ -407,13 +389,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>float</code>
+     * <p>Append to the {@code toString} a {@code float}
      * array.</p>
      *
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(float[] array) {
+    public ToStringBuilder append(final float[] array) {
         style.append(buffer, null, array, null);
         return this;
     }
@@ -421,13 +403,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> an <code>int</code>
+     * <p>Append to the {@code toString} an {@code int}
      * value.</p>
      *
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(int value) {
+    public ToStringBuilder append(final int value) {
         style.append(buffer, null, value);
         return this;
     }
@@ -435,13 +417,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> an <code>int</code>
+     * <p>Append to the {@code toString} an {@code int}
      * array.</p>
      *
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(int[] array) {
+    public ToStringBuilder append(final int[] array) {
         style.append(buffer, null, array, null);
         return this;
     }
@@ -449,13 +431,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>long</code>
+     * <p>Append to the {@code toString} a {@code long}
      * value.</p>
      *
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(long value) {
+    public ToStringBuilder append(final long value) {
         style.append(buffer, null, value);
         return this;
     }
@@ -463,13 +445,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>long</code>
+     * <p>Append to the {@code toString} a {@code long}
      * array.</p>
      *
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(long[] array) {
+    public ToStringBuilder append(final long[] array) {
         style.append(buffer, null, array, null);
         return this;
     }
@@ -477,13 +459,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> an <code>Object</code>
+     * <p>Append to the {@code toString} an {@code Object}
      * value.</p>
      *
-     * @param obj  the value to add to the <code>toString</code>
+     * @param obj  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(Object obj) {
+    public ToStringBuilder append(final Object obj) {
         style.append(buffer, null, obj, null);
         return this;
     }
@@ -491,13 +473,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> an <code>Object</code>
+     * <p>Append to the {@code toString} an {@code Object}
      * array.</p>
      *
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(Object[] array) {
+    public ToStringBuilder append(final Object[] array) {
         style.append(buffer, null, array, null);
         return this;
     }
@@ -505,13 +487,13 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>short</code>
+     * <p>Append to the {@code toString} a {@code short}
      * value.</p>
      *
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(short value) {
+    public ToStringBuilder append(final short value) {
         style.append(buffer, null, value);
         return this;
     }
@@ -519,441 +501,441 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append to the <code>toString</code> a <code>short</code>
+     * <p>Append to the {@code toString} a {@code short}
      * array.</p>
      *
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(short[] array) {
+    public ToStringBuilder append(final short[] array) {
         style.append(buffer, null, array, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>boolean</code>
+     * <p>Append to the {@code toString} a {@code boolean}
      * value.</p>
      *
      * @param fieldName  the field name
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, boolean value) {
+    public ToStringBuilder append(final String fieldName, final boolean value) {
         style.append(buffer, fieldName, value);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>boolean</code>
+     * <p>Append to the {@code toString} a {@code boolean}
      * array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>hashCode</code>
+     * @param array  the array to add to the {@code hashCode}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, boolean[] array) {
+    public ToStringBuilder append(final String fieldName, final boolean[] array) {
         style.append(buffer, fieldName, array, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>boolean</code>
+     * <p>Append to the {@code toString} a {@code boolean}
      * array.</p>
      *
      * <p>A boolean parameter controls the level of detail to show.
-     * Setting <code>true</code> will output the array in full. Setting
-     * <code>false</code> will output a summary, typically the size of
+     * Setting {@code true} will output the array in full. Setting
+     * {@code false} will output a summary, typically the size of
      * the array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
-     * @param fullDetail  <code>true</code> for detail, <code>false</code>
+     * @param array  the array to add to the {@code toString}
+     * @param fullDetail  {@code true} for detail, {@code false}
      *  for summary info
      * @return this
      */
-    public ToStringBuilder append(String fieldName, boolean[] array, boolean fullDetail) {
+    public ToStringBuilder append(final String fieldName, final boolean[] array, final boolean fullDetail) {
         style.append(buffer, fieldName, array, Boolean.valueOf(fullDetail));
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> an <code>byte</code>
+     * <p>Append to the {@code toString} an {@code byte}
      * value.</p>
      *
      * @param fieldName  the field name
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, byte value) {
+    public ToStringBuilder append(final String fieldName, final byte value) {
         style.append(buffer, fieldName, value);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>byte</code> array.</p>
+     * <p>Append to the {@code toString} a {@code byte} array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, byte[] array) {
+    public ToStringBuilder append(final String fieldName, final byte[] array) {
         style.append(buffer, fieldName, array, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>byte</code>
+     * <p>Append to the {@code toString} a {@code byte}
      * array.</p>
      *
      * <p>A boolean parameter controls the level of detail to show.
-     * Setting <code>true</code> will output the array in full. Setting
-     * <code>false</code> will output a summary, typically the size of
+     * Setting {@code true} will output the array in full. Setting
+     * {@code false} will output a summary, typically the size of
      * the array.
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
-     * @param fullDetail  <code>true</code> for detail, <code>false</code>
+     * @param array  the array to add to the {@code toString}
+     * @param fullDetail  {@code true} for detail, {@code false}
      *  for summary info
      * @return this
      */
-    public ToStringBuilder append(String fieldName, byte[] array, boolean fullDetail) {
+    public ToStringBuilder append(final String fieldName, final byte[] array, final boolean fullDetail) {
         style.append(buffer, fieldName, array, Boolean.valueOf(fullDetail));
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>char</code>
+     * <p>Append to the {@code toString} a {@code char}
      * value.</p>
      *
      * @param fieldName  the field name
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, char value) {
+    public ToStringBuilder append(final String fieldName, final char value) {
         style.append(buffer, fieldName, value);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>char</code>
+     * <p>Append to the {@code toString} a {@code char}
      * array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, char[] array) {
+    public ToStringBuilder append(final String fieldName, final char[] array) {
         style.append(buffer, fieldName, array, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>char</code>
+     * <p>Append to the {@code toString} a {@code char}
      * array.</p>
      *
      * <p>A boolean parameter controls the level of detail to show.
-     * Setting <code>true</code> will output the array in full. Setting
-     * <code>false</code> will output a summary, typically the size of
+     * Setting {@code true} will output the array in full. Setting
+     * {@code false} will output a summary, typically the size of
      * the array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
-     * @param fullDetail  <code>true</code> for detail, <code>false</code>
+     * @param array  the array to add to the {@code toString}
+     * @param fullDetail  {@code true} for detail, {@code false}
      *  for summary info
      * @return this
      */
-    public ToStringBuilder append(String fieldName, char[] array, boolean fullDetail) {
+    public ToStringBuilder append(final String fieldName, final char[] array, final boolean fullDetail) {
         style.append(buffer, fieldName, array, Boolean.valueOf(fullDetail));
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>double</code>
+     * <p>Append to the {@code toString} a {@code double}
      * value.</p>
      *
      * @param fieldName  the field name
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, double value) {
+    public ToStringBuilder append(final String fieldName, final double value) {
         style.append(buffer, fieldName, value);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>double</code>
+     * <p>Append to the {@code toString} a {@code double}
      * array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, double[] array) {
+    public ToStringBuilder append(final String fieldName, final double[] array) {
         style.append(buffer, fieldName, array, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>double</code>
+     * <p>Append to the {@code toString} a {@code double}
      * array.</p>
      *
      * <p>A boolean parameter controls the level of detail to show.
-     * Setting <code>true</code> will output the array in full. Setting
-     * <code>false</code> will output a summary, typically the size of
+     * Setting {@code true} will output the array in full. Setting
+     * {@code false} will output a summary, typically the size of
      * the array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
-     * @param fullDetail  <code>true</code> for detail, <code>false</code>
+     * @param array  the array to add to the {@code toString}
+     * @param fullDetail  {@code true} for detail, {@code false}
      *  for summary info
      * @return this
      */
-    public ToStringBuilder append(String fieldName, double[] array, boolean fullDetail) {
+    public ToStringBuilder append(final String fieldName, final double[] array, final boolean fullDetail) {
         style.append(buffer, fieldName, array, Boolean.valueOf(fullDetail));
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> an <code>float</code>
+     * <p>Append to the {@code toString} an {@code float}
      * value.</p>
      *
      * @param fieldName  the field name
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, float value) {
+    public ToStringBuilder append(final String fieldName, final float value) {
         style.append(buffer, fieldName, value);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>float</code>
+     * <p>Append to the {@code toString} a {@code float}
      * array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, float[] array) {
+    public ToStringBuilder append(final String fieldName, final float[] array) {
         style.append(buffer, fieldName, array, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>float</code>
+     * <p>Append to the {@code toString} a {@code float}
      * array.</p>
      *
      * <p>A boolean parameter controls the level of detail to show.
-     * Setting <code>true</code> will output the array in full. Setting
-     * <code>false</code> will output a summary, typically the size of
+     * Setting {@code true} will output the array in full. Setting
+     * {@code false} will output a summary, typically the size of
      * the array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
-     * @param fullDetail  <code>true</code> for detail, <code>false</code>
+     * @param array  the array to add to the {@code toString}
+     * @param fullDetail  {@code true} for detail, {@code false}
      *  for summary info
      * @return this
      */
-    public ToStringBuilder append(String fieldName, float[] array, boolean fullDetail) {
+    public ToStringBuilder append(final String fieldName, final float[] array, final boolean fullDetail) {
         style.append(buffer, fieldName, array, Boolean.valueOf(fullDetail));
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> an <code>int</code>
+     * <p>Append to the {@code toString} an {@code int}
      * value.</p>
      *
      * @param fieldName  the field name
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, int value) {
+    public ToStringBuilder append(final String fieldName, final int value) {
         style.append(buffer, fieldName, value);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> an <code>int</code>
+     * <p>Append to the {@code toString} an {@code int}
      * array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, int[] array) {
+    public ToStringBuilder append(final String fieldName, final int[] array) {
         style.append(buffer, fieldName, array, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> an <code>int</code>
+     * <p>Append to the {@code toString} an {@code int}
      * array.</p>
      *
      * <p>A boolean parameter controls the level of detail to show.
-     * Setting <code>true</code> will output the array in full. Setting
-     * <code>false</code> will output a summary, typically the size of
+     * Setting {@code true} will output the array in full. Setting
+     * {@code false} will output a summary, typically the size of
      * the array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
-     * @param fullDetail  <code>true</code> for detail, <code>false</code>
+     * @param array  the array to add to the {@code toString}
+     * @param fullDetail  {@code true} for detail, {@code false}
      *  for summary info
      * @return this
      */
-    public ToStringBuilder append(String fieldName, int[] array, boolean fullDetail) {
+    public ToStringBuilder append(final String fieldName, final int[] array, final boolean fullDetail) {
         style.append(buffer, fieldName, array, Boolean.valueOf(fullDetail));
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>long</code>
+     * <p>Append to the {@code toString} a {@code long}
      * value.</p>
      *
      * @param fieldName  the field name
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, long value) {
+    public ToStringBuilder append(final String fieldName, final long value) {
         style.append(buffer, fieldName, value);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>long</code>
+     * <p>Append to the {@code toString} a {@code long}
      * array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, long[] array) {
+    public ToStringBuilder append(final String fieldName, final long[] array) {
         style.append(buffer, fieldName, array, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>long</code>
+     * <p>Append to the {@code toString} a {@code long}
      * array.</p>
      *
      * <p>A boolean parameter controls the level of detail to show.
-     * Setting <code>true</code> will output the array in full. Setting
-     * <code>false</code> will output a summary, typically the size of
+     * Setting {@code true} will output the array in full. Setting
+     * {@code false} will output a summary, typically the size of
      * the array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
-     * @param fullDetail  <code>true</code> for detail, <code>false</code>
+     * @param array  the array to add to the {@code toString}
+     * @param fullDetail  {@code true} for detail, {@code false}
      *  for summary info
      * @return this
      */
-    public ToStringBuilder append(String fieldName, long[] array, boolean fullDetail) {
+    public ToStringBuilder append(final String fieldName, final long[] array, final boolean fullDetail) {
         style.append(buffer, fieldName, array, Boolean.valueOf(fullDetail));
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> an <code>Object</code>
+     * <p>Append to the {@code toString} an {@code Object}
      * value.</p>
      *
      * @param fieldName  the field name
-     * @param obj  the value to add to the <code>toString</code>
+     * @param obj  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, Object obj) {
+    public ToStringBuilder append(final String fieldName, final Object obj) {
         style.append(buffer, fieldName, obj, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> an <code>Object</code>
+     * <p>Append to the {@code toString} an {@code Object}
      * value.</p>
      *
      * @param fieldName  the field name
-     * @param obj  the value to add to the <code>toString</code>
-     * @param fullDetail  <code>true</code> for detail,
-     *  <code>false</code> for summary info
+     * @param obj  the value to add to the {@code toString}
+     * @param fullDetail  {@code true} for detail,
+     *  {@code false} for summary info
      * @return this
      */
-    public ToStringBuilder append(String fieldName, Object obj, boolean fullDetail) {
+    public ToStringBuilder append(final String fieldName, final Object obj, final boolean fullDetail) {
         style.append(buffer, fieldName, obj, Boolean.valueOf(fullDetail));
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> an <code>Object</code>
+     * <p>Append to the {@code toString} an {@code Object}
      * array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, Object[] array) {
+    public ToStringBuilder append(final String fieldName, final Object[] array) {
         style.append(buffer, fieldName, array, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> an <code>Object</code>
+     * <p>Append to the {@code toString} an {@code Object}
      * array.</p>
      *
      * <p>A boolean parameter controls the level of detail to show.
-     * Setting <code>true</code> will output the array in full. Setting
-     * <code>false</code> will output a summary, typically the size of
+     * Setting {@code true} will output the array in full. Setting
+     * {@code false} will output a summary, typically the size of
      * the array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
-     * @param fullDetail  <code>true</code> for detail, <code>false</code>
+     * @param array  the array to add to the {@code toString}
+     * @param fullDetail  {@code true} for detail, {@code false}
      *  for summary info
      * @return this
      */
-    public ToStringBuilder append(String fieldName, Object[] array, boolean fullDetail) {
+    public ToStringBuilder append(final String fieldName, final Object[] array, final boolean fullDetail) {
         style.append(buffer, fieldName, array, Boolean.valueOf(fullDetail));
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> an <code>short</code>
+     * <p>Append to the {@code toString} an {@code short}
      * value.</p>
      *
      * @param fieldName  the field name
-     * @param value  the value to add to the <code>toString</code>
+     * @param value  the value to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, short value) {
+    public ToStringBuilder append(final String fieldName, final short value) {
         style.append(buffer, fieldName, value);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>short</code>
+     * <p>Append to the {@code toString} a {@code short}
      * array.</p>
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
+     * @param array  the array to add to the {@code toString}
      * @return this
      */
-    public ToStringBuilder append(String fieldName, short[] array) {
+    public ToStringBuilder append(final String fieldName, final short[] array) {
         style.append(buffer, fieldName, array, null);
         return this;
     }
 
     /**
-     * <p>Append to the <code>toString</code> a <code>short</code>
+     * <p>Append to the {@code toString} a {@code short}
      * array.</p>
      *
      * <p>A boolean parameter controls the level of detail to show.
-     * Setting <code>true</code> will output the array in full. Setting
-     * <code>false</code> will output a summary, typically the size of
+     * Setting {@code true} will output the array in full. Setting
+     * {@code false} will output a summary, typically the size of
      * the array.
      *
      * @param fieldName  the field name
-     * @param array  the array to add to the <code>toString</code>
-     * @param fullDetail  <code>true</code> for detail, <code>false</code>
+     * @param array  the array to add to the {@code toString}
+     * @param fullDetail  {@code true} for detail, {@code false}
      *  for summary info
      * @return this
      */
-    public ToStringBuilder append(String fieldName, short[] array, boolean fullDetail) {
+    public ToStringBuilder append(final String fieldName, final short[] array, final boolean fullDetail) {
         style.append(buffer, fieldName, array, Boolean.valueOf(fullDetail));
         return this;
     }
@@ -963,30 +945,30 @@ public class ToStringBuilder implements Builder<String> {
      * </code> method. Appends the class name followed by
      * {@link System#identityHashCode(java.lang.Object)}.</p>
      *
-     * @param object  the <code>Object</code> whose class name and id to output
+     * @param srcObject  the {@code Object} whose class name and id to output
      * @return this
      * @since 2.0
      */
-    public ToStringBuilder appendAsObjectToString(Object object) {
-        ObjectUtils.identityToString(this.getStringBuffer(), object);
+    public ToStringBuilder appendAsObjectToString(final Object srcObject) {
+        ObjectUtils.identityToString(this.getStringBuffer(), srcObject);
         return this;
     }
 
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Append the <code>toString</code> from the superclass.</p>
+     * <p>Append the {@code toString} from the superclass.</p>
      *
-     * <p>This method assumes that the superclass uses the same <code>ToStringStyle</code>
+     * <p>This method assumes that the superclass uses the same {@code ToStringStyle}
      * as this one.</p>
      *
-     * <p>If <code>superToString</code> is <code>null</code>, no change is made.</p>
+     * <p>If {@code superToString} is {@code null}, no change is made.</p>
      *
-     * @param superToString  the result of <code>super.toString()</code>
+     * @param superToString  the result of {@code super.toString()}
      * @return this
      * @since 2.0
      */
-    public ToStringBuilder appendSuper(String superToString) {
+    public ToStringBuilder appendSuper(final String superToString) {
         if (superToString != null) {
             style.appendSuper(buffer, superToString);
         }
@@ -994,10 +976,10 @@ public class ToStringBuilder implements Builder<String> {
     }
 
     /**
-     * <p>Append the <code>toString</code> from another object.</p>
+     * <p>Append the {@code toString} from another object.</p>
      *
      * <p>This method is useful where a class delegates most of the implementation of
-     * its properties to another class. You can then call <code>toString()</code> on
+     * its properties to another class. You can then call {@code toString()} on
      * the other class and pass the result into this method.</p>
      *
      * <pre>
@@ -1011,16 +993,16 @@ public class ToStringBuilder implements Builder<String> {
      *       toString();
      *   }</pre>
      *
-     * <p>This method assumes that the other object uses the same <code>ToStringStyle</code>
+     * <p>This method assumes that the other object uses the same {@code ToStringStyle}
      * as this one.</p>
      *
-     * <p>If the <code>toString</code> is <code>null</code>, no change is made.</p>
+     * <p>If the {@code toString} is {@code null}, no change is made.</p>
      *
-     * @param toString  the result of <code>toString()</code> on another object
+     * @param toString  the result of {@code toString()} on another object
      * @return this
      * @since 2.0
      */
-    public ToStringBuilder appendToString(String toString) {
+    public ToStringBuilder appendToString(final String toString) {
         if (toString != null) {
             style.appendToString(buffer, toString);
         }
@@ -1028,7 +1010,7 @@ public class ToStringBuilder implements Builder<String> {
     }
 
     /**
-     * <p>Returns the <code>Object</code> being output.</p>
+     * <p>Returns the {@code Object} being output.</p>
      *
      * @return The object being output.
      * @since 2.0
@@ -1038,9 +1020,9 @@ public class ToStringBuilder implements Builder<String> {
     }
 
     /**
-     * <p>Gets the <code>StringBuffer</code> being populated.</p>
+     * <p>Gets the {@code StringBuffer} being populated.</p>
      *
-     * @return the <code>StringBuffer</code> being populated
+     * @return the {@code StringBuffer} being populated
      */
     public StringBuffer getStringBuffer() {
         return buffer;
@@ -1049,9 +1031,9 @@ public class ToStringBuilder implements Builder<String> {
     //----------------------------------------------------------------------------
 
     /**
-     * <p>Gets the <code>ToStringStyle</code> being used.</p>
+     * <p>Gets the {@code ToStringStyle} being used.</p>
      *
-     * @return the <code>ToStringStyle</code> being used
+     * @return the {@code ToStringStyle} being used
      * @since 2.0
      */
     public ToStringStyle getStyle() {
@@ -1059,14 +1041,14 @@ public class ToStringBuilder implements Builder<String> {
     }
 
     /**
-     * <p>Returns the built <code>toString</code>.</p>
+     * <p>Returns the built {@code toString}.</p>
      *
      * <p>This method appends the end of data indicator, and can only be called once.
      * Use {@link #getStringBuffer} to get the current string state.</p>
      *
-     * <p>If the object is <code>null</code>, return the style's <code>nullText</code></p>
+     * <p>If the object is {@code null}, return the style's {@code nullText}</p>
      *
-     * @return the String <code>toString</code>
+     * @return the String {@code toString}
      */
     @Override
     public String toString() {
@@ -1082,12 +1064,13 @@ public class ToStringBuilder implements Builder<String> {
      * Returns the String that was build as an object representation. The
      * default implementation utilizes the {@link #toString()} implementation.
      *
-     * @return the String <code>toString</code>
+     * @return the String {@code toString}
      *
      * @see #toString()
      *
      * @since 3.0
      */
+    @Override
     public String build() {
         return toString();
     }

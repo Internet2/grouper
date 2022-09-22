@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -42,6 +27,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * This class maintains a member field of type {@code AtomicReference}. It
  * implements the following algorithm to create and initialize an object in its
  * {@link #get()} method:
+ * </p>
  * <ul>
  * <li>First it is checked whether the {@code AtomicReference} variable contains
  * already a value. If this is the case, the value is directly returned.</li>
@@ -54,7 +40,6 @@ import java.util.concurrent.atomic.AtomicReference;
  * in it and returned by this method.</li>
  * <li>Otherwise the value stored in the {@code AtomicReference} is returned.</li>
  * </ul>
- * </p>
  * <p>
  * Because atomic variables are used this class does not need any
  * synchronization. So there is no danger of deadlock, and access to the managed
@@ -76,12 +61,11 @@ import java.util.concurrent.atomic.AtomicReference;
  * </p>
  *
  * @since 3.0
- * @version $Id: AtomicInitializer.java 1088899 2011-04-05 05:31:27Z bayard $
  * @param <T> the type of the object managed by this initializer class
  */
 public abstract class AtomicInitializer<T> implements ConcurrentInitializer<T> {
     /** Holds the reference to the managed object. */
-    private final AtomicReference<T> reference = new AtomicReference<T>();
+    private final AtomicReference<T> reference = new AtomicReference<>();
 
     /**
      * Returns the object managed by this initializer. The object is created if
@@ -92,6 +76,7 @@ public abstract class AtomicInitializer<T> implements ConcurrentInitializer<T> {
      * @throws ConcurrentException if an error occurred during initialization of
      * the object
      */
+    @Override
     public T get() throws ConcurrentException {
         T result = reference.get();
 

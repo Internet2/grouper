@@ -822,7 +822,6 @@ public class ConfigPropertiesCascadeCommonUtils  {
     return batchNumberOfBatches(arrraySize, batchSize);
 
   }
-
   /**
    * retrieve a batch by 0 index. Will return an array of size batchSize or
    * the remainder. the array will be full of elements. Note, this requires an

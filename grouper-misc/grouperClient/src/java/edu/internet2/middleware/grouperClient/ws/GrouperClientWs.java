@@ -21,7 +21,6 @@ package edu.internet2.middleware.grouperClient.ws;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
@@ -51,12 +50,9 @@ import edu.internet2.middleware.grouperClient.ssl.EasySslSocketFactory;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClient.util.GrouperClientXstreamUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.ResultMetadataHolder;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestResultProblem;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResultMeta;
-import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.XStream;
-import edu.internet2.middleware.grouperClientExt.com.thoughtworks.xstream.io.xml.CompactWriter;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.Credentials;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
@@ -81,11 +77,6 @@ import edu.internet2.middleware.morphString.Crypto;
  * this is the client that all requests go through.  if you add an instance field, make sure to add to copyFrom()
  */
 public class GrouperClientWs {
-  
-  /**
-   * 
-   */
-  private XStream xStream;
   
   /**
    * 
@@ -141,7 +132,6 @@ public class GrouperClientWs {
     //dont copy result
     this.resultCode = grouperClientWs.resultCode;
     this.success = grouperClientWs.success;
-    this.xStream = grouperClientWs.xStream;
   }
 
   /**
@@ -163,7 +153,6 @@ public class GrouperClientWs {
    * 
    */
   public GrouperClientWs() {
-    this.xStream = GrouperClientXstreamUtils.retrieveXstream();
   }
   
   /** keep a reference to the most recent for testing */
@@ -675,7 +664,7 @@ public class GrouperClientWs {
     int[] responseCode = new int[1];
     
     //make sure right content type is in request (e.g. application/xhtml+xml
-    grouperClientWs.method = grouperClientWs.postMethod(url, grouperClientWs.xStream, urlSuffix, 
+    grouperClientWs.method = grouperClientWs.postMethod(url, urlSuffix, 
         toSend, requestFile, responseCode, clientVersion);
 
     //make sure a request came back
@@ -742,12 +731,12 @@ public class GrouperClientWs {
         System.err.println("\n################ RESPONSE END ###############\n\n");
       }
       if (indentException != null) {
-        throw new RuntimeException("Problems indenting xml (is it valid?), turn off the indenting in the " +
+        throw new RuntimeException("Problems indenting json (is it valid?), turn off the indenting in the " +
             "grouper.client.properties: grouperClient.logging.webService.indent", indentException);
       }
     }
 
-    Object resultObject = toSend instanceof String ? grouperClientWs.response : grouperClientWs.xStream.fromXML(grouperClientWs.response);
+    Object resultObject = toSend instanceof String ? grouperClientWs.response : GrouperClientUtils.jsonConvertFrom(WsRestClassLookup.getAliasClassMap(), grouperClientWs.response);
     
     //see if problem
     if (resultObject instanceof WsRestResultProblem) {
@@ -981,17 +970,17 @@ public class GrouperClientWs {
    * @throws HttpException 
    * @throws IOException 
    */
-  private PostMethod postMethod(String url, XStream theXstream, 
+  private PostMethod postMethod(String url, 
       String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode, String clientVersion)  {
     
     try {
-      String theContentType = GrouperClientUtils.defaultIfBlank(this.contentType, "text/xml");
+      String theContentType = GrouperClientUtils.defaultIfBlank(this.contentType, "application/json");
       
       HttpClient httpClient = httpClient();
   
       PostMethod postMethod = postMethod(url, urlSuffix, clientVersion);
   
-      String requestDocument = objectToMarshall instanceof String ? (String)objectToMarshall : marshalObject(theXstream, objectToMarshall);
+      String requestDocument = objectToMarshall instanceof String ? (String)objectToMarshall : marshalObject(objectToMarshall);
       
       postMethod.setRequestEntity(new StringRequestEntity(requestDocument, theContentType, "UTF-8"));
       
@@ -1082,7 +1071,7 @@ public class GrouperClientWs {
           System.err.println("\n################ REQUEST END ###############\n\n");
         }
         if (indentException != null) {
-          throw new RuntimeException("Problems indenting xml (is it valid?), turn off the indenting in the " +
+          throw new RuntimeException("Problems indenting json (is it valid?), turn off the indenting in the " +
           		"grouper.client.properties: grouperClient.logging.webService.indent", indentException);
         }
       }
@@ -1142,13 +1131,8 @@ public class GrouperClientWs {
    * @param object
    * @return the xml
    */
-  private static String marshalObject(XStream xStream, Object object) {
-    StringWriter stringWriter = new StringWriter();
-    //dont indent
-    xStream.marshal(object, new CompactWriter(stringWriter));
-
-    String requestDocument = stringWriter.toString();
-    return requestDocument;
+  private static String marshalObject(Object object) {
+    return GrouperClientUtils.jsonConvertTo(object, true);
   }
   
 

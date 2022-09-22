@@ -1,22 +1,7 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * $HeadURL: https://svn.apache.org/repos/asf/jakarta/httpcomponents/oac.hc3x/tags/HTTPCLIENT_3_1/src/java/org/apache/commons/httpclient/cookie/RFC2965Spec.java $
- * $Revision: 1.1 $
- * $Date: 2008-11-30 10:57:19 $
+ * $Revision: 507134 $
+ * $Date: 2007-02-13 19:18:05 +0100 (Tue, 13 Feb 2007) $
  * 
  * ====================================================================
  *
@@ -956,7 +941,7 @@ public class RFC2965Spec extends CookieSpecBase implements CookieVersionSupport 
       }
 
       /**
-       * @see CookieAttributeHandler#match(edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.Cookie, String)
+       * @see CookieAttributeHandler#match(org.apache.commons.httpclient.Cookie, String)
        */
       public boolean match(final Cookie cookie, final CookieOrigin origin) {
           return true;

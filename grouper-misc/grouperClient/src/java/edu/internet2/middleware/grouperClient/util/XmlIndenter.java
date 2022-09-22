@@ -148,7 +148,7 @@ public class XmlIndenter {
    * @param theEndTagIndex
    * @return true if ignore
    */
-  static boolean ignoreTag(String theXml, int theStartTagIndex, int theEndTagIndex) {
+  public static boolean ignoreTag(String theXml, int theStartTagIndex, int theEndTagIndex) {
     char firstChar = theXml.charAt(theStartTagIndex+1);
     if (firstChar == '?' || firstChar == '!') {
       return true;
@@ -195,12 +195,17 @@ public class XmlIndenter {
    * @param endTagIndex (or -1 if none found)
    * @return the current tag name
    */
-  static String tagName(String xml, int startTagIndex, int endTagIndex) {
+  public static String tagName(String xml, int startTagIndex, int endTagIndex) {
     endTagIndex = endTagIndex > startTagIndex ? endTagIndex : (xml.length()-1);
     String tag = xml.substring(startTagIndex, endTagIndex+1);
     Pattern tagPattern = Pattern.compile("^<[\\s/]*([a-zA-Z_\\-0-9:\\.]+).*$", Pattern.DOTALL);
     Matcher matcher = tagPattern.matcher(tag);
     if (!matcher.matches()) {
+      Pattern commentPattern = Pattern.compile("^<!--.*-->$");
+      matcher = commentPattern.matcher(tag);
+      if (matcher.matches()) {
+        return "XML_COMMENT";
+      }
       throw new RuntimeException("Cant match tag: '" + tag + "'");
     }
     //assume this matches...
@@ -238,7 +243,7 @@ public class XmlIndenter {
    * @param startFrom
    * @return the start tag index of -1 if not found another
    */
-  static int findNextStartTagIndex(String xml, int startFrom) {
+  public static int findNextStartTagIndex(String xml, int startFrom) {
     int length = xml.length();
     for (int i= startFrom; i<length;i++) {
       if (xml.charAt(i) == '<') {
@@ -254,7 +259,7 @@ public class XmlIndenter {
    * @param startFrom
    * @return the start tag index of -1 if not found another
    */
-  static int findNextEndTagIndex(String xml, int startFrom) {
+  public static int findNextEndTagIndex(String xml, int startFrom) {
     int length = xml.length();
     for (int i= startFrom; i<length;i++) {
       if (xml.charAt(i) == '>') {
@@ -270,7 +275,7 @@ public class XmlIndenter {
    * @param endTagIndex
    * @return true if self closed
    */
-  static boolean selfClosedTag(String xml, int endTagIndex) {
+  public static boolean selfClosedTag(String xml, int endTagIndex) {
     for (int i=endTagIndex-1;i>=0;i--) {
       char curChar = xml.charAt(i);
       //ignore whitespace
@@ -292,14 +297,15 @@ public class XmlIndenter {
    * @param startTagIndex
    * @return true if self closed
    */
-  static boolean closeTag(String xml, int startTagIndex) {
+  public static boolean closeTag(String xml, int startTagIndex) {
     for (int i=startTagIndex+1;i<xml.length();i++) {
       char curChar = xml.charAt(i);
       //ignore whitespace
       if (Character.isWhitespace(curChar)) {
         continue;
       }
-      if (curChar == '/') {
+      //could be a comment
+      if (curChar == '/' || curChar == '!') {
         return true;
       }
       return false;
@@ -318,8 +324,12 @@ public class XmlIndenter {
    * @param isNextCloseTag 
    * @return true if contains text (as opposed to other tags)
    */
-  static boolean textTag(String xml, int endTagIndex, String tagName, 
+  public static boolean textTag(String xml, int endTagIndex, String tagName, 
       String nextTagName, boolean isNextCloseTag) {
+    if (GrouperClientUtils.equals("XML_COMMENT", tagName)) {
+      return false;
+    }
+
     if (GrouperClientUtils.equals(tagName, nextTagName) && isNextCloseTag) {
       return true;
     }

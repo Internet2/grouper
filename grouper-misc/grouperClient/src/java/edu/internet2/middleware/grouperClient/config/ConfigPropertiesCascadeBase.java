@@ -35,6 +35,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -978,6 +979,9 @@ public abstract class ConfigPropertiesCascadeBase {
       result.configFiles.add(configFile);
       
       boolean replaceWithBlank = false;
+      
+      String configFileContents = null;
+      boolean grouperClientConfigNextToJar = false;
       //lets append the properties
       if (configFile.getConfigFileType() == ConfigFileType.CLASSPATH) {
         if (GrouperClientUtils.equals(overrideConfigString, "classpath:grouper.properties")
@@ -994,13 +998,26 @@ public abstract class ConfigPropertiesCascadeBase {
           String resource = GrouperClientUtils.stripPrefix(overrideConfigString, "classpath:");
           URL url = GrouperClientUtils.computeUrl(resource, true);
           if (url == null) {
-            replaceWithBlank = true;
+            if (GrouperClientUtils.equals(overrideConfigString, "classpath:grouper.client.properties") && mainConfigFile != null && mainConfigFile.size() > 0) {
+              // dont clear out, its next to the jar
+              grouperClientConfigNextToJar = true;
+            } else {
+              replaceWithBlank = true;
+            }
           }
         }
       }
-      String configFileContents = replaceWithBlank ? "" : configFile.retrieveContents(this);
-      configFile.setContents(configFileContents);
       
+      if (!grouperClientConfigNextToJar) {
+        configFileContents = replaceWithBlank ? "" : configFile.retrieveContents(this);
+      } else {
+        File jarFile = ConfigPropertiesCascadeUtils.jarFile(this.getClassInSiblingJar());
+        File parentDir = jarFile == null ? null : jarFile.getParentFile();
+        String fileName = parentDir == null ? null 
+            : (ConfigPropertiesCascadeUtils.stripLastSlashIfExists(ConfigPropertiesCascadeUtils.fileCanonicalPath(parentDir)) + File.separator + this.getMainConfigFileName());
+        configFileContents = GrouperClientCommonUtils.readFileIntoStringUtf8(new File(fileName));
+      }      
+      configFile.setContents(configFileContents);
       try {
         // keep a copy in here for config screen
         configFile.setProperties(new Properties());
@@ -1111,18 +1128,28 @@ public abstract class ConfigPropertiesCascadeBase {
 
           configObject = configFileCache.get(this.getClass());
 
-          //check again in case another thread did it
-          if (configObject.needToCheckIfFilesNeedReloading()) {
-
+          //why is this null?
+          if (configObject == null) {
             if (LOG != null && isDebugEnabled) {
-              debugMap.put("needToCheckIfFilesNeedReloading2", true);
+              debugMap.put("phantomNull", true);
             }
-            if (configObject.filesNeedReloadingBasedOnContents()) {
+            configObject = retrieveFromConfigFiles();
+            configFileCache.put(this.getClass(), configObject);
+          } else {
+          
+            //check again in case another thread did it
+            if (configObject.needToCheckIfFilesNeedReloading()) {
+  
               if (LOG != null && isDebugEnabled) {
-                debugMap.put("filesNeedReloadingBasedOnContents", true);
+                debugMap.put("needToCheckIfFilesNeedReloading2", true);
               }
-              configObject = retrieveFromConfigFiles();
-              configFileCache.put(this.getClass(), configObject);
+              if (configObject.filesNeedReloadingBasedOnContents()) {
+                if (LOG != null && isDebugEnabled) {
+                  debugMap.put("filesNeedReloadingBasedOnContents", true);
+                }
+                configObject = retrieveFromConfigFiles();
+                configFileCache.put(this.getClass(), configObject);
+              }
             }
           }
         }
@@ -1573,6 +1600,22 @@ public abstract class ConfigPropertiesCascadeBase {
   }
   
   /**
+   * find all config ids that match a pattern and return the configId (first match)
+   * @param pattern e.g. "^grouperOsgiPlugin\\.([^.]+)\\.jarName$
+   * @return the config ids.  if none, will return the empty set, not null set
+   */
+  public Set<String> propertyConfigIds(Pattern pattern) {
+    Set<String> result = new LinkedHashSet<String>();
+    for (String key: propertyNames()) {
+      Matcher matcher = pattern.matcher(key);
+      if (matcher.matches()) {
+        result.add(matcher.group(1));
+      }
+    }
+    return result;
+  }
+  
+  /**
    * pattern to find where the variables are in the textm, e.g. $$something$$
    */
   private static Pattern substitutePattern = Pattern.compile("\\$\\$([^\\s\\$]+?)\\$\\$");
@@ -1735,6 +1778,53 @@ public abstract class ConfigPropertiesCascadeBase {
       
     }
     return null;
+  }
+
+  /**
+   * see if property name exists not in base or database (config file or db or override)
+   * @param propertyName
+   * @return if configured other than base
+   */
+  public boolean configExistsNotInBaseOrDatabase(String propertyName) {
+
+    // might already be el config
+    if (propertyName.endsWith(".elConfig")) {
+      propertyName = GrouperClientUtils.prefixOrSuffix(propertyName, ".elConfig", true);
+    }
+    
+    List<ConfigFile> theConfigFiles = new ArrayList<ConfigFile>(this.internalRetrieveConfigFiles());
+     
+    // take out base
+    theConfigFiles.remove(0);
+    
+    String elKey = propertyName + ".elConfig";
+    
+    //first check threadlocal map
+    Map<String, String> overrideMap = propertiesThreadLocalOverrideMap();
+    
+    if (overrideMap.containsKey(propertyName) || overrideMap.containsKey(elKey)) {
+      return true;
+    }
+      
+    overrideMap = propertiesOverrideMap();
+      
+    if (overrideMap.containsKey(propertyName) || overrideMap.containsKey(elKey)) {
+      return true;
+    }
+    
+    for (ConfigFile configFile : configFiles) {
+      if (configFile.getConfigFileType() == ConfigFileType.DATABASE) {
+        continue;
+      }
+      Properties theProperties = configFile.getProperties();
+
+      if (theProperties.containsKey(elKey) || theProperties.containsKey(propertyName)) {
+        return true;
+      }
+      
+    }
+    return false;
+    
   }
 
 }

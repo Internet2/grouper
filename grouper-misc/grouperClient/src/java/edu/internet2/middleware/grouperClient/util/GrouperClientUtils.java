@@ -36,7 +36,13 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouperClient.ws.WsRestClassLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
+import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
+import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.annotation.JsonInclude.Include;
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.digest.DigestUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.Credentials;
@@ -69,6 +75,132 @@ import edu.internet2.middleware.morphString.MorphStringConfig;
  * utility methods specific to grouper client
  */
 public class GrouperClientUtils extends GrouperClientCommonUtils {
+
+  public static void main(String[] args) throws Exception {
+    //  {
+    //    "WsRestAddMemberRequest":{
+    //      "subjectLookups":[
+    //        {
+    //          "subjectSourceId":"jdbc",
+    //          "subjectId":"test.subject.0"
+    //        }
+    //      ]
+    //      ,
+    //      "wsGroupLookup":{
+    //        "groupName":"test:testGroup"
+    //      }
+    //    }
+    //  }
+
+    
+    WsRestAddMemberRequest wsRestAddMemberRequest = new WsRestAddMemberRequest();
+    WsSubjectLookup wsSubjectLookup = new WsSubjectLookup("test.subject.0", "jdbc", null);
+    wsRestAddMemberRequest.setSubjectLookups(new WsSubjectLookup[] {wsSubjectLookup});
+    wsRestAddMemberRequest.setWsGroupLookup(new WsGroupLookup("test:group", null));
+    
+    String result = jsonConvertTo(wsRestAddMemberRequest, true);
+    
+    result = new JsonIndenter(result).result();
+
+    System.out.println(result);
+
+    wsRestAddMemberRequest = (WsRestAddMemberRequest)jsonConvertFrom(WsRestClassLookup.getAliasClassMap(), result);
+
+    System.out.println(wsRestAddMemberRequest.getWsGroupLookup().getGroupName()); 
+    System.out.println(wsRestAddMemberRequest.getSubjectLookups()[0].getSubjectId());
+  }
+
+  /**
+   * convert object to json, optionally include object name wrapper
+   * @param object
+   * @param includeObjectNameWrapper
+   * @return the json
+   */
+  public static String jsonConvertTo(Object object, boolean includeObjectNameWrapper) {
+    
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.setSerializationInclusion(Include.NON_NULL);
+    try {
+      String result = mapper.writeValueAsString(object);
+      
+      if (includeObjectNameWrapper) {
+        result = "{\"" + object.getClass().getSimpleName() + "\":" + result + "}";
+      }
+      return result;
+    } catch (Exception e) {
+      
+      throw new RuntimeException("Error with " + (object == null ? "null" : object.getClass().getName()), e);
+    }
+  }
+  
+  /**
+   * <pre>
+   * detects the front of a json string, pops off the first field, and gives the body as the matcher
+   * ^\s*\{\s*\"([^"]+)\"\s*:\s*\{(.*)}$
+   * Example matching text:
+   * {
+   *  "XstreamPocGroup":{
+   *    "somethingNotMarshaled":"whatever",
+   *    "name":"myGroup",
+   *    "someInt":5,
+   *    "someBool":true,
+   *    "members":[
+   *      {
+   *        "name":"John",
+   *        "description":"John Smith - Employee"
+   *      },
+   *      {
+   *        "name":"Mary",
+   *        "description":"Mary Johnson - Student"
+   *      }
+   *    ]
+   *  }
+   * }
+   *
+   * ^\s*          front of string and optional space
+   * \{\s*         open bracket and optional space
+   * \"([^"]+)\"   quote, simple name of class, quote
+   * \s*:\s*       optional space, colon, optional space
+   * \{(.*)}\s*$      open bracket, the class info, close bracket, optional space, end of string
+   *
+   *
+   * </pre>
+   */
+  private static Pattern jsonPattern = Pattern.compile("^\\s*\\{\\s*\\\"([^\"]+)\\\"\\s*:\\s*(.*)}\\s*$", Pattern.DOTALL);
+
+  /**
+   * convert an object from json.  note this works well if there are no collections, just real types, arrays, etc.
+   * @param conversionMap is the class simple name to class of objects which are allowed to be brought back.
+   * Note: only the top level object needs to be registered
+   * @param json
+   * @return the object
+   */
+  public static Object jsonConvertFrom(Map<String, Class<?>> conversionMap, String json) {
+
+    //gson does not put the type of the object in the json, but we need that.  so when we convert,
+    //put the type in there.  So we need to extract the type out when unmarshaling
+    Matcher matcher = jsonPattern.matcher(json);
+
+    if (!matcher.matches()) {
+      throw new RuntimeException("Cant match this json, should start with simple class name: " + json);
+    }
+
+    String simpleClassName = matcher.group(1);
+    String jsonBody = matcher.group(2);
+
+    Class<?> theClass = conversionMap.get(simpleClassName);
+    if (theClass == null) {
+      throw new RuntimeException("Not allowed to unmarshal json: " + simpleClassName + ", " + json);
+    }
+
+    ObjectMapper mapper = new ObjectMapper();
+    try {
+      return mapper.readValue(jsonBody, theClass);
+    } catch(Exception e) {
+      injectInException(e, abbreviate(json, 2000));
+      throw new RuntimeException(e);
+    }
+  }
 
   /**
    * 

@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -33,6 +18,8 @@ package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.concu
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Validate;
 
 /**
  * <p>
@@ -60,6 +47,7 @@ import java.util.concurrent.ExecutorService;
  * initializer's {@link #get()} method can be called (which may block until
  * background execution is complete). The following code fragment shows a
  * typical usage example:
+ * </p>
  *
  * <pre>
  * // a Callable that performs a complex computation
@@ -74,10 +62,8 @@ import java.util.concurrent.ExecutorService;
  * Integer result = initializer.get();
  * </pre>
  *
- * </p>
  *
  * @since 3.0
- * @version $Id: CallableBackgroundInitializer.java 1082044 2011-03-16 04:26:58Z bayard $
  * @param <T> the type of the object managed by this initializer class
  */
 public class CallableBackgroundInitializer<T> extends BackgroundInitializer<T> {
@@ -91,7 +77,7 @@ public class CallableBackgroundInitializer<T> extends BackgroundInitializer<T> {
      * @param call the {@code Callable} (must not be <b>null</b>)
      * @throws IllegalArgumentException if the {@code Callable} is <b>null</b>
      */
-    public CallableBackgroundInitializer(Callable<T> call) {
+    public CallableBackgroundInitializer(final Callable<T> call) {
         checkCallable(call);
         callable = call;
     }
@@ -107,7 +93,7 @@ public class CallableBackgroundInitializer<T> extends BackgroundInitializer<T> {
      * execution
      * @throws IllegalArgumentException if the {@code Callable} is <b>null</b>
      */
-    public CallableBackgroundInitializer(Callable<T> call, ExecutorService exec) {
+    public CallableBackgroundInitializer(final Callable<T> call, final ExecutorService exec) {
         super(exec);
         checkCallable(call);
         callable = call;
@@ -130,12 +116,10 @@ public class CallableBackgroundInitializer<T> extends BackgroundInitializer<T> {
      * Tests the passed in {@code Callable} and throws an exception if it is
      * undefined.
      *
-     * @param call the object to check
+     * @param callable the object to check
      * @throws IllegalArgumentException if the {@code Callable} is <b>null</b>
      */
-    private void checkCallable(Callable<T> call) {
-        if (call == null) {
-            throw new IllegalArgumentException("Callable must not be null!");
-        }
+    private void checkCallable(final Callable<T> callable) {
+        Validate.notNull(callable, "callable");
     }
 }

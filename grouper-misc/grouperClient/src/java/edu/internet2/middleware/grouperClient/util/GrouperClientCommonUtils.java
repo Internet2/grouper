@@ -99,6 +99,23 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
 @SuppressWarnings({ "serial", "unchecked" })
 public class GrouperClientCommonUtils  {
 
+  /**
+   * add a value to a log entry
+   * @param debugMap
+   * @param key
+   * @param incrementBy any number
+   */
+  public static void debugMapIncrementLogEntry(Map<String, Object> debugMap, String key, Object incrementBy) {
+    long incrementByLong = GrouperClientUtils.longValue(incrementBy, 0);
+    
+    Long currentValue = GrouperClientUtils.longObjectValue(debugMap.get(key), true);
+    if (currentValue == null) {
+      currentValue = 0L;
+    }
+    currentValue += incrementByLong;
+    debugMap.put(key, currentValue);
+  }
+
   /** override map for properties in thread local to be used in a web server or the like */
   private static ThreadLocal<Map<String, Map<String, String>>> propertiesThreadLocalOverrideMap = new InheritableThreadLocal<Map<String, Map<String, String>>>();
 
@@ -573,6 +590,9 @@ public class GrouperClientCommonUtils  {
       return null;
     }
     string = trim(string);
+    if (string.startsWith("{")) {
+      return new JsonIndenter(string).result();
+    }
     if (string.startsWith("<")) {
       //this is xml
       return new XmlIndenter(string).result();
@@ -901,7 +921,6 @@ public class GrouperClientCommonUtils  {
     return batchNumberOfBatches(arrraySize, batchSize);
 
   }
-
   /**
    * retrieve a batch by 0 index. Will return an array of size batchSize or
    * the remainder. the array will be full of elements. Note, this requires an
@@ -6163,7 +6182,7 @@ public class GrouperClientCommonUtils  {
     return readFromFileIfFile(in, disableExternalFileLookup);
   }
 
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     System.out.println(grouperWsVersionConvert(grouperClientVersion()));
   }
   

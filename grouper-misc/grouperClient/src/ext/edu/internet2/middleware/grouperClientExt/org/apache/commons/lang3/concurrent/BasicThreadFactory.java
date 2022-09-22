@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -35,6 +20,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicLong;
 
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Validate;
+
 /**
  * <p>
  * An implementation of the {@code ThreadFactory} interface that provides some
@@ -50,6 +37,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p>
  * This class provides some frequently needed configuration options for the
  * threads it creates. These are the following:
+ * </p>
  * <ul>
  * <li>A name pattern for the threads created by this factory can be specified.
  * This is often useful if an application uses multiple executor services for
@@ -71,7 +59,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * <li>The {@code UncaughtExceptionHandler} for the thread. This handler is
  * called if an uncaught exception occurs within the thread.</li>
  * </ul>
- * </p>
  * <p>
  * {@code BasicThreadFactory} wraps another thread factory which actually
  * creates new threads. The configuration options are set on the threads created
@@ -85,6 +72,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * the configuration options an application is interested in need to be set. The
  * following example shows how a {@code BasicThreadFactory} is created and
  * installed in an {@code ExecutorService}:
+ * </p>
  *
  * <pre>
  * // Create a factory that produces daemon threads with a naming pattern and
@@ -97,10 +85,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * // Create an executor service for single-threaded execution
  * ExecutorService exec = Executors.newSingleThreadExecutor(factory);
  * </pre>
- * </p>
  *
  * @since 3.0
- * @version $Id: BasicThreadFactory.java 1079423 2011-03-08 16:38:09Z sebb $
  */
 public class BasicThreadFactory implements ThreadFactory {
     /** A counter for the threads created by this factory. */
@@ -119,7 +105,7 @@ public class BasicThreadFactory implements ThreadFactory {
     private final Integer priority;
 
     /** Stores the daemon status flag. */
-    private final Boolean daemonFlag;
+    private final Boolean daemon;
 
     /**
      * Creates a new instance of {@code ThreadFactoryImpl} and configures it
@@ -127,7 +113,7 @@ public class BasicThreadFactory implements ThreadFactory {
      *
      * @param builder the {@code Builder} object
      */
-    private BasicThreadFactory(Builder builder) {
+    private BasicThreadFactory(final Builder builder) {
         if (builder.wrappedFactory == null) {
             wrappedFactory = Executors.defaultThreadFactory();
         } else {
@@ -136,7 +122,7 @@ public class BasicThreadFactory implements ThreadFactory {
 
         namingPattern = builder.namingPattern;
         priority = builder.priority;
-        daemonFlag = builder.daemonFlag;
+        daemon = builder.daemon;
         uncaughtExceptionHandler = builder.exceptionHandler;
 
         threadCounter = new AtomicLong();
@@ -173,7 +159,7 @@ public class BasicThreadFactory implements ThreadFactory {
      * @return the daemon flag
      */
     public final Boolean getDaemonFlag() {
-        return daemonFlag;
+        return daemon;
     }
 
     /**
@@ -212,14 +198,15 @@ public class BasicThreadFactory implements ThreadFactory {
      * factory for creating the thread. Then, on the newly created thread the
      * corresponding configuration options are set.
      *
-     * @param r the {@code Runnable} to be executed by the new thread
+     * @param runnable the {@code Runnable} to be executed by the new thread
      * @return the newly created thread
      */
-    public Thread newThread(Runnable r) {
-        Thread t = getWrappedFactory().newThread(r);
-        initializeThread(t);
+    @Override
+    public Thread newThread(final Runnable runnable) {
+        final Thread thread = getWrappedFactory().newThread(runnable);
+        initializeThread(thread);
 
-        return t;
+        return thread;
     }
 
     /**
@@ -228,25 +215,25 @@ public class BasicThreadFactory implements ThreadFactory {
      * the wrapped thread factory. It initializes the thread according to the
      * options set for this factory.
      *
-     * @param t the thread to be initialized
+     * @param thread the thread to be initialized
      */
-    private void initializeThread(Thread t) {
+    private void initializeThread(final Thread thread) {
 
         if (getNamingPattern() != null) {
-            Long count = Long.valueOf(threadCounter.incrementAndGet());
-            t.setName(String.format(getNamingPattern(), count));
+            final Long count = Long.valueOf(threadCounter.incrementAndGet());
+            thread.setName(String.format(getNamingPattern(), count));
         }
 
         if (getUncaughtExceptionHandler() != null) {
-            t.setUncaughtExceptionHandler(getUncaughtExceptionHandler());
+            thread.setUncaughtExceptionHandler(getUncaughtExceptionHandler());
         }
 
         if (getPriority() != null) {
-            t.setPriority(getPriority().intValue());
+            thread.setPriority(getPriority().intValue());
         }
 
         if (getDaemonFlag() != null) {
-            t.setDaemon(getDaemonFlag().booleanValue());
+            thread.setDaemon(getDaemonFlag().booleanValue());
         }
     }
 
@@ -263,11 +250,10 @@ public class BasicThreadFactory implements ThreadFactory {
      * BasicThreadFactory} for a usage example.
      * </p>
      *
-     * @version $Id: BasicThreadFactory.java 1079423 2011-03-08 16:38:09Z sebb $
      */
-    public static class Builder 
+    public static class Builder
         implements edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.Builder<BasicThreadFactory> {
-        
+
         /** The wrapped factory. */
         private ThreadFactory wrappedFactory;
 
@@ -281,7 +267,7 @@ public class BasicThreadFactory implements ThreadFactory {
         private Integer priority;
 
         /** The daemon flag. */
-        private Boolean daemonFlag;
+        private Boolean daemon;
 
         /**
          * Sets the {@code ThreadFactory} to be wrapped by the new {@code
@@ -293,11 +279,8 @@ public class BasicThreadFactory implements ThreadFactory {
          * @throws NullPointerException if the passed in {@code ThreadFactory}
          * is <b>null</b>
          */
-        public Builder wrappedFactory(ThreadFactory factory) {
-            if (factory == null) {
-                throw new NullPointerException(
-                        "Wrapped ThreadFactory must not be null!");
-            }
+        public Builder wrappedFactory(final ThreadFactory factory) {
+            Validate.notNull(factory, "factory");
 
             wrappedFactory = factory;
             return this;
@@ -311,11 +294,8 @@ public class BasicThreadFactory implements ThreadFactory {
          * @return a reference to this {@code Builder}
          * @throws NullPointerException if the naming pattern is <b>null</b>
          */
-        public Builder namingPattern(String pattern) {
-            if (pattern == null) {
-                throw new NullPointerException(
-                        "Naming pattern must not be null!");
-            }
+        public Builder namingPattern(final String pattern) {
+            Validate.notNull(pattern, "pattern");
 
             namingPattern = pattern;
             return this;
@@ -326,11 +306,11 @@ public class BasicThreadFactory implements ThreadFactory {
          * flag is set to <b>true</b> the new thread factory will create daemon
          * threads.
          *
-         * @param f the value of the daemon flag
+         * @param daemon the value of the daemon flag
          * @return a reference to this {@code Builder}
          */
-        public Builder daemon(boolean f) {
-            daemonFlag = Boolean.valueOf(f);
+        public Builder daemon(final boolean daemon) {
+            this.daemon = Boolean.valueOf(daemon);
             return this;
         }
 
@@ -338,11 +318,11 @@ public class BasicThreadFactory implements ThreadFactory {
          * Sets the priority for the threads created by the new {@code
          * BasicThreadFactory}.
          *
-         * @param prio the priority
+         * @param priority the priority
          * @return a reference to this {@code Builder}
          */
-        public Builder priority(int prio) {
-            priority = Integer.valueOf(prio);
+        public Builder priority(final int priority) {
+            this.priority = Integer.valueOf(priority);
             return this;
         }
 
@@ -356,11 +336,8 @@ public class BasicThreadFactory implements ThreadFactory {
          * @throws NullPointerException if the exception handler is <b>null</b>
          */
         public Builder uncaughtExceptionHandler(
-                Thread.UncaughtExceptionHandler handler) {
-            if (handler == null) {
-                throw new NullPointerException(
-                        "Uncaught exception handler must not be null!");
-            }
+                final Thread.UncaughtExceptionHandler handler) {
+            Validate.notNull(handler, "handler");
 
             exceptionHandler = handler;
             return this;
@@ -377,7 +354,7 @@ public class BasicThreadFactory implements ThreadFactory {
             exceptionHandler = null;
             namingPattern = null;
             priority = null;
-            daemonFlag = null;
+            daemon = null;
         }
 
         /**
@@ -387,8 +364,9 @@ public class BasicThreadFactory implements ThreadFactory {
          *
          * @return the new {@code BasicThreadFactory}
          */
+        @Override
         public BasicThreadFactory build() {
-            BasicThreadFactory factory = new BasicThreadFactory(this);
+            final BasicThreadFactory factory = new BasicThreadFactory(this);
             reset();
             return factory;
         }

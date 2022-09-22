@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -36,6 +21,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.Validate;
+
 /**
  * <p>
  * An utility class providing functionality related to the {@code
@@ -43,7 +30,6 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @since 3.0
- * @version $Id: ConcurrentUtils.java 1199894 2011-11-09 17:53:59Z ggregory $
  */
 public class ConcurrentUtils {
 
@@ -72,7 +58,7 @@ public class ConcurrentUtils {
      * @param ex the exception to be processed
      * @return a {@code ConcurrentException} with the checked cause
      */
-    public static ConcurrentException extractCause(ExecutionException ex) {
+    public static ConcurrentException extractCause(final ExecutionException ex) {
         if (ex == null || ex.getCause() == null) {
             return null;
         }
@@ -94,7 +80,7 @@ public class ConcurrentUtils {
      * @return a {@code ConcurrentRuntimeException} with the checked cause
      */
     public static ConcurrentRuntimeException extractCauseUnchecked(
-            ExecutionException ex) {
+            final ExecutionException ex) {
         if (ex == null || ex.getCause() == null) {
             return null;
         }
@@ -116,9 +102,9 @@ public class ConcurrentUtils {
      * @throws ConcurrentException if the cause of the {@code
      * ExecutionException} is a checked exception
      */
-    public static void handleCause(ExecutionException ex)
+    public static void handleCause(final ExecutionException ex)
             throws ConcurrentException {
-        ConcurrentException cex = extractCause(ex);
+        final ConcurrentException cex = extractCause(ex);
 
         if (cex != null) {
             throw cex;
@@ -138,8 +124,8 @@ public class ConcurrentUtils {
      * ExecutionException} is a checked exception; this exception is then
      * wrapped in the thrown runtime exception
      */
-    public static void handleCauseUnchecked(ExecutionException ex) {
-        ConcurrentRuntimeException crex = extractCauseUnchecked(ex);
+    public static void handleCauseUnchecked(final ExecutionException ex) {
+        final ConcurrentRuntimeException crex = extractCauseUnchecked(ex);
 
         if (crex != null) {
             throw crex;
@@ -155,13 +141,11 @@ public class ConcurrentUtils {
      * @throws IllegalArgumentException if the {@code Throwable} is not a
      * checked exception
      */
-    static Throwable checkedException(Throwable ex) {
-        if (ex != null && !(ex instanceof RuntimeException)
-                && !(ex instanceof Error)) {
-            return ex;
-        } else {
-            throw new IllegalArgumentException("Not a checked exception: " + ex);
-        }
+    static Throwable checkedException(final Throwable ex) {
+        Validate.isTrue(ex != null && !(ex instanceof RuntimeException)
+                && !(ex instanceof Error), "Not a checked exception: " + ex);
+
+        return ex;
     }
 
     /**
@@ -170,7 +154,7 @@ public class ConcurrentUtils {
      *
      * @param ex the exception in question
      */
-    private static void throwCause(ExecutionException ex) {
+    private static void throwCause(final ExecutionException ex) {
         if (ex.getCause() instanceof RuntimeException) {
             throw (RuntimeException) ex.getCause();
         }
@@ -194,7 +178,7 @@ public class ConcurrentUtils {
      * @throws ConcurrentException if the {@code ConcurrentInitializer} throws
      * an exception
      */
-    public static <T> T initialize(ConcurrentInitializer<T> initializer)
+    public static <T> T initialize(final ConcurrentInitializer<T> initializer)
             throws ConcurrentException {
         return initializer != null ? initializer.get() : null;
     }
@@ -212,10 +196,10 @@ public class ConcurrentUtils {
      * @return the object managed by the {@code ConcurrentInitializer}
      * @throws ConcurrentRuntimeException if the initializer throws an exception
      */
-    public static <T> T initializeUnchecked(ConcurrentInitializer<T> initializer) {
+    public static <T> T initializeUnchecked(final ConcurrentInitializer<T> initializer) {
         try {
             return initialize(initializer);
-        } catch (ConcurrentException cex) {
+        } catch (final ConcurrentException cex) {
             throw new ConcurrentRuntimeException(cex.getCause());
         }
     }
@@ -227,6 +211,7 @@ public class ConcurrentUtils {
      * present. This method works similar to the {@code putIfAbsent()} method of
      * the {@code ConcurrentMap} interface, but the value returned is different.
      * Basically, this method is equivalent to the following code fragment:
+     * </p>
      *
      * <pre>
      * if (!map.containsKey(key)) {
@@ -237,6 +222,7 @@ public class ConcurrentUtils {
      * }
      * </pre>
      *
+     * <p>
      * except that the action is performed atomically. So this method always
      * returns the value which is stored in the map.
      * </p>
@@ -253,12 +239,12 @@ public class ConcurrentUtils {
      * @param value the value to be added
      * @return the value stored in the map after this operation
      */
-    public static <K, V> V putIfAbsent(ConcurrentMap<K, V> map, K key, V value) {
+    public static <K, V> V putIfAbsent(final ConcurrentMap<K, V> map, final K key, final V value) {
         if (map == null) {
             return null;
         }
 
-        V result = map.putIfAbsent(key, value);
+        final V result = map.putIfAbsent(key, value);
         return result != null ? result : value;
     }
 
@@ -282,13 +268,13 @@ public class ConcurrentUtils {
      * not be the object created by the {@link ConcurrentInitializer}
      * @throws ConcurrentException if the initializer throws an exception
      */
-    public static <K, V> V createIfAbsent(ConcurrentMap<K, V> map, K key,
-            ConcurrentInitializer<V> init) throws ConcurrentException {
+    public static <K, V> V createIfAbsent(final ConcurrentMap<K, V> map, final K key,
+            final ConcurrentInitializer<V> init) throws ConcurrentException {
         if (map == null || init == null) {
             return null;
         }
 
-        V value = map.get(key);
+        final V value = map.get(key);
         if (value == null) {
             return putIfAbsent(map, key, init.get());
         }
@@ -310,11 +296,11 @@ public class ConcurrentUtils {
      * not be the object created by the {@link ConcurrentInitializer}
      * @throws ConcurrentRuntimeException if the initializer throws an exception
      */
-    public static <K, V> V createIfAbsentUnchecked(ConcurrentMap<K, V> map,
-            K key, ConcurrentInitializer<V> init) {
+    public static <K, V> V createIfAbsentUnchecked(final ConcurrentMap<K, V> map,
+            final K key, final ConcurrentInitializer<V> init) {
         try {
             return createIfAbsent(map, key, init);
-        } catch (ConcurrentException cex) {
+        } catch (final ConcurrentException cex) {
             throw new ConcurrentRuntimeException(cex.getCause());
         }
     }
@@ -322,7 +308,7 @@ public class ConcurrentUtils {
     //-----------------------------------------------------------------------
     /**
      * <p>
-     * Gets an implementation of <code>Future</code> that is immediately done
+     * Gets an implementation of {@code Future} that is immediately done
      * and returns the specified constant value.
      * </p>
      * <p>
@@ -335,8 +321,8 @@ public class ConcurrentUtils {
      * @param value  the constant value to return, may be null
      * @return an instance of Future that will return the value, never null
      */
-    public static <T> Future<T> constantFuture(T value) {
-        return new ConstantFuture<T>(value);
+    public static <T> Future<T> constantFuture(final T value) {
+        return new ConstantFuture<>(value);
     }
 
     /**
@@ -353,7 +339,7 @@ public class ConcurrentUtils {
          *
          * @param value the value (may be <b>null</b>)
          */
-        ConstantFuture(T value) {
+        ConstantFuture(final T value) {
             this.value = value;
         }
 
@@ -362,6 +348,7 @@ public class ConcurrentUtils {
          * the constant object managed by this {@code Future} implementation is
          * always available.
          */
+        @Override
         public boolean isDone() {
             return true;
         }
@@ -369,6 +356,7 @@ public class ConcurrentUtils {
         /**
          * {@inheritDoc} This implementation just returns the constant value.
          */
+        @Override
         public T get() {
             return value;
         }
@@ -377,7 +365,8 @@ public class ConcurrentUtils {
          * {@inheritDoc} This implementation just returns the constant value; it
          * does not block, therefore the timeout has no meaning.
          */
-        public T get(long timeout, TimeUnit unit) {
+        @Override
+        public T get(final long timeout, final TimeUnit unit) {
             return value;
         }
 
@@ -385,6 +374,7 @@ public class ConcurrentUtils {
          * {@inheritDoc} This implementation always returns <b>false</b>; there
          * is no background process which could be cancelled.
          */
+        @Override
         public boolean isCancelled() {
             return false;
         }
@@ -393,7 +383,8 @@ public class ConcurrentUtils {
          * {@inheritDoc} The cancel operation is not supported. This
          * implementation always returns <b>false</b>.
          */
-        public boolean cancel(boolean mayInterruptIfRunning) {
+        @Override
+        public boolean cancel(final boolean mayInterruptIfRunning) {
             return false;
         }
     }

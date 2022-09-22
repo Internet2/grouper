@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -39,17 +24,16 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.SimpleNode;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
-
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.introspection.JexlMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.introspection.JexlPropertyGet;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.introspection.JexlPropertySet;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.introspection.Uberspect;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTFloatLiteral;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTIntegerLiteral;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.JexlNode;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTAdditiveNode;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTAdditiveOperator;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTAmbiguous;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTAndNode;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTAmbiguous;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTArrayAccess;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTArrayLiteral;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTAssignment;
@@ -64,14 +48,12 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTERNode;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTEmptyFunction;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTFalseNode;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTFloatLiteral;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTForeachStatement;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTFunctionNode;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTForeachStatement;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTGENode;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTGTNode;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTIdentifier;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTIfStatement;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTIntegerLiteral;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTJexlScript;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTLENode;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTLTNode;
@@ -95,12 +77,15 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTTernaryNode;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTTrueNode;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTUnaryMinusNode;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTVar;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTWhileStatement;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.JexlNode;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.Node;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ParserVisitor;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.SimpleNode;
+
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.introspection.Uberspect;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.introspection.JexlMethod;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.introspection.JexlPropertyGet;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.introspection.JexlPropertySet;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.parser.ASTVar;
 
 /**
  * An interpreter of JEXL syntax.

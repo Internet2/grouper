@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -35,16 +20,16 @@ package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.mutab
 import java.io.Serializable;
 
 /**
- * A mutable <code>Object</code> wrapper.
- * 
+ * A mutable {@code Object} wrapper.
+ *
+ * @param <T> the type to set and get
  * @since 2.1
- * @version $Id: MutableObject.java 1088899 2011-04-05 05:31:27Z bayard $
  */
 public class MutableObject<T> implements Mutable<T>, Serializable {
 
     /**
      * Required for serialization support.
-     * 
+     *
      * @see java.io.Serializable
      */
     private static final long serialVersionUID = 86241875189L;
@@ -53,56 +38,56 @@ public class MutableObject<T> implements Mutable<T>, Serializable {
     private T value;
 
     /**
-     * Constructs a new MutableObject with the default value of <code>null</code>.
+     * Constructs a new MutableObject with the default value of {@code null}.
      */
     public MutableObject() {
-        super();
     }
 
     /**
      * Constructs a new MutableObject with the specified value.
-     * 
+     *
      * @param value  the initial value to store
      */
-    public MutableObject(T value) {
-        super();
+    public MutableObject(final T value) {
         this.value = value;
     }
 
     //-----------------------------------------------------------------------
     /**
      * Gets the value.
-     * 
+     *
      * @return the value, may be null
      */
+    @Override
     public T getValue() {
         return this.value;
     }
 
     /**
      * Sets the value.
-     * 
+     *
      * @param value  the value to set
      */
-    public void setValue(T value) {
+    @Override
+    public void setValue(final T value) {
         this.value = value;
     }
 
     //-----------------------------------------------------------------------
     /**
      * <p>
-     * Compares this object against the specified object. The result is <code>true</code> if and only if the argument
-     * is not <code>null</code> and is a <code>MutableObject</code> object that contains the same <code>T</code>
+     * Compares this object against the specified object. The result is {@code true} if and only if the argument
+     * is not {@code null} and is a {@code MutableObject} object that contains the same {@code T}
      * value as this object.
      * </p>
-     * 
-     * @param obj  the object to compare with, <code>null</code> returns <code>false</code>
-     * @return  <code>true</code> if the objects are the same;
-     *          <code>true</code> if the objects have equivalent <code>value</code> fields;
-     *          <code>false</code> otherwise.
+     *
+     * @param obj  the object to compare with, {@code null} returns {@code false}
+     * @return  {@code true} if the objects are the same;
+     *          {@code true} if the objects have equivalent {@code value} fields;
+     *          {@code false} otherwise.
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (obj == null) {
             return false;
         }
@@ -110,17 +95,16 @@ public class MutableObject<T> implements Mutable<T>, Serializable {
             return true;
         }
         if (this.getClass() == obj.getClass()) {
-            MutableObject<?> that = (MutableObject<?>) obj;
+            final MutableObject<?> that = (MutableObject<?>) obj;
             return this.value.equals(that.value);
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**
-     * Returns the value's hash code or <code>0</code> if the value is <code>null</code>.
-     * 
-     * @return the value's hash code or <code>0</code> if the value is <code>null</code>.
+     * Returns the value's hash code or {@code 0} if the value is {@code null}.
+     *
+     * @return the value's hash code or {@code 0} if the value is {@code null}.
      */
     @Override
     public int hashCode() {
@@ -130,7 +114,7 @@ public class MutableObject<T> implements Mutable<T>, Serializable {
     //-----------------------------------------------------------------------
     /**
      * Returns the String value of this mutable.
-     * 
+     *
      * @return the mutable value as a string
      */
     @Override

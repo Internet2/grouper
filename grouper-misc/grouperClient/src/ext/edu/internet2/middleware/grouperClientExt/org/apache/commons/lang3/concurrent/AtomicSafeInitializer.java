@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -65,25 +50,25 @@ import java.util.concurrent.atomic.AtomicReference;
  * </p>
  *
  * @since 3.0
- * @version $Id: AtomicSafeInitializer.java 1088899 2011-04-05 05:31:27Z bayard $
  * @param <T> the type of the object managed by this initializer class
  */
 public abstract class AtomicSafeInitializer<T> implements
         ConcurrentInitializer<T> {
     /** A guard which ensures that initialize() is called only once. */
     private final AtomicReference<AtomicSafeInitializer<T>> factory =
-            new AtomicReference<AtomicSafeInitializer<T>>();
+            new AtomicReference<>();
 
     /** Holds the reference to the managed object. */
-    private final AtomicReference<T> reference = new AtomicReference<T>();
+    private final AtomicReference<T> reference = new AtomicReference<>();
 
     /**
-     * Get (and initialize, if not initialized yet) the required object
+     * Gets (and initialize, if not initialized yet) the required object
      *
      * @return lazily initialized object
      * @throws ConcurrentException if the initialization of the object causes an
      * exception
      */
+    @Override
     public final T get() throws ConcurrentException {
         T result;
 

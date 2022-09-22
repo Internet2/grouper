@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -46,7 +31,6 @@ import java.io.File;
  * </p>
  *
  * @since 1.0
- * @version $Id: SystemUtils.java 1199816 2011-11-09 16:11:34Z bayard $
  */
 public class SystemUtils {
 
@@ -63,6 +47,11 @@ public class SystemUtils {
      * The System property key for the user home directory.
      */
     private static final String USER_HOME_KEY = "user.home";
+
+    /**
+     * The System property key for the user name.
+     */
+    private static final String USER_NAME_KEY = "user.name";
 
     /**
      * The System property key for the user directory.
@@ -127,8 +116,14 @@ public class SystemUtils {
 
     /**
      * <p>
-     * The {@code file.separator} System Property. File separator (<code>&quot;/&quot;</code> on UNIX).
+     * The {@code file.separator} System Property.
+     * The file separator is:
      * </p>
+     * <ul>
+     * <li>{@code "/"} on UNIX</li>
+     * <li>{@code "\"} on Windows.</li>
+     * </ul>
+     *
      * <p>
      * Defaults to {@code null} if the runtime does not have security access to read this property or the property does
      * not exist.
@@ -139,8 +134,11 @@ public class SystemUtils {
      * sync with that System property.
      * </p>
      *
+     * @deprecated Use {@link File#separator}, since it is guaranteed to be a
+     *             string containing a single character and it does not require a privilege check.
      * @since Java 1.1
      */
+    @Deprecated
     public static final String FILE_SEPARATOR = getSystemProperty("file.separator");
 
     /**
@@ -659,7 +657,7 @@ public class SystemUtils {
 
     /**
      * <p>
-     * The {@code line.separator} System Property. Line separator (<code>&quot;\n&quot;</code> on UNIX).
+     * The {@code line.separator} System Property. Line separator ({@code &quot;\n&quot;} on UNIX).
      * </p>
      * <p>
      * Defaults to {@code null} if the runtime does not have security access to read this property or the property does
@@ -671,8 +669,10 @@ public class SystemUtils {
      * sync with that System property.
      * </p>
      *
+     * @deprecated Use {@link System#lineSeparator()} instead, since it does not require a privilege check.
      * @since Java 1.1
      */
+    @Deprecated
     public static final String LINE_SEPARATOR = getSystemProperty("line.separator");
 
     /**
@@ -731,7 +731,7 @@ public class SystemUtils {
 
     /**
      * <p>
-     * The {@code path.separator} System Property. Path separator (<code>&quot;:&quot;</code> on UNIX).
+     * The {@code path.separator} System Property. Path separator ({@code &quot;:&quot;} on UNIX).
      * </p>
      * <p>
      * Defaults to {@code null} if the runtime does not have security access to read this property or the property does
@@ -743,8 +743,11 @@ public class SystemUtils {
      * sync with that System property.
      * </p>
      *
+     * @deprecated Use {@link File#pathSeparator}, since it is guaranteed to be a
+     *             string containing a single character and it does not require a privilege check.
      * @since Java 1.1
      */
+    @Deprecated
     public static final String PATH_SEPARATOR = getSystemProperty("path.separator");
 
     /**
@@ -839,7 +842,7 @@ public class SystemUtils {
      *
      * @since Java 1.1
      */
-    public static final String USER_NAME = getSystemProperty("user.name");
+    public static final String USER_NAME = getSystemProperty(USER_NAME_KEY);
 
     /**
      * <p>
@@ -936,6 +939,117 @@ public class SystemUtils {
      */
     public static final boolean IS_JAVA_1_7 = getJavaVersionMatches("1.7");
 
+    /**
+     * <p>
+     * Is {@code true} if this is Java version 1.8 (also 1.8.x versions).
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@link #JAVA_VERSION} is {@code null}.
+     * </p>
+     *
+     * @since 3.3.2
+     */
+    public static final boolean IS_JAVA_1_8 = getJavaVersionMatches("1.8");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Java version 1.9 (also 1.9.x versions).
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@link #JAVA_VERSION} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     *
+     * @deprecated As of release 3.5, replaced by {@link #IS_JAVA_9}
+     */
+    @Deprecated
+    public static final boolean IS_JAVA_1_9 = getJavaVersionMatches("9");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Java version 9 (also 9.x versions).
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@link #JAVA_VERSION} is {@code null}.
+     * </p>
+     *
+     * @since 3.5
+     */
+    public static final boolean IS_JAVA_9 = getJavaVersionMatches("9");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Java version 10 (also 10.x versions).
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@link #JAVA_VERSION} is {@code null}.
+     * </p>
+     *
+     * @since 3.7
+     */
+    public static final boolean IS_JAVA_10 = getJavaVersionMatches("10");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Java version 11 (also 11.x versions).
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@link #JAVA_VERSION} is {@code null}.
+     * </p>
+     *
+     * @since 3.8
+     */
+    public static final boolean IS_JAVA_11 = getJavaVersionMatches("11");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Java version 12 (also 12.x versions).
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@link #JAVA_VERSION} is {@code null}.
+     * </p>
+     *
+     * @since 3.9
+     */
+    public static final boolean IS_JAVA_12 = getJavaVersionMatches("12");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Java version 13 (also 13.x versions).
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@link #JAVA_VERSION} is {@code null}.
+     * </p>
+     *
+     * @since 3.9
+     */
+    public static final boolean IS_JAVA_13 = getJavaVersionMatches("13");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Java version 14 (also 14.x versions).
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@link #JAVA_VERSION} is {@code null}.
+     * </p>
+     *
+     * @since 3.10
+     */
+    public static final boolean IS_JAVA_14 = getJavaVersionMatches("14");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Java version 15 (also 15.x versions).
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@link #JAVA_VERSION} is {@code null}.
+     * </p>
+     *
+     * @since 3.10
+     */
+    public static final boolean IS_JAVA_15 = getJavaVersionMatches("15");
+
     // Operating system checks
     // -----------------------------------------------------------------------
     // These MUST be declared after those above as they depend on the
@@ -954,7 +1068,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_AIX = getOSMatchesName("AIX");
+    public static final boolean IS_OS_AIX = getOsMatchesName("AIX");
 
     /**
      * <p>
@@ -966,7 +1080,19 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_HP_UX = getOSMatchesName("HP-UX");
+    public static final boolean IS_OS_HP_UX = getOsMatchesName("HP-UX");
+
+    /**
+     * <p>
+     * Is {@code true} if this is IBM OS/400.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.3
+     */
+    public static final boolean IS_OS_400 = getOsMatchesName("OS/400");
 
     /**
      * <p>
@@ -978,7 +1104,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_IRIX = getOSMatchesName("Irix");
+    public static final boolean IS_OS_IRIX = getOsMatchesName("Irix");
 
     /**
      * <p>
@@ -990,7 +1116,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_LINUX = getOSMatchesName("Linux") || getOSMatchesName("LINUX");
+    public static final boolean IS_OS_LINUX = getOsMatchesName("Linux") || getOsMatchesName("LINUX");
 
     /**
      * <p>
@@ -1002,7 +1128,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_MAC = getOSMatchesName("Mac");
+    public static final boolean IS_OS_MAC = getOsMatchesName("Mac");
 
     /**
      * <p>
@@ -1014,7 +1140,211 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_MAC_OSX = getOSMatchesName("Mac OS X");
+    public static final boolean IS_OS_MAC_OSX = getOsMatchesName("Mac OS X");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Cheetah.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_CHEETAH = getOsMatches("Mac OS X", "10.0");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Puma.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_PUMA = getOsMatches("Mac OS X", "10.1");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Jaguar.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_JAGUAR = getOsMatches("Mac OS X", "10.2");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Panther.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_PANTHER = getOsMatches("Mac OS X", "10.3");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Tiger.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_TIGER = getOsMatches("Mac OS X", "10.4");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Leopard.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_LEOPARD = getOsMatches("Mac OS X", "10.5");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Snow Leopard.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_SNOW_LEOPARD = getOsMatches("Mac OS X", "10.6");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Lion.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_LION = getOsMatches("Mac OS X", "10.7");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Mountain Lion.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_MOUNTAIN_LION = getOsMatches("Mac OS X", "10.8");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Mavericks.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_MAVERICKS = getOsMatches("Mac OS X", "10.9");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Yosemite.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_MAC_OSX_YOSEMITE = getOsMatches("Mac OS X", "10.10");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X El Capitan.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.5
+     */
+    public static final boolean IS_OS_MAC_OSX_EL_CAPITAN = getOsMatches("Mac OS X", "10.11");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Sierra.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.12.0
+     */
+    public static final boolean IS_OS_MAC_OSX_SIERRA = getOsMatches("Mac OS X", "10.12");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X High Sierra.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.12.0
+     */
+    public static final boolean IS_OS_MAC_OSX_HIGH_SIERRA = getOsMatches("Mac OS X", "10.13");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Mojave.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.12.0
+     */
+    public static final boolean IS_OS_MAC_OSX_MOJAVE = getOsMatches("Mac OS X", "10.14");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Catalina.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.12.0
+     */
+    public static final boolean IS_OS_MAC_OSX_CATALINA = getOsMatches("Mac OS X", "10.15");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Mac OS X Big Sur.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.12.0
+     */
+    public static final boolean IS_OS_MAC_OSX_BIG_SUR = getOsMatches("Mac OS X", "10.16");
 
     /**
      * <p>
@@ -1026,7 +1356,7 @@ public class SystemUtils {
      *
      * @since 3.1
      */
-    public static final boolean IS_OS_FREE_BSD = getOSMatchesName("FreeBSD");
+    public static final boolean IS_OS_FREE_BSD = getOsMatchesName("FreeBSD");
 
     /**
      * <p>
@@ -1038,7 +1368,7 @@ public class SystemUtils {
      *
      * @since 3.1
      */
-    public static final boolean IS_OS_OPEN_BSD = getOSMatchesName("OpenBSD");
+    public static final boolean IS_OS_OPEN_BSD = getOsMatchesName("OpenBSD");
 
     /**
      * <p>
@@ -1050,7 +1380,7 @@ public class SystemUtils {
      *
      * @since 3.1
      */
-    public static final boolean IS_OS_NET_BSD = getOSMatchesName("NetBSD");
+    public static final boolean IS_OS_NET_BSD = getOsMatchesName("NetBSD");
 
     /**
      * <p>
@@ -1062,7 +1392,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_OS2 = getOSMatchesName("OS/2");
+    public static final boolean IS_OS_OS2 = getOsMatchesName("OS/2");
 
     /**
      * <p>
@@ -1074,7 +1404,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_SOLARIS = getOSMatchesName("Solaris");
+    public static final boolean IS_OS_SOLARIS = getOsMatchesName("Solaris");
 
     /**
      * <p>
@@ -1086,7 +1416,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_SUN_OS = getOSMatchesName("SunOS");
+    public static final boolean IS_OS_SUN_OS = getOsMatchesName("SunOS");
 
     /**
      * <p>
@@ -1111,7 +1441,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_WINDOWS = getOSMatchesName(OS_NAME_WINDOWS_PREFIX);
+    public static final boolean IS_OS_WINDOWS = getOsMatchesName(OS_NAME_WINDOWS_PREFIX);
 
     /**
      * <p>
@@ -1123,7 +1453,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_WINDOWS_2000 = getOSMatches(OS_NAME_WINDOWS_PREFIX, "5.0");
+    public static final boolean IS_OS_WINDOWS_2000 = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " 2000");
 
     /**
      * <p>
@@ -1135,11 +1465,11 @@ public class SystemUtils {
      *
      * @since 3.1
      */
-    public static final boolean IS_OS_WINDOWS_2003 = getOSMatches(OS_NAME_WINDOWS_PREFIX, "5.2");
+    public static final boolean IS_OS_WINDOWS_2003 = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " 2003");
 
     /**
      * <p>
-     * Is {@code true} if this is Windows 2008.
+     * Is {@code true} if this is Windows Server 2008.
      * </p>
      * <p>
      * The field will return {@code false} if {@code OS_NAME} is {@code null}.
@@ -1147,7 +1477,19 @@ public class SystemUtils {
      *
      * @since 3.1
      */
-    public static final boolean IS_OS_WINDOWS_2008 = getOSMatches(OS_NAME_WINDOWS_PREFIX + " Server 2008", "6.1");
+    public static final boolean IS_OS_WINDOWS_2008 = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " Server 2008");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Windows Server 2012.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.4
+     */
+    public static final boolean IS_OS_WINDOWS_2012 = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " Server 2012");
 
     /**
      * <p>
@@ -1159,8 +1501,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_WINDOWS_95 = getOSMatches(OS_NAME_WINDOWS_PREFIX + " 9", "4.0");
-    // Java 1.2 running on Windows98 returns 'Windows 95', hence the above
+    public static final boolean IS_OS_WINDOWS_95 = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " 95");
 
     /**
      * <p>
@@ -1172,8 +1513,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_WINDOWS_98 = getOSMatches(OS_NAME_WINDOWS_PREFIX + " 9", "4.1");
-    // Java 1.2 running on Windows98 returns 'Windows 95', hence the above
+    public static final boolean IS_OS_WINDOWS_98 = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " 98");
 
     /**
      * <p>
@@ -1185,8 +1525,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_WINDOWS_ME = getOSMatches(OS_NAME_WINDOWS_PREFIX, "4.9");
-    // Java 1.2 running on WindowsME may return 'Windows 95', hence the above
+    public static final boolean IS_OS_WINDOWS_ME = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " Me");
 
     /**
      * <p>
@@ -1198,8 +1537,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_WINDOWS_NT = getOSMatchesName(OS_NAME_WINDOWS_PREFIX + " NT");
-    // Windows 2000 returns 'Windows 2000' but may suffer from same Java1.2 problem
+    public static final boolean IS_OS_WINDOWS_NT = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " NT");
 
     /**
      * <p>
@@ -1211,7 +1549,7 @@ public class SystemUtils {
      *
      * @since 2.0
      */
-    public static final boolean IS_OS_WINDOWS_XP = getOSMatches(OS_NAME_WINDOWS_PREFIX, "5.1");
+    public static final boolean IS_OS_WINDOWS_XP = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " XP");
 
     // -----------------------------------------------------------------------
     /**
@@ -1224,7 +1562,7 @@ public class SystemUtils {
      *
      * @since 2.4
      */
-    public static final boolean IS_OS_WINDOWS_VISTA = getOSMatches(OS_NAME_WINDOWS_PREFIX, "6.0");
+    public static final boolean IS_OS_WINDOWS_VISTA = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " Vista");
 
     /**
      * <p>
@@ -1236,7 +1574,90 @@ public class SystemUtils {
      *
      * @since 3.0
      */
-    public static final boolean IS_OS_WINDOWS_7 = getOSMatches(OS_NAME_WINDOWS_PREFIX, "6.1");
+    public static final boolean IS_OS_WINDOWS_7 = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " 7");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Windows 8.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.2
+     */
+    public static final boolean IS_OS_WINDOWS_8 = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " 8");
+
+    /**
+     * <p>
+     * Is {@code true} if this is Windows 10.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.5
+     */
+    public static final boolean IS_OS_WINDOWS_10 = getOsMatchesName(OS_NAME_WINDOWS_PREFIX + " 10");
+
+    /**
+     * <p>
+     * Is {@code true} if this is z/OS.
+     * </p>
+     * <p>
+     * The field will return {@code false} if {@code OS_NAME} is {@code null}.
+     * </p>
+     *
+     * @since 3.5
+     */
+    // Values on a z/OS system I tested (Gary Gregory - 2016-03-12)
+    // os.arch = s390x
+    // os.encoding = ISO8859_1
+    // os.name = z/OS
+    // os.version = 02.02.00
+    public static final boolean IS_OS_ZOS = getOsMatchesName("z/OS");
+
+    /**
+     * <p>
+     * Gets an environment variable, defaulting to {@code defaultValue} if the variable cannot be read.
+     * </p>
+     * <p>
+     * If a {@code SecurityException} is caught, the return value is {@code defaultValue} and a message is written to
+     * {@code System.err}.
+     * </p>
+     *
+     * @param name
+     *            the environment variable name
+     * @param defaultValue
+     *            the default value
+     * @return the environment variable value or {@code defaultValue} if a security problem occurs
+     * @since 3.8
+     */
+    public static String getEnvironmentVariable(final String name, final String defaultValue) {
+        try {
+            final String value = System.getenv(name);
+            return value == null ? defaultValue : value;
+        } catch (final SecurityException ex) {
+            // we are not allowed to look at this property
+            // System.err.println("Caught a SecurityException reading the environment variable '" + name + "'.");
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Gets the host name from an environment variable
+     * (COMPUTERNAME on Windows, HOSTNAME elsewhere).
+     *
+     * <p>
+     * If you want to know what the network stack says is the host name, you should use {@code InetAddress.getLocalHost().getHostName()}.
+     * </p>
+     *
+     * @return the host name. Will be {@code null} if the environment variable is not defined.
+     * @since 3.6
+     */
+    public static String getHostName() {
+        return IS_OS_WINDOWS ? System.getenv("COMPUTERNAME") : System.getenv("HOSTNAME");
+    }
 
     /**
      * <p>
@@ -1276,28 +1697,28 @@ public class SystemUtils {
      * @param versionPrefix the prefix for the java version
      * @return true if matches, or false if not or can't determine
      */
-    private static boolean getJavaVersionMatches(String versionPrefix) {
+    private static boolean getJavaVersionMatches(final String versionPrefix) {
         return isJavaVersionMatch(JAVA_SPECIFICATION_VERSION, versionPrefix);
     }
 
     /**
      * Decides if the operating system matches.
      *
-     * @param osNamePrefix the prefix for the os name
+     * @param osNamePrefix the prefix for the OS name
      * @param osVersionPrefix the prefix for the version
      * @return true if matches, or false if not or can't determine
      */
-    private static boolean getOSMatches(String osNamePrefix, String osVersionPrefix) {
+    private static boolean getOsMatches(final String osNamePrefix, final String osVersionPrefix) {
         return isOSMatch(OS_NAME, OS_VERSION, osNamePrefix, osVersionPrefix);
     }
 
     /**
      * Decides if the operating system matches.
      *
-     * @param osNamePrefix the prefix for the os name
+     * @param osNamePrefix the prefix for the OS name
      * @return true if matches, or false if not or can't determine
      */
-    private static boolean getOSMatchesName(String osNamePrefix) {
+    private static boolean getOsMatchesName(final String osNamePrefix) {
         return isOSNameMatch(OS_NAME, osNamePrefix);
     }
 
@@ -1314,13 +1735,13 @@ public class SystemUtils {
      * @param property the system property name
      * @return the system property value or {@code null} if a security problem occurs
      */
-    private static String getSystemProperty(String property) {
+    private static String getSystemProperty(final String property) {
         try {
             return System.getProperty(property);
-        } catch (SecurityException ex) {
+        } catch (final SecurityException ex) {
             // we are not allowed to look at this property
-            System.err.println("Caught a SecurityException reading the system property '" + property
-                    + "'; the SystemUtils property value will default to null.");
+            // System.err.println("Caught a SecurityException reading the system property '" + property
+            // + "'; the SystemUtils property value will default to null.");
             return null;
         }
     }
@@ -1356,6 +1777,37 @@ public class SystemUtils {
     }
 
     /**
+     * <p>
+     * Gets the user name.
+     * </p>
+     *
+     * @return a name
+     * @throws SecurityException if a security manager exists and its {@code checkPropertyAccess} method doesn't allow
+     * access to the specified system property.
+     * @see System#getProperty(String)
+     * @since 3.10
+     */
+    public static String getUserName() {
+        return System.getProperty(USER_NAME_KEY);
+    }
+
+    /**
+     * <p>
+     * Gets the user name.
+     * </p>
+     *
+     * @param defaultValue A default value.
+     * @return a name
+     * @throws SecurityException if a security manager exists and its {@code checkPropertyAccess} method doesn't allow
+     * access to the specified system property.
+     * @see System#getProperty(String)
+     * @since 3.10
+     */
+    public static String getUserName(final String defaultValue) {
+        return System.getProperty(USER_NAME_KEY, defaultValue);
+    }
+
+    /**
      * Returns whether the {@link #JAVA_AWT_HEADLESS} value is {@code true}.
      *
      * @return {@code true} if {@code JAVA_AWT_HEADLESS} is {@code "true"}, {@code false} otherwise.
@@ -1364,7 +1816,7 @@ public class SystemUtils {
      * @since Java 1.4
      */
     public static boolean isJavaAwtHeadless() {
-        return JAVA_AWT_HEADLESS != null ? JAVA_AWT_HEADLESS.equals(Boolean.TRUE.toString()) : false;
+        return Boolean.TRUE.toString().equals(JAVA_AWT_HEADLESS);
     }
 
     /**
@@ -1372,18 +1824,28 @@ public class SystemUtils {
      * Is the Java version at least the requested version.
      * </p>
      * <p>
-     * Example input:
-     * </p>
-     * <ul>
-     * <li>{@code 1.2f} to test for Java 1.2</li>
-     * <li>{@code 1.31f} to test for Java 1.3.1</li>
-     * </ul>
      *
      * @param requiredVersion the required version, for example 1.31f
      * @return {@code true} if the actual version is equal or greater than the required version
      */
-    public static boolean isJavaVersionAtLeast(JavaVersion requiredVersion) {
+    public static boolean isJavaVersionAtLeast(final JavaVersion requiredVersion) {
         return JAVA_SPECIFICATION_VERSION_AS_ENUM.atLeast(requiredVersion);
+    }
+
+    /**
+     * <p>
+     * Is the Java version at most the requested version.
+     * </p>
+     * <p>
+     * Example input:
+     * </p>
+     *
+     * @param requiredVersion the required version, for example 1.31f
+     * @return {@code true} if the actual version is equal or less than the required version
+     * @since 3.9
+     */
+    public static boolean isJavaVersionAtMost(final JavaVersion requiredVersion) {
+        return JAVA_SPECIFICATION_VERSION_AS_ENUM.atMost(requiredVersion);
     }
 
     /**
@@ -1398,7 +1860,7 @@ public class SystemUtils {
      * @param versionPrefix the prefix for the expected Java version
      * @return true if matches, or false if not or can't determine
      */
-    static boolean isJavaVersionMatch(String version, String versionPrefix) {
+    static boolean isJavaVersionMatch(final String version, final String versionPrefix) {
         if (version == null) {
             return false;
         }
@@ -1417,11 +1879,11 @@ public class SystemUtils {
      * @param osVersionPrefix the prefix for the expected OS version
      * @return true if matches, or false if not or can't determine
      */
-    static boolean isOSMatch(String osName, String osVersion, String osNamePrefix, String osVersionPrefix) {
+    static boolean isOSMatch(final String osName, final String osVersion, final String osNamePrefix, final String osVersionPrefix) {
         if (osName == null || osVersion == null) {
             return false;
         }
-        return osName.startsWith(osNamePrefix) && osVersion.startsWith(osVersionPrefix);
+        return isOSNameMatch(osName, osNamePrefix) && isOSVersionMatch(osVersion, osVersionPrefix);
     }
 
     /**
@@ -1434,11 +1896,37 @@ public class SystemUtils {
      * @param osNamePrefix the prefix for the expected OS name
      * @return true if matches, or false if not or can't determine
      */
-    static boolean isOSNameMatch(String osName, String osNamePrefix) {
+    static boolean isOSNameMatch(final String osName, final String osNamePrefix) {
         if (osName == null) {
             return false;
         }
         return osName.startsWith(osNamePrefix);
+    }
+
+    /**
+     * Decides if the operating system version matches.
+     * <p>
+     * This method is package private instead of private to support unit test invocation.
+     * </p>
+     *
+     * @param osVersion the actual OS version
+     * @param osVersionPrefix the prefix for the expected OS version
+     * @return true if matches, or false if not or can't determine
+     */
+    static boolean isOSVersionMatch(final String osVersion, final String osVersionPrefix) {
+        if (StringUtils.isEmpty(osVersion)) {
+            return false;
+        }
+        // Compare parts of the version string instead of using String.startsWith(String) because otherwise
+        // osVersionPrefix 10.1 would also match osVersion 10.10
+        final String[] versionPrefixParts = osVersionPrefix.split("\\.");
+        final String[] versionParts = osVersion.split("\\.");
+        for (int i = 0; i < Math.min(versionPrefixParts.length, versionParts.length); i++) {
+            if (!versionPrefixParts[i].equals(versionParts[i])) {
+                return false;
+            }
+        }
+        return true;
     }
 
     // -----------------------------------------------------------------------
@@ -1452,7 +1940,6 @@ public class SystemUtils {
      * </p>
      */
     public SystemUtils() {
-        super();
     }
 
 }

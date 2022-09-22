@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -44,34 +29,26 @@ import java.util.Map;
  * If these do not suffice, you can subclass and implement your own matcher.
  * <p>
  * For example, it would be possible to implement a lookup that used the
- * key as a primary key, and looked up the value on demand from the database
+ * key as a primary key, and looked up the value on demand from the database.
  *
+ * @param <V> Unused.
  * @since 2.2
- * @version $Id: StrLookup.java 1153484 2011-08-03 13:39:42Z ggregory $
+ * @deprecated as of 3.6, use commons-text
+ * <a href="https://commons.apache.org/proper/commons-text/javadocs/api-release/org/apache/commons/text/lookup/StringLookupFactory.html">
+ * StringLookupFactory</a> instead
  */
+@Deprecated
 public abstract class StrLookup<V> {
 
     /**
      * Lookup that always returns null.
      */
-    private static final StrLookup<String> NONE_LOOKUP;
+    private static final StrLookup<String> NONE_LOOKUP = new MapStrLookup<>(null);
+
     /**
-     * Lookup that uses System properties.
+     * Lookup based on system properties.
      */
-    private static final StrLookup<String> SYSTEM_PROPERTIES_LOOKUP;
-    static {
-        NONE_LOOKUP = new MapStrLookup<String>(null);
-        StrLookup<String> lookup = null;
-        try {
-            final Map<?, ?> propMap = System.getProperties();
-            @SuppressWarnings("unchecked") // System property keys and values are always Strings
-            final Map<String, String> properties = (Map<String, String>) propMap;
-            lookup = new MapStrLookup<String>(properties);
-        } catch (SecurityException ex) {
-            lookup = NONE_LOOKUP;
-        }
-        SYSTEM_PROPERTIES_LOOKUP = lookup;
-    }
+    private static final StrLookup<String> SYSTEM_PROPERTIES_LOOKUP = new SystemPropertiesStrLookup();
 
     //-----------------------------------------------------------------------
     /**
@@ -84,8 +61,8 @@ public abstract class StrLookup<V> {
     }
 
     /**
-     * Returns a lookup which uses {@link System#getProperties() System properties}
-     * to lookup the key to value.
+     * Returns a new lookup which uses a copy of the current
+     * {@link System#getProperties() System properties}.
      * <p>
      * If a security manager blocked access to system properties, then null will
      * be returned from every lookup.
@@ -108,8 +85,8 @@ public abstract class StrLookup<V> {
      * @param map  the map of keys to values, may be null
      * @return a lookup using the map, not null
      */
-    public static <V> StrLookup<V> mapLookup(Map<String, V> map) {
-        return new MapStrLookup<V>(map);
+    public static <V> StrLookup<V> mapLookup(final Map<String, V> map) {
+        return new MapStrLookup<>(map);
     }
 
     //-----------------------------------------------------------------------
@@ -117,7 +94,6 @@ public abstract class StrLookup<V> {
      * Constructor.
      */
     protected StrLookup() {
-        super();
     }
 
     /**
@@ -136,7 +112,7 @@ public abstract class StrLookup<V> {
      * The {@link #lookup(String)} method always returns a String, regardless of
      * the underlying data, by converting it as necessary. For example:
      * <pre>
-     * Map<String, Object> map = new HashMap<String, Object>();
+     * Map&lt;String, Object&gt; map = new HashMap&lt;String, Object&gt;();
      * map.put("number", Integer.valueOf(2));
      * assertEquals("2", StrLookup.mapLookup(map).lookup("number"));
      * </pre>
@@ -159,7 +135,7 @@ public abstract class StrLookup<V> {
          *
          * @param map  the map of keys to values, may be null
          */
-        MapStrLookup(Map<String, V> map) {
+        MapStrLookup(final Map<String, V> map) {
             this.map = map;
         }
 
@@ -173,15 +149,36 @@ public abstract class StrLookup<V> {
          * @return the matching value, null if no match
          */
         @Override
-        public String lookup(String key) {
+        public String lookup(final String key) {
             if (map == null) {
                 return null;
             }
-            Object obj = map.get(key);
+            final Object obj = map.get(key);
             if (obj == null) {
                 return null;
             }
             return obj.toString();
+        }
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Lookup implementation based on system properties.
+     */
+    private static class SystemPropertiesStrLookup extends StrLookup<String> {
+        /**
+         * {@inheritDoc} This implementation directly accesses system properties.
+         */
+        @Override
+        public String lookup(final String key) {
+            if (!key.isEmpty()) {
+                try {
+                    return System.getProperty(key);
+                } catch (final SecurityException scex) {
+                    // Squelched. All lookup(String) will return null.
+                }
+            }
+            return null;
         }
     }
 }

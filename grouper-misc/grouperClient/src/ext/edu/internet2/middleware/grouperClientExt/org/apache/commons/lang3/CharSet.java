@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -45,42 +30,41 @@ import java.util.Set;
  *
  * <p>#ThreadSafe#</p>
  * @since 1.0
- * @version $Id: CharSet.java 1199894 2011-11-09 17:53:59Z ggregory $
  */
 public class CharSet implements Serializable {
 
     /**
-     * Required for serialization support. Lang version 2.0. 
-     * 
+     * Required for serialization support. Lang version 2.0.
+     *
      * @see java.io.Serializable
      */
     private static final long serialVersionUID = 5947847346149275958L;
 
-    /** 
-     * A CharSet defining no characters. 
+    /**
+     * A CharSet defining no characters.
      * @since 2.0
      */
     public static final CharSet EMPTY = new CharSet((String) null);
 
-    /** 
+    /**
      * A CharSet defining ASCII alphabetic characters "a-zA-Z".
      * @since 2.0
      */
     public static final CharSet ASCII_ALPHA = new CharSet("a-zA-Z");
 
-    /** 
+    /**
      * A CharSet defining ASCII alphabetic characters "a-z".
      * @since 2.0
      */
     public static final CharSet ASCII_ALPHA_LOWER = new CharSet("a-z");
 
-    /** 
+    /**
      * A CharSet defining ASCII alphabetic characters "A-Z".
      * @since 2.0
      */
     public static final CharSet ASCII_ALPHA_UPPER = new CharSet("A-Z");
 
-    /** 
+    /**
      * A CharSet defining ASCII alphabetic characters "0-9".
      * @since 2.0
      */
@@ -91,11 +75,11 @@ public class CharSet implements Serializable {
      * Subclasses can add more common patterns if desired
      * @since 2.0
      */
-    protected static final Map<String, CharSet> COMMON = Collections.synchronizedMap(new HashMap<String, CharSet>());
-    
+    protected static final Map<String, CharSet> COMMON = Collections.synchronizedMap(new HashMap<>());
+
     static {
         COMMON.put(null, EMPTY);
-        COMMON.put("", EMPTY);
+        COMMON.put(StringUtils.EMPTY, EMPTY);
         COMMON.put("a-zA-Z", ASCII_ALPHA);
         COMMON.put("A-Za-z", ASCII_ALPHA);
         COMMON.put("a-z", ASCII_ALPHA_LOWER);
@@ -104,7 +88,7 @@ public class CharSet implements Serializable {
     }
 
     /** The set of CharRange objects. */
-    private final Set<CharRange> set = Collections.synchronizedSet(new HashSet<CharRange>());
+    private final Set<CharRange> set = Collections.synchronizedSet(new HashSet<>());
 
     //-----------------------------------------------------------------------
     /**
@@ -130,6 +114,7 @@ public class CharSet implements Serializable {
      *  <li>Negated single character, such as "^a"
      *  <li>Ordinary single character, such as "a"
      * </ol>
+     *
      * <p>Matching works left to right. Once a match is found the
      * search starts again from the next character.</p>
      *
@@ -144,23 +129,40 @@ public class CharSet implements Serializable {
      *
      * <p>The set of characters represented is the union of the specified ranges.</p>
      *
+     * <p>There are two ways to add a literal negation character ({@code ^}):</p>
+     * <ul>
+     *     <li>As the last character in a string, e.g. {@code CharSet.getInstance("a-z^")}</li>
+     *     <li>As a separate element, e.g. {@code CharSet.getInstance("^", "a-z")}</li>
+     * </ul>
+     *
+     * <p>Examples using the negation character:</p>
+     * <pre>
+     *     CharSet.getInstance("^a-c").contains('a') = false
+     *     CharSet.getInstance("^a-c").contains('d') = true
+     *     CharSet.getInstance("^^a-c").contains('a') = true // (only '^' is negated)
+     *     CharSet.getInstance("^^a-c").contains('^') = false
+     *     CharSet.getInstance("^a-cd-f").contains('d') = true
+     *     CharSet.getInstance("a-c^").contains('^') = true
+     *     CharSet.getInstance("^", "a-c").contains('^') = true
+     * </pre>
+     *
      * <p>All CharSet objects returned by this method will be immutable.</p>
      *
      * @param setStrs  Strings to merge into the set, may be null
      * @return a CharSet instance
      * @since 2.4
      */
-    public static CharSet getInstance(String... setStrs) {
+    public static CharSet getInstance(final String... setStrs) {
         if (setStrs == null) {
             return null;
         }
         if (setStrs.length == 1) {
-            CharSet common = COMMON.get(setStrs[0]);
+            final CharSet common = COMMON.get(setStrs[0]);
             if (common != null) {
                 return common;
             }
         }
-        return new CharSet(setStrs); 
+        return new CharSet(setStrs);
     }
 
     //-----------------------------------------------------------------------
@@ -171,11 +173,9 @@ public class CharSet implements Serializable {
      * @param set  Strings to merge into the initial set
      * @throws NullPointerException if set is {@code null}
      */
-    protected CharSet(String... set) {
-        super();
-        int sz = set.length;
-        for (int i = 0; i < sz; i++) {
-            add(set[i]);
+    protected CharSet(final String... set) {
+        for (final String s : set) {
+            add(s);
         }
     }
 
@@ -185,15 +185,15 @@ public class CharSet implements Serializable {
      *
      * @param str  set definition string
      */
-    protected void add(String str) {
+    protected void add(final String str) {
         if (str == null) {
             return;
         }
 
-        int len = str.length();
+        final int len = str.length();
         int pos = 0;
         while (pos < len) {
-            int remainder = len - pos;
+            final int remainder = len - pos;
             if (remainder >= 4 && str.charAt(pos) == '^' && str.charAt(pos + 2) == '-') {
                 // negated range
                 set.add(CharRange.isNotIn(str.charAt(pos + 1), str.charAt(pos + 3)));
@@ -221,10 +221,10 @@ public class CharSet implements Serializable {
      * @return an array of immutable CharRange objects
      * @since 2.0
      */
-// NOTE: This is no longer public as CharRange is no longer a public class. 
+// NOTE: This is no longer public as CharRange is no longer a public class.
 //       It may be replaced when CharSet moves to Range.
     /*public*/ CharRange[] getCharRanges() {
-        return set.toArray(new CharRange[set.size()]);
+        return set.toArray(CharRange.EMPTY_ARRAY);
     }
 
     //-----------------------------------------------------------------------
@@ -235,10 +235,12 @@ public class CharSet implements Serializable {
      * @param ch  the character to check for
      * @return {@code true} if the set contains the characters
      */
-    public boolean contains(char ch) {
-        for (CharRange range : set) {
-            if (range.contains(ch)) {
-                return true;
+    public boolean contains(final char ch) {
+        synchronized(set) {
+            for (final CharRange range : set) {
+                if (range.contains(ch)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -258,14 +260,14 @@ public class CharSet implements Serializable {
      * @since 2.0
      */
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (obj == this) {
             return true;
         }
-        if (obj instanceof CharSet == false) {
+        if (!(obj instanceof CharSet)) {
             return false;
         }
-        CharSet other = (CharSet) obj;
+        final CharSet other = (CharSet) obj;
         return set.equals(other.set);
     }
 

@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -56,7 +41,6 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builde
  * <p>#ThreadSafe#</p>
  *
  * @since 3.0
- * @version $Id: AnnotationUtils.java 1083850 2011-03-21 15:59:10Z mbenson $
  */
 public class AnnotationUtils {
 
@@ -84,26 +68,20 @@ public class AnnotationUtils {
          * {@inheritDoc}
          */
         @Override
-        protected String getShortClassName(java.lang.Class<?> cls) {
-            Class<? extends Annotation> annotationType = null;
-            for (Class<?> iface : ClassUtils.getAllInterfaces(cls)) {
+        protected String getShortClassName(final Class<?> cls) {
+            for (final Class<?> iface : ClassUtils.getAllInterfaces(cls)) {
                 if (Annotation.class.isAssignableFrom(iface)) {
-                    @SuppressWarnings("unchecked")
-                    //because we just checked the assignability
-                    Class<? extends Annotation> found = (Class<? extends Annotation>) iface;
-                    annotationType = found;
-                    break;
+                    return "@" + iface.getName();
                 }
             }
-            return new StringBuilder(annotationType == null ? "" : annotationType.getName())
-                    .insert(0, '@').toString();
+            return StringUtils.EMPTY;
         }
 
         /**
          * {@inheritDoc}
          */
         @Override
-        protected void appendDetail(StringBuffer buffer, String fieldName, Object value) {
+        protected void appendDetail(final StringBuffer buffer, final String fieldName, Object value) {
             if (value instanceof Annotation) {
                 value = AnnotationUtils.toString((Annotation) value);
             }
@@ -134,34 +112,32 @@ public class AnnotationUtils {
      * @return {@code true} if the two annotations are {@code equal} or both
      * {@code null}
      */
-    public static boolean equals(Annotation a1, Annotation a2) {
+    public static boolean equals(final Annotation a1, final Annotation a2) {
         if (a1 == a2) {
             return true;
         }
         if (a1 == null || a2 == null) {
             return false;
         }
-        Class<? extends Annotation> type = a1.annotationType();
-        Class<? extends Annotation> type2 = a2.annotationType();
-        Validate.notNull(type, "Annotation %s with null annotationType()", a1);
+        final Class<? extends Annotation> type1 = a1.annotationType();
+        final Class<? extends Annotation> type2 = a2.annotationType();
+        Validate.notNull(type1, "Annotation %s with null annotationType()", a1);
         Validate.notNull(type2, "Annotation %s with null annotationType()", a2);
-        if (!type.equals(type2)) {
+        if (!type1.equals(type2)) {
             return false;
         }
         try {
-            for (Method m : type.getDeclaredMethods()) {
+            for (final Method m : type1.getDeclaredMethods()) {
                 if (m.getParameterTypes().length == 0
                         && isValidAnnotationMemberType(m.getReturnType())) {
-                    Object v1 = m.invoke(a1);
-                    Object v2 = m.invoke(a2);
+                    final Object v1 = m.invoke(a1);
+                    final Object v2 = m.invoke(a2);
                     if (!memberEquals(m.getReturnType(), v1, v2)) {
                         return false;
                     }
                 }
             }
-        } catch (IllegalAccessException ex) {
-            return false;
-        } catch (InvocationTargetException ex) {
+        } catch (final IllegalAccessException | InvocationTargetException ex) {
             return false;
         }
         return true;
@@ -179,20 +155,20 @@ public class AnnotationUtils {
      * @throws IllegalStateException if an annotation method invocation returns
      * {@code null}
      */
-    public static int hashCode(Annotation a) {
+    public static int hashCode(final Annotation a) {
         int result = 0;
-        Class<? extends Annotation> type = a.annotationType();
-        for (Method m : type.getDeclaredMethods()) {
+        final Class<? extends Annotation> type = a.annotationType();
+        for (final Method m : type.getDeclaredMethods()) {
             try {
-                Object value = m.invoke(a);
+                final Object value = m.invoke(a);
                 if (value == null) {
                     throw new IllegalStateException(
                             String.format("Annotation method %s returned null", m));
                 }
                 result += hashMember(m.getName(), value);
-            } catch (RuntimeException ex) {
+            } catch (final RuntimeException ex) {
                 throw ex;
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 throw new RuntimeException(ex);
             }
         }
@@ -208,16 +184,16 @@ public class AnnotationUtils {
      * {@code null}
      */
     public static String toString(final Annotation a) {
-        ToStringBuilder builder = new ToStringBuilder(a, TO_STRING_STYLE);
-        for (Method m : a.annotationType().getDeclaredMethods()) {
+        final ToStringBuilder builder = new ToStringBuilder(a, TO_STRING_STYLE);
+        for (final Method m : a.annotationType().getDeclaredMethods()) {
             if (m.getParameterTypes().length > 0) {
                 continue; //wtf?
             }
             try {
                 builder.append(m.getName(), m.invoke(a));
-            } catch (RuntimeException ex) {
+            } catch (final RuntimeException ex) {
                 throw ex;
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 throw new RuntimeException(ex);
             }
         }
@@ -254,8 +230,8 @@ public class AnnotationUtils {
      * @param value the value of the member
      * @return a hash code for this member
      */
-    private static int hashMember(String name, Object value) {
-        int part1 = name.hashCode() * 127;
+    private static int hashMember(final String name, final Object value) {
+        final int part1 = name.hashCode() * 127;
         if (value.getClass().isArray()) {
             return part1 ^ arrayMemberHash(value.getClass().getComponentType(), value);
         }
@@ -275,7 +251,7 @@ public class AnnotationUtils {
      * @param o2 the second object
      * @return a flag whether these objects are equal
      */
-    private static boolean memberEquals(Class<?> type, Object o1, Object o2) {
+    private static boolean memberEquals(final Class<?> type, final Object o1, final Object o2) {
         if (o1 == o2) {
             return true;
         }
@@ -299,7 +275,7 @@ public class AnnotationUtils {
      * @param o2 the second object
      * @return a flag whether these objects are equal
      */
-    private static boolean arrayMemberEquals(Class<?> componentType, Object o1, Object o2) {
+    private static boolean arrayMemberEquals(final Class<?> componentType, final Object o1, final Object o2) {
         if (componentType.isAnnotation()) {
             return annotationArrayMemberEquals((Annotation[]) o1, (Annotation[]) o2);
         }
@@ -337,7 +313,7 @@ public class AnnotationUtils {
      * @param a2 the second array
      * @return a flag whether these arrays are equal
      */
-    private static boolean annotationArrayMemberEquals(Annotation[] a1, Annotation[] a2) {
+    private static boolean annotationArrayMemberEquals(final Annotation[] a1, final Annotation[] a2) {
         if (a1.length != a2.length) {
             return false;
         }
@@ -356,7 +332,7 @@ public class AnnotationUtils {
      * @param o the array
      * @return a hash code for the specified array
      */
-    private static int arrayMemberHash(Class<?> componentType, Object o) {
+    private static int arrayMemberHash(final Class<?> componentType, final Object o) {
         if (componentType.equals(Byte.TYPE)) {
             return Arrays.hashCode((byte[]) o);
         }

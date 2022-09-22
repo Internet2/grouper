@@ -1,18 +1,3 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -20,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,13 +17,61 @@
 package edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3;
 
 /**
- * <p>Operations on bit-mapped fields.</p>
+ * <p>Supports operations on bit-mapped fields. Instances of this class can be
+ * used to store a flag or data within an {@code int}, {@code short} or
+ * {@code byte}.</p>
+ *
+ * <p>Each {@code BitField} is constructed with a mask value, which indicates
+ * the bits that will be used to store and retrieve the data for that field.
+ * For instance, the mask {@code 0xFF} indicates the least-significant byte
+ * should be used to store the data.</p>
+ *
+ * <p>As an example, consider a car painting machine that accepts
+ * paint instructions as integers. Bit fields can be used to encode this:</p>
+ *
+ *<pre>
+ *    // blue, green and red are 1 byte values (0-255) stored in the three least
+ *    // significant bytes
+ *    BitField blue = new BitField(0xFF);
+ *    BitField green = new BitField(0xFF00);
+ *    BitField red = new BitField(0xFF0000);
+ *
+ *    // anyColor is a flag triggered if any color is used
+ *    BitField anyColor = new BitField(0xFFFFFF);
+ *
+ *    // isMetallic is a single bit flag
+ *    BitField isMetallic = new BitField(0x1000000);
+ *</pre>
+ *
+ * <p>Using these {@code BitField} instances, a paint instruction can be
+ * encoded into an integer:</p>
+ *
+ *<pre>
+ *    int paintInstruction = 0;
+ *    paintInstruction = red.setValue(paintInstruction, 35);
+ *    paintInstruction = green.setValue(paintInstruction, 100);
+ *    paintInstruction = blue.setValue(paintInstruction, 255);
+ *</pre>
+ *
+ * <p>Flags and data can be retrieved from the integer:</p>
+ *
+ *<pre>
+ *    // Prints true if red, green or blue is non-zero
+ *    System.out.println(anyColor.isSet(paintInstruction));   // prints true
+ *
+ *    // Prints value of red, green and blue
+ *    System.out.println(red.getValue(paintInstruction));     // prints 35
+ *    System.out.println(green.getValue(paintInstruction));   // prints 100
+ *    System.out.println(blue.getValue(paintInstruction));    // prints 255
+ *
+ *    // Prints true if isMetallic was set
+ *    System.out.println(isMetallic.isSet(paintInstruction)); // prints false
+ *</pre>
  *
  * @since 2.0
- * @version $Id: BitField.java 1088899 2011-04-05 05:31:27Z bayard $
  */
 public class BitField {
-    
+
     private final int _mask;
     private final int _shift_count;
 
@@ -49,18 +82,9 @@ public class BitField {
      *  BitField. Bits that are set in this mask are the bits
      *  that this BitField operates on
      */
-    public BitField(int mask) {
+    public BitField(final int mask) {
         _mask = mask;
-        int count = 0;
-        int bit_pattern = mask;
-
-        if (bit_pattern != 0) {
-            while ((bit_pattern & 1) == 0) {
-                count++;
-                bit_pattern >>= 1;
-            }
-        }
-        _shift_count = count;
+        _shift_count = mask == 0 ? 0 : Integer.numberOfTrailingZeros(mask);
     }
 
     /**
@@ -77,7 +101,7 @@ public class BitField {
      *  in
      * @return the selected bits, shifted right appropriately
      */
-    public int getValue(int holder) {
+    public int getValue(final int holder) {
         return getRawValue(holder) >> _shift_count;
     }
 
@@ -95,7 +119,7 @@ public class BitField {
      *  interested in
      * @return the selected bits, shifted right appropriately
      */
-    public short getShortValue(short holder) {
+    public short getShortValue(final short holder) {
         return (short) getValue(holder);
     }
 
@@ -106,7 +130,7 @@ public class BitField {
      *  interested in
      * @return the selected bits
      */
-    public int getRawValue(int holder) {
+    public int getRawValue(final int holder) {
         return holder & _mask;
     }
 
@@ -117,7 +141,7 @@ public class BitField {
      *  interested in
      * @return the selected bits
      */
-    public short getShortRawValue(short holder) {
+    public short getShortRawValue(final short holder) {
         return (short) getRawValue(holder);
     }
 
@@ -134,7 +158,7 @@ public class BitField {
      * @return {@code true} if any of the bits are set,
      *  else {@code false}
      */
-    public boolean isSet(int holder) {
+    public boolean isSet(final int holder) {
         return (holder & _mask) != 0;
     }
 
@@ -150,7 +174,7 @@ public class BitField {
      * @return {@code true} if all of the bits are set,
      *  else {@code false}
      */
-    public boolean isAllSet(int holder) {
+    public boolean isAllSet(final int holder) {
         return (holder & _mask) == _mask;
     }
 
@@ -164,7 +188,7 @@ public class BitField {
      * @return the value of holder with the bits from the value
      *  parameter replacing the old bits
      */
-    public int setValue(int holder, int value) {
+    public int setValue(final int holder, final int value) {
         return (holder & ~_mask) | ((value << _shift_count) & _mask);
     }
 
@@ -178,7 +202,7 @@ public class BitField {
      * @return the value of holder with the bits from the value
      *  parameter replacing the old bits
      */
-    public short setShortValue(short holder, short value) {
+    public short setShortValue(final short holder, final short value) {
         return (short) setValue(holder, value);
     }
 
@@ -190,7 +214,7 @@ public class BitField {
      * @return the value of holder with the specified bits cleared
      *  (set to {@code 0})
      */
-    public int clear(int holder) {
+    public int clear(final int holder) {
         return holder & ~_mask;
     }
 
@@ -202,7 +226,7 @@ public class BitField {
      * @return the value of holder with the specified bits cleared
      *  (set to {@code 0})
      */
-    public short clearShort(short holder) {
+    public short clearShort(final short holder) {
         return (short) clear(holder);
     }
 
@@ -215,7 +239,7 @@ public class BitField {
      * @return the value of holder with the specified bits cleared
      *  (set to {@code 0})
      */
-    public byte clearByte(byte holder) {
+    public byte clearByte(final byte holder) {
         return (byte) clear(holder);
     }
 
@@ -227,7 +251,7 @@ public class BitField {
      * @return the value of holder with the specified bits set
      *  to {@code 1}
      */
-    public int set(int holder) {
+    public int set(final int holder) {
         return holder | _mask;
     }
 
@@ -239,7 +263,7 @@ public class BitField {
      * @return the value of holder with the specified bits set
      *  to {@code 1}
      */
-    public short setShort(short holder) {
+    public short setShort(final short holder) {
         return (short) set(holder);
     }
 
@@ -252,7 +276,7 @@ public class BitField {
      * @return the value of holder with the specified bits set
      *  to {@code 1}
      */
-    public byte setByte(byte holder) {
+    public byte setByte(final byte holder) {
         return (byte) set(holder);
     }
 
@@ -265,7 +289,7 @@ public class BitField {
      * @return the value of holder with the specified bits set or
      *         cleared
      */
-    public int setBoolean(int holder, boolean flag) {
+    public int setBoolean(final int holder, final boolean flag) {
         return flag ? set(holder) : clear(holder);
     }
 
@@ -278,7 +302,7 @@ public class BitField {
      * @return the value of holder with the specified bits set or
      *  cleared
      */
-    public short setShortBoolean(short holder, boolean flag) {
+    public short setShortBoolean(final short holder, final boolean flag) {
         return flag ? setShort(holder) : clearShort(holder);
     }
 
@@ -291,7 +315,7 @@ public class BitField {
      * @return the value of holder with the specified bits set or
      *  cleared
      */
-    public byte setByteBoolean(byte holder, boolean flag) {
+    public byte setByteBoolean(final byte holder, final boolean flag) {
         return flag ? setByte(holder) : clearByte(holder);
     }
 

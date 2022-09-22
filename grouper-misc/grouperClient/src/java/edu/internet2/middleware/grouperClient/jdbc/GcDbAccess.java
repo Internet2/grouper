@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -45,6 +46,14 @@ import edu.internet2.middleware.morphString.Morph;
  * </blockquote>
  * 
  * </p>
+ * From a database external system
+ * <blockquote>
+ * <pre>
+ * Integer theOne = new GcDbAccess().connectionName(externalSystemConfigId).sql("select 1 from dual")
+ *   .select(Integer.class);
+ * </pre>
+ * </blockquote>
+ * 
  */
 public class GcDbAccess {
 
@@ -340,6 +349,23 @@ public class GcDbAccess {
     }
 
     this.bindVars.add(_bindVar);
+
+    return this;
+  }
+
+  /**
+   * Add to the list of bind variable objects, leaving any that exist there - if you use this in a transaction callback
+   * you will have to clear bindvars between calls or they will accumulate.
+   * @param _bindVar is the variable to add to the list.
+   * @return this.
+   */
+  public GcDbAccess addBindVars(Collection<?> _bindVar){
+
+    if (this.bindVars == null){
+      this.bindVars = new ArrayList<Object>();
+    }
+
+    this.bindVars.addAll(_bindVar);
 
     return this;
   }
@@ -2456,7 +2482,7 @@ public class GcDbAccess {
       Map<Object, Object> results = new LinkedHashMap<Object, Object>();
       for (int columnNumber = 1; columnNumber <= columnCount; columnNumber++){
         Object value = retrieveObjectFromResultSetByIndex(resultSet, columnNumber);
-        results.put(resultSet.getMetaData().getColumnName(columnNumber), value);
+        results.put(resultSet.getMetaData().getColumnName(columnNumber).toLowerCase(), value);
       }
       @SuppressWarnings("unchecked")
       T t = (T)results;
@@ -2568,9 +2594,16 @@ public class GcDbAccess {
         // if we want to go down this path, need to check to see if has decimal and convert to long
         return bigDecimal;
         
+      case Types.BIT:
+      case Types.BOOLEAN:
+        return resultSet.getBoolean(columnNumberOneIndexed);
+        
       case Types.CHAR:
       case Types.VARCHAR:
       case Types.LONGVARCHAR:
+      case Types.NCHAR:
+      case Types.NVARCHAR:
+      case Types.LONGNVARCHAR:
 
         return resultSet.getString(columnNumberOneIndexed);
 

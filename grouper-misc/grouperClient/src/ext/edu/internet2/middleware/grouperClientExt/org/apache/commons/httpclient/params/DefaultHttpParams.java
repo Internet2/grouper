@@ -1,22 +1,7 @@
-/**
- * Copyright 2014 Internet2
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 /*
- * $Header: /home/hagleyj/i2mi/grouper-misc/grouperClient/src/ext/edu/internet2/middleware/grouperClientExt/org/apache/commons/httpclient/params/DefaultHttpParams.java,v 1.1 2008-11-30 10:57:21 mchyzer Exp $
- * $Revision: 1.1 $
- * $Date: 2008-11-30 10:57:21 $
+ * $Header: /home/jerenkrantz/tmp/commons/commons-convert/cvs/home/cvs/jakarta-commons//httpclient/src/java/org/apache/commons/httpclient/params/DefaultHttpParams.java,v 1.9 2004/12/21 23:15:21 olegk Exp $
+ * $Revision: 510589 $
+ * $Date: 2007-02-22 18:04:52 +0100 (Thu, 22 Feb 2007) $
  *
  * ====================================================================
  *
@@ -59,7 +44,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogF
  * 
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
  * 
- * @version $Revision: 1.1 $
+ * @version $Revision: 510589 $
  * 
  * @since 3.0
  */
