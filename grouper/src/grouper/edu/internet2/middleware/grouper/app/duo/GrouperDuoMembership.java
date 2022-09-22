@@ -2,8 +2,8 @@ package edu.internet2.middleware.grouper.app.duo;
 
 import java.sql.Types;
 
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;

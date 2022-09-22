@@ -35,7 +35,7 @@ import java.util.regex.Matcher;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.ddlutils.PlatformFactory;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.PlatformFactory;
 import org.hibernate.type.StringType;
 import org.quartz.CronTrigger;
 import org.quartz.JobBuilder;

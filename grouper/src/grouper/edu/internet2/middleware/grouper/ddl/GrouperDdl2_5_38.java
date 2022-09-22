@@ -3,9 +3,9 @@ package edu.internet2.middleware.grouper.ddl;
 import java.sql.Types;
 
 import org.apache.commons.logging.Log;
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.Index;
-import org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Index;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 

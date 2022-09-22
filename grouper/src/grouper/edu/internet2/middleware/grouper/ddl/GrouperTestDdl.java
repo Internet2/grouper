@@ -19,7 +19,7 @@
  */
 package edu.internet2.middleware.grouper.ddl;
 
-import org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 
 
 

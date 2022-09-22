@@ -8,15 +8,15 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.ddlutils.Platform;
-import org.apache.ddlutils.model.Column;
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.ForeignKey;
-import org.apache.ddlutils.model.Index;
-import org.apache.ddlutils.model.IndexColumn;
-import org.apache.ddlutils.model.Reference;
-import org.apache.ddlutils.model.Table;
-import org.apache.ddlutils.platform.SqlBuilder;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Column;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.ForeignKey;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Index;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.IndexColumn;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Reference;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.platform.SqlBuilder;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;

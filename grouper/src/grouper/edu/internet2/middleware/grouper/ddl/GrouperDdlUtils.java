@@ -43,18 +43,18 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.ddlutils.Platform;
-import org.apache.ddlutils.PlatformFactory;
-import org.apache.ddlutils.model.Column;
-import org.apache.ddlutils.model.Database;
-import org.apache.ddlutils.model.ForeignKey;
-import org.apache.ddlutils.model.Index;
-import org.apache.ddlutils.model.IndexColumn;
-import org.apache.ddlutils.model.NonUniqueIndex;
-import org.apache.ddlutils.model.Reference;
-import org.apache.ddlutils.model.Table;
-import org.apache.ddlutils.model.UniqueIndex;
-import org.apache.ddlutils.platform.SqlBuilder;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.PlatformFactory;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Column;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.ForeignKey;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Index;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.IndexColumn;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.NonUniqueIndex;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Reference;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.UniqueIndex;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.platform.SqlBuilder;
 import org.apache.tools.ant.DefaultLogger;
 import org.apache.tools.ant.Project;
 import org.apache.tools.ant.taskdefs.SQLExec;
@@ -77,7 +77,6 @@ import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
-import edu.internet2.middleware.grouper.ddl.ddlutils.HsqlDb2Platform;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -327,10 +326,6 @@ public class GrouperDdlUtils {
     
     if (cachedPlatform == null || !useCache) {
       
-      if (!PlatformFactory.isPlatformSupported("HsqlDb2")) {
-        PlatformFactory.registerPlatform("HsqlDb2", HsqlDb2Platform.class);
-      }
-      
       String ddlUtilsDbnameOverride = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.dbname.override");
   
       //convenience to get the url, user, etc of the grouper db
@@ -459,9 +454,6 @@ public class GrouperDdlUtils {
    * @return the driver class
    */
   public static String convertUrlToQuartzDriverDelegateClass() {
-    if (GrouperDdlUtils.isHsql()) {
-      return HSQLDBDelegate.class.getName();
-    }
     if (GrouperDdlUtils.isMysql()) {
       return StdJDBCDelegate.class.getName();
 

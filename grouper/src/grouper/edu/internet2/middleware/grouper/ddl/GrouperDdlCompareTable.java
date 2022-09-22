@@ -3,8 +3,8 @@ package edu.internet2.middleware.grouper.ddl;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.ddlutils.model.ForeignKey;
-import org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.ForeignKey;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
 public class GrouperDdlCompareTable {
 
