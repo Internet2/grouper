@@ -79,28 +79,6 @@ public interface PITGroupSetDAO extends GrouperDAO {
   
   /**
    * @param ownerId
-   * @param endTime
-   * @param contextId
-   */
-  public void updateEndTimeByPITOwner(String ownerId, Long endTime, String contextId);
-  
-  /**
-   * @param fieldId
-   * @param endTime
-   * @param contextId
-   */
-  public void updateEndTimeByPITField(String fieldId, Long endTime, String contextId);
-  
-  /**
-   * @param ownerId
-   * @param fieldId
-   * @param endTime
-   * @param contextId
-   */
-  public void updateEndTimeByPITOwnerAndPITField(String ownerId, String fieldId, Long endTime, String contextId);
-  
-  /**
-   * @param ownerId
    * @param fieldId
    * @param activeOnly 
    * @return pit group set

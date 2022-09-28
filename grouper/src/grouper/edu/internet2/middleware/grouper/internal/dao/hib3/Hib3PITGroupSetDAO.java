@@ -135,46 +135,6 @@ public class Hib3PITGroupSetDAO extends Hib3DAO implements PITGroupSetDAO {
     
     return pit;
   }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#updateEndTimeByPITOwner(java.lang.String, java.lang.Long, java.lang.String)
-   */
-  public void updateEndTimeByPITOwner(String ownerId, Long endTime, String contextId) {
-    HibernateSession.byHqlStatic()
-        .createQuery("update PITGroupSet set endTimeDb = :endTime, contextId = :contextId, activeDb = :active where ownerId = :ownerId and endTimeDb is null")
-        .setLong("endTime", endTime)
-        .setString("contextId", contextId)
-        .setString("active", "F")
-        .setString("ownerId", ownerId)
-        .executeUpdate();
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#updateEndTimeByPITField(java.lang.String, java.lang.Long, java.lang.String)
-   */
-  public void updateEndTimeByPITField(String fieldId, Long endTime, String contextId) {
-    HibernateSession.byHqlStatic()
-        .createQuery("update PITGroupSet set endTimeDb = :endTime, contextId = :contextId, activeDb = :active where fieldId = :fieldId and endTimeDb is null")
-        .setLong("endTime", endTime)
-        .setString("contextId", contextId)
-        .setString("active", "F")
-        .setString("fieldId", fieldId)
-        .executeUpdate();
-  }
-  
-  /**
-   * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#updateEndTimeByPITOwnerAndPITField(java.lang.String, java.lang.String, java.lang.Long, java.lang.String)
-   */
-  public void updateEndTimeByPITOwnerAndPITField(String ownerId, String fieldId, Long endTime, String contextId) {
-    HibernateSession.byHqlStatic()
-        .createQuery("update PITGroupSet set endTimeDb = :endTime, contextId = :contextId, activeDb = :active where ownerId = :ownerId and fieldId = :fieldId and endTimeDb is null")
-        .setLong("endTime", endTime)
-        .setString("contextId", contextId)
-        .setString("active", "F")
-        .setString("ownerId", ownerId)
-        .setString("fieldId", fieldId)
-        .executeUpdate();
-  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupSetDAO#findSelfPITGroupSet(java.lang.String, java.lang.String, boolean)

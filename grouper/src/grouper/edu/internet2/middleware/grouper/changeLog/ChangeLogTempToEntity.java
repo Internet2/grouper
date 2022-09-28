@@ -16,7 +16,6 @@
 package edu.internet2.middleware.grouper.changeLog;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,11 +27,7 @@ import org.apache.commons.logging.Log;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupType;
-import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -434,9 +429,7 @@ public class ChangeLogTempToEntity {
     if (pitGroup == null) {
       return;
     }
-    
-    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByPITOwner(pitGroup.getId(), endTime, contextId);
-    
+        
     pitGroup.setEndTimeDb(endTime);
     pitGroup.setActiveDb("F");
     pitGroup.setContextId(contextId);
@@ -548,9 +541,7 @@ public class ChangeLogTempToEntity {
     if (pitStem == null) {
       return;
     }
-    
-    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByPITOwner(pitStem.getId(), endTime, contextId);
-    
+        
     pitStem.setEndTimeDb(endTime);
     pitStem.setActiveDb("F");
     pitStem.setContextId(contextId);
@@ -644,9 +635,7 @@ public class ChangeLogTempToEntity {
     if (pitAttributeDef == null) {
       return;
     }
-    
-    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByPITOwner(pitAttributeDef.getId(), endTime, contextId);
-    
+        
     pitAttributeDef.setEndTimeDb(endTime);
     pitAttributeDef.setActiveDb("F");
     pitAttributeDef.setContextId(contextId);
@@ -704,9 +693,7 @@ public class ChangeLogTempToEntity {
     if (pitField == null) {
       return;
     }
-    
-    GrouperDAOFactory.getFactory().getPITGroupSet().updateEndTimeByPITField(pitField.getId(), endTime, contextId);
-    
+        
     pitField.setEndTimeDb(endTime);
     pitField.setActiveDb("F");
     pitField.setContextId(contextId);
@@ -764,6 +751,7 @@ public class ChangeLogTempToEntity {
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupId.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeId.name());
 
+    /*
     String typeId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_UNASSIGN.typeId);
     String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_TYPE_UNASSIGN.groupId);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
@@ -794,6 +782,7 @@ public class ChangeLogTempToEntity {
         }
       }
     }
+    */
   }
   
   /**
