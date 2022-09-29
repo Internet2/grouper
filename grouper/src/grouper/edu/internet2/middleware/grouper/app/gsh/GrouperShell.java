@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.app.gsh.jline.WindowsTerminal;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateReturnException;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -251,6 +252,11 @@ private static boolean handleSpecialCase(String[] args) {
           GrouperPluginManager.shutdownIfStarted();
         } catch (Exception e) {
           LOG.error("error shutting down plugins", e);
+        }
+        try {
+          EhcacheController.ehcacheController().stop();
+        } catch (Exception e) {
+          LOG.error("error stopping ehcache controller");
         }
 	    }
 	  }
