@@ -277,7 +277,7 @@ public class GrouperServiceRest {
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
         GrouperVersion.stringValueOrNull(wsRestGetMembersLiteRequest.getClientVersion()), false, "clientVersion");
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestGetMembersLiteRequest
-        .getGroupName(), false, "groupName");
+        .getGroupName(), true, "groupName");
 
     //get the results
     WsGetMembersLiteResult wsGetMembersLiteResult = new GrouperService(false).getMembersLite(
@@ -332,7 +332,7 @@ public class GrouperServiceRest {
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestAddMemberLiteRequest
         .getGroupName(), true, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestAddMemberLiteRequest
-        .getSubjectId(), false, "subjectId");
+        .getSubjectId(), true, "subjectId");
     sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestAddMemberLiteRequest
         .getSubjectSourceId(), true, "sourceId");
 
@@ -470,7 +470,7 @@ public class GrouperServiceRest {
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestDeleteMemberLiteRequest
         .getGroupName(), true, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestDeleteMemberLiteRequest
-        .getSubjectId(), false, "subjectId");
+        .getSubjectId(), true, "subjectId");
     sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestDeleteMemberLiteRequest
         .getSubjectSourceId(), true, "sourceId");
 
@@ -668,7 +668,7 @@ public class GrouperServiceRest {
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
         GrouperVersion.stringValueOrNull(wsRestHasMemberLiteRequest.getClientVersion()), false, "clientVersion");
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestHasMemberLiteRequest
-        .getGroupName(), false, "groupName");
+        .getGroupName(), true, "groupName");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestHasMemberLiteRequest
         .getSubjectId(), true, "subjectId");
     if (StringUtils.isBlank(subjectId) && StringUtils.isBlank(wsRestHasMemberLiteRequest.getSubjectIdentifier())) {
@@ -759,7 +759,7 @@ public class GrouperServiceRest {
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
         GrouperVersion.stringValueOrNull(wsRestMemberChangeSubjectLiteRequest.getClientVersion()), false, "clientVersion");
     oldSubjectId = GrouperServiceUtils.pickOne(oldSubjectId, wsRestMemberChangeSubjectLiteRequest
-        .getOldSubjectId(), false, "oldSubjectId");
+        .getOldSubjectId(), true, "oldSubjectId");
     oldSubjectSourceId = GrouperServiceUtils.pickOne(oldSubjectSourceId, wsRestMemberChangeSubjectLiteRequest
         .getOldSubjectSourceId(), true, "oldSubjectSourceId");
 
@@ -965,7 +965,7 @@ public class GrouperServiceRest {
     String clientVersionString = GrouperServiceUtils.pickOne(clientVersion.toString(),
         GrouperVersion.stringValueOrNull(wsRestGetGroupsLiteRequest.getClientVersion()), false, "clientVersion");
     subjectId = GrouperServiceUtils.pickOne(subjectId, wsRestGetGroupsLiteRequest
-        .getSubjectId(), false, "subjectId");
+        .getSubjectId(), true, "subjectId");
     sourceId = GrouperServiceUtils.pickOne(sourceId, wsRestGetGroupsLiteRequest
         .getSubjectSourceId(), true, "sourceId");
 
@@ -1114,7 +1114,7 @@ public class GrouperServiceRest {
         GrouperVersion.stringValueOrNull(wsRestStemSaveLiteRequest.getClientVersion()), false, "clientVersion");
 
     stemLookupName = GrouperServiceUtils.pickOne(stemLookupName,
-        wsRestStemSaveLiteRequest.getStemLookupName(), false, "stemLookupName");
+        wsRestStemSaveLiteRequest.getStemLookupName(), true, "stemLookupName");
 
     //get the results
     WsStemSaveLiteResult wsStemSaveLiteResult = new GrouperService(false).stemSaveLite(
@@ -1191,7 +1191,7 @@ public class GrouperServiceRest {
         GrouperVersion.stringValueOrNull(wsRestStemDeleteLiteRequest.getClientVersion()), false, "clientVersion");
 
     stemName = GrouperServiceUtils.pickOne(stemName, wsRestStemDeleteLiteRequest
-        .getStemName(), false, "stemName");
+        .getStemName(), true, "stemName");
 
     //get the results
     WsStemDeleteLiteResult wsStemDeleteLiteResult = new GrouperService(false).stemDeleteLite(
@@ -1267,7 +1267,7 @@ public class GrouperServiceRest {
         GrouperVersion.stringValueOrNull(wsRestGroupDeleteLiteRequest.getClientVersion()), false, "clientVersion");
 
     groupName = GrouperServiceUtils.pickOne(groupName, wsRestGroupDeleteLiteRequest
-        .getGroupName(), false, "groupName");
+        .getGroupName(), true, "groupName");
 
     //get the results
     WsGroupDeleteLiteResult wsGroupDeleteLiteResult = new GrouperService(false)
@@ -1344,7 +1344,7 @@ public class GrouperServiceRest {
         GrouperVersion.stringValueOrNull(wsRestGroupSaveLiteRequest.getClientVersion()), false, "clientVersion");
   
     groupLookupName = GrouperServiceUtils.pickOne(groupLookupName,
-        wsRestGroupSaveLiteRequest.getGroupLookupName(), false, "groupLookupName");
+        wsRestGroupSaveLiteRequest.getGroupLookupName(), true, "groupLookupName");
   
     //get the results
     WsGroupSaveLiteResult wsGroupSaveLiteResult = new GrouperService(false).groupSaveLite(
