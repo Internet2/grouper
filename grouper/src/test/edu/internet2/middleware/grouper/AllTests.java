@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.attr.AllAttributeTests;
 import edu.internet2.middleware.grouper.audit.AllAuditTests;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.AllGrouperCacheTests;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.AllConfigTests;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.AllChangeLogTests;
@@ -170,6 +171,12 @@ public class AllTests extends GrouperTest {
     } catch (RuntimeException re) {
       LOG.error("Error in testing", re);
       throw re;
+    } finally {
+      try {
+        EhcacheController.ehcacheController().stop();
+      } catch (Exception e) {
+        LOG.error("error stopping ehcache controller");
+      }
     }
   }
 
