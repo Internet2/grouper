@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.OptimisticLockException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -598,6 +600,9 @@ public class HibernateSession {
       throw new GrouperStaleObjectStateException(errorString, e);
     }
     if (e instanceof StaleStateException) {
+      throw new GrouperStaleStateException(errorString, e);
+    }
+    if (e instanceof OptimisticLockException && e.getCause() != null && e.getCause() instanceof StaleStateException) {
       throw new GrouperStaleStateException(errorString, e);
     }
     // if hibernate exception, repackage
