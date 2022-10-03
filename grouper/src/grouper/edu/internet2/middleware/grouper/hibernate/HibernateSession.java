@@ -1075,7 +1075,10 @@ public class HibernateSession {
           param = GrouperUtil.toTimestamp(param);
         }
         
-        query.setParameter(i, param, type);
+        // Appears to be numbered from 1 now.  
+        // Alternatively, could have set hibernate.query.sql.jdbc_style_params_base = true
+        //query.setParameter(i, param, type);
+        query.setParameter((i+1), param, type);
       }
 
 
