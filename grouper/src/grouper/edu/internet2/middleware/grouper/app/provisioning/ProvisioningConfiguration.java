@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerConf
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.midpointProvisioning.MidPointProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
@@ -81,6 +82,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     provisionerConfigClassNames.add(GoogleProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(LdapProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(MessagingProvisionerConfiguration.class.getName());
+    provisionerConfigClassNames.add(MidPointProvisionerConfiguration.class.getName());
     provisionerConfigClassNames.add(GrouperScim2Configuration.class.getName());
     provisionerConfigClassNames.add(SqlProvisionerConfiguration.class.getName());
 //    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");

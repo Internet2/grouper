@@ -3277,5 +3277,439 @@ public abstract class GrouperProvisioningConfiguration {
    */
   public void configureAfterMetadata() {
   }
+
+  
+  public Boolean getCreateGroupDuringDiagnostics() {
+    return createGroupDuringDiagnostics;
+  }
+
+  
+  public void setCreateGroupDuringDiagnostics(Boolean createGroupDuringDiagnostics) {
+    this.createGroupDuringDiagnostics = createGroupDuringDiagnostics;
+  }
+
+  
+  public Boolean getDeleteGroupDuringDiagnostics() {
+    return deleteGroupDuringDiagnostics;
+  }
+
+  
+  public void setDeleteGroupDuringDiagnostics(Boolean deleteGroupDuringDiagnostics) {
+    this.deleteGroupDuringDiagnostics = deleteGroupDuringDiagnostics;
+  }
+
+  
+  public Boolean getCreateEntityDuringDiagnostics() {
+    return createEntityDuringDiagnostics;
+  }
+
+  
+  public void setCreateEntityDuringDiagnostics(Boolean createEntityDuringDiagnostics) {
+    this.createEntityDuringDiagnostics = createEntityDuringDiagnostics;
+  }
+
+  
+  public Boolean getDeleteEntityDuringDiagnostics() {
+    return deleteEntityDuringDiagnostics;
+  }
+
+  
+  public void setDeleteEntityDuringDiagnostics(Boolean deleteEntityDuringDiagnostics) {
+    this.deleteEntityDuringDiagnostics = deleteEntityDuringDiagnostics;
+  }
+
+  
+  public Boolean getDiagnosticsGroupsAllSelect() {
+    return diagnosticsGroupsAllSelect;
+  }
+
+  
+  public void setDiagnosticsGroupsAllSelect(Boolean diagnosticsGroupsAllSelect) {
+    this.diagnosticsGroupsAllSelect = diagnosticsGroupsAllSelect;
+  }
+
+  
+  public Boolean getDiagnosticsEntitiesAllSelect() {
+    return diagnosticsEntitiesAllSelect;
+  }
+
+  
+  public void setDiagnosticsEntitiesAllSelect(Boolean diagnosticsEntitiesAllSelect) {
+    this.diagnosticsEntitiesAllSelect = diagnosticsEntitiesAllSelect;
+  }
+
+  
+  public Boolean getDiagnosticsMembershipsAllSelect() {
+    return diagnosticsMembershipsAllSelect;
+  }
+
+  
+  public void setDiagnosticsMembershipsAllSelect(Boolean diagnosticsMembershipsAllSelect) {
+    this.diagnosticsMembershipsAllSelect = diagnosticsMembershipsAllSelect;
+  }
+
+  
+  public Boolean getOnlyProvisionPolicyGroups() {
+    return onlyProvisionPolicyGroups;
+  }
+
+  
+  public void setOnlyProvisionPolicyGroups(Boolean onlyProvisionPolicyGroups) {
+    this.onlyProvisionPolicyGroups = onlyProvisionPolicyGroups;
+  }
+
+  
+  public Boolean getAllowPolicyGroupOverride() {
+    return allowPolicyGroupOverride;
+  }
+
+  
+  public void setAllowPolicyGroupOverride(Boolean allowPolicyGroupOverride) {
+    this.allowPolicyGroupOverride = allowPolicyGroupOverride;
+  }
+
+  
+  public Boolean getAllowProvisionableRegexOverride() {
+    return allowProvisionableRegexOverride;
+  }
+
+  
+  public void setAllowProvisionableRegexOverride(Boolean allowProvisionableRegexOverride) {
+    this.allowProvisionableRegexOverride = allowProvisionableRegexOverride;
+  }
+
+  
+  public Boolean getEntityAttributeValueCacheHas() {
+    return entityAttributeValueCacheHas;
+  }
+
+  
+  public void setEntityAttributeValueCacheHas(Boolean entityAttributeValueCacheHas) {
+    this.entityAttributeValueCacheHas = entityAttributeValueCacheHas;
+  }
+
+  
+  public void setThreadPoolSize(int threadPoolSize) {
+    this.threadPoolSize = threadPoolSize;
+  }
+
+  
+  public void setSubjectIdentifierForMemberSyncTable(
+      String subjectIdentifierForMemberSyncTable) {
+    this.subjectIdentifierForMemberSyncTable = subjectIdentifierForMemberSyncTable;
+  }
+
+  
+  public void setGroupsRequireMembers(boolean groupsRequireMembers) {
+    this.groupsRequireMembers = groupsRequireMembers;
+  }
+
+  
+  public void setHasEntityAttributes(boolean hasEntityAttributes) {
+    this.hasEntityAttributes = hasEntityAttributes;
+  }
+
+  
+  public void setResolveAttributesWithSql(boolean resolveAttributesWithSql) {
+    this.resolveAttributesWithSql = resolveAttributesWithSql;
+  }
+
+  
+  public void setResolveAttributesWithLdap(boolean resolveAttributesWithLdap) {
+    this.resolveAttributesWithLdap = resolveAttributesWithLdap;
+  }
+
+  
+  public void setUseGlobalSqlResolver(boolean useGlobalSqlResolver) {
+    this.useGlobalSqlResolver = useGlobalSqlResolver;
+  }
+
+  
+  public void setUseGlobalLdapResolver(boolean useGlobalLdapResolver) {
+    this.useGlobalLdapResolver = useGlobalLdapResolver;
+  }
+
+  
+  public void setGlobalSqlResolver(String globalSqlResolver) {
+    this.globalSqlResolver = globalSqlResolver;
+  }
+
+  
+  public void setGlobalLdapResolver(String globalLdapResolver) {
+    this.globalLdapResolver = globalLdapResolver;
+  }
+
+  
+  public void setSelectAllSqlOnFull(boolean selectAllSqlOnFull) {
+    this.selectAllSqlOnFull = selectAllSqlOnFull;
+  }
+
+  
+  public void setFilterAllLDAPOnFull(boolean filterAllLDAPOnFull) {
+    this.filterAllLDAPOnFull = filterAllLDAPOnFull;
+  }
+
+  
+  public void setLoadEntitiesToGrouperTable(boolean loadEntitiesToGrouperTable) {
+    this.loadEntitiesToGrouperTable = loadEntitiesToGrouperTable;
+  }
+
+  
+  public void setEntityAttributesSqlExternalSystem(
+      String entityAttributesSqlExternalSystem) {
+    this.entityAttributesSqlExternalSystem = entityAttributesSqlExternalSystem;
+  }
+
+  
+  public void setEntityAttributesTableViewName(String entityAttributesTableViewName) {
+    this.entityAttributesTableViewName = entityAttributesTableViewName;
+  }
+
+  
+  public void setEntityAttributesColumnNames(String entityAttributesColumnNames) {
+    this.entityAttributesColumnNames = entityAttributesColumnNames;
+  }
+
+  
+  public void setEntityAttributesSubjectSourceIdColumn(
+      String entityAttributesSubjectSourceIdColumn) {
+    this.entityAttributesSubjectSourceIdColumn = entityAttributesSubjectSourceIdColumn;
+  }
+
+  
+  public void setEntityAttributesSubjectSearchMatchingColumn(
+      String entityAttributesSubjectSearchMatchingColumn) {
+    this.entityAttributesSubjectSearchMatchingColumn = entityAttributesSubjectSearchMatchingColumn;
+  }
+
+  
+  public void setEntityAttributesSqlMappingType(String entityAttributesSqlMappingType) {
+    this.entityAttributesSqlMappingType = entityAttributesSqlMappingType;
+  }
+
+  
+  public void setEntityAttributesSqlMappingEntityAttribute(
+      String entityAttributesSqlMappingEntityAttribute) {
+    this.entityAttributesSqlMappingEntityAttribute = entityAttributesSqlMappingEntityAttribute;
+  }
+
+  
+  public void setEntityAttributesSqlMappingExpression(
+      String entityAttributesSqlMappingExpression) {
+    this.entityAttributesSqlMappingExpression = entityAttributesSqlMappingExpression;
+  }
+
+  
+  public void setEntityAttributesLastUpdatedColumn(
+      String entityAttributesLastUpdatedColumn) {
+    this.entityAttributesLastUpdatedColumn = entityAttributesLastUpdatedColumn;
+  }
+
+  
+  public void setEntityAttributesLastUpdatedType(String entityAttributesLastUpdatedType) {
+    this.entityAttributesLastUpdatedType = entityAttributesLastUpdatedType;
+  }
+
+  
+  public void setEntityAttributesLdapExternalSystem(
+      String entityAttributesLdapExternalSystem) {
+    this.entityAttributesLdapExternalSystem = entityAttributesLdapExternalSystem;
+  }
+
+  
+  public void setEntityAttributesLdapBaseDn(String entityAttributesLdapBaseDn) {
+    this.entityAttributesLdapBaseDn = entityAttributesLdapBaseDn;
+  }
+
+  
+  public void setEntityAttributesLdapSubjectSource(
+      String entityAttributesLdapSubjectSource) {
+    this.entityAttributesLdapSubjectSource = entityAttributesLdapSubjectSource;
+  }
+
+  
+  public void setEntityAttributesLdapSearchScope(String entityAttributesLdapSearchScope) {
+    this.entityAttributesLdapSearchScope = entityAttributesLdapSearchScope;
+  }
+
+  
+  public void setEntityAttributesLdapFilterPart(String entityAttributesLdapFilterPart) {
+    this.entityAttributesLdapFilterPart = entityAttributesLdapFilterPart;
+  }
+
+  
+  public void setEntityAttributesLdapAttributes(String entityAttributesLdapAttributes) {
+    this.entityAttributesLdapAttributes = entityAttributesLdapAttributes;
+  }
+
+  
+  public void setEntityAttributesLdapMutliValuedAttributes(
+      String entityAttributesLdapMutliValuedAttributes) {
+    this.entityAttributesLdapMutliValuedAttributes = entityAttributesLdapMutliValuedAttributes;
+  }
+
+  
+  public void setEntityAttributesLdapMatchingSearchAttribute(
+      String entityAttributesLdapMatchingSearchAttribute) {
+    this.entityAttributesLdapMatchingSearchAttribute = entityAttributesLdapMatchingSearchAttribute;
+  }
+
+  
+  public void setEntityAttributesLdapMappingType(String entityAttributesLdapMappingType) {
+    this.entityAttributesLdapMappingType = entityAttributesLdapMappingType;
+  }
+
+  
+  public void setEntityAttributesLdapMappingEntityAttribute(
+      String entityAttributesLdapMappingEntityAttribute) {
+    this.entityAttributesLdapMappingEntityAttribute = entityAttributesLdapMappingEntityAttribute;
+  }
+
+  
+  public void setEntityAttributesLdapMatchingExpression(
+      String entityAttributesLdapMatchingExpression) {
+    this.entityAttributesLdapMatchingExpression = entityAttributesLdapMatchingExpression;
+  }
+
+  
+  public void setEntityAttributesLdapLastUpdatedAttribute(
+      String entityAttributesLdapLastUpdatedAttribute) {
+    this.entityAttributesLdapLastUpdatedAttribute = entityAttributesLdapLastUpdatedAttribute;
+  }
+
+  
+  public void setEntityAttributesLdapLastUpdatedAttributeFormat(
+      String entityAttributesLdapLastUpdatedAttributeFormat) {
+    this.entityAttributesLdapLastUpdatedAttributeFormat = entityAttributesLdapLastUpdatedAttributeFormat;
+  }
+
+  
+  public void setGroupIdOfUsersToProvision(String groupIdOfUsersToProvision) {
+    this.groupIdOfUsersToProvision = groupIdOfUsersToProvision;
+  }
+
+  
+  public void setDiagnosticsGroupName(String diagnosticsGroupName) {
+    this.diagnosticsGroupName = diagnosticsGroupName;
+  }
+
+  
+  public void setDiagnosticsSubjectIdOrIdentifier(String diagnosticsSubjectIdOrIdentifier) {
+    this.diagnosticsSubjectIdOrIdentifier = diagnosticsSubjectIdOrIdentifier;
+  }
+
+  
+  public void setProvisionableRegex(String provisionableRegex) {
+    this.provisionableRegex = provisionableRegex;
+  }
+
+  
+  public void setTargetGroupAttributeNameToConfig(
+      Map<String, GrouperProvisioningConfigurationAttribute> targetGroupAttributeNameToConfig) {
+    this.targetGroupAttributeNameToConfig = targetGroupAttributeNameToConfig;
+  }
+
+  
+  public void setGrouperProvisioningToTargetTranslation(
+      Map<String, List<String>> grouperProvisioningToTargetTranslation) {
+    this.grouperProvisioningToTargetTranslation = grouperProvisioningToTargetTranslation;
+  }
+
+  
+  public void setEntityMatchingAttributes(
+      List<GrouperProvisioningConfigurationAttribute> entityMatchingAttributes) {
+    this.entityMatchingAttributes = entityMatchingAttributes;
+  }
+
+  
+  public void setGroupMatchingAttributes(
+      List<GrouperProvisioningConfigurationAttribute> groupMatchingAttributes) {
+    this.groupMatchingAttributes = groupMatchingAttributes;
+  }
+
+  
+  public void setGroupMembershipAttributeName(String groupMembershipAttributeName) {
+    this.groupMembershipAttributeName = groupMembershipAttributeName;
+  }
+
+  
+  public void setGroupMembershipAttributeValue(String groupMembershipAttributeValue) {
+    this.groupMembershipAttributeValue = groupMembershipAttributeValue;
+  }
+
+  
+  public void setEntityMembershipAttributeName(String entityMembershipAttributeName) {
+    this.entityMembershipAttributeName = entityMembershipAttributeName;
+  }
+
+  
+  public void setEntityMembershipAttributeValue(String entityMembershipAttributeValue) {
+    this.entityMembershipAttributeValue = entityMembershipAttributeValue;
+  }
+
+  
+  public void setGroupMatchingAttributeSameAsSearchAttribute(
+      boolean groupMatchingAttributeSameAsSearchAttribute) {
+    this.groupMatchingAttributeSameAsSearchAttribute = groupMatchingAttributeSameAsSearchAttribute;
+  }
+
+  
+  public void setEntityMatchingAttributeSameAsSearchAttribute(
+      boolean entityMatchingAttributeSameAsSearchAttribute) {
+    this.entityMatchingAttributeSameAsSearchAttribute = entityMatchingAttributeSameAsSearchAttribute;
+  }
+
+  
+  public void setGroupAttributeValueCacheHas(boolean groupAttributeValueCacheHas) {
+    this.groupAttributeValueCacheHas = groupAttributeValueCacheHas;
+  }
+
+  
+  public void setGroupAttributeDbCaches(
+      GrouperProvisioningConfigurationAttributeDbCache[] groupAttributeDbCaches) {
+    this.groupAttributeDbCaches = groupAttributeDbCaches;
+  }
+
+  
+  public void setEntityAttributeDbCaches(
+      GrouperProvisioningConfigurationAttributeDbCache[] entityAttributeDbCaches) {
+    this.entityAttributeDbCaches = entityAttributeDbCaches;
+  }
+
+  
+  public void setOperateOnGrouperEntities(boolean operateOnGrouperEntities) {
+    this.operateOnGrouperEntities = operateOnGrouperEntities;
+  }
+
+  
+  public void setOperateOnGrouperMemberships(boolean operateOnGrouperMemberships) {
+    this.operateOnGrouperMemberships = operateOnGrouperMemberships;
+  }
+
+  
+  public void setOperateOnGrouperGroups(boolean operateOnGrouperGroups) {
+    this.operateOnGrouperGroups = operateOnGrouperGroups;
+  }
+
+  
+  public void setConfigured(boolean configured) {
+    this.configured = configured;
+  }
+
+  
+  public void setTargetEntityAttributeNameToConfig(
+      Map<String, GrouperProvisioningConfigurationAttribute> targetEntityAttributeNameToConfig) {
+    this.targetEntityAttributeNameToConfig = targetEntityAttributeNameToConfig;
+  }
+
+  
+  public void setTargetMembershipAttributeNameToConfig(
+      Map<String, GrouperProvisioningConfigurationAttribute> targetMembershipAttributeNameToConfig) {
+    this.targetMembershipAttributeNameToConfig = targetMembershipAttributeNameToConfig;
+  }
+  
+  
+  
+  
   
 }

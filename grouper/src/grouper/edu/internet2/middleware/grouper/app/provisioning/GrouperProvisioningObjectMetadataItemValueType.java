@@ -1,5 +1,12 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
@@ -114,7 +121,57 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
       return true;
     }
     
-  };
+  },
+  SET {
+
+    @Override
+    public Object convert(Object value) {
+      if (value == null) {
+        return value;
+      }
+      if (value instanceof Collection<?>) {
+        return value;
+      }
+      
+      if (value instanceof String) {
+        return GrouperUtil.splitTrimToSet(value.toString(), ",");
+      }
+      
+      if (value instanceof ArrayNode) {
+      
+        ArrayNode arrayNode = (ArrayNode) value;
+        
+        Set<Object> set = new HashSet<>();
+        for (int i=0;i<arrayNode.size();i++) {
+          String val = arrayNode.get(i).asText();
+          set.add(val);
+        }
+        
+        return set;
+       
+      } 
+      
+      if (value.getClass().isArray()) {
+        Set<Object> set = new HashSet<>();
+        Object[] vals = (Object[]) value;
+        
+        for (Object val: vals) {
+          set.add(val);
+        }
+        
+        return set;
+      }
+      
+      return null;
+    }
+    
+    @Override
+    public boolean canConvertToCorrectType(String valueFromUser) {
+      return true;
+    }
+    
+  }, 
+  ;
   
   /**
    * convert to type should be

@@ -4,9 +4,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 
 
 public class SqlProvisioningConfiguration extends GrouperProvisioningConfiguration {
@@ -57,9 +57,6 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   
   private String groupAttributesAttributeValueColumn;
   
-  private String groupAttributesLastModifiedColumn;
-  private String groupAttributesLastModifiedColumnType;
-  
   private String entityAttributesTableName;
   
   private String entityAttributesEntityForeignKeyColumn;
@@ -68,13 +65,60 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   
   private String entityAttributesAttributeValueColumn;
   
-  private String entityAttributesLastModifiedColumn;
-  private String entityAttributesLastModifiedColumnType;
-  
   private boolean useSeparateTableForGroupAttributes;
   
   private boolean useSeparateTableForEntityAttributes;
   
+  private String sqlLastModifiedColumnType;
+  private String sqlLastModifiedColumnName;
+  private String sqlDeletedColumnName;
+  
+  
+  public String getSqlLastModifiedColumnType() {
+    return sqlLastModifiedColumnType;
+  }
+
+
+  
+  public void setSqlLastModifiedColumnType(String sqlLastModifiedColumnType) {
+    this.sqlLastModifiedColumnType = sqlLastModifiedColumnType;
+  }
+
+
+
+
+  
+  public String getSqlLastModifiedColumnName() {
+    return sqlLastModifiedColumnName;
+  }
+
+
+
+
+  
+  public void setSqlLastModifiedColumnName(String sqlLastModifiedColumnName) {
+    this.sqlLastModifiedColumnName = sqlLastModifiedColumnName;
+  }
+
+
+
+
+  
+  public String getSqlDeletedColumnName() {
+    return sqlDeletedColumnName;
+  }
+
+
+
+
+  
+  public void setSqlDeletedColumnName(String sqlDeletedColumnName) {
+    this.sqlDeletedColumnName = sqlDeletedColumnName;
+  }
+
+
+
+
   /**
    * columns in the group table
    */
@@ -276,16 +320,20 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     this.groupAttributesGroupForeignKeyColumn = this.retrieveConfigString("groupAttributesGroupForeignKeyColumn", false);
     this.groupAttributesAttributeNameColumn = this.retrieveConfigString("groupAttributesAttributeNameColumn", false);
     this.groupAttributesAttributeValueColumn = this.retrieveConfigString("groupAttributesAttributeValueColumn", false);
-    this.groupAttributesLastModifiedColumn = this.retrieveConfigString("groupAttributesLastModifiedColumn", false);
-    this.groupAttributesLastModifiedColumnType = this.retrieveConfigString("groupAttributesLastModifiedColumnType", false);
+   
+    
+    this.sqlLastModifiedColumnName = this.retrieveConfigString("sqlLastModifiedColumnName", false);
+    this.sqlLastModifiedColumnType = this.retrieveConfigString("sqlLastModifiedColumnType", false);
+    this.sqlDeletedColumnName = this.retrieveConfigString("sqlDeletedColumnName", false);
+    
+    
+    
     this.groupTableIdColumn = this.retrieveConfigString("groupTableIdColumn", false);
     
     this.entityAttributesTableName = this.retrieveConfigString("entityAttributesTableName", false);
     this.entityAttributesEntityForeignKeyColumn = this.retrieveConfigString("entityAttributesEntityForeignKeyColumn", false);
     this.entityAttributesAttributeNameColumn = this.retrieveConfigString("entityAttributesAttributeNameColumn", false);
     this.entityAttributesAttributeValueColumn = this.retrieveConfigString("entityAttributesAttributeValueColumn", false);
-    this.entityAttributesLastModifiedColumn = this.retrieveConfigString("entityAttributesLastModifiedColumn", false);
-    this.entityAttributesLastModifiedColumnType = this.retrieveConfigString("entityAttributesLastModifiedColumnType", false);
     
     this.useSeparateTableForGroupAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useSeparateTableForGroupAttributes", false), false);
     
@@ -474,17 +522,6 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   }
 
   
-  public String getGroupAttributesLastModifiedColumn() {
-    return groupAttributesLastModifiedColumn;
-  }
-
-  
-  public void setGroupAttributesLastModifiedColumn(
-      String groupAttributesLastModifiedColumn) {
-    this.groupAttributesLastModifiedColumn = groupAttributesLastModifiedColumn;
-  }
-
-  
   public String getEntityAttributesTableName() {
     return entityAttributesTableName;
   }
@@ -526,41 +563,5 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
       String entityAttributesAttributeValueColumn) {
     this.entityAttributesAttributeValueColumn = entityAttributesAttributeValueColumn;
   }
-
-  
-  public String getEntityAttributesLastModifiedColumn() {
-    return entityAttributesLastModifiedColumn;
-  }
-
-  
-  public void setEntityAttributesLastModifiedColumn(
-      String entityAttributesLastModifiedColumn) {
-    this.entityAttributesLastModifiedColumn = entityAttributesLastModifiedColumn;
-  }
-
-  
-  public String getGroupAttributesLastModifiedColumnType() {
-    return groupAttributesLastModifiedColumnType;
-  }
-
-  
-  public void setGroupAttributesLastModifiedColumnType(
-      String groupAttributesLastModifiedColumnType) {
-    this.groupAttributesLastModifiedColumnType = groupAttributesLastModifiedColumnType;
-  }
-
-  
-  public String getEntityAttributesLastModifiedColumnType() {
-    return entityAttributesLastModifiedColumnType;
-  }
-
-  
-  public void setEntityAttributesLastModifiedColumnType(
-      String entityAttributesLastModifiedColumnType) {
-    this.entityAttributesLastModifiedColumnType = entityAttributesLastModifiedColumnType;
-  }
-  
-  
-  
 
 }

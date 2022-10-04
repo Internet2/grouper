@@ -284,6 +284,7 @@ public class GrouperProvisioningTranslator {
           grouperTargetMembership.setProvisioningGroupId(grouperTargetGroup.getId());
           grouperTargetMembership.setProvisioningGroup(grouperTargetGroup);
         }
+        
       }
       
       if (grouperTargetEntity != null) {
@@ -855,7 +856,8 @@ public class GrouperProvisioningTranslator {
         String matchingAttributeName = matchingAttribute.getName();
         
         // dont worry if dupes... oh well
-        Object targetCurrentValue = massageToString(targetGroup.retrieveAttributeValue(matchingAttributeName), 2);
+//        Object targetCurrentValue = massageToString(targetGroup.retrieveAttributeValue(matchingAttributeName), 2);
+        Object targetCurrentValue = targetGroup.retrieveAttributeValue(matchingAttributeName);
 
         if(!GrouperUtil.isBlank(targetCurrentValue)) {
           
@@ -964,7 +966,8 @@ public class GrouperProvisioningTranslator {
         String matchingAttributeName = matchingAttribute.getName();
         
         // dont worry if dupes... oh well
-        Object targetCurrentValue = massageToString(targetEntity.retrieveAttributeValue(matchingAttributeName), 2);
+//        Object targetCurrentValue = massageToString(targetEntity.retrieveAttributeValue(matchingAttributeName), 2);
+        Object targetCurrentValue = targetEntity.retrieveAttributeValue(matchingAttributeName);
 
         if(!GrouperUtil.isBlank(targetCurrentValue)) {
           
@@ -1124,7 +1127,7 @@ public class GrouperProvisioningTranslator {
       } else {
         throw new RuntimeException("Must have membershipMatchingIdAttribute, or membershipMatchingIdExpression");
       }
-      id = massageToString(id, 2);
+//      id = massageToString(id, 2);
 
       // just hard code to "id" since memberships just have one matching id
       ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue("id", id);

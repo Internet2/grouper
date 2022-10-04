@@ -24,7 +24,7 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
   /**
    * value to show
    */
-  private String value;
+  private Object value;
   
   /**
    * is the field required
@@ -75,13 +75,13 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
 
 
   
-  public String getValue() {
+  public Object getValue() {
     return value;
   }
 
 
   
-  public void setValue(String value) {
+  public void setValue(Object value) {
     this.value = value;
   }
 
@@ -199,8 +199,9 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
     if (readOnly) {
       
       if (configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON && 
-          configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN) {
-        field.append(GrouperUtil.escapeHtml(value, true) + " ");
+          configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN && 
+          configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.CHECKBOX) {
+        field.append(GrouperUtil.escapeHtml(value.toString(), true) + " ");
       }
       
       displayClass = " display: none; ";
@@ -212,7 +213,7 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
       field.append(
           "<input style='width:30em; "+ displayClass + "' type='text' id='"+name+"_id' name='" + name + "'");
       if (value != null) {
-        field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
+        field.append(" value = '"+GrouperUtil.escapeHtml(value.toString(), true)+"'");
       }
       field.append("></input>");
       
@@ -223,7 +224,7 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
       field.append("<textarea style='width:30em; "+ displayClass + "' cols='20' rows='3' id='"+name+"_id' name='"
           + name + "'>");
       if (value != null) {
-        field.append(GrouperUtil.escapeHtml(value, true));
+        field.append(GrouperUtil.escapeHtml(value.toString(), true));
       }
       field.append("</textarea>");
       
@@ -237,7 +238,8 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           String key = (String) multiKey.getKey(0);
           String optionValue = (String) multiKey.getKey(1);
           
-          boolean selected = StringUtils.equals(key, value);
+         
+          boolean selected =  GrouperUtil.equals(key, value);
           if (!selected) {
             continue;
           }
@@ -254,7 +256,7 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           String key = (String) multiKey.getKey(0);
           String optionValue = (String) multiKey.getKey(1);
           
-          boolean selected = StringUtils.equals(key, value);
+          boolean selected = GrouperUtil.equals(key, value);
           
           field.append("<option value='"+key+"'" + (selected ? " selected='selected'" : "") + ">");
           field.append(GrouperUtil.escapeHtml(optionValue, true));
@@ -275,7 +277,7 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           
           String key = (String) multiKey.getKey(0);
           String radioButtonValue = (String) multiKey.getKey(1);
-          boolean checked = StringUtils.equals(key, value);
+          boolean checked = GrouperUtil.equals(key, value);
           if (!checked) {
             continue;
           }
@@ -286,7 +288,7 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           
           String key = (String) multiKey.getKey(0);
           String radioButtonValue = (String) multiKey.getKey(1);
-          boolean checked = StringUtils.equals(key, value);
+          boolean checked = GrouperUtil.equals(key, value);
 
           field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='"+name+"_id' name='"+name+"' value='"+key+"' ");
           field.append(checked ? " checked ": "");
@@ -305,7 +307,49 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
       
     }
     
-    
+    if (configItemFormElement == GrouperProvisioningObjectMetadataItemFormElementType.CHECKBOX) {
+      
+      boolean firstOption = true;
+      
+      if (readOnly) {
+        for (MultiKey multiKey: valuesAndLabels) {
+          
+          String key = (String) multiKey.getKey(0);
+          String radioButtonValue = (String) multiKey.getKey(1);
+          
+          if (value != null) {
+            List<Object> selectedValues = (List)value;
+            boolean checked = selectedValues.contains(key);
+            if (!checked) {
+              continue;
+            }
+            field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
+          }
+        }
+      } else {
+        for (MultiKey multiKey: valuesAndLabels) {
+          
+          String key = (String) multiKey.getKey(0);
+          String checkBoxValue = (String) multiKey.getKey(1);
+          
+          boolean checked = false;
+          
+          if (value != null) {
+            List<Object> selectedValues = (List)value;
+            checked = selectedValues.contains(key);
+          }
+          
+          field.append("<input type='checkbox' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='"+name+"_id' name='"+name+"' value='"+key+"' ");
+          field.append(checked ? " checked ": "");
+          field.append(">");
+          field.append("</input>");
+          field.append("<span style='margin-right: 20px;'>"+checkBoxValue+"</span>"); 
+          
+        }
+
+      }
+      
+    }
     
     if (!readOnly && required) {
       field.append("<span class='requiredField' rel='tooltip' data-html='true' data-delay-show='200' data-placement='right'>*");

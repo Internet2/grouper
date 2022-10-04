@@ -732,7 +732,7 @@ public class GrouperProvisioningGrouperDao {
                 if (jsonNode.has(metadataItemName)) {
                   GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
                       GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
-                  String value = GrouperUtil.jsonJacksonGetString(jsonNode, metadataItemName);
+                  Object value = GrouperUtil.jsonJacksonGetNode(jsonNode, metadataItemName);
                   grouperProvisioningGroup.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(value));
                 }
               }

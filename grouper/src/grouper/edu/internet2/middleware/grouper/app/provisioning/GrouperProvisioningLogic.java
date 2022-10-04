@@ -125,6 +125,12 @@ public class GrouperProvisioningLogic {
       if (GrouperUtil.length(affectedGroups) > 0) {
         this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.manipulateTargetGroups, affectedGroups);
       }
+      
+      Set<ProvisioningMembership> affectedMemberships = this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesMemberships(
+          this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), false, true, false, false);
+      if (GrouperUtil.length(affectedMemberships) > 0) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.manipulateTargetMemberships, affectedMemberships);
+      }
 
     }
 
@@ -911,6 +917,14 @@ public class GrouperProvisioningLogic {
               this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.manipulateTargetGroups, affectedGroups);
             }
 
+          }
+          
+          {
+            Set<ProvisioningMembership> affectedMemberships = this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesMemberships(
+                this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), false, true, false, false);
+            if (GrouperUtil.length(affectedMemberships) > 0) {
+              this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.manipulateTargetMemberships, affectedMemberships);
+            }
           }
 
           // ######### STEP 29: matching id target objects
