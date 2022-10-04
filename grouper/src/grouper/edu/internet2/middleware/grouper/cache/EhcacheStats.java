@@ -31,8 +31,8 @@
 */
 
 package edu.internet2.middleware.grouper.cache;
-import  net.sf.ehcache.Statistics;
 
+import net.sf.ehcache.statistics.StatisticsGateway;
 
 /**
  * Wrapper around ehcache <i>Statistics</i> class.
@@ -43,7 +43,7 @@ import  net.sf.ehcache.Statistics;
 public class EhcacheStats implements CacheStats {
 
 
-  private Statistics stats;
+  private StatisticsGateway stats;
 
 
 
@@ -52,11 +52,11 @@ public class EhcacheStats implements CacheStats {
    * @throws  IllegalArgumentException if <i>stats</i> is null.
    * @since   1.2.1
    */
-  public EhcacheStats(Statistics stats) 
+  public EhcacheStats(StatisticsGateway stats) 
     throws  IllegalArgumentException
   {
     if (stats == null) { // TODO 20070809 ParameterHelper
-      throw new IllegalArgumentException("null Statistics");
+      throw new IllegalArgumentException("null StatisticsGateway");
     }
     this.stats = stats;
   }
@@ -68,7 +68,7 @@ public class EhcacheStats implements CacheStats {
    * @since   1.2.1
    */
   public long getHits() {
-    return this.stats.getCacheHits();
+    return this.stats.cacheHitCount();
   }
 
   /**
@@ -76,7 +76,7 @@ public class EhcacheStats implements CacheStats {
    * @since   1.2.1
    */
   public long getMisses() {
-    return this.stats.getCacheMisses();
+    return this.stats.cacheMissCount();
   }
 
   /**
@@ -84,7 +84,7 @@ public class EhcacheStats implements CacheStats {
    * @since   1.2.1
    */
   public long getSize() {
-    return this.stats.getObjectCount();
+    return this.stats.getSize();
   }
 
 }

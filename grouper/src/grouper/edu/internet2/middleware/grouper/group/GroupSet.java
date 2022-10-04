@@ -32,6 +32,9 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GroupSetNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -377,6 +380,20 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     } else {
       this.memberFieldId = Group.getDefaultList().getUuid();
     }
+    
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_SET_ADD, 
+        ChangeLogLabels.GROUP_SET_ADD.id.name(), this.getId(), 
+        ChangeLogLabels.GROUP_SET_ADD.ownerGroupId.name(), this.getOwnerGroupId(), 
+        ChangeLogLabels.GROUP_SET_ADD.ownerStemId.name(), this.getOwnerStemId(), 
+        ChangeLogLabels.GROUP_SET_ADD.ownerAttributeDefId.name(), this.getOwnerAttrDefId(), 
+        ChangeLogLabels.GROUP_SET_ADD.memberGroupId.name(), this.getMemberGroupId(), 
+        ChangeLogLabels.GROUP_SET_ADD.memberStemId.name(), this.getMemberStemId(), 
+        ChangeLogLabels.GROUP_SET_ADD.memberAttributeDefId.name(), this.getMemberAttrDefId(), 
+        ChangeLogLabels.GROUP_SET_ADD.fieldId.name(), this.getFieldId(), 
+        ChangeLogLabels.GROUP_SET_ADD.memberFieldId.name(), this.getMemberFieldId(), 
+        ChangeLogLabels.GROUP_SET_ADD.parentGroupSetId.name(), this.getParentId(), 
+        ChangeLogLabels.GROUP_SET_ADD.depth.name(), "" + this.getDepth()).save();
   }
   
   /**
@@ -452,6 +469,20 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
       // update last membership change time
       this.updateLastMembershipChange(this, groupSetsToDelete);
     }
+    
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_SET_DELETE, 
+        ChangeLogLabels.GROUP_SET_DELETE.id.name(), this.getId(), 
+        ChangeLogLabels.GROUP_SET_DELETE.ownerGroupId.name(), this.getOwnerGroupId(), 
+        ChangeLogLabels.GROUP_SET_DELETE.ownerStemId.name(), this.getOwnerStemId(), 
+        ChangeLogLabels.GROUP_SET_DELETE.ownerAttributeDefId.name(), this.getOwnerAttrDefId(), 
+        ChangeLogLabels.GROUP_SET_DELETE.memberGroupId.name(), this.getMemberGroupId(), 
+        ChangeLogLabels.GROUP_SET_DELETE.memberStemId.name(), this.getMemberStemId(), 
+        ChangeLogLabels.GROUP_SET_DELETE.memberAttributeDefId.name(), this.getMemberAttrDefId(), 
+        ChangeLogLabels.GROUP_SET_DELETE.fieldId.name(), this.getFieldId(), 
+        ChangeLogLabels.GROUP_SET_DELETE.memberFieldId.name(), this.getMemberFieldId(), 
+        ChangeLogLabels.GROUP_SET_DELETE.parentGroupSetId.name(), this.getParentId(), 
+        ChangeLogLabels.GROUP_SET_DELETE.depth.name(), "" + this.getDepth()).save();
   }
   
   /**

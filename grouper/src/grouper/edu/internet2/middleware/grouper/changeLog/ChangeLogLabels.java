@@ -1281,4 +1281,60 @@ public class ChangeLogLabels {
     /** roleName */
     roleName;
   }
+  
+  /**
+   * label for group set add
+   */
+  public static enum GROUP_SET_ADD implements ChangeLogLabel {
+  
+    id,
+    
+    ownerGroupId, 
+    
+    ownerStemId,
+    
+    ownerAttributeDefId,
+    
+    memberGroupId,
+    
+    memberStemId,
+    
+    memberAttributeDefId,
+    
+    fieldId,
+    
+    memberFieldId,
+    
+    parentGroupSetId,
+    
+    depth;
+  }
+  
+  /**
+   * label for group set delete
+   */
+  public static enum GROUP_SET_DELETE implements ChangeLogLabel {
+  
+    id,
+    
+    ownerGroupId, 
+    
+    ownerStemId,
+    
+    ownerAttributeDefId,
+    
+    memberGroupId,
+    
+    memberStemId,
+    
+    memberAttributeDefId,
+    
+    fieldId,
+    
+    memberFieldId,
+    
+    parentGroupSetId,
+    
+    depth;
+  }
 }

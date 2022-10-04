@@ -85,21 +85,23 @@ public class GrouperDaemonOtherJobProvisioningFullSyncConfiguration extends Grou
       return;
     } 
     
-    Pattern fullSyncPattern = Pattern.compile("^otherJob\\.(.*)\\.provisionerConfigId$");
-    Set<String> fullSyncMatchingConfigIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(fullSyncPattern);
-    
-    GrouperConfigurationModuleAttribute provisionerConfigIdAttribute = this.retrieveAttributes().get("provisionerConfigId");
-    
-    for (String configId: fullSyncMatchingConfigIds) {
-      String className = "otherJob."+configId+".class";
-      String provisionerConfigId = "otherJob."+configId+".provisionerConfigId";
-      if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), GrouperProvisioningFullSyncJob.class.getName()) && 
-          StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), provisionerConfigIdAttribute.getValueOrExpressionEvaluation())) {
-        
-        String errorMessage = GrouperTextContainer.textOrNull("grouperDaemonProvisioningConfigurationNoDuplicateDaemonsAllowed");
-        errorsToDisplay.add(errorMessage);
-        
-        return;
+    if (isInsert) {
+      Pattern fullSyncPattern = Pattern.compile("^otherJob\\.(.*)\\.provisionerConfigId$");
+      Set<String> fullSyncMatchingConfigIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(fullSyncPattern);
+      
+      GrouperConfigurationModuleAttribute provisionerConfigIdAttribute = this.retrieveAttributes().get("provisionerConfigId");
+      
+      for (String configId: fullSyncMatchingConfigIds) {
+        String className = "otherJob."+configId+".class";
+        String provisionerConfigId = "otherJob."+configId+".provisionerConfigId";
+        if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), GrouperProvisioningFullSyncJob.class.getName()) && 
+            StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), provisionerConfigIdAttribute.getValueOrExpressionEvaluation())) {
+          
+          String errorMessage = GrouperTextContainer.textOrNull("grouperDaemonProvisioningConfigurationNoDuplicateDaemonsAllowed");
+          errorsToDisplay.add(errorMessage);
+          
+          return;
+        }
       }
     }
   }

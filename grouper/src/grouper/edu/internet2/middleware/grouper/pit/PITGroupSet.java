@@ -16,28 +16,23 @@
 package edu.internet2.middleware.grouper.pit;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 import edu.internet2.middleware.grouper.FieldType;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
-import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
@@ -877,252 +872,8 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
         changeLogEntryBatch.clear();
       }
     }
-    
-    // take care of effective PIT group sets
-    if (this.getDepth() == 1 && this.getMemberGroupId() != null) {
-      PITField defaultListField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), true);
-      Set<PITGroupSet> results = new LinkedHashSet<PITGroupSet>();
-      Set<PITGroupSet> pitGroupSetHasMembers = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByPITGroupOwnerAndPITField(
-          this.getMemberGroupId(), defaultListField);
-      
-      // Add members of member to owner PIT group set
-      results.addAll(addHasMembersToOwner(this, pitGroupSetHasMembers, defaultListField));
-  
-      // If we are working on a group, where is it a member and field is the default list
-      if (this.getOwnerGroupId() != null && this.getFieldId().equals(defaultListField.getId())) {
-        Set<PITGroupSet> pitGroupSetIsMember = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByMemberPITGroup(this.getOwnerGroupId());
-  
-        // Add member and members of member to where owner is member
-        results.addAll(addHasMembersToWhereGroupIsMember(this.getMemberGroupId(), pitGroupSetIsMember, pitGroupSetHasMembers, defaultListField));
-      }
-      
-      Iterator<PITGroupSet> iter = results.iterator();
-      while (iter.hasNext()) {
-        PITGroupSet pitGroupSet = iter.next();
-        pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
-        pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
-        pitGroupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(this.getNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate());
-        pitGroupSet.setSaveChangeLogUpdates(saveChangeLogUpdates);
-        pitGroupSet.saveOrUpdate();
-        
-        if (!saveChangeLogUpdates) {
-          changeLogUpdates.addAll(pitGroupSet.getChangeLogUpdates());
-          pitGroupSet.clearChangeLogUpdates();
-        }
-      }
-    }
-    
+       
     super.onPostSave(hibernateSession);
-  }
-  
-  /**
-   * Given a set of PIT group sets, return a map that will allow retrieval of 
-   * the children of a parent PIT group set.
-   * @param members
-   * @return the map
-   */
-  private Map<String, Set<PITGroupSet>> getParentToChildrenMap(Set<PITGroupSet> members) {
-    Map<String, Set<PITGroupSet>> parentToChildrenMap = new HashMap<String, Set<PITGroupSet>>();
-
-    Iterator<PITGroupSet> iterator = members.iterator();
-    while (iterator.hasNext()) {
-      PITGroupSet pitGroupSet = iterator.next();
-      String parentId = pitGroupSet.getParentId();
-
-      if (parentId != null && !parentId.equals("")) {
-        Set<PITGroupSet> children = parentToChildrenMap.get(parentId);
-        if (children == null) {
-          children = new LinkedHashSet<PITGroupSet>();
-        }
-
-        children.add(pitGroupSet);
-        parentToChildrenMap.put(parentId, children);
-      }
-    }
-
-    return parentToChildrenMap;
-  }
-  
-  /**
-   * @param pitImmediateGroupSet
-   * @param hasMembers
-   * @return set
-   */
-  private Set<PITGroupSet> addHasMembersToOwner(PITGroupSet pitImmediateGroupSet, Set<PITGroupSet> hasMembers, PITField defaultListField) {
-    Set<PITGroupSet> pitGroupSets = new LinkedHashSet<PITGroupSet>();
-  
-    Map<String, Set<PITGroupSet>> parentToChildrenMap = getParentToChildrenMap(hasMembers);
-
-    Iterator<PITGroupSet> it = hasMembers.iterator();
-    while (it.hasNext()) {
-      PITGroupSet pitGroupSet = it.next();
-      if (pitGroupSet.getDepth() == 1) {
-        Set<PITGroupSet> newAdditions = addHasMembersRecursively(pitGroupSet, pitImmediateGroupSet, parentToChildrenMap, defaultListField);
-        pitGroupSets.addAll(newAdditions);
-      }
-    }
-  
-    return pitGroupSets;
-  }
-  
-  /**
-   * @param pitGroupSet
-   * @param parentPITGroupSet
-   * @param parentToChildrenMap
-   * @return set
-   */
-  private Set<PITGroupSet> addHasMembersRecursively(PITGroupSet pitGroupSet, PITGroupSet parentPITGroupSet, Map<String, Set<PITGroupSet>> parentToChildrenMap, PITField pitMemberField) {
-
-    PITGroupSet newPITGroupSet = new PITGroupSet();
-    newPITGroupSet.setId(GrouperUuid.getUuid());
-    newPITGroupSet.setFieldId(parentPITGroupSet.getFieldId());
-    newPITGroupSet.setMemberFieldId(pitMemberField.getId());
-    newPITGroupSet.setOwnerAttrDefId(parentPITGroupSet.getOwnerAttrDefId());
-    newPITGroupSet.setOwnerGroupId(parentPITGroupSet.getOwnerGroupId());
-    newPITGroupSet.setOwnerStemId(parentPITGroupSet.getOwnerStemId());
-    newPITGroupSet.setMemberGroupId(pitGroupSet.getMemberGroupId());
-    newPITGroupSet.setDepth(parentPITGroupSet.getDepth() + 1);
-    newPITGroupSet.setParentId(parentPITGroupSet.getId());
-    newPITGroupSet.setActiveDb("T");
-    newPITGroupSet.setStartTimeDb(this.getStartTimeDb());
-    newPITGroupSet.setContextId(this.getContextId());
-
-    String ownerSourceId = null;
-    if (newPITGroupSet.getOwnerGroupId() != null) {
-      ownerSourceId = GrouperDAOFactory.getFactory().getPITGroup().findById(newPITGroupSet.getOwnerGroupId(), true).getSourceId();
-    } else if (newPITGroupSet.getOwnerStemId() != null) {
-      ownerSourceId = GrouperDAOFactory.getFactory().getPITStem().findById(newPITGroupSet.getOwnerStemId(), true).getSourceId();
-    } else if (newPITGroupSet.getOwnerAttrDefId() != null) {
-      ownerSourceId = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(newPITGroupSet.getOwnerAttrDefId(), true).getSourceId();
-    } else {
-      throw new RuntimeException("Unexpected");
-    }
-    
-    // now get the existing group set so we have the source id.
-    PITGroup pitMemberGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(newPITGroupSet.getMemberId(), true);
-    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(newPITGroupSet.getFieldId(), true);
-    GroupSet gs = GrouperDAOFactory.getFactory().getGroupSet().findByOwnerMemberFieldParentAndType(
-        ownerSourceId, pitMemberGroup.getSourceId(), pitField.getSourceId(), 
-        parentPITGroupSet.getSourceId(), "effective", false);
-    
-    if (gs == null) {
-      // either the group was deleted or it was never added (because it formed a circular path for instance)
-      return new LinkedHashSet<PITGroupSet>();
-    }
-    
-    if (!GrouperUtil.isEmpty(this.getContextId()) && !GrouperUtil.isEmpty(gs.getContextId()) &&
-        !this.getContextId().equals(gs.getContextId())) {
-      // this group set must have been added, deleted and then readded.  Don't add to point in time
-      return new LinkedHashSet<PITGroupSet>();
-    }
-    
-    newPITGroupSet.setSourceId(gs.getId());
-
-    Set<PITGroupSet> newPITGroupSets = new LinkedHashSet<PITGroupSet>();
-    newPITGroupSets.add(newPITGroupSet);
-
-    Set<PITGroupSet> children = parentToChildrenMap.get(pitGroupSet.getId());
-    if (children != null) {
-      Iterator<PITGroupSet> it = children.iterator();
-      while (it.hasNext()) {
-        PITGroupSet nextPITGroupSet = it.next();
-        Set<PITGroupSet> newAdditions = addHasMembersRecursively(nextPITGroupSet, newPITGroupSet, parentToChildrenMap, pitMemberField);
-        newPITGroupSets.addAll(newAdditions);
-      }
-    }
-
-    return newPITGroupSets;
-  }
-  
-  /**
-   * @param memberGroupId
-   * @param pitGroupSetIsMember
-   * @param pitGroupSetHasMembers
-   * @return set
-   */
-  private Set<PITGroupSet> addHasMembersToWhereGroupIsMember(String memberGroupId,
-      Set<PITGroupSet> pitGroupSetIsMember, Set<PITGroupSet> pitGroupSetHasMembers, PITField pitMemberField) {
-    
-    Set<PITGroupSet> pitGroupSets = new LinkedHashSet<PITGroupSet>();
-
-    Iterator<PITGroupSet> isMembersIter = pitGroupSetIsMember.iterator();
-    Map<String, Set<PITGroupSet>> parentToChildrenMap = getParentToChildrenMap(pitGroupSetHasMembers);
-
-    // lets get all the hasMembers with a depth of 1 before the while loop
-    Set<PITGroupSet> hasMembersOneDepth = new LinkedHashSet<PITGroupSet>();
-    Iterator<PITGroupSet> hasMembersIter = pitGroupSetHasMembers.iterator();
-    while (hasMembersIter.hasNext()) {
-      PITGroupSet pitGroupSet = hasMembersIter.next();
-      if (pitGroupSet.getDepth() == 1) {
-        hasMembersOneDepth.add(pitGroupSet);
-      }
-    }
-
-    while (isMembersIter.hasNext()) {
-      PITGroupSet isPITGS = isMembersIter.next();
-
-      String ownerGroupId = isPITGS.getOwnerGroupId();
-      String ownerStemId = isPITGS.getOwnerStemId();
-      String ownerAttrDefId = isPITGS.getOwnerAttrDefId();
-      String fieldId = isPITGS.getFieldId();
-      String id = isPITGS.getId();
-      int depth = isPITGS.getDepth();
-
-      PITGroupSet pitGroupSet = new PITGroupSet();
-      pitGroupSet.setId(GrouperUuid.getUuid());
-      pitGroupSet.setDepth(depth + 1);
-      pitGroupSet.setParentId(id);
-      pitGroupSet.setFieldId(fieldId);
-      pitGroupSet.setMemberFieldId(pitMemberField.getId());
-      pitGroupSet.setMemberGroupId(memberGroupId);
-      pitGroupSet.setOwnerGroupId(ownerGroupId);
-      pitGroupSet.setOwnerAttrDefId(ownerAttrDefId);
-      pitGroupSet.setOwnerStemId(ownerStemId);
-      pitGroupSet.setActiveDb("T");
-      pitGroupSet.setStartTimeDb(this.getStartTimeDb());
-      pitGroupSet.setContextId(this.getContextId());
-
-      String ownerSourceId = null;
-      if (pitGroupSet.getOwnerGroupId() != null) {
-        ownerSourceId = GrouperDAOFactory.getFactory().getPITGroup().findById(pitGroupSet.getOwnerGroupId(), true).getSourceId();
-      } else if (pitGroupSet.getOwnerStemId() != null) {
-        ownerSourceId = GrouperDAOFactory.getFactory().getPITStem().findById(pitGroupSet.getOwnerStemId(), true).getSourceId();
-      } else if (pitGroupSet.getOwnerAttrDefId() != null) {
-        ownerSourceId = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(pitGroupSet.getOwnerAttrDefId(), true).getSourceId();
-      } else {
-        throw new RuntimeException("Unexpected");
-      }
-      
-      // now get the existing group set so we have the source id.
-      PITGroup pitMemberGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitGroupSet.getMemberId(), true);
-      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findById(pitGroupSet.getFieldId(), true);
-      GroupSet gs = GrouperDAOFactory.getFactory().getGroupSet().findByOwnerMemberFieldParentAndType(
-          ownerSourceId, pitMemberGroup.getSourceId(), pitField.getSourceId(),
-          isPITGS.getSourceId(), "effective", false);
-      
-      if (gs == null) {
-        // either the group was deleted or it was never added (because it formed a circular path for instance)
-        continue;
-      }
-      
-      if (!GrouperUtil.isEmpty(this.getContextId()) && !GrouperUtil.isEmpty(gs.getContextId()) &&
-          !this.getContextId().equals(gs.getContextId())) {
-        // this group set must have been added, deleted and then readded.  Don't add to point in time
-        continue;
-      }
-
-      pitGroupSet.setSourceId(gs.getId());
-      pitGroupSets.add(pitGroupSet);
-
-      Iterator<PITGroupSet> itHM = hasMembersOneDepth.iterator();
-      while (itHM.hasNext()) {
-        PITGroupSet hasPITGS = itHM.next();
-        Set<PITGroupSet> newAdditions = addHasMembersRecursively(hasPITGS, pitGroupSet, parentToChildrenMap, pitMemberField);
-        pitGroupSets.addAll(newAdditions);
-      }
-    }
-
-    return pitGroupSets;
   }
   
   /**
@@ -1130,54 +881,6 @@ public class PITGroupSet extends GrouperPIT implements Hib3GrouperVersioned {
    */
   @Override
   public void onPostUpdate(HibernateSession hibernateSession) {
-
-    // take care of effective group sets
-    if (!this.isActive() && this.dbVersion().isActive() && this.getDepth() == 1) {
-      Set<PITGroupSet> pitGroupSetsToEnd = new LinkedHashSet<PITGroupSet>();
-      PITField defaultListField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(Group.getDefaultList().getUuid(), true);
-
-      // Get all children of this PIT group set
-      Set<PITGroupSet> childResults = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveChildren(this);
-  
-      pitGroupSetsToEnd.addAll(childResults);
-  
-      // Find all effective PIT group sets that need to be ended
-      if (this.getOwnerGroupId() != null && this.getFieldId().equals(defaultListField.getId())) {
-        Set<PITGroupSet> pitGroupSetIsMember = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveByMemberPITGroup(this.getOwnerGroupId());
-        
-        Iterator<PITGroupSet> pitGroupSetIsMemberIter = pitGroupSetIsMember.iterator();
-        while (pitGroupSetIsMemberIter.hasNext()) {
-          PITGroupSet currPITGroupSet = pitGroupSetIsMemberIter.next();
-          PITGroupSet childToUpdate = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateChildByParentAndMemberPITGroup(currPITGroupSet, this.getMemberGroupId());
-  
-          if (childToUpdate != null) {
-            Set<PITGroupSet> childrenOfChildResults = GrouperDAOFactory.getFactory().getPITGroupSet().findAllActiveChildren(childToUpdate);
-    
-            pitGroupSetsToEnd.addAll(childrenOfChildResults);
-            pitGroupSetsToEnd.add(childToUpdate);
-          }
-        }
-      }
-      
-      Iterator<PITGroupSet> iter = pitGroupSetsToEnd.iterator();
-      while (iter.hasNext()) {
-        PITGroupSet pitGroupSet = iter.next();
-        pitGroupSet.setActiveDb("F");
-        pitGroupSet.setEndTimeDb(this.getEndTimeDb());
-        pitGroupSet.setContextId(this.getContextId());
-        pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
-        pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
-        pitGroupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(this.getNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate());
-        pitGroupSet.setSaveChangeLogUpdates(saveChangeLogUpdates);
-        pitGroupSet.saveOrUpdate();
-        
-        if (!saveChangeLogUpdates) {
-          changeLogUpdates.addAll(pitGroupSet.getChangeLogUpdates());
-          pitGroupSet.clearChangeLogUpdates();
-        }
-      }
-    }
-    
     super.onPostUpdate(hibernateSession);
   }
 

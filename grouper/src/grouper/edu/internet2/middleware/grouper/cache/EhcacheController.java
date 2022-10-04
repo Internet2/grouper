@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.cache;
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -46,7 +45,6 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Statistics;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -265,8 +263,8 @@ public class EhcacheController implements CacheController {
     //not sure if we need to initialize, since no stats will be found...
     this.initialize();
     Cache c = this.getCache(cache);
-    c.setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_GUARANTEED);
-    return new EhcacheStats( c.getStatistics() );
+    
+    return new EhcacheStats(c.getStatistics());
   }
 
   /** 

@@ -313,6 +313,15 @@ public abstract class GrouperProvisioningConfiguration {
   public void setCustomizeMembershipCrud(boolean customizeMembershipCrud) {
     this.customizeMembershipCrud = customizeMembershipCrud;
   }
+  
+  private boolean onlyAddMembershipsIfUserExistsInTarget;
+  
+  
+
+  
+  public boolean isOnlyAddMembershipsIfUserExistsInTarget() {
+    return onlyAddMembershipsIfUserExistsInTarget;
+  }
 
   private boolean customizeGroupCrud;
 
@@ -819,6 +828,13 @@ public abstract class GrouperProvisioningConfiguration {
     return true;
   }
   
+  private boolean readOnly;
+  
+  
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
   /** if the target should be checked before sending actions.  e.g. if an addMember is made to a provisionable group, then check the target to see if the entity is already a member first. */
   private boolean recalculateAllOperations;
 
@@ -2756,6 +2772,12 @@ public abstract class GrouperProvisioningConfiguration {
 
     this.recalculateAllOperations = GrouperUtil.booleanValue(this.retrieveConfigBoolean("recalculateAllOperations", false), false);
     
+    if (this.recalculateAllOperations) {
+      this.onlyAddMembershipsIfUserExistsInTarget = GrouperUtil.booleanValue(this.retrieveConfigBoolean("onlyAddMembershipsIfUserExistsInTarget", false), false);
+    }
+    
+    this.readOnly = GrouperUtil.booleanValue(this.retrieveConfigBoolean("readOnly", false), false);
+
     {
       String grouperProvisioningMembershipFieldTypeString = this.retrieveConfigString("membershipFields", false);
       if (StringUtils.isBlank(grouperProvisioningMembershipFieldTypeString) || StringUtils.equalsIgnoreCase("members", grouperProvisioningMembershipFieldTypeString)) {

@@ -113,6 +113,12 @@ public class GrouperProvisioningTranslator {
           errorCode = GcGrouperSyncErrorCode.ERR;
         }
       }
+      
+      if (errorCode == null && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOnlyAddMembershipsIfUserExistsInTarget()
+          && provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+        errorCode = GcGrouperSyncErrorCode.DNE;
+      }
+      
       if (errorCode != null) {
         this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
         continue;

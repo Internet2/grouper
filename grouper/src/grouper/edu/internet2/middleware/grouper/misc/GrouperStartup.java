@@ -249,7 +249,7 @@ public class GrouperStartup {
     String env = GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name");
     env = StringUtils.defaultIfEmpty(env, "<no label configured>");
 
-    String grouperStartup = "version: " + GrouperVersion.grouperVersion()
+    String grouperStartup = "version: " + GrouperUtil.defaultString(System.getenv("GROUPER_CONTAINER_VERSION"), GrouperVersion.grouperVersion())
       + ", build date: " + buildTimestamp + ", env: " + env;
     
     return grouperStartup;

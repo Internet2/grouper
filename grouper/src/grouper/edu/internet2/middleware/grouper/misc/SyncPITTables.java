@@ -29,11 +29,9 @@
 
 package edu.internet2.middleware.grouper.misc;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -58,12 +56,10 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAction;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.pit.GrouperPIT;
@@ -82,8 +78,6 @@ import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.pit.PITStem;
-import edu.internet2.middleware.grouper.util.GrouperCallable;
-import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -126,24 +120,6 @@ public class SyncPITTables {
   
   /** whether there will be notifications for subjects with permission changes */
   private boolean includeSubjectsWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeSubjectsWithPermissionChanges", false);
-
-  /** max query size for queries that have a max **/
-  private static final int MAX_QUERY_SIZE = 100000;
-  
-  /** total count for current phase */
-  private long statusThreadTotalCount = 0;
-  
-  /** processed count for current phase */
-  private long statusThreadProcessedCount = 0;
-  
-  /** if we're done processing a phase */
-  private boolean statusThreadDonePhase = false;
-  
-  /** start time of script */
-  private long statusThreadStartTime = 0;
-  
-  /** status thread */
-  Thread statusThread = null;
   
   /**
    * Whether or not to print out results of what's being done.  Defaults to true.
@@ -168,7 +144,7 @@ public class SyncPITTables {
   /**
    * Whether or not to log details.  Defaults to true.
    * @param logDetails
-   * @return AddMissingGroupSets
+   * @return SyncPITTables
    */
   public SyncPITTables logDetails(boolean logDetails) {
     this.logDetails = logDetails;
@@ -178,7 +154,7 @@ public class SyncPITTables {
   /**
    * Whether or not to create a report.  Defaults to false.
    * @param createReport
-   * @return AddMissingGroupSets
+   * @return SyncPITTables
    */
   public SyncPITTables createReport(boolean createReport) {
     this.createReport = createReport;
@@ -240,7 +216,6 @@ public class SyncPITTables {
       count += processMissingActivePITAttributeAssignActionSets();
       count += processMissingActivePITGroupSets();
       count += processMissingActivePITMemberships();
-      count += processMissingActivePITGroupSetsSecondPass();
       count += processMissingActivePITAttributeAssigns();
       count += processMissingActivePITAttributeAssignValues();
       count += processMissingActivePITConfigs();
@@ -714,161 +689,15 @@ public class SyncPITTables {
   
   /**
    * Add missing point in time group sets.
-   * @return the number of missing point in time group sets
-   */
-  public long processMissingActivePITGroupSets() {
-    
-    long totalProcessed = 0;
-
-    int batchSize = getBatchSize();
-
-    boolean useThreads = GrouperConfig.retrieveConfig().propertyValueBoolean("pit.sync.useThreads", true);
-    int groupThreadPoolSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("pit.sync.threadPoolSize", 20);
-    
-    while (true) {
-      showStatus("\n\nSearching for missing active point in time group sets");
-
-      List<GroupSet> groupSets = new ArrayList<GroupSet>(GrouperDAOFactory.getFactory().getPITGroupSet().findMissingActivePITGroupSets(new QueryOptions().paging(MAX_QUERY_SIZE, 1, false)));
-      if (groupSets.size() == MAX_QUERY_SIZE) {
-        showStatus("Found " + groupSets.size() + " missing active point in time group sets.  (Note there are probably more since the maximum results willing to be returned at one time is " + MAX_QUERY_SIZE + " as well.)");
-      } else {
-        showStatus("Found " + groupSets.size() + " missing active point in time group sets");
-      }
-
-      boolean moreToProcess = saveUpdates && groupSets.size() == MAX_QUERY_SIZE;
-      statusThreadTotalCount = groupSets.size();
-      
-      try {
-        reset();
-      
-        List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
-        List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
-        
-        int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupSets, batchSize);
-        for (int batchNumber = 0; batchNumber < numberOfBatches; batchNumber++) {
-          final List<GroupSet> groupSetBatch = GrouperUtil.batchList(groupSets, batchSize, batchNumber);
-  
-          GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("processMissingActivePITGroupSetsBatch") {
-            
-            @Override
-            public Void callLogic() {
-              processMissingActivePITGroupSetsBatch(groupSetBatch);
-              return null;
-            }
-          };
-         
-  
-          if (!useThreads){
-            grouperCallable.callLogic();
-          } else {
-            GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
-            futures.add(future);          
-            GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
-          }
-          
-          totalProcessed = totalProcessed + groupSetBatch.size();
-          statusThreadProcessedCount = statusThreadProcessedCount + groupSetBatch.size();
-        }
-        
-        GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
-        GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
-        
-        if (!moreToProcess) {
-          break;
-        }
-      } finally {
-        stopStatusThread();
-      }
-    }
-    
-    if (totalProcessed > 0 && saveUpdates) {
-      showStatus("Done making " + totalProcessed + " updates");
-    }
-    
-    return totalProcessed;
-  }
-  
-  private void processMissingActivePITGroupSetsBatch(List<GroupSet> groupSets) {
-    Set<PITGroupSet> batch = new LinkedHashSet<PITGroupSet>();
-
-    for (GroupSet groupSet : groupSets) {
-      
-      logDetail("Found missing point in time group set with id: " + groupSet.getId());
-          
-      if (saveUpdates) {
-        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getFieldId(), true);
-        PITField pitMemberField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getMemberFieldId(), true);
-        PITGroupSet pitParent = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet.getParentId(), false);
-
-        PITGroupSet pitGroupSet = new PITGroupSet();
-        pitGroupSet.setId(GrouperUuid.getUuid());
-        pitGroupSet.setSourceId(groupSet.getId());
-        pitGroupSet.setDepth(groupSet.getDepth());
-        pitGroupSet.setParentId(groupSet.getDepth() == 0 ? pitGroupSet.getId() : pitParent.getId());
-        pitGroupSet.setFieldId(pitField.getId());
-        pitGroupSet.setMemberFieldId(pitMemberField.getId());
-        pitGroupSet.setActiveDb("T");
-        pitGroupSet.setStartTimeDb(System.currentTimeMillis() * 1000);
-
-        if (groupSet.getOwnerGroupId() != null) {
-          PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getOwnerId(), true);
-          pitGroupSet.setOwnerGroupId(pitOwner.getId());
-        } else if (groupSet.getOwnerStemId() != null) {
-          PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(groupSet.getOwnerId(), true);
-          pitGroupSet.setOwnerStemId(pitOwner.getId());
-        } else if (groupSet.getOwnerAttrDefId() != null) {
-          PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(groupSet.getOwnerId(), true);
-          pitGroupSet.setOwnerAttrDefId(pitOwner.getId());
-        } else {
-          throw new RuntimeException("Unexpected -- GroupSet with id " + groupSet.getId() + " does not have an ownerGroupId, ownerStemId, or ownerAttrDefId.");
-        }
-      
-        if (groupSet.getMemberGroupId() != null) {
-          PITGroup pitMember = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getMemberId(), true);
-          pitGroupSet.setMemberGroupId(pitMember.getId());
-        } else if (groupSet.getMemberStemId() != null) {
-          PITStem pitMember = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(groupSet.getMemberId(), true);
-          pitGroupSet.setMemberStemId(pitMember.getId());
-        } else if (groupSet.getMemberAttrDefId() != null) {
-          PITAttributeDef pitMember = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(groupSet.getMemberId(), true);
-          pitGroupSet.setMemberAttrDefId(pitMember.getId());
-        } else {
-          throw new RuntimeException("Unexpected -- GroupSet with id " + groupSet.getId() + " does not have an memberGroupId, memberStemId, or memberAttrDefId.");
-        }
-      
-        if (!GrouperUtil.isEmpty(groupSet.getContextId())) {
-          pitGroupSet.setContextId(groupSet.getContextId());
-        }
-      
-        if (sendFlattenedNotifications) {
-          pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
-          pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
-        }
-        
-        if (sendPermissionNotifications) {
-          pitGroupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-      
-        batch.add(pitGroupSet);
-      }
-    }
-    
-    if (batch.size() > 0) {
-      GrouperDAOFactory.getFactory().getPITGroupSet().saveBatch(batch);
-    }
-  }
-  
-  /**
-   * Add missing point in time group sets. (Second pass looking for issues with effective groupSets.)
    * 
    * @return the number of missing point in time group sets
    */
-  public long processMissingActivePITGroupSetsSecondPass() {
-    showStatus("\n\nSearching for missing active point in time group sets (second pass)");
+  public long processMissingActivePITGroupSets() {
+    showStatus("\n\nSearching for missing active point in time group sets");
     
     long totalProcessed = 0;
 
-    List<GroupSet> groupSets = new LinkedList<GroupSet>(GrouperDAOFactory.getFactory().getPITGroupSet().findMissingActivePITGroupSetsSecondPass());
+    List<GroupSet> groupSets = new LinkedList<GroupSet>(GrouperDAOFactory.getFactory().getPITGroupSet().findMissingActivePITGroupSets(null));
     showStatus("Found " + groupSets.size() + " missing active point in time group sets");
 
     Collections.sort(groupSets, new Comparator<GroupSet>() {
@@ -892,17 +721,22 @@ public class SyncPITTables {
         
         PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getFieldId(), true);
         PITField pitMemberField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getMemberFieldId(), true);
-        PITGroupSet pitParent = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet.getParentId(), true);
 
         PITGroupSet pitGroupSet = new PITGroupSet();
         pitGroupSet.setId(GrouperUuid.getUuid());
         pitGroupSet.setSourceId(groupSet.getId());
         pitGroupSet.setDepth(groupSet.getDepth());
-        pitGroupSet.setParentId(pitParent.getId());
         pitGroupSet.setFieldId(pitField.getId());
         pitGroupSet.setMemberFieldId(pitMemberField.getId());
         pitGroupSet.setActiveDb("T");
         pitGroupSet.setStartTimeDb(System.currentTimeMillis() * 1000);
+        
+        if (groupSet.getDepth() == 0) {
+          pitGroupSet.setParentId(pitGroupSet.getId());
+        } else {
+          PITGroupSet pitParent = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet.getParentId(), false);
+          pitGroupSet.setParentId(pitParent.getId());
+        }
 
         if (groupSet.getOwnerGroupId() != null) {
           PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getOwnerId(), true);
@@ -1980,93 +1814,6 @@ public class SyncPITTables {
     
     return sourceIds.size();
   }
-
-  private int getBatchSize() {
-    int size = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
-    if (size <= 0) {
-      size = 1;
-    }
-    
-    return size;
-  }
-  
-  private void reset() {
-    statusThreadProcessedCount = 0;
-    statusThreadDonePhase = false;
-    statusThreadStartTime = System.currentTimeMillis();
-    
-    // status thread
-    statusThread = new Thread(new Runnable() {
-      
-      public void run() {
-        SimpleDateFormat estFormat = new SimpleDateFormat("HH:mm");
-        SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-        
-        while (true) {
-
-          // sleep 30 seconds between status messages
-          for (int i = 0; i < 30; i++) {
-            
-            if (statusThreadDonePhase) {
-              return;
-            }
-            
-            try {
-              Thread.sleep(1000);
-            } catch (InterruptedException ie) {
-              // ignore this
-            }
-          }
-          if (statusThreadDonePhase) {
-            return;
-          }
-          
-          if (showResults) {
-            
-            // print results
-            long currentTotalCount = statusThreadTotalCount;              
-            long currentProcessedCount = statusThreadProcessedCount;
-            
-            if (currentTotalCount != 0) {
-              long now = System.currentTimeMillis();
-              long endTime = 0;
-              double percent = 0;
-              
-              if (currentProcessedCount > 0) {
-                percent = ((double)currentProcessedCount * 100D) / currentTotalCount;
-                
-                if (percent > 1) {
-                  endTime = statusThreadStartTime + (long)((now - statusThreadStartTime) * (100D / percent));
-                }
-              }
-              
-              print(format.format(new Date(now)) + ": Processed " + currentProcessedCount + " of " + currentTotalCount + " (" + Math.round(percent) + "%) of current phase.  ");
-              
-              if (endTime != 0) {
-                print("Estimated completion time: " + estFormat.format(new Date(endTime)) + ".");
-              }
-              
-              print("\n");
-            }
-          }
-        }          
-      }
-    });
-    
-    statusThread.start();
-  }
-  
-  /**
-   * print
-   * @param string
-   */
-  private void print(String string) {
-    if (this.captureOutput) {
-      this.output.append(string);
-    } else {
-      System.out.print(string);
-    }
-  }
   
   /**
    * print a line
@@ -2077,19 +1824,6 @@ public class SyncPITTables {
       this.output.append(string).append("\n");
     } else {
       System.out.println(string);
-    }
-  }
-  
-  private void stopStatusThread() {
-    statusThreadDonePhase = true;
-    if (statusThread != null) {
-      try {
-        statusThread.join(2000);
-      } catch (InterruptedException ie) {
-        // ignore this
-      }
-      
-      statusThread = null;
     }
   }
 
