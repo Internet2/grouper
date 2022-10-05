@@ -196,7 +196,7 @@
         <jsp.version>2.3.2-b02</jsp.version>
         <xercesimpl.version>2.12.2</xercesimpl.version>
         <okhttp.version>3.14.7</okhttp.version>
-        <nimbus.oauth2.oidc.sdk>8.22</nimbus.oauth2.oidc.sdk>
+        <nimbus.oauth2.oidc.sdk>9.43.1</nimbus.oauth2.oidc.sdk>
         
         <!-- ddl utils -->
         <oro.version>2.0.8</oro.version>
