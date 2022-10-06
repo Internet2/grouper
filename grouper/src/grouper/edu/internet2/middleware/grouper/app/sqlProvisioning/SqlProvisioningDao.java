@@ -1385,7 +1385,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
               } else if (StringUtils.equals(sqlLastModifiedColumnType, "long")) {
                 entityIdAttributeNameAttributeValue[3] = lastModified();
               } else {
-                throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
+                throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
               }
             }
             
