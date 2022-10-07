@@ -528,6 +528,13 @@ public class UiV2GroupImport {
         return;
       }
       
+      if (startDate != null && endDate != null && !endDate.after(startDate)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-end-date",
+            TextContainer.retrieveFromRequest().getText().get("groupImportToDateAfterFromDateError")));
+        return;
+      }
+      
       final Object[] csvEntriesObject = new Object[1];
   
       final String[] fileName = new String[1];

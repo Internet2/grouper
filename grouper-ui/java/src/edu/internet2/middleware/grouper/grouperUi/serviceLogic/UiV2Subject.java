@@ -1075,6 +1075,13 @@ public class UiV2Subject {
             TextContainer.retrieveFromRequest().getText().get("subjectViewToDateInvalid")));
         return;
       }
+      
+      if (startDate != null && endDate != null && !endDate.after(startDate)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-end-date",
+            TextContainer.retrieveFromRequest().getText().get("subjectViewToDateAfterFromDateError")));
+        return;
+      }
   
       Boolean defaultPrivs = null;
       
