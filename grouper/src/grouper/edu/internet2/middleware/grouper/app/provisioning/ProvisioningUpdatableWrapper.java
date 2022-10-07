@@ -11,19 +11,55 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorC
  */
 public abstract class ProvisioningUpdatableWrapper {
   
+  private boolean insertResultProcessed;
+  
+  private boolean updateResultProcessed;
+  
+  private boolean deleteResultProcessed;
+  
+  public boolean isInsertResultProcessed() {
+    return insertResultProcessed;
+  }
+
+  
+  public void setInsertResultProcessed(boolean insertResultProcessed) {
+    this.insertResultProcessed = insertResultProcessed;
+  }
+
+  
+  public boolean isUpdateResultProcessed() {
+    return updateResultProcessed;
+  }
+
+  
+  public void setUpdateResultProcessed(boolean updateResultProcessed) {
+    this.updateResultProcessed = updateResultProcessed;
+  }
+
+  
+  public boolean isDeleteResultProcessed() {
+    return deleteResultProcessed;
+  }
+
+  
+  public void setDeleteResultProcessed(boolean deleteResultProcessed) {
+    this.deleteResultProcessed = deleteResultProcessed;
+  }
+
+
   /**
    * after an action happens, process result only once. Do not process twice during inserts and then during sending changes to target.
    */
-  private boolean resultProcessed;
-  
-  
-  public boolean isResultProcessed() {
-    return resultProcessed;
-  }
-  
-  public void setResultProcessed(boolean resultProcessed) {
-    this.resultProcessed = resultProcessed;
-  }
+//  private boolean resultProcessed;
+//  
+//  
+//  public boolean isResultProcessed() {
+//    return resultProcessed;
+//  }
+//  
+//  public void setResultProcessed(boolean resultProcessed) {
+//    this.resultProcessed = resultProcessed;
+//  }
 
 
   /**

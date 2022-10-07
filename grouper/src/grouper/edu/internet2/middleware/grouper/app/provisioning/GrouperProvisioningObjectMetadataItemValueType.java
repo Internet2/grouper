@@ -6,6 +6,8 @@ import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -19,6 +21,12 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
       if (value == null || value instanceof String) {
         return value;
       }
+      
+      if (value != null && value instanceof TextNode) {
+        TextNode textNode = (TextNode) value;
+        return textNode.asText();
+      }
+      
       return GrouperUtil.stringValue(value);
     }
     
@@ -82,6 +90,12 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
 
     @Override
     public Object convert(Object value) {
+      
+      if (value != null && value instanceof BooleanNode) {
+        BooleanNode booleanNode = (BooleanNode) value;
+        return booleanNode.asBoolean();
+      }
+      
       return GrouperUtil.booleanObjectValue(value);
     }
     
