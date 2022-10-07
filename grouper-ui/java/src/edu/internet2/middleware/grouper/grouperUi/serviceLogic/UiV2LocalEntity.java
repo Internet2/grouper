@@ -673,6 +673,13 @@ public class UiV2LocalEntity {
             TextContainer.retrieveFromRequest().getText().get("localEntityCreateErrorDisabledDateInvalid")));
         return;
       }
+      
+      if (enabledDate != null && disabledDate != null && !disabledDate.after(enabledDate)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupDisabledDate",
+            TextContainer.retrieveFromRequest().getText().get("localEntityCreateErrorDisabledDateAfterEnabledDateError")));
+        return;
+      }
   
       try {
   

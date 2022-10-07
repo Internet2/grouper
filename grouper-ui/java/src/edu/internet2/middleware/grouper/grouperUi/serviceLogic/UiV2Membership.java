@@ -1552,6 +1552,13 @@ public class UiV2Membership {
         return;
       }
       
+      if (startDate != null && endDate != null && !endDate.after(startDate)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-end-date",
+            TextContainer.retrieveFromRequest().getText().get("membershipEditToDateAfterFromDateError")));
+        return;
+      }
+      
       if (grouperRequestContainer.getGroupContainer().isCanAdmin()) { 
         boolean privOptins = GrouperUtil.booleanValue(request.getParameter("privilege_optins[]"), false);
         boolean privOptouts = GrouperUtil.booleanValue(request.getParameter("privilege_optouts[]"), false);
