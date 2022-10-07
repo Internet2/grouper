@@ -172,7 +172,7 @@
         <p6spy.version>3.6.0</p6spy.version>
         <postgresql.version>42.4.1</postgresql.version>
         <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
-        <ldaptive.version>1.1.2</ldaptive.version>
+        <ldaptive.version>1.2.4</ldaptive.version>
         <xml.apis.version>1.4.01</xml.apis.version>
         <aws.java.sdk.core>1.12.267</aws.java.sdk.core>
         <aws.java.sdk.s3>1.12.267</aws.java.sdk.s3>
