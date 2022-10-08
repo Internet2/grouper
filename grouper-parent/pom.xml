@@ -153,7 +153,6 @@
         <hibernate.c3p0.version>5.6.10.Final</hibernate.c3p0.version>
         <jandex.version>2.0.4.Final</jandex.version>
         <jboss.logging.version>3.3.1.Final</jboss.logging.version>
-        <jdom.version>1.1</jdom.version>
         <jetty.version>6.1.26</jetty.version>
         <jetty.util.version>6.1.26</jetty.util.version>
         <opensaml.version>2.6.4</opensaml.version>
@@ -752,11 +751,6 @@
                 <groupId>org.jboss.logging</groupId>
                 <artifactId>jboss-logging</artifactId>
                 <version>${jboss.logging.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jdom</groupId>
-                <artifactId>jdom</artifactId>
-                <version>${jdom.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mortbay.jetty</groupId>

@@ -140,7 +140,7 @@ public class WsSampleDeleteMemberRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    deleteMemberLite(WsSampleRestType.xhtml);
+    deleteMemberLite(WsSampleRestType.json);
   }
 
   /**

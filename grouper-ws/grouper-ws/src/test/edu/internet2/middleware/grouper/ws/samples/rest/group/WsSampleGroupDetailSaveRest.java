@@ -173,7 +173,7 @@ public class WsSampleGroupDetailSaveRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupDetailSave(WsSampleRestType.xhtml);
+    groupDetailSave(WsSampleRestType.json);
   }
 
   /**

@@ -53,6 +53,7 @@
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/lib/grouperWsTestInterfaces.jar</systemPath>
+            <!--systemPath>/Users/mchyzer/git/grouper_v2_6/grouper-ws/grouper-ws-java-generated-client/lib/grouperWsTestInterfaces.jar</systemPath-->
         </dependency>
     </dependencies>
 

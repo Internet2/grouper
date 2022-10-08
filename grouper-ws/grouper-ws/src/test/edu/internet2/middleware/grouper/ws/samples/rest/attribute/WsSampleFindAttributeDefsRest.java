@@ -137,7 +137,7 @@ public class WsSampleFindAttributeDefsRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    findAttributeDefs(WsSampleRestType.xhtml);
+    findAttributeDefs(WsSampleRestType.json);
   }
 
   /**

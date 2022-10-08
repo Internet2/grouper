@@ -177,7 +177,7 @@ public class WsSampleMemberChangeSubjectRest implements WsSampleRest {
 
     RestClientSettings.resetData();
     
-    memberChangeSubject(WsSampleRestType.xhtml);
+    memberChangeSubject(WsSampleRestType.json);
   }
 
   /**

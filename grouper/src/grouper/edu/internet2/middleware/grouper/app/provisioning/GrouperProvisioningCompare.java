@@ -436,8 +436,11 @@ public class GrouperProvisioningCompare {
             throw new RuntimeException("Arrays not supported");
           }
         } else {
-          ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(grouperValue);
-          if (recalcProvisioningUpdateable || provisioningMembershipWrapper.isRecalcObject()) {
+          ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+          if (grouperAttribute != null) {
+            provisioningMembershipWrapper = GrouperUtil.nonNull(grouperAttribute.getValueToProvisioningMembershipWrapper()).get(grouperValue);
+          }
+          if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.isRecalcObject())) {
             // just a scalar
             grouperProvisioningUpdatable.addInternal_objectChange(
                 new ProvisioningObjectChange(attributeName, 
@@ -483,8 +486,13 @@ public class GrouperProvisioningCompare {
       if (grouperCollection == null && targetCollection == null) {
         if (!attributeValueEquals(attributeName, grouperValue, targetValue, grouperProvisioningUpdatable)) {
           if (grouperProvisioningUpdatable.canUpdateAttribute(attributeName)) {
-            ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(grouperValue);
-            if (recalcProvisioningUpdateable || provisioningMembershipWrapper.isRecalcObject()) {
+
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+            if (grouperAttribute != null) {
+              provisioningMembershipWrapper = GrouperUtil.nonNull(grouperAttribute.getValueToProvisioningMembershipWrapper()).get(grouperValue);
+            }
+            if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.isRecalcObject())) {
+
               grouperProvisioningUpdatable.addInternal_objectChange(
                   new ProvisioningObjectChange(attributeName, 
                       ProvisioningObjectChangeAction.update, targetValue, grouperValue)
@@ -512,7 +520,11 @@ public class GrouperProvisioningCompare {
       inserts.removeAll(targetCollection);
       if (grouperProvisioningUpdatable.canInsertAttribute(attributeName)) {
         for (Object insertValue : inserts) {
-          ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(insertValue);
+
+          ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+          if (grouperAttribute != null) {
+            provisioningMembershipWrapper = GrouperUtil.nonNull(grouperAttribute.getValueToProvisioningMembershipWrapper()).get(insertValue);
+          }
           if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.isRecalcObject())) {
             grouperProvisioningUpdatable.addInternal_objectChange(
                 new ProvisioningObjectChange(attributeName, 
@@ -528,7 +540,10 @@ public class GrouperProvisioningCompare {
           
           if (grouperProvisioningUpdatable.canDeleteAttributeValue(attributeName, deleteValue)) {
           
-            ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(deleteValue);
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+            if (grouperAttribute != null) {
+              provisioningMembershipWrapper = GrouperUtil.nonNull(grouperAttribute.getValueToProvisioningMembershipWrapper()).get(deleteValue);
+            }
             if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.isRecalcObject())) {
               grouperProvisioningUpdatable.addInternal_objectChange(
                   new ProvisioningObjectChange(attributeName, 

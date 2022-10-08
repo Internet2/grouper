@@ -131,7 +131,7 @@ public class WsSampleAttributeDefNameSaveRestLite implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    attributeDefNameSaveLite(WsSampleRestType.xhtml);
+    attributeDefNameSaveLite(WsSampleRestType.json);
   }
 
   /**

@@ -353,6 +353,12 @@ public class SqlProvisionerTestUtils {
 
     }
     
+    if (provisioningTestConfigInput.isCacheObjects()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "target");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupObject");
+    }
     
     if (provisioningTestConfigInput.getGroupAttributeCount() == 4) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "uuid");
@@ -363,12 +369,7 @@ public class SqlProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionTypeCreateOnly", "translationScript");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.showAdvancedAttribute", "true");
 
-      if (provisioningTestConfigInput.isCacheObjects()) {
-        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
-        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "target");
-        configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupObject");
-      } else {
+      if (!provisioningTestConfigInput.isCacheObjects()) {
         configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "grouper");

@@ -45,40 +45,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
  */
 public enum WsRestResponseContentType {
 
-  /** default xhtml content type */
-  xhtml {
-
-    /**
-     * get the content type
-     * @return the http content type
-     */
-    @Override
-    public String getContentType() {
-      return GrouperWsConfig.retrieveConfig().propertyValueString("ws.restResponseContentType.xhtml", "application/xhtml+xml");
-    }
-
-    /**
-     * write a string representation to an outputstream
-     * @param object to write to output
-     * @param writer to write to (e.g. back to http client)
-     */
-    @Override
-    public void writeString(Object object, Writer writer) {
-      WsXhtmlOutputConverter wsXhtmlOutputConverter = new WsXhtmlOutputConverter(true,
-          null);
-      wsXhtmlOutputConverter.writeBean(object, writer);
-    }
-    /**
-     * parse a string to an object
-     * @param input
-     * @return the object
-     */
-    @Override
-    public Object parseString(String input) {
-      return WsRestRequestContentType.xhtml.parseString(input, new StringBuilder());
-    }
-
-  },
   /** xml content type */
   xml {
 

@@ -153,7 +153,7 @@ public class WsSampleStemSaveRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    stemSaveLite(WsSampleRestType.xhtml);
+    stemSaveLite(WsSampleRestType.json);
   }
 
   /**

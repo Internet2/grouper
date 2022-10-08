@@ -135,7 +135,7 @@ public class WsSampleFindExternalSubjectsRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    findExternalSubjects(WsSampleRestType.xhtml);
+    findExternalSubjects(WsSampleRestType.json);
   }
 
   /**

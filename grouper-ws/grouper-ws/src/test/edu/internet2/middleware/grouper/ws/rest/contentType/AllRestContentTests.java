@@ -36,7 +36,6 @@ public class AllRestContentTests {
     TestSuite suite = new TestSuite(
         "Test for edu.internet2.middleware.grouper.ws.rest.contentType");
     //$JUnit-BEGIN$
-    suite.addTestSuite(WsXhtmlOutputConverterTest.class);
     suite.addTestSuite(RestConverterTest.class);
     //$JUnit-END$
     return suite;

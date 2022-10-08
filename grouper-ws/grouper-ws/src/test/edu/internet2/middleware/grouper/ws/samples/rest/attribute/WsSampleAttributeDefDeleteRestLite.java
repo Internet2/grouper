@@ -127,7 +127,7 @@ public class WsSampleAttributeDefDeleteRestLite implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    attributeDefDeleteLite(WsSampleRestType.xhtml);
+    attributeDefDeleteLite(WsSampleRestType.json);
   }
 
   /**

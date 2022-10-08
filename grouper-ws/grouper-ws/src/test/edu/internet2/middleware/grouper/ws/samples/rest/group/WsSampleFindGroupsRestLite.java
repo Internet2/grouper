@@ -132,7 +132,7 @@ public class WsSampleFindGroupsRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    findGroupsLite(WsSampleRestType.xhtml);
+    findGroupsLite(WsSampleRestType.json);
   }
 
   /**

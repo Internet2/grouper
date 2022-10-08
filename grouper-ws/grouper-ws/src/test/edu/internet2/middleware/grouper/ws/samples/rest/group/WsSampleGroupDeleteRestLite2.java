@@ -132,7 +132,7 @@ public class WsSampleGroupDeleteRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    groupDeleteLite(WsSampleRestType.xhtml);
+    groupDeleteLite(WsSampleRestType.json);
   }
 
   /**

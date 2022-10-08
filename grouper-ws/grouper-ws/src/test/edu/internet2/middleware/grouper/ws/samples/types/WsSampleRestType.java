@@ -28,9 +28,6 @@ import edu.internet2.middleware.grouper.ws.rest.contentType.WsRestResponseConten
  */
 public enum WsSampleRestType {
 
-  /** xhtml request */
-  xhtml(WsRestRequestContentType.xhtml, WsRestResponseContentType.xhtml),
-  
   /** json request */
   json(WsRestRequestContentType.json, WsRestResponseContentType.json),
   
