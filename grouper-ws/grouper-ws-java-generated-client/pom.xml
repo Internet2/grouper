@@ -66,6 +66,21 @@
             <groupId>org.apache.ws.security</groupId>
             <artifactId>wss4j</artifactId>
             <version>1.6.19</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xalan</groupId>
+                    <artifactId>xalan</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.santuario</groupId>
+                    <artifactId>xmlsec</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.santuario</groupId>
+            <artifactId>xmlsec</artifactId>
+            <version>3.0.1</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
