@@ -36,7 +36,7 @@ public class RampartPwHandlerClient implements CallbackHandler {
         throws IOException, UnsupportedCallbackException {
         for (int i = 0; i < callbacks.length; i++) {
             WSPasswordCallback pwcb = (WSPasswordCallback) callbacks[i];
-            String id = pwcb.getIdentifer();
+            String id = pwcb.getIdentifier();
 
             if ("GrouperSystem".equals(id)) {
                 pwcb.setPassword("mypass");
