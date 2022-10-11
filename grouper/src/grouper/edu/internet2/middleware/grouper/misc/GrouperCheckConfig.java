@@ -153,6 +153,7 @@ import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.morphString.MorphStringConfig;
@@ -1092,6 +1093,20 @@ public class GrouperCheckConfig {
       if (StringUtils.isNotBlank(groupAllowedToRenameStem)) {
         checkGroup(grouperSession, groupAllowedToRenameStem, wasInCheckConfig, null, wasInCheckConfig, null, 
             null, "grouper.properties key: " + allowedGroupName, null);        
+      }
+      
+      {
+        String wsClientUserGroupName = GrouperWsConfigInApi.retrieveConfig().propertyValueString("ws.client.user.group.name");
+  
+        if (!StringUtils.isBlank(wsClientUserGroupName)) {
+          if (GroupFinder.findByName(wsClientUserGroupName, false) == null) {
+            checkGroup(grouperSession, wsClientUserGroupName, wasInCheckConfig, true, 
+                wasInCheckConfig, null,
+                GrouperUtil.extensionFromName(wsClientUserGroupName),
+                "Group contains people who can call web services",
+                null);
+          }
+        }
       }
       
       // security.stem.groupAllowedToCopyStem
