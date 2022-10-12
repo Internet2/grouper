@@ -158,7 +158,7 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
 
       grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataWelcomeEmailDisabledDescription");
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWelcomeEmailDisabledLabel");
-      grouperProvisioningObjectMetadataItem.setName("md_grouper_welcomeEmailEnabled");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_welcomeEmailDisabled");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
       grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
