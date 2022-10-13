@@ -59,7 +59,7 @@
     <dependency>
       <groupId>org.apache.qpid</groupId>
       <artifactId>qpid-jms-client</artifactId>
-      <version>1.7.0</version>
+      <version>0.61.0</version>
     </dependency>
     
   </dependencies>
