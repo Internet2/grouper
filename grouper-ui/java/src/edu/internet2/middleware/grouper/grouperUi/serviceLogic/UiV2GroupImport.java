@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
@@ -71,6 +72,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.j2ee.GrouperUiRestServlet;
+import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -944,6 +946,14 @@ public class UiV2GroupImport {
         List<Member> existingMembers = new ArrayList<Member>(GrouperUtil.nonNull(group.getImmediateMembers()));
         List<Subject> subjectList = new ArrayList<Subject>(GrouperUtil.nonNull(subjectSet));
         groupImportGroupSummary.setGroupCountOriginal(GrouperUtil.length(existingMembers));
+        
+        if (removeMembers) {
+          // if we're removing members, also include disabled memberships in the existingMembers list since we'll want to delete those as well
+          Set<Object[]> membershipsResult = MembershipFinder.findMemberships(GrouperUtil.toList(group.getId()), null, null, MembershipType.IMMEDIATE, Group.getDefaultList(), null, null, null, null, false);
+          for (Object[] membershipResult : membershipsResult) {
+            existingMembers.add((Member)membershipResult[2]);
+          }
+        }
 
         List<Member> overlappingMembers = new ArrayList<Member>(GrouperUtil.nonNull(GrouperUiUtils.removeOverlappingSubjects(existingMembers, subjectList)));
 
@@ -1014,6 +1024,7 @@ public class UiV2GroupImport {
             
             try {
                 
+              // note that this would delete disabled memberships too
               group.deleteMember(member, false);
               GrouperUtil.sleep(pauseBetweenRecordsMillis);
               
@@ -1032,7 +1043,7 @@ public class UiV2GroupImport {
           
         }
         
-        if (importReplaceMembers && !removeMembers && overlappingMembers.size() > 0) {
+        if (!removeMembers && overlappingMembers.size() > 0) {
           // make sure start/end dates are correct
           Set<Membership> overlappingMemberships = group.getImmediateMemberships(Group.getDefaultList(), overlappingMembers);
           
