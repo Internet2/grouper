@@ -166,6 +166,7 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAllowExternalMembersLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowExternalMembers");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
@@ -188,6 +189,7 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAllowWebPostingLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowWebPosting");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);

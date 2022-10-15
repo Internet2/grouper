@@ -142,6 +142,7 @@ public class GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningObjectMetadataProvisionOnlyPolicyGroupsLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowPolicyGroupOverride");
       grouperProvisioningObjectMetadataItem.setShowForFolder(true);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       

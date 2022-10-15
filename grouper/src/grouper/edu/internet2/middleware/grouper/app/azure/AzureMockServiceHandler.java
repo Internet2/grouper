@@ -1,12 +1,20 @@
 package edu.internet2.middleware.grouper.app.azure;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,6 +34,7 @@ import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
 import edu.internet2.middleware.grouper.j2ee.MockServiceResponse;
 import edu.internet2.middleware.grouper.j2ee.MockServiceServlet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.morphString.Morph;
 
@@ -177,6 +186,10 @@ public class AzureMockServiceHandler extends MockServiceHandler {
         postUserGroups(mockServiceRequest, mockServiceResponse);
         return;
       }
+      if ("$batch".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
+        postBatch(mockServiceRequest, mockServiceResponse);
+        return;
+      }
     }
     if (StringUtils.equals("PATCH", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
@@ -217,6 +230,315 @@ public class AzureMockServiceHandler extends MockServiceHandler {
             && !StringUtils.startsWith(mockServiceRequest.getHttpServletRequest().getContentType(), "application/json;")) {
       throw new RuntimeException("Content type must be application/json");
     }
+  }
+  
+  public void postBatch(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    /**
+     * {"requests":[{"id":"0","url":"/groups","method":"POST","body":{"displayName":"test:testGroup","mailEnabled":false,
+     * "mailNickname":"testGroup","securityEnabled":true,"resourceBehaviorOptions":["AllowOnlyMembersToPost","WelcomeEmailDisabled"],
+     * "resourceProvisioningOptions":["Team"]},"headers":{"Content-Type":"application/json"}}]}
+     */
+    
+    /**
+     * {"requests":[{"id":"0","url":"/groups?$filter=displayName%20eq%20'test:testGroup'&$select=isAssignableToRole,description,
+     * displayName,groupTypes,id,mailEnabled,mailNickname,
+     * securityEnabled,visibility,resourceBehaviorOptions,resourceProvisioningOptions","method":"GET"}]}
+     */
+    
+    /**
+     * {"requests":[{"id":"0","url":"/users?$filter=displayName%20eq%20'my+name+is+test.subject.0'&$select=accountEnabled,
+     * displayName,id,mailNickname,onPremisesImmutableId,userPrincipalName","method":"GET"},{"id":"1",
+     * "url":"/users?$filter=displayName%20eq%20'my+name+is+test.subject.1'&$select=accountEnabled,displayName,
+     * id,mailNickname,onPremisesImmutableId,userPrincipalName","method":"GET"}]}
+     */
+    
+    /**
+     * {"requests":[{"id":"0","url":"/groups/45b476a6e3084aa390dba03f9e667382",
+     * "method":"PATCH","body":{"members@odata.bind":["http://localhost:8080/grouper/mockServices/azure/directoryObjects/78a8e33a584745debd4c4aeac8592c40",
+     * "http://localhost:8080/grouper/mockServices/azure/directoryObjects/7801a0b0bcf94c45a641e612e4e8e5b9"]},
+     * "headers":{"Content-Type":"application/json"}}]}
+     */
+    
+    /**
+     * {"requests":[{"id":"0","url":"/groups/2427842379df43eb871ecda17e9fca53/members/24a13a5a0e7e4d7586a530f0f7818761/$ref",
+     * "method":"DELETE"}]}
+     */
+    
+    /**
+     * {"requests":[{"id":"0","url":"/groups/f1fdeacd5c834733a7d26556969571f8","method":"DELETE"}]}
+     */
+    
+    checkAuthorization(mockServiceRequest);
+    
+    String batchJsonString = mockServiceRequest.getRequestBody();
+    JsonNode batchJsonNode = GrouperUtil.jsonJacksonNode(batchJsonString);
+    
+    ArrayNode requestsArrayNode = (ArrayNode)GrouperUtil.jsonJacksonGetNode(batchJsonNode, "requests");
+    
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    ArrayNode responsesNode = GrouperUtil.jsonJacksonArrayNode();
+    
+    resultNode.set("responses", responsesNode);
+    
+    for (int i=0; i<requestsArrayNode.size(); i++) {
+      
+      JsonNode singleRequestNode = requestsArrayNode.get(i);
+      
+      String httpMethod = GrouperUtil.jsonJacksonGetString(singleRequestNode, "method");
+      String url = GrouperUtil.jsonJacksonGetString(singleRequestNode, "url");
+      String id = GrouperUtil.jsonJacksonGetString(singleRequestNode, "id");
+      
+      if (StringUtils.equalsIgnoreCase(httpMethod, "get")) {
+        
+        String[] urlParts = url.split("/");
+        List<String> urlPartsList = new ArrayList<String>(Arrays.asList(urlParts));
+        urlPartsList.removeAll(Arrays.asList("", null));
+        
+        if ( urlPartsList.size() == 1 && StringUtils.startsWith(urlPartsList.get(0), "groups?")) {
+          
+          String groupsFilter = urlPartsList.get(0);
+          String[] beforeAfterGroups = groupsFilter.split("groups\\?");
+          
+          List<NameValuePair> queryParams = URLEncodedUtils.parse(beforeAfterGroups[1], Charset.defaultCharset());
+          
+          Map<String, String> keyValue = new HashMap<>();
+          
+          for (NameValuePair nameValuePair: queryParams) {
+            keyValue.put(nameValuePair.getName(), nameValuePair.getValue());
+          }
+          
+          MultiKey getGroupsResult = getGroups(keyValue.get("$filter"), keyValue.get("$select"));
+          
+          ObjectNode getGroupsResponse = GrouperUtil.jsonJacksonNode();
+          getGroupsResponse.put("id", id);
+          getGroupsResponse.put("status", (Integer)getGroupsResult.getKey(0));
+          if (getGroupsResult.getKey(1) != null) {
+            getGroupsResponse.set("body", (JsonNode)getGroupsResult.getKey(1));
+          }
+          
+          responsesNode.add(getGroupsResponse);
+        }
+        
+        if (StringUtils.equals(urlParts[0], "/groups") && urlParts.length == 2 ) { // get a particular group
+          
+//          MultiKey getGroupResult = getGroup1(urlParts[1], keyValue.get("$select"));
+//          ObjectNode getGroupResponse = GrouperUtil.jsonJacksonNode();
+//          getGroupResponse.put("id", id);
+//          getGroupResponse.put("status", (Integer)getGroupResult.getKey(0));
+//          if (getGroupResult.getKey(1) != null) {
+//            getGroupResponse.set("body", (JsonNode)getGroupResult.getKey(1));
+//          }
+//          
+//          responsesNode.add(getGroupResponse);
+        }
+        
+        if ( urlPartsList.size() == 1 && StringUtils.startsWith(urlPartsList.get(0), "users?")) {
+          
+          String groupsFilter = urlPartsList.get(0);
+          String[] beforeAfterGroups = groupsFilter.split("users\\?");
+          
+          List<NameValuePair> queryParams = URLEncodedUtils.parse(beforeAfterGroups[1], Charset.defaultCharset());
+          
+          Map<String, String> keyValue = new HashMap<>();
+          
+          for (NameValuePair nameValuePair: queryParams) {
+            keyValue.put(nameValuePair.getName(), nameValuePair.getValue());
+          }
+          
+          MultiKey getUsersResult = getUsers(keyValue.get("$filter"), keyValue.get("$select"));
+          
+          ObjectNode getUsersResponse = GrouperUtil.jsonJacksonNode();
+          getUsersResponse.put("id", id);
+          getUsersResponse.put("status", (Integer)getUsersResult.getKey(0));
+          if (getUsersResult.getKey(1) != null) {
+            getUsersResponse.set("body", (JsonNode)getUsersResult.getKey(1));
+          }
+          
+          responsesNode.add(getUsersResponse);
+        }
+        
+      } else if (StringUtils.equalsIgnoreCase(httpMethod, "post")) {
+        
+        JsonNode body = GrouperUtil.jsonJacksonGetNode(singleRequestNode, "body");
+
+        if ("/groups".equals(url)) {
+          
+          MultiKey postGroupsResult = postGroups(body);
+          
+          ObjectNode postGroupResponse = GrouperUtil.jsonJacksonNode();
+          postGroupResponse.put("id", id);
+          postGroupResponse.put("status", (Integer)postGroupsResult.getKey(0));
+          if (postGroupsResult.getKey(1) != null) {
+            postGroupResponse.set("body", (JsonNode)postGroupsResult.getKey(1));
+          }
+          
+          responsesNode.add(postGroupResponse);
+          
+        }
+        
+        if ("/users".equals(url)) {
+          MultiKey postUsersResult = postUsers(body);
+          
+          ObjectNode postUserResponse = GrouperUtil.jsonJacksonNode();
+          postUserResponse.put("id", id);
+          postUserResponse.put("status", (Integer)postUsersResult.getKey(0));
+          if (postUsersResult.getKey(1) != null) {
+            postUserResponse.set("body", (JsonNode)postUsersResult.getKey(1));
+          }
+          
+          responsesNode.add(postUserResponse);
+        }
+        
+        String[] urlParts = url.split("/");
+        if (urlParts.length == 4 && StringUtils.equals(urlParts[0], "groups") 
+            && StringUtils.equals(urlParts[2], "members") && StringUtils.equals(urlParts[3], "$ref")) {
+          
+          
+          MultiKey postMembershipResult = postMembership(body, urlParts[1]);
+          ObjectNode postUserResponse = GrouperUtil.jsonJacksonNode();
+          postUserResponse.put("id", id);
+          postUserResponse.put("status", (Integer)postMembershipResult.getKey(0));
+          if (postMembershipResult.getKey(1) != null) {
+            postUserResponse.set("body", (JsonNode)postMembershipResult.getKey(1));
+          }
+          
+          responsesNode.add(postUserResponse);
+          
+        }
+        
+        if (urlParts.length == 3 && StringUtils.equals(urlParts[0], "users") 
+            && StringUtils.equals(urlParts[2], "getMemberGroups")) {
+          
+          
+          MultiKey postMembershipResult = postUserGroups(urlParts[1]);
+          ObjectNode postUserResponse = GrouperUtil.jsonJacksonNode();
+          postUserResponse.put("id", id);
+          postUserResponse.put("status", (Integer)postMembershipResult.getKey(0));
+          if (postMembershipResult.getKey(1) != null) {
+            postUserResponse.set("body", (JsonNode)postMembershipResult.getKey(1));
+          }
+          
+          responsesNode.add(postUserResponse);
+          
+        }
+        
+        if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length
+            && "getMemberGroups".equals(mockServiceRequest.getPostMockNamePaths()[2])) {
+          postUserGroups(mockServiceRequest, mockServiceResponse);
+          return;
+        }
+        
+      } else if (StringUtils.equalsIgnoreCase(httpMethod, "patch")) {
+        
+        String[] urlParts = url.split("/");
+        
+        JsonNode body = GrouperUtil.jsonJacksonGetNode(singleRequestNode, "body");
+        
+        if (urlParts.length == 3 && StringUtils.equals(urlParts[1], "groups")) {
+          
+          MultiKey postMembershipResult = patchGroups(body, urlParts[2]);
+          ObjectNode postUserResponse = GrouperUtil.jsonJacksonNode();
+          postUserResponse.put("id", id);
+          postUserResponse.put("status", (Integer)postMembershipResult.getKey(0));
+          if (postMembershipResult.getKey(1) != null) {
+            postUserResponse.set("body", (JsonNode)postMembershipResult.getKey(1));
+          }
+          
+          responsesNode.add(postUserResponse);
+          
+        }
+        
+      } else if (StringUtils.equalsIgnoreCase(httpMethod, "delete")) {
+        
+        /**
+         * {"requests":[{"id":"0","url":"/groups/2427842379df43eb871ecda17e9fca53/members/24a13a5a0e7e4d7586a530f0f7818761/$ref",
+         * "method":"DELETE"}]}
+         */
+        String[] urlParts = url.split("/");
+        if (urlParts.length == 6 && StringUtils.equals(urlParts[1], "groups") 
+            && StringUtils.equals(urlParts[3], "members")) {
+          
+          MultiKey result = deleteMembership(urlParts[4], urlParts[2]);
+          ObjectNode response = GrouperUtil.jsonJacksonNode();
+          response.put("id", id);
+          response.put("status", (Integer)result.getKey(0));
+          if (result.getKey(1) != null) {
+            response.set("body", (JsonNode)result.getKey(1));
+          }
+          responsesNode.add(response);
+          
+        }
+        
+        /**
+         * {"requests":[{"id":"0","url":"/groups/f1fdeacd5c834733a7d26556969571f8","method":"DELETE"}]}
+         */
+        if (urlParts.length == 3 && StringUtils.equals(urlParts[1], "groups")) {
+          
+          MultiKey result = deleteGroups(urlParts[2]);
+          ObjectNode response = GrouperUtil.jsonJacksonNode();
+          response.put("id", id);
+          response.put("status", (Integer)result.getKey(0));
+          if (result.getKey(1) != null) {
+            response.set("body", (JsonNode)result.getKey(1));
+          }
+          responsesNode.add(response);
+          
+        }
+        
+        
+      }
+      
+      
+      
+      
+      
+      
+    }
+    
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+    
+    
+  }
+   
+  
+  public MultiKey postGroups(JsonNode body) {
+    
+    JsonNode groupJsonNode = body;
+
+    //check require args
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(groupJsonNode, "displayName")) > 0, "displayName is required");
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(groupJsonNode, "displayName")) <= 256, "displayName must be less than 256");
+    
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(groupJsonNode, "description")) <= 1024, "description must be less than 1024");
+
+    GrouperUtil.assertion(GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "mailEnabled") != null, "mailEnabled is required");
+
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(groupJsonNode, "mailNickname")) <= 64, "mailNickname must be less than 64");
+
+    GrouperUtil.assertion(GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "securityEnabled") != null, "securityEnabled is required");
+
+    String visibility = GrouperUtil.jsonJacksonGetString(groupJsonNode, "visibility");
+
+    if (visibility != null) {
+      GrouperUtil.assertion(GrouperUtil.toSet("Private", "Public", "HiddenMembership", "Public").contains(visibility), "visibility must be one of: 'Private', 'Public', 'HiddenMembership', 'Public', but was: '" + visibility + "'");
+    }
+
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(groupJsonNode, "id")) == 0, "id is forbidden");
+
+    GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromJson(groupJsonNode);
+    grouperAzureGroup.setId(GrouperUuid.getUuid());
+    
+    HibernateSession.byObjectStatic().save(grouperAzureGroup);
+    
+    JsonNode resultNode = grouperAzureGroup.toJson(null);
+    
+    return new MultiKey(201, resultNode);
+
+//    mockServiceResponse.setResponseCode(201);
+//    mockServiceResponse.setContentType("application/json");
+//    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
   }
 
   public void postGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -272,6 +594,31 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     
   }
   
+  public MultiKey postUsers(JsonNode body) {
+    
+    JsonNode userJsonNode = body;
+
+    //check require args
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "displayName")) > 0, "displayName is required");
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "displayName")) <= 256, "displayName must be less than 256");
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "mailNickname")) <= 64, "mailNickname must be less than 64");
+    GrouperUtil.assertion(GrouperUtil.jsonJacksonGetBoolean(userJsonNode, "accountEnabled") != null, "accountEnabled is required");
+    
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "userPrincipalName")) > 0, "userPrincipalName is required");
+
+
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "id")) == 0, "id is forbidden");
+
+    GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromJson(userJsonNode);
+    grouperAzureUser.setId(GrouperUuid.getUuid());
+    
+    HibernateSession.byObjectStatic().save(grouperAzureUser);
+    
+    JsonNode resultNode = grouperAzureUser.toJson(null);
+    
+    return new MultiKey(201, resultNode);
+  }
+  
   public void postUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     checkAuthorization(mockServiceRequest);
 
@@ -313,6 +660,62 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseCode(201);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+    
+  }
+  
+  public MultiKey getGroups(String filter, String fieldsToRetrieveString) {
+    
+    List<GrouperAzureGroup> grouperAzureGroups = null;
+    
+    if (StringUtils.isBlank(filter)) {
+      grouperAzureGroups = HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class);
+    } else {
+      //      $filter=" + GrouperUtil.escapeUrlEncode(fieldName)
+      //          + "%20eq%20'" + GrouperUtil.escapeUrlEncode(fieldValue)
+      //displayName eq 'something'
+      Pattern fieldPattern = Pattern.compile("^([^\\s]+)\\s+eq\\s+'(.+)'$");
+      Matcher matcher = fieldPattern.matcher(filter);
+      GrouperUtil.assertion(matcher.matches(), "doesnt match regex '" + filter + "'");
+      String field = matcher.group(1);
+      String value = matcher.group(2);
+      GrouperUtil.assertion(field.matches("^[a-zA-Z0-9]+$"), "field must be alphanumeric '" + field + "'");
+      grouperAzureGroups = HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup where " + field + " = :theValue").setString("theValue", value).list(GrouperAzureGroup.class);
+    }
+    
+    //  {
+    //    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#groups",
+    //    "value": [
+    //      {
+    //        "id": "11111111-2222-3333-4444-555555555555",
+    //        "mail": "group1@contoso.com",
+    //        "mailEnabled": true,
+    //        "mailNickname": "ContosoGroup1",
+    //        "securityEnabled": true
+    //      }
+    //    ]
+    //  }
+    
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
+    
+    String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        "grouper.azureConnector.myAzure.resourceEndpoint");
+
+    resultNode.put("@odata.context", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/$metadata#groups");
+    
+    Set<String> fieldsToRetrieve = null;
+//    String fieldsToRetrieveString = mockServiceRequest.getHttpServletRequest().getParameter("$select");
+    if (!StringUtils.isBlank(fieldsToRetrieveString)) {
+      fieldsToRetrieve = GrouperUtil.toSet(GrouperUtil.split(fieldsToRetrieveString, ","));
+    }
+    
+    for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
+      valueNode.add(grouperAzureGroup.toJson(fieldsToRetrieve));
+    }
+    
+    resultNode.set("value", valueNode);
+    
+    return new MultiKey(200, resultNode);
     
   }
 
@@ -378,6 +781,47 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+  }
+  
+  public MultiKey getGroup(String groupId, String fieldsToRetrieveString) {
+    
+    GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "id is required");
+    
+    List<GrouperAzureGroup> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup where id = :theId")
+        .setString("theId", groupId).list(GrouperAzureGroup.class);
+
+    if (GrouperUtil.length(grouperAzureGroups) == 1) {
+//      mockServiceResponse.setResponseCode(200);
+
+      //  {
+      //    "id": "11111111-2222-3333-4444-555555555555",
+      //    "mail": "group1@contoso.com",
+      //    "mailEnabled": true,
+      //    "mailNickname": "ContosoGroup1",
+      //    "securityEnabled": true
+      //  }
+      
+      Set<String> fieldsToRetrieve = null;
+//      String fieldsToRetrieveString = mockServiceRequest.getHttpServletRequest().getParameter("$select");
+      if (!StringUtils.isBlank(fieldsToRetrieveString)) {
+        fieldsToRetrieve = GrouperUtil.toSet(GrouperUtil.split(fieldsToRetrieveString, ","));
+      }
+
+//      mockServiceResponse.setContentType("application/json");
+
+      ObjectNode objectNode = grouperAzureGroups.get(0).toJson(fieldsToRetrieve);
+//      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
+      
+      return new MultiKey(200, objectNode);
+
+    } else if (GrouperUtil.length(grouperAzureGroups) == 0) {
+//      mockServiceResponse.setResponseCode(404);
+      return new MultiKey(404, null);
+    } else {
+      throw new RuntimeException("groupsById: " + GrouperUtil.length(grouperAzureGroups) + ", id: " + groupId);
+    }
+    
+    
   }
   
   public void getGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -517,7 +961,31 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     
   }
 
+  
+  public MultiKey deleteGroups(String groupId) {
+    
+    String id = groupId;
+    
+    GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
 
+    int membershipsDeleted = HibernateSession.byHqlStatic()
+        .createQuery("delete from GrouperAzureMembership where groupId = :theId")
+        .setString("theId", id).executeUpdateInt();
+    
+    int groupsDeleted = HibernateSession.byHqlStatic()
+        .createQuery("delete from GrouperAzureGroup where id = :theId")
+        .setString("theId", id).executeUpdateInt();
+
+    if (groupsDeleted == 1) {
+      return new MultiKey(204, null);
+    } else if (groupsDeleted == 0) {
+      return new MultiKey(404, null);
+    } else {
+      throw new RuntimeException("groupsDeleted: " + groupsDeleted);
+    }
+  }
+  
+  
   public void deleteGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     checkAuthorization(mockServiceRequest);
 
@@ -576,7 +1044,62 @@ public class AzureMockServiceHandler extends MockServiceHandler {
         
   }
 
-
+  public MultiKey getUsers(String filter, String fieldsToRetrieveString) {
+    
+    List<GrouperAzureUser> grouperAzureUsers = null;
+    
+    if (StringUtils.isBlank(filter)) {
+      grouperAzureUsers = HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class);
+    } else {
+      //      $filter=" + GrouperUtil.escapeUrlEncode(fieldName)
+      //          + "%20eq%20'" + GrouperUtil.escapeUrlEncode(fieldValue)
+      //displayName eq 'something'
+      Pattern fieldPattern = Pattern.compile("^([^\\s]+)\\s+eq\\s+'(.+)'$");
+      Matcher matcher = fieldPattern.matcher(filter);
+      GrouperUtil.assertion(matcher.matches(), "doesnt match regex '" + filter + "'");
+      String field = matcher.group(1);
+      String value = matcher.group(2);
+      GrouperUtil.assertion(field.matches("^[a-zA-Z0-9]+$"), "field must be alphanumeric '" + field + "'");
+      grouperAzureUsers = HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser where " + field + " = :theValue").setString("theValue", value).list(GrouperAzureUser.class);
+    }
+    
+    //  {
+    //    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#groups",
+    //    "value": [
+    //      {
+    //        "id": "11111111-2222-3333-4444-555555555555",
+    //        "mail": "group1@contoso.com",
+    //        "mailEnabled": true,
+    //        "mailNickname": "ContosoGroup1",
+    //        "securityEnabled": true
+    //      }
+    //    ]
+    //  }
+    
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
+    
+    Set<String> fieldsToRetrieve = null;
+//    String fieldsToRetrieveString = mockServiceRequest.getHttpServletRequest().getParameter("$select");
+    if (!StringUtils.isBlank(fieldsToRetrieveString)) {
+      fieldsToRetrieve = GrouperUtil.toSet(GrouperUtil.split(fieldsToRetrieveString, ","));
+    }
+    
+    for (GrouperAzureUser grouperAzureUser : grouperAzureUsers) {
+      valueNode.add(grouperAzureUser.toJson(fieldsToRetrieve));
+    }
+    
+    resultNode.set("value", valueNode);
+    
+//    mockServiceResponse.setResponseCode(200);
+//    mockServiceResponse.setContentType("application/json");
+//    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+    
+    return new MultiKey(200, resultNode);
+    
+  }
+  
+  
   public void getUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
   
     checkAuthorization(mockServiceRequest);
@@ -636,7 +1159,6 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
   }
 
-
   public void getUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
   
     checkAuthorization(mockServiceRequest);
@@ -676,6 +1198,65 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       throw new RuntimeException("usersById: " + GrouperUtil.length(grouperAzureUsers) + ", id: " + id);
     }
   
+  }
+  
+  public MultiKey patchGroups(JsonNode requestJsonNode, String groupId) {
+    
+    if (requestJsonNode.has("members@odata.bind")) {
+      return patchMemberships(groupId, requestJsonNode);
+    }
+    
+    List<GrouperAzureGroup> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperAzureGroup where id = :theId")
+        .setString("theId", groupId).list(GrouperAzureGroup.class);
+    
+    if (GrouperUtil.length(grouperAzureGroups) == 0) {
+      return new MultiKey(404, null);
+    }
+    if (GrouperUtil.length(grouperAzureGroups) > 1) {
+      throw new RuntimeException("Found multiple matched groups! " + GrouperUtil.length(grouperAzureGroups));
+    }
+    GrouperAzureGroup grouperAzureGroup = grouperAzureGroups.get(0);
+
+    // only update fields if they are in the patch
+    if (requestJsonNode.has("description")) {
+      grouperAzureGroup.setDescription(GrouperUtil.jsonJacksonGetString(requestJsonNode, "description"));
+    }
+    if (requestJsonNode.has("displayName")) {
+      grouperAzureGroup.setDisplayName(GrouperUtil.jsonJacksonGetString(requestJsonNode, "displayName"));
+    }
+    if (requestJsonNode.has("groupTypes")) {
+      ArrayNode groupTypesArrayNode = (ArrayNode)requestJsonNode.get("groupTypes");
+      Set<String> groupTypesSet = new HashSet<String>();
+      for (int i=0;i<groupTypesArrayNode.size();i++) {
+        String groupType = groupTypesArrayNode.get(i).asText();
+        groupTypesSet.add(groupType);
+      }
+     
+      grouperAzureGroup.setGroupTypeUnified(groupTypesSet.contains("Unified"));
+      grouperAzureGroup.setGroupTypeDynamic(groupTypesSet.contains("Dynamic"));
+    }
+    if (requestJsonNode.has("id")) {
+      throw new RuntimeException("Cant update the id field!");
+    }
+    if (requestJsonNode.has("mailEnabled")) {
+      grouperAzureGroup.setMailEnabled(GrouperUtil.jsonJacksonGetBoolean(requestJsonNode, "mailEnabled"));
+    }
+    if (requestJsonNode.has("isAssignableToRole")) {
+      grouperAzureGroup.setAssignableToRole(GrouperUtil.jsonJacksonGetBoolean(requestJsonNode, "isAssignableToRole"));
+    }
+    if (requestJsonNode.has("mailNickname")) {
+      grouperAzureGroup.setMailNickname(GrouperUtil.jsonJacksonGetString(requestJsonNode, "mailNickname"));
+    }
+    if (requestJsonNode.has("securityEnabled")) {
+      grouperAzureGroup.setSecurityEnabled(GrouperUtil.jsonJacksonGetBoolean(requestJsonNode, "securityEnabled"));
+    }
+    if (requestJsonNode.has("visibility")) {
+      grouperAzureGroup.setVisibilityDb(GrouperUtil.jsonJacksonGetString(requestJsonNode, "visibility"));
+    }
+    HibernateSession.byObjectStatic().saveOrUpdate(grouperAzureGroup);
+    
+    return new MultiKey(204, null);
   }
 
   public void patchGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -755,7 +1336,66 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     
   }
   
+  public MultiKey patchMemberships(String groupId, JsonNode odataJsonNode) {
     
+    GrouperUtil.assertion(odataJsonNode.has("members@odata.bind"), "members@odata.bind is required");
+    
+    ArrayNode membersNode = (ArrayNode)odataJsonNode.get("members@odata.bind");
+
+    GrouperUtil.assertion(membersNode.size() > 0, "members@odata.bind needs elements");
+
+    int maxSize = Math.min(20, GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureMembershipPagingSize", 20));
+    
+    GrouperUtil.assertion(membersNode.size() <= maxSize, "members@odata.bind cannot be more than " + maxSize);
+
+    List<GrouperAzureGroup> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperAzureGroup where id = :theId")
+        .setString("theId", groupId).list(GrouperAzureGroup.class);
+    
+    if (GrouperUtil.length(grouperAzureGroups) == 0) {
+      return new MultiKey(404, null) ;
+    }
+    
+    int responseCode = 204;
+    
+    String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        "grouper.azureConnector.myAzure.resourceEndpoint");
+    
+    for (int i=0;i<membersNode.size();i++) {
+
+      String url = membersNode.get(i).asText();
+      GrouperUtil.assertion(url.startsWith(GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/"), "@odata.id must start with " + GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/");
+      String userId = GrouperUtil.prefixOrSuffix(url, GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/", false);
+      
+      List<GrouperAzureMembership> grouperAzureMemberships = HibernateSession.byHqlStatic().createQuery(
+          "from GrouperAzureMembership where groupId = :theGroupId and userId = :theUserId")
+          .setString("theGroupId", groupId).setString("theUserId", userId).list(GrouperAzureMembership.class);
+
+      if (GrouperUtil.length(grouperAzureMemberships) > 0) {
+        responseCode = 400;
+        continue;
+      }
+
+      List<GrouperAzureUser> grouperAzureUsers = HibernateSession.byHqlStatic().createQuery(
+          "from GrouperAzureUser where id = :theId")
+          .setString("theId", userId).list(GrouperAzureUser.class);
+      
+      if (GrouperUtil.length(grouperAzureUsers) == 0) {
+        responseCode = 404;
+        continue;
+      }
+
+      GrouperAzureMembership grouperAzureMembership = new GrouperAzureMembership();
+      grouperAzureMembership.setId(GrouperUuid.getUuid());
+      grouperAzureMembership.setGroupId(groupId);
+      grouperAzureMembership.setUserId(userId);
+      HibernateSession.byObjectStatic().save(grouperAzureMembership);
+      
+    }
+
+    return new MultiKey(responseCode, null);
+  }
+     
   public void patchMemberships(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse, JsonNode odataJsonNode) {
   
     //  PATCH https://graph.microsoft.com/v1.0/groups/{group-id}
@@ -840,6 +1480,53 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     
   }
 
+  public MultiKey postMembership(JsonNode body, String groupId) {
+    
+    JsonNode odataJsonNode = body;
+    
+    //check require args
+    GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id")) > 0, "@odata.id is required");
+
+    String resourceEndpointDirectoryObjects = GrouperUtil.stripLastSlashIfExists(GrouperLoaderConfig.retrieveConfig().propertyValueString(
+        "grouper.azureConnector.myAzure.resourceEndpoint")) + "/directoryObjects/";
+    
+    GrouperUtil.assertion(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id").startsWith(resourceEndpointDirectoryObjects), "@odata.id must start with " + resourceEndpointDirectoryObjects);
+
+    String userId = GrouperUtil.prefixOrSuffix(GrouperUtil.jsonJacksonGetString(odataJsonNode, "@odata.id"), resourceEndpointDirectoryObjects, false);
+
+    List<GrouperAzureMembership> grouperAzureMemberships = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperAzureMembership where groupId = :theGroupId and userId = :theUserId")
+        .setString("theGroupId", groupId).setString("theUserId", userId).list(GrouperAzureMembership.class);
+
+    if (GrouperUtil.length(grouperAzureMemberships) > 0) {
+      return new MultiKey(400, null) ;
+    }
+
+    List<GrouperAzureGroup> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperAzureGroup where id = :theId")
+        .setString("theId", groupId).list(GrouperAzureGroup.class);
+    
+    if (GrouperUtil.length(grouperAzureGroups) == 0) {
+      return new MultiKey(404, null) ;
+    }
+    
+    List<GrouperAzureUser> grouperAzureUsers = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperAzureUser where id = :theId")
+        .setString("theId", userId).list(GrouperAzureUser.class);
+    
+    if (GrouperUtil.length(grouperAzureUsers) == 0) {
+      return new MultiKey(404, null) ;
+    }
+
+    GrouperAzureMembership grouperAzureMembership = new GrouperAzureMembership();
+    grouperAzureMembership.setId(GrouperUuid.getUuid());
+    grouperAzureMembership.setGroupId(groupId);
+    grouperAzureMembership.setUserId(userId);
+    HibernateSession.byObjectStatic().save(grouperAzureMembership);
+    
+    return new MultiKey(204, null) ;
+    
+  }
   
   public void postMembership(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     checkAuthorization(mockServiceRequest);
@@ -906,6 +1593,39 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     
     mockServiceResponse.setResponseCode(204);
   
+    
+  }
+  
+  public MultiKey deleteMembership(String userId, String groupId) {
+    
+    //check require args
+    GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
+  
+    GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
+    
+    int deletedCount = HibernateSession.byHqlStatic().createQuery(
+        "delete from GrouperAzureMembership where groupId = :theGroupId and userId = :theUserId")
+        .setString("theGroupId", groupId).setString("theUserId", userId).executeUpdateInt();
+  
+    if (deletedCount > 0) {
+      return new MultiKey(204, null);
+    }
+  
+    List<GrouperAzureGroup> grouperAzureGroups = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperAzureGroup where id = :theId")
+        .setString("theId", groupId).list(GrouperAzureGroup.class);
+    
+    if (GrouperUtil.length(grouperAzureGroups) == 0) {
+    }
+    
+    List<GrouperAzureUser> grouperAzureUsers = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperAzureUser where id = :theId")
+        .setString("theId", userId).list(GrouperAzureUser.class);
+    
+    if (GrouperUtil.length(grouperAzureUsers) == 0) {
+    }
+
+    return new MultiKey(404, null) ;
     
   }
 
@@ -1037,6 +1757,45 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     }
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
   
+  }
+  
+  public MultiKey postUserGroups(String userId) {
+    
+    GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
+    
+    List<GrouperAzureUser> grouperAzureUsers = HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser where id = :theId or userPrincipalName = :theId2")
+        .setString("theId", userId).setString("theId2", userId).list(GrouperAzureUser.class);
+  
+    if (GrouperUtil.length(grouperAzureUsers) == 1) {
+      //  {
+      //    "value": [
+      //      "11111111-2222-3333-4444-555555555555",
+      //      "12334-3452-43345-352345345-345345345"]
+      //  }
+
+      int azureGetUserGroupsMax = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetUserGroupsMax", 2046);
+
+      List<GrouperAzureMembership> grouperAzureMemberships = HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership where userId = :theUserId")
+        .setString("theUserId", userId).options(QueryOptions.create("userId", true, 1, azureGetUserGroupsMax)).list(GrouperAzureMembership.class);
+        
+  
+      ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
+      if (GrouperUtil.length(grouperAzureMemberships) > 0) {
+        ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
+        for (GrouperAzureMembership grouperAzureMembership : grouperAzureMemberships) {
+          valueNode.add(grouperAzureMembership.getGroupId());
+        }
+        objectNode.set("value", valueNode);
+      }
+      
+      return new MultiKey(200, objectNode);
+  
+    } else if (GrouperUtil.length(grouperAzureUsers) == 0) {
+      return new MultiKey(404, null);
+    } else {
+      throw new RuntimeException("usersById: " + GrouperUtil.length(grouperAzureUsers) + ", id: " + userId);
+    }
+    
   }
 
   /**

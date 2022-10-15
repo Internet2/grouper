@@ -2206,16 +2206,17 @@ public class UiV2Provisioning {
     for (GrouperProvisioningObjectMetadataItem metadataItem: metadataItems) {
 
       String name = metadataItem.getName();
-      String value = request.getParameter(name);
-      String[] values = request.getParameterValues(name+"[]");
+      String value = null;
+      String[] values = null;
       
       if (metadataItem.getFormElementType() == GrouperProvisioningObjectMetadataItemFormElementType.CHECKBOX) {
-        
+        values = request.getParameterValues(name+"[]");
         if (metadataItem.isRequired() && GrouperUtil.length(values) == 0) {
           errors = true;
         }
         
       } else {
+        value = request.getParameter(name);
         if (metadataItem.isRequired() && StringUtils.isBlank(value)) {
           errors = true;
         }

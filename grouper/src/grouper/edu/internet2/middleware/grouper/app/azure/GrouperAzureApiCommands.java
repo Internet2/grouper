@@ -298,7 +298,7 @@ public class GrouperAzureApiCommands {
               
               groupToMayBeException.put(grouperAzureGroup, new RuntimeException(error.toString()));
               
-            } else {
+            } else { 
             
               GrouperAzureGroup grouperAzureGroupResult = GrouperAzureGroup.fromJson(bodyNode);
               
