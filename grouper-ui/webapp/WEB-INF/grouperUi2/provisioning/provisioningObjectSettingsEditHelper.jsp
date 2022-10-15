@@ -44,7 +44,8 @@
                           <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperDeprovisioningDeprovisionId">${textContainer.text['provisioningProvisionLabel']}</label></strong></td>
                             <td>
-                              <select name="provisioningProvisionName" id="provisioningProvisionId" style="width: 30em">
+                              <select name="provisioningProvisionName" id="provisioningProvisionId" style="width: 30em"
+                                onchange="ajax('../app/UiV2Provisioning.editProvisioningOn${ObjectType}', {formIds: 'editProvisioningFormId'}); return false;">
                                 <option value="true" ${grouperRequestContainer.provisioningContainer.grouperProvisioningAttributeValue.doProvision ? 'selected="selected"'  : '' }>${textContainer.textEscapeXml['provisioningYesProvisionLabel']}</option>
                                 <option value="false" ${grouperRequestContainer.provisioningContainer.grouperProvisioningAttributeValue.doProvision ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['provisioningNoDontProvisionLabel']}</option>
                               </select>
@@ -55,6 +56,8 @@
                           
                           <c:if test="${ObjectType == 'Folder' }">
                           
+                           <c:if test="${grouperRequestContainer.provisioningContainer.grouperProvisioningAttributeValue.doProvision}">
+                           
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisioningStemScopeId">${textContainer.text['provisioningStemScopeLabel']}</label></strong></td>
                               <td>
@@ -66,23 +69,29 @@
                                 <span class="description">${textContainer.text['provisioningStemScopeHint']}</span>
                               </td>
                             </tr>
+                           
+                           </c:if>
+                          
                           </c:if>
                           
-                          <c:forEach items="${grouperRequestContainer.provisioningContainer.grouperProvisioningObjectMetadataItems}" var="metadataItem">
-			  				
-            			  				<grouper:provisioningMetadataItemFormElement
-            			  				    name="${metadataItem.name}"
-            			  					formElementType="${metadataItem.formElementType}" 
-            			  					labelKey="${metadataItem.labelKey}"
-            			  					descriptionKey="${metadataItem.descriptionKey}"
-            			  					required="${metadataItem.required}"
-            			  					value="${metadataItem.defaultValue}"
-            			  					readOnly="${metadataItem.readOnly}"
-            			  					valuesAndLabels="${metadataItem.keysAndLabelsForDropdown}"
-                              ajaxCallback="ajax('../app/UiV2Provisioning.editProvisioningOn${ObjectType}', {formIds: 'editProvisioningFormId'}); return false;"
-            			  				/>
-			  				
-			  		             </c:forEach>
+                          <c:if test="${grouperRequestContainer.provisioningContainer.grouperProvisioningAttributeValue.doProvision}">
+                          
+                            <c:forEach items="${grouperRequestContainer.provisioningContainer.grouperProvisioningObjectMetadataItems}" var="metadataItem">
+  			  				
+              			  				<grouper:provisioningMetadataItemFormElement
+              			  				    name="${metadataItem.name}"
+              			  					formElementType="${metadataItem.formElementType}" 
+              			  					labelKey="${metadataItem.labelKey}"
+              			  					descriptionKey="${metadataItem.descriptionKey}"
+              			  					required="${metadataItem.required}"
+              			  					value="${metadataItem.defaultValue}"
+              			  					readOnly="${metadataItem.readOnly}"
+              			  					valuesAndLabels="${metadataItem.keysAndLabelsForDropdown}"
+                                ajaxCallback="ajax('../app/UiV2Provisioning.editProvisioningOn${ObjectType}', {formIds: 'editProvisioningFormId'}); return false;"
+              			  				/>
+  			  				
+  			  		             </c:forEach>
+                         </c:if>
                           
                         </c:if>
 

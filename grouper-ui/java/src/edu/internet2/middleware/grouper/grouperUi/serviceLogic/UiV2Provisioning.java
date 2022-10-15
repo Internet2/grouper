@@ -3,10 +3,8 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -1161,8 +1159,10 @@ public class UiV2Provisioning {
 //      }
         
       String shouldDoProvisionString = request.getParameter("provisioningProvisionName");
-      boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
-      provisioningAttributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);
+      if (StringUtils.isNotBlank(shouldDoProvisionString)) {
+        boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
+        provisioningAttributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);
+      }
       
       String stemScopeString = request.getParameter("provisioningStemScopeName");
       provisioningAttributeValue.setStemScopeString(stemScopeString);
