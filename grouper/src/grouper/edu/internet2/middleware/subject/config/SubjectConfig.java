@@ -171,332 +171,337 @@ public class SubjectConfig extends ConfigPropertiesCascadeBase {
   
   private Source loadSourceConfigs(String sourceConfigId) {
 
-    //  # the adapter class implements the interface: edu.internet2.middleware.subject.Source
-    //  # generally the adapter class should extend: edu.internet2.middleware.subject.provider.BaseSourceAdapter
-    //  # edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2  :  if doing JDBC this should be used if possible.  All subject data in one table/view.
-    //  # edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter   :  oldest JDBC source.  Put freeform queries in here
-    //  # edu.internet2.middleware.grouper.subj.GrouperJndiSourceAdapter   :  used for LDAP
-    //  # subjectApi.source.<configName>.adapterClass = 
-
-    BaseSourceAdapter source = null;
-    
-    {
-    
-      String adapterClassName = propertyValueString("subjectApi.source." + sourceConfigId + ".adapterClass");
+    try {
+      //  # the adapter class implements the interface: edu.internet2.middleware.subject.Source
+      //  # generally the adapter class should extend: edu.internet2.middleware.subject.provider.BaseSourceAdapter
+      //  # edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter2  :  if doing JDBC this should be used if possible.  All subject data in one table/view.
+      //  # edu.internet2.middleware.grouper.subj.GrouperJdbcSourceAdapter   :  oldest JDBC source.  Put freeform queries in here
+      //  # edu.internet2.middleware.grouper.subj.GrouperJndiSourceAdapter   :  used for LDAP
+      //  # subjectApi.source.<configName>.adapterClass = 
+  
+      BaseSourceAdapter source = null;
       
-      Class<?> adapterClassClass = SubjectUtils.forName(adapterClassName);
-      source = (BaseSourceAdapter)SubjectUtils.newInstance(adapterClassClass);
-    }              
-
-    source.setConfigId(sourceConfigId);
-    
-    {
-      //  # generally the <configName> is the same as the source id.  Generally this should not have special characters
-      //  # subjectApi.source.<configName>.id = sourceId
-      String sourceId = propertyValueStringRequired("subjectApi.source." + sourceConfigId + ".id");
-      source.setId(sourceId);
-    }
-
-    {
-      //  # this is a friendly name for the source
-      //  # subjectApi.source.<configName>.name = sourceName
-      String sourceName = propertyValueStringRequired("subjectApi.source." + sourceConfigId + ".name");
-      source.setName(sourceName);
-    }
-
-    {
-      //  # type is not used all that much 
-      //  # subjectApi.source.<configName>.types = person, application
-      String sourceTypes = propertyValueString("subjectApi.source." + sourceConfigId + ".types");
-      if (!StringUtils.isEmpty(sourceTypes)) {
-        for (String sourceType : SubjectUtils.splitTrim(sourceTypes, ",")) {
-          source.addSubjectType(sourceType);
-        }
-      }
-    }
-
-    {
-      //params (note, name is optional and generally not there)
-      //  # subjectApi.source.<configName>.param.throwErrorOnFindAllFailure.value = true
-      for (String paramValueKey : this.propertyNames()) {
+      {
+      
+        String adapterClassName = propertyValueString("subjectApi.source." + sourceConfigId + ".adapterClass");
         
-        if (paramValueKey.startsWith("subjectApi.source." + sourceConfigId + ".param") 
-            && paramValueKey.endsWith(".value") ) {
-          String paramValue = propertyValueString(paramValueKey);
-          Matcher paramValueMatcher = paramValueConfigPattern.matcher(paramValueKey);
-          paramValueMatcher.matches();
-          String paramConfigId = paramValueMatcher.group(1);
-          String paramName = propertyValueString("subjectApi.source." + sourceConfigId + ".param." + paramConfigId + ".name");
-          if (StringUtils.isBlank(paramName)) {
-            paramName = paramConfigId;
+        Class<?> adapterClassClass = SubjectUtils.forName(adapterClassName);
+        source = (BaseSourceAdapter)SubjectUtils.newInstance(adapterClassClass);
+      }              
+  
+      source.setConfigId(sourceConfigId);
+      
+      {
+        //  # generally the <configName> is the same as the source id.  Generally this should not have special characters
+        //  # subjectApi.source.<configName>.id = sourceId
+        String sourceId = propertyValueStringRequired("subjectApi.source." + sourceConfigId + ".id");
+        source.setId(sourceId);
+      }
+  
+      {
+        //  # this is a friendly name for the source
+        //  # subjectApi.source.<configName>.name = sourceName
+        String sourceName = propertyValueStringRequired("subjectApi.source." + sourceConfigId + ".name");
+        source.setName(sourceName);
+      }
+  
+      {
+        //  # type is not used all that much 
+        //  # subjectApi.source.<configName>.types = person, application
+        String sourceTypes = propertyValueString("subjectApi.source." + sourceConfigId + ".types");
+        if (!StringUtils.isEmpty(sourceTypes)) {
+          for (String sourceType : SubjectUtils.splitTrim(sourceTypes, ",")) {
+            source.addSubjectType(sourceType);
           }
-          source.addInitParam(paramName, paramValue);
         }
       }
-    }
-    
-    {
-      List<SubjectSourceConfiguration> subjectSourceConfigurations = SubjectSourceConfiguration.retrieveAllSubjectSourceConfigurations();
-      SubjectSourceConfiguration subjectSourceConfiguration = null;
-      for (SubjectSourceConfiguration subjectSourceConfig: subjectSourceConfigurations) {
-        
-        if (StringUtils.equals(subjectSourceConfig.getConfigId(), sourceConfigId)) {
-          subjectSourceConfiguration = subjectSourceConfig;
-          break;
-        }
-      }
-
-      if (subjectSourceConfiguration != null) {
-        String sqlAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".param.jdbcConfigId.value");
-        if (sqlAttribute != null) {
-          
-//          source.addInitParam("jdbcConnectionProvider", GrouperJdbcConnectionProvider.class.getName());
-          
-          String subjectIdAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.SubjectID_AttributeType.value");
-          
-          String subjectNameAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.Name_AttributeType.value");
-          
-          String subjectDescriptionAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.Description_AttributeType.value");
-          
-          String subjectEmailAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.emailAttributeName.value");
-          
-          String subjectNetIdAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.netId.value");
-          
-          String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
-                
-          if (StringUtils.isNotBlank(numberOfAttributes)) {
-            
-            int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-            for (int i=0; i<numberOfAttrs; i++) {
-              
-              String subjectAttributeNme = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
-              
-              String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translationType");
-              
-              boolean isTranslation = StringUtils.equals(translationType, "translation");
-              boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
-              
-              if(StringUtils.equals(subjectIdAttributeName, subjectAttributeNme)) {
-                
-                //source.addInitParam("subjectIDAttributeName", subjectAttributeNme);
-                
-                if (isSourceAttributeSameAsSubjectAttribute) {
-                  source.addInitParam("subjectIdCol", subjectAttributeNme);
-                } else if (isTranslation) {
-                  throw new RuntimeException("subjectId cannot be a translation field");
-                } else {
-                  String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
-                  source.addInitParam("subjectIdCol", sourceAttribute);
-                }
-              }
-              
-              if (StringUtils.equals(subjectNameAttributeName, subjectAttributeNme)) {
-                source.addInitParam("Name_AttributeType", subjectAttributeNme);
-              }
-              
-              if (StringUtils.equals(subjectDescriptionAttributeName, subjectAttributeNme)) {
-                source.addInitParam("Description_AttributeType", subjectAttributeNme);
-              }
-              
-              if (StringUtils.isNotBlank(subjectEmailAttributeName) && StringUtils.equals(subjectEmailAttributeName, subjectAttributeNme)) {
-                source.addInitParam("emailAttributeName", subjectAttributeNme);
-              }
-              
-              if (StringUtils.isNotBlank(subjectNetIdAttributeName) && StringUtils.equals(subjectNetIdAttributeName, subjectAttributeNme)) {
-                source.addInitParam("netId", subjectAttributeNme);
-              }
-              
-            }
-          }
-          
-        }
-        
-      }
-      
-    }
-    
-    {
-      //  # internal attributes are used by grouper only not exposed to code that uses subjects.  comma separated
-      //  # subjectApi.source.<configName>.internalAttributes = someName, anotherName
-      String internalAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".internalAttributes");
-      if (!StringUtils.isEmpty(internalAttributes)) {
-        for (String internalAttribute : SubjectUtils.splitTrim(internalAttributes, ",")) {
-          source.addInternalAttribute(internalAttribute);
-        }
-      }
-      
-      String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
-      if (StringUtils.isNotBlank(numberOfAttributes)) {
-        
-        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-        for (int i=0; i<numberOfAttrs; i++) {
-          
-          boolean isInternal = propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".internal", false);
-          if (isInternal) {
-            String name = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
-            if (StringUtils.isNotBlank(name)) {
-              source.addInternalAttribute(name);
-            }
-          }
-        
-        }
-        
-      }
-      
-      // if the subject identifier 0/1/2 drop downs aren't populated, we'll look at the attribute configs for backwards compatibility
-      boolean subjectIdentifiersForMemberTableFound = false;
-      String subjectIdentifierAttribute0 = propertyValueString("subjectApi.source." + sourceConfigId + ".param.subjectIdentifierAttribute0.value");
-      String subjectIdentifierAttribute1 = propertyValueString("subjectApi.source." + sourceConfigId + ".param.subjectIdentifierAttribute1.value");
-      String subjectIdentifierAttribute2 = propertyValueString("subjectApi.source." + sourceConfigId + ".param.subjectIdentifierAttribute2.value");
-      if (StringUtils.isNotBlank(subjectIdentifierAttribute0) || StringUtils.isNotBlank(subjectIdentifierAttribute1) || StringUtils.isNotBlank(subjectIdentifierAttribute2)) {
-        subjectIdentifiersForMemberTableFound = true;
-      }
-      
-      if (StringUtils.isNotBlank(numberOfAttributes)) {
-        
-        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-        Set<String> subjectIdentifiers = new TreeSet<String>();
-        for (int i=0; i<numberOfAttrs; i++) {
-          
-          String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translationType");
-          boolean isSubjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".subjectIdentifier", false);
-          
-          boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
-          boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
-          
-          if (isSubjectIdentifier) {
-            String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
-            if (isSourceAttribute) {
-              String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
-              subjectIdentifiers.add(subjectAttributeName);
-              source.addInitParam("subjectIdentifierCol"+(subjectIdentifiers.size()-1), sourceAttributeName);
-              
-              if (!subjectIdentifiersForMemberTableFound) {
-                source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
-              }
-            } else if (isSourceAttributeSameAsSubjectAttribute) {
-              subjectIdentifiers.add(subjectAttributeName);
-              source.addInitParam("subjectIdentifierCol"+(subjectIdentifiers.size()-1), subjectAttributeName);
-              
-              if (!subjectIdentifiersForMemberTableFound) {
-                source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
-              }
-            }
-          }
-        
-        }
-        
-        source.addInitParam("identifierAttributes", GrouperUtil.join(subjectIdentifiers.iterator(), ","));
-        
-      }
-      
-    }
-
-    {
-      //  # attributes from ldap object to become subject attributes.  comma separated
-      //  # subjectApi.source.<configName>.attributes = cn, sn, uid, department, exampleEduRegId
-      String attributes = propertyValueString("subjectApi.source." + sourceConfigId + ".attributes");
-      if (!StringUtils.isEmpty(attributes)) {
-        for (String attribute : SubjectUtils.splitTrim(attributes, ",")) {
-          source.addAttribute(attribute);
-        }
-      }
-      
-      String extraAttributesFromSource = propertyValueString("subjectApi.source." + sourceConfigId + ".extraAttributesFromSource");
-      if (!StringUtils.isEmpty(extraAttributesFromSource)) {
-        for (String extraAttribute : SubjectUtils.splitTrim(extraAttributesFromSource, ",")) {
-          source.addAttribute(extraAttribute);
-        }
-      }
-      
-      String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
-      if (StringUtils.isNotBlank(numberOfAttributes)) {
-        
-        int numberOfAttrs = Integer.parseInt(numberOfAttributes);
-        for (int i=0; i<numberOfAttrs; i++) {
-          
-          String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translationType");
-          
-          String subjectAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
-          
-          boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
-          boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
-          
-          if (isSourceAttributeSameAsSubjectAttribute) {
-            source.addAttribute(subjectAttributeName);
-          } else if (isSourceAttribute) {
-            String sourceAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
-            source.addAttribute(sourceAttributeName);
-          }
-          
-        }
-        
-      }
-      
-    }
-
-    //  digester.addObjectCreate("sources/source/search",
-    //      "edu.internet2.middleware.subject.provider.Search");
-    //  digester.addCallMethod("sources/source/search/searchType", "setSearchType", 0);
-    //  digester.addCallMethod("sources/source/search/param", "addParam", 2);
-    //  digester.addCallParam("sources/source/search/param/param-name", 0);
-    //  digester.addCallParam("sources/source/search/param/param-value", 1);
-    //  digester.addSetNext("sources/source/search", "loadSearch");
-
-    //  # searchTypes are: 
-    //  #   searchSubject: find a subject by ID.  ID is generally an opaque and permanent identifier, e.g. 12345678.  Each subject has one and only on ID.  Returns one result when searching for one ID.
-    //  #   searchSubjectByIdentifier: find a subject by identifier.  Identifier is anything that uniquely identifies the user, e.g. jsmith or jsmith@institution.edu.  
-    //  #        Subjects can have multiple identifiers.  Note: it is nice to have if identifiers are unique even across sources.  Returns one result when searching for one identifier.
-    //  #   search: find subjects by free form search.  Returns multiple results.
-    //  # subjectApi.source.<configName>.search.<searchType>.param.<paramName>.value = something
-    {
-      //params (note, name is optional and generally not there)
-      //  # subjectApi.source.<configName>.param.throwErrorOnFindAllFailure.value = true
-      for (String searchType : new String[] {"searchSubject", "searchSubjectByIdentifier", "search"}) {
-        
-        Search search = new Search();
-        search.setSearchType(searchType);
-        
+  
+      {
+        //params (note, name is optional and generally not there)
+        //  # subjectApi.source.<configName>.param.throwErrorOnFindAllFailure.value = true
         for (String paramValueKey : this.propertyNames()) {
           
-          //all search params has a value
-          if (paramValueKey.startsWith("subjectApi.source." + sourceConfigId + ".search." + searchType + ".param.") 
+          if (paramValueKey.startsWith("subjectApi.source." + sourceConfigId + ".param") 
               && paramValueKey.endsWith(".value") ) {
             String paramValue = propertyValueString(paramValueKey);
-            Matcher paramValueMatcher = searchParamValueConfigPattern.matcher(paramValueKey);
+            Matcher paramValueMatcher = paramValueConfigPattern.matcher(paramValueKey);
             paramValueMatcher.matches();
             String paramConfigId = paramValueMatcher.group(1);
-            String paramName = propertyValueString("subjectApi.source." + sourceConfigId + ".search." + searchType + ".param." + paramConfigId + ".name");
-            
-            //if name is not specified used the config id (most arent specified)
+            String paramName = propertyValueString("subjectApi.source." + sourceConfigId + ".param." + paramConfigId + ".name");
             if (StringUtils.isBlank(paramName)) {
               paramName = paramConfigId;
             }
-            search.addParam(paramName, paramValue);
+            source.addInitParam(paramName, paramValue);
           }
         }
-        
-        if (StringUtils.isBlank(search.getParam("base"))) {
-          String searchSubjectBase = propertyValueString("subjectApi.source." + sourceConfigId + ".search.searchSubject.param.base.value");
-          if (StringUtils.isNotBlank(searchSubjectBase)) {
-            search.addParam("base", searchSubjectBase);
-          }
-        }
-        
-        if (StringUtils.isBlank(search.getParam("scope"))) {
-          String searchSubjectScope = propertyValueString("subjectApi.source." + sourceConfigId + ".search.searchSubject.param.scope.value");
-          if (StringUtils.isNotBlank(searchSubjectScope)) {
-            search.addParam("scope", searchSubjectScope);
-          } else {
-            search.addParam("scope", "SUBTREE_SCOPE");
-          }
-        }
-        
-        source.loadSearch(search);
       }
+      
+      {
+        List<SubjectSourceConfiguration> subjectSourceConfigurations = SubjectSourceConfiguration.retrieveAllSubjectSourceConfigurations();
+        SubjectSourceConfiguration subjectSourceConfiguration = null;
+        for (SubjectSourceConfiguration subjectSourceConfig: subjectSourceConfigurations) {
+          
+          if (StringUtils.equals(subjectSourceConfig.getConfigId(), sourceConfigId)) {
+            subjectSourceConfiguration = subjectSourceConfig;
+            break;
+          }
+        }
+  
+        if (subjectSourceConfiguration != null) {
+          String sqlAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".param.jdbcConfigId.value");
+          if (sqlAttribute != null) {
+            
+  //          source.addInitParam("jdbcConnectionProvider", GrouperJdbcConnectionProvider.class.getName());
+            
+            String subjectIdAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.SubjectID_AttributeType.value");
+            
+            String subjectNameAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.Name_AttributeType.value");
+            
+            String subjectDescriptionAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.Description_AttributeType.value");
+            
+            String subjectEmailAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.emailAttributeName.value");
+            
+            String subjectNetIdAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".param.netId.value");
+            
+            String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
+                  
+            if (StringUtils.isNotBlank(numberOfAttributes)) {
+              
+              int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+              for (int i=0; i<numberOfAttrs; i++) {
+                
+                String subjectAttributeNme = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
+                
+                String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translationType");
+                
+                boolean isTranslation = StringUtils.equals(translationType, "translation");
+                boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+                
+                if(StringUtils.equals(subjectIdAttributeName, subjectAttributeNme)) {
+                  
+                  //source.addInitParam("subjectIDAttributeName", subjectAttributeNme);
+                  
+                  if (isSourceAttributeSameAsSubjectAttribute) {
+                    source.addInitParam("subjectIdCol", subjectAttributeNme);
+                  } else if (isTranslation) {
+                    throw new RuntimeException("subjectId cannot be a translation field");
+                  } else {
+                    String sourceAttribute = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+                    source.addInitParam("subjectIdCol", sourceAttribute);
+                  }
+                }
+                
+                if (StringUtils.equals(subjectNameAttributeName, subjectAttributeNme)) {
+                  source.addInitParam("Name_AttributeType", subjectAttributeNme);
+                }
+                
+                if (StringUtils.equals(subjectDescriptionAttributeName, subjectAttributeNme)) {
+                  source.addInitParam("Description_AttributeType", subjectAttributeNme);
+                }
+                
+                if (StringUtils.isNotBlank(subjectEmailAttributeName) && StringUtils.equals(subjectEmailAttributeName, subjectAttributeNme)) {
+                  source.addInitParam("emailAttributeName", subjectAttributeNme);
+                }
+                
+                if (StringUtils.isNotBlank(subjectNetIdAttributeName) && StringUtils.equals(subjectNetIdAttributeName, subjectAttributeNme)) {
+                  source.addInitParam("netId", subjectAttributeNme);
+                }
+                
+              }
+            }
+            
+          }
+          
+        }
+        
+      }
+      
+      {
+        //  # internal attributes are used by grouper only not exposed to code that uses subjects.  comma separated
+        //  # subjectApi.source.<configName>.internalAttributes = someName, anotherName
+        String internalAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".internalAttributes");
+        if (!StringUtils.isEmpty(internalAttributes)) {
+          for (String internalAttribute : SubjectUtils.splitTrim(internalAttributes, ",")) {
+            source.addInternalAttribute(internalAttribute);
+          }
+        }
+        
+        String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
+        if (StringUtils.isNotBlank(numberOfAttributes)) {
+          
+          int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+          for (int i=0; i<numberOfAttrs; i++) {
+            
+            boolean isInternal = propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".internal", false);
+            if (isInternal) {
+              String name = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
+              if (StringUtils.isNotBlank(name)) {
+                source.addInternalAttribute(name);
+              }
+            }
+          
+          }
+          
+        }
+        
+        // if the subject identifier 0/1/2 drop downs aren't populated, we'll look at the attribute configs for backwards compatibility
+        boolean subjectIdentifiersForMemberTableFound = false;
+        String subjectIdentifierAttribute0 = propertyValueString("subjectApi.source." + sourceConfigId + ".param.subjectIdentifierAttribute0.value");
+        String subjectIdentifierAttribute1 = propertyValueString("subjectApi.source." + sourceConfigId + ".param.subjectIdentifierAttribute1.value");
+        String subjectIdentifierAttribute2 = propertyValueString("subjectApi.source." + sourceConfigId + ".param.subjectIdentifierAttribute2.value");
+        if (StringUtils.isNotBlank(subjectIdentifierAttribute0) || StringUtils.isNotBlank(subjectIdentifierAttribute1) || StringUtils.isNotBlank(subjectIdentifierAttribute2)) {
+          subjectIdentifiersForMemberTableFound = true;
+        }
+        
+        if (StringUtils.isNotBlank(numberOfAttributes)) {
+          
+          int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+          Set<String> subjectIdentifiers = new TreeSet<String>();
+          for (int i=0; i<numberOfAttrs; i++) {
+            
+            String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translationType");
+            boolean isSubjectIdentifier = SubjectConfig.retrieveConfig().propertyValueBoolean("subjectApi.source." + sourceConfigId + ".attribute."+i+".subjectIdentifier", false);
+            
+            boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+            boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+            
+            if (isSubjectIdentifier) {
+              String subjectAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
+              if (isSourceAttribute) {
+                String sourceAttributeName = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+                subjectIdentifiers.add(subjectAttributeName);
+                source.addInitParam("subjectIdentifierCol"+(subjectIdentifiers.size()-1), sourceAttributeName);
+                
+                if (!subjectIdentifiersForMemberTableFound) {
+                  source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
+                }
+              } else if (isSourceAttributeSameAsSubjectAttribute) {
+                subjectIdentifiers.add(subjectAttributeName);
+                source.addInitParam("subjectIdentifierCol"+(subjectIdentifiers.size()-1), subjectAttributeName);
+                
+                if (!subjectIdentifiersForMemberTableFound) {
+                  source.addInitParam("subjectIdentifierAttribute"+(subjectIdentifiers.size()-1), subjectAttributeName);
+                }
+              }
+            }
+          
+          }
+          
+          source.addInitParam("identifierAttributes", GrouperUtil.join(subjectIdentifiers.iterator(), ","));
+          
+        }
+        
+      }
+  
+      {
+        //  # attributes from ldap object to become subject attributes.  comma separated
+        //  # subjectApi.source.<configName>.attributes = cn, sn, uid, department, exampleEduRegId
+        String attributes = propertyValueString("subjectApi.source." + sourceConfigId + ".attributes");
+        if (!StringUtils.isEmpty(attributes)) {
+          for (String attribute : SubjectUtils.splitTrim(attributes, ",")) {
+            source.addAttribute(attribute);
+          }
+        }
+        
+        String extraAttributesFromSource = propertyValueString("subjectApi.source." + sourceConfigId + ".extraAttributesFromSource");
+        if (!StringUtils.isEmpty(extraAttributesFromSource)) {
+          for (String extraAttribute : SubjectUtils.splitTrim(extraAttributesFromSource, ",")) {
+            source.addAttribute(extraAttribute);
+          }
+        }
+        
+        String numberOfAttributes = propertyValueString("subjectApi.source." + sourceConfigId + ".numberOfAttributes");
+        if (StringUtils.isNotBlank(numberOfAttributes)) {
+          
+          int numberOfAttrs = Integer.parseInt(numberOfAttributes);
+          for (int i=0; i<numberOfAttrs; i++) {
+            
+            String translationType = SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".translationType");
+            
+            String subjectAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".name");
+            
+            boolean isSourceAttributeSameAsSubjectAttribute = StringUtils.equals(translationType, "sourceAttributeSameAsSubjectAttribute");
+            boolean isSourceAttribute = StringUtils.equals(translationType, "sourceAttribute");
+            
+            if (isSourceAttributeSameAsSubjectAttribute) {
+              source.addAttribute(subjectAttributeName);
+            } else if (isSourceAttribute) {
+              String sourceAttributeName = propertyValueString("subjectApi.source." + sourceConfigId + ".attribute."+i+".sourceAttribute");
+              source.addAttribute(sourceAttributeName);
+            }
+            
+          }
+          
+        }
+        
+      }
+  
+      //  digester.addObjectCreate("sources/source/search",
+      //      "edu.internet2.middleware.subject.provider.Search");
+      //  digester.addCallMethod("sources/source/search/searchType", "setSearchType", 0);
+      //  digester.addCallMethod("sources/source/search/param", "addParam", 2);
+      //  digester.addCallParam("sources/source/search/param/param-name", 0);
+      //  digester.addCallParam("sources/source/search/param/param-value", 1);
+      //  digester.addSetNext("sources/source/search", "loadSearch");
+  
+      //  # searchTypes are: 
+      //  #   searchSubject: find a subject by ID.  ID is generally an opaque and permanent identifier, e.g. 12345678.  Each subject has one and only on ID.  Returns one result when searching for one ID.
+      //  #   searchSubjectByIdentifier: find a subject by identifier.  Identifier is anything that uniquely identifies the user, e.g. jsmith or jsmith@institution.edu.  
+      //  #        Subjects can have multiple identifiers.  Note: it is nice to have if identifiers are unique even across sources.  Returns one result when searching for one identifier.
+      //  #   search: find subjects by free form search.  Returns multiple results.
+      //  # subjectApi.source.<configName>.search.<searchType>.param.<paramName>.value = something
+      {
+        //params (note, name is optional and generally not there)
+        //  # subjectApi.source.<configName>.param.throwErrorOnFindAllFailure.value = true
+        for (String searchType : new String[] {"searchSubject", "searchSubjectByIdentifier", "search"}) {
+          
+          Search search = new Search();
+          search.setSearchType(searchType);
+          
+          for (String paramValueKey : this.propertyNames()) {
+            
+            //all search params has a value
+            if (paramValueKey.startsWith("subjectApi.source." + sourceConfigId + ".search." + searchType + ".param.") 
+                && paramValueKey.endsWith(".value") ) {
+              String paramValue = propertyValueString(paramValueKey);
+              Matcher paramValueMatcher = searchParamValueConfigPattern.matcher(paramValueKey);
+              paramValueMatcher.matches();
+              String paramConfigId = paramValueMatcher.group(1);
+              String paramName = propertyValueString("subjectApi.source." + sourceConfigId + ".search." + searchType + ".param." + paramConfigId + ".name");
+              
+              //if name is not specified used the config id (most arent specified)
+              if (StringUtils.isBlank(paramName)) {
+                paramName = paramConfigId;
+              }
+              search.addParam(paramName, paramValue);
+            }
+          }
+          
+          if (StringUtils.isBlank(search.getParam("base"))) {
+            String searchSubjectBase = propertyValueString("subjectApi.source." + sourceConfigId + ".search.searchSubject.param.base.value");
+            if (StringUtils.isNotBlank(searchSubjectBase)) {
+              search.addParam("base", searchSubjectBase);
+            }
+          }
+          
+          if (StringUtils.isBlank(search.getParam("scope"))) {
+            String searchSubjectScope = propertyValueString("subjectApi.source." + sourceConfigId + ".search.searchSubject.param.scope.value");
+            if (StringUtils.isNotBlank(searchSubjectScope)) {
+              search.addParam("scope", searchSubjectScope);
+            } else {
+              search.addParam("scope", "SUBTREE_SCOPE");
+            }
+          }
+          
+          source.loadSearch(search);
+        }
+      }
+      
+      return source;
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, "Problem with subject source '" + sourceConfigId + "'");
+      throw re;
     }
-    
-    return source;
   }
   
   /**
