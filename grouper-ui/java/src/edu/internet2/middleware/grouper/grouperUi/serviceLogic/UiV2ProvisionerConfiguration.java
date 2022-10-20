@@ -1044,7 +1044,14 @@ public class UiV2ProvisionerConfiguration {
           Map<String, Object> provisionerSuffixToValue = new HashMap<>();
           Map<String, GrouperConfigurationModuleAttribute> attributes = provisionerConfiguration.retrieveAttributes();
           for (String key: startWithAttributes.keySet()) {
-            String startWithValue = startWithAttributes.get(key).getValue();
+            
+            GrouperConfigurationModuleAttribute startWithAttribute = startWithAttributes.get(key);
+            
+            String startWithValue = startWithAttribute.getValue();
+            if (StringUtils.isBlank(startWithValue) && StringUtils.isNotBlank(startWithAttribute.getDefaultValue())) {
+              startWithValue = startWithAttribute.getDefaultValue();
+            }
+            
             configSuffixToValues.put(key, startWithValue);
             
             if (attributes.containsKey(key)) {
