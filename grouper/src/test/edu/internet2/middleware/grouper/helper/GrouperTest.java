@@ -77,6 +77,7 @@ import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -1072,12 +1073,43 @@ public class GrouperTest extends TestCase {
   }
   
   /**
+   * 
+   */
+  private static Thread shutdownDelayThread = new Thread(new Runnable() {
+
+    @Override
+    public void run() {
+
+      // dont call GrouperUtil.sleep since it will print stack on interruption
+      // delay in case another test started up and we dont want Grouper to shot down
+      try {
+        Thread.sleep(5000);
+        
+      } catch (InterruptedException ie) {
+        // this means another test started
+        return;
+      }
+      
+      GrouperShutdown.shutdown();
+      
+    }
+    
+  });
+  
+  /**
    * if prompted user to see if db ok to make changes
    */
   private static boolean promptedUserToSeeIfOk = false;
   
   // @since   1.2.0
   protected void setUp () {
+    
+    try {
+      shutdownDelayThread.interrupt();
+    } catch (Throwable e) {
+      //ignore
+    }
+    
     LOG.debug("setUp");
 
     GrouperCacheUtils.clearAllCaches();
@@ -1545,6 +1577,13 @@ public class GrouperTest extends TestCase {
     LOG.debug("tearDown");
     GrouperLoader.shutdownIfStarted();
     GrouperPluginManager.shutdownIfStarted();
+    if (!shutdownDelayThread.isAlive()) {
+      try {
+        shutdownDelayThread.start();
+      } catch (Throwable t) {
+        
+      }
+    }
   } 
 
 
