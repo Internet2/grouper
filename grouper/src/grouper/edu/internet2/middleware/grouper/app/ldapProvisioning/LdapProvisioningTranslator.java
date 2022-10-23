@@ -21,6 +21,28 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
 
+  @Override
+  public boolean shouldTranslateEntityAttribute(
+      ProvisioningEntityWrapper provisioningEntityWrapper,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    if (grouperProvisioningConfigurationAttribute != null
+        && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
+      return true;
+    }
+    return super.shouldTranslateEntityAttribute(provisioningEntityWrapper, grouperProvisioningConfigurationAttribute);
+  }
+
+  @Override
+  public boolean shouldTranslateGroupAttribute(
+      ProvisioningGroupWrapper provisioningGroupWrapper,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    if (grouperProvisioningConfigurationAttribute != null
+        && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
+      return true;
+    }
+    return super.shouldTranslateGroupAttribute(provisioningGroupWrapper, grouperProvisioningConfigurationAttribute);
+  }
+
   /**
    * we need the rdn to be evaled before the dn
    */
