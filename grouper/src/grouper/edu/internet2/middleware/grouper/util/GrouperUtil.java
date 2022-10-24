@@ -149,6 +149,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -366,7 +367,16 @@ public class GrouperUtil {
 //
 //    System.out.println(result);
     
-    System.out.println(GrouperUtil.stringFormatNameReverseReplaceTruncate("penn:isc:ait:apps:twoFactor:groups:requiredUsersStaff:twoFactorStaff", ".", 64));
+//    System.out.println(GrouperUtil.stringFormatNameReverseReplaceTruncate("penn:isc:ait:apps:twoFactor:groups:requiredUsersStaff:twoFactorStaff", ".", 64));
+  
+    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+    grouperProvisioningGroup.setName("First:Second");
+    Map<String, Object> elVariableMap = new HashMap<String, Object>();
+    elVariableMap.put("grouperProvisioningGroup", true);
+    Object result = GrouperUtil.substituteExpressionLanguageScript(
+        "${grouperProvisioningGroup.name}", elVariableMap, true, false, false);
+    System.out.println(result);
+    
     
   }
 
