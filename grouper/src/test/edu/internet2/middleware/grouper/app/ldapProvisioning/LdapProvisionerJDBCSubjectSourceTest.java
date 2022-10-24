@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.List;
 
+import org.hibernate.criterion.Restrictions;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -17,6 +18,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.usdu.UsduJob;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3MemberDAO;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
@@ -29,6 +31,8 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -45,7 +49,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullCreateUsersGettesPosix"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullWithUnresolvableRemove"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
@@ -1657,5 +1661,616 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     grouperProvisioningOutput = GrouperProvisioner.retrieveInternalLastProvisioner().retrieveGrouperProvisioningOutput();
     
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "description", "businessCategory"}, null).size());
+  }
+  
+
+  public void testFullWithUnresolvableDontInsertAndDontRemove() {
+    
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+        .assignMembershipAttribute("description")
+        .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
+        .assignInsertEntityAndAttributes(true)
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignEntityDnTranslate(false)
+        .assignExplicitFilters(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignBusinessCategoryTranslateFromGrouperProvisioningGroupField("id")
+        .assignSubjectSourcesToProvision("jdbc")
+        .assignEntityAttributeCount(6));
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    
+    RegistrySubject.add(grouperSession, "notinldap1", "person", "notinldap1 name", "notinldap1 name", "notinldap1", null, null);
+    RegistrySubject.add(grouperSession, "notinldap2", "person", "notinldap2 name", "notinldap2 name", "notinldap2", null, null);
+
+    Subject notinldap1 = SubjectFinder.findById("notinldap1", true);
+    Subject notinldap2 = SubjectFinder.findById("notinldap2", true);
+
+    testGroup.addMember(notinldap1);
+    
+    assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory"}, null).size());
+  
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "uid=notinldap1,ou=People,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+    
+    // test don't insert unresolvable
+    testGroup.addMember(notinldap2);
+    deleteSubject(notinldap2, true);    
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {}, null).size());
+      assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap2)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+    
+    // test don't remove unresolvable
+    deleteSubject(notinldap1, true);    
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {}, null).size());
+      assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap2)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+  }
+  
+  public void testFullWithUnresolvableInsertAndDontRemove() {
+    
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+        .assignMembershipAttribute("description")
+        .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
+        .assignInsertEntityAndAttributes(true)
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignEntityDnTranslate(false)
+        .assignExplicitFilters(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignBusinessCategoryTranslateFromGrouperProvisioningGroupField("id")
+        .assignSubjectSourcesToProvision("jdbc")
+        .assignEntityAttributeCount(6)
+        .addExtraConfig("unresolvableSubjectsInsert", "true"));
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    
+    RegistrySubject.add(grouperSession, "notinldap1", "person", "notinldap1 name", "notinldap1 name", "notinldap1", null, null);
+    RegistrySubject.add(grouperSession, "notinldap2", "person", "notinldap2 name", "notinldap2 name", "notinldap2", null, null);
+
+    Subject notinldap1 = SubjectFinder.findById("notinldap1", true);
+    Subject notinldap2 = SubjectFinder.findById("notinldap2", true);
+
+    testGroup.addMember(notinldap1);
+    
+    assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory"}, null).size());
+  
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "uid=notinldap1,ou=People,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+    
+    // test insert unresolvable
+    testGroup.addMember(notinldap2);
+    deleteSubject(notinldap2, true);    
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {}, null).size());
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap2)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap2,ou=People,dc=example,dc=edu"));    
+    }
+    
+    // test don't remove unresolvable
+    deleteSubject(notinldap1, true);    
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {}, null).size());
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap2)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap2,ou=People,dc=example,dc=edu"));    
+    }
+  }
+  
+
+  public void testFullWithUnresolvableRemove() {
+    
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+        .assignMembershipAttribute("description")
+        .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
+        .assignInsertEntityAndAttributes(true)
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignEntityDnTranslate(false)
+        .assignExplicitFilters(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignBusinessCategoryTranslateFromGrouperProvisioningGroupField("id")
+        .assignSubjectSourcesToProvision("jdbc")
+        .assignEntityAttributeCount(6)
+        .addExtraConfig("unresolvableSubjectsRemove", "true"));
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    
+    RegistrySubject.add(grouperSession, "notinldap1", "person", "notinldap1 name", "notinldap1 name", "notinldap1", null, null);
+    RegistrySubject.add(grouperSession, "notinldap2", "person", "notinldap2 name", "notinldap2 name", "notinldap2", null, null);
+
+    Subject notinldap1 = SubjectFinder.findById("notinldap1", true);
+    Subject notinldap2 = SubjectFinder.findById("notinldap2", true);
+
+    testGroup.addMember(notinldap1);
+    
+    assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory"}, null).size());
+  
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "uid=notinldap1,ou=People,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+    
+    // test don't insert unresolvable
+    testGroup.addMember(notinldap2);
+    deleteSubject(notinldap2, true);    
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {}, null).size());
+      assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap2)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+    
+    // test remove unresolvable
+    deleteSubject(notinldap1, true);    
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {}, null).size());
+      assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap2)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(0, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+    }
+  }
+  
+  public void testIncrementalWithUnresolvableDontInsertAndDontRemove() {
+    
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+        .assignMembershipAttribute("description")
+        .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
+        .assignInsertEntityAndAttributes(true)
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignEntityDnTranslate(false)
+        .assignExplicitFilters(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignBusinessCategoryTranslateFromGrouperProvisioningGroupField("id")
+        .assignSubjectSourcesToProvision("jdbc")
+        .assignEntityAttributeCount(6));
+    
+    // init stuff
+    incrementalProvision();
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    
+    RegistrySubject.add(grouperSession, "notinldap1", "person", "notinldap1 name", "notinldap1 name", "notinldap1", null, null);
+    RegistrySubject.add(grouperSession, "notinldap2", "person", "notinldap2 name", "notinldap2 name", "notinldap2", null, null);
+
+    Subject notinldap1 = SubjectFinder.findById("notinldap1", true);
+    Subject notinldap2 = SubjectFinder.findById("notinldap2", true);
+
+    testGroup.addMember(notinldap1);
+    
+    assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory"}, null).size());
+  
+    incrementalProvision();
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "uid=notinldap1,ou=People,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+    
+    // test don't insert unresolvable
+    testGroup.addMember(notinldap2);
+    deleteSubject(notinldap2, true);    
+    incrementalProvision();
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {}, null).size());
+      assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap2)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+  }
+  
+  public void testIncrementalWithUnresolvableInsertAndDontRemove() {
+    
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+        .assignMembershipAttribute("description")
+        .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
+        .assignInsertEntityAndAttributes(true)
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignEntityDnTranslate(false)
+        .assignExplicitFilters(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignBusinessCategoryTranslateFromGrouperProvisioningGroupField("id")
+        .assignSubjectSourcesToProvision("jdbc")
+        .assignEntityAttributeCount(6)
+        .addExtraConfig("unresolvableSubjectsInsert", "true"));
+    
+    // init stuff
+    incrementalProvision();
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    
+    RegistrySubject.add(grouperSession, "notinldap1", "person", "notinldap1 name", "notinldap1 name", "notinldap1", null, null);
+    RegistrySubject.add(grouperSession, "notinldap2", "person", "notinldap2 name", "notinldap2 name", "notinldap2", null, null);
+
+    Subject notinldap1 = SubjectFinder.findById("notinldap1", true);
+    Subject notinldap2 = SubjectFinder.findById("notinldap2", true);
+
+    testGroup.addMember(notinldap1);
+    
+    assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory"}, null).size());
+  
+    incrementalProvision();
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "uid=notinldap1,ou=People,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+    
+    // test insert unresolvable
+    testGroup.addMember(notinldap2);
+    deleteSubject(notinldap2, true);    
+    incrementalProvision();
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {}, null).size());
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap2)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap2,ou=People,dc=example,dc=edu"));    
+    }
+  }
+  
+
+  public void testIncrementalWithUnresolvableRemove() {
+    
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+        .assignMembershipAttribute("description")
+        .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
+        .assignInsertEntityAndAttributes(true)
+        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignEntityDnTranslate(false)
+        .assignExplicitFilters(true)
+        .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
+        .assignBusinessCategoryTranslateFromGrouperProvisioningGroupField("id")
+        .assignSubjectSourcesToProvision("jdbc")
+        .assignEntityAttributeCount(6)
+        .addExtraConfig("unresolvableSubjectsRemove", "true"));
+    
+    // init stuff
+    incrementalProvision();
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    
+    RegistrySubject.add(grouperSession, "notinldap1", "person", "notinldap1 name", "notinldap1 name", "notinldap1", null, null);
+    RegistrySubject.add(grouperSession, "notinldap2", "person", "notinldap2 name", "notinldap2 name", "notinldap2", null, null);
+
+    Subject notinldap1 = SubjectFinder.findById("notinldap1", true);
+    Subject notinldap2 = SubjectFinder.findById("notinldap2", true);
+
+    testGroup.addMember(notinldap1);
+    
+    assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory"}, null).size());
+    
+    incrementalProvision();  
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "uid=notinldap1,ou=People,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=*)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+    
+    // test don't insert unresolvable
+    testGroup.addMember(notinldap2);
+    deleteSubject(notinldap2, true);    
+    incrementalProvision();
+    
+    {
+      assertEquals(1, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {}, null).size());
+      assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap2)", new String[] {}, null).size());
+      List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+      assertEquals(1, ldapEntries.size());
+      
+      LdapEntry ldapEntry = ldapEntries.get(0);
+      
+      assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+      assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+      assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+      assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+      assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+      assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+      assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=notinldap1,ou=People,dc=example,dc=edu"));    
+    }
+  }
+  
+  
+  private void deleteSubject(Subject subject, boolean runUsdu) {
+
+    List<RegistrySubject> registrySubjects = HibernateSession.byCriteriaStatic()
+      .list(RegistrySubject.class, Restrictions.eq("id", subject.getId()));
+
+    for (RegistrySubject registrySubject : registrySubjects) {
+      registrySubject.delete(GrouperSession.staticGrouperSession());
+    }
+
+    SubjectFinder.flushCache();
+
+    try {
+      SubjectFinder.findById(subject.getId(), true);
+      fail("should not find subject " + subject.getId());
+    } catch (SubjectNotFoundException e) {
+      // OK
+    } catch (SubjectNotUniqueException e) {
+      fail("subject should be unique " + subject.getId());
+    }
+    
+    Hib3MemberDAO.membersCacheClear();
+    
+    if (runUsdu) {
+      UsduJob.runDaemonStandalone();
+      Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+      assertFalse(member.isSubjectResolutionResolvable());
+    }
   }
 }
