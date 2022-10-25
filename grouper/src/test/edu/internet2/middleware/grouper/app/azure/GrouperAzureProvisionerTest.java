@@ -39,7 +39,7 @@ import junit.textui.TestRunner;
 public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testUdelLargeOperationsFull"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testDeleteMembershipsInTrackedGroupsOnlyTrue"));
   }
 
   public GrouperAzureProvisionerTest(String name) {
@@ -162,6 +162,176 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
   public void testUdelIncremental() {
     udelHelper(false);
+  }
+  
+  public void testDeleteMembershipsInTrackedGroupsOnlyFalse() {
+    
+    GrouperStartup.startup();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+    
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    
+    AzureProvisionerTestUtils.configureAzureProvisioner(
+        new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(2).assignRealAzure(true).assignUdelUseCase(true)
+        .assignDisplayNameMapping("extension").addExtraConfig("azureGroupType", "true").addExtraConfig("makeChangesToEntities", "true")
+        .addExtraConfig("welcomeEmailDisabled", "true")
+        .addExtraConfig("customizeMembershipCrud", "true")
+        .addExtraConfig("deleteMembershipsIfNotExistInGrouper", "true")
+        .addExtraConfig("deleteMembershipsIfGrouperDeleted", "true")
+        .addExtraConfig("customizeGroupCrud", "true")
+        .addExtraConfig("deleteGroupsIfGrouperDeleted", "true")
+        .addExtraConfig("deleteMembershipsOnlyInTrackedGroups", "false")
+        );
+    
+    RegistrySubject.add(grouperSession, "Fred400@" + domain, "person", "Fred400@" + domain);
+    Subject fred = SubjectFinder.findById("Fred400@" + domain, true);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("myAzureProvisioner");
+    attributeValue.setTargetName("myAzureProvisioner");
+    attributeValue.setStemScopeString("sub");
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put("md_grouper_azureGroupType", "security");
+
+    attributeValue.setMetadataNameValues(metadataNameValues);
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Map<GrouperAzureGroup, Set<String>> groupToFieldNamesToInsert = new HashMap<>();
+    
+    GrouperAzureGroup azureGroup = new GrouperAzureGroup();
+    azureGroup.setDisplayName("testDisplayName");
+    azureGroup.setDescription("test description");
+    azureGroup.setId("testGroupId");
+    azureGroup.setMailNickname("mailNickName");
+    groupToFieldNamesToInsert.put(azureGroup, null);
+    
+    Map<GrouperAzureGroup, Exception> azureGroups = GrouperAzureApiCommands.createAzureGroups("myAzure", groupToFieldNamesToInsert);
+    
+    List<GrouperAzureUser> azureUsersToCreate = new ArrayList<>();
+  
+    String name = "Fred";
+  
+    GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
+    grouperAzureUser.setUserPrincipalName(name + "@" + domain);
+    grouperAzureUser.setDisplayName(name);
+    grouperAzureUser.setMailNickname(name);
+    
+    azureUsersToCreate.add(grouperAzureUser);
+    Map<GrouperAzureUser, Exception> azureUsers = GrouperAzureApiCommands.createAzureUsers("myAzure", azureUsersToCreate, null);
+    
+    List<GrouperAzureUser> users = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
+    
+    List<String> userIds = new ArrayList<>();
+    
+    for (GrouperAzureUser azureUser : users) {
+      if (azureUser.getUserPrincipalName().startsWith("Fred")) {
+        userIds.add(azureUser.getId());
+      }
+    }
+    
+    GrouperAzureApiCommands.createAzureMemberships("myAzure", azureGroup.getId(), userIds);
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = null;
+    GrouperProvisioner grouperProvisioner = null;
+    
+    fullProvision();
+ 
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+    
+    Set<String> groupMembers = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", azureGroups.keySet().iterator().next().getId());
+    
+    assertTrue(groupMembers.size() == 0);
+    
+  }
+  
+  public void testDeleteMembershipsInTrackedGroupsOnlyTrue() {
+    
+    GrouperStartup.startup();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+    
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    
+    AzureProvisionerTestUtils.configureAzureProvisioner(
+        new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(2).assignRealAzure(true).assignUdelUseCase(true)
+        .assignDisplayNameMapping("extension").addExtraConfig("azureGroupType", "true").addExtraConfig("makeChangesToEntities", "true")
+        .addExtraConfig("welcomeEmailDisabled", "true")
+        .addExtraConfig("customizeMembershipCrud", "true")
+        .addExtraConfig("deleteMembershipsIfNotExistInGrouper", "true")
+        .addExtraConfig("deleteMembershipsIfGrouperDeleted", "true")
+        .addExtraConfig("customizeGroupCrud", "true")
+        .addExtraConfig("deleteGroupsIfGrouperDeleted", "true")
+        .addExtraConfig("deleteMembershipsOnlyInTrackedGroups", "true")
+        );
+    
+    RegistrySubject.add(grouperSession, "Fred400@" + domain, "person", "Fred400@" + domain);
+    Subject fred = SubjectFinder.findById("Fred400@" + domain, true);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("myAzureProvisioner");
+    attributeValue.setTargetName("myAzureProvisioner");
+    attributeValue.setStemScopeString("sub");
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    metadataNameValues.put("md_grouper_azureGroupType", "security");
+
+    attributeValue.setMetadataNameValues(metadataNameValues);
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Map<GrouperAzureGroup, Set<String>> groupToFieldNamesToInsert = new HashMap<>();
+    
+    GrouperAzureGroup azureGroup = new GrouperAzureGroup();
+    azureGroup.setDisplayName("testDisplayName");
+    azureGroup.setDescription("test description");
+    azureGroup.setId("testGroupId");
+    azureGroup.setMailNickname("mailNickName");
+    groupToFieldNamesToInsert.put(azureGroup, null);
+    
+    Map<GrouperAzureGroup, Exception> azureGroups = GrouperAzureApiCommands.createAzureGroups("myAzure", groupToFieldNamesToInsert);
+    
+    List<GrouperAzureUser> azureUsersToCreate = new ArrayList<>();
+  
+    String name = "Fred";
+  
+    GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
+    grouperAzureUser.setUserPrincipalName(name + "@" + domain);
+    grouperAzureUser.setDisplayName(name);
+    grouperAzureUser.setMailNickname(name);
+    
+    azureUsersToCreate.add(grouperAzureUser);
+    Map<GrouperAzureUser, Exception> azureUsers = GrouperAzureApiCommands.createAzureUsers("myAzure", azureUsersToCreate, null);
+    
+    List<GrouperAzureUser> users = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
+    
+    List<String> userIds = new ArrayList<>();
+    
+    for (GrouperAzureUser azureUser : users) {
+      if (azureUser.getUserPrincipalName().startsWith("Fred")) {
+        userIds.add(azureUser.getId());
+      }
+    }
+    
+    GrouperAzureApiCommands.createAzureMemberships("myAzure", azureGroup.getId(), userIds);
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = null;
+    GrouperProvisioner grouperProvisioner = null;
+    
+    fullProvision();
+ 
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+    
+    Set<String> groupMembers = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", azureGroups.keySet().iterator().next().getId());
+    
+    assertTrue(groupMembers.size() == 1);
+    
   }
   
   public void testUdelLargeOperationsFull() {
