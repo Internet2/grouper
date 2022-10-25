@@ -18,6 +18,16 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GcGrouperSyncMemberDao {
 
   /**
+   * 
+   * @param gcGrouperSyncMemberId
+   * @return
+   */
+  public GcGrouperSyncMember memberRetrieveByIdFromCache(String gcGrouperSyncMemberId) {
+    return this.internalCacheSyncMembersById.get(gcGrouperSyncMemberId);
+  }
+  
+
+  /**
    * keep an internal cache of members by member id
    */
   @GcPersistableField(persist = GcPersist.dontPersist)

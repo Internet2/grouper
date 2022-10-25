@@ -278,6 +278,15 @@ public class GcGrouperSyncGroupDao {
   }
 
   /**
+   * 
+   * @param gcGrouperSyncGroupId
+   * @return
+   */
+  public GcGrouperSyncGroup groupRetrieveByIdFromCache(String gcGrouperSyncGroupId) {
+    return this.internalCacheSyncGroupsById.get(gcGrouperSyncGroupId);
+  }
+  
+  /**
    * select grouper sync group by id
    * @param gcGrouperSyncGroupId
    * @return the group
