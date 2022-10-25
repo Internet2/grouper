@@ -21,6 +21,32 @@ public class LdapProvisionerTestConfigInput {
   }
 
   /**
+   * null will use params
+   * gettesPosix is the use case from michael gettes
+   */
+  private String provisioningStrategy = null;
+  
+  /**
+   * null will use params
+   * gettesPosix is the use case from michael gettes
+   * @return
+   */
+  public String getProvisioningStrategy() {
+    return provisioningStrategy;
+  }
+
+  /**
+   * null will use params
+   * gettesPosix is the use case from michael gettes
+   * @param provisioningStrategy
+   * @return this for chaining
+   */
+  public LdapProvisionerTestConfigInput assignProvisioningStrategy(String provisioningStrategy) {
+    this.provisioningStrategy = provisioningStrategy;
+    return this;
+  }
+
+  /**
    * if allow dn override with config (default false)
    */
   private boolean dnOverrideConfig;

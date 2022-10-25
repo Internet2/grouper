@@ -94,6 +94,20 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
   public void setDescription(String description) {
     this.assignAttributeValue("description", description);
   }
+  
+  /**
+   * @return subjectResolutionResolvable
+   */
+  public Boolean getSubjectResolutionResolvable() {
+    return this.retrieveAttributeValueBoolean("subjectResolutionResolvable");
+  }
+  
+  /**
+   * @param subjectResolutionResolvable
+   */
+  public void setSubjectResolutionResolvable(Boolean subjectResolutionResolvable) {
+    this.assignAttributeValue("subjectResolutionResolvable", subjectResolutionResolvable);
+  }
 
   /**
    * 

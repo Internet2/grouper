@@ -155,7 +155,8 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           Dynamic grouperWsServiceFilter = context.addFilter(grouperWsServiceFilterName, grouperWsServiceFilterClass);
           grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/services/*");
           grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/servicesRest/*");
-          
+          grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/scim/*");
+
           Class grouperWsJ2eeListener = Class.forName("edu.internet2.middleware.grouper.ws.j2ee.GrouperJ2eeListener");
           context.addListener(grouperWsJ2eeListener);
           
@@ -174,6 +175,14 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           javax.servlet.ServletRegistration.Dynamic restServlet = context.addServlet(restServletName, restServletClass);
           restServlet.addMapping("/servicesRest/*");
           restServlet.setLoadOnStartup(1);
+
+          String scimServletName = "SCIMRestServlet";
+          Class scimServletClass = Class.forName("org.glassfish.jersey.servlet.ServletContainer");
+          javax.servlet.ServletRegistration.Dynamic scimServlet = context.addServlet(scimServletName, scimServletClass);
+          scimServlet.addMapping("/scim/*");
+          scimServlet.setInitParameter("jersey.config.server.provider.packages", "edu.internet2.middleware.grouper.ws.scim.providers");
+          scimServlet.setLoadOnStartup(1);
+
         } catch (ClassNotFoundException e) {
           if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.dev.env.allowMissingServlets", true)) {
             LOG.info("you can't access grouper ws because required classes are not on the classpath.");

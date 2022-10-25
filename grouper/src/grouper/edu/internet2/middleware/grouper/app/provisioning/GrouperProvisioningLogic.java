@@ -1639,7 +1639,14 @@ public class GrouperProvisioningLogic {
       if (provisioningEntityWrapper.isDelete()) {
         shouldSkip = true;
       }
-
+      
+      boolean isUnresolvableSubject = provisioningEntityWrapper.getGrouperProvisioningEntity() != null && provisioningEntityWrapper.getGrouperProvisioningEntity().getSubjectResolutionResolvable() == Boolean.FALSE;
+            
+      // check if we're inserting unresolvable subjects
+      if (isUnresolvableSubject && !this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsInsert()) {
+        shouldSkip = true;
+      }
+      
       if (shouldSkip) {
         continue;
       }

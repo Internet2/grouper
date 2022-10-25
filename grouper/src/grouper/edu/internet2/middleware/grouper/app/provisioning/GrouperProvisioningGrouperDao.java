@@ -177,7 +177,8 @@ public class GrouperProvisioningGrouperDao {
           "    gm.email0, " +
           "    gm.subject_identifier1, " +
           "    gm.subject_identifier2, " +
-          "    gm.id_index " +
+          "    gm.id_index, " +
+          "    gm.subject_resolution_resolvable " +
           "from " + 
           "    grouper_members gm  join grouper_memberships ms on ms.member_id = gm.id " +
           "    join grouper_group_set gs on ms.owner_id = gs.member_id " + 
@@ -186,7 +187,8 @@ public class GrouperProvisioningGrouperDao {
           "    ms.field_id = gs.member_field_id " +
           "    and ms.enabled='T' " +
           "    and gs.field_id = ? " +
-          "    and gs.owner_group_id = ? ");
+          "    and gs.owner_group_id = ? " +
+          "    and gm.subject_resolution_deleted='F' ");
     } else {
       
       sqlInitial = new StringBuilder("select " + 
@@ -200,7 +202,8 @@ public class GrouperProvisioningGrouperDao {
           "    gm.email0, " +
           "    gm.subject_identifier1, " +
           "    gm.subject_identifier2, " +
-          "    gm.id_index " +
+          "    gm.id_index, " +
+          "    gm.subject_resolution_resolvable " +
           "from " + 
           "    grouper_members gm  join grouper_memberships ms on ms.member_id = gm.id " +
           "    join grouper_group_set gs on ms.owner_id = gs.member_id " + 
@@ -210,7 +213,8 @@ public class GrouperProvisioningGrouperDao {
           "    gsg.grouper_sync_id = ? " +
           "    and ms.field_id = gs.member_field_id " +
           "    and gsg.provisionable = 'T' " +
-          "    and ms.enabled='T' ");
+          "    and ms.enabled='T' " +
+          "    and gm.subject_resolution_deleted='F' ");
       paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
       typesInitial.add(StringType.INSTANCE);
     }
@@ -334,12 +338,14 @@ public class GrouperProvisioningGrouperDao {
         "    gm.email0, " +
         "    gm.subject_identifier1, " +
         "    gm.subject_identifier2, " +
-        "    gm.id_index " +
+        "    gm.id_index, " +
+        "    gm.subject_resolution_resolvable " +
         "from " + 
         "    grouper_members gm  " +      
         "    left join grouper_sync_member gsm on  gsm.member_id = gm.id " + 
         "where " +
-        "    gsm.grouper_sync_id = ? ");
+        "    gsm.grouper_sync_id = ? " + 
+        "    and gm.subject_resolution_deleted='F' ");
     paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
     typesInitial.add(StringType.INSTANCE);
     
@@ -409,7 +415,8 @@ public class GrouperProvisioningGrouperDao {
         "    gg.id_index, " + 
         "    gm.subject_identifier1, " + 
         "    gm.subject_identifier2, " + 
-        "    gm.id_index " + 
+        "    gm.id_index, " + 
+        "    gm.subject_resolution_resolvable " +
         "from " + 
         "    grouper_groups gg, " +
         "    grouper_members gm, " + 
@@ -426,6 +433,7 @@ public class GrouperProvisioningGrouperDao {
         "    and gg.id = gsg.group_id " + 
         "    and gsg.provisionable = 'T' " +
         "    and ms.enabled='T' " +
+        "    and gm.subject_resolution_deleted='F' " +
         (retrictUsersByGroupId ? (" and gmship_to_provision.owner_id = gs_to_provision.member_id " +
             " and gmship_to_provision.field_id = gs_to_provision.member_field_id " +
             " and gs_to_provision.field_id = ? " +
@@ -766,6 +774,12 @@ public class GrouperProvisioningGrouperDao {
       String subjectIdentifier1 = queryResult[8];
       String subjectIdentifier2 = queryResult[9];
       String idIndex = queryResult[10];
+      Boolean subjectResolutionResolvable = GrouperUtil.booleanObjectValue(queryResult[11]);
+      
+      // check if skipping unresolvable subjects
+      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove() && !subjectResolutionResolvable) {
+        continue;
+      }
       
       ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity();
       grouperProvisioningEntity.setId(id);
@@ -773,6 +787,7 @@ public class GrouperProvisioningGrouperDao {
       grouperProvisioningEntity.setSubjectId(subjectId);
       grouperProvisioningEntity.setEmail(email);
       grouperProvisioningEntity.setIdIndex(Long.parseLong(idIndex));
+      grouperProvisioningEntity.setSubjectResolutionResolvable(subjectResolutionResolvable);
       grouperProvisioningEntity.assignAttributeValue("subjectSourceId", subjectSource);
       grouperProvisioningEntity.assignAttributeValue("description", description);
       grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
@@ -825,6 +840,12 @@ public class GrouperProvisioningGrouperDao {
       String subjectIdentifier1 = queryResult[12];
       String subjectIdentifier2 = queryResult[13];
       Long memberIdIndex = GrouperUtil.longObjectValue(queryResult[14], false);
+      Boolean subjectResolutionResolvable = GrouperUtil.booleanObjectValue(queryResult[15]);
+      
+      // check if skipping unresolvable subjects
+      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove() && !subjectResolutionResolvable) {
+        continue;
+      }
 
       ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership();
       grouperProvisioningMembership.setId(membershipId);
@@ -836,6 +857,7 @@ public class GrouperProvisioningGrouperDao {
         targetEntity.assignAttributeValue("description", description);
         targetEntity.setSubjectId(subjectId);
         targetEntity.setIdIndex(memberIdIndex);
+        targetEntity.setSubjectResolutionResolvable(subjectResolutionResolvable);
         targetEntity.assignAttributeValue("subjectSourceId", subjectSourceId);
         targetEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
         targetEntity.assignAttributeValue("subjectIdentifier1", subjectIdentifier1);
@@ -1324,7 +1346,8 @@ public class GrouperProvisioningGrouperDao {
           "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
           "    AND gaa_marker.enabled = 'T' " + 
           "    AND gaa_target.enabled = 'T' " + 
-          "    AND gaa_config.enabled = 'T' ";
+          "    AND gaa_config.enabled = 'T' " + 
+          "    AND gm.subject_resolution_deleted='F' ";
       
       List<Object> paramsInitial = new ArrayList<Object>();
       paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);

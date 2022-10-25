@@ -149,6 +149,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -157,6 +158,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperId;
+import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -185,6 +187,7 @@ public class GrouperUtil {
 
     GrouperStartup.startup();
 
+    try {
 //    System.out.println(ldapBushyDn("Juicy\\, Fruit:b:c", "cn", "o\\u", true, false));
 //    System.out.println(ldapBushyDn("Juicy, Fruit:b:c", "cn", "ou", true, false));
 
@@ -366,8 +369,29 @@ public class GrouperUtil {
 //
 //    System.out.println(result);
     
-    System.out.println(GrouperUtil.stringFormatNameReverseReplaceTruncate("penn:isc:ait:apps:twoFactor:groups:requiredUsersStaff:twoFactorStaff", ".", 64));
+//    System.out.println(GrouperUtil.stringFormatNameReverseReplaceTruncate("penn:isc:ait:apps:twoFactor:groups:requiredUsersStaff:twoFactorStaff", ".", 64));
+  
+//    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+//    grouperProvisioningGroup.setName("First:Second");
+//    Map<String, Object> elVariableMap = new HashMap<String, Object>();
+//    elVariableMap.put("grouperProvisioningGroup", true);
+//    Object result = GrouperUtil.substituteExpressionLanguageScript(
+//        "${grouperProvisioningGroup.name}", elVariableMap, true, false, false);
+//    System.out.println(result);
     
+      ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+      grouperProvisioningGroup.setName("First:Second");
+      //grouperProvisioningGroup.assignAttributeValue("displayName", "a:b");
+      Map<String, Object> elVariableMap = new HashMap<String, Object>();
+      elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+      Object result = GrouperUtil.substituteExpressionLanguageScript(
+          "${ var hasExtension = grouperProvisioningGroup.displayExtension ? true : false; if (hasExtension) {'hasIt'} else {'doesntHaveIt'}}", 
+          elVariableMap, true, false, false);
+      System.out.println(result);
+    
+    } finally {
+      GrouperShutdown.shutdown();
+    }
   }
 
   /**

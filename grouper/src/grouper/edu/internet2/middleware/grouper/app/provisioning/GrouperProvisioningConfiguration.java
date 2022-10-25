@@ -887,8 +887,30 @@ public abstract class GrouperProvisioningConfiguration {
   public void setMembershipMatchingIdExpression(String membershipMatchingIdExpression) {
     this.membershipMatchingIdExpression = membershipMatchingIdExpression;
   }
+  
+  
+  private boolean unresolvableSubjectsInsert = false;
+
+  public boolean isUnresolvableSubjectsInsert() {
+    return unresolvableSubjectsInsert;
+  }
+
+  
+  public void setUnresolvableSubjectsInsert(boolean unresolvableSubjectsInsert) {
+    this.unresolvableSubjectsInsert = unresolvableSubjectsInsert;
+  }
+
+  private boolean unresolvableSubjectsRemove = false;
+
+  public boolean isUnresolvableSubjectsRemove() {
+    return unresolvableSubjectsRemove;
+  }
 
 
+  public void setUnresolvableSubjectsRemove(boolean unresolvableSubjectsRemove) {
+    this.unresolvableSubjectsRemove = unresolvableSubjectsRemove;
+  }
+  
   
   private boolean logCommandsAlways = false;
 
@@ -2443,6 +2465,10 @@ public abstract class GrouperProvisioningConfiguration {
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
 
     this.membershipMatchingIdExpression = this.retrieveConfigString("membershipMatchingIdExpression", false);
+
+    this.unresolvableSubjectsInsert = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("unresolvableSubjectsInsert", false), false);
+
+    this.unresolvableSubjectsRemove = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("unresolvableSubjectsRemove", false), false);
 
     this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
 

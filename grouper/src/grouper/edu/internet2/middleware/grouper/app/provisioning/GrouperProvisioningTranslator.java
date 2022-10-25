@@ -396,7 +396,8 @@ public class GrouperProvisioningTranslator {
             String grouperProvisioningEntityField = getTranslateFromGrouperProvisioningEntityField(forCreate, grouperProvisioningConfigurationAttribute);
 
             if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningEntityField)
-                || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isEntityAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())) {
+                || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isEntityAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())
+                || this.shouldTranslateEntityAttribute(provisioningEntityWrapper, grouperProvisioningConfigurationAttribute)) { 
 
               Object result = attributeTranslationOrCache( 
                   grouperTargetEntity.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
@@ -449,6 +450,18 @@ public class GrouperProvisioningTranslator {
     }
 
     return grouperTargetEntities;
+  }
+
+  /**
+   * 
+   * @param provisioningEntityWrapper
+   * @param grouperProvisioningConfigurationAttribute
+   * @return
+   */
+  public boolean shouldTranslateEntityAttribute(
+      ProvisioningEntityWrapper provisioningEntityWrapper,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    return false;
   }
 
   public Collection<GrouperProvisioningConfigurationAttribute> entityTargetAttributesInTranslationOrder() {
@@ -514,7 +527,8 @@ public class GrouperProvisioningTranslator {
             String grouperProvisioningGroupField = getTranslateFromGrouperProvisioningGroupField(forCreate, grouperProvisioningConfigurationAttribute);
 
             if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningGroupField)
-                || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isGroupAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())) { 
+                || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isGroupAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())
+                || this.shouldTranslateGroupAttribute(provisioningGroupWrapper, grouperProvisioningConfigurationAttribute)) { 
               Object result = attributeTranslationOrCache( 
                   grouperTargetGroup.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
                   grouperProvisioningConfigurationAttribute, provisioningGroupWrapper, null);
@@ -564,6 +578,18 @@ public class GrouperProvisioningTranslator {
     }
 
     return grouperTargetGroups;
+  }
+
+  /**
+   * if the provisioner might generate a transation
+   * @param provisioningGroupWrapper
+   * @param grouperProvisioningConfigurationAttribute
+   * @return
+   */
+  public boolean shouldTranslateGroupAttribute(
+      ProvisioningGroupWrapper provisioningGroupWrapper,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    return false;
   }
 
   public Collection<GrouperProvisioningConfigurationAttribute> groupAttributesInTranslationOrder() {

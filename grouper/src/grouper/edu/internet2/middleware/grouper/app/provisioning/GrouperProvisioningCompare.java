@@ -873,7 +873,12 @@ public class GrouperProvisioningCompare {
           
             if (provisioningEntityWrapper.getGrouperTargetEntity() != null && provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
               
-              provisioningEntityWrappersForInsert.add(provisioningEntityWrapper);
+              boolean isUnresolvableSubject = provisioningEntityWrapper.getGrouperProvisioningEntity() != null && provisioningEntityWrapper.getGrouperProvisioningEntity().getSubjectResolutionResolvable() == Boolean.FALSE;
+
+              // check if we're inserting unresolvable subjects
+              if (!isUnresolvableSubject || this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsInsert()) {
+                provisioningEntityWrappersForInsert.add(provisioningEntityWrapper);
+              }
               continue;
             }
           }
