@@ -1550,6 +1550,16 @@ public abstract class GrouperProvisioningConfiguration {
       boolean deleteMembershipsIfNotExistInGrouper) {
     this.deleteMembershipsIfNotExistInGrouper = deleteMembershipsIfNotExistInGrouper;
   }
+  
+  public boolean isDeleteMembershipsOnlyInTrackedGroups() {
+    return deleteMembershipsOnlyInTrackedGroups;
+  }
+
+  
+  public void setDeleteMembershipsOnlyInTrackedGroups(
+      boolean deleteMembershipsOnlyInTrackedGroups) {
+    this.deleteMembershipsOnlyInTrackedGroups = deleteMembershipsOnlyInTrackedGroups;
+  }
 
   /**
    * delete entities
@@ -1639,6 +1649,11 @@ public abstract class GrouperProvisioningConfiguration {
    * delete memberships if not exist in grouper
    */
   private boolean deleteMembershipsIfNotExistInGrouper = false;
+  
+  /**
+   * delete memberships only in tracked groups
+   */
+  private boolean deleteMembershipsOnlyInTrackedGroups = true;
 
   /**
    * select memberships
@@ -2561,6 +2576,7 @@ public abstract class GrouperProvisioningConfiguration {
       this.deleteMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMemberships", false), true);
 
       this.deleteMembershipsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfNotExistInGrouper", false), false);
+      this.deleteMembershipsOnlyInTrackedGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsOnlyInTrackedGroups", false), true);
 
       this.deleteMembershipsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperDeleted", false), false);
 

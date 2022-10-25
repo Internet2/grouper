@@ -847,6 +847,35 @@ public class GrouperProvisioningBehavior {
   public boolean isDeleteMembership(GcGrouperSyncMembership gcGrouperSyncMembership) {
     
     if (this.isDeleteMembershipsIfNotExistInGrouper()) {
+      
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsOnlyInTrackedGroups()) {
+        
+        /**
+         * If this is true, then only delete memberships if:
+
+          the group is being deleted
+          (or) if the group is or was provisionable (has a grouper sync group record and provisionable is true or provisionable_end is not null)
+         */
+        
+        if (gcGrouperSyncMembership == null) {
+          return false;
+        } 
+          
+        GcGrouperSyncGroup grouperSyncGroup = gcGrouperSyncMembership.getGrouperSyncGroup();
+        if (grouperSyncGroup == null) {
+          return false;
+        }
+        
+        if (grouperSyncGroup.isProvisionable()) {
+          return true;
+        }
+        
+        if (grouperSyncGroup.getProvisionableEnd() != null) {
+          return true;
+        }
+        
+        return false;
+      }
       return true;
     }
     
@@ -957,6 +986,8 @@ public class GrouperProvisioningBehavior {
   private Set<String> insertMembershipsAttributes;
 
   private Boolean deleteMembershipsIfNotExistInGrouper;
+
+  private Boolean deleteMembershipsOnlyInTrackedGroups;
   
   private Boolean deleteMembershipsIfGrouperDeleted;
   
@@ -1453,6 +1484,16 @@ public class GrouperProvisioningBehavior {
     this.deleteMembershipsIfNotExistInGrouper = membershipsDeleteIfNotInGrouper;
   }
   
+  
+  public Boolean getDeleteMembershipsOnlyInTrackedGroups() {
+    return deleteMembershipsOnlyInTrackedGroups;
+  }
+  
+  public void setDeleteMembershipsOnlyInTrackedGroups(Boolean deleteMembershipsOnlyInTrackedGroups) {
+    this.deleteMembershipsOnlyInTrackedGroups = deleteMembershipsOnlyInTrackedGroups;
+  }
+
+
   public boolean isDeleteMembershipsIfGrouperDeleted() {
     if (deleteMembershipsIfGrouperDeleted != null) {
       return deleteMembershipsIfGrouperDeleted;
