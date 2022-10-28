@@ -354,7 +354,19 @@ public class GrouperProvisioningCompare {
     if (grouperProvisioningUpdatable instanceof ProvisioningEntity) {
       ProvisioningEntity provisioningEntity = (ProvisioningEntity)grouperProvisioningUpdatable;
 
-      return !provisioningEntity.getSubjectResolutionResolvable();
+      ProvisioningEntityWrapper provisioningEntityWrapper = provisioningEntity.getProvisioningEntityWrapper();
+      
+      if (provisioningEntityWrapper == null) {
+        return false;
+      }
+      
+      ProvisioningEntity grouperProvisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
+      
+      if (grouperProvisioningEntity == null) {
+        return false;
+      }
+      
+      return !grouperProvisioningEntity.getSubjectResolutionResolvable();
     }
 
     // group

@@ -49,7 +49,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalWithUnresolvableDontInsertAndDontRemove"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullEntityAttributesWithUnresolvableRemove"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
@@ -2326,6 +2326,186 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     }
   }
   
+
+  public void testFullEntityAttributesWithUnresolvableDontInsertAndDontRemove() {
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+          .assignMembershipStructureEntityAttributes(true)
+          .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+          .assignGroupAttributeCount(0)
+          .assignEntityAttributeCount(7)
+          .assignSubjectSourcesToProvision("jdbc")
+          .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
+          .assignInsertEntityAndAttributes(true)
+          .assignExplicitFilters(false)
+          );
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
+    
+    RegistrySubject.add(grouperSession, "notinldap1", "person", "notinldap1 name", "notinldap1 name", "notinldap1", null, null);
+
+    Subject notinldap1 = SubjectFinder.findById("notinldap1", true);
+
+    testGroup.addMember(notinldap1);;
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
+      assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
+    }
+    
+    // test don't insert new membership and don't remove existing
+    testGroup2.addMember(notinldap1);
+    deleteSubject(notinldap1, true);    
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
+      assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
+    }
+    
+    // delete membership should propagate
+    testGroup.deleteMember(notinldap1);
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
+      assertEquals(0, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+    }
+  }
+  
+  public void testFullEntityAttributesWithUnresolvableInsertAndDontRemove() {
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+          .assignMembershipStructureEntityAttributes(true)
+          .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+          .assignGroupAttributeCount(0)
+          .assignEntityAttributeCount(7)
+          .assignSubjectSourcesToProvision("jdbc")
+          .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
+          .assignInsertEntityAndAttributes(true)
+          .assignExplicitFilters(false)
+          .addExtraConfig("unresolvableSubjectsInsert", "true")
+          );
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
+    
+    RegistrySubject.add(grouperSession, "notinldap1", "person", "notinldap1 name", "notinldap1 name", "notinldap1", null, null);
+
+    Subject notinldap1 = SubjectFinder.findById("notinldap1", true);
+
+    testGroup.addMember(notinldap1);;
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
+      assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
+    }
+    
+    // test insert new membership and don't remove existing
+    testGroup2.addMember(notinldap1);
+    deleteSubject(notinldap1, true);    
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
+      assertEquals(2, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup2"));
+    }
+  }
+  
+
+  public void testFullEntityAttributesWithUnresolvableRemove() {
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+          .assignMembershipStructureEntityAttributes(true)
+          .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+          .assignGroupAttributeCount(0)
+          .assignEntityAttributeCount(7)
+          .assignSubjectSourcesToProvision("jdbc")
+          .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
+          .assignInsertEntityAndAttributes(true)
+          .assignExplicitFilters(false)
+          .addExtraConfig("unresolvableSubjectsRemove", "true")
+          );
+    
+    deleteLdapPersonAccounts();
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("ldapProvTest");
+    attributeValue.setTargetName("ldapProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    // mark some folders to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
+    
+    RegistrySubject.add(grouperSession, "notinldap1", "person", "notinldap1 name", "notinldap1 name", "notinldap1", null, null);
+
+    Subject notinldap1 = SubjectFinder.findById("notinldap1", true);
+
+    testGroup.addMember(notinldap1);;
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
+      assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
+    }
+    
+    // test remove
+    testGroup2.addMember(notinldap1);
+    deleteSubject(notinldap1, true);    
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
+      assertEquals(0, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+    }
+  }
   
   private void deleteSubject(Subject subject, boolean runUsdu) {
 
@@ -2353,6 +2533,14 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
       UsduJob.runDaemonStandalone();
       Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
       assertFalse(member.isSubjectResolutionResolvable());
+    }
+  }
+  
+  private void deleteLdapPersonAccounts() {
+    List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectclass=person)", new String[] { }, null);
+    
+    for (LdapEntry ldapEntry : ldapEntries) {
+      LdapSessionUtils.ldapSession().delete("personLdap", ldapEntry.getDn());
     }
   }
 }
