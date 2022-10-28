@@ -49,7 +49,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullWithUnresolvableRemove"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalWithUnresolvableDontInsertAndDontRemove"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
@@ -795,12 +795,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     SubjectFinder.flushCache();
     SubjectFinder.findById("b-anderson", true);
 
-    try {
-      grouperProvisioningOutput = fullProvision(this.defaultConfigId(), true);
-      fail();
-    } catch (Exception e) {
-      // matching error on banderson
-    }
+    grouperProvisioningOutput = fullProvision(this.defaultConfigId(), true);
 
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
     assertEquals(1, ldapEntries.size());
