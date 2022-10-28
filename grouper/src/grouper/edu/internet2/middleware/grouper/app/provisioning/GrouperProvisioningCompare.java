@@ -327,21 +327,34 @@ public class GrouperProvisioningCompare {
       return false;
     }
     
-    if (grouperAttribute == null) {
-      // would this ever be null?
-      return false;
-    }
-    
     // membership
     if (grouperProvisioningUpdatable instanceof ProvisioningMembership) {
       ProvisioningMembership provisioningMembership = (ProvisioningMembership)grouperProvisioningUpdatable;
-      ProvisioningEntity provisioningEntity = provisioningMembership.getProvisioningEntity();
+
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningMembership.getProvisioningMembershipWrapper();;
+
+      if (provisioningMembershipWrapper == null) {
+        return false;
+      }
+      
+      ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+      
+      if (grouperProvisioningMembership == null) {
+        return false;
+      }
+      
+      ProvisioningEntity provisioningEntity = grouperProvisioningMembership.getProvisioningEntity();
       
       if (provisioningEntity == null) {
         return false;
       }
       
       return !provisioningEntity.getSubjectResolutionResolvable();
+    }
+    
+    if (grouperAttribute == null) {
+      // would this ever be null?
+      return false;
     }
     
     String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
@@ -1565,8 +1578,13 @@ public class GrouperProvisioningCompare {
         List<ProvisioningMembership> provisioningMembershipsToInsert = new ArrayList<ProvisioningMembership>();
         
         for (Object groupIdEntityIdToInsert: matchingIdsToInsert) {
-          this.membershipAddCount++;
           ProvisioningMembership membershipToInsert = grouperMatchingIdToTargetMembership.get(groupIdEntityIdToInsert);
+
+          if (shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(membershipToInsert, null, null)) {
+            continue;
+          }
+          
+          this.membershipAddCount++;
           countAddMembershipObjectCount(membershipToInsert);
           compareAttributesForInsert(membershipToInsert);
     
