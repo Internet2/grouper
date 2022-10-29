@@ -798,10 +798,12 @@ public class GrouperProvisioningDiagnosticsContainer {
       
       this.grouperProvisioner.retrieveGrouperProvisioningLogic().assignSyncObjectsToWrappers();
 
-      this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().retrieveAllTargetAndGrouperDataPost(null);
-      
-      // TODO do we need this???  
-      // this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().processTargetWrappers();
+      GrouperProvisioningLists extraTargetData = this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().retrieveExtraTargetData(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetProvisioningLists());
+      if (extraTargetData != null) {
+        this.grouperProvisioner.retrieveGrouperProvisioningLogic().processTargetDataEntities(extraTargetData.getProvisioningEntities());
+        this.grouperProvisioner.retrieveGrouperProvisioningLogic().processTargetDataGroups(extraTargetData.getProvisioningGroups());
+        this.grouperProvisioner.retrieveGrouperProvisioningLogic().processTargetDataMemberships(extraTargetData.getProvisioningMemberships());
+      }
       
       this.provisioningMembershipWrapper = grouperProvisioningMembership.getProvisioningMembershipWrapper();
       

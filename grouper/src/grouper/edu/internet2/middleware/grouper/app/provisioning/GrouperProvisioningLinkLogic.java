@@ -576,7 +576,7 @@ public class GrouperProvisioningLinkLogic {
       
       Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
       
-      try {
+      {
         debugMap.put("state", "translateGrouperMembershipsToTarget");
         {
           List<ProvisioningMembership> grouperProvisioningMemberships = new ArrayList<ProvisioningMembership>(this.getGrouperProvisioner().
@@ -586,8 +586,6 @@ public class GrouperProvisioningLinkLogic {
               grouperProvisioningMemberships, false);
         }    
 
-      } finally {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.translateGrouperMembershipsToTarget);
       }
 
       List<ProvisioningMembership> grouperTargetMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(true);

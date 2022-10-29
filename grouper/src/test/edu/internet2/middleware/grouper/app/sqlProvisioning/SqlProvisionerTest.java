@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.hibernate.criterion.Restrictions;
+
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
@@ -19,6 +21,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -38,8 +41,10 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningServ
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningUpdatable;
@@ -53,6 +58,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsResponse;
+import edu.internet2.middleware.grouper.app.usdu.UsduJob;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -91,6 +97,8 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import junit.textui.TestRunner;
 
 /**
@@ -137,7 +145,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testGroupEntityMembershipRenameEntityIncrementalMatchOnOld"));
+    TestRunner.run(new SqlProvisionerTest("testFullSyncPennListserv"));
     
   }
   
@@ -181,6 +189,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       new GcDbAccess().sql("delete from testgrouper_prov_mship0").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_mship1").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_mship2").executeSql();
+      new GcDbAccess().sql("delete from testgrouper_prov_mship3").executeSql();
       
       failsafeGroups.clear();
     } catch (Exception e) {
@@ -272,6 +281,363 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.0")));
     assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.1")));
 
+  }
+  
+  public void testFullWithUnresolvableDontInsertAndDontRemove() {
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignMembershipTableName("testgrouper_prov_mship0")
+        .assignMembershipAttributeCount(2)
+    );
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
+    
+    RegistrySubject.add(grouperSession, "newsubj1", "person", "newsubj1 name", "newsubj1 name", "newsubj1", null, null);
+
+    Subject newsubj1 = SubjectFinder.findById("newsubj1", true);
+    
+    testGroup.addMember(newsubj1);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    String sql = "select group_name, subject_id from testgrouper_prov_mship0";
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(1, membershipsInTable.size());
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "newsubj1")));
+    }
+    
+    // don't insert and don't remove
+    testGroup2.addMember(newsubj1);
+    deleteSubject(newsubj1, true);
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(1, membershipsInTable.size());
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "newsubj1")));
+    }
+    
+    // delete membership should still work
+    testGroup.deleteMember(newsubj1);
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(0, membershipsInTable.size());
+    }
+  }
+  
+  public void testIncrementalWithUnresolvableDontInsertAndDontRemove() {
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignMembershipTableName("testgrouper_prov_mship0")
+        .assignMembershipAttributeCount(2)
+    );
+    
+    // init stuff
+    incrementalProvision();
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
+    
+    RegistrySubject.add(grouperSession, "newsubj1", "person", "newsubj1 name", "newsubj1 name", "newsubj1", null, null);
+
+    Subject newsubj1 = SubjectFinder.findById("newsubj1", true);
+    
+    testGroup.addMember(newsubj1);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    incrementalProvision();
+    
+    String sql = "select group_name, subject_id from testgrouper_prov_mship0";
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(1, membershipsInTable.size());
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "newsubj1")));
+    }
+    
+    // don't insert and don't remove
+    testGroup2.addMember(newsubj1);
+    deleteSubject(newsubj1, true);
+    incrementalProvision();
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(1, membershipsInTable.size());
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "newsubj1")));
+    }
+    
+    // delete membership should still work
+    testGroup.deleteMember(newsubj1);
+    incrementalProvision();
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(0, membershipsInTable.size());
+    }
+  }
+  
+  public void testFullWithUnresolvableInsertAndDontRemove() {
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignMembershipTableName("testgrouper_prov_mship0")
+        .assignMembershipAttributeCount(2)
+        .addExtraConfig("unresolvableSubjectsInsert", "true")
+    );
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
+    
+    RegistrySubject.add(grouperSession, "newsubj1", "person", "newsubj1 name", "newsubj1 name", "newsubj1", null, null);
+
+    Subject newsubj1 = SubjectFinder.findById("newsubj1", true);
+    
+    testGroup.addMember(newsubj1);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    String sql = "select group_name, subject_id from testgrouper_prov_mship0";
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(1, membershipsInTable.size());
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "newsubj1")));
+    }
+    
+    // insert and don't remove
+    testGroup2.addMember(newsubj1);
+    deleteSubject(newsubj1, true);
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(2, membershipsInTable.size());
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "newsubj1")));
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup2", "newsubj1")));
+    }
+  }
+  
+  public void testIncrementalWithUnresolvableInsertAndDontRemove() {
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignMembershipTableName("testgrouper_prov_mship0")
+        .assignMembershipAttributeCount(2)
+        .addExtraConfig("unresolvableSubjectsInsert", "true")
+    );
+
+    // init stuff
+    incrementalProvision();
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
+    
+    RegistrySubject.add(grouperSession, "newsubj1", "person", "newsubj1 name", "newsubj1 name", "newsubj1", null, null);
+
+    Subject newsubj1 = SubjectFinder.findById("newsubj1", true);
+    
+    testGroup.addMember(newsubj1);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    incrementalProvision();
+    
+    String sql = "select group_name, subject_id from testgrouper_prov_mship0";
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(1, membershipsInTable.size());
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "newsubj1")));
+    }
+    
+    // insert and don't remove
+    testGroup2.addMember(newsubj1);
+    deleteSubject(newsubj1, true);
+    incrementalProvision();
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(2, membershipsInTable.size());
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "newsubj1")));
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup2", "newsubj1")));
+    }
+  }
+  
+  public void testFullWithUnresolvableRemove() {
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignMembershipTableName("testgrouper_prov_mship0")
+        .assignMembershipAttributeCount(2)
+        .addExtraConfig("unresolvableSubjectsRemove", "true")
+    );
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
+    
+    RegistrySubject.add(grouperSession, "newsubj1", "person", "newsubj1 name", "newsubj1 name", "newsubj1", null, null);
+
+    Subject newsubj1 = SubjectFinder.findById("newsubj1", true);
+    
+    testGroup.addMember(newsubj1);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    String sql = "select group_name, subject_id from testgrouper_prov_mship0";
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(1, membershipsInTable.size());
+      assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "newsubj1")));
+    }
+    
+    // remove
+    testGroup2.addMember(newsubj1);
+    deleteSubject(newsubj1, true);
+    grouperProvisioningOutput = fullProvision();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    {
+      List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+      Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();
+      
+      for (Object[] row: dataInTable) {
+        membershipsInTable.add(new MultiKey(row));
+      }
+      
+      assertEquals(0, membershipsInTable.size());
+    }
   }
   
   public void testIncrementalSyncSqlProvisionerFailsafe() {
@@ -1366,6 +1732,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     createTableMship1();
 
     createTableMship2();
+
+    createTableMship3();
   }
 
   /**
@@ -1645,6 +2013,37 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", false, true);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "1024", false, true);
+          
+        }
+        
+      });
+    }
+  }
+
+  /**
+   * @param ddlVersionBean
+   * @param database
+   */
+  public void createTableMship3() {
+  
+    String tableName = "testgrouper_prov_mship3";
+    
+    try {
+      new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
+    } catch (Exception e) {
+      //we need to delete the test table if it is there, and create a new one
+      //drop field id col, first drop foreign keys
+      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+    
+        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          
+          Database database = ddlVersionBean.getDatabase();
+
+          Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_uuid", Types.VARCHAR, "40", true, true);
+
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "1024", true, true);
           
         }
         
@@ -4911,4 +5310,161 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
   
   
   }
+  
+  private void deleteSubject(Subject subject, boolean runUsdu) {
+
+    List<RegistrySubject> registrySubjects = HibernateSession.byCriteriaStatic()
+      .list(RegistrySubject.class, Restrictions.eq("id", subject.getId()));
+
+    for (RegistrySubject registrySubject : registrySubjects) {
+      registrySubject.delete(GrouperSession.staticGrouperSession());
+    }
+
+    SubjectFinder.flushCache();
+
+    try {
+      SubjectFinder.findById(subject.getId(), true);
+      fail("should not find subject " + subject.getId());
+    } catch (SubjectNotFoundException e) {
+      // OK
+    } catch (SubjectNotUniqueException e) {
+      fail("subject should be unique " + subject.getId());
+    }
+    
+    Hib3MemberDAO.membersCacheClear();
+    
+    if (runUsdu) {
+      UsduJob.runDaemonStandalone();
+      Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+      assertFalse(member.isSubjectResolutionResolvable());
+    }
+  }
+  
+    public void testFullSyncPennListserv() {
+    
+    GrouperStartup.startup();
+        
+    try {
+      SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+          .assignProvisioningStrategy("pennListserv")
+          .assignConfigId("listservIntegration")
+      );
+      
+      
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      for (int i=0;i<1000;i++) {
+        RegistrySubject.add(grouperSession, "subject_" + i, "person", "subjectName_" + i, "subjectName_" + i, "loginid_" + i, "description_" + i, "email_" + i + "@whatever.com");
+      }
+
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
+      
+      // mark some folders to provision
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
+      
+      for (int i=0;i<1000;i++) {
+        Subject subject = SubjectFinder.findByIdAndSource("subject_" + i, "jdbc", true);
+        testGroup.addMember(subject);
+      }      
+      testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+      testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+      
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("listservIntegration");
+      attributeValue.setTargetName("listservIntegration");
+      attributeValue.setStemScopeString("sub");
+      Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+      metadataNameValues.put("md_grouper_emailListName", "someEmailList");
+      attributeValue.setMetadataNameValues(metadataNameValues);
+  
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+      //lets sync these over
+      
+      assertEquals(0, new GcDbAccess().sql("select count(1) from testgrouper_prov_group").select(int.class).intValue());
+        
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision("listservIntegration");
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      
+      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+      assertEquals(1, new GcDbAccess().sql("select count(1) from testgrouper_prov_group").select(int.class).intValue());
+      assertEquals(1000, new GcDbAccess().sql("select count(1) from testgrouper_prov_entity").select(int.class).intValue());
+      assertEquals(1000, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship3").select(int.class).intValue());
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) > 0);
+      
+      for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
+        assertTrue(provisioningGroupWrapper.isRecalcObject());
+        // ? should this be here?
+        assertTrue(provisioningGroupWrapper.isRecalcGroupMemberships());
+      }
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) > 0);
+      
+      for (ProvisioningEntityWrapper provisioningEntityWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
+        assertTrue(provisioningEntityWrapper.isRecalcObject());
+  
+        // ? should this be here?
+        assertTrue(provisioningEntityWrapper.isRecalcEntityMemberships());
+      }
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) > 0);
+      
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        assertTrue(provisioningMembershipWrapper.isRecalcObject());
+      }
+      
+      assertEquals("test:testGroup", new GcDbAccess().sql("select name from testgrouper_prov_group where uuid = ?").addBindVar(testGroup.getId()).select(String.class));
+      assertEquals("someEmailList", new GcDbAccess().sql("select display_name from testgrouper_prov_group where uuid = ?").addBindVar(testGroup.getId()).select(String.class));
+      
+      GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "listservIntegration");
+      assertEquals(1, gcGrouperSync.getGroupCount().intValue());
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+      assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
+      assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
+      
+      
+      //now remove one of the subjects from the testGroup
+      testGroup.deleteMember(SubjectFinder.findByIdAndSource("subject_" + 0, "jdbc", true));
+      
+      // now run the full sync again and the member should be deleted
+      
+      grouperProvisioningOutput = fullProvision("listservIntegration");
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      
+      assertEquals(1, new GcDbAccess().sql("select count(1) from testgrouper_prov_group").select(int.class).intValue());
+      assertEquals(999, new GcDbAccess().sql("select count(1) from testgrouper_prov_entity").select(int.class).intValue());
+      assertEquals(999, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship3").select(int.class).intValue());
+      
+      //now add one subject
+      testGroup.addMember(SubjectFinder.findByIdAndSource("subject_" + 0, "jdbc", true));
+      
+      // now run the full sync again
+      grouperProvisioningOutput = fullProvision("listservIntegration");
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+  
+      assertEquals(1, new GcDbAccess().sql("select count(1) from testgrouper_prov_group").select(int.class).intValue());
+      assertEquals(1000, new GcDbAccess().sql("select count(1) from testgrouper_prov_entity").select(int.class).intValue());
+      assertEquals(1000, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship3").select(int.class).intValue());
+      
+      //now delete the group and sync again
+      testGroup.delete();
+      
+      grouperProvisioningOutput = fullProvision("listservIntegration");
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      
+      assertEquals(0, new GcDbAccess().sql("select count(1) from testgrouper_prov_group").select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from testgrouper_prov_entity").select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship3").select(int.class).intValue());
+      
+    } finally {
+      
+    }
+  
+  }
+  
 }

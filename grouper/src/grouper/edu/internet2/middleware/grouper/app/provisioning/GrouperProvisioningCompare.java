@@ -253,6 +253,11 @@ public class GrouperProvisioningCompare {
       if (GrouperUtil.isArrayOrCollection(grouperValue)) {
         if (grouperValue instanceof Collection) {
           for (Object value : (Collection)grouperValue) {
+            
+            if (shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(provisioningUpdatableToInsert, provisioningAttribute, value)) {
+              continue;
+            }
+            
             provisioningUpdatableToInsert.addInternal_objectChange(
                 new ProvisioningObjectChange(attributeName, 
                     ProvisioningObjectChangeAction.insert, null, value)
@@ -267,6 +272,10 @@ public class GrouperProvisioningCompare {
         }
       } else {
         // just a scalar
+        if (shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(provisioningUpdatableToInsert, provisioningAttribute, grouperValue)) {
+          continue;
+        }
+        
         ProvisioningObjectChange provisioningObjectChange = new ProvisioningObjectChange(attributeName, 
             ProvisioningObjectChangeAction.insert, null, grouperValue);
         provisioningUpdatableToInsert.addInternal_objectChange(provisioningObjectChange);
@@ -311,6 +320,88 @@ public class GrouperProvisioningCompare {
       addProvisioningUpdatableToUpdateIfNotThere(provisioningUpdatablesToUpdate, 
           grouperProvisioningUpdatable);
     }
+  }
+  
+  private boolean shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(ProvisioningUpdatable grouperProvisioningUpdatable, ProvisioningAttribute grouperAttribute, Object value) {
+    if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsInsert()) {
+      return false;
+    }
+    
+    // membership
+    if (grouperProvisioningUpdatable instanceof ProvisioningMembership) {
+      ProvisioningMembership provisioningMembership = (ProvisioningMembership)grouperProvisioningUpdatable;
+
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningMembership.getProvisioningMembershipWrapper();;
+
+      if (provisioningMembershipWrapper == null) {
+        return false;
+      }
+      
+      ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+      
+      if (grouperProvisioningMembership == null) {
+        return false;
+      }
+      
+      ProvisioningEntity provisioningEntity = grouperProvisioningMembership.getProvisioningEntity();
+      
+      if (provisioningEntity == null) {
+        return false;
+      }
+      
+      return !provisioningEntity.getSubjectResolutionResolvable();
+    }
+    
+    if (grouperAttribute == null) {
+      // would this ever be null?
+      return false;
+    }
+    
+    String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+
+    if (!StringUtils.equals(attributeForMemberships, grouperAttribute.getName())) {
+      return false;
+    }
+
+    // entity
+    if (grouperProvisioningUpdatable instanceof ProvisioningEntity) {
+      ProvisioningEntity provisioningEntity = (ProvisioningEntity)grouperProvisioningUpdatable;
+
+      ProvisioningEntityWrapper provisioningEntityWrapper = provisioningEntity.getProvisioningEntityWrapper();
+      
+      if (provisioningEntityWrapper == null) {
+        return false;
+      }
+      
+      ProvisioningEntity grouperProvisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
+      
+      if (grouperProvisioningEntity == null) {
+        return false;
+      }
+      
+      return !grouperProvisioningEntity.getSubjectResolutionResolvable();
+    }
+
+    // group
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
+
+    if (provisioningMembershipWrapper == null) {
+      return false;
+    }
+    
+    ProvisioningMembership provisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+    
+    if (provisioningMembership == null) {
+      return false;
+    }
+    
+    ProvisioningEntity provisioningEntity = provisioningMembership.getProvisioningEntity();
+    
+    if (provisioningEntity == null) {
+      return false;
+    }
+    
+    return !provisioningEntity.getSubjectResolutionResolvable();
   }
   
   public void compareAttributeForUpdateValueMembershipOnly(ProvisioningUpdatable grouperProvisioningUpdatable, ProvisioningAttribute grouperAttribute, 
@@ -377,7 +468,8 @@ public class GrouperProvisioningCompare {
                 }
                 break;
               case insert:
-                if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertMemberships()) {
+                if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertMemberships() && 
+                    !shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(grouperProvisioningUpdatable, grouperAttribute, value)) {
                   this.membershipAddCount++;
                   countAddMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
                   grouperProvisioningUpdatable.addInternal_objectChange(
@@ -426,6 +518,10 @@ public class GrouperProvisioningCompare {
                   continue;
                 }
                 
+                if (shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(grouperProvisioningUpdatable, grouperAttribute, value)) {
+                  continue;
+                }
+                
                 grouperProvisioningUpdatable.addInternal_objectChange(
                     new ProvisioningObjectChange(attributeName, 
                         ProvisioningObjectChangeAction.insert, null, value)
@@ -442,10 +538,13 @@ public class GrouperProvisioningCompare {
           }
           if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.isRecalcObject())) {
             // just a scalar
-            grouperProvisioningUpdatable.addInternal_objectChange(
-                new ProvisioningObjectChange(attributeName, 
-                    ProvisioningObjectChangeAction.insert, null, grouperValue)
-                );
+            
+            if (!shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(grouperProvisioningUpdatable, grouperAttribute, grouperValue)) {
+              grouperProvisioningUpdatable.addInternal_objectChange(
+                  new ProvisioningObjectChange(attributeName, 
+                      ProvisioningObjectChangeAction.insert, null, grouperValue)
+                  );
+            }
           }
           
         }
@@ -493,10 +592,17 @@ public class GrouperProvisioningCompare {
             }
             if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.isRecalcObject())) {
 
-              grouperProvisioningUpdatable.addInternal_objectChange(
-                  new ProvisioningObjectChange(attributeName, 
-                      ProvisioningObjectChangeAction.update, targetValue, grouperValue)
-                  );
+              if (shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(grouperProvisioningUpdatable, grouperAttribute, grouperValue)) {
+                grouperProvisioningUpdatable.addInternal_objectChange(
+                    new ProvisioningObjectChange(attributeName, 
+                        ProvisioningObjectChangeAction.delete, targetValue, null)
+                    );
+              } else {
+                grouperProvisioningUpdatable.addInternal_objectChange(
+                    new ProvisioningObjectChange(attributeName, 
+                        ProvisioningObjectChangeAction.update, targetValue, grouperValue)
+                    );
+              }
             }
           }
         }
@@ -526,10 +632,12 @@ public class GrouperProvisioningCompare {
             provisioningMembershipWrapper = GrouperUtil.nonNull(grouperAttribute.getValueToProvisioningMembershipWrapper()).get(insertValue);
           }
           if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.isRecalcObject())) {
-            grouperProvisioningUpdatable.addInternal_objectChange(
-                new ProvisioningObjectChange(attributeName, 
-                    ProvisioningObjectChangeAction.insert, null, insertValue)
-                );
+            if (!shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(grouperProvisioningUpdatable, grouperAttribute, insertValue)) {
+              grouperProvisioningUpdatable.addInternal_objectChange(
+                  new ProvisioningObjectChange(attributeName, 
+                      ProvisioningObjectChangeAction.insert, null, insertValue)
+                  );
+            }
           }
         }
       }        
@@ -1470,8 +1578,13 @@ public class GrouperProvisioningCompare {
         List<ProvisioningMembership> provisioningMembershipsToInsert = new ArrayList<ProvisioningMembership>();
         
         for (Object groupIdEntityIdToInsert: matchingIdsToInsert) {
-          this.membershipAddCount++;
           ProvisioningMembership membershipToInsert = grouperMatchingIdToTargetMembership.get(groupIdEntityIdToInsert);
+
+          if (shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(membershipToInsert, null, null)) {
+            continue;
+          }
+          
+          this.membershipAddCount++;
           countAddMembershipObjectCount(membershipToInsert);
           compareAttributesForInsert(membershipToInsert);
     

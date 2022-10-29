@@ -12,22 +12,30 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogi
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-
+/**
+ * 
+ * @author mchyzer
+ *
+ */
 public class LdapSyncLogic extends GrouperProvisioningLogic {
 
+  /**
+   * 
+   */
   public LdapSyncLogic() {
-    // TODO Auto-generated constructor stub
+
   }
 
   @Override
-  public void retrieveAllTargetAndGrouperDataPost(GrouperProvisioningLists targetProvisioningLists) {
+  public GrouperProvisioningLists retrieveExtraTargetData(GrouperProvisioningLists grouperProvisioningLists) {
     
-    super.retrieveAllTargetAndGrouperDataPost(targetProvisioningLists);
+    GrouperProvisioningLists result = new GrouperProvisioningLists();
+    
     
     // first are we even doing this?
     if (((LdapSyncConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isAllowLdapGroupDnOverride()) {
       
-      List<ProvisioningGroup> grouperProvisioningGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningGroups();
+      List<ProvisioningGroup> grouperProvisioningGroups = grouperProvisioningLists.getProvisioningGroups();
 
       Set<String> grouperDnOverrides = new HashSet<String>();
       
@@ -39,10 +47,10 @@ public class LdapSyncLogic extends GrouperProvisioningLogic {
       }
 
       if (grouperDnOverrides.size() > 0) {
-        List<ProvisioningGroup> targetProvisioningGroups = targetProvisioningLists.getProvisioningGroups();
+        List<ProvisioningGroup> targetProvisioningGroups = result.getProvisioningGroups();
         if (targetProvisioningGroups == null) {
           targetProvisioningGroups = new ArrayList<ProvisioningGroup>();
-          targetProvisioningLists.setProvisioningGroups(targetProvisioningGroups);
+          result.setProvisioningGroups(targetProvisioningGroups);
         }
         Set<String> targetDns = new HashSet<String>();
         for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetProvisioningGroups)) {
@@ -67,16 +75,8 @@ public class LdapSyncLogic extends GrouperProvisioningLogic {
             }
           }
         }
-        
       }
-      
-      
-      
-
     }
-    
-    
-    
+    return result;
   }
-
 }

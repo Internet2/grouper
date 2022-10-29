@@ -125,6 +125,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       try {
         commandLogStarted = commandLogStartLoggingIfConfigured();
   
+        GrouperUtil.mapAddValue(GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner().getDebugMap(), "targetRetrieveAllGroups", 1);
         TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.wrappedDao.retrieveAllGroups(targetDaoRetrieveAllGroupsRequest);
         
         hasError = logGroups(targetDaoRetrieveAllGroupsResponse.getTargetGroups());
@@ -173,6 +174,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       try {
         commandLogStarted = commandLogStartLoggingIfConfigured();
 
+        GrouperUtil.mapAddValue(GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner().getDebugMap(), "targetRetrieveAllEntities", 1);
         TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = this.wrappedDao.retrieveAllEntities(targetDaoRetrieveAllEntitiesRequest);
         hasError = logEntities(targetDaoRetrieveAllEntitiesResponse.getTargetEntities());
         return targetDaoRetrieveAllEntitiesResponse;
@@ -208,6 +210,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       try {
         commandLogStarted = commandLogStartLoggingIfConfigured();
       
+        GrouperUtil.mapAddValue(GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner().getDebugMap(), "targetRetrieveAllMemberships", 1);
         TargetDaoRetrieveAllMembershipsResponse targetDaoRetrieveAllMembershipsResponse = this.wrappedDao.retrieveAllMemberships(targetDaoRetrieveAllMembershipsRequest);
         hasError = logMemberships(targetDaoRetrieveAllMembershipsResponse.getTargetMemberships());
         return targetDaoRetrieveAllMembershipsResponse;
@@ -657,11 +660,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveAllDataResponse retrieveAllData(
       TargetDaoRetrieveAllDataRequest targetDaoRetrieveAllDataRequest) {
 
-    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)) {
+    boolean retrieveAllData = GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)
+        && (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups() 
+            || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups())
+        && (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() 
+            || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities());
+    
+    if (retrieveAllData) {
+      this.getGrouperProvisioner().getDebugMap().put("retrieveAllData", true);
       boolean hasError = false;
       boolean commandLogStarted = false;
       try {
         commandLogStarted = commandLogStartLoggingIfConfigured();
+        GrouperUtil.mapAddValue(GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner().getDebugMap(), "targetRetrieveAll", 1);
         TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse = this.wrappedDao.retrieveAllData(targetDaoRetrieveAllDataRequest);
         if (targetDaoRetrieveAllDataResponse.getTargetData()!=null) {
           if (logEntities(targetDaoRetrieveAllDataResponse.getTargetData().getProvisioningEntities())) {

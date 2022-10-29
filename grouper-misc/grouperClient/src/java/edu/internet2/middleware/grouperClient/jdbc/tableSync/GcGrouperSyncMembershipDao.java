@@ -619,14 +619,7 @@ public class GcGrouperSyncMembershipDao {
     for (GcGrouperSyncMembership gcGrouperSyncMembership : gcGrouperSyncMembershipList) {
       gcGrouperSyncMembership.setGrouperSync(this.getGcGrouperSync());
       this.internal_membershipCacheAdd(gcGrouperSyncMembership);
-      
-      // these are probably there...
-      gcGrouperSyncMembership.setGrouperSyncGroup(
-          this.getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveByIdFromCache(
-            gcGrouperSyncMembership.getGrouperSyncGroupId()));
-      gcGrouperSyncMembership.setGrouperSyncMember(
-          this.getGcGrouperSync().getGcGrouperSyncMemberDao().memberRetrieveByIdFromCache(
-            gcGrouperSyncMembership.getGrouperSyncMemberId()));
+      gcGrouperSyncMembership.assignSyncReferences();
     }
     return gcGrouperSyncMembershipList;
   }
@@ -646,6 +639,8 @@ public class GcGrouperSyncMembershipDao {
     if (gcGrouperSyncMembership != null) {
       gcGrouperSyncMembership.setGrouperSync(this.getGcGrouperSync());
       this.internal_membershipCacheAdd(gcGrouperSyncMembership);
+      gcGrouperSyncMembership.assignSyncReferences();
+
     }
     return gcGrouperSyncMembership;
     
@@ -705,6 +700,8 @@ public class GcGrouperSyncMembershipDao {
         result.put(new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), gcGrouperSyncMembership);
         gcGrouperSyncMembership.setGrouperSync(this.getGcGrouperSync());
         this.internal_membershipCacheAdd(gcGrouperSyncMembership);
+        gcGrouperSyncMembership.assignSyncReferences();
+
       }
       
     }
@@ -748,6 +745,8 @@ public class GcGrouperSyncMembershipDao {
         result.add(gcGrouperSyncMembership);
         gcGrouperSyncMembership.setGrouperSync(this.getGcGrouperSync());
         this.internal_membershipCacheAdd(gcGrouperSyncMembership);
+        gcGrouperSyncMembership.assignSyncReferences();
+
       }
       
     }
@@ -807,6 +806,8 @@ public class GcGrouperSyncMembershipDao {
         result.add(gcGrouperSyncMembership);
         gcGrouperSyncMembership.setGrouperSync(this.getGcGrouperSync());
         this.internal_membershipCacheAdd(gcGrouperSyncMembership);
+        gcGrouperSyncMembership.assignSyncReferences();
+
       }
       
     }
@@ -826,6 +827,8 @@ public class GcGrouperSyncMembershipDao {
     if (gcGrouperSyncMembership != null) {
       gcGrouperSyncMembership.setGrouperSync(this.getGcGrouperSync());
       this.internal_membershipCacheAdd(gcGrouperSyncMembership);
+      gcGrouperSyncMembership.assignSyncReferences();
+
     }
     return gcGrouperSyncMembership;
     
@@ -869,6 +872,8 @@ public class GcGrouperSyncMembershipDao {
         result.put(gcGrouperSyncMembership.getId(), gcGrouperSyncMembership);
         gcGrouperSyncMembership.setGrouperSync(this.getGcGrouperSync());
         this.internal_membershipCacheAdd(gcGrouperSyncMembership);
+        gcGrouperSyncMembership.assignSyncReferences();
+
       }
       
     }

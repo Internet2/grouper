@@ -25,6 +25,30 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class GrouperProvisioningData {
 
   /**
+   * this is stored when target data is retrieved, either all at start of full, or 
+   * certain data if not selecting all
+   */
+  private GrouperProvisioningLists targetProvisioningLists = new GrouperProvisioningLists();
+  
+  /**
+   * this is stored when target data is retrieved, either all at start of full, or 
+   * certain data if not selecting all
+   * @return data
+   */
+  public GrouperProvisioningLists getTargetProvisioningLists() {
+    return this.targetProvisioningLists;
+  }
+
+  /**
+   * this is stored when target data is retrieved, either all at start of full, or 
+   * certain data if not selecting all
+   * @param targetProvisioningLists1
+   */
+  public void setTargetProvisioningLists(GrouperProvisioningLists targetProvisioningLists1) {
+    this.targetProvisioningLists = targetProvisioningLists1;
+  }
+
+  /**
    * cache json to provisioning group so the json doesnt have to be parsed repeatedly
    */
   private Map<String, ProvisioningGroup> cacheJsonToProvisioningGroup = new HashMap<String, ProvisioningGroup>();
@@ -349,6 +373,18 @@ public class GrouperProvisioningData {
     return grouperTargetMemberships;
   }
 
+  /**
+   * 
+   * @return the lists
+   */
+  public GrouperProvisioningLists retrieveGrouperTargetProvisioningLists() {
+    GrouperProvisioningLists result = new GrouperProvisioningLists();
+    result.setProvisioningEntities(this.retrieveGrouperTargetEntities());
+    result.setProvisioningGroups(this.retrieveGrouperTargetGroups());
+    result.setProvisioningMemberships(this.retrieveGrouperTargetMemberships(null));
+    return result;
+  }
+  
   /**
    * extract list of non null grouper provisioning groups
    * @return groups
