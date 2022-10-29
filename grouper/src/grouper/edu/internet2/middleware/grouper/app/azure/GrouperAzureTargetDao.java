@@ -407,47 +407,6 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
-  public TargetDaoUpdateGroupResponse updateGroup(
-      TargetDaoUpdateGroupRequest targetDaoUpdateGroupRequest) {
-    long startNanos = System.nanoTime();
-    ProvisioningGroup targetGroup = targetDaoUpdateGroupRequest.getTargetGroup();
-
-    try {
-      GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-      
-      // lets make sure we are doing the right thing
-      Set<String> fieldNamesToUpdate = new HashSet<String>();
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-        String fieldName = provisioningObjectChange.getAttributeName();
-        fieldNamesToUpdate.add(fieldName);
-      }
-      
-      GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
-      
-      GrouperAzureApiCommands.updateAzureGroup(azureConfiguration.getAzureExternalSystemConfigId(), grouperAzureGroup, fieldNamesToUpdate);
-
-      targetGroup.setProvisioned(true);
-
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-        provisioningObjectChange.setProvisioned(true);
-      }
-
-      return new TargetDaoUpdateGroupResponse();
-    } catch (Exception e) {
-      targetGroup.setProvisioned(false);
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-        provisioningObjectChange.setProvisioned(false);
-      }
-      
-      throw e;
-    } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("updateGroup", startNanos));
-    }
-  }
-  
-  
-  
-  @Override
   public TargetDaoUpdateGroupsResponse updateGroups(TargetDaoUpdateGroupsRequest targetDaoUpdateGroupsRequest) {
     
     long startNanos = System.nanoTime();

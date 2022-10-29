@@ -14287,7 +14287,7 @@ public class GrouperUtil {
    * @param key
    * @param numberToAdd long
    */
-  public static void mapAddValue(Map<String, Object> map, String key, long numberToAdd) {
+  public synchronized static void mapAddValue(Map<String, Object> map, String key, long numberToAdd) {
     if (map == null) {
       return;
     }
@@ -14311,7 +14311,7 @@ public class GrouperUtil {
    * @param key
    * @param numberToAdd long
    */
-  public static long mapAddValueObjectKey(Map<Object, Object> map, Object key, long numberToAdd) {
+  public synchronized static long mapAddValueObjectKey(Map<Object, Object> map, Object key, long numberToAdd) {
     if (map == null) {
       return -1;
     }
@@ -14335,7 +14335,7 @@ public class GrouperUtil {
    * @param key
    * @param numberToAdd int
    */
-  public static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
+  public synchronized static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
     if (map == null) {
       return;
     }
@@ -14360,7 +14360,7 @@ public class GrouperUtil {
    * @param numberToAdd int
    * @return new count
    */
-  public static int mapAddValueObjectKey(Map<Object, Object> map, Object key, int numberToAdd) {
+  public synchronized static int mapAddValueObjectKey(Map<Object, Object> map, Object key, int numberToAdd) {
     if (map == null) {
       return -1;
     }

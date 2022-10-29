@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -621,7 +622,22 @@ public abstract class GrouperProvisioner {
   /**
    * debug map for this provisioner
    */
-  private Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  private Map<String, Object> debugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
+  
+  private static ThreadLocal<GrouperProvisioner> threadLocalGrouperProvisioner = new InheritableThreadLocal<>();
+  
+  public static GrouperProvisioner retrieveCurrentGrouperProvisioner() {
+    return threadLocalGrouperProvisioner.get();
+  }
+  
+  public static void assignCurrentGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    threadLocalGrouperProvisioner.set(grouperProvisioner);
+  }
+  
+  public static void removeCurrentGrouperProvisioner() {
+    threadLocalGrouperProvisioner.remove();
+  }
+  
   /**
    * provisioning table about this provisioner
    */
@@ -698,7 +714,9 @@ public abstract class GrouperProvisioner {
 
     if (!this.initialized) {
 
-      this.debugMap = new LinkedHashMap<String, Object>();
+      this.debugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
+      
+      threadLocalGrouperProvisioner.set(this);
 
       GcDbAccess.threadLocalQueryCountReset();
 
@@ -881,6 +899,8 @@ public abstract class GrouperProvisioner {
     }
     
     this.retrieveGrouperProvisioningOutput().setMessage(theMessage);
+    
+    threadLocalGrouperProvisioner.remove();
 
     // this isnt good
     if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
@@ -889,6 +909,7 @@ public abstract class GrouperProvisioner {
       }
       throw new RuntimeException(debugString);
     }
+        
   }
 
   

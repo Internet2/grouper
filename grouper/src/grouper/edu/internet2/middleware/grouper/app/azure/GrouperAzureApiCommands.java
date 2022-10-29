@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -287,7 +288,7 @@ public class GrouperAzureApiCommands {
         if (statusCode == 429) {
           throttledGroupsToCreate.add(grouperAzureGroup);
           
-          int localSecondsToSleep = retrieveSecondsToSleep(bodyNode);
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
           secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
           
         } else if (statusCode != 201) {
@@ -308,11 +309,22 @@ public class GrouperAzureApiCommands {
     }
     
     if (throttledGroupsToCreate.size() > 0) {
+      
       if (secondsToSleep < 0) {
-        GrouperUtil.sleep(155 * 1000);
-      } else {
-        GrouperUtil.sleep(secondsToSleep * 1000);
+        secondsToSleep = 155;
       }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
       createGroupsHelper(configId, debugMap, throttledGroupsToCreate, groupToMayBeException, groupToFieldNamesToInsert);
     }
     
@@ -472,7 +484,7 @@ public class GrouperAzureApiCommands {
         if (statusCode == 429) {
           throttledUsersToCreate.add(grouperAzureUser);
           
-          int localSecondsToSleep = retrieveSecondsToSleep(bodyNode);
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
           secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
           
         } else if (statusCode != 201) {
@@ -494,11 +506,20 @@ public class GrouperAzureApiCommands {
     
     if (throttledUsersToCreate.size() > 0) {
       if (secondsToSleep < 0) {
-        // default seconds is 150 but we're adding 5 extra just for extra safety
-        GrouperUtil.sleep(155 * 1000);
-      } else {
-        GrouperUtil.sleep(secondsToSleep * 1000);
+        secondsToSleep = 155;
       }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
       createUsersHelper(configId, debugMap, throttledUsersToCreate, userToMayBeException, fieldsToCreate);
       
     }
@@ -569,12 +590,28 @@ public class GrouperAzureApiCommands {
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
       
       int[] returnCode = new int[] { -1 };
+      
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureMemberhipErrorCount", 1);
+      }
+      
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/$ref",
           GrouperUtil.toSet(204, 400, 429), returnCode, jsonStringToSend);
       
       if (returnCode[0] == 429) {
-        int secondsToSleep = retrieveSecondsToSleep(jsonNode);
+        int secondsToSleep = retrieveSecondsToSleep(null);
         GrouperUtil.sleep(secondsToSleep * 1000);
+        
+        GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+        }
+        
+        GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+        }
+        
         createAzureMembership(configId, groupId, userId);
       }
 
@@ -664,7 +701,7 @@ public class GrouperAzureApiCommands {
           
           throttledUserIdsToCreate.addAll(batchOfUserIdsThatDidNotSucceed);
           
-          int localSecondsToSleep = retrieveSecondsToSleep(bodyNode);
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
           secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
           
         } else if (statusCode != 204 && statusCode != 400) {
@@ -686,13 +723,23 @@ public class GrouperAzureApiCommands {
       }
     }
     
-    
     if (throttledUserIdsToCreate.size() > 0) {
+
       if (secondsToSleep < 0) {
-        GrouperUtil.sleep(155 * 1000);
-      } else {
-        GrouperUtil.sleep(secondsToSleep * 1000);
+        secondsToSleep = 155;
       }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
       createMembershipsHelper(configId, debugMap, groupId, throttledUserIdsToCreate, groupIdUserIdToException);
     }
     
@@ -756,59 +803,6 @@ public class GrouperAzureApiCommands {
 
   }
 
-  /**
-   * update a group
-   * @param grouperAzureGroup
-   * @return the result
-   */
-  public static GrouperAzureGroup updateAzureGroup(String configId,
-      GrouperAzureGroup grouperAzureGroup, Set<String> fieldsToUpdate) {
-
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "updateAzureGroup");
-
-    long startTime = System.nanoTime();
-
-    try {
-
-      String id = grouperAzureGroup.getId();
-      
-      if (StringUtils.isBlank(id)) {
-        throw new RuntimeException("id is null: " + grouperAzureGroup);
-      }
-
-      if (fieldsToUpdate.contains("id")) {
-        throw new RuntimeException("Cant update the id field: " + grouperAzureGroup + ", " + GrouperUtil.setToString(fieldsToUpdate));
-      }
-      
-      JsonNode jsonToSend = grouperAzureGroup.toJson(fieldsToUpdate);
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
-
-      int[] returnCode = new int[] { -1 }; 
-      
-      JsonNode jsonNode = executeMethod(debugMap, "PATCH", configId, "/groups/" + GrouperUtil.escapeUrlEncode(id),
-          GrouperUtil.toSet(204), returnCode, jsonStringToSend);
-      
-      if (returnCode[0] == 429) {
-        int secondsToSleep = retrieveSecondsToSleep(jsonNode);
-        GrouperUtil.sleep(secondsToSleep * 1000);
-        return updateAzureGroup(configId, grouperAzureGroup, fieldsToUpdate);
-      }
-
-      GrouperAzureGroup grouperAzureGroupResult = GrouperAzureGroup.fromJson(jsonNode);
-
-      return grouperAzureGroupResult;
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      GrouperAzureLog.azureLog(debugMap, startTime);
-    }
-
-  }
-  
-  
   private static void updateGroupsHelper(String configId, Map<String, Object> debugMap, 
       List<GrouperAzureGroup> groupsInOneHttpRequest, Map<GrouperAzureGroup, Exception> groupToMayBeException, 
       Map<GrouperAzureGroup, Set<String>> azureGroupToFieldNamesToUpdate) {
@@ -863,7 +857,7 @@ public class GrouperAzureApiCommands {
         if (statusCode == 429) {
           throttledGroupsToUpdate.add(grouperAzureGroup);
           
-          int localSecondsToSleep = retrieveSecondsToSleep(bodyNode);
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
           secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
           
         } else if (statusCode != 204) {
@@ -880,10 +874,21 @@ public class GrouperAzureApiCommands {
     
     if (throttledGroupsToUpdate.size() > 0) {
       if (secondsToSleep < 0) {
-        GrouperUtil.sleep(155 * 1000);
-      } else {
-        GrouperUtil.sleep(secondsToSleep * 1000);
+        secondsToSleep = 155;
       }
+     
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
       updateGroupsHelper(configId, debugMap, throttledGroupsToUpdate, groupToMayBeException, azureGroupToFieldNamesToUpdate);
     }
     
@@ -986,7 +991,7 @@ public class GrouperAzureApiCommands {
         if (statusCode == 429) {
           throttledUsersToUpdate.add(grouperAzureUser);
           
-          int localSecondsToSleep = retrieveSecondsToSleep(bodyNode);
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
           secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
           
         } else if (statusCode != 204) {
@@ -1004,11 +1009,21 @@ public class GrouperAzureApiCommands {
     
     if (throttledUsersToUpdate.size() > 0) {
       if (secondsToSleep < 0) {
-        // default seconds is 150 but we're adding 5 extra just for extra safety
-        GrouperUtil.sleep(155 * 1000);
-      } else {
-        GrouperUtil.sleep(secondsToSleep * 1000);
+        secondsToSleep = 155;
       }
+     
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
       updateUsersHelper(configId, debugMap, throttledUsersToUpdate, userToMayBeException, azureUserToFieldNamesToUpdate);
       
     }
@@ -1101,7 +1116,7 @@ public class GrouperAzureApiCommands {
         if (statusCode == 429) {
           throttledGroupsToDelete.add(grouperAzureGroup);
           
-          int localSecondsToSleep = retrieveSecondsToSleep(bodyNode);
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
           secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
           
         } else if (statusCode != 204 && statusCode != 404) {
@@ -1118,10 +1133,20 @@ public class GrouperAzureApiCommands {
     
     if (throttledGroupsToDelete.size() > 0) {
       if (secondsToSleep < 0) {
-        GrouperUtil.sleep(155 * 1000);
-      } else {
-        GrouperUtil.sleep(secondsToSleep * 1000);
+        secondsToSleep = 155;
       }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
       deleteGroupsHelper(configId, debugMap, throttledGroupsToDelete, groupToMayBeException);
       
     }
@@ -1185,8 +1210,19 @@ public class GrouperAzureApiCommands {
         JsonNode jsonNode = executeGetMethod(debugMap, configId, nextLink, returnCode);
         
         if (returnCode[0] == 429) {
-          int secondsToSleep = retrieveSecondsToSleep(jsonNode);
+          int secondsToSleep = retrieveSecondsToSleep(null);
           GrouperUtil.sleep(secondsToSleep * 1000);
+          
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+          }
+          
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+          }
+          
           continue;
         }
         
@@ -1242,8 +1278,19 @@ public class GrouperAzureApiCommands {
         JsonNode jsonNode = executeGetMethod(debugMap, configId, nextLink, returnCode);
         
         if (returnCode[0] == 429) {
-          int secondsToSleep = retrieveSecondsToSleep(jsonNode);
+          int secondsToSleep = retrieveSecondsToSleep(null);
           GrouperUtil.sleep(secondsToSleep * 1000);
+          
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+          }
+          
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+          }
+          
           continue;
         }
   
@@ -1336,7 +1383,7 @@ public class GrouperAzureApiCommands {
         if (statusCode == 429) {
           throttledFieldValues.add(fieldValue);
           
-          int localSecondsToSleep = retrieveSecondsToSleep(bodyNode);
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
           secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
           
         } else if (statusCode != 200 && statusCode != 404) {
@@ -1373,9 +1420,18 @@ public class GrouperAzureApiCommands {
     
     if (throttledFieldValues.size() > 0) {
       if (secondsToSleep < 0) {
-        GrouperUtil.sleep(155 * 1000);
-      } else {
-        GrouperUtil.sleep(secondsToSleep * 1000);
+        secondsToSleep = 155;
+      }
+     
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
       }
       retrieveUsersHelper(configId, debugMap, fieldName, throttledFieldValues, result);
     }
@@ -1432,8 +1488,19 @@ public class GrouperAzureApiCommands {
         "{\"securityEnabledOnly\": " + securityEnabledOnly + "}");
 
     if (returnCode[0] == 429) {
-      int secondsToSleep = retrieveSecondsToSleep(jsonNode);
+      int secondsToSleep = retrieveSecondsToSleep(null);
       GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
       retrieveUserGroupsHelper(configId, debugMap, urlSuffix, securityEnabledOnly, result);
     } else {
       ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
@@ -1517,8 +1584,19 @@ public class GrouperAzureApiCommands {
       JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
       
       if (returnCode[0] == 429) {
-        int secondsToSleep = retrieveSecondsToSleep(jsonNode);
+        int secondsToSleep = retrieveSecondsToSleep(null);
         GrouperUtil.sleep(secondsToSleep * 1000);
+        
+        GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+        }
+        
+        GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+        }
+        
         return retrieveAzureGroupMembers(configId, groupId);
       }
       
@@ -1545,8 +1623,18 @@ public class GrouperAzureApiCommands {
         JsonNode localJsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
         
         if (returnCode[0] == 429) {
-          int secondsToSleep = retrieveSecondsToSleep(jsonNode);
+          int secondsToSleep = retrieveSecondsToSleep(null);
           GrouperUtil.sleep(secondsToSleep * 1000);
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+          }
+          
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+          }
+          
           continue;
         }
         
@@ -1632,7 +1720,7 @@ public class GrouperAzureApiCommands {
         if (statusCode == 429) {
           throttledFieldValues.add(fieldValue);
           
-          int localSecondsToSleep = retrieveSecondsToSleep(bodyNode);
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
           secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
           
         } else if (statusCode != 200 && statusCode != 404) {
@@ -1670,10 +1758,21 @@ public class GrouperAzureApiCommands {
     
     if (throttledFieldValues.size() > 0) {
       if (secondsToSleep < 0) {
-        GrouperUtil.sleep(155 * 1000);
-      } else {
-        GrouperUtil.sleep(secondsToSleep * 1000);
+        secondsToSleep = 155;
       }
+     
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
       retrieveGroupsHelper(configId, debugMap, fieldName, throttledFieldValues, result);
     }
   
@@ -1764,7 +1863,7 @@ public class GrouperAzureApiCommands {
         if (statusCode == 429) {
           throttledMembershipsToDelete.add(provisioningMembership);
           
-          int localSecondsToSleep = retrieveSecondsToSleep(bodyNode);
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
           secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
           
         } else if (statusCode != 204 && statusCode != 404) {
@@ -1779,9 +1878,19 @@ public class GrouperAzureApiCommands {
     
     if (throttledMembershipsToDelete.size() > 0) {
       if (secondsToSleep < 0) {
-        GrouperUtil.sleep(155 * 1000);
-      } else {
-        GrouperUtil.sleep(secondsToSleep * 1000);
+        secondsToSleep = 155;
+      }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
       }
       deleteMembershipsHelper(configId, debugMap, throttledMembershipsToDelete, membershipToMayBeException);
       
@@ -1871,7 +1980,7 @@ public class GrouperAzureApiCommands {
         if (statusCode == 429) {
           throttledUsersToDelete.add(grouperAzureUser);
           
-          int localSecondsToSleep = retrieveSecondsToSleep(bodyNode);
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
           secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
           
         } else if (statusCode != 204 && statusCode != 404) {
@@ -1889,32 +1998,41 @@ public class GrouperAzureApiCommands {
     
     if (throttledUsersToDelete.size() > 0) {
       if (secondsToSleep < 0) {
-        GrouperUtil.sleep(155 * 1000);
-      } else {
-        GrouperUtil.sleep(secondsToSleep * 1000);
+        secondsToSleep = 155;
       }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
       deleteUsersHelper(configId, debugMap, throttledUsersToDelete, userToMayBeException);
     }
     
   }
   
-  // Your request is throttled temporarily. Please try after 150 seconds.“
-  private static Pattern throttleSeconds = Pattern.compile("^.*?([0-9]+) seconds.*$");
-  
-  private static int retrieveSecondsToSleep(JsonNode bodyNode) {
+  private static int retrieveSecondsToSleep(JsonNode oneResponse) {
     int secondsToSleep = 155;
+    
+    if (oneResponse != null) {
+      return secondsToSleep;
+    }
     try {
-      JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(bodyNode, "error");
-      String errorMessage = GrouperUtil.jsonJacksonGetString(errorNode, "message");
       
-      Matcher matcher = throttleSeconds.matcher(errorMessage);
-      if (matcher.matches()) {
-        String secondsString = matcher.group(1);
-        return GrouperUtil.intValue(secondsString) + 5;
-      }
+      JsonNode headers = GrouperUtil.jsonJacksonGetNode(oneResponse, "headers");
+      String retryAfter = GrouperUtil.jsonJacksonGetString(headers, "Retry-After");
+      secondsToSleep = GrouperUtil.intValue(retryAfter, 155);
       
     } catch (Exception e) {
-      LOG.debug("Problem with: "+bodyNode, e);
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Problem with: "+oneResponse, e);
+      }
     }
     
     return secondsToSleep;
