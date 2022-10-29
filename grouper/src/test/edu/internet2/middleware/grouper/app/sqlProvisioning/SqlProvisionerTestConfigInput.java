@@ -13,6 +13,33 @@ import edu.internet2.middleware.grouper.app.scim.ScimProvisionerTestConfigInput;
  */
 public class SqlProvisionerTestConfigInput {
 
+  /**
+   * null will use params
+   * pennListserv is the use case from penn listserv
+   */
+  private String provisioningStrategy = null;
+  
+  /**
+   * null will use params
+   * pennListserv is the use case from penn listserv
+   * @return
+   */
+  public String getProvisioningStrategy() {
+    return provisioningStrategy;
+  }
+
+  /**
+   * null will use params
+   * pennListserv is the use case from penn listserv
+   * @param provisioningStrategy
+   * @return this for chaining
+   */
+  public SqlProvisionerTestConfigInput assignProvisioningStrategy(String provisioningStrategy) {
+    this.provisioningStrategy = provisioningStrategy;
+    return this;
+  }
+
+
   private boolean cacheObjects = false;
   
   public boolean isCacheObjects() {

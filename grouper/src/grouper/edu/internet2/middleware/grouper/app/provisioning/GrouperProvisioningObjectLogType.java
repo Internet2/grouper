@@ -32,13 +32,13 @@ public enum GrouperProvisioningObjectLogType {
       
     }
   }, 
-  retrieveAllDataFromTarget {
+  retrieveTargetData {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
 
-      GrouperProvisioningLists targetProvisioningData = (GrouperProvisioningLists)data[0];
+      GrouperProvisioningLists targetProvisioningData = grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningLists();
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", targetProvisioningData.getProvisioningGroups(), "groups");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", targetProvisioningData.getProvisioningEntities(), "entities");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", targetProvisioningData.getProvisioningMemberships(), "memberships");
@@ -68,49 +68,6 @@ public enum GrouperProvisioningObjectLogType {
     }
   }, 
 
-  retrieveTargetData {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
-    }
-  }, 
-  manipulateTargetGroups {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      
-      Set<ProvisioningGroup> groups = (Set<ProvisioningGroup>)data[0];
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", groups, "groups");
-
-    }
-  }, 
-  manipulateTargetEntities {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      
-      Set<ProvisioningEntity> entities = (Set<ProvisioningEntity>)data[0];
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", entities, "entities");
-
-    }
-  }, 
-  manipulateTargetMemberships {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      
-      Set<ProvisioningMembership> memberships = (Set<ProvisioningMembership>)data[0];
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", memberships, "memberships");
-
-    }
-  }, 
   manipulateGrouperTargetGroups {
 
     @Override
@@ -391,32 +348,6 @@ public enum GrouperProvisioningObjectLogType {
     }
   }, 
   
-  retrieveIndividualEntitiesIfNeeded {
-    
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-
-      Collection<ProvisioningEntity> retrieveEntities = (Collection<ProvisioningEntity>)data[0];
-
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", retrieveEntities, "entities");
-      
-    }
-    
-  },
-  
-  retrieveIndividualGroupsIfNeeded {
-    
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      Collection<ProvisioningGroup> retrieveGroups = (Collection<ProvisioningGroup>)data[0];
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", retrieveGroups, "groups");
-      
-    }
-    
-  },
-  
   retrieveIndividualMissingGroups {
     
     @Override
@@ -448,19 +379,6 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   }, 
-  matchingIdTargetObjects {
-
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
-
-      
-    }
-  },
   logIncomingDataUnprocessed {
 
     @Override

@@ -99,8 +99,6 @@ public class SqlProvisionerCommands {
       List<String> filterColumns0small, List<Object> filterValuesByColumn0small, List<String> filterColumns1large, List<Object> filterValuesByColumn1large,
       String deletedColumnName, boolean deleted) {
 
-    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
-
     StringBuilder sqlInitial = new StringBuilder("select " + GrouperUtil.join(columnList.iterator(), ", ") + " from " + tableName);
 
     List<Object[]> overallResults = new ArrayList<Object[]>();
@@ -127,6 +125,9 @@ public class SqlProvisionerCommands {
 
     for (int i = 0; i < numberOfBatches; i++) {
       
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+
+
       List<Object> currentBatchFilterValues1large = GrouperUtil.batchList(filterValuesByColumn1large, 900, i);
       StringBuilder sql = new StringBuilder(sqlInitial);
       

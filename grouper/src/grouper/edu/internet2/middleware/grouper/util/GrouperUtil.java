@@ -385,7 +385,7 @@ public class GrouperUtil {
       Map<String, Object> elVariableMap = new HashMap<String, Object>();
       elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
       Object result = GrouperUtil.substituteExpressionLanguageScript(
-          "${ var hasExtension = grouperProvisioningGroup.displayExtension ? true : false; if (hasExtension) {'hasIt'} else {'doesntHaveIt'}}", 
+          "${ var extensionExists = grouperProvisioningGroup.extension ? true : false;  var idIndexExists = grouperProvisioningGroup.idIndex ? true : false;  if (extensionExists && idIndexExists) { edu.internet2.middleware.grouper.util.GrouperUtil.ldapEscapeRdnValue(grouperProvisioningGroup.extension + '-' + grouperProvisioningGroup.idIndex) ; } else {null;} } ", 
           elVariableMap, true, false, false);
       System.out.println(result);
     

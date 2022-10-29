@@ -170,7 +170,8 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
             }
 
             dn = GrouperUtil.ldapBushyDn(provisioningGroupWrapper.getGrouperProvisioningGroup().getName(), groupRdnAttributeName, groupRdnAttributeValue, ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
-          } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat) {
+          } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat
+              || (ldapSyncConfiguration.getGroupDnType() == null)) {
             String groupRdnAttributeValue = (String)((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName).getValue();
             dn = GrouperUtil.ldapEscapeRdn(groupRdnAttributeName + "=" + groupRdnAttributeValue) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
           } else {

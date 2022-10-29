@@ -863,6 +863,7 @@ public class GrouperProvisioningBehavior {
           
         GcGrouperSyncGroup grouperSyncGroup = gcGrouperSyncMembership.getGrouperSyncGroup();
         if (grouperSyncGroup == null) {
+          // maybe the grouperSyncGroup needs to be put in the membership somewhere
           return false;
         }
         
@@ -1355,6 +1356,23 @@ public class GrouperProvisioningBehavior {
     }
     
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+
+      if (!this.isSelectEntitiesAll() &&
+          (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
+              .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)
+            || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
+                .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false))) {
+        return false;
+      }
+
+      if (!this.isSelectGroupsAll() &&
+          (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
+              .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)
+            || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
+                .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false))) {
+        return false;
+      }
+      
       return true;
     }
     
