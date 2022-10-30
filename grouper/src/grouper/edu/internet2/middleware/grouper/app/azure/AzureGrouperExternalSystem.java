@@ -26,6 +26,10 @@ public class AzureGrouperExternalSystem extends GrouperExternalSystem {
    */
   private static ExpirableCache<String, MultiKey> configKeyToExpiresOnAndBearerToken = new ExpirableCache<String, MultiKey>(60);
 
+  public static void clearCache() {
+    configKeyToExpiresOnAndBearerToken.clear();
+  }
+  
   @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_LOADER_PROPERTIES;

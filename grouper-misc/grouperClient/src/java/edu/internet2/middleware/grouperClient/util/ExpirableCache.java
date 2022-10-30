@@ -311,7 +311,7 @@ public class ExpirableCache<K,V> implements Serializable {
     long now = System.currentTimeMillis();
     
     //first see if there is an all clear
-    if (lastClearStatic > this.lastClear) {
+    if (lastClearStatic >= this.lastClear) {
       this.clear();
       this.lastClear = now;
       return;

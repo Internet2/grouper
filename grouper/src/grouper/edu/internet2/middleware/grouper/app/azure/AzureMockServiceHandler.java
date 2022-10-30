@@ -326,9 +326,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           }
           
           responsesNode.add(getGroupsResponse);
-        }
-        
-        if (StringUtils.equals(urlParts[0], "/groups") && urlParts.length == 2 ) { // get a particular group
+        } else if (StringUtils.equals(urlParts[0], "/groups") && urlParts.length == 2 ) { // get a particular group
           
 //          MultiKey getGroupResult = getGroup1(urlParts[1], keyValue.get("$select"));
 //          ObjectNode getGroupResponse = GrouperUtil.jsonJacksonNode();
@@ -339,9 +337,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 //          }
 //          
 //          responsesNode.add(getGroupResponse);
-        }
-        
-        if ( urlPartsList.size() == 1 && StringUtils.startsWith(urlPartsList.get(0), "users?")) {
+        } else if ( urlPartsList.size() == 1 && StringUtils.startsWith(urlPartsList.get(0), "users?")) {
           
           String groupsFilter = urlPartsList.get(0);
           String[] beforeAfterGroups = groupsFilter.split("users\\?");
@@ -364,10 +360,10 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           }
           
           responsesNode.add(getUsersResponse);
-        }
+        } else if (urlPartsList.size() == 2 && "users".equals(urlPartsList.get(0))) {
 
         // /users/upn@domain.com?$select=accountEnabled,displayName,id,mailNickname,onPremisesImmutableId,userPrincipalName
-        if (urlPartsList.size() == 2 && "users".equals(urlPartsList.get(0))) {
+        
 
           String filter = urlPartsList.get(1);
           String[] beforeAfterUser = filter.split("\\?\\$select=");
@@ -387,10 +383,13 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           }
 
           responsesNode.add(getUsersResponse);
+        } else {
+          throw new RuntimeException("Not expecting get url: " + url);
         }
       } else if (StringUtils.equalsIgnoreCase(httpMethod, "post")) {
         
         JsonNode body = GrouperUtil.jsonJacksonGetNode(singleRequestNode, "body");
+        String[] urlParts = url.split("/");
 
         if ("/groups".equals(url)) {
           
@@ -405,9 +404,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           
           responsesNode.add(postGroupResponse);
           
-        }
-        
-        if ("/users".equals(url)) {
+        } else if ("/users".equals(url)) {
           MultiKey postUsersResult = postUsers(body);
           
           ObjectNode postUserResponse = GrouperUtil.jsonJacksonNode();
@@ -418,10 +415,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           }
           
           responsesNode.add(postUserResponse);
-        }
-        
-        String[] urlParts = url.split("/");
-        if (urlParts.length == 4 && StringUtils.equals(urlParts[0], "groups") 
+        } else if (urlParts.length == 4 && StringUtils.equals(urlParts[0], "groups") 
             && StringUtils.equals(urlParts[2], "members") && StringUtils.equals(urlParts[3], "$ref")) {
           
           
@@ -435,9 +429,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           
           responsesNode.add(postUserResponse);
           
-        }
-        
-        if (urlParts.length == 3 && StringUtils.equals(urlParts[0], "users") 
+        } else if (urlParts.length == 3 && StringUtils.equals(urlParts[0], "users") 
             && StringUtils.equals(urlParts[2], "getMemberGroups")) {
           
           
@@ -451,12 +443,12 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           
           responsesNode.add(postUserResponse);
           
-        }
-        
-        if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length
+        } else if ("users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length
             && "getMemberGroups".equals(mockServiceRequest.getPostMockNamePaths()[2])) {
           postUserGroups(mockServiceRequest, mockServiceResponse);
           return;
+        } else {
+          throw new RuntimeException("Not expecting post URL: " + url);
         }
         
       } else if (StringUtils.equalsIgnoreCase(httpMethod, "patch")) {
@@ -477,6 +469,8 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           
           responsesNode.add(postUserResponse);
           
+        } else {
+          throw new RuntimeException("Not expecting patch URL: " + url);
         }
         
       } else if (StringUtils.equalsIgnoreCase(httpMethod, "delete")) {
@@ -498,12 +492,12 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           }
           responsesNode.add(response);
           
-        }
+        } else if (urlParts.length == 3 && StringUtils.equals(urlParts[1], "groups")) {
         
         /**
          * {"requests":[{"id":"0","url":"/groups/f1fdeacd5c834733a7d26556969571f8","method":"DELETE"}]}
          */
-        if (urlParts.length == 3 && StringUtils.equals(urlParts[1], "groups")) {
+        
           
           MultiKey result = deleteGroups(urlParts[2]);
           ObjectNode response = GrouperUtil.jsonJacksonNode();
@@ -514,9 +508,29 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           }
           responsesNode.add(response);
           
+        } else if (urlParts.length == 3 && StringUtils.equals(urlParts[1], "users")) {
+        
+        /**
+         * {"requests":[{"id":"0","url":"/users/f1fdeacd5c834733a7d26556969571f8","method":"DELETE"}]}
+         */
+        
+          
+          MultiKey result = deleteUsers(urlParts[2]);
+          ObjectNode response = GrouperUtil.jsonJacksonNode();
+          response.put("id", id);
+          response.put("status", (Integer)result.getKey(0));
+          if (result.getKey(1) != null) {
+            response.set("body", (JsonNode)result.getKey(1));
+          }
+          responsesNode.add(response);
+          
+        } else {
+          throw new RuntimeException("Not expecting patch URL: " + url);
         }
         
         
+      } else {
+        throw new RuntimeException("Not expecting method: " + httpMethod + ", " + url);
       }
       
       
@@ -1003,6 +1017,29 @@ public class AzureMockServiceHandler extends MockServiceHandler {
       return new MultiKey(404, null);
     } else {
       throw new RuntimeException("groupsDeleted: " + groupsDeleted);
+    }
+  }
+  
+  public MultiKey deleteUsers(String userId) {
+    
+    String id = userId;
+    
+    GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
+
+    int membershipsDeleted = HibernateSession.byHqlStatic()
+        .createQuery("delete from GrouperAzureMembership where userId = :theId")
+        .setString("theId", id).executeUpdateInt();
+    
+    int usersDeleted = HibernateSession.byHqlStatic()
+        .createQuery("delete from GrouperAzureUser where id = :theId")
+        .setString("theId", id).executeUpdateInt();
+
+    if (usersDeleted == 1) {
+      return new MultiKey(204, null);
+    } else if (usersDeleted == 0) {
+      return new MultiKey(404, null);
+    } else {
+      throw new RuntimeException("usersDeleted: " + usersDeleted);
     }
   }
   

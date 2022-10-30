@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
@@ -66,7 +67,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testDeleteMembershipsInTrackedGroupsOnlyTrue"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testUdelIncremental"));
   }
 
   public GrouperAzureProvisionerTest(String name) {
@@ -82,6 +83,9 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   public void setUp() {
     super.setUp();
 
+    // not sure why this is necessary since all caches are cleared in tests, but oh well
+    AzureGrouperExternalSystem.clearCache();
+    
     // this will create tables
     AzureMockServiceHandler.ensureAzureMockTables();
 
@@ -611,7 +615,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     List<GrouperAzureUser> grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId()), "userPrincipalName");
     assertNotNull(grouperAzureUsers);
     assertTrue(grouperAzureUsers.size() > 0);
-    List<GrouperAzureUser> grouperAzureUsers1 = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId()), "userPrincipalName");
+    List<GrouperAzureUser> grouperAzureUsers1 = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred1.getId()), "userPrincipalName");
     assertNotNull(grouperAzureUsers1);
     assertTrue(grouperAzureUsers1.size() > 0);
 
@@ -682,7 +686,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(grouperAzureUsers.size() > 0);
     grouperAzureUsers1 = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred1.getId()), "userPrincipalName");
     assertNotNull(grouperAzureUsers1);
-    assertTrue(grouperAzureUsers.size() == 0);
+    assertEquals(0, grouperAzureUsers1.size());
     
     userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", grouperAzureGroup.getId());
     assertEquals(1, GrouperUtil.length(userIds));
@@ -709,7 +713,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(grouperAzureUsers.size() > 0);
     grouperAzureUsers1 = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred1.getId()), "userPrincipalName");
     assertNotNull(grouperAzureUsers1);
-    assertTrue(grouperAzureUsers1.size() > 0);
+    assertEquals(0, grouperAzureUsers1.size());
     List<GrouperAzureUser> grouperAzureUsers3 = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred3.getId()), "userPrincipalName");
     assertNotNull(grouperAzureUsers3);
     assertTrue(grouperAzureUsers3.size() > 0);
@@ -1395,6 +1399,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       AzureProvisionerTestUtils.configureAzureProvisioner(new AzureProvisionerTestConfigInput()
           .assignGroupAttributeCount(5)
           .addExtraConfig("selectAllGroups", "false")
+          .addExtraConfig("selectAllEntities", "false")
           );
       
       // this will create tables
@@ -1512,10 +1517,10 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
       
-      assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAll")));
-      assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllGroups")));
-      assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllEntities")));
-      assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllMemberships")));
+      assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAll"), 0));
+      assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllGroups"), 0));
+      assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllEntities"), 0));
+      assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllMemberships"), 0));
 
     } finally {
       
