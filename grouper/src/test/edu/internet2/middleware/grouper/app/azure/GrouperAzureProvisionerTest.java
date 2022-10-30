@@ -39,8 +39,34 @@ import junit.textui.TestRunner;
 
 public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   
+  /**
+   * set to true for large stress test
+   */
+  private static final boolean AZURE_STRESS = false; 
+
+  /**
+   * if all users and groups should be deleted before test
+   */
+  private static final boolean AZURE_DELETE_OBJECTS_BEFORE_TESTS = true; 
+  
+
+  /**
+   * 
+   */
+  private static final int AZURE_USERS_TO_CREATE = AZURE_STRESS ? 5000 : 50;
+  
+  /**
+   * 
+   */
+  private static final int AZURE_GROUPS_TO_CREATE = AZURE_STRESS ? 5000 : 50;
+  
+  /**
+   * 
+   */
+  private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
+  
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureDontSelectAll"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testUdelLargeOperationsFull"));
   }
 
   public GrouperAzureProvisionerTest(String name) {
@@ -63,7 +89,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     return "myAzureProvisioner";
   }
 
-  public static void realAzureAddUsers() {
+  public static void realAzureAddUsersAndGroups() {
     
     AzureProvisionerTestUtils.configureAzureProvisioner(
         new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(4).assignRealAzure(true).assignUdelUseCase(true)
@@ -75,7 +101,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
 //    List<GrouperAzureUser> azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(name + "@" + domain), "userPrincipalName");
     
-    for (int i=5000;i<10000;i++) {
+    for (int i=AZURE_USERS_TO_CREATE;i<AZURE_USERS_TO_CREATE*2;i++) {
       String name = "Fred" + i;
       
       
@@ -99,7 +125,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
 //    assertTrue(GrouperUtil.length(grouperAzureUsers) > 210);
     
-    for (int i=0;i<0;i++) {
+    for (int i=AZURE_GROUPS_TO_CREATE;i<AZURE_GROUPS_TO_CREATE*2;i++) {
       String name = "test" + i;
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(name),  "displayName");
       if (grouperAzureGroups == null || grouperAzureGroups.size() == 0) {
@@ -118,7 +144,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
   }
   
-  public static void realAzureDeleteUsers() {
+  public static void realAzureDeleteUsersAndGroups() {
     
     GrouperSession.startRootSession();
     
@@ -126,8 +152,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
         new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(2).assignRealAzure(true).assignUdelUseCase(true)
         .assignDisplayNameMapping("extension").addExtraConfig("azureGroupType", "true"));
     
-    String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
-
     List<GrouperAzureUser> grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
     
     List<GrouperAzureUser> grouperAzureUsersToDelete = new ArrayList<>();
@@ -138,7 +162,11 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     }
     
     GrouperAzureApiCommands.deleteAzureUsers("myAzure", grouperAzureUsersToDelete);
+
+    List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
     
+    GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups);
+
 //    for (int i=0;i<350;i++) {
 //      String name = "Fred" + i;
 //      List<GrouperAzureUser> grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(name + "@" + domain), "userPrincipalName");
@@ -336,8 +364,21 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   }
   
   public void testUdelLargeOperationsFull() {
+    assertEquals("memberships must be divisible by 2", 0, AZURE_MEMBERSHIPS_TO_CREATE%2);
+    assertTrue("memberships must be less than equals users * groups", AZURE_MEMBERSHIPS_TO_CREATE <= (AZURE_USERS_TO_CREATE*AZURE_GROUPS_TO_CREATE));
+    
     GrouperStartup.startup();
     GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    if (AZURE_DELETE_OBJECTS_BEFORE_TESTS) {
+      realAzureDeleteUsersAndGroups();
+      GrouperUtil.sleep(10000);
+    }
+    
+    List<GrouperAzureUser> azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
+    int initialUserSize = GrouperUtil.length(azureUsers);
+
+    
     String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
     
     AzureProvisionerTestUtils.configureAzureProvisioner(
@@ -350,22 +391,36 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     Stem stem = new StemSave(grouperSession).assignName("test").save();
     
     List<Group> groups = new ArrayList<>();
-    for (int i=0;i<100;i++) {
+    for (int i=0;i<AZURE_GROUPS_TO_CREATE;i++) {
       Group testGroup = new GroupSave(grouperSession).assignName("test:test"+i).save();
       groups.add(testGroup);
     }
     
-    for (int i=0;i<1000;i++) {
+    for (int i=0;i<AZURE_USERS_TO_CREATE;i++) {
       RegistrySubject.add(grouperSession, "Fred"+i+"@" + domain, "person", "Fred"+i+"@" + domain);
     }
     
-    for (Group testGroup: groups) {
-      
-      for (int i=0;i<1000;i++) {
-        Subject fred = SubjectFinder.findById("Fred"+i+"@" + domain, true);
-        testGroup.addMember(fred, false);
+    int membershipCount = 0;
+    int userIndex = 0;
+    int loopCount = 0;
+    OUTER: while(true) {
+      userIndex = loopCount;
+      for (Group testGroup: groups) {
+        
+        Subject fred = SubjectFinder.findById("Fred"+userIndex+"@" + domain, true);
+        if (!testGroup.hasMember(fred)) {
+          testGroup.addMember(fred, false);
+          membershipCount++;
+          if (membershipCount >= AZURE_MEMBERSHIPS_TO_CREATE) {
+            break OUTER;
+          }
+        }
+        userIndex++;
+        if (userIndex>=AZURE_USERS_TO_CREATE) {
+          userIndex = 0;
+        }
       }
-      
+      loopCount++;
     }
     
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
@@ -384,51 +439,83 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperProvisioningOutput grouperProvisioningOutput = null;
     GrouperProvisioner grouperProvisioner = null;
     fullProvision();
+    GrouperUtil.sleep(10000);
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
     List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
-    assertTrue(azureGroups.size() == 100);
+    assertEquals(AZURE_GROUPS_TO_CREATE, azureGroups.size());
     
-    List<GrouperAzureUser> azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
-    assertTrue(azureUsers.size() >= 1000);
-    
+    azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
+    assertTrue(""+azureUsers.size(), azureUsers.size() >= AZURE_USERS_TO_CREATE);
+
+    membershipCount = 0;
     for (GrouperAzureGroup azureGroup: azureGroups) {
       Set<String> groupMembers = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", azureGroup.getId());
-      assertTrue(groupMembers.size() == 1000);
+      membershipCount += groupMembers.size();
     }
+
+    assertEquals(AZURE_MEMBERSHIPS_TO_CREATE, membershipCount);
     
-    // now delete 500 members from each group
-    for (Group testGroup: groups) {
-      for (int i=0;i<500;i++) {
-        Subject fred = SubjectFinder.findById("Fred"+i+"@" + domain, true);
-        testGroup.deleteMember(fred);
+    // now delete half the members
+    membershipCount = 0;
+    userIndex = 0;
+    loopCount = 0;
+    OUTER: while(true) {
+      userIndex = loopCount;
+      for (Group testGroup: groups) {
+        
+        Subject fred = SubjectFinder.findById("Fred"+userIndex+"@" + domain, true);
+        if (testGroup.hasMember(fred)) {
+          testGroup.deleteMember(fred, false);
+          membershipCount++;
+          if (membershipCount >= AZURE_MEMBERSHIPS_TO_CREATE/2) {
+            break OUTER;
+          }
+        }
+        userIndex++;
+        if (userIndex>=AZURE_USERS_TO_CREATE) {
+          userIndex = 0;
+        }
       }
+      loopCount++;
     }
-    
+
     fullProvision();
+    GrouperUtil.sleep(10000);
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
     azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
-    assertTrue(azureGroups.size() == 100);
+    assertTrue(azureGroups.size() == AZURE_GROUPS_TO_CREATE);
     
+    azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
+    assertTrue(azureUsers.size()+"", azureUsers.size() >= AZURE_USERS_TO_CREATE);
+
+    membershipCount = 0;
     for (GrouperAzureGroup azureGroup: azureGroups) {
       Set<String> groupMembers = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", azureGroup.getId());
-      assertTrue(groupMembers.size() == 500);
+      membershipCount += groupMembers.size();
     }
+
+    assertEquals(AZURE_MEMBERSHIPS_TO_CREATE/2, membershipCount);
     
     //delete all the groups
     for (Group testGroup: groups) {
       testGroup.delete();
     }
     fullProvision();
+    GrouperUtil.sleep(10000);
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
     azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
     assertTrue(azureGroups.size() == 0);
-    
+
+    azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
+    // maybe there are a few there but not a lot
+    assertEquals(initialUserSize, azureUsers.size());
+
   }
 
   public void udelHelper(boolean isFull) {

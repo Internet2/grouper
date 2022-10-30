@@ -78,7 +78,8 @@ public class AzureProvisionerTestUtils {
     
     configureProvisionerSuffix(provisioningTestConfigInput, "azureExternalSystemConfigId", "myAzure");
     configureProvisionerSuffix(provisioningTestConfigInput, "class", "edu.internet2.middleware.grouper.app.azure.GrouperAzureProvisioner");
-    
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "false");
+
     configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
     if (provisioningTestConfigInput.getEntityAttributeCount() == 5) {
       configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "false");
@@ -101,7 +102,6 @@ public class AzureProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "" + provisioningTestConfigInput.getEntityAttributeCount());
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "" + provisioningTestConfigInput.getGroupAttributeCount());
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
