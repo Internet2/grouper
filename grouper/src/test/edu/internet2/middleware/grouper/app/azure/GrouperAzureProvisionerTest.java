@@ -66,7 +66,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testUdelLargeOperationsFull"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testDeleteMembershipsInTrackedGroupsOnlyTrue"));
   }
 
   public GrouperAzureProvisionerTest(String name) {
@@ -81,6 +81,13 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   
   public void setUp() {
     super.setUp();
+
+    // this will create tables
+    AzureMockServiceHandler.ensureAzureMockTables();
+
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_user").executeSql();
 
   }
   
@@ -748,14 +755,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       AzureProvisionerTestUtils.configureAzureProvisioner(new AzureProvisionerTestConfigInput().assignGroupAttributeCount(5));
-      
-      // this will create tables
-      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
-  
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_group").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_user").executeSql();
-      
+            
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
       Stem stem = new StemSave(grouperSession).assignName("test").save();
@@ -918,10 +918,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       // this will create tables
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
   
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_group").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_user").executeSql();
-      
       Stem stem = new StemSave(grouperSession).assignName("test").save();
       Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
       
@@ -1066,9 +1062,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       // this will create tables
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
   
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_group").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_user").executeSql();
       
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
@@ -1219,10 +1212,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       // this will create tables
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
   
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_group").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_user").executeSql();
-      
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_azure_group").select(int.class));
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       
@@ -1317,10 +1306,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       // this will create tables
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
   
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_group").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_user").executeSql();
-      
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
       Stem stem = new StemSave(grouperSession).assignName("test").save();
@@ -1415,10 +1400,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       // this will create tables
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
   
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_membership").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_group").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_azure_user").executeSql();
-      
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
       Stem stem = new StemSave(grouperSession).assignName("test").save();

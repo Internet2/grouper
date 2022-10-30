@@ -910,7 +910,14 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + this.configId + ".clientSecret");
     clientSecret = Morph.decryptIfFile(clientSecret);
     if (!StringUtils.equals(clientSecret, mockServiceRequest.getHttpServletRequest().getParameter("client_secret"))) {
-      throw new RuntimeException("Cant find client secret!");
+      // let config propagate
+      GrouperUtil.sleep(10000);
+      
+      clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + this.configId + ".clientSecret");
+      clientSecret = Morph.decryptIfFile(clientSecret);
+      if (!StringUtils.equals(clientSecret, mockServiceRequest.getHttpServletRequest().getParameter("client_secret"))) {
+        throw new RuntimeException("Cant find client secret!");
+      }
     }
     
     String tenantId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + this.configId + ".tenantId");
