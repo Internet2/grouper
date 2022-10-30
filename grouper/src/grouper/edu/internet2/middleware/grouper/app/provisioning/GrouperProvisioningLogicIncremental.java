@@ -2085,14 +2085,17 @@ public class GrouperProvisioningLogicIncremental {
           
           while (valueIterator.hasNext()) {
             Object value = valueIterator.next();
-            ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
-            if (!provisioningMembershipWrapper.isRecalcObject()) {
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+            if (grouperAttribute != null && grouperAttribute.getValueToProvisioningMembershipWrapper() != null) {
+              provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
+            }
+            if (provisioningMembershipWrapper != null && !provisioningMembershipWrapper.isRecalcObject()) {
               valueIterator.remove();
             }
            
           }
         }
-        
+        // should we check to see if we found any applicable memberships???
         requestGrouperTargetGroups.add(clonedGrouperTargetGroup);
         
       }
