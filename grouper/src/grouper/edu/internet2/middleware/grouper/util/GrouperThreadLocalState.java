@@ -21,6 +21,7 @@ import org.apache.logging.log4j.ThreadContext;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader.GrouperLoaderDryRunBean;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -35,6 +36,8 @@ import edu.internet2.middleware.morphString.Crypto;
  * keep state of thread local to propagate to worker threads
  */
 public class GrouperThreadLocalState {
+  
+  private GrouperProvisioner grouperProvisioner = null;
 
   /**
    * 
@@ -85,6 +88,7 @@ public class GrouperThreadLocalState {
     this.hibernateSessionReadonlyMode = HibernateSession.internal_retrieveThreadlocalReadonly();
     this.grouperContextType = GrouperContextTypeBuiltIn._internal_getThreadLocalGrouperContextType();
     this.grouperSourceAdapterSearchWithReadPrivilege = GrouperSourceAdapter.searchForGroupsWithReadPrivilege();
+    this.grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
   }
   
   /**
@@ -98,6 +102,7 @@ public class GrouperThreadLocalState {
     HibernateSession.internal_assignThreadlocalReadonly(this.hibernateSessionReadonlyMode);
     GrouperContextTypeBuiltIn.setThreadLocalContext(this.grouperContextType);
     GrouperSourceAdapter.searchForGroupsWithReadPrivilege(this.grouperSourceAdapterSearchWithReadPrivilege);
+    GrouperProvisioner.assignCurrentGrouperProvisioner(this.grouperProvisioner);
   }
   
   /**
@@ -115,6 +120,8 @@ public class GrouperThreadLocalState {
     GrouperLoaderLogger.removeThreadLocalMaps();
     HibUtils.clearDisallowCacheThreadLocal();
     ThreadContext.removeStack();
+    
+    GrouperProvisioner.removeCurrentGrouperProvisioner();
 
     // edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto.class, 
     for (Class theClass : new Class[]{Crypto.class}) {
