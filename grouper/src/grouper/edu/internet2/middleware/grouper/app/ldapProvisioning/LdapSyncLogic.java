@@ -46,7 +46,17 @@ public class LdapSyncLogic extends GrouperProvisioningLogic {
         }
       }
 
+      //lets removes ones we already got (from normal search)
+      for (ProvisioningGroup targetGroupRetrieved : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups())) {
+        String dnRetrievedAlready = targetGroupRetrieved.retrieveAttributeValueString(LdapProvisioningTargetDao.ldap_dn);
+        if (!StringUtils.isBlank(dnRetrievedAlready)) {
+          grouperDnOverrides.remove(dnRetrievedAlready);
+        }
+      }
+
       if (grouperDnOverrides.size() > 0) {
+        
+        
         List<ProvisioningGroup> targetProvisioningGroups = result.getProvisioningGroups();
         if (targetProvisioningGroups == null) {
           targetProvisioningGroups = new ArrayList<ProvisioningGroup>();
