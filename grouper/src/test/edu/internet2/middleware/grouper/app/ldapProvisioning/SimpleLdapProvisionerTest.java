@@ -67,7 +67,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapEntityProvisionerFullBen"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdap"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -2137,6 +2137,9 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     
     LdapProvisionerTestUtils.configureLdapProvisioner(
         new LdapProvisionerTestConfigInput()
+        .assignConfigId("openldapTestUnixPosixGroups")
+        .assignPosixGroup(true)
+        .assignMembershipAttribute("description")
         .assignEntityAttributeCount(0)
         .assignSubjectSourcesToProvision("jdbc")
         );

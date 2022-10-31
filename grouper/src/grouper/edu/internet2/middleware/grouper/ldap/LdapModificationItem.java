@@ -25,7 +25,18 @@ public class LdapModificationItem {
   
   private LdapModificationType ldapModificationType;
   private LdapAttribute attribute;
-
+  
+//  private boolean isDefaultAttributeValue = false;
+//  
+//  public boolean isDefaultAttributeValue() {
+//    return isDefaultAttributeValue;
+//  }
+//
+//  
+//  public void setDefaultAttributeValue(boolean isDefaultAttributeValue) {
+//    this.isDefaultAttributeValue = isDefaultAttributeValue;
+//  }
+//
   /**
    * @param ldapModificationType
    * @param attribute

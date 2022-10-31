@@ -422,6 +422,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           } else {
             LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName, oldValue));
             ldapModificationItems.put(item, provisionObjectChange);
+
+//            // keep track of default value so it is not removed first
+//            GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeName);
+//            item.setDefaultAttributeValue(StringUtils.equals(GrouperUtil.stringValue(oldValue), grouperProvisioningConfigurationAttribute.getDefaultValue()));
+
           }
         } else if (action == ProvisioningObjectChangeAction.update) {
 
@@ -433,6 +438,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
           if (oldValue != null) {
             LdapModificationItem item = new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute(attributeName, oldValue));
             ldapModificationItems.put(item, provisionObjectChange);
+            
+//            // keep track of default value so it is not removed first
+//            GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeName);
+//            item.setDefaultAttributeValue(StringUtils.equals(GrouperUtil.stringValue(oldValue), grouperProvisioningConfigurationAttribute.getDefaultValue()));
           }
           
           if (newValue != null) {
