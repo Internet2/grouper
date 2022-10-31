@@ -383,7 +383,12 @@ public class GrouperProvisioningCompare {
     }
 
     // group
-    ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+    
+    Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper();
+    if (valueToProvisioningMembershipWrapper != null) {
+      provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(value);
+    }
 
     if (provisioningMembershipWrapper == null) {
       return false;
