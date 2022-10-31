@@ -2462,6 +2462,16 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
           .assignInsertEntityAndAttributes(true)
           .assignExplicitFilters(false)
           .addExtraConfig("unresolvableSubjectsRemove", "true")
+          .addExtraConfig("entityAttributeValueCache1entityAttribute", "uid")
+          .addExtraConfig("entityAttributeValueCache1has", "true")
+          .addExtraConfig("entityAttributeValueCache1source", "target")
+          .addExtraConfig("entityAttributeValueCache1type", "entityAttribute")
+//          .addExtraConfig("entityMatchingAttribute0name", "uid")
+//          .addExtraConfig("entityMatchingAttributeCount", "2")
+//          .addExtraConfig("entityMatchingAttribute1name", "ldap_dn")
+//          .addExtraConfig("entityMatchingAttributeSameAsSearchAttribute", "false")
+//          .addExtraConfig("entitySearchAttributeCount", "1")
+//          .addExtraConfig("entitySearchAttribute0name", "uid")
           );
     
     deleteLdapPersonAccounts();
