@@ -56,6 +56,21 @@ public class GrouperProvisioningLists {
   public void setProvisioningMemberships(List<ProvisioningMembership> provisioningMemberships) {
     this.provisioningMemberships = provisioningMemberships;
   }
+
+  public void addAll(GrouperProvisioningLists targetProvisioningLists) {
+    if (targetProvisioningLists == null) {
+      return;
+    }
+    this.provisioningEntities = GrouperUtil.nonNull(this.provisioningEntities);
+    this.provisioningEntities.addAll(GrouperUtil.nonNull(targetProvisioningLists.getProvisioningEntities()));
+
+    this.provisioningGroups = GrouperUtil.nonNull(this.provisioningGroups);
+    this.provisioningGroups.addAll(GrouperUtil.nonNull(targetProvisioningLists.getProvisioningGroups()));
+
+    this.provisioningMemberships = GrouperUtil.nonNull(this.provisioningMemberships);
+    this.provisioningMemberships.addAll(GrouperUtil.nonNull(targetProvisioningLists.getProvisioningMemberships()));
+
+  }
   
 
 }

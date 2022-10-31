@@ -385,16 +385,7 @@ public class GrouperProvisioningLogic {
     debugMap.put("state", "retrieveIndividualEntitiesIfNeeded");
     
     GrouperProvisioningLists targetProvisioningLists = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists();
-    
-    if (targetProvisioningLists == null) {
-      targetProvisioningLists = new GrouperProvisioningLists();
-      this.getGrouperProvisioner().retrieveGrouperProvisioningData().setTargetProvisioningLists(targetProvisioningLists);
-    }
-    // init lists no nulls
-    targetProvisioningLists.setProvisioningEntities(GrouperUtil.nonNull(targetProvisioningLists.getProvisioningEntities()));
-    targetProvisioningLists.setProvisioningGroups(GrouperUtil.nonNull(targetProvisioningLists.getProvisioningGroups()));
-    targetProvisioningLists.setProvisioningMemberships(GrouperUtil.nonNull(targetProvisioningLists.getProvisioningMemberships()));
-    
+        
     // when select all entities is false e.g AWS then we need to fetch entities one by one.
     List<ProvisioningEntity> targetEntities = this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualTargetEntitiesIfNeeded();
     if (targetEntities != null) {
@@ -447,13 +438,13 @@ public class GrouperProvisioningLogic {
       }
     }
     totalTargetCount += originalTargetMembershipCount;
-    GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetMembershipCount", originalTargetMembershipCount);
-    
-    GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetTotalCount", totalTargetCount);
 
-    this.getGrouperProvisioner().getDebugMap().put("targetGroupsRetrieved", GrouperUtil.length(targetProvisioningLists.getProvisioningGroups()));
-    this.getGrouperProvisioner().getDebugMap().put("targetEntitiesRetrieved", GrouperUtil.length(targetProvisioningLists.getProvisioningEntities()));
-    this.getGrouperProvisioner().getDebugMap().put("targetMembershipsRetrieved", GrouperUtil.length(targetProvisioningLists.getProvisioningMemberships()));
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "originalTargetMembershipCount", originalTargetMembershipCount);
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "originalTargetTotalCount", totalTargetCount);
+    
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetGroupsRetrieved", GrouperUtil.length(targetProvisioningLists.getProvisioningGroups()));
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetEntitiesRetrieved", GrouperUtil.length(targetProvisioningLists.getProvisioningEntities()));
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetMembershipsRetrieved", GrouperUtil.length(targetProvisioningLists.getProvisioningMemberships()));
 
     long retrieveTargetDataMillis = System.currentTimeMillis()-start;
     debugMap.put("retrieveTargetDataMillis", retrieveTargetDataMillis);
@@ -901,7 +892,7 @@ public class GrouperProvisioningLogic {
             debugMap.put("state", "retrieveIncrementalTargetData");
             long start = System.currentTimeMillis();
             GrouperProvisioningLists targetProvisioningLists = grouperProvisioningLogicIncremental.retrieveIncrementalTargetData();
-            this.getGrouperProvisioner().retrieveGrouperProvisioningData().setTargetProvisioningLists(targetProvisioningLists);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().addAll(targetProvisioningLists);
             if (targetProvisioningLists != null) {
               processTargetDataEntities(targetProvisioningLists.getProvisioningEntities());
               processTargetDataGroups(targetProvisioningLists.getProvisioningGroups());
@@ -1733,6 +1724,7 @@ public class GrouperProvisioningLogic {
     
     long start = System.currentTimeMillis();
 
+    
     Thread targetQueryThread = new Thread(new Runnable() {
       
       @Override
@@ -1754,7 +1746,7 @@ public class GrouperProvisioningLogic {
           GrouperProvisioningLogic.this.processTargetDataGroups(targetData.getProvisioningGroups());
           GrouperProvisioningLogic.this.processTargetDataEntities(targetData.getProvisioningEntities());
           GrouperProvisioningLogic.this.processTargetDataMemberships(targetData.getProvisioningMemberships());
-          GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperProvisioningData().setTargetProvisioningLists(targetData);
+          GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().addAll(targetData);
 
         } catch (RuntimeException re) {
           String logMessage = "error querying target: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId();
@@ -1781,6 +1773,7 @@ public class GrouperProvisioningLogic {
     
     GrouperProvisioningLists extraTargetData = retrieveExtraTargetData(grouperProvisioningList);
     if (extraTargetData != null) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().addAll(extraTargetData);
       processTargetDataEntities(extraTargetData.getProvisioningEntities());
       processTargetDataGroups(extraTargetData.getProvisioningGroups());
       processTargetDataMemberships(extraTargetData.getProvisioningMemberships());
@@ -3095,6 +3088,9 @@ public class GrouperProvisioningLogic {
     if (GrouperUtil.length(targetGroups) == 0) {
       return;
     }
+    
+    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().getProvisioningGroups().addAll(targetGroups);
+
     // Step 2 - Go through retrieveAllData method and whatever processing is done on the target entities; perform them here as well
     
     Set<ProvisioningGroupWrapper> provisioningGroupWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers();
@@ -3236,6 +3232,9 @@ public class GrouperProvisioningLogic {
     if (GrouperUtil.length(targetEntities) == 0) {
       return;
     }
+    
+    this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().getProvisioningEntities().addAll(targetEntities);
+
     // Step 2 - Go through retrieveAllData method and whatever processing is done on the target entities; perform them here as well
     
     Set<ProvisioningEntityWrapper> provisioningEntityWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers();

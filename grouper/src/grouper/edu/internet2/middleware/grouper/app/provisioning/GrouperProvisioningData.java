@@ -55,15 +55,6 @@ public class GrouperProvisioningData {
   }
 
   /**
-   * this is stored when target data is retrieved, either all at start of full, or 
-   * certain data if not selecting all
-   * @param targetProvisioningLists1
-   */
-  public void setTargetProvisioningLists(GrouperProvisioningLists targetProvisioningLists1) {
-    this.targetProvisioningLists = targetProvisioningLists1;
-  }
-
-  /**
    * cache json to provisioning group so the json doesnt have to be parsed repeatedly
    */
   private Map<String, ProvisioningGroup> cacheJsonToProvisioningGroup = new HashMap<String, ProvisioningGroup>();
@@ -153,6 +144,13 @@ public class GrouperProvisioningData {
   }
 
   public GrouperProvisioningData() {
+    this.targetProvisioningLists = new GrouperProvisioningLists();
+
+    // init lists no nulls
+    this.targetProvisioningLists.setProvisioningEntities(new ArrayList<ProvisioningEntity>());
+    this.targetProvisioningLists.setProvisioningGroups(new ArrayList<ProvisioningGroup>());
+    this.targetProvisioningLists.setProvisioningMemberships(new ArrayList<ProvisioningMembership>());
+
   }
   
   /**
