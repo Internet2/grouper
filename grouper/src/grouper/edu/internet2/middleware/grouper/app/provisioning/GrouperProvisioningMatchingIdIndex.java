@@ -40,7 +40,7 @@ public class GrouperProvisioningMatchingIdIndex {
   
     Map<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningGroup>> groupMatchingIdToTargetProvisioningGroupWrapper = new HashMap<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningGroup>>();
     
-    if (GrouperUtil.length(useTheseTargetProvisioningGroups) == 0) {
+    if (useTheseTargetProvisioningGroups == null) {
       // lets index the target objects first
       for (ProvisioningGroupWrapper provisioningGroupWrapper : new ArrayList<ProvisioningGroupWrapper>(
           GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()))) {
@@ -336,7 +336,7 @@ public class GrouperProvisioningMatchingIdIndex {
   
     Map<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningMembership>> membershipMatchingIdToTargetProvisioningMembershipWrapper = new HashMap<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningMembership>>();
     
-    if (GrouperUtil.length(useTheseTargetProvisioningMemberships) == 0) {
+    if (useTheseTargetProvisioningMemberships == null) {
       // lets index the target objects first
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
           GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()))) {
@@ -620,7 +620,7 @@ public class GrouperProvisioningMatchingIdIndex {
   
     Map<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningEntity>> entityMatchingIdToTargetProvisioningEntityWrapper = new HashMap<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningEntity>>();
     
-    if (GrouperUtil.length(useTheseTargetProvisioningEntities) == 0) {
+    if (useTheseTargetProvisioningEntities == null) {
       // lets index the target objects first
       for (ProvisioningEntityWrapper provisioningEntityWrapper : new ArrayList<ProvisioningEntityWrapper>(
           GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()))) {
