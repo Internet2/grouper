@@ -108,12 +108,6 @@ public class GrouperProvisioningLogic {
     debugMap.put("state", "retrieveAllDataFromGrouperAndTarget");
     grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveAllData();
     
-    debugMap.put("state", "loadDataToGrouper");
-    long start = System.currentTimeMillis();
-    grouperProvisioner.retrieveGrouperProvisioningLogic().loadDataToGrouper();
-    long retrieveDataPass1 = System.currentTimeMillis()-start;
-    debugMap.put("loadDataToGrouper_millis", retrieveDataPass1);
-    
     debugMap.put("state", "retrieveSubjectLink");
     this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().retrieveSubjectLink();
 
@@ -206,6 +200,12 @@ public class GrouperProvisioningLogic {
     debugMap.put("state", "retrieveIndividualMissingEntities");
     this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualMissingEntities();
     
+    debugMap.put("state", "loadDataToGrouper");
+    long start = System.currentTimeMillis();
+    grouperProvisioner.retrieveGrouperProvisioningLogic().loadDataToGrouper();
+    long retrieveDataPass1 = System.currentTimeMillis()-start;
+    debugMap.put("loadDataToGrouper_millis", retrieveDataPass1);
+
     debugMap.put("state", "insertGroups");
     createMissingGroupsFull();
 
@@ -1747,6 +1747,10 @@ public class GrouperProvisioningLogic {
           if (targetData == null) {
             targetData = new GrouperProvisioningLists();
           }
+
+          GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetEntityToTargetNativeEntity().putAll(
+              GrouperUtil.nonNull(targetDaoRetrieveAllDataResponse.getTargetEntityToTargetNativeEntity()));
+
           GrouperProvisioningLogic.this.processTargetDataGroups(targetData.getProvisioningGroups());
           GrouperProvisioningLogic.this.processTargetDataEntities(targetData.getProvisioningEntities());
           GrouperProvisioningLogic.this.processTargetDataMemberships(targetData.getProvisioningMemberships());
@@ -2295,14 +2299,20 @@ public class GrouperProvisioningLogic {
       return;
     }
     
+    // never null
+    Map<ProvisioningEntity, Object> targetEntityToTargetNativeEntity = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetEntityToTargetNativeEntity();
+    
     // add wrappers for all entities
     for (ProvisioningEntity targetProvisioningEntity : GrouperUtil.nonNull(targetProvisioningEntities)) {
       if (targetProvisioningEntity.getProvisioningEntityWrapper() == null) {
+        // note: should any of this happen if already registered?  register again?
         ProvisioningEntityWrapper provisioningEntityWrapper = new ProvisioningEntityWrapper();
         provisioningEntityWrapper.setGrouperProvisioner(this.grouperProvisioner);
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexEntityWrapper(provisioningEntityWrapper);
   
         provisioningEntityWrapper.setTargetProvisioningEntity(targetProvisioningEntity);
+
+        provisioningEntityWrapper.setTargetNativeEntity(targetEntityToTargetNativeEntity.get(targetProvisioningEntity));
       }
     }
 
@@ -3218,6 +3228,9 @@ public class GrouperProvisioningLogic {
     
     List<ProvisioningEntity> targetEntities = GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse == null ? null : targetDaoRetrieveEntitiesResponse.getTargetEntities());
   
+    GrouperProvisioningLogic.this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetEntityToTargetNativeEntity().putAll(
+        GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse.getTargetEntityToTargetNativeEntity()));
+
     this.grouperProvisioner.getDebugMap().put("missingEntitiesForRetrieveFound", GrouperUtil.length(targetEntities));
   
     if (GrouperUtil.length(targetEntities) == 0) {

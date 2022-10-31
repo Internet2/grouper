@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
@@ -168,6 +169,14 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveAllEntitiesResponse retrieveAllEntities(
       TargetDaoRetrieveAllEntitiesRequest targetDaoRetrieveAllEntitiesRequest) {
+    
+    if (!targetDaoRetrieveAllEntitiesRequest.isIncludeNativeEntity()) {
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull
+          && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGrouperTable()) {
+        targetDaoRetrieveAllEntitiesRequest.setIncludeNativeEntity(true);
+      }
+    }
+
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false)) {
       boolean hasError = false;
       boolean commandLogStarted = false;
@@ -659,6 +668,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   @Override
   public TargetDaoRetrieveAllDataResponse retrieveAllData(
       TargetDaoRetrieveAllDataRequest targetDaoRetrieveAllDataRequest) {
+
+    if (!targetDaoRetrieveAllDataRequest.isIncludeNativeEntity()) {
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull
+          && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGrouperTable()) {
+        targetDaoRetrieveAllDataRequest.setIncludeNativeEntity(true);
+      }
+    }
 
     boolean retrieveAllData = GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)
         && (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups() 
@@ -2127,6 +2143,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           if (searchValueToSearchGrouperTargetEntity.size() > 0) {
             // search based on those
             TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequestNew = new TargetDaoRetrieveEntitiesRequest();
+            targetDaoRetrieveEntitiesRequestNew.setIncludeNativeEntity(targetDaoRetrieveEntitiesRequest.isIncludeNativeEntity());
             targetDaoRetrieveEntitiesRequestNew.setIncludeAllMembershipsIfApplicable(targetDaoRetrieveEntitiesRequest.isIncludeAllMembershipsIfApplicable());
             targetDaoRetrieveEntitiesRequestNew.setTargetEntities(new ArrayList<ProvisioningEntity>(searchValueToSearchGrouperTargetEntity.values()));
             targetDaoRetrieveEntitiesRequestNew.setSearchAttribute(searchAttributeName);
@@ -2197,6 +2214,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public TargetDaoRetrieveEntitiesResponse retrieveEntities(
       TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest) {
     
+    if (!targetDaoRetrieveEntitiesRequest.isIncludeNativeEntity()) {
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull
+          && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGrouperTable()) {
+        targetDaoRetrieveEntitiesRequest.setIncludeNativeEntity(true);
+      }
+    }
+    
     List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>(GrouperUtil.nonNull(targetDaoRetrieveEntitiesRequest.getTargetEntities()));
     TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = new TargetDaoRetrieveEntitiesResponse();
     
@@ -2219,6 +2243,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           public Void callLogic() {
             TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequestLocal = new TargetDaoRetrieveEntitiesRequest();
             targetDaoRetrieveEntitiesRequestLocal.setIncludeAllMembershipsIfApplicable(targetDaoRetrieveEntitiesRequest.isIncludeAllMembershipsIfApplicable());
+            targetDaoRetrieveEntitiesRequestLocal.setIncludeNativeEntity(targetDaoRetrieveEntitiesRequest.isIncludeNativeEntity());
             targetDaoRetrieveEntitiesRequestLocal.setTargetEntities(batchTargetEntities);
             TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponseLocal = retrieveEntitiesHelper(targetDaoRetrieveEntitiesRequestLocal);
             synchronized(targetDaoRetrieveEntitiesResponse) {
@@ -2247,6 +2272,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             
             TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequestLocal = new TargetDaoRetrieveEntityRequest();
             targetDaoRetrieveEntityRequestLocal.setIncludeAllMembershipsIfApplicable(targetDaoRetrieveEntitiesRequest.isIncludeAllMembershipsIfApplicable());
+            targetDaoRetrieveEntityRequestLocal.setIncludeNativeEntity(targetDaoRetrieveEntitiesRequest.isIncludeNativeEntity());
             targetDaoRetrieveEntityRequestLocal.setTargetEntity(targetEntity);
             TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponseLocal = retrieveEntityHelper(targetDaoRetrieveEntityRequestLocal);
             synchronized(targetDaoRetrieveEntitiesResponse) {
@@ -2429,6 +2455,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             // search based on those
             TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequestNew = new TargetDaoRetrieveEntityRequest();
             targetDaoRetrieveEntityRequestNew.setIncludeAllMembershipsIfApplicable(targetDaoRetrieveEntityRequest.isIncludeAllMembershipsIfApplicable());
+            targetDaoRetrieveEntityRequestNew.setIncludeNativeEntity(targetDaoRetrieveEntityRequest.isIncludeNativeEntity());
             targetDaoRetrieveEntityRequestNew.setTargetEntity(targetDaoRetrieveEntityRequest.getTargetEntity());
             targetDaoRetrieveEntityRequestNew.setSearchAttribute(searchAttributeName);
             targetDaoRetrieveEntityRequestNew.setSearchAttributeValue(provisioningUpdatableAttributeAndValue.getAttributeValue());

@@ -114,12 +114,19 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<GrouperDuoUser> grouperDuoUsers = GrouperDuoApiCommands.retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId(), loadEntitiesToGrouperTable);
 
+      TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = new TargetDaoRetrieveAllEntitiesResponse(results);
+
+      Map<ProvisioningEntity, Object> targetEntityToTargetNativeEntity = targetDaoRetrieveAllEntitiesResponse
+           .getTargetEntityToTargetNativeEntity();
       for (GrouperDuoUser grouperDuoUser : grouperDuoUsers) {
         ProvisioningEntity targetEntity = grouperDuoUser.toProvisioningEntity();
         results.add(targetEntity);
+        if (targetDaoRetrieveAllEntitiesRequest.isIncludeNativeEntity()) {
+          targetEntityToTargetNativeEntity.put(targetEntity, grouperDuoUser);
+        }
       }
 
-      return new TargetDaoRetrieveAllEntitiesResponse(results);
+      return targetDaoRetrieveAllEntitiesResponse;
     } finally {
       this.addTargetDaoTimingInfo(
           new TargetDaoTimingInfo("retrieveAllEntities", startNanos));
@@ -153,7 +160,11 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       ProvisioningEntity targetEntity = grouperDuoUser == null ? null
           : grouperDuoUser.toProvisioningEntity();
 
-      return new TargetDaoRetrieveEntityResponse(targetEntity);
+      TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse(targetEntity);
+      if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
+        targetDaoRetrieveEntityResponse.setTargetNativeEntity(grouperDuoUser);
+      }
+      return targetDaoRetrieveEntityResponse;
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntity", startNanos));
     }
@@ -648,10 +659,18 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>();
       targetData.setProvisioningEntities(targetEntities);
       
+      Map<ProvisioningEntity, Object> targetEntityToTargetNativeEntity = targetDaoRetrieveAllDataResponse
+           .getTargetEntityToTargetNativeEntity();
+
       for (GrouperDuoUser duoUser: duoUsers) {
         
-        targetEntities.add(duoUser.toProvisioningEntity());
-        
+        ProvisioningEntity targetEntity = duoUser.toProvisioningEntity();
+        targetEntities.add(targetEntity);
+
+        if (targetDaoRetrieveAllDataRequest.isIncludeNativeEntity()) {
+          targetEntityToTargetNativeEntity.put(targetEntity, duoUser);
+        }
+
         Set<GrouperDuoGroup> groupsPerUser = duoUser.getGroups();
         
         for (GrouperDuoGroup duoGroup: groupsPerUser) {

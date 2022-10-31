@@ -7,6 +7,20 @@ public class TargetDaoRetrieveEntityRequest {
   public TargetDaoRetrieveEntityRequest() {
   }
 
+  private boolean includeNativeEntity;
+  
+  
+  
+  
+  public boolean isIncludeNativeEntity() {
+    return includeNativeEntity;
+  }
+
+  
+  public void setIncludeNativeEntity(boolean includeNativeEntity) {
+    this.includeNativeEntity = includeNativeEntity;
+  }
+
   /**
    * to search for
    */

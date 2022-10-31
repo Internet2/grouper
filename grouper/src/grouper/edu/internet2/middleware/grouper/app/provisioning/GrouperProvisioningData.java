@@ -10,6 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -23,6 +24,20 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
  *
  */
 public class GrouperProvisioningData {
+
+  /**
+   * map of retrieved entity to target native entity, optional, only if the target native entity is needed later on
+   */
+  private Map<ProvisioningEntity, Object> targetEntityToTargetNativeEntity = Collections.synchronizedMap(new HashMap<ProvisioningEntity, Object>());
+
+  
+  /**
+   * map of retrieved entity to target native entity, optional, only if the target native entity is needed later on
+   * @return
+   */
+  public Map<ProvisioningEntity, Object> getTargetEntityToTargetNativeEntity() {
+    return targetEntityToTargetNativeEntity;
+  }
 
   /**
    * this is stored when target data is retrieved, either all at start of full, or 

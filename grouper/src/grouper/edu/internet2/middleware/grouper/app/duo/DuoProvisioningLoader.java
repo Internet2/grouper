@@ -38,24 +38,26 @@ public class DuoProvisioningLoader extends GrouperProvisioningLoader {
     
     for (ProvisioningEntity targetProvisioningEntity: targetProvisioningEntities) {
       
+      GrouperDuoUser grouperDuoUser = (GrouperDuoUser)targetProvisioningEntity.getProvisioningEntityWrapper().getTargetNativeEntity();
+      
       Object[] row = new Object[this.getLoaderEntityColumnNames().size()];
       
       row[0] = this.getGrouperProvisioner().getConfigId();
       row[1] = targetProvisioningEntity.getId();
-      row[2] = targetProvisioningEntity.retrieveAttributeValueString("aliases");
-      row[3] = targetProvisioningEntity.retrieveAttributeValueString("phones");
-      row[4] = targetProvisioningEntity.retrieveAttributeValueString("isPushEnabled");
-      row[5] = targetProvisioningEntity.getEmail();
-      row[6] = targetProvisioningEntity.retrieveAttributeValueString("firstName");
-      row[7] = targetProvisioningEntity.retrieveAttributeValueString("lastName");
-      row[8] = targetProvisioningEntity.retrieveAttributeValueString("isEnrolled");
-      row[9] = targetProvisioningEntity.retrieveAttributeValueLong("lastDirectorySync");
-      row[10] = targetProvisioningEntity.retrieveAttributeValueString("notes");
-      row[11] = targetProvisioningEntity.getName();
-      row[12] = targetProvisioningEntity.retrieveAttributeValueString("status");
-      row[13] = targetProvisioningEntity.retrieveAttributeValueString("userName");
-      row[14] = targetProvisioningEntity.retrieveAttributeValueLong("createdAt");
-      row[15] = targetProvisioningEntity.retrieveAttributeValueLong("lastLogin");
+      row[2] = grouperDuoUser.getAliases();
+      row[3] = grouperDuoUser.getPhones();
+      row[4] = grouperDuoUser.getPushEnabledDb();
+      row[5] = grouperDuoUser.getEmail();
+      row[6] = grouperDuoUser.getFirstName();
+      row[7] = grouperDuoUser.getLastName();
+      row[8] = grouperDuoUser.getEnrolledDb();
+      row[9] = grouperDuoUser.getLastDirectorySync();
+      row[10] = grouperDuoUser.getNotes();
+      row[11] = grouperDuoUser.getRealName();
+      row[12] = grouperDuoUser.getStatus();
+      row[13] = grouperDuoUser.getUserName();
+      row[14] = grouperDuoUser.getCreatedAt();
+      row[15] = grouperDuoUser.getLastLogin();
       
       result.add(row);
       
