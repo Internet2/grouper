@@ -580,6 +580,8 @@ public class GrouperInstaller {
     
     
     GrouperInstaller grouperInstaller = new GrouperInstaller();
+    
+//    grouperInstaller.reportOnConflictingJars("/Users/mchyzer/git/grouper_v2_6/grouper/temp/jarTest");
 
 //    File tommeDir = new File("/Users/vsachdeva/git/i2-grouper-new/grouper/grouper-misc/grouper-installer/container/tomee");
 //    File serverXmlFile = new File(tommeDir.getAbsolutePath()
@@ -1840,7 +1842,7 @@ public class GrouperInstaller {
           continue;
         }
         
-        Set<String> baseNames = GrouperInstallerUtils.jarFileBaseNames(jarFile.getName());
+         Set<String> baseNames = GrouperInstallerUtils.jarFileBaseNames(jarFile.getName());
         
         //dont print multiple times
         if (alreadyProcessed.containsAll(baseNames)) {
