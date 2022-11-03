@@ -90,6 +90,8 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * 
  * <p>
  * To edit just one field (the idIndex) for existing group a:b:c
+ * <br /><br />
+ * Note, that new idIndex cant be in use by another group (query grouper_groups_v for the id_index col) and should not be above the current pointer (which you can adjust in the table grouper_table_index)
  * <blockquote> 
  * <pre>
  * new GroupSave().assignName("a:b:c").assignIdIndex(12345).assignReplaceAllSettings(false).save();
