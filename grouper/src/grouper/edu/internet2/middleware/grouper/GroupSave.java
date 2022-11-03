@@ -87,6 +87,15 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * </pre>
  * </blockquote>
  * </p>
+ * 
+ * <p>
+ * To edit just one field (the idIndex) for existing group a:b:c
+ * <blockquote> 
+ * <pre>
+ * new GroupSave().assignName("a:b:c").assignIdIndex(12345).assignReplaceAllSettings(false).save();
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class GroupSave {
   
