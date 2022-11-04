@@ -561,7 +561,11 @@ public class ProvisioningSyncIntegration {
             }
             
             if (!StringUtils.equals(newSubjectIdentifier, gcGrouperSyncMember.getSubjectIdentifier())) {
-              gcGrouperSyncMember.setSubjectIdentifier(newSubjectIdentifier);
+              if (grouperProvisioningEntity == null && gcGrouperSyncMember.isInTarget() && newSubjectIdentifier == null) {
+                // don't remove the identifier if not provisionable but still in target
+              } else {
+                gcGrouperSyncMember.setSubjectIdentifier(newSubjectIdentifier);
+              }
             }
           }
           
@@ -588,6 +592,10 @@ public class ProvisioningSyncIntegration {
           }
           
           continue;
+        }
+        
+        if (grouperProvisioningEntity == null && !gcGrouperSyncMember.isProvisionable() && !gcGrouperSyncMember.isInTarget() && gcGrouperSyncMember.getSubjectIdentifier() != null) {
+          gcGrouperSyncMember.setSubjectIdentifier(null);
         }
         
         memberUuidToSyncMember.remove(gcGrouperSyncMember.getMemberId());
