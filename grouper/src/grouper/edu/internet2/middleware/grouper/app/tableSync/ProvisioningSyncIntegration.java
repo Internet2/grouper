@@ -753,17 +753,6 @@ public class ProvisioningSyncIntegration {
   
         // keep it
         boolean membershipProvisionable = gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncMember.isProvisionable();
-                
-        if (!membershipProvisionable && grouperProvisioningMembership != null
-            && (provisioningMembershipWrapper == null || !provisioningMembershipWrapper.isDelete())) {
-          gcGrouperSyncMember.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
-          gcGrouperSyncMember.setProvisionableEnd(null);
-          gcGrouperSyncMember.setProvisionable(true);
-        }
-        if (membershipProvisionable && grouperProvisioningMembership == null) {
-          gcGrouperSyncMember.setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
-          gcGrouperSyncMember.setProvisionable(false);
-        }
 
         if (grouperProvisioningMembership != null || membershipProvisionable || gcGrouperSyncMembership.isInTarget()) {
   
