@@ -49,7 +49,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullEntityAttributesWithUnresolvableRemove"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullSubjectIdentifierChanged"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
@@ -796,7 +796,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     SubjectFinder.findById("b-anderson", true);
 
     grouperProvisioningOutput = fullProvision(this.defaultConfigId(), true);
-
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
     assertEquals(1, ldapEntries.size());
     
@@ -813,6 +814,29 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=kwhite,ou=People,dc=example,dc=edu"));    
   
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "ldapProvTest");
+    assertNotNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(jsmithMember.getId()).getSubjectIdentifier());
+    assertEquals("jsmith", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(bandersonMember.getId()).getSubjectIdentifier());
+
+    // run the full provisioner one more time.  during the second run, in_target will be F for j-smith and so the subject_identifier will be cleared in the sync table
+    grouperProvisioningOutput = fullProvision(this.defaultConfigId(), true);
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+    assertEquals(1, ldapEntries.size());
+    
+    ldapEntry = ldapEntries.get(0);
+    
+    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(testGroup.getId().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+    assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=kwhite,ou=People,dc=example,dc=edu"));    
+  
+    gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, "ldapProvTest");
     assertNull(gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(jsmithMember.getId()).getSubjectIdentifier());
     assertEquals("jsmith", gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(bandersonMember.getId()).getSubjectIdentifier());
   }
@@ -2380,7 +2404,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
       assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
       assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
     }
-    
+        
     // delete membership should propagate
     testGroup.deleteMember(notinldap1);
     grouperProvisioningOutput = fullProvision();
@@ -2462,16 +2486,6 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
           .assignInsertEntityAndAttributes(true)
           .assignExplicitFilters(false)
           .addExtraConfig("unresolvableSubjectsRemove", "true")
-          .addExtraConfig("entityAttributeValueCache1entityAttribute", "uid")
-          .addExtraConfig("entityAttributeValueCache1has", "true")
-          .addExtraConfig("entityAttributeValueCache1source", "target")
-          .addExtraConfig("entityAttributeValueCache1type", "entityAttribute")
-//          .addExtraConfig("entityMatchingAttribute0name", "uid")
-//          .addExtraConfig("entityMatchingAttributeCount", "2")
-//          .addExtraConfig("entityMatchingAttribute1name", "ldap_dn")
-//          .addExtraConfig("entityMatchingAttributeSameAsSearchAttribute", "false")
-//          .addExtraConfig("entitySearchAttributeCount", "1")
-//          .addExtraConfig("entitySearchAttribute0name", "uid")
           );
     
     deleteLdapPersonAccounts();
