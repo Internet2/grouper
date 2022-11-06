@@ -1,0 +1,30 @@
+package edu.internet2.middleware.grouper.app.provisioning;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+
+public class ProvisioningEntityCacheDropdownOptions extends ProvisioningEntityAttributeWithCacheDropdownOptions {
+
+  @Override
+  public List<MultiKey> retrieveKeysAndLabels() {
+    
+    // alpha order
+    Set<String> options = new TreeSet<String>();
+    options.add("entityAttributeValueCache0");
+    options.add("entityAttributeValueCache1");
+    options.add("entityAttributeValueCache2");
+    options.add("entityAttributeValueCache3");
+        
+    List<MultiKey> result = new ArrayList<MultiKey>();
+    for (String option : options) {
+      result.add(new MultiKey(option, option));
+    }
+
+    return result;
+  }
+  
+}
