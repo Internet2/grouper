@@ -24,7 +24,6 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
@@ -467,6 +466,89 @@ public class UiV2Configure {
       GrouperSession.stopQuietly(grouperSession);
     }
 
+  }
+  
+  /**
+   * delete selected db config items
+   * @param request
+   * @param response
+   */
+  public void removeProperties(final HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      if (!allowedToViewConfiguration()) {
+        return;
+      }
+      
+      final String configFileString = request.getParameter("configFile");
+      
+      final String[] propertyNames = request.getParameterValues("propertyNameName[]");
+
+      ConfigurationContainer configurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getConfigurationContainer();
+
+      ConfigFileName configFileName = ConfigFileName.valueOfIgnoreCase(configFileString, false);
+
+      configurationContainer.setConfigFileName(configFileName);
+
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      StringBuilder successMessageBuilder = new StringBuilder();
+      StringBuilder warnMessageBuilder = new StringBuilder();
+      
+      for (String propertyNameString: propertyNames) {
+        Set<MultiKey> configFileNameAndKeys = GrouperUtil.toSet(new MultiKey(configFileString, propertyNameString));
+        
+        Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate = GrouperDAOFactory.getFactory().getConfig().findByFileAndKey(configFileNameAndKeys);
+        
+        String thePropertyNameString = GrouperUtil.stripSuffix(propertyNameString, ".elConfig");
+        Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(thePropertyNameString);
+        
+        String propertyNameStringEl = thePropertyNameString + ".elConfig";
+        Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+
+        String result = DbConfigEngine.configurationFileItemDeleteHelper(configFileString, propertyNameString, true, true, new ArrayList<String>(), grouperConfigHibernates, grouperConfigHibernatesEl);
+        
+        if (!StringUtils.isBlank(result)) {
+          if (result.toLowerCase().contains("warn")) {
+            
+            if (warnMessageBuilder.length() > 0) {
+              warnMessageBuilder.append("<br />");
+            }
+            warnMessageBuilder.append(result);
+            
+          } else {
+            
+            if (successMessageBuilder.length() > 0) {
+              successMessageBuilder.append("<br />");
+            }
+            successMessageBuilder.append(result);
+            
+          }
+        }
+      }
+      
+      if (warnMessageBuilder.length() > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, warnMessageBuilder.toString()));
+      }
+      if (successMessageBuilder.length() > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessageBuilder.toString()));
+      }
+      
+      buildConfigFileAndMetadata(null, null);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/configure/configure.jsp"));
+    
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
   }
   
   /**

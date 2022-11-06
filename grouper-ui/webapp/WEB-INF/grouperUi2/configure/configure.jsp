@@ -101,7 +101,26 @@
 	                	<h3>${grouperRequestContainer.configurationContainer.configFileName.configFileName}</h3>
 	                </div>
                 </div>
-
+                
+                
+                <div class="row-fluid" style="margin-bottom: 5px;">
+                  <div class="span3">
+                    <input type="checkbox" name="notImportantXyzName" id="notImportantXyzId" onchange="$('.configCheckbox').prop('checked', $('#notImportantXyzId').prop('checked'));" />
+                    <span>
+                      ${textContainer.text['configurationDeleteSelectConfigs'] }
+                    </span>
+                  </div>                                                 
+                  <div class="span4">
+                    <a href="#" onclick="ajax('../app/UiV2Configure.removeProperties', 
+                      {formIds: 'configListingForm'}); return false;" class="btn" role="button">
+                        ${textContainer.text['configurationDeleteSelectedConfigsButton'] }</a>
+                  </div>
+                  
+                </div>
+                
+                <form id="configListingForm">
+                  <input type="hidden" value="${grouperRequestContainer.configurationContainer.configFileName.configFileName}"
+                     name="configFile">
                   <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable" id="propertiesResultTableId">
                       <c:set var="i" value="0" />
                       <c:forEach items="${grouperRequestContainer.configurationContainer.guiConfigFile.guiConfigSections}" var="guiConfigSection">
@@ -118,6 +137,9 @@
 		                        </tr>
 		                        
 			                    <tr>
+                              <th style="white-space: nowrap; background-color: white">
+                                ${textContainer.text['configurationColumnSelect']}
+                              </th>
 			                        <th style="white-space: nowrap; background-color: white">
 			                          ${textContainer.text['configurationColumnAction']}
 			                        </th>
@@ -135,6 +157,15 @@
 		                      <c:forEach items="${guiConfigSection.guiConfigProperties}" var="guiConfigProperty">
 		                        <c:set value="${guiConfigProperty.configItemMetadata}" var="configItemMetadata" />
 		                        <tr id="row_${i}">
+                              <td style="vertical-align: top">
+                                
+                                <c:if test="${guiConfigProperty.fromDatabase}">
+                                  <input type="checkbox" aria-label="${textContainer.text['configurationSelectConfigCheckboxAriaLabel']}" 
+                                    name="propertyNameName" value="${grouper:escapeUrl(configItemMetadata.keyOrSampleKey)}"
+                                    class="configCheckbox" />
+                                </c:if>
+                                
+                              </td>
 		                          <td style="vertical-align: top">
 		                             
 		                            <div class="btn-group"><a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiConfigurationFilesActions']}" href="#" class="btn btn-mini dropdown-toggle"
@@ -208,6 +239,7 @@
                         
                   </c:forEach>
                   </table>
+                  </form>
 
               </c:if>
             </div>
