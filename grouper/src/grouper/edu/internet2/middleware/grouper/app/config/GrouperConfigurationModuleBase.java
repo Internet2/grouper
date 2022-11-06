@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.CheckboxValueDriver;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
@@ -1453,9 +1453,77 @@ public abstract class GrouperConfigurationModuleBase {
         }
       }
     }
-
+    
+    //remove the ones that are extraneous
+    removeNoUnsedConfigs(keyToConfigHibernate, actionsPerformed);
+    
     ConfigPropertiesCascadeBase.clearCache();
     this.attributeCache = null;
+  }
+  
+  /**
+   * remove extraneous properties that are only in the database but not part of this provisioner config 
+   * @param keyToConfigHibernate
+   * @param actionsPerformed
+   */
+  public void removeNoUnsedConfigs(Map<String, Set<GrouperConfigHibernate>> keyToConfigHibernate, List<String> actionsPerformed) {
+
+    Map<String, String> suffixToConfigValue = new HashMap<>();
+    
+    String configPrefix = "provisioner." + this.getConfigId() + ".";
+    
+    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
+    for (String key : grouperLoaderConfig.propertyNames()) {
+      
+      if (key.startsWith(configPrefix)) {
+        
+        String suffix = GrouperUtil.prefixOrSuffix(key, configPrefix, false);
+        String value = grouperLoaderConfig.propertyValueString(key);
+        suffixToConfigValue.put(suffix, value);
+        
+      }
+      
+    }
+    
+    // remove from this map the valid keys, and the invalid ones will remain
+    Set<String> keysUsed = new HashSet<String>(suffixToConfigValue.keySet());
+    
+    // dont use the real config since it adds non-example configs
+    String configSuffixThatIdentifiesThisProvisioner = suffixToConfigValue.get("class");
+
+    ProvisioningConfiguration theProvisionerConfiguration = StringUtils.isBlank(configSuffixThatIdentifiesThisProvisioner) ? null 
+        : ProvisioningConfiguration.retrieveConfigurationByConfigSuffix(configSuffixThatIdentifiesThisProvisioner);
+    if (theProvisionerConfiguration != null) {
+      String configId = "someConfigIdThatWontConflict";
+      theProvisionerConfiguration.setConfigId(configId);
+    }
+    
+    if (theProvisionerConfiguration == null) {
+      return;
+    }
+    
+    keysUsed.removeAll(theProvisionerConfiguration.retrieveAttributes().keySet());
+    if (keysUsed.size() > 0) {
+      
+      for (String key: keysUsed) {
+        
+        String propertyNameString = GrouperUtil.stripSuffix(configPrefix + key, ".elConfig");
+        Set<GrouperConfigHibernate> grouperConfigHibernates = keyToConfigHibernate.get(propertyNameString);
+        
+        String propertyNameStringEl = propertyNameString + ".elConfig";
+        Set<GrouperConfigHibernate> grouperConfigHibernatesEl = keyToConfigHibernate.get(propertyNameStringEl);
+        
+//        String actionPerformed = GrouperTextContainer.textOrNull("provisioning.configuration.editActions.removeExtraneousConfigs");
+//        actionPerformed = GrouperUtil.replace(actionPerformed, "$$extraneousConfig$$", key);
+//        actionsPerformed.add(actionPerformed);
+        
+        DbConfigEngine.configurationFileItemDeleteHelper(this.getConfigFileName().getConfigFileName(),
+            configPrefix + key , true, false, actionsPerformed, grouperConfigHibernates, grouperConfigHibernatesEl);
+        
+      }
+      
+    }
+    
   }
   
   /**

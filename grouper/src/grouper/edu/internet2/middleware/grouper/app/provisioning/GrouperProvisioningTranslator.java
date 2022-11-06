@@ -1136,7 +1136,7 @@ public class GrouperProvisioningTranslator {
       }
     }
     
-    for (ProvisioningMembership targetMembership: GrouperUtil.nonNull(targetMemberships)) {
+    OUTER: for (ProvisioningMembership targetMembership: GrouperUtil.nonNull(targetMemberships)) {
       
       Object id = null;
       if (!StringUtils.isBlank(membershipIdAttribute)) {
@@ -1160,7 +1160,20 @@ public class GrouperProvisioningTranslator {
         throw new RuntimeException("Must have membershipMatchingIdAttribute, or membershipMatchingIdExpression");
       }
 //      id = massageToString(id, 2);
-
+      if (id instanceof MultiKey) {
+        
+        MultiKey matchingIdMultiKey = (MultiKey)id;
+        for (int i=0; i<matchingIdMultiKey.size(); i++) {
+          if (matchingIdMultiKey.getKey(i) == null) {
+            GcGrouperSyncErrorCode errorCode = GcGrouperSyncErrorCode.DNE;
+            String errorMessage = "membership multiKey has blank value in index: " + i;
+            this.grouperProvisioner.retrieveGrouperProvisioningValidation()
+              .assignMembershipError(targetMembership.getProvisioningMembershipWrapper(), errorCode, errorMessage);
+            continue OUTER;
+          }
+        }
+        
+      }
       // just hard code to "id" since memberships just have one matching id
       ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue("id", id);
       provisioningUpdatableAttributeAndValue.setCurrentValue(true);

@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -20,7 +19,6 @@ import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 /**
  * this could be a deep validate though
@@ -398,7 +396,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateEntityLinkHasConfiguration();
     validateGroupLinkOnePerBucket();
     validateEntityLinkOnePerBucket();
-    validateNoUnsedConfigs();
+//    validateNoUnsedConfigs();
     validateAttributeNamesNotReused();
     validateAttributeCount();
     validateGroupIdToProvisionExists();
