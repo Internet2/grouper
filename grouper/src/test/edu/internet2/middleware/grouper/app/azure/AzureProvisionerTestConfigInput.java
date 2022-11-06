@@ -13,6 +13,22 @@ public class AzureProvisionerTestConfigInput {
   private boolean realAzure = false;
   
   /**
+   * null will use params
+   */
+  private String provisioningStrategy = null;
+  
+  
+  public String getProvisioningStrategy() {
+    return provisioningStrategy;
+  }
+
+  public AzureProvisionerTestConfigInput assignProvisioningStrategy(String provisioningStrategy) {
+    this.provisioningStrategy = provisioningStrategy;
+    return this;
+  }
+
+
+  /**
    * 
    * @param theRealAzure
    * @return this for chaining
@@ -146,5 +162,7 @@ public class AzureProvisionerTestConfigInput {
   public String getConfigId() {
     return configId;
   }
+  
+  
   
 }

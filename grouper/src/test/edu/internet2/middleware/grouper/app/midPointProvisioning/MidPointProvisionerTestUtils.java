@@ -34,11 +34,6 @@ public class MidPointProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "dbExternalSystemConfigId", "grouper");
     configureProvisionerSuffix(provisioningTestConfigInput, "midPointTablesPrefix", "gr");
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "midPointLastModifiedColumnType", "long");
-    configureProvisionerSuffix(provisioningTestConfigInput, "midPointLastModifiedColumnName", "last_modified");
-
-    configureProvisionerSuffix(provisioningTestConfigInput, "midPointDeletedColumnName", "deleted");
-    
     configureProvisionerSuffix(provisioningTestConfigInput, "midPointListOfTargets", "a,b,c");
 
     configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");

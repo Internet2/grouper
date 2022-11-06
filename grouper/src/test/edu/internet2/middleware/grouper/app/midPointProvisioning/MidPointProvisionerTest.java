@@ -42,7 +42,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
 
     GrouperStartup.startup();
-    TestRunner.run(new MidPointProvisionerTest("testFullMidPointProvisioner"));
+    TestRunner.run(new MidPointProvisionerTest("testFullMidPointProvisionerWithLastModifiedTimestampColumnOnly"));
   
   }
 
@@ -115,9 +115,12 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
   
-  public void testFullMidPointProvisioner() {
+  public void testFullMidPointProvisionerWithLastModifiedAndDeletedColumns() {
     
-    MidPointProvisionerTestUtils.configureMidpointProvisioner(new MidPointProvisionerTestConfigInput());
+    MidPointProvisionerTestUtils.configureMidpointProvisioner(new MidPointProvisionerTestConfigInput()
+        .addExtraConfig("midPointLastModifiedColumnType", "long")
+        .addExtraConfig("midPointLastModifiedColumnName", "last_modified")
+        .addExtraConfig("midPointDeletedColumnName", "deleted"));
 
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
@@ -327,6 +330,541 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     }
     
   }
+  
+  
+  
+  public void testFullMidPointProvisionerWithLastModifiedColumnOnly() {
+    
+    MidPointProvisionerTestUtils.configureMidpointProvisioner(new MidPointProvisionerTestConfigInput()
+        .addExtraConfig("midPointLastModifiedColumnType", "long")
+        .addExtraConfig("midPointLastModifiedColumnName", "last_modified"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("midPointProvTest");
+    attributeValue.setTargetName("midPointProvTest");
+    attributeValue.setStemScopeString("sub");
+    
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    
+    Set<String> targetValues = new HashSet<>();
+    targetValues.add("a");
+    targetValues.add("b");
+    metadataNameValues.put("md_grouper_midPointTarget", targetValues);
+
+    attributeValue.setMetadataNameValues(metadataNameValues);
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
+    //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
+    
+    //lets sync these over
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    List<Object[]> groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified, deleted from gr_mp_groups").selectList(Object[].class);
+    assertEquals(1, groups.size());
+    
+    assertEquals(testGroup.getName(), groups.get(0)[0]);
+    assertEquals(testGroup.getIdIndex().longValue(), ((BigDecimal)groups.get(0)[1]).longValue());
+    assertEquals(testGroup.getDisplayName(), groups.get(0)[2]);
+    assertNull(groups.get(0)[3]);
+    assertNotNull(groups.get(0)[4]);
+    assertNull(groups.get(0)[5]);
+    
+    
+    List<Object[]> groupAttributes = new GcDbAccess().sql("select group_id_index, attribute_name, attribute_value, last_modified, deleted from gr_mp_group_attributes").selectList(Object[].class);
+    assertEquals(2, groupAttributes.size());
+    
+    Map<MultiKey, Object[]> attributeNameValueToGroupAttributes = new HashMap<>();
+    for (Object[] groupAttribute: groupAttributes) {
+      attributeNameValueToGroupAttributes.put(new MultiKey(groupAttribute[1], groupAttribute[2]), groupAttribute);
+    }
+    
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a")));
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b")));
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a"))[3]);
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b"))[3]);
+    assertNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a"))[4]);
+    assertNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b"))[4]);
+    
+    List<Object[]> entities = new GcDbAccess().sql("select subject_id_index, subject_id, last_modified, deleted from gr_mp_subjects").selectList(Object[].class);
+    assertEquals(2, entities.size());
+    Map<String, Object[]> subjectIdToSubjectAttributes = new HashMap<>();
+    for (Object[] entity: entities) {
+      subjectIdToSubjectAttributes.put(entity[1].toString(), entity);
+    }
+    
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId()));
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId())[2]);
+    assertNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId())[3]);
+    
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId()));
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId())[2]);
+    assertNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId())[3]);
+    
+    
+    List<Object[]> memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified, deleted from gr_mp_memberships").selectList(Object[].class);
+    
+    Map<MultiKey, Object[]> groupIdSubjectIdToMembershipAttributes = new HashMap<>();
+    
+    for (Object[] membershipAttributes: memberships) {
+      groupIdSubjectIdToMembershipAttributes.put(new MultiKey(membershipAttributes[0], membershipAttributes[1]), membershipAttributes);
+    }
+    
+    assertEquals(2, groupIdSubjectIdToMembershipAttributes.size());
+    for (MultiKey groupIdSubjectId : groupIdSubjectIdToMembershipAttributes.keySet()) {
+      Object[] membershipAttributes = groupIdSubjectIdToMembershipAttributes.get(groupIdSubjectId);
+      assertNotNull(membershipAttributes[2]);
+      assertNull(membershipAttributes[3]);
+    }
+    
+    
+    // delete a member from testGroup and reprovision
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+    
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
+    memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified, deleted from gr_mp_memberships").selectList(Object[].class);
+    
+    groupIdSubjectIdToMembershipAttributes = new HashMap<>();
+    
+    for (Object[] membershipAttributes: memberships) {
+      groupIdSubjectIdToMembershipAttributes.put(new MultiKey(membershipAttributes[0], membershipAttributes[1]), membershipAttributes);
+    }
+    
+    assertEquals(1, groupIdSubjectIdToMembershipAttributes.size());
+    
+    //update group description and reprovision
+    testGroup = new GroupSave(this.grouperSession).assignName(testGroup.getName())
+        .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
+        .assignSaveMode(SaveMode.UPDATE).save();
+    
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified, deleted from gr_mp_groups").selectList(Object[].class);
+    assertEquals(1, groups.size());
+    assertEquals(testGroup.getName(), groups.get(0)[0]);
+    assertEquals(testGroup.getIdIndex().longValue(), ((BigDecimal)groups.get(0)[1]).longValue());
+    assertEquals(testGroup.getDisplayName(), groups.get(0)[2]);
+    assertEquals(testGroup.getDescription(), groups.get(0)[3]);
+    assertNotNull(groups.get(0)[4]);
+    assertNull(groups.get(0)[5]);
+    
+    // now delete the group
+    testGroup.delete();
+    
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified, deleted from gr_mp_groups").selectList(Object[].class);
+    assertEquals(0, groups.size());
+    
+    groupAttributes = new GcDbAccess().sql("select group_id_index, attribute_name, attribute_value, last_modified, deleted from gr_mp_group_attributes").selectList(Object[].class);
+    assertEquals(0, groupAttributes.size());
+    
+    entities = new GcDbAccess().sql("select subject_id_index, subject_id, last_modified, deleted from gr_mp_subjects").selectList(Object[].class);
+    assertEquals(0, entities.size());
+    
+    memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified, deleted from gr_mp_memberships").selectList(Object[].class);
+    assertEquals(0, memberships.size());
+    
+  }
+  
+  public void testFullMidPointProvisionerWithLastModifiedTimestampColumnOnly() {
+    
+    MidPointProvisionerTestUtils.configureMidpointProvisioner(new MidPointProvisionerTestConfigInput()
+        .addExtraConfig("midPointLastModifiedColumnType", "timestamp")
+        .addExtraConfig("midPointLastModifiedColumnName", "last_modified_t"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("midPointProvTest");
+    attributeValue.setTargetName("midPointProvTest");
+    attributeValue.setStemScopeString("sub");
+    
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    
+    Set<String> targetValues = new HashSet<>();
+    targetValues.add("a");
+    targetValues.add("b");
+    metadataNameValues.put("md_grouper_midPointTarget", targetValues);
+
+    attributeValue.setMetadataNameValues(metadataNameValues);
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
+    //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
+    
+    //lets sync these over
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    List<Object[]> groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified_t, deleted from gr_mp_groups").selectList(Object[].class);
+    assertEquals(1, groups.size());
+    
+    assertEquals(testGroup.getName(), groups.get(0)[0]);
+    assertEquals(testGroup.getIdIndex().longValue(), ((BigDecimal)groups.get(0)[1]).longValue());
+    assertEquals(testGroup.getDisplayName(), groups.get(0)[2]);
+    assertNull(groups.get(0)[3]);
+    assertNotNull(groups.get(0)[4]);
+    assertNull(groups.get(0)[5]);
+    
+    
+    List<Object[]> groupAttributes = new GcDbAccess().sql("select group_id_index, attribute_name, attribute_value, last_modified_t, deleted from gr_mp_group_attributes").selectList(Object[].class);
+    assertEquals(2, groupAttributes.size());
+    
+    Map<MultiKey, Object[]> attributeNameValueToGroupAttributes = new HashMap<>();
+    for (Object[] groupAttribute: groupAttributes) {
+      attributeNameValueToGroupAttributes.put(new MultiKey(groupAttribute[1], groupAttribute[2]), groupAttribute);
+    }
+    
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a")));
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b")));
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a"))[3]);
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b"))[3]);
+    assertNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a"))[4]);
+    assertNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b"))[4]);
+    
+    List<Object[]> entities = new GcDbAccess().sql("select subject_id_index, subject_id, last_modified_t, deleted from gr_mp_subjects").selectList(Object[].class);
+    assertEquals(2, entities.size());
+    Map<String, Object[]> subjectIdToSubjectAttributes = new HashMap<>();
+    for (Object[] entity: entities) {
+      subjectIdToSubjectAttributes.put(entity[1].toString(), entity);
+    }
+    
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId()));
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId())[2]);
+    assertNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId())[3]);
+    
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId()));
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId())[2]);
+    assertNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId())[3]);
+    
+    
+    List<Object[]> memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified_t, deleted from gr_mp_memberships").selectList(Object[].class);
+    
+    Map<MultiKey, Object[]> groupIdSubjectIdToMembershipAttributes = new HashMap<>();
+    
+    for (Object[] membershipAttributes: memberships) {
+      groupIdSubjectIdToMembershipAttributes.put(new MultiKey(membershipAttributes[0], membershipAttributes[1]), membershipAttributes);
+    }
+    
+    assertEquals(2, groupIdSubjectIdToMembershipAttributes.size());
+    for (MultiKey groupIdSubjectId : groupIdSubjectIdToMembershipAttributes.keySet()) {
+      Object[] membershipAttributes = groupIdSubjectIdToMembershipAttributes.get(groupIdSubjectId);
+      assertNotNull(membershipAttributes[2]);
+      assertNull(membershipAttributes[3]);
+    }
+    
+    
+    // delete a member from testGroup and reprovision
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+    
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
+    memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified_t, deleted from gr_mp_memberships").selectList(Object[].class);
+    
+    groupIdSubjectIdToMembershipAttributes = new HashMap<>();
+    
+    for (Object[] membershipAttributes: memberships) {
+      groupIdSubjectIdToMembershipAttributes.put(new MultiKey(membershipAttributes[0], membershipAttributes[1]), membershipAttributes);
+    }
+    
+    assertEquals(1, groupIdSubjectIdToMembershipAttributes.size());
+    
+    //update group description and reprovision
+    testGroup = new GroupSave(this.grouperSession).assignName(testGroup.getName())
+        .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
+        .assignSaveMode(SaveMode.UPDATE).save();
+    
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified_t, deleted from gr_mp_groups").selectList(Object[].class);
+    assertEquals(1, groups.size());
+    assertEquals(testGroup.getName(), groups.get(0)[0]);
+    assertEquals(testGroup.getIdIndex().longValue(), ((BigDecimal)groups.get(0)[1]).longValue());
+    assertEquals(testGroup.getDisplayName(), groups.get(0)[2]);
+    assertEquals(testGroup.getDescription(), groups.get(0)[3]);
+    assertNotNull(groups.get(0)[4]);
+    assertNull(groups.get(0)[5]);
+    
+    // now delete the group
+    testGroup.delete();
+    
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified_t, deleted from gr_mp_groups").selectList(Object[].class);
+    assertEquals(0, groups.size());
+    
+    groupAttributes = new GcDbAccess().sql("select group_id_index, attribute_name, attribute_value, last_modified_t, deleted from gr_mp_group_attributes").selectList(Object[].class);
+    assertEquals(0, groupAttributes.size());
+    
+    entities = new GcDbAccess().sql("select subject_id_index, subject_id, last_modified_t, deleted from gr_mp_subjects").selectList(Object[].class);
+    assertEquals(0, entities.size());
+    
+    memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified_t, deleted from gr_mp_memberships").selectList(Object[].class);
+    assertEquals(0, memberships.size());
+    
+  }
+  
+  public void testFullMidPointProvisionerWithDeletedColumnOnly() {
+    
+    MidPointProvisionerTestUtils.configureMidpointProvisioner(new MidPointProvisionerTestConfigInput()
+        .addExtraConfig("midPointDeletedColumnName", "deleted"));
+
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("midPointProvTest");
+    attributeValue.setTargetName("midPointProvTest");
+    attributeValue.setStemScopeString("sub");
+    
+    Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+    
+    Set<String> targetValues = new HashSet<>();
+    targetValues.add("a");
+    targetValues.add("b");
+    metadataNameValues.put("md_grouper_midPointTarget", targetValues);
+
+    attributeValue.setMetadataNameValues(metadataNameValues);
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
+    //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
+    
+    //lets sync these over
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    List<Object[]> groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified, deleted from gr_mp_groups").selectList(Object[].class);
+    assertEquals(1, groups.size());
+    
+    assertEquals(testGroup.getName(), groups.get(0)[0]);
+    assertEquals(testGroup.getIdIndex().longValue(), ((BigDecimal)groups.get(0)[1]).longValue());
+    assertEquals(testGroup.getDisplayName(), groups.get(0)[2]);
+    assertNull(groups.get(0)[3]);
+    assertNull(groups.get(0)[4]);
+    assertEquals("F", groups.get(0)[5]);
+    
+    
+    List<Object[]> groupAttributes = new GcDbAccess().sql("select group_id_index, attribute_name, attribute_value, last_modified, deleted from gr_mp_group_attributes").selectList(Object[].class);
+    assertEquals(2, groupAttributes.size());
+    
+    Map<MultiKey, Object[]> attributeNameValueToGroupAttributes = new HashMap<>();
+    for (Object[] groupAttribute: groupAttributes) {
+      attributeNameValueToGroupAttributes.put(new MultiKey(groupAttribute[1], groupAttribute[2]), groupAttribute);
+    }
+    
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a")));
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b")));
+    assertNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a"))[3]);
+    assertNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b"))[3]);
+    assertEquals("F", attributeNameValueToGroupAttributes.get(new MultiKey("target", "a"))[4]);
+    assertEquals("F", attributeNameValueToGroupAttributes.get(new MultiKey("target", "b"))[4]);
+    
+    List<Object[]> entities = new GcDbAccess().sql("select subject_id_index, subject_id, last_modified, deleted from gr_mp_subjects").selectList(Object[].class);
+    assertEquals(2, entities.size());
+    Map<String, Object[]> subjectIdToSubjectAttributes = new HashMap<>();
+    for (Object[] entity: entities) {
+      subjectIdToSubjectAttributes.put(entity[1].toString(), entity);
+    }
+    
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId()));
+    assertNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId())[2]);
+    assertEquals("F", subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId())[3]);
+    
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId()));
+    assertNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId())[2]);
+    assertEquals("F", subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId())[3]);
+    
+    
+    List<Object[]> memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified, deleted from gr_mp_memberships").selectList(Object[].class);
+    
+    Map<MultiKey, Object[]> groupIdSubjectIdToMembershipAttributes = new HashMap<>();
+    
+    for (Object[] membershipAttributes: memberships) {
+      groupIdSubjectIdToMembershipAttributes.put(new MultiKey(membershipAttributes[0], membershipAttributes[1]), membershipAttributes);
+    }
+    
+    assertEquals(2, groupIdSubjectIdToMembershipAttributes.size());
+    for (MultiKey groupIdSubjectId : groupIdSubjectIdToMembershipAttributes.keySet()) {
+      Object[] membershipAttributes = groupIdSubjectIdToMembershipAttributes.get(groupIdSubjectId);
+      assertNull(membershipAttributes[2]);
+      assertEquals("F", membershipAttributes[3]);
+    }
+    
+    
+    // delete a member from testGroup and reprovision
+    testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+    
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
+    memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified, deleted from gr_mp_memberships").selectList(Object[].class);
+    
+    groupIdSubjectIdToMembershipAttributes = new HashMap<>();
+    
+    for (Object[] membershipAttributes: memberships) {
+      groupIdSubjectIdToMembershipAttributes.put(new MultiKey(membershipAttributes[0], membershipAttributes[1]), membershipAttributes);
+    }
+    
+    assertEquals(2, groupIdSubjectIdToMembershipAttributes.size());
+    boolean falseFound = false;
+    boolean trueFound = false;
+    for (MultiKey groupIdSubjectId : groupIdSubjectIdToMembershipAttributes.keySet()) {
+      Object[] membershipAttributes = groupIdSubjectIdToMembershipAttributes.get(groupIdSubjectId);
+      assertNull(membershipAttributes[2]);
+      if (membershipAttributes[3].equals("F")) {
+        falseFound = true;
+      }
+      if (membershipAttributes[3].equals("T")) {
+        trueFound = true;
+      }
+    }
+    
+    assertTrue(falseFound);
+    assertTrue(trueFound);
+    
+    //update group description and reprovision
+    testGroup = new GroupSave(this.grouperSession).assignName(testGroup.getName())
+        .assignUuid(testGroup.getUuid()).assignDescription("newDescription")
+        .assignSaveMode(SaveMode.UPDATE).save();
+    
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified, deleted from gr_mp_groups").selectList(Object[].class);
+    assertEquals(1, groups.size());
+    assertEquals(testGroup.getName(), groups.get(0)[0]);
+    assertEquals(testGroup.getIdIndex().longValue(), ((BigDecimal)groups.get(0)[1]).longValue());
+    assertEquals(testGroup.getDisplayName(), groups.get(0)[2]);
+    assertEquals(testGroup.getDescription(), groups.get(0)[3]);
+    assertNull(groups.get(0)[4]);
+    assertEquals("F", groups.get(0)[5]);
+    
+    // now delete the group
+    testGroup.delete();
+    
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified, deleted from gr_mp_groups").selectList(Object[].class);
+    assertEquals(1, groups.size());
+    assertEquals(testGroup.getName(), groups.get(0)[0]);
+    assertEquals(testGroup.getIdIndex().longValue(), ((BigDecimal)groups.get(0)[1]).longValue());
+    assertEquals(testGroup.getDisplayName(), groups.get(0)[2]);
+    assertEquals(testGroup.getDescription(), groups.get(0)[3]);
+    assertNull(groups.get(0)[4]);
+    assertEquals("T", groups.get(0)[5]);
+    
+    groupAttributes = new GcDbAccess().sql("select group_id_index, attribute_name, attribute_value, last_modified, deleted from gr_mp_group_attributes").selectList(Object[].class);
+    assertEquals(2, groupAttributes.size());
+    
+    attributeNameValueToGroupAttributes = new HashMap<>();
+    for (Object[] groupAttribute: groupAttributes) {
+      attributeNameValueToGroupAttributes.put(new MultiKey(groupAttribute[1], groupAttribute[2]), groupAttribute);
+    }
+    
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a")));
+    assertNotNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b")));
+    assertNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a"))[3]);
+    assertNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b"))[3]);
+    assertEquals("T", attributeNameValueToGroupAttributes.get(new MultiKey("target", "a"))[4]);
+    assertEquals("T", attributeNameValueToGroupAttributes.get(new MultiKey("target", "b"))[4]);
+    
+    entities = new GcDbAccess().sql("select subject_id_index, subject_id, last_modified, deleted from gr_mp_subjects").selectList(Object[].class);
+    assertEquals(2, entities.size());
+    subjectIdToSubjectAttributes = new HashMap<>();
+    for (Object[] entity: entities) {
+      subjectIdToSubjectAttributes.put(entity[1].toString(), entity);
+    }
+    
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId()));
+    assertNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId())[2]);
+    assertEquals("T", subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ0.getId())[3]);
+    
+    assertNotNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId()));
+    assertNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId())[2]);
+    assertEquals("T", subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId())[3]);
+    
+    memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified, deleted from gr_mp_memberships").selectList(Object[].class);
+    
+    groupIdSubjectIdToMembershipAttributes = new HashMap<>();
+    
+    for (Object[] membershipAttributes: memberships) {
+      groupIdSubjectIdToMembershipAttributes.put(new MultiKey(membershipAttributes[0], membershipAttributes[1]), membershipAttributes);
+    }
+    
+    assertEquals(2, groupIdSubjectIdToMembershipAttributes.size());
+    for (MultiKey groupIdSubjectId : groupIdSubjectIdToMembershipAttributes.keySet()) {
+      Object[] membershipAttributes = groupIdSubjectIdToMembershipAttributes.get(groupIdSubjectId);
+      assertNull(membershipAttributes[2]);
+      assertEquals("T", membershipAttributes[3]);
+    }
+    
+  }
+  
+  
+
 
   
   /**
@@ -356,6 +894,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "1024", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified_t", Types.TIMESTAMP, "200", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, false);
 
         }
@@ -405,6 +944,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified_t", Types.TIMESTAMP, "200", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, false);
 
         }
@@ -449,6 +989,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id_index", Types.BIGINT, "20", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", Types.VARCHAR, "1024", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified_t", Types.TIMESTAMP, "200", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, false);
         }
         
@@ -482,6 +1023,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified_t", Types.TIMESTAMP, "200", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, false);
 
         }
@@ -531,6 +1073,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id_index", Types.BIGINT, "20", false, false);
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified_t", Types.TIMESTAMP, "200", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, false);
           
         }
