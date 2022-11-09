@@ -2749,12 +2749,13 @@ public enum GrouperDdl implements DdlVersionable {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "2.6.18";
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      GrouperDdl2_6_18.attributeAssignDisallowNotNull(database, ddlVersionBean);
     }
   },
   V45 {
@@ -11549,7 +11550,7 @@ public enum GrouperDdl implements DdlVersionable {
       if (created) {
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable,
-            PITAttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, false);
+            PITAttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, true, "F");
 
       }
       
@@ -12357,7 +12358,7 @@ public enum GrouperDdl implements DdlVersionable {
    */
   private static void addAttributeAssignDisallowed(Database database) {
     Table attributeAssignTable = GrouperDdlUtils.ddlutilsFindTable(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, true);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable, AttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable, AttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, true, "F");
   }
   
   /**
@@ -12366,7 +12367,7 @@ public enum GrouperDdl implements DdlVersionable {
    */
   private static void addAttributeAssignPitDisallowed(Database database) {
     Table pitAttributeAssignTable = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, true);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, true, "F");
   }
   
   /**
@@ -14054,7 +14055,7 @@ public enum GrouperDdl implements DdlVersionable {
       if (created) {
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-            AttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, false);
+            AttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, true, "F");
 
       }
       

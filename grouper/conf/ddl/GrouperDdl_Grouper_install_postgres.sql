@@ -663,7 +663,7 @@ CREATE TABLE grouper_attribute_assign
     owner_member_id VARCHAR(40),
     owner_membership_id VARCHAR(40),
     owner_stem_id VARCHAR(40),
-    disallowed VARCHAR(1),
+    disallowed VARCHAR(1) DEFAULT 'F' NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -1050,7 +1050,7 @@ CREATE TABLE grouper_pit_attribute_assign
     end_time BIGINT,
     context_id VARCHAR(40),
     hibernate_version_number BIGINT,
-    disallowed VARCHAR(1),
+    disallowed VARCHAR(1) DEFAULT 'F' NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -7111,7 +7111,7 @@ COMMENT ON COLUMN grouper_mship_req_change.require_group_id IS 'grouper_groups i
 COMMENT ON COLUMN grouper_mship_req_change.config_id IS 'config id in the grouper.properties config file';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 43, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V43, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 44, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V44, ');
 commit;
 
