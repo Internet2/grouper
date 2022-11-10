@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipSave;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
@@ -96,7 +97,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleLonghandVetoUserCantSeeIfGroup"));
+    TestRunner.run(new RuleTest("testRuleMaxExpire"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -118,6 +119,64 @@ public class RuleTest extends GrouperTest {
     assertEquals("Email test.subject.0@somewhere.someSchool.edu", result);
     
   }
+  
+//  public void testRuleMaxExpire() {
+//    GrouperSession grouperSession = GrouperSession.startRootSession();
+//    
+//    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+//    
+//    //add a rule on stem:a saying if you are out of stem:b, then remove from stem:a
+//    AttributeAssign attributeAssign = testGroup
+//      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+//    
+//    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+//    attributeValueDelegate.assignValue(
+//        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+//    attributeValueDelegate.assignValue(
+//        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+//    attributeValueDelegate.assignValue(
+//        RuleUtils.ruleCheckOwnerNameName(), testGroup.getName());
+//    attributeValueDelegate.assignValue(
+//        RuleUtils.ruleCheckTypeName(), 
+//        RuleCheckType.membershipAdd.name());
+//    attributeValueDelegate.assignValue(
+//        RuleUtils.ruleIfConditionElName(),
+//        "${membership.isImmediate() && (membership.getDisabledTimeDb() ? membership.getDisabledTimeDb() > (System.currentTimeMillis() * 365L * 60 * 60 * 1000) : false)}");
+//    //key which would be used in UI messages file if applicable
+//    attributeValueDelegate.assignValue(
+//        RuleUtils.ruleThenEnumArg0Name(), "rule.entity.must.be.a.member.of.stem.b");
+//    //error message (if key in UI messages file not there)
+//    attributeValueDelegate.assignValue(
+//        RuleUtils.ruleThenEnumArg1Name(), "Entity cannot be a member of stem:a if not a member of stem:b");
+//    attributeValueDelegate.assignValue(
+//        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+//
+//    //should be valid
+//    String isValidString = attributeValueDelegate.retrieveValueString(
+//        RuleUtils.ruleValidName());
+//
+//    assertEquals("T", isValidString);
+//
+//    //count rule firings
+//    long initialFirings = RuleEngine.ruleFirings;
+//    
+//    try {
+//      new MembershipSave().assignGroup(testGroup).assignSubjectId("GrouperSystem").assignImmediateMshipDisabledTime(System.currentTimeMillis()+ 366*24*60*60*1000L);
+//      fail("Should be vetoed");
+//    } catch (RuleVeto rve) {
+//      //this is good
+//      String stack = ExceptionUtils.getFullStackTrace(rve);
+//      assertTrue(stack, stack.contains("Entity cannot be a member of stem:a if not a member of stem:b"));
+//    }
+//    
+//    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+//
+//    new MembershipSave().assignGroup(testGroup).assignSubject(SubjectFinder.findRootSubject()).assignImmediateMshipDisabledTime(System.currentTimeMillis()+ 364*24*60*60*1000L);
+//    
+//    testGroup.deleteMember(SubjectFinder.findRootSubject());
+//    
+//    testGroup.addMember(SubjectFinder.findRootSubject());
+//  }
   
   /**
    * 

@@ -5,15 +5,34 @@
 package edu.internet2.middleware.grouper.app.loader;
 
 import java.io.File;
+import java.util.Set;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.MembershipSave;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleThenEnum;
+import edu.internet2.middleware.grouper.rules.RuleUtils;
+import edu.internet2.middleware.grouper.rules.RuleVeto;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import junit.textui.TestRunner;
 
 
 /**
@@ -21,6 +40,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class OtherJobScriptTest extends GrouperTest {
 
+  public static void main(String[] args) {
+    TestRunner.run(new OtherJobScriptTest("testGshScriptMaxExpire"));
+  }
+  
   public OtherJobScriptTest(String name) {
     super(name);
   }
@@ -54,6 +77,55 @@ public class OtherJobScriptTest extends GrouperTest {
     
   }
 
+  public void testGshScriptMaxExpire() {
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    
+    long date366 = System.currentTimeMillis()+ 366*24*60*60*1000L;
+    long date364 = System.currentTimeMillis()+ 364*24*60*60*1000L;
+
+    GrouperLoader.scheduleJobs();
+    
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.testGroupMaxMembership.class", "edu.internet2.middleware.grouper.app.loader.OtherJobScript");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.testGroupMaxMembership.quartzCron", "0 0 0 * * ?");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.testGroupMaxMembership.scriptType", "gsh");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.testGroupMaxMembership.scriptSource", 
+        GrouperUtil.readResourceIntoString("/edu/internet2/middleware/grouper/app/loader/maxMembershipDeleteDate.txt", false));
+
+    assertEquals(1, GrouperLoader.scheduleJobs());
+    assertEquals(0, GrouperLoader.scheduleJobs());
+    
+    new MembershipSave().assignGroup(testGroup).assignSubjectId(SubjectTestHelper.SUBJ0_ID)
+      .assignImmediateMshipDisabledTime(date364).save();
+    new MembershipSave().assignGroup(testGroup).assignSubjectId(SubjectTestHelper.SUBJ1_ID)
+      .assignImmediateMshipDisabledTime(date366).save();
+    new MembershipSave().assignGroup(testGroup).assignSubjectId(SubjectTestHelper.SUBJ2_ID)
+      .assignImmediateMshipDisabledTime(date366).save();
+    new MembershipSave().assignGroup(testGroup).assignSubjectId(SubjectTestHelper.SUBJ3_ID).save();
+
+    OtherJobScript otherJobScript = new OtherJobScript();
+    otherJobScript.execute("OTHER_JOB_testGroupMaxMembership", null);
+
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("OTHER_JOB_testGroupMaxMembership");
+    assertEquals("SUCCESS", hib3GrouperLoaderLog.getStatus());
+    assertEquals(3, hib3GrouperLoaderLog.getUpdateCount().intValue());
+    
+    Membership membership = MembershipFinder.findImmediateMembership(grouperSession, testGroup, SubjectTestHelper.SUBJ0, true);
+    assertEquals(date364, membership.getDisabledTimeDb().longValue());
+    
+    membership = MembershipFinder.findImmediateMembership(grouperSession, testGroup, SubjectTestHelper.SUBJ1, true);
+    assertTrue(date364 < membership.getDisabledTimeDb().longValue() && membership.getDisabledTimeDb().longValue() < date366 );
+
+    membership = MembershipFinder.findImmediateMembership(grouperSession, testGroup, SubjectTestHelper.SUBJ2, true);
+    assertTrue(date364 < membership.getDisabledTimeDb().longValue() && membership.getDisabledTimeDb().longValue() < date366 );
+
+    membership = MembershipFinder.findImmediateMembership(grouperSession, testGroup, SubjectTestHelper.SUBJ3, true);
+    assertTrue(date364 < membership.getDisabledTimeDb().longValue() && membership.getDisabledTimeDb().longValue() < date366 );
+    
+  }
+  
   public void testGshScriptSource() {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("otherJob.scriptGsh.class", "edu.internet2.middleware.grouper.app.loader.OtherJobScript");
