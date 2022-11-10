@@ -769,7 +769,7 @@ public class GrouperProvisioningCompare {
         for (Object value : grouperCollection) {
           grouperProvisioningUpdatable.addInternal_objectChange(
               new ProvisioningObjectChange(attributeName, 
-                  ProvisioningObjectChangeAction.update, null, value)
+                  ProvisioningObjectChangeAction.insert, null, value)
               );
         }
       }
@@ -796,7 +796,7 @@ public class GrouperProvisioningCompare {
           
           grouperProvisioningUpdatable.addInternal_objectChange(
               new ProvisioningObjectChange(attributeName, 
-                  ProvisioningObjectChangeAction.update, null, value)
+                  ProvisioningObjectChangeAction.insert, null, value)
               );
         }
       }
@@ -810,7 +810,7 @@ public class GrouperProvisioningCompare {
         // just a scalar
         grouperProvisioningUpdatable.addInternal_objectChange(
             new ProvisioningObjectChange(attributeName, 
-                ProvisioningObjectChangeAction.update, null, grouperValue)
+                targetAttribute == null ? ProvisioningObjectChangeAction.insert : ProvisioningObjectChangeAction.update, null, grouperValue)
             );
       }
       return;
@@ -822,7 +822,7 @@ public class GrouperProvisioningCompare {
         if (grouperProvisioningUpdatable.canUpdateAttribute(attributeName)) {
           grouperProvisioningUpdatable.addInternal_objectChange(
               new ProvisioningObjectChange(attributeName, 
-                  ProvisioningObjectChangeAction.update, value, null)
+                  ProvisioningObjectChangeAction.delete, value, null)
               );
         }
       }
@@ -835,7 +835,7 @@ public class GrouperProvisioningCompare {
       if (grouperProvisioningUpdatable.canUpdateAttribute(attributeName)) {
         grouperProvisioningUpdatable.addInternal_objectChange(
             new ProvisioningObjectChange(attributeName, 
-                ProvisioningObjectChangeAction.update, targetValue, null)
+                grouperAttribute == null ? ProvisioningObjectChangeAction.delete : ProvisioningObjectChangeAction.update, targetValue, null)
             );
       }
       return;
@@ -874,7 +874,7 @@ public class GrouperProvisioningCompare {
       for (Object insertValue : inserts) {
         grouperProvisioningUpdatable.addInternal_objectChange(
             new ProvisioningObjectChange(attributeName, 
-                ProvisioningObjectChangeAction.update, null, insertValue)
+                ProvisioningObjectChangeAction.insert, null, insertValue)
             );
 
       }
@@ -888,7 +888,7 @@ public class GrouperProvisioningCompare {
         
           grouperProvisioningUpdatable.addInternal_objectChange(
               new ProvisioningObjectChange(attributeName, 
-                  ProvisioningObjectChangeAction.update, deleteValue, null)
+                  ProvisioningObjectChangeAction.delete, deleteValue, null)
               );
         }  
       }
