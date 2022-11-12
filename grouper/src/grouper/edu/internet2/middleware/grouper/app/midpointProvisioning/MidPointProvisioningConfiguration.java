@@ -65,11 +65,15 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
   @Override
   public void configureSpecificSettings() {
     
+    super.configureSpecificSettings();
+    
     this.dbExternalSystemConfigId = this.retrieveConfigString("dbExternalSystemConfigId", true);    
     
     //TODO validate by connecting to midpoint tables with this prefix
     this.midPointTablesPrefix = this.retrieveConfigString("midPointTablesPrefix", false);
-    
+    if (StringUtils.isBlank(this.midPointTablesPrefix)) {
+      this.midPointTablesPrefix = "gr";
+    }
     this.midPointHasTargetAttribute = GrouperUtil.booleanValue(this.retrieveConfigBoolean("midPointHasTargetAttribute", false), true);
     
     if (this.midPointHasTargetAttribute) {

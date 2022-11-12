@@ -395,19 +395,13 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
             
-            Object[] insertDelete = new Object[attributeColumnsToInsert.size()];
+            Object[] insertDelete = new Object[attributeColumnsToDelete.size()];
             attributeTableInsertDeletes.add(insertDelete);
             insertDelete[0] = groupIdentifierValueNew;
             insertDelete[1] = attributeName;
             insertDelete[2] = provisioningObjectChange.getNewValue();
             
             int attributeColumnsToInsertSize = attributeColumnsToInsert.size();
-            if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
-              attributeColumnsToInsertSize++;
-            }
-            if (StringUtils.isNotBlank(sqlDeletedColumn)) {
-              attributeColumnsToInsertSize++;
-            }
             Object[] insertData = new Object[attributeColumnsToInsertSize];
             attributeTableInserts.add(insertData);
             insertData[0] = groupIdentifierValueNew;
@@ -677,7 +671,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
             
-            Object[] insertDelete = new Object[attributeColumnsToInsert.size()];
+            Object[] insertDelete = new Object[attributeColumnsToDelete.size()];
             attributeTableInsertDeletes.add(insertDelete);
             insertDelete[0] = entityIdentifierValueNew;
             insertDelete[1] = attributeName;
