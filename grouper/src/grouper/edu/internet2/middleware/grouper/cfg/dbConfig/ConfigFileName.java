@@ -276,6 +276,16 @@ public enum ConfigFileName {
           if (configFileMetadata == null) {
             
             String contents = this.fileContents();
+            
+            contents = GrouperUtil.defaultString(contents);
+            
+            String extraMetadataFileName = GrouperUtil.prefixOrSuffix(this.configFileName, ".", true) + ".extraMetadata.properties";
+            
+            String extraMetadata =  GrouperUtil.readResourceIntoString(extraMetadataFileName, true);
+            if (!StringUtils.isBlank(extraMetadata)) {
+              contents += "\n" + extraMetadata;
+            }
+            
             if (!StringUtils.isBlank(contents)) {
               configFileMetadata = ConfigFileMetadata.generateMetadataForConfigFile(this, contents);
             }
