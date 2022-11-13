@@ -29,12 +29,9 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorC
  */
 public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
 
-  /**
-   * 
-   */
   public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
   
-  private static void executeMethod(Map<String, Object> debugMap,
+  public static void replaceMembers(Map<String, Object> debugMap,
       String configId, List<String> netIds,
       String source, String role) {
 
@@ -138,7 +135,7 @@ public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
 
     debugMap.put("method", "replaceGroupMemberships");
     
-    executeMethod(debugMap, grouperExampleWsConfiguration.getExampleWsExternalSystemConfigId(), netIds, 
+    replaceMembers(debugMap, grouperExampleWsConfiguration.getExampleWsExternalSystemConfigId(), netIds, 
         grouperExampleWsConfiguration.getExampleWsSource(), roleValue);
     
     for (ProvisioningMembership provisioningMembership: targetMemberships) {

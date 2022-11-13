@@ -1,9 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.lang.reflect.Array;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,8 +21,6 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSetti
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsResponse;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
@@ -1516,7 +1512,10 @@ public class GrouperProvisioningLogicIncremental {
    */
   public void convertToGroupSync() {
     
-    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup()) {
+    boolean convertAllRecalcMembershipChangesToGroupSync = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
+    
+    if (!convertAllRecalcMembershipChangesToGroupSync && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup()) {
       return;
     }
     
@@ -1531,9 +1530,6 @@ public class GrouperProvisioningLogicIncremental {
     //  if (membershipsConvertToGroupSyncThreshold < 0) {
     //    return;
     //  }
-    
-    boolean convertAllRecalcMembershipChangesToGroupSync = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
-        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
     
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithoutRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc();
     GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc();

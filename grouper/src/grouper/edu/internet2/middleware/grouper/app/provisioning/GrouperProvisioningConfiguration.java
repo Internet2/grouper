@@ -1652,6 +1652,7 @@ public abstract class GrouperProvisioningConfiguration {
    */
   private boolean insertMemberships = true;
 
+  
   /**
    * if memberships should be deleted in target
    */
@@ -2596,6 +2597,8 @@ public abstract class GrouperProvisioningConfiguration {
     if (this.customizeMembershipCrud) {
       
       this.insertMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertMemberships", false), true);
+      
+      this.replaceMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("replaceMemberships", false), false);
 
       this.selectMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectMemberships", false), true);
 

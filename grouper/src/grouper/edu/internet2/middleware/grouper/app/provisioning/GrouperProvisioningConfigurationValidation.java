@@ -366,7 +366,7 @@ public class GrouperProvisioningConfigurationValidation {
 //      }
 //    }
     if (grouperProvisioningConfiguration.isOperateOnGrouperMemberships() && grouperProvisioningConfiguration.isCustomizeMembershipCrud()) {
-      if (!grouperProvisioningConfiguration.isSelectMemberships() && !grouperProvisioningConfiguration.isInsertMemberships()) {
+      if (!grouperProvisioningConfiguration.isSelectMemberships() && !grouperProvisioningConfiguration.isInsertMemberships() && !grouperProvisioningConfiguration.isReplaceMemberships()) {
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertMemberships")).assignJqueryHandle("operateOnGrouperMemberships"));
       }
     }
@@ -397,6 +397,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateGroupLinkOnePerBucket();
     validateEntityLinkOnePerBucket();
 //    validateNoUnsedConfigs();
+    validateMembershipReplace();
     validateAttributeNamesNotReused();
     validateAttributeCount();
     validateGroupIdToProvisionExists();
@@ -1267,6 +1268,25 @@ public class GrouperProvisioningConfigurationValidation {
         }
       }
     }      
+  }
+  
+  
+  /**
+   * 
+   */
+  public void validateMembershipReplace() {
+    
+    if (GrouperUtil.booleanValue(suffixToConfigValue.get("replaceMemberships"), false)) {
+      
+      if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanReplaceGroupMemberships(), false)) {
+        String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.replaceMembershipsNotSupported");
+        this.addErrorMessage(new ProvisioningValidationIssue()
+            .assignMessage(errorMessage)
+            .assignRuntimeError(true));
+      }
+      
+    }
+          
   }
 
   /**

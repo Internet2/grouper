@@ -568,6 +568,12 @@ public class GrouperProvisioningBehavior {
     if (replaceMemberships != null) {
       return replaceMemberships;
     }
+    
+    this.replaceMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReplaceMemberships();
+    if (this.replaceMemberships.booleanValue() == false) {
+      return replaceMemberships;
+    }
+    
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
       //can the provisioner even do this?
       if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanReplaceGroupMemberships(), false)) {
@@ -716,7 +722,7 @@ public class GrouperProvisioningBehavior {
     //can the provisioner even do this?
     if (!this.isDeleteMemberships()) {
       this.deleteMembershipsIfGrouperCreated = false;
-      return this.deleteEntitiesIfGrouperCreated;
+      return this.deleteMembershipsIfGrouperCreated;
     }
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships()) {
       deleteMembershipsIfGrouperCreated = false;

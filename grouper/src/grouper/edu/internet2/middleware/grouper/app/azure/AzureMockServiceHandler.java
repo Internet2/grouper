@@ -13,22 +13,21 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
-
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
+import edu.internet2.middleware.grouper.ddl.GrouperMockDdl;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -88,7 +87,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
       //we need to delete the test table if it is there, and create a new one
       //drop field id col, first drop foreign keys
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+      GrouperDdlUtils.changeDatabase(GrouperMockDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
         public void changeDatabase(DdlVersionBean ddlVersionBean) {
 
           Database database = ddlVersionBean.getDatabase();

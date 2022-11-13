@@ -15,7 +15,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
+import edu.internet2.middleware.grouper.ddl.GrouperMockDdl;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.j2ee.Authentication;
@@ -36,7 +36,7 @@ public class ExampleWsMockServiceHandler extends MockServiceHandler {
       new GcDbAccess().sql("select count(*) from mock_example_ws").select(int.class);
     } catch (Exception e) {
 
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+      GrouperDdlUtils.changeDatabase(GrouperMockDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
         
         @Override
         public void changeDatabase(DdlVersionBean ddlVersionBean) {
@@ -57,6 +57,7 @@ public class ExampleWsMockServiceHandler extends MockServiceHandler {
       
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", Types.VARCHAR, "256", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "net_id", Types.VARCHAR, "256", true, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "source", Types.VARCHAR, "256", true, true);
     } catch (Exception e) {
       
     }
@@ -109,11 +110,15 @@ public class ExampleWsMockServiceHandler extends MockServiceHandler {
         netIds.add(element.getText());
       }
       
-      String netIdSelectQuery = "select net_id from mock_example_ws where group_name = ?";
+      String netIdSelectQuery = "select net_id from mock_example_ws where group_name = ? and source = ?";
       
       String role = mockServiceRequest.getPostMockNamePaths()[1];
+      String source = mockServiceRequest.getPostMockNamePaths()[0];
       
-      List<String> existingNetIdsList = new GcDbAccess().sql(netIdSelectQuery).addBindVar(role).selectList(String.class);
+      List<String> existingNetIdsList = new GcDbAccess().sql(netIdSelectQuery)
+          .addBindVar(role)
+          .addBindVar(source)
+          .selectList(String.class);
       Set<String> existingNetIds = new HashSet<>(existingNetIdsList);
       
       Set<String> inserts = new HashSet<>(netIds);
@@ -123,10 +128,10 @@ public class ExampleWsMockServiceHandler extends MockServiceHandler {
       if (inserts.size() > 0) {
         List<List<Object>> batchBindVars = new ArrayList<>();
         for (String insertNetId: inserts) {
-          batchBindVars.add(GrouperUtil.toList(role, insertNetId));
+          batchBindVars.add(GrouperUtil.toList(role, insertNetId, source));
         }
           
-        new GcDbAccess().sql("insert into mock_example_ws (group_name, net_id) values (?, ?)")
+        new GcDbAccess().sql("insert into mock_example_ws (group_name, net_id, source) values (?, ?, ?)")
         .batchBindVars(batchBindVars)
         .executeBatchSql();
       }
@@ -138,10 +143,10 @@ public class ExampleWsMockServiceHandler extends MockServiceHandler {
       if (deletes.size() > 0) {
         List<List<Object>> batchBindVars = new ArrayList<>();
         for (String deleteNetId: deletes) {
-          batchBindVars.add(GrouperUtil.toList(deleteNetId, role));
+          batchBindVars.add(GrouperUtil.toList(deleteNetId, role, source));
         }
           
-        new GcDbAccess().sql("delete from mock_example_ws where net_id = ? and group_name = ?")
+        new GcDbAccess().sql("delete from mock_example_ws where net_id = ? and group_name = ? and source = ?")
         .batchBindVars(batchBindVars)
         .executeBatchSql();
       }

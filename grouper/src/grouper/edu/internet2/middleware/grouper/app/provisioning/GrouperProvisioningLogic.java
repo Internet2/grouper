@@ -2555,6 +2555,38 @@ public class GrouperProvisioningLogic {
     countAttributesFieldsInsertsUpdatesDeletes(ProvisioningObjectChangeAction.delete, this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningEntities());
     countAttributesFieldsInsertsUpdatesDeletes(ProvisioningObjectChangeAction.delete, this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningMemberships());
     
+    GrouperProvisioningReplacesObjects targetObjectReplaces = this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces();
+    Set<ProvisioningMembershipWrapper> provisioningMembershipWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers();
+    if (targetObjectReplaces != null) {    
+      for (ProvisioningGroup provisioningGroup : targetObjectReplaces.getProvisioningMemberships().keySet()) {
+        
+        Timestamp inTargetStart = provisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getInTargetStart();
+        Timestamp inTargetEnd = provisioningGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getInTargetEnd();
+        if (inTargetStart != null && inTargetStart.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
+          this.grouperProvisioner.retrieveGrouperProvisioningOutput().addInsert(1);  
+        }
+        if (inTargetEnd != null && inTargetEnd.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
+          this.grouperProvisioner.retrieveGrouperProvisioningOutput().addDelete(1);
+        }
+        List<ProvisioningMembership> memberships = targetObjectReplaces.getProvisioningMemberships().get(provisioningGroup);
+        for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(memberships)) {
+          inTargetStart = provisioningMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership().getInTargetStart();
+          if (inTargetStart != null && inTargetStart.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
+            this.grouperProvisioner.retrieveGrouperProvisioningOutput().addInsert(1);  
+          }
+        }
+        
+        for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(provisioningMembershipWrappers)) {
+          inTargetEnd = provisioningMembershipWrapper.getGcGrouperSyncMembership().getInTargetEnd();
+          if (inTargetEnd != null && inTargetEnd.getTime() >= this.getGrouperProvisioner().getMillisWhenSyncStarted()) {
+
+            this.grouperProvisioner.retrieveGrouperProvisioningOutput().addDelete(1);
+          }
+        }
+        
+        
+      }
+    }
   }
 
   /**

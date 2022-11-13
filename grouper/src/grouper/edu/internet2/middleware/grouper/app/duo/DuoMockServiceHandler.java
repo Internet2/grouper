@@ -14,7 +14,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang.StringUtils;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -25,7 +24,8 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
+import edu.internet2.middleware.grouper.ddl.GrouperMockDdl;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -86,7 +86,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
 
       //we need to delete the test table if it is there, and create a new one
       //drop field id col, first drop foreign keys
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+      GrouperDdlUtils.changeDatabase(GrouperMockDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
         public void changeDatabase(DdlVersionBean ddlVersionBean) {
 
           Database database = ddlVersionBean.getDatabase();

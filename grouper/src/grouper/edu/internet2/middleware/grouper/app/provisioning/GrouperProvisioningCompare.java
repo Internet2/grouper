@@ -1498,7 +1498,16 @@ public class GrouperProvisioningCompare {
       Map<ProvisioningGroup, List<ProvisioningMembership>> provisioningMembershipsToReplace = new HashMap<ProvisioningGroup, List<ProvisioningMembership>>();
       
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(provisioningMembershipWrappers)) { 
-        if (provisioningMembershipWrapper.isRecalcObject() || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) {
+        
+        boolean shouldReplace = provisioningMembershipWrapper.isRecalcObject() || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync();
+        if (!shouldReplace) {
+          
+          shouldReplace = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+                .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
+              || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
+          
+        }
+        if (shouldReplace) {
           
           ProvisioningGroup provisioningGroup = provisioningMembershipWrapper.getGrouperTargetMembership().getProvisioningGroup();
           if (provisioningGroup.getProvisioningGroupWrapper().isDelete()) {

@@ -17,8 +17,11 @@
 package edu.internet2.middleware.grouper.cfg.dbConfig;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -284,6 +287,40 @@ public enum ConfigFileName {
             String extraMetadata =  GrouperUtil.readResourceIntoString(extraMetadataFileName, true);
             if (!StringUtils.isBlank(extraMetadata)) {
               contents += "\n" + extraMetadata;
+            }
+            
+            Map<String, String> patternToFilePart = GrouperUtil.toMap("^grouperExtraExternalSystem\\.([^.]+)\\.class$", 
+                "externalSystem", "^grouperExtraProvisionerConfiguration\\.([^.]+)\\.class$", "provisioner");
+            
+            for (String pattern: patternToFilePart.keySet()) {
+              
+              Pattern patternObject = Pattern.compile(pattern);
+              Map<String, String> configToClass = GrouperConfig.retrieveConfig().propertiesMap(patternObject);
+              if (GrouperUtil.length(configToClass) > 0) {
+                for (String configId : configToClass.keySet()) {
+                  
+                  String className = configToClass.get(configId);
+                  Matcher matcher = patternObject.matcher(configId);
+                  GrouperUtil.assertion(matcher.matches(), "Pattern does not match");
+                  configId = matcher.group(1);
+                  
+                  extraMetadataFileName = GrouperUtil.prefixOrSuffix(this.configFileName, ".", true) + ".extraMetadata."+patternToFilePart.get(pattern)+"."+configId+".properties";
+                  
+                  String folderPath = null;
+                  if (className.contains(".")) {
+                    folderPath = className.substring(0, className.lastIndexOf(".")+1).replace('.', '/');
+                  } else {
+                    folderPath = "";
+                  }
+                  
+                  extraMetadata =  GrouperUtil.readResourceIntoString(folderPath+extraMetadataFileName, true);
+                  if (!StringUtils.isBlank(extraMetadata)) {
+                    contents += "\n" + extraMetadata;
+                  }
+                  
+                }
+              }
+              
             }
             
             if (!StringUtils.isBlank(contents)) {
