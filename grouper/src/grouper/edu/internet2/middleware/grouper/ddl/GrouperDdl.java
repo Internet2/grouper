@@ -12385,11 +12385,11 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING2, Types.VARCHAR, "50", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING3, Types.VARCHAR, "50", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING4, Types.VARCHAR, "50", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING0, Types.VARCHAR, "2048", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING1, Types.VARCHAR, "2048", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING2, Types.VARCHAR, "2048", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING3, Types.VARCHAR, "2048", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING4, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING0, Types.VARCHAR, "1500", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING1, Types.VARCHAR, "1500", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING2, Types.VARCHAR, "1500", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING3, Types.VARCHAR, "1500", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING4, Types.VARCHAR, "1500", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_NAME, Types.VARCHAR, "2048", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_DESCRIPTION, Types.VARCHAR, "2048", false, false);
 

@@ -4899,11 +4899,11 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.sortString3 = GrouperUtil.isEmpty(this.sortString3) ? null : GrouperUtil.truncateAscii(this.sortString3, 50);
     this.sortString4 = GrouperUtil.isEmpty(this.sortString4) ? null : GrouperUtil.truncateAscii(this.sortString4, 50);
     
-    this.searchString0 = GrouperUtil.isEmpty(this.searchString0) ? null : GrouperUtil.truncateAscii(this.searchString0.toLowerCase(), 2048);
-    this.searchString1 = GrouperUtil.isEmpty(this.searchString1) ? null : GrouperUtil.truncateAscii(this.searchString1.toLowerCase(), 2048);
-    this.searchString2 = GrouperUtil.isEmpty(this.searchString2) ? null : GrouperUtil.truncateAscii(this.searchString2.toLowerCase(), 2048);
-    this.searchString3 = GrouperUtil.isEmpty(this.searchString3) ? null : GrouperUtil.truncateAscii(this.searchString3.toLowerCase(), 2048);
-    this.searchString4 = GrouperUtil.isEmpty(this.searchString4) ? null : GrouperUtil.truncateAscii(this.searchString4.toLowerCase(), 2048);
+    this.searchString0 = GrouperUtil.isEmpty(this.searchString0) ? null : GrouperUtil.truncateAscii(this.searchString0.toLowerCase(), 1500);
+    this.searchString1 = GrouperUtil.isEmpty(this.searchString1) ? null : GrouperUtil.truncateAscii(this.searchString1.toLowerCase(), 1500);
+    this.searchString2 = GrouperUtil.isEmpty(this.searchString2) ? null : GrouperUtil.truncateAscii(this.searchString2.toLowerCase(), 1500);
+    this.searchString3 = GrouperUtil.isEmpty(this.searchString3) ? null : GrouperUtil.truncateAscii(this.searchString3.toLowerCase(), 1500);
+    this.searchString4 = GrouperUtil.isEmpty(this.searchString4) ? null : GrouperUtil.truncateAscii(this.searchString4.toLowerCase(), 1500);
 
     //dont do this if hibernate is not initted, since the two threads will deadlock...
     if (storeChanges && this.dbVersionIsDifferent() && GrouperStartup.isFinishedStartupSuccessfully() && !StringUtils.isBlank(this.getUuid())) {
