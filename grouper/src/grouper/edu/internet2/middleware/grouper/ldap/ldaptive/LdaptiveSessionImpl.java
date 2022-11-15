@@ -385,7 +385,18 @@ public class LdaptiveSessionImpl implements LdapSession {
         if (propValue == null) {
           propValue = "";
         }
-        
+
+        // GRP-4484: ldaptive upgrade now uses durations
+        if (propNameTail.equalsIgnoreCase("timeout") || propNameTail.equalsIgnoreCase("timeLimit")) {
+          if (!StringUtils.isBlank(propValue)) {
+            try {
+              propValue = "PT" + (GrouperUtil.longValue(propValue)/1000) + "S";
+            } catch (Throwable t) {
+              // if its not a number, then forget it
+              LOG.debug("Error parsing: " + propValue, t);
+            }
+          }
+        }
         _ldaptiveProperties.put("org.ldaptive." + propNameTail, propValue);
 
         if (propNameTail.equalsIgnoreCase("url")) {
