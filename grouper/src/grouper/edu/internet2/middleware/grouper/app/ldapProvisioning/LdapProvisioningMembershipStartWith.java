@@ -8,12 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  */
@@ -475,6 +477,9 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
     return result;
   }
   
-  
+  @Override
+  public Class<? extends ProvisioningConfiguration> getProvisioningConfiguration() {
+    return LdapProvisionerConfiguration.class;
+  }
   
 }

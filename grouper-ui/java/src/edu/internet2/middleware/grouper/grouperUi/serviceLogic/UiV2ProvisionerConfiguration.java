@@ -1053,13 +1053,11 @@ public class UiV2ProvisionerConfiguration {
             }
             
             configSuffixToValues.put(key, startWithValue);
-            
-            if (attributes.containsKey(key)) {
-              provisionerSuffixToValue.put(key, startWithValue);
-            }
+
           }
           
           provisionerStartWith.populateProvisionerConfigurationValuesFromStartWith(configSuffixToValues, provisionerSuffixToValue);
+          provisionerStartWith.manipulateProvisionerConfigurationValue(provisionerConfigId, configSuffixToValues, provisionerSuffixToValue);
           
           for (String key: provisionerSuffixToValue.keySet()) {
             Object valueToSet = provisionerSuffixToValue.get(key);

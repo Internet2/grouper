@@ -7,6 +7,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class ExampleWsProvisioningStartWith extends ProvisionerStartWithBase {
@@ -75,10 +76,7 @@ public class ExampleWsProvisioningStartWith extends ProvisionerStartWithBase {
   
     provisionerSuffixToValue.put("updateGroups", "false");
     
-    provisionerSuffixToValue.put("exampleWsSource", startWithSuffixToValue.get("exampleWsSource"));
     provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.provisioningExamples.exampleWsReplaceProvisioner.GrouperExampleWsProvisioner");
-    provisionerSuffixToValue.put("exampleWsExternalSystemConfigId", startWithSuffixToValue.get("exampleWsExternalSystemConfigId"));
-    
     
   }
 
@@ -86,6 +84,11 @@ public class ExampleWsProvisioningStartWith extends ProvisionerStartWithBase {
   public Map<String, String> screenRedraw(Map<String, String> suffixToValue,
       Set<String> suffixesUserJustChanged) {
     return new HashMap<>();
+  }
+  
+  @Override
+  public Class<? extends ProvisioningConfiguration> getProvisioningConfiguration() {
+    return ExampleWsProvisionerConfiguration.class;
   }
 
 }

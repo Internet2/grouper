@@ -196,6 +196,8 @@ public class ExampleWsProvisionerTest extends GrouperProvisioningBaseTest {
     
     startWith.populateProvisionerConfigurationValuesFromStartWith(startWithSuffixToValue, provisionerSuffixToValue);
     
+    startWith.manipulateProvisionerConfigurationValue("exampleWsProvTest", startWithSuffixToValue, provisionerSuffixToValue);
+    
     for (String key: provisionerSuffixToValue.keySet()) {
       new GrouperDbConfig().configFileName("grouper-loader.properties")
         .propertyName("provisioner.exampleWsProvTest."+key)
