@@ -21,7 +21,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningServ
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
+import edu.internet2.middleware.grouper.ddl.GrouperMidpointDdl;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -30,7 +30,6 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
-import junit.textui.TestRunner;
 
 public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
 
@@ -42,7 +41,8 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
 
     GrouperStartup.startup();
-    TestRunner.run(new MidPointProvisionerTest("testFullMidPointProvisionerWithLastModifiedTimestampColumnOnly"));
+    new MidPointProvisionerTest().ensureTableSyncTables();
+    //TestRunner.run(new MidPointProvisionerTest("testFullMidPointProvisionerWithLastModifiedAndDeletedColumns"));
   
   }
 
@@ -495,7 +495,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     
     MidPointProvisionerTestUtils.configureMidpointProvisioner(new MidPointProvisionerTestConfigInput()
         .addExtraConfig("midPointLastModifiedColumnType", "timestamp")
-        .addExtraConfig("midPointLastModifiedColumnName", "last_modified_t"));
+        .addExtraConfig("midPointLastModifiedColumnName", "last_modified"));
 
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
@@ -535,7 +535,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
-    List<Object[]> groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified_t, deleted from gr_mp_groups").selectList(Object[].class);
+    List<Object[]> groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified, deleted from gr_mp_groups").selectList(Object[].class);
     assertEquals(1, groups.size());
     
     assertEquals(testGroup.getName(), groups.get(0)[0]);
@@ -546,7 +546,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(groups.get(0)[5]);
     
     
-    List<Object[]> groupAttributes = new GcDbAccess().sql("select group_id_index, attribute_name, attribute_value, last_modified_t, deleted from gr_mp_group_attributes").selectList(Object[].class);
+    List<Object[]> groupAttributes = new GcDbAccess().sql("select group_id_index, attribute_name, attribute_value, last_modified, deleted from gr_mp_group_attributes").selectList(Object[].class);
     assertEquals(2, groupAttributes.size());
     
     Map<MultiKey, Object[]> attributeNameValueToGroupAttributes = new HashMap<>();
@@ -561,7 +561,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "a"))[4]);
     assertNull(attributeNameValueToGroupAttributes.get(new MultiKey("target", "b"))[4]);
     
-    List<Object[]> entities = new GcDbAccess().sql("select subject_id_index, subject_id, last_modified_t, deleted from gr_mp_subjects").selectList(Object[].class);
+    List<Object[]> entities = new GcDbAccess().sql("select subject_id_index, subject_id, last_modified, deleted from gr_mp_subjects").selectList(Object[].class);
     assertEquals(2, entities.size());
     Map<String, Object[]> subjectIdToSubjectAttributes = new HashMap<>();
     for (Object[] entity: entities) {
@@ -577,7 +577,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(subjectIdToSubjectAttributes.get(SubjectTestHelper.SUBJ1.getId())[3]);
     
     
-    List<Object[]> memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified_t, deleted from gr_mp_memberships").selectList(Object[].class);
+    List<Object[]> memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified, deleted from gr_mp_memberships").selectList(Object[].class);
     
     Map<MultiKey, Object[]> groupIdSubjectIdToMembershipAttributes = new HashMap<>();
     
@@ -600,7 +600,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
 
-    memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified_t, deleted from gr_mp_memberships").selectList(Object[].class);
+    memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified, deleted from gr_mp_memberships").selectList(Object[].class);
     
     groupIdSubjectIdToMembershipAttributes = new HashMap<>();
     
@@ -619,7 +619,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
-    groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified_t, deleted from gr_mp_groups").selectList(Object[].class);
+    groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified, deleted from gr_mp_groups").selectList(Object[].class);
     assertEquals(1, groups.size());
     assertEquals(testGroup.getName(), groups.get(0)[0]);
     assertEquals(testGroup.getIdIndex().longValue(), ((BigDecimal)groups.get(0)[1]).longValue());
@@ -635,16 +635,16 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
-    groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified_t, deleted from gr_mp_groups").selectList(Object[].class);
+    groups = new GcDbAccess().sql("select group_name, id_index, display_name, description, last_modified, deleted from gr_mp_groups").selectList(Object[].class);
     assertEquals(0, groups.size());
     
-    groupAttributes = new GcDbAccess().sql("select group_id_index, attribute_name, attribute_value, last_modified_t, deleted from gr_mp_group_attributes").selectList(Object[].class);
+    groupAttributes = new GcDbAccess().sql("select group_id_index, attribute_name, attribute_value, last_modified, deleted from gr_mp_group_attributes").selectList(Object[].class);
     assertEquals(0, groupAttributes.size());
     
-    entities = new GcDbAccess().sql("select subject_id_index, subject_id, last_modified_t, deleted from gr_mp_subjects").selectList(Object[].class);
+    entities = new GcDbAccess().sql("select subject_id_index, subject_id, last_modified, deleted from gr_mp_subjects").selectList(Object[].class);
     assertEquals(0, entities.size());
     
-    memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified_t, deleted from gr_mp_memberships").selectList(Object[].class);
+    memberships = new GcDbAccess().sql("select group_id_index, subject_id_index, last_modified, deleted from gr_mp_memberships").selectList(Object[].class);
     assertEquals(0, memberships.size());
     
   }
@@ -880,7 +880,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     } catch (Exception e) {
       //we need to delete the test table if it is there, and create a new one
       //drop field id col, first drop foreign keys
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+      GrouperDdlUtils.changeDatabase(GrouperMidpointDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
     
         public void changeDatabase(DdlVersionBean ddlVersionBean) {
           
@@ -889,31 +889,36 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
           
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", Types.VARCHAR, "1024", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_name", Types.VARCHAR, "1024", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id_index", Types.BIGINT, "10", true, true);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "1024", false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified_t", Types.TIMESTAMP, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, false);
-
-        }
-        
-      });
-      
-      
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-        
-        public void changeDatabase(DdlVersionBean ddlVersionBean) {
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, true);
           
-          Database database = ddlVersionBean.getDatabase();
+          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, tableName, "This table holds groups");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "id_index", "This is the integer identifier for a group and foreign key to group attributes and memberships");
 
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "target_group_composite", true, "provisioning_target", "group_name");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_name", "Name of group mapped in some way");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "display_name", "Display name of group mapped in some way");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "description", "Description of group mapped in some way");
+
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_modified", "Millis since 1970, will be sequential and unique");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "deleted", "T or F.  Deleted rows will be removed after they have had time to be processed");
+
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, tableName + "_ldx", true, "last_modified");
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, tableName + "_idx", true, "id_index");
+          
+          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX gr_mp_groups_ddx ON gr_mp_groups (display_name(255));\n" : null;
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, tableName + "_ddx", scriptOverride, false, "display_name");
+
+          scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX gr_mp_groups_gdx ON gr_mp_groups (group_name(255));\n" : null;
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, tableName + "_gdx", scriptOverride, false, "group_name");
 
         }
         
       });
-      
+            
     }
   }
   
@@ -930,7 +935,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     } catch (Exception e) {
       //we need to delete the test table if it is there, and create a new one
       //drop field id col, first drop foreign keys
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+      GrouperDdlUtils.changeDatabase(GrouperMidpointDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
     
         public void changeDatabase(DdlVersionBean ddlVersionBean) {
           
@@ -940,25 +945,27 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
 
           // no primary key
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id_index", Types.BIGINT, "10", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified_t", Types.TIMESTAMP, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id_index", Types.BIGINT, "10", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "1000", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "4000", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, true);
 
-        }
-        
-      });
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-        
-        public void changeDatabase(DdlVersionBean ddlVersionBean) {
-          
-          Database database = ddlVersionBean.getDatabase();
+          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, tableName, "This table holds group attributes which are one to one or one to many to the groups table");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_id_index", "This is the integer identifier for a group and foreign key to groups and memberships");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "attribute_name", "Attribute name for attributes not in the main group table");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "attribute_value", "Attribute value could be null");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_modified", "Millis since 1970, will be sequential and unique");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "deleted", "T or F.  Deleted rows will be removed after they have had time to be processed");
 
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, "gr_mp_group_attributes_idx0", null, false, "group_id_index", "attribute_name");
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, tableName + "_ldx", true, "last_modified");
           
-          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "gr_mp_group_attributes_fk", "gr_mp_groups", "group_id_index", "id_index");
+          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE UNIQUE INDEX gr_mp_group_attributes_idx ON gr_mp_group_attributes (group_id_index, attribute_name(100), attribute_value(155));\n" : null;
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, tableName + "_idx", scriptOverride, true, "group_id_index", "attribute_name", "attribute_value");
+
+          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, tableName + "_fk", 
+              "gr_mp_groups", "group_id_index", "id_index");
+
         }
         
       });
@@ -978,7 +985,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     } catch (Exception e) {
       //we need to delete the test table if it is there, and create a new one
       //drop field id col, first drop foreign keys
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+      GrouperDdlUtils.changeDatabase(GrouperMidpointDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
     
         public void changeDatabase(DdlVersionBean ddlVersionBean) {
           
@@ -986,11 +993,23 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
           
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id_index", Types.BIGINT, "20", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id_index", Types.BIGINT, "20", true, true);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id", Types.VARCHAR, "1024", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified_t", Types.TIMESTAMP, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "20", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, true);
+          
+          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, tableName, "This table holds subjects");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "subject_id_index", "This is the integer identifier for a subject and foreign key to subject attributes and memberships");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "subject_id", "Subject ID mapped in some way");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_modified", "Millis since 1970, will be sequential and unique");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "deleted", "T or F.  Deleted rows will be removed after they have had time to be processed");
+
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, tableName + "_ldx", true, "last_modified");
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, tableName + "_idx", true, "subject_id_index");
+          
+          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE INDEX gr_mp_subjects_sdx ON gr_mp_subjects (subject_id(255));\n" : null;
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, tableName + "_sdx", scriptOverride, false, "subject_id");
+
         }
         
       });
@@ -1011,7 +1030,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     } catch (Exception e) {
       //we need to delete the test table if it is there, and create a new one
       //drop field id col, first drop foreign keys
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+      GrouperDdlUtils.changeDatabase(GrouperMidpointDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
     
         public void changeDatabase(DdlVersionBean ddlVersionBean) {
           
@@ -1019,30 +1038,30 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
 
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id_index", Types.BIGINT, "20", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified_t", Types.TIMESTAMP, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id_index", Types.BIGINT, "20", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_name", Types.VARCHAR, "1000", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "attribute_value", Types.VARCHAR, "4000", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, true);
 
+          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, tableName, "This table holds subject attributes which are one to one or one to many to the subjects table");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "subject_id_index", "This is the integer identifier and foreign key to subjects");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "attribute_name", "Attribute name for attributes not in the main subject table");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "attribute_value", "Attribute value could be null");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_modified", "Millis since 1970, will be sequential and unique");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "deleted", "T or F.  Deleted rows will be removed after they have had time to be processed");
+
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, tableName + "_ldx", true, "last_modified");
+          
+          String scriptOverride = ddlVersionBean.isSmallIndexes() ? "\nCREATE UNIQUE INDEX gr_mp_subject_attributes_idx ON gr_mp_subject_attributes (subject_id_index, attribute_name(100), attribute_value(155));\n" : null;
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, tableName + "_idx", scriptOverride, true, "subject_id_index", "attribute_name", "attribute_value");
+
+          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, tableName + "_fk", 
+              "gr_mp_subjects", "subject_id_index", "subject_id_index");
         }
         
       });
       
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-        
-        public void changeDatabase(DdlVersionBean ddlVersionBean) {
-          
-          Database database = ddlVersionBean.getDatabase();
-
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, "gr_mp_subject_attributes_idx0", null, false, "subject_id_index", "attribute_name");
-
-          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "gr_mp_subject_attributes_fk", "gr_mp_subjects", "subject_id_index", "subject_id_index");
-
-        }
-        
-      });
     }
 
   }
@@ -1060,7 +1079,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     } catch (Exception e) {
       //we need to delete the test table if it is there, and create a new one
       //drop field id col, first drop foreign keys
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
+      GrouperDdlUtils.changeDatabase(GrouperMidpointDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
     
         public void changeDatabase(DdlVersionBean ddlVersionBean) {
           
@@ -1068,13 +1087,26 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
 
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
           
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id_index", Types.BIGINT, "10", false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id_index", Types.BIGINT, "10", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id_index", Types.BIGINT, "20", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, true);
 
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "subject_id_index", Types.BIGINT, "20", false, false);
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.BIGINT, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified_t", Types.TIMESTAMP, "200", false, false);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "deleted", Types.VARCHAR, "1", false, false);
+          GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, tableName, "This table holds memberships.  The primary key is group_id_index and subject_id_index");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "group_id_index", "This is the foreign key to groups");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "subject_id_index", "This is the foreign key to subjects");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "last_modified", "Millis since 1970, will be sequential and unique");
+          GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, tableName, "deleted", "T or F.  Deleted rows will be removed after they have had time to be processed");
+
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, tableName + "_ldx", true, "last_modified");
+          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, tableName + "_idx", true, 
+              "group_id_index", "subject_id_index");
+
+          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, tableName + "_sfk", 
+              "gr_mp_subjects", "subject_id_index", "subject_id_index");
+          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, tableName + "_gfk", 
+              "gr_mp_groups", "group_id_index", "id_index");
+
           
         }
         
