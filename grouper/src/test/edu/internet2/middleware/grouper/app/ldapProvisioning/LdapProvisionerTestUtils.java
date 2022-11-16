@@ -879,6 +879,11 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeName", "member");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", "entityAttributeValueCache0");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0groupAttribute", "cn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "target");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupAttribute");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchBaseDn", "ou=Groups,dc=example,dc=edu");
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "true");

@@ -400,6 +400,7 @@ public class GrouperProvisioningLogic {
       processTargetDataGroups(targetGroups);
       targetProvisioningLists.getProvisioningGroups().addAll(targetGroups);
     }
+    
     debugMap.put("state", "retrieveIndividualMembershipsIfNeeded");
     
     // when select all memberships is false fetch groups one by one.
@@ -613,7 +614,7 @@ public class GrouperProvisioningLogic {
     
     List<ProvisioningEntity> grouperTargetEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetEntities();
     
-    TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest = new TargetDaoRetrieveEntitiesRequest(grouperTargetEntities, false);
+    TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest = new TargetDaoRetrieveEntitiesRequest(grouperTargetEntities, true);
     
     TargetDaoRetrieveEntitiesResponse targetEntitiesResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntities(targetDaoRetrieveEntitiesRequest);
 
@@ -635,7 +636,7 @@ public class GrouperProvisioningLogic {
     
     List<ProvisioningGroup> grouperTargetGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetGroups();
     
-    TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(grouperTargetGroups, false);
+    TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(grouperTargetGroups, true);
     
     TargetDaoRetrieveGroupsResponse targetGroupsResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(targetDaoRetrieveGroupsRequest);
 
@@ -3311,6 +3312,11 @@ public class GrouperProvisioningLogic {
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists() == null) {
       return null;
     }
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      return null;
+    }
+    
     // see if we can get memberships by group
     if (GrouperUtil.booleanValue(
         this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
@@ -3336,6 +3342,7 @@ public class GrouperProvisioningLogic {
       List<ProvisioningMembership> memberships = new ArrayList<ProvisioningMembership>();
       this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().setProvisioningMemberships(memberships);
       for (Object membershipObject : GrouperUtil.nonNull(membershipObjects)) {
+        // cast exception
         memberships.add((ProvisioningMembership)membershipObject);
       }
       return memberships;
