@@ -323,6 +323,7 @@ public class GshTemplateConfig {
         String configPrefix = "grouperGshTemplate."+configId+".";
         
         enabled = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"enabled", true);
+
         useIndividualAudits = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"useIndividualAudits", true);
         
         useExternalizedText = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"externalizedText", false);
@@ -521,7 +522,6 @@ public class GshTemplateConfig {
             }
           } else {
             int maxLength = GrouperConfig.retrieveConfig().propertyValueInt(inputPrefix + "maxLength", 500);
-            maxLength = Math.min(maxLength, 10000);
             gshTemplateInputConfig.setMaxLength(maxLength);
           }
           
