@@ -1506,6 +1506,9 @@ public class GrouperProvisioningCompare {
                 .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
               || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
           
+          shouldReplace = shouldReplace && !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+              .getGrouperProvisionerDaoCapabilities().getCanInsertMembership(), false)
+            || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanInsertMemberships(), false));
         }
         if (shouldReplace) {
           
