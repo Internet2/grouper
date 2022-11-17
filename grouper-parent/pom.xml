@@ -178,9 +178,9 @@
         <httpcore>4.4.14</httpcore>
         <httpmime>4.5.13</httpmime>
         <!-- note, jackson version is also in grouper pom -->
-        <jackson.annotations>2.13.3</jackson.annotations>
-        <jackson.core>2.13.3</jackson.core>
-        <jackson.databind>2.13.3</jackson.databind>        
+        <jackson.annotations>2.14.0</jackson.annotations>
+        <jackson.core>2.14.0</jackson.core>
+        <jackson.databind>2.14.0</jackson.databind>        
         <jsoup.version>1.14.2</jsoup.version>        
         <!-- grouper-ui -->
         <csrfguard.version>4.1.4</csrfguard.version>
