@@ -1017,7 +1017,16 @@ public class GrouperHttpClient {
           }
           
           for (String key : GrouperUtil.nonNull(this.bodyParameters).keySet()) {
-            theLog.append("HTTP request body param: ").append(key).append(":").append(this.bodyParameters.get(key)).append("\n");
+            theLog.append("HTTP request body param: ").append(key).append(":");
+            if (!key.toLowerCase().contains("pass")
+                && !key.toLowerCase().contains("secret")
+                && !this.getDoNotLogHeaders().contains(key)
+                && !this.getDoNotLogHeaders().contains("*")) {
+              theLog.append(this.bodyParameters.get(key));
+            } else {
+              theLog.append("*******");
+            }
+            theLog.append("\n");
           }
           
           theLog.append("HTTP response code: ").append(this.responseCode).append(", took ms: ").append(System.currentTimeMillis() - start).append("\n");
