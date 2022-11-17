@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.app.exampleWsReplaceProvisioner;
+package edu.internet2.middleware.grouper.app.provisioningExamples.exampleWsReplaceProvisioner;
 
 import java.util.HashMap;
 import java.util.HashSet;
