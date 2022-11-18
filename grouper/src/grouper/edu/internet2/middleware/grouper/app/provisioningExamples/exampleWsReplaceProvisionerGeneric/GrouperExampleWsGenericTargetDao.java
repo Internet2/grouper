@@ -1,7 +1,6 @@
-package edu.internet2.middleware.grouper.app.provisioningExamples.exampleWsReplaceProvisioner;
+package edu.internet2.middleware.grouper.app.provisioningExamples.exampleWsReplaceProvisionerGeneric;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -21,27 +20,48 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvis
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoReplaceGroupMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoReplaceGroupMembershipsResponse;
-import edu.internet2.middleware.grouper.app.provisioningExamples.exampleWsReplaceProvisionerGeneric.GrouperExampleWsGenericTargetDao;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 
 /**
+ * DAO is the glue from the provisioner to the target.  Implement the select/insert/update/delete.
+ * If the target supports batching (either multiple updates at a time for example, or batching operations), 
+ * implement that instead of individual operations.  Each operation needs to be registered in 
+ * registerGrouperProvisionerDaoCapabilities() or it wont be used
  */
-public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
+public class GrouperExampleWsGenericTargetDao extends GrouperProvisionerTargetDaoBase {
 
+  /**
+   * some things 
+   */
   public static final Set<String> doNotLogHeaders = GrouperUtil.toSet("authorization");
   
+  /**
+   * select/insert/update is better than replace, but if thats all you got, run with it.
+   * this is an example of a "command" method which doesnt use anything from provisioning.
+   * So this could be called from another place for another reason (e.g. test external system).
+   * You can put all these types of methods in a commands class instead of the dao class
+   * to organize things.  This is how Grouper implements provisioners.
+   * @param debugMap
+   * @param configId
+   * @param netIds
+   * @param source
+   * @param role
+   */
   public static void replaceMembers(Map<String, Object> debugMap,
       String configId, List<String> netIds,
       String source, String role) {
 
     GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
     
+    // sentive stuff shouldnt be logged in command log
     grouperHttpCall.assignDoNotLogHeaders(doNotLogHeaders);
     
-    String url = GrouperConfig.retrieveConfig().propertyValueString("grouper.exampleWsExternalSystem." + configId + ".endpointPrefix");
+    // get configs from grouper.properties based on the provisioner config ID.
+    // these values need to be put in grouper.properties manually, not on provisioning wizard.
+    String url = GrouperConfig.retrieveConfig().propertyValueStringRequired("exampleWs." + configId + ".endpointPrefix");
     
     if (url.endsWith("/")) {
       url = url.substring(0, url.length() - 1);
@@ -51,6 +71,7 @@ public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
     
     debugMap.put("url", url);
 
+    // grouperHttpClient is the recommended way to call web services.  It does proxies, and logs via commands class. 
     grouperHttpCall.assignUrl(url);
     grouperHttpCall.assignGrouperHttpMethod("PUT");
     
@@ -76,8 +97,8 @@ public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
       netIdElement.addText(netId);
     }
     
-    String userName = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.exampleWsExternalSystem."+configId+".userName");
-    String password = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.exampleWsExternalSystem."+configId+".password");
+    String userName = GrouperConfig.retrieveConfig().propertyValueStringRequired("exampleWs."+configId+".userName");
+    String password = GrouperConfig.retrieveConfig().propertyValueStringRequired("exampleWs."+configId+".password");
     grouperHttpCall.assignUser(userName);
     grouperHttpCall.assignPassword(password);
     
@@ -93,6 +114,7 @@ public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
     }
 
     Set<Integer> allowedReturnCodes = new HashSet<>();
+    // add allows return codes here if more than one
     allowedReturnCodes.add(200);
     
     if (!allowedReturnCodes.contains(code)) {
@@ -103,18 +125,23 @@ public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
 
   }
   
+  /**
+   * this is the method the provisioning framework will call
+   * @param this is the group and memberships to replace
+   * @return tell the framework what happened or what was returned
+   */
   @Override
   public TargetDaoReplaceGroupMembershipsResponse replaceGroupMemberships(
       TargetDaoReplaceGroupMembershipsRequest targetDaoReplaceGroupMembershipsRequest) {
-    
-    GrouperExampleWsConfiguration grouperExampleWsConfiguration = (GrouperExampleWsConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-    
+        
     List<ProvisioningMembership> targetMemberships = targetDaoReplaceGroupMembershipsRequest.getTargetMemberships();
     
     ProvisioningGroup targetGroup = targetDaoReplaceGroupMembershipsRequest.getTargetGroup();
 
+    // the role attribute was predetermined to be in the target representation for this provisioner
     ProvisioningAttribute roleAttribute = targetGroup.getAttributes().get("role");
-    
+
+    // its gotta be there
     if (roleAttribute == null || roleAttribute.getValue() == null || GrouperUtil.isBlank(roleAttribute.getValue())) {
       targetGroup.getProvisioningGroupWrapper().setErrorCode(GcGrouperSyncErrorCode.REQ);
       targetGroup.setException(new RuntimeException("role is a required attribute."));
@@ -125,6 +152,8 @@ public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
     
     List<String> netIds = new ArrayList<>();
     for (ProvisioningMembership provisioningMembership: targetMemberships) {
+
+      // the netID attribute was predetermined to be in the target representation for this provisioner
       String netId = provisioningMembership.retrieveAttributeValueString("netID");
       if (StringUtils.isNotBlank(netId)) {
         netIds.add(netId);
@@ -134,28 +163,35 @@ public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     debugMap.put("method", "replaceGroupMemberships");
-        
+    
+    String configId = this.getGrouperProvisioner().getConfigId();
+    String source = GrouperConfig.retrieveConfig().propertyValueStringRequired("exampleWs."+configId+".source");
+
+    // call the command
     try {
-      replaceMembers(debugMap, grouperExampleWsConfiguration.getExampleWsExternalSystemConfigId(), netIds, 
-          grouperExampleWsConfiguration.getExampleWsSource(), roleValue);
+      replaceMembers(debugMap, configId, netIds, source, roleValue);
     } catch (RuntimeException re) {
       // however exceptions are handled, put some info in there
       GrouperUtil.injectInException(re, GrouperUtil.mapToString(debugMap));
       throw re;
     }
-
+    
+    // tell the provisioner that everything is ok
+    targetGroup.setProvisioned(true);
     for (ProvisioningMembership provisioningMembership: targetMemberships) {
       provisioningMembership.setProvisioned(true);
     }
-    targetGroup.setProvisioned(true);
-    
+
+    // theres nothing in this response
     return new TargetDaoReplaceGroupMembershipsResponse();
   }
 
-  /** logger */
+  /** logger if needed */
   private static final Log LOG = GrouperUtil.getLog(GrouperExampleWsGenericTargetDao.class);
 
-
+  /**
+   * tell the framework what methods are available
+   */
   @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
