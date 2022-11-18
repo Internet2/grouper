@@ -11,7 +11,7 @@ public class GrouperGenericConfiguration extends GrouperProvisioningConfiguratio
   @Override
   public void configureSpecificSettings() {
     
-    this.genericProvisionerDaoClassName = this.retrieveConfigString("genericProvsionerDaoClassName", true);
+    this.genericProvisionerDaoClassName = this.retrieveConfigString("genericProvisionerDaoClassName", true);
     
   }
   
