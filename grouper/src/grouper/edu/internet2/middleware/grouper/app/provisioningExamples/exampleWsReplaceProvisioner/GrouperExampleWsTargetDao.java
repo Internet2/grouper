@@ -76,10 +76,8 @@ public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
     
     String userName = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.exampleWsExternalSystem."+configId+".userName");
     String password = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.exampleWsExternalSystem."+configId+".password");
-    String userNamePassword = userName+":"+password;
-    
-    String base64Encoded = Base64.getEncoder().encodeToString(userNamePassword.getBytes());
-    grouperHttpCall.addHeader("Authorization", "Basic " + base64Encoded);
+    grouperHttpCall.assignUser(userName);
+    grouperHttpCall.assignPassword(password);
     
     grouperHttpCall.assignBody(document.asXML());
     grouperHttpCall.executeRequest();
