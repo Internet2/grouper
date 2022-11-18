@@ -35,7 +35,7 @@ public class ExampleWsProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
 
     GrouperStartup.startup();
-    TestRunner.run(new ExampleWsProvisionerTest("testFullExampleWsProvisionerWithStartWith"));
+    TestRunner.run(new ExampleWsProvisionerTest("testFullExampleWsProvisioner"));
   
   }
 
@@ -176,78 +176,6 @@ public class ExampleWsProvisionerTest extends GrouperProvisioningBaseTest {
     
   }
   
-  public void testFullExampleWsProvisionerWithStartWith() {
-    
-    // junit will clear all the grouper tables
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.exampleWsExternalSystem.myExampleExternalSystem1.endpointPrefix").value("http://localhost:8080/grouper/mockServices/exampleWs").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.exampleWsExternalSystem.myExampleExternalSystem1.password").value("123456").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.exampleWsExternalSystem.myExampleExternalSystem1.userName").value("testUserName").store();
-    
-    ExampleWsProvisioningStartWith startWith = new ExampleWsProvisioningStartWith();
-    
-    Map<String, String> startWithSuffixToValue = new HashMap<>();
-    
-    startWithSuffixToValue.put("exampleWsExternalSystemConfigId", "myExampleExternalSystem1");
-    startWithSuffixToValue.put("exampleWsSource", "testSource");
-    startWithSuffixToValue.put("groupTranslation", "extension");
-    startWithSuffixToValue.put("entityTranslation", "subjectIdentifier0");
-    
-    Map<String, Object> provisionerSuffixToValue = new HashMap<>();
-    
-    startWith.populateProvisionerConfigurationValuesFromStartWith(startWithSuffixToValue, provisionerSuffixToValue);
-    
-    startWith.manipulateProvisionerConfigurationValue("exampleWsProvTest", startWithSuffixToValue, provisionerSuffixToValue);
-    
-    for (String key: provisionerSuffixToValue.keySet()) {
-      new GrouperDbConfig().configFileName("grouper-loader.properties")
-        .propertyName("provisioner.exampleWsProvTest."+key)
-        .value(GrouperUtil.stringValue(provisionerSuffixToValue.get(key))).store();
-    }
-    
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.exampleWsProvTest.debugLog").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.exampleWsProvTest.logAllObjectsVerbose").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.exampleWsProvTest.logCommandsAlways").value("true").store();
-
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_exampleWsProvTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_exampleWsProvTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_exampleWsProvTest.provisionerConfigId").value("exampleWsProvTest").store();
-    
-    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
-    
-    // mark some folders to provision
-    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
-    
-    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
-    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
-    
-    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
-    attributeValue.setDirectAssignment(true);
-    attributeValue.setDoProvision("exampleWsProvTest");
-    attributeValue.setTargetName("exampleWsProvTest");
-    attributeValue.setStemScopeString("sub");
-    
-    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
-    
-    //lets sync these over
-    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
-    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
-    
-    List<Object[]> result = new GcDbAccess().connectionName("grouper").sql("select group_name, net_id, source from mock_example_ws").selectList(Object[].class);
-    
-    assertEquals(2, result.size());
-    Set<String> netIds = new HashSet<>();
-    
-    for (Object[] row: result) {
-      assertEquals("testGroup", GrouperUtil.stringValue(row[0]));
-      netIds.add(GrouperUtil.stringValue(row[1]));
-      assertEquals("testSource", GrouperUtil.stringValue(row[2]));
-    }
-    
-    assertEquals(true, netIds.contains("id.test.subject.1"));
-    assertEquals(true, netIds.contains("id.test.subject.0"));
-    
-  }
 
 
 }
