@@ -104,7 +104,17 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
  * </blockquote>
  * 
  * </p>
- *
+ * <p>Retrieve unresolvable
+ * 
+ * <blockquote>
+ * <pre>
+ * Subject subject = new SubjectFinder().assignSourceId("mysourceId").assignSubjectId("theSubjectId").assignAllowUnresolvable(true).findSubject();
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ *    
+
  */
 public class SubjectFinder implements CheckboxValueDriver {
 

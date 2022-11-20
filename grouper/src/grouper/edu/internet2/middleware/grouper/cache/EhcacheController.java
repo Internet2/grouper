@@ -254,19 +254,6 @@ public class EhcacheController implements CacheController {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(EhcacheController.class);
 
-  /**
-   * @param cache 
-   * @return  ehcache statistics for <i>cache</i>.
-   * @since   1.2.1
-   */
-  public CacheStats getStats(String cache) {
-    //not sure if we need to initialize, since no stats will be found...
-    this.initialize();
-    Cache c = this.getCache(cache);
-    
-    return new EhcacheStats(c.getStatistics());
-  }
-
   /** 
    * Initialize privilege cache.
    * @since   1.2.1
@@ -448,6 +435,11 @@ public class EhcacheController implements CacheController {
       cacheConfiguration.setStatistics(grouperCacheConfig.propertyValueBooleanRequired(propertyPrefix + ".statistics"));
     }
 
+  }
+
+  @Override
+  public CacheStats getStats(String cache) {
+    return null;
   }
   
 }
