@@ -220,7 +220,7 @@ public class GrouperVersion {
       //get the grouper versions
       this.major = GrouperUtil.intValue(grouperMatcher.group(1));
       this.minor = GrouperUtil.intValue(grouperMatcher.group(2));
-      this.build = GrouperUtil.intValue(grouperMatcher.group(3));
+      this.build = GrouperUtil.intValue(grouperMatcher.group(3), 0);
 
       this.rcString = grouperMatcher.group(4);
       if ("-SNAPSHOT".equals(grouperMatcher.group(4))) {
@@ -314,7 +314,7 @@ public class GrouperVersion {
    * ^(\\d+)\\.(\\d+)\\.(\\d+)$
    * </pre>
    */
-  private static Pattern pattern = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)(-?rc(\\d+)|-SNAPSHOT)?$");
+  private static Pattern pattern = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._]?(\\d+)?(-?rc(\\d+)|-SNAPSHOT)?$");
 
   /**
    * helper method for unit testing
