@@ -1,2 +1,0 @@
-This directory builds the grouper-pspng-testing-config image which inherits
-from the tier image and adds helpful configuration and utilities

@@ -1,7 +1,0 @@
-#!/bin/bash
-
-D=$(cd $(dirname "${BASH_SOURCE[0]}"); pwd -P)
-
-cd "$D"
-
-docker build --tag grouper-pspng-testing-config .

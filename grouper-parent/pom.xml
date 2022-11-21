@@ -25,7 +25,7 @@
     <description>Internet2 Groups Management Toolkit - Parent Project</description>
     <groupId>edu.internet2.middleware.grouper</groupId>
     <artifactId>grouper-parent</artifactId>
-    <version>2.6.0-SNAPSHOT</version>
+    <version>5.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -41,11 +41,6 @@
         <module>../grouper-misc/grouper-messaging-rabbitmq</module>
         <module>../grouper-misc/grouper-messaging-aws</module>
         <module>../grouper-misc/grouper-messaging-activemq</module>
-        <module>../grouper-misc/grouper-pspng</module>
-        <module>../grouper-misc/grouper-box</module>
-        <module>../grouper-misc/grouper-duo</module>
-        <module>../grouper-misc/googleapps-grouper-provisioner</module>
-        <module>../grouper-misc/grouper-azure</module>
         <module>../grouper-misc/webapp/grouper-ui-webapp</module>
     </modules>
 
