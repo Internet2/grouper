@@ -400,6 +400,8 @@ public class PITUtilsTests extends GrouperTest {
     ChangeLogTempToEntity.convertRecords();
     
     new SyncPITTables().showResults(false).syncAllPITTables();
+    ChangeLogTempToEntity.convertRecords();
+
     grouperSession = GrouperSession.startRootSession();
     
     // now delete old PIT records

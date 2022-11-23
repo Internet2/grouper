@@ -41,6 +41,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -57,10 +58,13 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignActionSet;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAO;
-import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.permissions.role.RoleSet;
 import edu.internet2.middleware.grouper.pit.GrouperPIT;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
@@ -78,6 +82,9 @@ import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.pit.PITStem;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -94,12 +101,6 @@ public class SyncPITTables {
   /** Whether or not to log details */
   private boolean logDetails = true;
   
-  /** Whether or not to send flattened notifications */
-  private boolean sendFlattenedNotifications = true;
-
-  /** Whether or not to send permission notifications */
-  private boolean sendPermissionNotifications = true;
-  
   /** Whether or not to create a report for GrouperReport */
   private boolean createReport = false;
   
@@ -108,18 +109,6 @@ public class SyncPITTables {
   
   /** detailed output for grouper report */
   private StringBuilder report = new StringBuilder();
-  
-  /** whether or not to send flattened notifications for memberships */
-  private boolean includeFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedMemberships", true);
-  
-  /** whether or not to send flattened notifications for privileges */
-  private boolean includeFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeFlattenedPrivileges", true);
-  
-  /** whether there will be notifications for roles with permission changes */ 
-  private boolean includeRolesWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeRolesWithPermissionChanges", false);
-  
-  /** whether there will be notifications for subjects with permission changes */
-  private boolean includeSubjectsWithPermissionChanges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeSubjectsWithPermissionChanges", false);
   
   /**
    * Whether or not to print out results of what's being done.  Defaults to true.
@@ -162,26 +151,22 @@ public class SyncPITTables {
   }
   
   /**
-   * Whether or not to send flattened notifications for memberships and privileges.  
-   * If true, notifications will be based on configuration.  If false, notifications will not be sent
-   * regardless of configuration.  Defaults to true.
+   * No longer applicable.  Changes get sent to the temp change log.
    * @param sendNotifications
    * @return SyncPITTables
+   * @deprecated
    */
   public SyncPITTables sendFlattenedNotifications(boolean sendNotifications) {
-    this.sendFlattenedNotifications = sendNotifications;
     return this;
   }
   
   /**
-   * Whether or not to send notifications for permissions.  
-   * If true, notifications will be based on configuration.  If false, notifications will not be sent
-   * regardless of configuration.  Defaults to true.
+   * No longer applicable.  Changes get sent to the temp change log.
    * @param sendNotifications
    * @return SyncPITTables
+   * @deprecated
    */
   public SyncPITTables sendPermissionNotifications(boolean sendNotifications) {
-    this.sendPermissionNotifications = sendNotifications;
     return this;
   }
   
@@ -275,42 +260,7 @@ public class SyncPITTables {
           ", memberId: " + mship.getMemberUuid() + ", fieldId: " + mship.getFieldId());
             
       if (saveUpdates) {
-        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(mship.getFieldId(), true);
-        PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(mship.getMemberUuid(), true);
-        
-        PITMembership pitMembership = new PITMembership();
-        pitMembership.setId(GrouperUuid.getUuid());
-        pitMembership.setSourceId(mship.getImmediateMembershipId());
-        pitMembership.setMemberId(pitMember.getId());
-        pitMembership.setFieldId(pitField.getId());
-        pitMembership.setActiveDb("T");
-        pitMembership.setStartTimeDb(System.currentTimeMillis() * 1000);
-
-        if (mship.getOwnerGroupId() != null) {
-          pitMembership.setOwnerGroupId(GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(mship.getOwnerGroupId(), true).getId());
-        } else if (mship.getOwnerStemId() != null) {
-          pitMembership.setOwnerStemId(GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(mship.getOwnerStemId(), true).getId());
-        } else if (mship.getOwnerAttrDefId() != null) {
-          pitMembership.setOwnerAttrDefId(GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(mship.getOwnerAttrDefId(), true).getId());
-        } else {
-          throw new RuntimeException("Unexpected -- Membership with id " + mship.getUuid() + " does not have an ownerGroupId, ownerStemId, or ownerAttrDefId.");
-        }
-        
-        if (!GrouperUtil.isEmpty(mship.getContextId())) {
-          pitMembership.setContextId(mship.getContextId());
-        }
-        
-        if (sendFlattenedNotifications) {
-          pitMembership.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
-          pitMembership.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
-        }
-        
-        if (sendPermissionNotifications) {
-          pitMembership.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-          pitMembership.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-
-        pitMembership.save();
+        mship.addMembershipAddChangeLog(mship.getContextId());
       }
       
       totalProcessed++;
@@ -354,65 +304,58 @@ public class SyncPITTables {
       logDetail("Found missing point in time attribute assign with id: " + assign.getId());
             
       if (saveUpdates) {
-        PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(assign.getAttributeDefNameId(), true);
-        PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(assign.getAttributeAssignActionId(), true);
         
-        PITAttributeAssign pitAttributeAssign = new PITAttributeAssign();
-        pitAttributeAssign.setId(GrouperUuid.getUuid());
-        pitAttributeAssign.setSourceId(assign.getId());
-        pitAttributeAssign.setAttributeDefNameId(pitAttributeDefName.getId());
-        pitAttributeAssign.setAttributeAssignActionId(pitAttributeAssignAction.getId());
-        pitAttributeAssign.setAttributeAssignTypeDb(assign.getAttributeAssignTypeDb());
-        pitAttributeAssign.setDisallowedDb(assign.getDisallowedDb());
-        pitAttributeAssign.setActiveDb("T");
-        pitAttributeAssign.setStartTimeDb(System.currentTimeMillis() * 1000);
+        String ownerId1 = null;
+        String ownerId2 = null;
         
-        if (AttributeAssignType.group.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
-          PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(assign.getOwnerGroupId(), true);
-          pitAttributeAssign.setOwnerGroupId(pitOwner1.getId());
-        } else if (AttributeAssignType.stem.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
-          PITStem pitOwner1 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(assign.getOwnerStemId(), true);
-          pitAttributeAssign.setOwnerStemId(pitOwner1.getId());
-        } else if (AttributeAssignType.member.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
-          PITMember pitOwner1 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(assign.getOwnerMemberId(), true);
-          pitAttributeAssign.setOwnerMemberId(pitOwner1.getId());
-        } else if (AttributeAssignType.attr_def.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
-          PITAttributeDef pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(assign.getOwnerAttributeDefId(), true);
-          pitAttributeAssign.setOwnerAttributeDefId(pitOwner1.getId());
-        } else if (AttributeAssignType.any_mem.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
-          PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(assign.getOwnerGroupId(), true);
-          PITMember pitOwner2 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(assign.getOwnerMemberId(), true);
-          pitAttributeAssign.setOwnerGroupId(pitOwner1.getId());
-          pitAttributeAssign.setOwnerMemberId(pitOwner2.getId());
-        } else if (AttributeAssignType.imm_mem.name().equals(pitAttributeAssign.getAttributeAssignTypeDb())) {
+        if (AttributeAssignType.group.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerGroupId();
+        } else if (AttributeAssignType.stem.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerStemId();
+        } else if (AttributeAssignType.member.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerMemberId();
+        } else if (AttributeAssignType.attr_def.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerAttributeDefId();
+        } else if (AttributeAssignType.any_mem.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerGroupId();
+          ownerId2 = assign.getOwnerMemberId();
+        } else if (AttributeAssignType.imm_mem.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerMembershipId();
+
           PITMembership pitOwner1 = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdActive(assign.getOwnerMembershipId(), false);
           if (pitOwner1 == null) {
-            // assignment must be disabled..
+            // assignment might be disabled..
             logDetail("Skipping " + assign.getId() + " since active owner was not found in point in time.");
             continue;
           }
-          pitAttributeAssign.setOwnerMembershipId(pitOwner1.getId());
         } else {
           // this must be an attribute assign of an attribute assign.  foreign keys will make sure we're right.
+          ownerId1 = assign.getOwnerAttributeAssignId();
+
           PITAttributeAssign pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(assign.getOwnerAttributeAssignId(), false);
           if (pitOwner1 == null) {
-            // assignment must be disabled..
+            // assignment might be disabled..
             logDetail("Skipping " + assign.getId() + " since active owner was not found in point in time.");
             continue;
           }
-          pitAttributeAssign.setOwnerAttributeAssignId(pitOwner1.getId());
         }
         
-        if (!GrouperUtil.isEmpty(assign.getContextId())) {
-          pitAttributeAssign.setContextId(assign.getContextId());
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ADD, 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.id.name(), assign.getId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameId.name(), assign.getAttributeDefNameId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeAssignActionId.name(), assign.getAttributeAssignActionId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.assignType.name(), assign.getAttributeAssignTypeDb(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId1.name(), ownerId1,
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.ownerId2.name(), ownerId2,
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.attributeDefNameName.name(), assign.getAttributeDefName().getName(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.action.name(), assign.getAttributeAssignAction().getName(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ADD.disallowed.name(), assign.getDisallowedDb());
+        
+        if (!StringUtils.isEmpty(assign.getContextId())) {
+          changeLogEntry.setContextId(assign.getContextId());
         }
-                
-        if (sendPermissionNotifications) {
-          pitAttributeAssign.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-          pitAttributeAssign.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-
-        pitAttributeAssign.save();
+        
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -444,28 +387,24 @@ public class SyncPITTables {
       if (saveUpdates) {
         PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(value.getAttributeAssignId(), false);
         if (pitAttributeAssign == null) {
-          // assignment must be disabled..
+          // assignment might be disabled..
           logDetail("Skipping " + value.getId() + " since active assignment was not found in point in time.");
           continue;
         }
         
-        PITAttributeAssignValue pitAttributeAssignValue = new PITAttributeAssignValue();
-        pitAttributeAssignValue.setId(GrouperUuid.getUuid());
-        pitAttributeAssignValue.setSourceId(value.getId());
-        pitAttributeAssignValue.setAttributeAssignId(pitAttributeAssign.getId());
-        pitAttributeAssignValue.setActiveDb("T");
-        pitAttributeAssignValue.setStartTimeDb(System.currentTimeMillis() * 1000);
-        
-        pitAttributeAssignValue.setValueString(value.getValueString());
-        pitAttributeAssignValue.setValueInteger(value.getValueInteger());
-        pitAttributeAssignValue.setValueMemberId(value.getValueMemberId());
-        pitAttributeAssignValue.setValueFloating(value.getValueFloating());
-        
-        if (!GrouperUtil.isEmpty(value.getContextId())) {
-          pitAttributeAssignValue.setContextId(value.getContextId());
-        }
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD, 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.id.name(), value.getId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeAssignId.name(), value.getAttributeAssignId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameId.name(), value.getAttributeAssign().getAttributeDefNameId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.attributeDefNameName.name(), value.getAttributeAssign().getAttributeDefName().getName(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.value.name(), value.valueString(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_ADD.valueType.name(), value.getAttributeAssign().getAttributeDef().getValueType().name());;
 
-        pitAttributeAssignValue.save();
+        if (!StringUtils.isEmpty(value.getContextId())) {
+          changeLogEntry.setContextId(value.getContextId());
+        }
+        
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -495,29 +434,34 @@ public class SyncPITTables {
       logDetail("Found missing point in time attribute def with id: " + attr.getId() + ", name: " + attr.getName());
             
       if (saveUpdates) {
-        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(attr.getStemId(), true);
-
         // note that we may just need to update the name and/or stemId
         PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attr.getId(), false);
-        if (pitAttributeDef == null) {
-          pitAttributeDef = new PITAttributeDef();
-          pitAttributeDef.setId(GrouperUuid.getUuid());
-          pitAttributeDef.setSourceId(attr.getUuid());
-          pitAttributeDef.setAttributeDefTypeDb(attr.getAttributeDefTypeDb());
-          pitAttributeDef.setActiveDb("T");
-          pitAttributeDef.setStartTimeDb(System.currentTimeMillis() * 1000);
-        }
-
-        pitAttributeDef.setNameDb(attr.getName());
-        pitAttributeDef.setStemId(pitStem.getId());
-        
-        if (!GrouperUtil.isEmpty(attr.getContextId())) {
-          pitAttributeDef.setContextId(attr.getContextId());
-        } else {
-          pitAttributeDef.setContextId(null);
+        if (pitAttributeDef != null) {
+          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(attr.getStemId(), true);
+          pitAttributeDef.setNameDb(attr.getName());
+          pitAttributeDef.setStemId(pitStem.getId());
+          if (!StringUtils.isEmpty(attr.getContextId())) {
+            pitAttributeDef.setContextId(attr.getContextId());
+          } else {
+            pitAttributeDef.setContextId(null);
+          }
+          pitAttributeDef.saveOrUpdate();
+          totalProcessed++;
+          continue;
         }
         
-        pitAttributeDef.saveOrUpdate();
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_ADD, 
+            ChangeLogLabels.ATTRIBUTE_DEF_ADD.id.name(), attr.getUuid(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_ADD.name.name(), attr.getName(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId.name(), attr.getStemId(),
+            ChangeLogLabels.ATTRIBUTE_DEF_ADD.description.name(), attr.getDescription(),
+            ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType.name(), attr.getAttributeDefTypeDb());
+        
+        if (!StringUtils.isEmpty(attr.getContextId())) {
+          changeLogEntry.setContextId(attr.getContextId());
+        }
+        
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -547,30 +491,32 @@ public class SyncPITTables {
       logDetail("Found missing point in time attribute def name with id: " + attr.getId() + ", name: " + attr.getName());
             
       if (saveUpdates) {
-        PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attr.getAttributeDefId(), true);
-        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(attr.getStemId(), true);
-        
         // note that we may just need to update the name
         PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attr.getId(), false);
-        if (pitAttributeDefName == null) {
-          pitAttributeDefName = new PITAttributeDefName();
-          pitAttributeDefName.setId(GrouperUuid.getUuid());
-          pitAttributeDefName.setSourceId(attr.getId());
-          pitAttributeDefName.setAttributeDefId(pitAttributeDef.getId());
-          pitAttributeDefName.setStemId(pitStem.getId());
-          pitAttributeDefName.setActiveDb("T");
-          pitAttributeDefName.setStartTimeDb(System.currentTimeMillis() * 1000);
-        }
-
-        pitAttributeDefName.setNameDb(attr.getNameDb());
-
-        if (!GrouperUtil.isEmpty(attr.getContextId())) {
-          pitAttributeDefName.setContextId(attr.getContextId());
-        } else {
-          pitAttributeDefName.setContextId(null);
+        if (pitAttributeDefName != null) {
+          pitAttributeDefName.setNameDb(attr.getNameDb());
+          if (!StringUtils.isEmpty(attr.getContextId())) {
+            pitAttributeDefName.setContextId(attr.getContextId());
+          } else {
+            pitAttributeDefName.setContextId(null);
+          }
+          pitAttributeDefName.saveOrUpdate();
+          totalProcessed++;
+          continue;
         }
         
-        pitAttributeDefName.saveOrUpdate();
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_ADD, 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.id.name(), attr.getId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.name.name(), attr.getName(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.stemId.name(), attr.getStemId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.description.name(), attr.getDescription(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_ADD.attributeDefId.name(), attr.getAttributeDefId());
+        
+        if (!StringUtils.isEmpty(attr.getContextId())) {
+          changeLogEntry.setContextId(attr.getContextId());
+        }
+        
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -600,30 +546,20 @@ public class SyncPITTables {
       logDetail("Found missing point in time attribute def name set with id: " + attrSet.getId());
             
       if (saveUpdates) {
-        PITAttributeDefName pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attrSet.getIfHasAttributeDefNameId(), true);
-        PITAttributeDefName pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attrSet.getThenHasAttributeDefNameId(), true);
-        PITAttributeDefNameSet pitParent = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findBySourceIdActive(attrSet.getParentAttrDefNameSetId(), false);
 
-        PITAttributeDefNameSet pitAttributeDefNameSet = new PITAttributeDefNameSet();
-        pitAttributeDefNameSet.setId(GrouperUuid.getUuid());
-        pitAttributeDefNameSet.setSourceId(attrSet.getId());
-        pitAttributeDefNameSet.setDepth(attrSet.getDepth());
-        pitAttributeDefNameSet.setIfHasAttributeDefNameId(pitIfHas.getId());
-        pitAttributeDefNameSet.setThenHasAttributeDefNameId(pitThenHas.getId());
-        pitAttributeDefNameSet.setParentAttrDefNameSetId(attrSet.getDepth() == 0 ? pitAttributeDefNameSet.getId() : pitParent.getId());
-        pitAttributeDefNameSet.setActiveDb("T");
-        pitAttributeDefNameSet.setStartTimeDb(System.currentTimeMillis() * 1000);
-
-        if (!GrouperUtil.isEmpty(attrSet.getContextId())) {
-          pitAttributeDefNameSet.setContextId(attrSet.getContextId());
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_ADD, 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.id.name(), attrSet.getId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.type.name(), attrSet.getTypeDb(),
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.ifHasAttributeDefNameId.name(), attrSet.getIfHasAttributeDefNameId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.thenHasAttributeDefNameId.name(), attrSet.getThenHasAttributeDefNameId(),
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.parentAttrDefNameSetId.name(), attrSet.getParentAttrDefNameSetId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_ADD.depth.name(), "" + attrSet.getDepth());
+        
+        if (!StringUtils.isEmpty(attrSet.getContextId())) {
+          changeLogEntry.setContextId(attrSet.getContextId());
         }
         
-        if (sendPermissionNotifications) {
-          pitAttributeDefNameSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-          pitAttributeDefNameSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-        
-        pitAttributeDefNameSet.saveOrUpdate();
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -653,28 +589,46 @@ public class SyncPITTables {
       logDetail("Found missing point in time group with id: " + group.getId() + ", name: " + group.getName());
             
       if (saveUpdates) {
-        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(group.getParentUuid(), true);
-
         // note that we may just need to update the name and/or stemId
         PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group.getId(), false);
-        if (pitGroup == null) {
-          pitGroup = new PITGroup();
-          pitGroup.setId(GrouperUuid.getUuid());
-          pitGroup.setSourceId(group.getUuid());
-          pitGroup.setActiveDb("T");
-          pitGroup.setStartTimeDb(System.currentTimeMillis() * 1000);
+        if (pitGroup != null) {
+          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(group.getParentUuid(), true);
+          pitGroup.setNameDb(group.getName());  
+          pitGroup.setStemId(pitStem.getId());
+          if (!StringUtils.isEmpty(group.getContextId())) {
+            pitGroup.setContextId(group.getContextId());
+          } else {
+            pitGroup.setContextId(null);
+          }
+          pitGroup.saveOrUpdate();
+          totalProcessed++;
+          continue;
         }
         
-        pitGroup.setNameDb(group.getName());  
-        pitGroup.setStemId(pitStem.getId());
+        ChangeLogEntry changeLogEntry;
+        if (group.getTypeOfGroup() == TypeOfGroup.entity) {
+          changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.ENTITY_ADD, 
+              ChangeLogLabels.ENTITY_ADD.id.name(), 
+              group.getUuid(), ChangeLogLabels.ENTITY_ADD.name.name(), 
+              group.getName(), ChangeLogLabels.ENTITY_ADD.parentStemId.name(), group.getParentUuid(),
+              ChangeLogLabels.ENTITY_ADD.displayName.name(), group.getDisplayName(),
+              ChangeLogLabels.ENTITY_ADD.description.name(), group.getDescription());
 
-        if (!GrouperUtil.isEmpty(group.getContextId())) {
-          pitGroup.setContextId(group.getContextId());
         } else {
-          pitGroup.setContextId(null);
+          changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_ADD, 
+              ChangeLogLabels.GROUP_ADD.id.name(), 
+              group.getUuid(), ChangeLogLabels.GROUP_ADD.name.name(), 
+              group.getName(), ChangeLogLabels.GROUP_ADD.parentStemId.name(), group.getParentUuid(),
+              ChangeLogLabels.GROUP_ADD.displayName.name(), group.getDisplayName(),
+              ChangeLogLabels.GROUP_ADD.description.name(), group.getDescription(),
+              ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + group.getIdIndex());
+
+        }
+        if (!StringUtils.isEmpty(group.getContextId())) {
+          changeLogEntry.setContextId(group.getContextId());
         }
         
-        pitGroup.saveOrUpdate();
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -712,72 +666,24 @@ public class SyncPITTables {
       logDetail("Found missing point in time group set with id: " + groupSet.getId());
             
       if (saveUpdates) {
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_SET_ADD, 
+            ChangeLogLabels.GROUP_SET_ADD.id.name(), groupSet.getId(), 
+            ChangeLogLabels.GROUP_SET_ADD.ownerGroupId.name(), groupSet.getOwnerGroupId(), 
+            ChangeLogLabels.GROUP_SET_ADD.ownerStemId.name(), groupSet.getOwnerStemId(), 
+            ChangeLogLabels.GROUP_SET_ADD.ownerAttributeDefId.name(), groupSet.getOwnerAttrDefId(), 
+            ChangeLogLabels.GROUP_SET_ADD.memberGroupId.name(), groupSet.getMemberGroupId(), 
+            ChangeLogLabels.GROUP_SET_ADD.memberStemId.name(), groupSet.getMemberStemId(), 
+            ChangeLogLabels.GROUP_SET_ADD.memberAttributeDefId.name(), groupSet.getMemberAttrDefId(), 
+            ChangeLogLabels.GROUP_SET_ADD.fieldId.name(), groupSet.getFieldId(), 
+            ChangeLogLabels.GROUP_SET_ADD.memberFieldId.name(), groupSet.getMemberFieldId(), 
+            ChangeLogLabels.GROUP_SET_ADD.parentGroupSetId.name(), groupSet.getParentId(), 
+            ChangeLogLabels.GROUP_SET_ADD.depth.name(), "" + groupSet.getDepth());
         
-        // it's possible this was already taken care of... check
-        PITGroupSet check = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet.getId(), false);
-        if (check != null) {
-          continue;
+        if (!StringUtils.isEmpty(groupSet.getContextId())) {
+          changeLogEntry.setContextId(groupSet.getContextId());
         }
         
-        PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getFieldId(), true);
-        PITField pitMemberField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(groupSet.getMemberFieldId(), true);
-
-        PITGroupSet pitGroupSet = new PITGroupSet();
-        pitGroupSet.setId(GrouperUuid.getUuid());
-        pitGroupSet.setSourceId(groupSet.getId());
-        pitGroupSet.setDepth(groupSet.getDepth());
-        pitGroupSet.setFieldId(pitField.getId());
-        pitGroupSet.setMemberFieldId(pitMemberField.getId());
-        pitGroupSet.setActiveDb("T");
-        pitGroupSet.setStartTimeDb(System.currentTimeMillis() * 1000);
-        
-        if (groupSet.getDepth() == 0) {
-          pitGroupSet.setParentId(pitGroupSet.getId());
-        } else {
-          PITGroupSet pitParent = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(groupSet.getParentId(), false);
-          pitGroupSet.setParentId(pitParent.getId());
-        }
-
-        if (groupSet.getOwnerGroupId() != null) {
-          PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getOwnerId(), true);
-          pitGroupSet.setOwnerGroupId(pitOwner.getId());
-        } else if (groupSet.getOwnerStemId() != null) {
-          PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(groupSet.getOwnerId(), true);
-          pitGroupSet.setOwnerStemId(pitOwner.getId());
-        } else if (groupSet.getOwnerAttrDefId() != null) {
-          PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(groupSet.getOwnerId(), true);
-          pitGroupSet.setOwnerAttrDefId(pitOwner.getId());
-        } else {
-          throw new RuntimeException("Unexpected -- GroupSet with id " + groupSet.getId() + " does not have an ownerGroupId, ownerStemId, or ownerAttrDefId.");
-        }
-        
-        if (groupSet.getMemberGroupId() != null) {
-          PITGroup pitMember = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupSet.getMemberId(), true);
-          pitGroupSet.setMemberGroupId(pitMember.getId());
-        } else if (groupSet.getMemberStemId() != null) {
-          PITStem pitMember = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(groupSet.getMemberId(), true);
-          pitGroupSet.setMemberStemId(pitMember.getId());
-        } else if (groupSet.getMemberAttrDefId() != null) {
-          PITAttributeDef pitMember = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(groupSet.getMemberId(), true);
-          pitGroupSet.setMemberAttrDefId(pitMember.getId());
-        } else {
-          throw new RuntimeException("Unexpected -- GroupSet with id " + groupSet.getId() + " does not have an memberGroupId, memberStemId, or memberAttrDefId.");
-        }
-        
-        if (!GrouperUtil.isEmpty(groupSet.getContextId())) {
-          pitGroupSet.setContextId(groupSet.getContextId());
-        }
-        
-        if (sendFlattenedNotifications) {
-          pitGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
-          pitGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
-        }
-        
-        if (sendPermissionNotifications) {
-          pitGroupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-        
-        pitGroupSet.saveOrUpdate();
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -807,30 +713,20 @@ public class SyncPITTables {
       logDetail("Found missing point in time role set with id: " + roleSet.getId());
             
       if (saveUpdates) {        
-        PITGroup pitIfHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(roleSet.getIfHasRoleId(), true);
-        PITGroup pitThenHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(roleSet.getThenHasRoleId(), true);
-        PITRoleSet pitParent = GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdActive(roleSet.getParentRoleSetId(), false);
 
-        PITRoleSet pitRoleSet = new PITRoleSet();
-        pitRoleSet.setId(GrouperUuid.getUuid());
-        pitRoleSet.setSourceId(roleSet.getId());
-        pitRoleSet.setDepth(roleSet.getDepth());
-        pitRoleSet.setIfHasRoleId(pitIfHas.getId());
-        pitRoleSet.setThenHasRoleId(pitThenHas.getId());
-        pitRoleSet.setParentRoleSetId(roleSet.getDepth() == 0 ? pitRoleSet.getId() : pitParent.getId());
-        pitRoleSet.setActiveDb("T");
-        pitRoleSet.setStartTimeDb(System.currentTimeMillis() * 1000);
-
-        if (!GrouperUtil.isEmpty(roleSet.getContextId())) {
-          pitRoleSet.setContextId(roleSet.getContextId());
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.ROLE_SET_ADD, 
+            ChangeLogLabels.ROLE_SET_ADD.id.name(), roleSet.getId(), 
+            ChangeLogLabels.ROLE_SET_ADD.type.name(), roleSet.getTypeDb(),
+            ChangeLogLabels.ROLE_SET_ADD.ifHasRoleId.name(), roleSet.getIfHasRoleId(), 
+            ChangeLogLabels.ROLE_SET_ADD.thenHasRoleId.name(), roleSet.getThenHasRoleId(),
+            ChangeLogLabels.ROLE_SET_ADD.parentRoleSetId.name(), roleSet.getParentRoleSetId(), 
+            ChangeLogLabels.ROLE_SET_ADD.depth.name(), "" + roleSet.getDepth());
+        
+        if (!StringUtils.isEmpty(roleSet.getContextId())) {
+          changeLogEntry.setContextId(roleSet.getContextId());
         }
         
-        if (sendPermissionNotifications) {
-          pitRoleSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-          pitRoleSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-        
-        pitRoleSet.saveOrUpdate();
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -862,24 +758,34 @@ public class SyncPITTables {
       if (saveUpdates) {
         // note that we may just need to update the name and/or type
         PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(field.getUuid(), false);
-        if (pitField == null) {
-          pitField = new PITField();
-          pitField.setId(GrouperUuid.getUuid());
-          pitField.setSourceId(field.getUuid());
-          pitField.setActiveDb("T");
-          pitField.setStartTimeDb(System.currentTimeMillis() * 1000);
+        if (pitField != null) {
+          pitField.setNameDb(field.getName());
+          pitField.setTypeDb(field.getTypeString());
+          if (!StringUtils.isEmpty(field.getContextId())) {
+            pitField.setContextId(field.getContextId());
+          } else {
+            pitField.setContextId(null);
+          }
+          pitField.saveOrUpdate();
+          totalProcessed++;
+          continue;
         }
         
-        pitField.setNameDb(field.getName());
-        pitField.setTypeDb(field.getTypeString());
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_FIELD_ADD, 
+            ChangeLogLabels.GROUP_FIELD_ADD.id.name(), 
+            field.getUuid(), ChangeLogLabels.GROUP_FIELD_ADD.name.name(), 
+            field.getName(), null, 
+            null,
+            null, 
+            null,
+            ChangeLogLabels.GROUP_FIELD_ADD.type.name(), field.getTypeString()
+        );
         
-        if (!GrouperUtil.isEmpty(field.getContextId())) {
-          pitField.setContextId(field.getContextId());
-        } else {
-          pitField.setContextId(null);
+        if (!StringUtils.isEmpty(field.getContextId())) {
+          changeLogEntry.setContextId(field.getContextId());
         }
         
-        pitField.saveOrUpdate();
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -909,28 +815,39 @@ public class SyncPITTables {
       logDetail("Found missing point in time member with id: " + member.getUuid() + ", subject id: " + member.getSubjectId());
             
       if (saveUpdates) {
+
         // note that we may just need to update the subjectId, subjectSourceId, and/or subjectTypeId
         PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(member.getUuid(), false);
-        if (pitMember == null) {
-          pitMember = new PITMember();
-          pitMember.setId(GrouperUuid.getUuid());
-          pitMember.setSourceId(member.getUuid());
-          pitMember.setActiveDb("T");
-          pitMember.setStartTimeDb(System.currentTimeMillis() * 1000);
+        if (pitMember != null) {
+          pitMember.setSubjectId(member.getSubjectIdDb());
+          pitMember.setSubjectSourceId(member.getSubjectSourceIdDb());
+          pitMember.setSubjectTypeId(member.getSubjectTypeId());
+          pitMember.setSubjectIdentifier0(member.getSubjectIdentifier0());
+          if (!StringUtils.isEmpty(member.getContextId())) {
+            pitMember.setContextId(member.getContextId());
+          } else {
+            pitMember.setContextId(null);
+          }
+          pitMember.saveOrUpdate();
+          totalProcessed++;
+          continue;
         }
         
-        pitMember.setSubjectId(member.getSubjectIdDb());
-        pitMember.setSubjectSourceId(member.getSubjectSourceIdDb());
-        pitMember.setSubjectTypeId(member.getSubjectTypeId());
-        pitMember.setSubjectIdentifier0(member.getSubjectIdentifier0());
-        
-        if (!GrouperUtil.isEmpty(member.getContextId())) {
-          pitMember.setContextId(member.getContextId());
-        } else {
-          pitMember.setContextId(null);
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBER_ADD, 
+            ChangeLogLabels.MEMBER_ADD.id.name(), member.getUuid(), 
+            ChangeLogLabels.MEMBER_ADD.subjectId.name(), member.getSubjectIdDb(), 
+            ChangeLogLabels.MEMBER_ADD.subjectSourceId.name(), member.getSubjectSourceIdDb(),
+            ChangeLogLabels.MEMBER_ADD.subjectTypeId.name(), member.getSubjectTypeId(),
+            ChangeLogLabels.MEMBER_ADD.subjectIdentifier0.name(), member.getSubjectIdentifier0(),
+            ChangeLogLabels.MEMBER_ADD.subjectIdentifier1.name(), member.getSubjectIdentifier1(),
+            ChangeLogLabels.MEMBER_ADD.subjectIdentifier2.name(), member.getSubjectIdentifier2(),
+            ChangeLogLabels.MEMBER_ADD.email0.name(), member.getEmail0());
+
+        if (!StringUtils.isEmpty(member.getContextId())) {
+          changeLogEntry.setContextId(member.getContextId());
         }
         
-        pitMember.saveOrUpdate();
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -1009,27 +926,32 @@ public class SyncPITTables {
       if (saveUpdates) {
         // note that we may just need to update the name and/or parentStemId
         PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getUuid(), false);
-        if (pitStem == null) {
-          pitStem = new PITStem();
-          pitStem.setId(GrouperUuid.getUuid());
-          pitStem.setSourceId(stem.getUuid());
-          pitStem.setActiveDb("T");
-          pitStem.setStartTimeDb(System.currentTimeMillis() * 1000);
-        }
-
-        pitStem.setNameDb(stem.getNameDb());
-        
-        if (stem.getParentUuid() != null) {
+        if (pitStem != null) {
+          pitStem.setNameDb(stem.getNameDb());
           pitStem.setParentStemId(GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getParentUuid(), true).getId());
+          if (!StringUtils.isEmpty(stem.getContextId())) {
+            pitStem.setContextId(stem.getContextId());
+          } else {
+            pitStem.setContextId(null);
+          }
+          pitStem.saveOrUpdate();
+          totalProcessed++;
+          continue;
         }
         
-        if (!GrouperUtil.isEmpty(stem.getContextId())) {
-          pitStem.setContextId(stem.getContextId());
-        } else {
-          pitStem.setContextId(null);
+        //change log into temp table
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.STEM_ADD, 
+            ChangeLogLabels.STEM_ADD.id.name(), 
+            stem.getUuid(), ChangeLogLabels.STEM_ADD.name.name(), 
+            stem.getName(), ChangeLogLabels.STEM_ADD.parentStemId.name(), stem.getParentUuid(),
+            ChangeLogLabels.STEM_ADD.displayName.name(), stem.getDisplayName(),
+            ChangeLogLabels.STEM_ADD.description.name(), stem.getDescription());
+
+        if (!StringUtils.isEmpty(stem.getContextId())) {
+          changeLogEntry.setContextId(stem.getContextId());
         }
         
-        pitStem.saveOrUpdate();
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -1059,28 +981,30 @@ public class SyncPITTables {
       logDetail("Found missing point in time action with id: " + action.getId() + ", name: " + action.getName());
             
       if (saveUpdates) {
-        PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(action.getAttributeDefId(), true);
-
         // note that we may just need to update the name
         PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(action.getId(), false);
-        if (pitAttributeAssignAction == null) {
-          pitAttributeAssignAction = new PITAttributeAssignAction();
-          pitAttributeAssignAction.setId(GrouperUuid.getUuid());
-          pitAttributeAssignAction.setSourceId(action.getId());
-          pitAttributeAssignAction.setAttributeDefId(pitAttributeDef.getId());
-          pitAttributeAssignAction.setActiveDb("T");
-          pitAttributeAssignAction.setStartTimeDb(System.currentTimeMillis() * 1000); 
-        }
-
-        pitAttributeAssignAction.setNameDb(action.getNameDb());
-
-        if (!GrouperUtil.isEmpty(action.getContextId())) {
-          pitAttributeAssignAction.setContextId(action.getContextId());
-        } else {
-          pitAttributeAssignAction.setContextId(null);
+        if (pitAttributeAssignAction != null) {
+          pitAttributeAssignAction.setNameDb(action.getNameDb());
+          if (!StringUtils.isEmpty(action.getContextId())) {
+            pitAttributeAssignAction.setContextId(action.getContextId());
+          } else {
+            pitAttributeAssignAction.setContextId(null);
+          }
+          pitAttributeAssignAction.saveOrUpdate();
+          totalProcessed++;
+          continue;
         }
         
-        pitAttributeAssignAction.saveOrUpdate();
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_ADD, 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.id.name(), action.getId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.name.name(), action.getName(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_ADD.attributeDefId.name(), action.getAttributeDefId());
+
+        if (!StringUtils.isEmpty(action.getContextId())) {
+          changeLogEntry.setContextId(action.getContextId());
+        }
+        
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -1110,30 +1034,20 @@ public class SyncPITTables {
       logDetail("Found missing point in time action set with id: " + actionSet.getId());
             
       if (saveUpdates) {
-        PITAttributeAssignAction pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(actionSet.getIfHasAttrAssignActionId(), true);
-        PITAttributeAssignAction pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(actionSet.getThenHasAttrAssignActionId(), true);
-        PITAttributeAssignActionSet pitParent = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findBySourceIdActive(actionSet.getParentAttrAssignActionSetId(), false);
-        
-        PITAttributeAssignActionSet pitAttributeAssignActionSet = new PITAttributeAssignActionSet();
-        pitAttributeAssignActionSet.setId(GrouperUuid.getUuid());
-        pitAttributeAssignActionSet.setSourceId(actionSet.getId());
-        pitAttributeAssignActionSet.setDepth(actionSet.getDepth());
-        pitAttributeAssignActionSet.setIfHasAttrAssignActionId(pitIfHas.getId());
-        pitAttributeAssignActionSet.setThenHasAttrAssignActionId(pitThenHas.getId());
-        pitAttributeAssignActionSet.setParentAttrAssignActionSetId(actionSet.getDepth() == 0 ? pitAttributeAssignActionSet.getId() : pitParent.getId());
-        pitAttributeAssignActionSet.setActiveDb("T");
-        pitAttributeAssignActionSet.setStartTimeDb(System.currentTimeMillis() * 1000);
-        
-        if (!GrouperUtil.isEmpty(actionSet.getContextId())) {
-          pitAttributeAssignActionSet.setContextId(actionSet.getContextId());
-        }
-                
-        if (sendPermissionNotifications) {
-          pitAttributeAssignActionSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-          pitAttributeAssignActionSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
 
-        pitAttributeAssignActionSet.saveOrUpdate();
+        ChangeLogEntry changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_ADD, 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.id.name(), actionSet.getId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.type.name(), actionSet.getTypeDb(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.ifHasAttrAssnActionId.name(), actionSet.getIfHasAttrAssignActionId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.thenHasAttrAssnActionId.name(), actionSet.getThenHasAttrAssignActionId(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.parentAttrAssignActionSetId.name(), actionSet.getParentAttrAssignActionSetId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_ADD.depth.name(), "" + actionSet.getDepth());
+        
+        if (!StringUtils.isEmpty(actionSet.getContextId())) {
+          changeLogEntry.setContextId(actionSet.getContextId());
+        }
+        
+        changeLogEntry.save();
       }
       
       totalProcessed++;
@@ -1164,21 +1078,82 @@ public class SyncPITTables {
           ", memberId: " + mship.getMemberId() + ", fieldId: " + mship.getFieldId());
       
       if (saveUpdates) {
-        mship.setEndTimeDb(System.currentTimeMillis() * 1000);
-        mship.setActiveDb("F");
-        mship.setContextId(null);
+        PITField pitField = mship.getPITField();
+        PITMember pitMember = mship.getPITMember();
+        
+        String subjectName = null;
+        
+        // get the subject name if the subject is a group
+        if (pitMember.getSubjectTypeId().equals("group")) {
+          Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(pitMember.getSubjectId(), false, null);
+          if (memberGroup != null) {
+            subjectName = memberGroup.getName();
+          }
+        }
+        
+        if (pitField.getType().equals("list")) {
+          PITGroup pitGroup = mship.getOwnerPITGroup();
+          
+          new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_DELETE, 
+              ChangeLogLabels.MEMBERSHIP_DELETE.id.name(), mship.getSourceId(),
+              ChangeLogLabels.MEMBERSHIP_DELETE.fieldName.name(), pitField.getName(), 
+              ChangeLogLabels.MEMBERSHIP_DELETE.fieldId.name(), pitField.getSourceId(), 
+              ChangeLogLabels.MEMBERSHIP_DELETE.memberId.name(), pitMember.getSourceId(),
+              ChangeLogLabels.MEMBERSHIP_DELETE.subjectId.name(), pitMember.getSubjectId(),
+              ChangeLogLabels.MEMBERSHIP_DELETE.sourceId.name(), pitMember.getSubjectSourceId(),
+              ChangeLogLabels.MEMBERSHIP_DELETE.groupId.name(), pitGroup.getSourceId(),
+              //ChangeLogLabels.MEMBERSHIP_DELETE.membershipType.name(), this.getType(),
+              ChangeLogLabels.MEMBERSHIP_DELETE.subjectName.name(), subjectName,
+              ChangeLogLabels.MEMBERSHIP_DELETE.groupName.name(), pitGroup.getName(),
+              ChangeLogLabels.MEMBERSHIP_DELETE.subjectIdentifier0.name(), pitMember.getSubjectIdentifier0()).save();          
+        } else if (pitField.getType().equals("access")) {
+          PITGroup pitGroup = mship.getOwnerPITGroup();
 
-        if (sendFlattenedNotifications) {
-          mship.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
-          mship.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
+          new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
+              ChangeLogLabels.PRIVILEGE_DELETE.id.name(), mship.getSourceId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), AccessPrivilege.listToPriv(pitField.getName()).getName(), 
+              ChangeLogLabels.PRIVILEGE_DELETE.fieldId.name(), pitField.getSourceId(), 
+              ChangeLogLabels.PRIVILEGE_DELETE.memberId.name(), pitMember.getSourceId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), pitMember.getSubjectId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), pitMember.getSubjectSourceId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), FieldType.ACCESS.getType(),
+              ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), Membership.OWNER_TYPE_GROUP,
+              ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), pitGroup.getSourceId(),
+              //ChangeLogLabels.PRIVILEGE_DELETE.membershipType.name(), this.getType(),
+              ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), pitGroup.getName()).save();
+        } else if (pitField.getType().equals("naming")) {
+          PITStem pitStem = mship.getOwnerPITStem();
+          
+          new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
+              ChangeLogLabels.PRIVILEGE_DELETE.id.name(), mship.getSourceId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), NamingPrivilege.listToPriv(pitField.getName()).getName(), 
+              ChangeLogLabels.PRIVILEGE_DELETE.fieldId.name(), pitField.getSourceId(), 
+              ChangeLogLabels.PRIVILEGE_DELETE.memberId.name(), pitMember.getSourceId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), pitMember.getSubjectId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), pitMember.getSubjectSourceId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), FieldType.NAMING.getType(),
+              ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), Membership.OWNER_TYPE_STEM,
+              ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), pitStem.getSourceId(),
+              //ChangeLogLabels.PRIVILEGE_DELETE.membershipType.name(), this.getType(),
+              ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), pitStem.getName()).save();
+        } else if (pitField.getType().equals("attributeDef")) {
+          PITAttributeDef pitAttributeDef = mship.getOwnerPITAttributeDef();
+          
+          new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_DELETE, 
+              ChangeLogLabels.PRIVILEGE_DELETE.id.name(), mship.getSourceId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.privilegeName.name(), AttributeDefPrivilege.listToPriv(pitField.getName()).getName(), 
+              ChangeLogLabels.PRIVILEGE_DELETE.fieldId.name(), pitField.getSourceId(), 
+              ChangeLogLabels.PRIVILEGE_DELETE.memberId.name(), pitMember.getSourceId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.subjectId.name(), pitMember.getSubjectId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.sourceId.name(), pitMember.getSubjectSourceId(),
+              ChangeLogLabels.PRIVILEGE_DELETE.privilegeType.name(), FieldType.ATTRIBUTE_DEF.getType(),
+              ChangeLogLabels.PRIVILEGE_DELETE.ownerType.name(), Membership.OWNER_TYPE_ATTRIBUTE_DEF,
+              ChangeLogLabels.PRIVILEGE_DELETE.ownerId.name(), pitAttributeDef.getSourceId(),
+              //ChangeLogLabels.PRIVILEGE_DELETE.membershipType.name(), this.getType(),
+              ChangeLogLabels.PRIVILEGE_DELETE.ownerName.name(), pitAttributeDef.getName()).save();
+        } else {
+          throw new RuntimeException("unexpected field type: " + pitField.getType());
         }
-        
-        if (sendPermissionNotifications) {
-          mship.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-          mship.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-        
-        mship.update();
       }
       
       totalProcessed++;
@@ -1208,16 +1183,39 @@ public class SyncPITTables {
       logDetail("Found active point in time attribute assign that should be inactive with id: " + assign.getId());
       
       if (saveUpdates) {
-        assign.setEndTimeDb(System.currentTimeMillis() * 1000);
-        assign.setActiveDb("F");
-        assign.setContextId(null);
-
-        if (sendPermissionNotifications) {
-          assign.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-          assign.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
+        
+        String ownerId1 = null;
+        String ownerId2 = null;
+        
+        if (AttributeAssignType.group.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerPITGroup().getSourceId();
+        } else if (AttributeAssignType.stem.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerPITStem().getSourceId();
+        } else if (AttributeAssignType.member.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerPITMember().getSourceId();
+        } else if (AttributeAssignType.attr_def.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerPITAttributeDef().getSourceId();
+        } else if (AttributeAssignType.any_mem.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerPITGroup().getSourceId();
+          ownerId2 = assign.getOwnerPITMember().getSourceId();
+        } else if (AttributeAssignType.imm_mem.name().equals(assign.getAttributeAssignTypeDb())) {
+          ownerId1 = assign.getOwnerPITMembership().getSourceId();
+        } else if (assign.getOwnerAttributeAssignId() != null) {
+          ownerId1 = assign.getOwnerPITAttributeAssign().getSourceId();
+        } else {
+          throw new RuntimeException("Unexpected ownerType: " + assign.getAttributeAssignTypeDb());
         }
         
-        assign.update();
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_DELETE, 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.id.name(), assign.getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameId.name(), assign.getPITAttributeDefName().getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeAssignActionId.name(), assign.getPITAttributeAssignAction().getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.assignType.name(), assign.getAttributeAssignTypeDb(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId1.name(), ownerId1,
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.ownerId2.name(), ownerId2,
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.attributeDefNameName.name(), assign.getPITAttributeDefName().getName(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.action.name(), assign.getPITAttributeAssignAction().getName(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_DELETE.disallowed.name(), assign.getDisallowedDb()).save();        
       }
       
       totalProcessed++;
@@ -1247,11 +1245,16 @@ public class SyncPITTables {
       logDetail("Found active point in time attribute assign value that should be inactive with id: " + value.getId());
       
       if (saveUpdates) {
-        value.setEndTimeDb(System.currentTimeMillis() * 1000);
-        value.setActiveDb("F");
-        value.setContextId(null);
-
-        value.update();
+        PITAttributeDef pitAttributeDef = value.getPITAttributeAssign().getPITAttributeDefName().getPITAttributeDef();
+        AttributeDef attributeDef = GrouperDAOFactory.getFactory().getAttributeDef().findById(pitAttributeDef.getSourceId(), false);
+        
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.id.name(), value.getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeAssignId.name(), value.getPITAttributeAssign().getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameId.name(), value.getPITAttributeAssign().getPITAttributeDefName().getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.attributeDefNameName.name(), value.getPITAttributeAssign().getPITAttributeDefName().getName(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.value.name(), value.getValueString(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_VALUE_DELETE.valueType.name(), attributeDef == null ? null : attributeDef.getValueType().name()).save();
       }
       
       totalProcessed++;
@@ -1281,11 +1284,12 @@ public class SyncPITTables {
       logDetail("Found active point in time attribute def that should be inactive with id: " + attr.getId() + ", name: " + attr.getName());
       
       if (saveUpdates) {
-        attr.setEndTimeDb(System.currentTimeMillis() * 1000);
-        attr.setActiveDb("F");
-        attr.setContextId(null);
-        
-        attr.saveOrUpdate();        
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_DELETE, 
+            ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id.name(), attr.getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_DELETE.name.name(), attr.getName(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_DELETE.stemId.name(), attr.getPITStem().getSourceId(),
+            //ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description.name(), attr.getDescription(),
+            ChangeLogLabels.ATTRIBUTE_DEF_DELETE.attributeDefType.name(), attr.getAttributeDefTypeDb()).save();   
       }
       
       totalProcessed++;
@@ -1315,11 +1319,12 @@ public class SyncPITTables {
       logDetail("Found active point in time attribute def name that should be inactive with id: " + attr.getId() + ", name: " + attr.getName());
       
       if (saveUpdates) {
-        attr.setEndTimeDb(System.currentTimeMillis() * 1000);
-        attr.setActiveDb("F");
-        attr.setContextId(null);
-        
-        attr.saveOrUpdate();        
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_DELETE, 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.id.name(), attr.getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.name.name(), attr.getName(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.stemId.name(), attr.getPITStem().getSourceId(), 
+            //ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.description.name(), this.getDescription(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_DELETE.attributeDefId.name(), attr.getPITAttributeDef().getSourceId()).save();       
       }
       
       totalProcessed++;
@@ -1349,16 +1354,13 @@ public class SyncPITTables {
       logDetail("Found active point in time attribute def name set that should be inactive with id: " + attrSet.getId());
       
       if (saveUpdates) {
-        attrSet.setEndTimeDb(System.currentTimeMillis() * 1000);
-        attrSet.setActiveDb("F");
-        attrSet.setContextId(null);
-        
-        if (sendPermissionNotifications) {
-          attrSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-          attrSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-        
-        attrSet.saveOrUpdate();        
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_DEF_NAME_SET_DELETE, 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.id.name(), attrSet.getSourceId(), 
+            //ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.type.name(), attrSet.getTypeDb(),
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.ifHasAttributeDefNameId.name(), attrSet.getIfHasPITAttributeDefName().getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.thenHasAttributeDefNameId.name(), attrSet.getThenHasPITAttributeDefName().getSourceId(),
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.parentAttrDefNameSetId.name(), attrSet.getParentPITAttributeDefNameSet().getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_DEF_NAME_SET_DELETE.depth.name(), "" + attrSet.getDepth()).save();
       }
       
       totalProcessed++;
@@ -1388,6 +1390,8 @@ public class SyncPITTables {
       logDetail("Found active point in time group that should be inactive with id: " + group.getId() + ", name: " + group.getName());
       
       if (saveUpdates) {
+        // we don't know if this is an entity or group so just update here directly???
+        
         group.setEndTimeDb(System.currentTimeMillis() * 1000);
         group.setActiveDb("F");
         group.setContextId(null);
@@ -1422,21 +1426,27 @@ public class SyncPITTables {
       logDetail("Found active point in time group set that should be inactive with id: " + groupSet.getId());
       
       if (saveUpdates) {
-        groupSet.setEndTimeDb(System.currentTimeMillis() * 1000);
-        groupSet.setActiveDb("F");
-        groupSet.setContextId(null);
         
+        PITGroup ownerPITGroup = groupSet.getOwnerPITGroup();
+        PITStem ownerPITStem = groupSet.getOwnerPITStem();
+        PITAttributeDef ownerPITAttributeDef = groupSet.getOwnerPITAttributeDef();
         
-        if (sendFlattenedNotifications) {
-          groupSet.setFlatMembershipNotificationsOnSaveOrUpdate(includeFlattenedMemberships);
-          groupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(includeFlattenedPrivileges);
-        }
-        
-        if (sendPermissionNotifications) {
-          groupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-        
-        groupSet.saveOrUpdate();     
+        PITGroup memberPITGroup = groupSet.getMemberPITGroup();
+        PITStem memberPITStem = groupSet.getMemberPITStem();
+        PITAttributeDef memberPITAttributeDef = groupSet.getMemberPITAttributeDef();
+                
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_SET_DELETE, 
+            ChangeLogLabels.GROUP_SET_DELETE.id.name(), groupSet.getSourceId(), 
+            ChangeLogLabels.GROUP_SET_DELETE.ownerGroupId.name(), ownerPITGroup == null ? null : ownerPITGroup.getSourceId(), 
+            ChangeLogLabels.GROUP_SET_DELETE.ownerStemId.name(), ownerPITStem == null ? null : ownerPITStem.getSourceId(), 
+            ChangeLogLabels.GROUP_SET_DELETE.ownerAttributeDefId.name(), ownerPITAttributeDef == null ? null : ownerPITAttributeDef.getSourceId(), 
+            ChangeLogLabels.GROUP_SET_DELETE.memberGroupId.name(), memberPITGroup == null ? null : memberPITGroup.getSourceId(), 
+            ChangeLogLabels.GROUP_SET_DELETE.memberStemId.name(), memberPITStem == null ? null : memberPITStem.getSourceId(), 
+            ChangeLogLabels.GROUP_SET_DELETE.memberAttributeDefId.name(), memberPITAttributeDef == null ? null : memberPITAttributeDef.getSourceId(), 
+            ChangeLogLabels.GROUP_SET_DELETE.fieldId.name(), groupSet.getPITField().getSourceId(), 
+            ChangeLogLabels.GROUP_SET_DELETE.memberFieldId.name(), groupSet.getMemberPITField().getSourceId(), 
+            ChangeLogLabels.GROUP_SET_DELETE.parentGroupSetId.name(), groupSet.getParentPITGroupSet().getSourceId(), 
+            ChangeLogLabels.GROUP_SET_DELETE.depth.name(), "" + groupSet.getDepth()).save();
       }
       
       totalProcessed++;
@@ -1466,16 +1476,13 @@ public class SyncPITTables {
       logDetail("Found active point in time role set that should be inactive with id: " + roleSet.getId());
       
       if (saveUpdates) {
-        roleSet.setEndTimeDb(System.currentTimeMillis() * 1000);
-        roleSet.setActiveDb("F");
-        roleSet.setContextId(null);
-        
-        if (sendPermissionNotifications) {
-          roleSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-          roleSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-        
-        roleSet.saveOrUpdate();     
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ROLE_SET_DELETE, 
+            ChangeLogLabels.ROLE_SET_DELETE.id.name(), roleSet.getSourceId(), 
+            //ChangeLogLabels.ROLE_SET_DELETE.type.name(), this.getTypeDb(),
+            ChangeLogLabels.ROLE_SET_DELETE.ifHasRoleId.name(), roleSet.getIfHasPITRole().getSourceId(), 
+            ChangeLogLabels.ROLE_SET_DELETE.thenHasRoleId.name(), roleSet.getThenHasPITRole().getSourceId(),
+            ChangeLogLabels.ROLE_SET_DELETE.parentRoleSetId.name(), roleSet.getParentPITRoleSet().getSourceId(), 
+            ChangeLogLabels.ROLE_SET_DELETE.depth.name(), "" + roleSet.getDepth()).save();
       }
       
       totalProcessed++;
@@ -1505,11 +1512,15 @@ public class SyncPITTables {
       logDetail("Found active point in time field that should be inactive with id: " + field.getId() + ", name: " + field.getName());
       
       if (saveUpdates) {
-        field.setEndTimeDb(System.currentTimeMillis() * 1000);
-        field.setActiveDb("F");
-        field.setContextId(null);
-        
-        field.saveOrUpdate();     
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_FIELD_DELETE, 
+            ChangeLogLabels.GROUP_FIELD_DELETE.id.name(), 
+            field.getSourceId(), ChangeLogLabels.GROUP_FIELD_DELETE.name.name(), 
+            field.getName(), null, 
+            null,
+            null, 
+            null,
+            ChangeLogLabels.GROUP_FIELD_DELETE.type.name(), field.getType()
+        ).save();    
       }
       
       totalProcessed++;
@@ -1539,11 +1550,16 @@ public class SyncPITTables {
       logDetail("Found active point in time member that should be inactive with id: " + member.getId() + ", subject id: " + member.getSubjectId());
       
       if (saveUpdates) {
-        member.setEndTimeDb(System.currentTimeMillis() * 1000);
-        member.setActiveDb("F");
-        member.setContextId(null);
-        
-        member.saveOrUpdate();     
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBER_DELETE, 
+            ChangeLogLabels.MEMBER_DELETE.id.name(), member.getSourceId(), 
+            ChangeLogLabels.MEMBER_DELETE.subjectId.name(), member.getSubjectId(), 
+            ChangeLogLabels.MEMBER_DELETE.subjectSourceId.name(), member.getSubjectSourceId(),
+            ChangeLogLabels.MEMBER_DELETE.subjectTypeId.name(), member.getSubjectTypeId(),
+            ChangeLogLabels.MEMBER_DELETE.subjectIdentifier0.name(), member.getSubjectIdentifier0()
+            //ChangeLogLabels.MEMBER_DELETE.subjectIdentifier1.name(), this.getSubjectIdentifier1(),
+            //ChangeLogLabels.MEMBER_DELETE.subjectIdentifier2.name(), this.getSubjectIdentifier2(),
+            //ChangeLogLabels.MEMBER_DELETE.email0.name(), this.getEmail0()
+            ).save();  
       }
       
       totalProcessed++;
@@ -1607,11 +1623,13 @@ public class SyncPITTables {
       logDetail("Found active point in time stem that should be inactive with id: " + stem.getId() + ", name: " + stem.getName());
       
       if (saveUpdates) {
-        stem.setEndTimeDb(System.currentTimeMillis() * 1000);
-        stem.setActiveDb("F");
-        stem.setContextId(null);
-        
-        stem.saveOrUpdate();     
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.STEM_DELETE, 
+            ChangeLogLabels.STEM_DELETE.id.name(), 
+            stem.getSourceId(), ChangeLogLabels.STEM_DELETE.name.name(), 
+            stem.getName(), ChangeLogLabels.STEM_DELETE.parentStemId.name(), stem.getParentPITStem().getSourceId()
+            //ChangeLogLabels.STEM_DELETE.displayName.name(), this.getDisplayName(),
+            //ChangeLogLabels.STEM_DELETE.description.name(), this.getDescription()
+            ).save();  
       }
       
       totalProcessed++;
@@ -1641,11 +1659,10 @@ public class SyncPITTables {
       logDetail("Found active point in time action that should be inactive with id: " + action.getId() + ", name: " + action.getName());
       
       if (saveUpdates) {
-        action.setEndTimeDb(System.currentTimeMillis() * 1000);
-        action.setActiveDb("F");
-        action.setContextId(null);
-        
-        action.saveOrUpdate();     
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_DELETE, 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.id.name(), action.getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.name.name(), action.getName(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_DELETE.attributeDefId.name(), action.getPITAttributeDef().getSourceId()).save();     
       }
       
       totalProcessed++;
@@ -1675,16 +1692,13 @@ public class SyncPITTables {
       logDetail("Found active point in time action set that should be inactive with id: " + actionSet.getId());
       
       if (saveUpdates) {
-        actionSet.setEndTimeDb(System.currentTimeMillis() * 1000);
-        actionSet.setActiveDb("F");
-        actionSet.setContextId(null);
-
-        if (sendPermissionNotifications) {
-          actionSet.setNotificationsForRolesWithPermissionChangesOnSaveOrUpdate(includeRolesWithPermissionChanges);
-          actionSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(includeSubjectsWithPermissionChanges);
-        }
-        
-        actionSet.saveOrUpdate();
+        new ChangeLogEntry(true, ChangeLogTypeBuiltin.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE, 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.id.name(), actionSet.getSourceId(), 
+            //ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.type.name(), this.getTypeDb(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.ifHasAttrAssnActionId.name(), actionSet.getIfHasPITAttributeAssignAction().getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.thenHasAttrAssnActionId.name(), actionSet.getThenHasPITAttributeAssignAction().getSourceId(),
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.parentAttrAssignActionSetId.name(), actionSet.getParentPITAttributeAssignActionSet().getSourceId(), 
+            ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_SET_DELETE.depth.name(), "" + actionSet.getDepth()).save();
       }
       
       totalProcessed++;

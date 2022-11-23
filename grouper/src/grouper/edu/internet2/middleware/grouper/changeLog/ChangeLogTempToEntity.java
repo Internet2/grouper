@@ -1333,7 +1333,12 @@ public class ChangeLogTempToEntity {
       PITAttributeAssign pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(ownerId1, false);
       if (pitOwner1 == null) {
         // it may be disabled..
-        pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(ownerId1, true);
+        pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(ownerId1, false);
+        
+        if (pitOwner1 == null) {
+          LOG.warn("Skipping change pit owner not found: " + changeLogEntry.toStringDeep());
+          return;
+        }
       }
       pitAttributeAssign.setOwnerAttributeAssignId(pitOwner1.getId());
     }
@@ -1411,7 +1416,12 @@ public class ChangeLogTempToEntity {
     PITAttributeAssign pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdActive(attributeAssignId, false);
     if (pitAttributeAssign == null) {
       // it may be disabled..
-      pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(attributeAssignId, true);
+      pitAttributeAssign = GrouperDAOFactory.getFactory().getPITAttributeAssign().findBySourceIdMostRecent(attributeAssignId, false);
+      
+      if (pitAttributeAssign == null) {
+        LOG.warn("Skipping change since pitAttributeAssign not found: " + changeLogEntry.toStringDeep());
+        return;
+      }
     }
     
     Long time = changeLogEntry.getCreatedOnDb();
