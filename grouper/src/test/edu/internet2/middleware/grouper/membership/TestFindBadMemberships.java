@@ -246,7 +246,8 @@ public class TestFindBadMemberships extends GrouperTest {
     // verify we don't mess up point in time, there may be changes there to fix pit group sets
     ChangeLogTempToEntity.convertRecords();
     new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables();
-    
+    ChangeLogTempToEntity.convertRecords();
+
     newSize = HibernateSession.bySqlStatic().select(int.class,
         "select count(1) from grouper_group_set");
     
@@ -352,6 +353,7 @@ public class TestFindBadMemberships extends GrouperTest {
     // verify we don't mess up point in time, there may be changes there to fix pit group sets
     ChangeLogTempToEntity.convertRecords();
     new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables();
+    ChangeLogTempToEntity.convertRecords();
   }
   
   /**
@@ -1389,6 +1391,7 @@ public class TestFindBadMemberships extends GrouperTest {
  
     // pit sync should work
     assertEquals(1, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
+    ChangeLogTempToEntity.convertRecords();
     assertEquals(0, new edu.internet2.middleware.grouper.misc.SyncPITTables().showResults(false).syncAllPITTables());
     
     pitMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdUnique(membership.getImmediateMembershipId(), true);
