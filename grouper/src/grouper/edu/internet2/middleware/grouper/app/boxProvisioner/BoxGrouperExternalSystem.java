@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.RandomStringGenerator;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
@@ -41,14 +40,6 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.morphString.Morph;
 
 public class BoxGrouperExternalSystem extends GrouperExternalSystem {
-  
-  public static void main(String[] args) {
-    
-    String pk = "-----BEGIN ENCRYPTED PRIVATE KEY-----\nMIIFDjBABgkqhkiG9w0BBQ0wMzAbBgkqhkiG9w0BBQwwDgQIC8kw1LDHB9gCAggA\nMBQGCCqGSIb3DQMHBAgxnTbeWpgWkQSCBMhXUyN5BJOEpArRgu1Xj+C4AxLcdiXv\nNY2DH1naPo5cCPy+mX/ftHlt2f4gbDh+34t92CyMUWC8uOSjchzgHpADVClAlBtg\n5scfYx7/RDcL7G0UhcUOMqVZm8Nfmry0ylTTx7gwq0pd5S2Cv2cDVr9cVYmna719\nXob+Hpumq50Q1x8Cf4F30GGK/L/1nBmnlPh1xy0Hz8YlkIagU8AYYefs+pAd5ZQF\n7JvAxGg4rOWQRVS2/DGTbTB+tt4alNDEw9lTNE8UQ1Nxq+PSm8AGbIePojGGa+Fc\nK0TI/4CVeyJXHhfIPB2JjPmm72EB0RwdHDxB1Xes5k6euz7DflKOeGwP5O0aV/EY\nOXaWbiVo/KJTvd0itl/ZyWSmRlF+iwa87XhZV4uBBaTZtzP8tF4YeN0W/j/4y/ty\nh9WHWfKqUm4bTwEUY7fE8ny++C7pyqxN8vdnf64oHpGX6AWk6imt8L966wqFxuVR\nxl5y2ckbESV2069vbGIj+h406/FGiiJkZgEghSLSYPSqUzj8mzqLGVJ2u9p2/SUz\ndwYKiyF51LYBbdyOe050WqLNp8G1JQxj4DdrqhfTU5tt4edn/JPZ4S8/zpw9/lgo\nsASrW76BVGCDRicTYyO6yh7uVPbRYGfXX72ARIeKuxbAOQaHcQ8HDDivreh+GtC+\n8hF5g3ASUmyJSdJI/45v1V1rOzPD1jZDtC05zN4BuCcSyiDHuLzOIk1BrbPp58K1\ntTNlAfrjmq2IasQGftkb6ASXh5HQ6kvjEq/YSsDkUv00gnuoorDoF5BY2HBd7AhO\n4hsTGaSCt/VOTKE3+mOYsRCRIYwQNQDLoKGiQUqkkLKUYOPlRZ7mNqnE12wNZrG6\nlkGvSL/KX+ISuYVHluaO0k1mvAevXrNeMjq+BcSmXzyIxRRpEuDYf0CVfESMxImI\nwk9rGiijKmUZ8sL8a/FYnO9YoyBBLsTSQZtCbzzT3bVozU4JEjTyWwc8ZGDlfZdE\nheA0GVgtVVCS/8wnoDH+OslKa1kAJB7fGunY0MbjAEzCw48hRpJRcOiaVb9jINRy\ncIKN/mJQ7TBEbMs+JLlkiQFrop7FnZPYicbFuXr+5zgAZIb1l7bhOVHVOw0WFhWI\nB5w/3cbKduD4ZDyqBVbBGdT1873jwJWLTDK/ZSF7fKykD9TLf55IyTiRf+ULSoG5\nzkp3zxaAzxuctIszegpLcZKHj5MHGSfAFUm/znxjlMwi3hDMW1zfxNbcFKwAPspP\nsgfRgt4vmadRtyvWTWF/HapJ9ZKAj4gR9fD8kh17RgUQnA1M3PauDyyYCsMHbSPq\n6enjsov/rp9hwQsP5+d+Mq/Yupvq8fUv5BxQdIPL9A/US0G++CLuNUFZTFAjSmju\n4dLwdBYjpSDLfuKq/XwBfOAJ9UlkFGVMTG5chVwIDUNR0VAlrRP5OqO3yxNmF59g\nxSjb7dFOYZ9omD/nV2bwm2w79QGDfqcn2cod1lJnN1ndBXJqsYABP9rSQgwAdpth\nug8ys4JKBj41WStKNzzMCVdWFOySqrIxiV4CyOfxR85GoWy5aDklAdOa4APn10Iy\nt3w5sbpBrUPX3t0o52tylAoDybNU0OkvHIOaKntyttiqbrLkac7GsIKyt0AxkXsA\nqRU=\n-----END ENCRYPTED PRIVATE KEY-----\n";
-    System.out.println(pk);
-    pk = pk.replaceAll("\n", "");
-    System.out.println(pk);
-  }
   
   /**
    * cache of config key to expires on and encrypted bearer token
