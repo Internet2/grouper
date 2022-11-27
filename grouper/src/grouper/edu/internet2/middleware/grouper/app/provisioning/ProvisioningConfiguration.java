@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.boxProvisioner.BoxProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
@@ -91,6 +92,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     configClassNamesList.add(MidPointProvisionerConfiguration.class.getName());
     configClassNamesList.add(GrouperScim2Configuration.class.getName());
     configClassNamesList.add(SqlProvisionerConfiguration.class.getName());
+    configClassNamesList.add(BoxProvisionerConfiguration.class.getName());
 //    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
     
     String extraProvisionerConfigRegex = "^grouperExtraProvisionerConfiguration\\.([^.]+)\\.class$";
