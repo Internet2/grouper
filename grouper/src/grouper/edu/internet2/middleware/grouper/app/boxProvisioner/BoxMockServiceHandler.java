@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
 import edu.internet2.middleware.grouper.j2ee.MockServiceResponse;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 
 public class BoxMockServiceHandler extends MockServiceHandler {
   
@@ -113,10 +114,6 @@ public class BoxMockServiceHandler extends MockServiceHandler {
     
     GrouperBoxAuth grouperBoxAuth = grouperBoxAuths.get(0);    
 
-    if (grouperBoxAuth.getExpiresOnSeconds() < System.currentTimeMillis()/1000) {
-      throw new RuntimeException("Invalid access token, expired!");
-    }
-    
     // all good
   }
 
@@ -996,25 +993,29 @@ public class BoxMockServiceHandler extends MockServiceHandler {
       throw new RuntimeException("grant_type must be set to urn:ietf:params:oauth:grant-type:jwt-bearer or client_credentials");
     }
     
+    if (StringUtils.equals("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer") && StringUtils.isBlank(assertion)) {
+      throw new RuntimeException("assertion is required for grant type: urn:ietf:params:oauth:grant-type:jwt-bearer");
+    }
+    
     if (StringUtils.equals(grantType, "urn:ietf:params:oauth:grant-type:jwt-bearer") && StringUtils.isBlank(assertion)) {
       throw new RuntimeException("For grant_type urn:ietf:params:oauth:grant-type:jwt-bearer, assertion must be set.");
     }
-    
-    if (StringUtils.isNotBlank(assertion)) {
-//      DecodedJWT decodedJwt = JWT.decode(assertion);
-//      
-//      BoxMockRsaKeyProvider boxMockRsaKeyProvider = new BoxMockRsaKeyProvider();
-//      
-//      Algorithm.RSA256(boxMockRsaKeyProvider).verify(decodedJwt);
-//      
-      String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.box.mock.configId");
 
-      mockServiceResponse.setResponseCode(200);
+    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.box.mock.configId");
+    
+    if (StringUtils.equals("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")) {
+      
+      DecodedJWT decodedJwt = JWT.decode(assertion);
+      
+      BoxMockRsaKeyProvider boxMockRsaKeyProvider = new BoxMockRsaKeyProvider();
+      
+      Algorithm.RSA512(boxMockRsaKeyProvider).verify(decodedJwt);
+
 
       ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
       
       //expires in an hour
-      long expiresOnSeconds = System.currentTimeMillis()/1000 + 60*60;
+      long expiresOnSeconds = 60*60;
       
       resultNode.put("expires_in", expiresOnSeconds);
       
@@ -1028,15 +1029,70 @@ public class BoxMockServiceHandler extends MockServiceHandler {
       
       resultNode.put("access_token", accessToken);
       
+      mockServiceResponse.setResponseCode(200);
       mockServiceResponse.setContentType("application/json");
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+      
+      
+    } else if (StringUtils.equals(grantType, "client_credentials")) {
+      
+      String expectedClientId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector."+configId+".clientId");
+      if (StringUtils.isBlank(expectedClientId)) {
+        expectedClientId = "put client id here that you have in box provisioner test";
+      }
+
+      String expectedClientSecret = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector."+configId+".clientSecret");
+      if (StringUtils.isBlank(expectedClientSecret)) {
+        expectedClientSecret = "put client secret here that you have in box provisioner test";
+      }
+      
+      if (!StringUtils.equals(expectedClientId, clientId) && !StringUtils.equals(expectedClientSecret, clientSecret)) {
+        throw new RuntimeException("client id and/or client secret don't match");
+      }
+      
+      String boxSubjectType = mockServiceRequest.getHttpServletRequest().getParameter("box_subject_type");
+      String boxSubjectId = mockServiceRequest.getHttpServletRequest().getParameter("box_subject_id");
+      
+      if (!StringUtils.equals(boxSubjectType, "enterprise")) {
+        throw new RuntimeException("box_subject_type must be set to 'enterprise'");
+      }
+      
+      String expectedEnterpriseId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector."+configId+".enterpriseId");
+      if (StringUtils.isBlank(expectedEnterpriseId)) {
+        expectedEnterpriseId = "put enterprise id here that you have in box provisioner test";
+      }
+      
+      if (!StringUtils.equals(expectedEnterpriseId, boxSubjectId)) {
+        throw new RuntimeException("box_subject_id must be set to the correct enterprise id");
+      }
+      
+      ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+      
+      long expiresOnSeconds = 60*60;
+      
+      resultNode.put("expires_in", expiresOnSeconds);
+      
+      String accessToken = GrouperUuid.getUuid();
+      
+      GrouperBoxAuth grouperBoxAuth = new GrouperBoxAuth();
+      grouperBoxAuth.setConfigId(configId);
+      grouperBoxAuth.setAccessToken(accessToken);
+      grouperBoxAuth.setExpiresOnSeconds(expiresOnSeconds);
+      HibernateSession.byObjectStatic().save(grouperBoxAuth);
+      
+      resultNode.put("access_token", accessToken);
+      
+      mockServiceResponse.setResponseCode(200);
+      mockServiceResponse.setContentType("application/json");
+      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+      
     }
     
     //delete if its been a while
     if (System.currentTimeMillis() - lastDeleteMillis > 1000*60*60) {
       lastDeleteMillis = System.currentTimeMillis();
       
-      long secondsToDelete = System.currentTimeMillis()/1000 - 60*60;
+      long secondsToDelete = 60*60;
       
       int accessTokensDeleted = HibernateSession.byHqlStatic()
         .createQuery("delete from GrouperBoxAuth where expiresOnSeconds < :theExpiresOnSeconds")
@@ -1151,10 +1207,9 @@ public class BoxMockServiceHandler extends MockServiceHandler {
     public RSAPublicKey getPublicKeyById(String keyId) {
       PublicKey publicKey = null;
       try {
-        //String publicKeyEncoded = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.box.mock.publicKey");
-        String publicKeyEncoded = null;
+        String publicKeyEncoded = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.box.mock.publicKey");
         if (StringUtils.isBlank(publicKeyEncoded)) {
-          publicKeyEncoded = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuaGc9tsPiKesuG4u534VbiLXIm55oAsV5PX+EaXRQ0Ah+B3VN2K/lO3lL3Dp8KJWiAaN0ItSpfRsWMBcjZgJVSK4Ah3DAejIpuiEU6BU5puukX/j9OuHgBwZ9KycFUZwUL2i//8ChL+2hvgSha3TtGRBLMrGU/HhY/UEBb5UoMmtiTim95YzuoIs0Q85+Ti5tL/JljAU3zjkYfhoGYjQj7EqQyROSjxB52xYFmABWR2FfXSzMJdyVi6w6QWJKt0VtwOzboiJqSl+QypiK6pdn8jKAB5uErYF5Zbf50K38rSF2BzhAqwNEIVWhrx/jB9iu9cyXNx328bWQw2hpDZ6hwIDAQAB";  // rsaKeypair[0];
+          publicKeyEncoded = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAymeK52tp3E5wzN4IIpfAOFKVSX/uC2VSP22cJp2S1VTUx+NiieJWadYYrjQNMPQzaNUw+HNbbHylxk1LTgSOR70UXXp+nCIto6L0PdJpmCSun9KuyIT2KnI43niWioQsPzKTsEkFPraEotyub4FQAwAst5JXgCS0X0V1Bu8YRsxKo/QLOGFWxA8KulqdEC7EJxoqNv1NdBVQmLe8D9uc7bMYPG9Js3BlM9jyTDTN5UsCutWprg7UdmY0ZUSWI4nFrmgranzPtZrrz2LuVHaRbHPlFzGZEH/F43hWlLRNNUa1a7DV1KTc5vE9c3l5AxCtG5lKaTmWwUP1cHIDnCQTUwIDAQAB";
         }
         
         byte[] publicKeyBytes = org.apache.commons.codec.binary.Base64.decodeBase64(publicKeyEncoded);

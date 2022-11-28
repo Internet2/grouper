@@ -31,7 +31,7 @@
     </id>
     
     <property name="exemptFromDeviceLimitsDb" column="is_exempt_from_device_limits" />
-    <property name="exemptFromLoginVerificationDb" column="is_exempt_from_login_verification" />
+    <property name="exemptFromLoginVerificationDb" column="is_exempt_from_login_verificat" />
     <property name="externalCollabRestrictedDb" column="is_external_collab_restricted" />
     <property name="platformAccessOnlyDb" column="is_platform_access_only" />
     <property name="syncEnabledDb" column="is_sync_enabled" />

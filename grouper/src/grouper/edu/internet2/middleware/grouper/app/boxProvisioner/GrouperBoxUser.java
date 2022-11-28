@@ -551,16 +551,16 @@ public class GrouperBoxUser {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "type", Types.VARCHAR, "20", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "role", Types.VARCHAR, "20", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "name", Types.VARCHAR, "256", false, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "status", Types.VARCHAR, "256", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "status", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "space_used", Types.BIGINT, null, false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "space_amount", Types.BIGINT, null, false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "max_upload_size", Types.BIGINT, null, false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "is_exempt_from_device_limits", Types.VARCHAR, "1", false, false);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "is_exempt_from_login_verification", Types.VARCHAR, "1", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "is_exempt_from_login_verificat", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "is_external_collab_restricted", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "is_platform_access_only", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "is_sync_enabled", Types.VARCHAR, "1", false, false);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "is_can_see_managed_users", Types.VARCHAR, "1", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "can_see_managed_users", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "created_at", Types.TIMESTAMP, null, false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "modified_at", Types.TIMESTAMP, null, false, false);
       

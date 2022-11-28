@@ -37,7 +37,7 @@
     <property name="invitabilityLevel" column="invitability_level" />
     <property name="memberViewabilityLevel" column="member_viewability_level" />
     <property name="name" column="name" />
-    <property name="canInviteAsCollaborator" column="can_invite_as_collaborator" />
+    <property name="canInviteAsCollaboratorDb" column="can_invite_as_collaborator" />
     <property name="provenance" column="provenance" />
 
   </class>

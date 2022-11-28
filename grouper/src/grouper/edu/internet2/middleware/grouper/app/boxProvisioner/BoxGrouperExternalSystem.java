@@ -232,6 +232,8 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
       grouperHttpClient.addBodyParameter("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
     } else {
       grouperHttpClient.addBodyParameter("grant_type", "client_credentials");
+      grouperHttpClient.addBodyParameter("box_subject_type", "enterprise");
+      grouperHttpClient.addBodyParameter("box_subject_id", enterpriseId);
     }
     
     grouperHttpClient.addBodyParameter("client_id", clientId);
@@ -254,9 +256,9 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
     }
     
     JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
-//    int expiresInSeconds = GrouperUtil.jsonJacksonGetInteger(jsonObject, "expires_in");
+    int expiresInSeconds = GrouperUtil.jsonJacksonGetInteger(jsonObject, "expires_in");
     String accessToken = GrouperUtil.jsonJacksonGetString(jsonObject, "access_token");
-    long expiresOn = now/1000 + 59 * 60;
+    long expiresOn = now/1000 + expiresInSeconds - 5; // subtract 5 seconds just to be safe
     expiresOnAndEncryptedBearerToken = new MultiKey(expiresOn, Morph.encrypt(accessToken));
     configKeyToExpiresOnAndBearerToken.put(configId, expiresOnAndEncryptedBearerToken);
     
