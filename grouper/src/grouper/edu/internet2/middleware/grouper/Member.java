@@ -216,6 +216,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** new id_index col in db */
   public static final String COLUMN_ID_INDEX = "id_index";
   
+  /** new internal_id col in db */
+  public static final String COLUMN_INTERNAL_ID = "internal_id";
+  
   /** old id col for id conversion */
   public static final String COLUMN_OLD_ID = "old_id";
   
@@ -368,6 +371,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   /** constant for field name for: idIndex */
   public static final String FIELD_ID_INDEX = "idIndex";
   
+  /** constant for field name for: internalId */
+  public static final String FIELD_INTERNAL_ID = "internalId";
+  
   /**
    * fields which are included in db version
    */
@@ -376,7 +382,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
       FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_ELIGIBLE, FIELD_SUBJECT_RESOLUTION_RESOLVABLE, 
-      FIELD_SUBJECT_RESOLUTION_DELETED, FIELD_SUBJECT_IDENTIFIER1, FIELD_SUBJECT_IDENTIFIER2, FIELD_EMAIL0, FIELD_ID_INDEX);
+      FIELD_SUBJECT_RESOLUTION_DELETED, FIELD_SUBJECT_IDENTIFIER1, FIELD_SUBJECT_IDENTIFIER2, FIELD_EMAIL0, FIELD_ID_INDEX, FIELD_INTERNAL_ID);
 
   /**
    * fields which are included in clone method
@@ -387,7 +393,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
       FIELD_SORT_STRING0, FIELD_SORT_STRING1, FIELD_SORT_STRING2, FIELD_SORT_STRING3, FIELD_SORT_STRING4,
       FIELD_SEARCH_STRING0, FIELD_SEARCH_STRING1, FIELD_SEARCH_STRING2, FIELD_SEARCH_STRING3, FIELD_SEARCH_STRING4,
       FIELD_NAME, FIELD_DESCRIPTION, FIELD_SUBJECT_IDENTIFIER0, FIELD_SUBJECT_RESOLUTION_ELIGIBLE, FIELD_SUBJECT_RESOLUTION_RESOLVABLE,
-      FIELD_SUBJECT_RESOLUTION_DELETED, FIELD_SUBJECT_IDENTIFIER1, FIELD_SUBJECT_IDENTIFIER2, FIELD_EMAIL0, FIELD_ID_INDEX);
+      FIELD_SUBJECT_RESOLUTION_DELETED, FIELD_SUBJECT_IDENTIFIER1, FIELD_SUBJECT_IDENTIFIER2, FIELD_EMAIL0, FIELD_ID_INDEX, FIELD_INTERNAL_ID);
 
   //*****  END GENERATED WITH GenerateFieldConstants.java *****//
   
@@ -405,6 +411,9 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
   /** id of the member as a unique integer */
   private Long idIndex;
+  
+  /** internal id of the member as a unique integer */
+  private Long internalId;
   
   /**  */
   private String  subjectID;
@@ -1869,6 +1878,22 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   }
   
   /**
+   * internal id
+   * @return internal id
+   */
+  public Long getInternalId() {
+    return this.internalId;
+  }
+
+  /**
+   * internal id
+   * @param internalId1
+   */
+  public void setInternalId(Long internalId1) {
+    this.internalId = internalId1;
+  }
+
+  /**
    * id of the member as a unique integer
    * @return id
    */
@@ -3012,6 +3037,10 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     
     if (this.idIndex == null) {
       this.idIndex = TableIndex.reserveId(TableIndexType.member);
+    }
+
+    if (this.internalId == null) {
+      this.internalId = TableIndex.reserveId(TableIndexType.memberInternalId);
     }
     
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.MEMBER, 
@@ -5135,5 +5164,6 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     }
     return needsSave;
   }
+  
 } 
 
