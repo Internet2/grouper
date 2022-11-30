@@ -1003,7 +1003,7 @@ public class BoxMockServiceHandler extends MockServiceHandler {
 
     String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.box.mock.configId");
     
-    if (StringUtils.equals("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer")) {
+    if (StringUtils.equals(grantType, "urn:ietf:params:oauth:grant-type:jwt-bearer")) {
       
       DecodedJWT decodedJwt = JWT.decode(assertion);
       

@@ -156,7 +156,6 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
         try {
 
           Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
-
           PEMParser pemParser = new PEMParser(new StringReader(privateKeyContents));
           Object object = pemParser.readObject();
           JcaPEMKeyConverter converter = new JcaPEMKeyConverter().setProvider("BC");
