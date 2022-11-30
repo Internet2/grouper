@@ -51,7 +51,16 @@ import edu.internet2.middleware.subject.SubjectUtils;
  * </pre>
  * </blockquote>
  * </p>
- *
+ * 
+ * <p> Sample call to delete a username password for grouper ui
+ * <blockquote>
+ * <pre>
+ * new GrouperPasswordSave().assignUsername("GrouperSystem").assignApplication(GrouperPassword.Application.UI).assignSaveMode("DELETE").save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ * 
+ * 
  */
 public class GrouperPasswordSave {
   

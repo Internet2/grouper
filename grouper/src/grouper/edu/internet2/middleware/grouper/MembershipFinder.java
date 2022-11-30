@@ -101,6 +101,20 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  * </pre>
  * </blockquote>
  * </p>
+ * 
+ * <p> Sample call to find immediate memberships of a user
+ * <blockquote>
+ * <pre>
+ * Set membershipsOwnersMembers = new MembershipFinder().addSubject(subject).addField(Group.getDefaultList()).assignMembershipType(MembershipType.IMMEDIATE).assignEnabled(true).findMembershipResult().getMembershipsOwnersMembers();
+ *
+ * for (Object membershipsOwnersMember : GrouperUtil.nonNull(membershipsOwnersMembers)) {
+ *   Group group = (Group)((Object[])membershipsOwnersMember)[1];
+ *   System.out.println(group.getName());
+ * }
+ * </pre>
+ * </blockquote>
+ * </p>
+ *     
  */
 public class MembershipFinder {
 

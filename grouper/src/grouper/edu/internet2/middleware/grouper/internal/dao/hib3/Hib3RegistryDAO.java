@@ -32,26 +32,16 @@
 
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.PlatformFactory;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.platform.SqlBuilder;
-import org.hibernate.HibernateException;
-import org.hibernate.tool.hbm2ddl.SchemaExport;
-
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.membershipRequire.GrouperMembershipRequireChangeDao;
-import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
-import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.dataField.GrouperDataAliasDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignDao;
+import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -59,9 +49,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
-import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
@@ -175,6 +163,15 @@ class Hib3RegistryDAO implements RegistryDAO {
             new GcDbAccess().sql("delete from grouper_last_login").executeSql();
             
             new edu.internet2.middleware.grouper.misc.AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
+            
+            GrouperDataRowFieldAssignDao.reset();
+            GrouperDataFieldAssignDao.reset();
+            GrouperDataRowAssignDao.reset();
+            GrouperDataAliasDao.reset();
+            GrouperDataFieldDao.reset();
+            GrouperDataRowDao.reset();
+            GrouperDataProviderDao.reset();
+            GrouperDictionaryDao.reset();
             
             return null;
           }

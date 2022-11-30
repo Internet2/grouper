@@ -43,6 +43,118 @@ public enum TableIndexType {
     }
   },
   
+  /** index assigned to a dictionary item */
+  dictionary {
+
+    @Override
+    public String tableName() {
+      return "grouper_dictionary";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+  },
+  
+  /** index assigned to a data load config */
+  dataLoaderConfig {
+
+    @Override
+    public String tableName() {
+      return "grouper_data_provider";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+  },
+  
+  /** index assigned to a data field */
+  dataField {
+
+    @Override
+    public String tableName() {
+      return "grouper_data_field";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+  },
+  
+  /** index assigned to a data row */
+  dataRow {
+
+    @Override
+    public String tableName() {
+      return "grouper_data_row";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+  },
+  
+  /** index assigned to a data field alias */
+  dataAlias {
+
+    @Override
+    public String tableName() {
+      return "grouper_data_alias";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+  },
+  
+  /** index assigned to a data field assign */
+  dataFieldAssign {
+
+    @Override
+    public String tableName() {
+      return "grouper_data_field_assign";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+  },
+  
+  /** index assigned to a data field assign */
+  dataRowFieldAssign {
+
+    @Override
+    public String tableName() {
+      return "grouper_data_row_field_assign";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+  },
+  
+  /** index assigned to a data row assign */
+  dataRowAssign {
+
+    @Override
+    public String tableName() {
+      return "grouper_data_row_assign";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+  },
+  
   /** index assigned to a member */
   member {
 
@@ -54,6 +166,20 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "id_index";
+    }
+  },
+  
+  /** index assigned to a member */
+  memberInternalId {
+
+    @Override
+    public String tableName() {
+      return Member.TABLE_GROUPER_MEMBERS;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
     }
   },
   
