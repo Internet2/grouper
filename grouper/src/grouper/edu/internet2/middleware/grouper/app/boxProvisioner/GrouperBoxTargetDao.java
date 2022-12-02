@@ -34,6 +34,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
@@ -297,17 +299,51 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
   
+  /**
+   * try to find group id from the target 
+   * @param targetGroup
+   * @return
+   */
+  private String resolveTargetGroupId(ProvisioningGroup targetGroup) {
+    
+    if (targetGroup == null) {
+      return null;
+    }
+    
+    if (StringUtils.isNotBlank(targetGroup.getId())) {
+      return targetGroup.getId();
+    }
+    
+    TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest();
+    targetDaoRetrieveGroupsRequest.setTargetGroups(GrouperUtil.toList(targetGroup));
+    targetDaoRetrieveGroupsRequest.setIncludeAllMembershipsIfApplicable(false);
+    TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(
+        targetDaoRetrieveGroupsRequest);
+
+    if (targetDaoRetrieveGroupsResponse == null || GrouperUtil.length(targetDaoRetrieveGroupsResponse.getTargetGroups()) == 0) {
+      return null;
+    }
+    
+    return targetDaoRetrieveGroupsResponse.getTargetGroups().get(0).getId();
+    
+  }
+  
   @Override
   public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
     long startNanos = System.nanoTime();
     ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
     
+    String targetGroupId = resolveTargetGroupId(targetGroup);
+    List<Object> provisioningMemberships = new ArrayList<Object>();
+    
+    if (StringUtils.isBlank(targetGroupId)) {
+      return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
+    }
+    
     try {
       GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       Map<String, String> memberIdToMembershipId = GrouperBoxApiCommands.retrieveBoxGroupMembers(boxConfiguration.getBoxExternalSystemConfigId(), targetGroup.getId());
-      
-      List<Object> provisioningMemberships = new ArrayList<Object>(); 
       
       for (String userId : memberIdToMembershipId.keySet()) {
         ProvisioningMembership targetMembership = new ProvisioningMembership();

@@ -12,6 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -29,8 +30,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -103,8 +106,6 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
   
   public static String retrieveAccessTokenForBoxConfigId(Map<String, Object> debugMap, String configId) {
 
-//    String authenticationUrl = "https://api.box.com/oauth2/token";
-    
     long now = System.currentTimeMillis();
     
     MultiKey expiresOnAndEncryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
@@ -264,5 +265,28 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
     return accessToken;
     
   }
+
+
+  @Override
+  public void validatePreSave(boolean isInsert, boolean fromUi,
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
+    
+    GrouperConfigurationModuleAttribute authenticationType = this.retrieveAttributes().get("authenticationType");
+
+    if (authenticationType != null && StringUtils.equals(authenticationType.getValueOrExpressionEvaluation(), "JWT")) {
+      GrouperConfigurationModuleAttribute privateKeyContents = this.retrieveAttributes().get("privateKeyContents_0");
+      GrouperConfigurationModuleAttribute privateKeyFile = this.retrieveAttributes().get("privateKeyFileName");
+
+      if (StringUtils.isBlank(privateKeyContents.getValueOrExpressionEvaluation()) && StringUtils.isBlank(privateKeyFile.getValueOrExpressionEvaluation())) {
+        validationErrorsToDisplay.put(privateKeyContents.getHtmlForElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationBoxFilePathOrPrivateKeyRequired"));
+      }
+    }
+    
+    
+  }
+  
+  
   
 }

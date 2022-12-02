@@ -18,6 +18,7 @@ public class BoxProvisionerTestUtils {
 
     new GrouperDbConfig().configFileName("grouper.client.properties").propertyName("grouperClient.boxConnector.localBox.authenticationUrl").value("http" + (ssl?"s":"") + "://" + domainName + ":" + port + "/grouper/mockServices/box/token/").store();
     new GrouperDbConfig().configFileName("grouper.client.properties").propertyName("grouperClient.boxConnector.localBox.baseUrl").value("http" + (ssl?"s":"") + "://" + domainName + ":" + port + "/grouper/mockServices/box").store();
+    new GrouperDbConfig().configFileName("grouper.client.properties").propertyName("grouperClient.boxConnector.localBox.authenticationType").value("JWT").store();
     new GrouperDbConfig().configFileName("grouper.client.properties").propertyName("grouperClient.boxConnector.localBox.clientId").value("y5x93fo8m1uwxizeic9b88xvkkol1alm").store();
     new GrouperDbConfig().configFileName("grouper.client.properties").propertyName("grouperClient.boxConnector.localBox.clientSecret").value("asS48XlwmeDAXLSxVxzpYOqZo5q1hIKWeQMo7nbgLnxblRnwlFD9oNC7H5BYDxq").store();
     new GrouperDbConfig().configFileName("grouper.client.properties").propertyName("grouperClient.boxConnector.localBox.enterpriseId").value("964565703").store();
