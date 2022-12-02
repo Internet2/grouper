@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.boxProvisioner.BoxGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.app.google.GoogleGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.messaging.GrouperInternalMessagingExternalSystem;
@@ -80,6 +81,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     externalTypeClassNamesList.add("edu.internet2.middleware.grouperMessagingActiveMQ.ActiveMqGrouperExternalSystem");
     externalTypeClassNamesList.add(AzureGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add("edu.internet2.middleware.grouperBox.BoxGrouperExternalSystem");
+    externalTypeClassNamesList.add(BoxGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add("edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem");
     externalTypeClassNamesList.add("edu.internet2.middleware.grouperDuo.DuoGrouperExternalSystem");
     externalTypeClassNamesList.add(GoogleGrouperExternalSystem.class.getName());

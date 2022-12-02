@@ -180,15 +180,15 @@ public class GrouperProvisioningGrouperDao {
           "    gm.id_index, " +
           "    gm.subject_resolution_resolvable " +
           "from " + 
-          "    grouper_members gm  join grouper_memberships ms on ms.member_id = gm.id " +
-          "    join grouper_group_set gs on ms.owner_id = gs.member_id " + 
+          "    grouper_members gm " +
           "    left join grouper_sync_member gsm on  gsm.member_id = gm.id " + 
           "where " +
-          "    ms.field_id = gs.member_field_id " +
+          "    gm.subject_resolution_deleted='F' " +
+          "    and exists ( select 1 from grouper_memberships ms join grouper_group_set gs on ms.owner_id = gs.member_id " +
+          "    where ms.member_id = gm.id and  ms.field_id = gs.member_field_id " +
           "    and ms.enabled='T' " +
           "    and gs.field_id = ? " +
-          "    and gs.owner_group_id = ? " +
-          "    and gm.subject_resolution_deleted='F' ");
+          "    and gs.owner_group_id = ? ");
     } else {
       
       sqlInitial = new StringBuilder("select " + 
@@ -205,16 +205,17 @@ public class GrouperProvisioningGrouperDao {
           "    gm.id_index, " +
           "    gm.subject_resolution_resolvable " +
           "from " + 
-          "    grouper_members gm  join grouper_memberships ms on ms.member_id = gm.id " +
-          "    join grouper_group_set gs on ms.owner_id = gs.member_id " + 
-          "    join grouper_sync_group gsg on gs.owner_group_id = gsg.group_id " +
+          "    grouper_members gm " +
           "    left join grouper_sync_member gsm on  gsm.member_id = gm.id " + 
           "where " +
-          "    gsg.grouper_sync_id = ? " +
+          "    gm.subject_resolution_deleted='F' " + 
+          "    and exists ( select 1 from grouper_memberships ms join grouper_group_set gs on ms.owner_id = gs.member_id " +
+          "    join grouper_sync_group gsg on gs.owner_group_id = gsg.group_id " +
+          "    where ms.member_id = gm.id and  gsg.grouper_sync_id = ? " +
           "    and ms.field_id = gs.member_field_id " +
           "    and gsg.provisionable = 'T' " +
-          "    and ms.enabled='T' " +
-          "    and gm.subject_resolution_deleted='F' ");
+          "    and ms.enabled='T' ");
+      
       paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
       typesInitial.add(StringType.INSTANCE);
     }
@@ -243,8 +244,8 @@ public class GrouperProvisioningGrouperDao {
       paramsInitial.add(groupIdOfUsersToProvision);
     }
     
-    paramsInitial.addAll(subjectSources);
     paramsInitial.addAll(fieldIds);
+    paramsInitial.addAll(subjectSources);
     
     if (restrictUsersByGroupId) {
       typesInitial.add(StringType.INSTANCE);
@@ -254,15 +255,17 @@ public class GrouperProvisioningGrouperDao {
     for (int j = 0; j < (GrouperUtil.length(subjectSources) + GrouperUtil.length(fieldIds)); j++) {
       typesInitial.add(StringType.INSTANCE);
     }
+    
+    // exists above does not close because it closes here
+    sqlInitial.append(" and gs.field_id in (");
+    sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(fieldIds));
+    sqlInitial.append(") ) ");
+    
     if (GrouperUtil.length(subjectSources) > 0) {
       sqlInitial.append(" and gm.subject_source in (");
       sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
       sqlInitial.append(") ");
     }
-    
-    sqlInitial.append(" and gs.field_id in (");
-    sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(fieldIds));
-    sqlInitial.append(") ");
     
     List<String[]> queryResults = null;
     if (retrieveAll) {
