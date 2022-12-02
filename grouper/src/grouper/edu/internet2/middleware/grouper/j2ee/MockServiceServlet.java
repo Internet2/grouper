@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
+import edu.internet2.middleware.grouper.app.boxProvisioner.BoxMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.DuoMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleMockServiceHandler;
 import edu.internet2.middleware.grouper.app.google.GoogleMockServiceHandler;
@@ -46,6 +47,7 @@ public class MockServiceServlet extends HttpServlet {
   private static final Map<String, String> urlToHandler = GrouperUtil.toMap(
       "azure", AzureMockServiceHandler.class.getName(),
       "awsScim", AwsScim2MockServiceHandler.class.getName(),
+      "box", BoxMockServiceHandler.class.getName(),
       "duo", DuoMockServiceHandler.class.getName(),
       "duoRole", DuoRoleMockServiceHandler.class.getName(),
       "githubScim", GithubScim2MockServiceHandler.class.getName(),

@@ -312,7 +312,7 @@ public class SubjectImpl implements Subject {
       return null;
     }
     
-    if (attributes != null && attributes.containsKey(nameAttribute) && attributes.get(nameAttribute).size() > 0) {
+    if (attributes != null && attributes.containsKey(nameAttribute) && GrouperUtil.length(attributes.get(nameAttribute)) > 0) {
       return attributes.get(nameAttribute).iterator().next();
     }
     
