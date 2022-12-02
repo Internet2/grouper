@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright 2017 Internet2
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.boxProvisioner" default-lazy="false">
+  <class name="GrouperBoxUser" table="mock_box_user">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <id name="id" column="id">
+      <generator class="assigned" />
+    </id>
+    
+    <property name="exemptFromDeviceLimitsDb" column="is_exempt_from_device_limits" />
+    <property name="exemptFromLoginVerificationDb" column="is_exempt_from_login_verificat" />
+    <property name="externalCollabRestrictedDb" column="is_external_collab_restricted" />
+    <property name="platformAccessOnlyDb" column="is_platform_access_only" />
+    <property name="syncEnabledDb" column="is_sync_enabled" />
+    <property name="canSeeManagedUsersDb" column="can_see_managed_users" />
+    
+    <property name="type" column="type" />
+    <property name="role" column="role" />
+    <property name="maxUploadSize" column="max_upload_size" />
+    <property name="spaceAmount" column="space_amount" />
+    <property name="spaceUsed" column="space_used" />
+    <property name="status" column="status" />
+    <property name="login" column="login" />
+    <property name="name" column="name" />
+    
+    
+
+  </class>
+</hibernate-mapping>
+
