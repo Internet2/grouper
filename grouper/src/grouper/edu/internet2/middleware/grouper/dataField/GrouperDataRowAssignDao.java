@@ -17,6 +17,19 @@ public class GrouperDataRowAssignDao {
   public GrouperDataRowAssignDao() {
   }
 
+  public static List<GrouperDataRowAssign> selectByProvider(Long dataProviderInternalId) {
+
+    if (dataProviderInternalId == null) {
+      throw new NullPointerException();
+    }
+    
+    List<GrouperDataRowAssign> grouperDataRowAssigns = new GcDbAccess()
+        .sql("select * from grouper_data_row_assign where data_provider_internal_id = ? ")
+        .addBindVar(dataProviderInternalId).selectList(GrouperDataRowAssign.class);
+    return grouperDataRowAssigns;
+  }
+
+
   /**
    * delete all data if table is here
    */

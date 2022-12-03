@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.dictionary;
 
+import java.sql.Timestamp;
+
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -55,11 +57,11 @@ public class GrouperDictionary implements GcSqlAssignPrimaryKey, GcDbVersionable
   }
 
   public void storePrepare() {
-    if (this.createdOn == -1) {
-      this.createdOn = System.currentTimeMillis();
+    if (this.createdOn == null) {
+      this.createdOn = new Timestamp(System.currentTimeMillis());
     }
-    if (this.lastReferenced == -1) {
-      this.lastReferenced = System.currentTimeMillis();
+    if (this.lastReferenced == null) {
+      this.lastReferenced = new Timestamp(System.currentTimeMillis());
     }
     if (this.preLoad == null) {
       this.preLoad = "F";
@@ -139,27 +141,26 @@ public class GrouperDictionary implements GcSqlAssignPrimaryKey, GcDbVersionable
     this.theText = theText;
   }
   
-  private long createdOn = -1;
+  private Timestamp createdOn = null;
   
-  
-  public long getCreatedOn() {
+  public Timestamp getCreatedOn() {
     return createdOn;
   }
 
   
-  public void setCreatedOn(long created) {
+  public void setCreatedOn(Timestamp created) {
     this.createdOn = created;
   }
 
-  private long lastReferenced = -1;
+  private Timestamp lastReferenced = null;
   
   
-  public long getLastReferenced() {
+  public Timestamp getLastReferenced() {
     return lastReferenced;
   }
 
   
-  public void setLastReferenced(long lastReferenced) {
+  public void setLastReferenced(Timestamp lastReferenced) {
     this.lastReferenced = lastReferenced;
   }
 

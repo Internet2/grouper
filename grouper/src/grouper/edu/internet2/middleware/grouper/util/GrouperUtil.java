@@ -15072,8 +15072,8 @@ public class GrouperUtil {
   }
 
   /**
-   * assertEquals("c.b.a", GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", -1));
-   * assertEquals("c.b.", GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", 4));
+   * assertEquals("c.b.a", edu.internet2.middleware.grouper.util.GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", -1));
+   * assertEquals("c.b.", edu.internet2.middleware.grouper.util.GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", 4));
    * @param string
    * @param string2
    * @param i

@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -16,6 +18,11 @@ public class GrouperDataRowDao {
 
 
   public GrouperDataRowDao() {
+  }
+
+  public static List<GrouperDataRow> selectAll() {
+    return new GcDbAccess().sql("select * from grouper_data_row").selectList(GrouperDataRow.class);
+
   }
 
   /**
@@ -50,7 +57,6 @@ public class GrouperDataRowDao {
       try {
         new GcDbAccess().storeToDatabase(grouperDataRow);
         created = true;
-        GrouperDataAliasDao.findOrAddRowAlias(grouperDataRow.getInternalId(), grouperDataRow.getConfigId());
 
         return true;
       } catch (RuntimeException re) {
@@ -59,7 +65,7 @@ public class GrouperDataRowDao {
         }
         runtimeException = re;
         GrouperUtil.sleep(100 * (i+1));
-        GrouperDataRow grouperDataRowNew = selectByText(grouperDataRow.getConfigId());
+        GrouperDataRow grouperDataRowNew = selectByConfigId(grouperDataRow.getConfigId());
         if (grouperDataRowNew != null) {
           return false;
         }
@@ -72,7 +78,7 @@ public class GrouperDataRowDao {
     throw runtimeException;
   }  
 
-  public static GrouperDataRow selectByText(String configId) {
+  public static GrouperDataRow selectByConfigId(String configId) {
     if (StringUtils.isBlank(configId)) {
       return null;
     }

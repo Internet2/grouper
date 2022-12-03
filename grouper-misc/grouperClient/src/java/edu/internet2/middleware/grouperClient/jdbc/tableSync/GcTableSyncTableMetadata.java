@@ -229,6 +229,25 @@ public class GcTableSyncTableMetadata {
 
   /**
    * get metadata for table
+   * @param connectionName
+   * @param query
+   * @return the metadata for a connection, table, and query
+   */
+  public static GcTableSyncTableMetadata retrieveQueryMetadataFromCacheOrDatabase(String connectionName, String query) {
+    
+    MultiKey multiKey = new MultiKey(connectionName, query);
+    GcTableSyncTableMetadata gcTableSyncTableMetadata = metadataCache().get(multiKey);
+    if (gcTableSyncTableMetadata != null) {
+      return gcTableSyncTableMetadata;
+    }
+    
+    gcTableSyncTableMetadata = retrieveQueryMetadataFromDatabase(connectionName, query);
+    metadataCache().put(multiKey, gcTableSyncTableMetadata);
+    return gcTableSyncTableMetadata;
+  }
+
+  /**
+   * get metadata for table
    * @param theConnectionName
    * @param tableName
    * @return the metadata for a connection, table, and query

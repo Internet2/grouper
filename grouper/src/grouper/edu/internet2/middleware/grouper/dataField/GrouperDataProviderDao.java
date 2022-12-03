@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -144,5 +146,10 @@ public class GrouperDataProviderDao {
     return internalId;
   }
   
+  public static List<GrouperDataProvider> selectAll() {
+    return new GcDbAccess().sql("select * from grouper_data_provider").selectList(GrouperDataProvider.class);
+
+  }
+
 
 }

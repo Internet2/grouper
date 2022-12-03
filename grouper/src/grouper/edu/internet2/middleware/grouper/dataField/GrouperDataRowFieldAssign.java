@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.sql.Timestamp;
+
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -27,7 +29,7 @@ public class GrouperDataRowFieldAssign implements GcSqlAssignPrimaryKey, GcDbVer
 
   private Long valueDictionaryInternalId;
 
-  private long createdOn = -1;
+  private Timestamp createdOn = null;
   
   /**
    * version from db
@@ -46,12 +48,12 @@ public class GrouperDataRowFieldAssign implements GcSqlAssignPrimaryKey, GcDbVer
     this.internalId = internalId;
   }
   
-  public long getCreatedOn() {
+  public Timestamp getCreatedOn() {
     return createdOn;
   }
 
   
-  public void setCreatedOn(long createdOn) {
+  public void setCreatedOn(Timestamp createdOn) {
     this.createdOn = createdOn;
   }
   
@@ -200,8 +202,8 @@ public class GrouperDataRowFieldAssign implements GcSqlAssignPrimaryKey, GcDbVer
 
 
   public void storePrepare() {
-    if (this.createdOn == -1) {
-      this.createdOn = System.currentTimeMillis();
+    if (this.createdOn == null) {
+      this.createdOn = new Timestamp(System.currentTimeMillis());
     }
   }
 

@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.dataField;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
@@ -87,7 +88,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldAliases").value("active").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.isActive.fieldDataType").value("boolean").store();
 
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldAliases").value("twoStepEnrolled").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldAliases").value("twoStepEnrolled, hasTwoStep").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.twoStep.fieldDataType").value("boolean").store();
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.employee.fieldAliases").value("employee").store();
@@ -168,13 +169,31 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldMappingType").value("attribute").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldAttribute").value("org").store();
     
+    // load settings
+    GrouperDataEngine.syncDataFields();
+    assertEquals(7, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
 
+    GrouperDataEngine.syncDataRows();
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row").select(int.class).intValue());
+
+    GrouperDataEngine.syncDataAliases();
+    assertEquals(9, new GcDbAccess().sql("select count(1) from grouper_data_alias").select(int.class).intValue());
+
+    GrouperDataEngine.syncDataProviders();
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_provider").select(int.class).intValue());
+
+    GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText("idm");
+    
+    // load data
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+    // abac data
     String abac = "entity.hasAttribute('jobNumber', 123) || entity.hasAttribute('jobNumber', 234)";
     abac = "entity.hasAttribute('twoStepEnrolled')";
-    abac = "entity.hasAttribute('affiliation', 'affiliationCode!=alum && affiliationActive && affiliationOrg==engl')";
-        
+    abac = "entity.hasRow('affiliation', \"affiliationCode !='alumni / alumnae' && affiliationActive && affiliationOrg==engl\")";
+
   }
-  
+
   /**
    * @param ddlVersionBean
    * @param database

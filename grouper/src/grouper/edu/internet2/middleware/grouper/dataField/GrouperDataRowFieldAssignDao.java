@@ -17,6 +17,19 @@ public class GrouperDataRowFieldAssignDao {
   public GrouperDataRowFieldAssignDao() {
   }
 
+  public static List<GrouperDataRowFieldAssign> selectByProvider(Long dataProviderInternalId) {
+
+    if (dataProviderInternalId == null) {
+      throw new NullPointerException();
+    }
+    
+    List<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns = new GcDbAccess()
+        .sql("select * from grouper_data_row_field_assign gdrfa where exists "
+            + "(select 1 from grouper_data_row_assign gdra where gdrfa.data_row_assign_internal_id = gdra.internal_id and gdra.data_provider_internal_id = ? )")
+        .addBindVar(dataProviderInternalId).selectList(GrouperDataRowFieldAssign.class);
+    return grouperDataRowFieldAssigns;
+  }
+
   /**
    * delete all data if table is here
    */
