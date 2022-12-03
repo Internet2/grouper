@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +50,7 @@ public class GrouperDataProvider implements GcSqlAssignPrimaryKey, GcDbVersionab
   
   private String configId;
   
-  private long createdOn = -1;
+  private Timestamp createdOn = null;
 
   /**
    * version from db
@@ -78,12 +79,12 @@ public class GrouperDataProvider implements GcSqlAssignPrimaryKey, GcDbVersionab
   }
 
   
-  public long getCreatedOn() {
+  public Timestamp getCreatedOn() {
     return createdOn;
   }
 
   
-  public void setCreatedOn(long createdOn) {
+  public void setCreatedOn(Timestamp createdOn) {
     this.createdOn = createdOn;
   }
   
@@ -178,8 +179,8 @@ public class GrouperDataProvider implements GcSqlAssignPrimaryKey, GcDbVersionab
 
 
   public void storePrepare() {
-    if (this.createdOn == -1) {
-      this.createdOn = System.currentTimeMillis();
+    if (this.createdOn == null) {
+      this.createdOn = new Timestamp(System.currentTimeMillis());
     }
   }
 
@@ -192,13 +193,5 @@ public class GrouperDataProvider implements GcSqlAssignPrimaryKey, GcDbVersionab
     return GrouperClientUtils.toStringReflection(this, null);
   }
 
-
-  /**
-   * delete all data if table is here
-   */
-  public static void reset() {
-    
-    new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GrouperDataProvider.class)).executeSql();
-  }
 
 }

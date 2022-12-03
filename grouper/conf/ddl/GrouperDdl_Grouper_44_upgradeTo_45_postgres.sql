@@ -6,8 +6,8 @@ COMMENT ON COLUMN grouper_members.id_index IS 'Sequential id index integer that 
 
 CREATE TABLE grouper_dictionary (
   internal_id int8 NOT NULL,
-  created_on int8 NOT NULL,
-  last_referenced int8 not NULL,
+  created_on timestamp with time zone NOT NULL,
+  last_referenced timestamp with time zone not NULL,
   pre_load varchar(1) NOT NULL DEFAULT 'F'::character varying,
   the_text varchar(4000) NOT NULL,
   CONSTRAINT grouper_dictionary_pk PRIMARY KEY (internal_id)
@@ -19,7 +19,7 @@ CREATE UNIQUE INDEX grouper_dictionary_the_text_idx ON grouper_dictionary USING 
 CREATE TABLE public.grouper_data_provider (
   internal_id int8 NOT NULL,
   config_id varchar(100) NOT NULL,
-  created_on int8 NOT NULL,
+  created_on timestamp with time zone NOT NULL,
   CONSTRAINT grouper_data_loader_config_pk PRIMARY KEY (internal_id)
 );
 CREATE UNIQUE INDEX grouper_data_loader_config_config_id_idx ON public.grouper_data_provider_config USING btree (config_id);
@@ -28,14 +28,14 @@ CREATE UNIQUE INDEX grouper_data_loader_config_config_id_idx ON public.grouper_d
 CREATE TABLE grouper_data_field (
   internal_id int8 NOT NULL,
   config_id varchar(100) NOT NULL,
-  created_on int8 NOT NULL,
+  created_on timestamp with time zone NOT NULL,
   CONSTRAINT grouper_data_field_pk PRIMARY KEY (internal_id)
 );
 CREATE UNIQUE INDEX grouper_data_field_config_id_idx ON grouper_data_field USING btree (config_id);
 
 CREATE TABLE grouper_data_row (
   internal_id int8 NOT NULL,
-  created_on int8 NOT NULL,
+  created_on timestamp with time zone NOT NULL,
   config_id varchar(100) NOT NULL,
   CONSTRAINT grouper_data_row_pk PRIMARY KEY (internal_id)
 );
@@ -47,7 +47,7 @@ CREATE TABLE grouper_data_alias (
   data_field_internal_id int8 NULL,
   "name" varchar(100) NOT NULL,
   lower_name varchar(100) NOT NULL,
-  created_on int8 NOT NULL,
+  created_on timestamp with time zone NOT NULL,
   data_row_internal_id int8 NULL,
   alias_type varchar(1) NULL,
   CONSTRAINT grouper_data_field_alias_pk PRIMARY KEY (internal_id)
@@ -68,7 +68,7 @@ ALTER TABLE grouper_data_alias ADD CONSTRAINT grouper_data_field_alias_fk FOREIG
 CREATE TABLE public.grouper_data_field_assign (
   member_internal_id int8 NOT NULL,
   data_field_internal_id int8 NOT NULL,
-  created_on int8 NOT NULL,
+  created_on timestamp with time zone NOT NULL,
   internal_id int8 NOT NULL,
   value_integer int8 NULL,
   value_dictionary_internal_id int8 NULL,
@@ -96,7 +96,7 @@ ALTER TABLE public.grouper_data_field_assign ADD CONSTRAINT grouper_data_field_a
 CREATE TABLE public.grouper_data_row_assign (
   member_internal_id int8 NOT NULL,
   data_row_internal_id int8 NOT NULL,
-  created_on int8 NOT NULL,
+  created_on timestamp with time zone NOT NULL,
   internal_id int8 NOT NULL,
   data_provider_internal_id int8 NOT NULL,
   CONSTRAINT grouper_data_row_assign_pk PRIMARY KEY (internal_id)
@@ -119,7 +119,7 @@ ALTER TABLE public.grouper_data_row_assign ADD CONSTRAINT grouper_data_row_assig
 
 CREATE TABLE grouper_data_row_field_assign (
   data_row_assign_internal_id int8 NOT NULL,
-  created_on int8 NOT NULL,
+  created_on timestamp with time zone NOT NULL,
   internal_id int8 NOT NULL,
   value_integer int8 NULL,
   value_dictionary_internal_id int8 NULL,

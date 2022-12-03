@@ -59,6 +59,18 @@ public class GrouperDataFieldAssignDao {
     return grouperDataFieldAssigns;
   }
   
+  public static List<GrouperDataFieldAssign> selectByProvider(Long dataProviderInternalId) {
+
+    if (dataProviderInternalId == null) {
+      throw new NullPointerException();
+    }
+    
+    List<GrouperDataFieldAssign> grouperDataFieldAssigns = new GcDbAccess()
+        .sql("select * from grouper_data_field_assign where data_provider_internal_id = ? ")
+        .addBindVar(dataProviderInternalId).selectList(GrouperDataFieldAssign.class);
+    return grouperDataFieldAssigns;
+  }
+  
   /**
    * 
    * @param connectionName

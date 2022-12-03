@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -16,6 +18,16 @@ public class GrouperDataAliasDao {
 
 
   public GrouperDataAliasDao() {
+  }
+
+  public static List<GrouperDataAlias> selectAllFieldAliases() {
+    return new GcDbAccess().sql("select * from grouper_data_alias where alias_type = 'F'").selectList(GrouperDataAlias.class);
+
+  }
+
+  public static List<GrouperDataAlias> selectAllRowAliases() {
+    return new GcDbAccess().sql("select * from grouper_data_alias where alias_type = 'R'").selectList(GrouperDataAlias.class);
+
   }
 
   /**

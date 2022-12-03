@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.sql.Timestamp;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
@@ -29,7 +31,7 @@ public class GrouperDataAlias implements GcSqlAssignPrimaryKey, GcDbVersionable 
 
   private String lowerName;
 
-  private long createdOn = -1;
+  private Timestamp createdOn = null;
   
   private String aliasType;
 
@@ -112,12 +114,12 @@ public class GrouperDataAlias implements GcSqlAssignPrimaryKey, GcDbVersionable 
   }
 
   
-  public long getCreatedOn() {
+  public Timestamp getCreatedOn() {
     return createdOn;
   }
 
   
-  public void setCreatedOn(long createdOn) {
+  public void setCreatedOn(Timestamp createdOn) {
     this.createdOn = createdOn;
   }
   
@@ -220,8 +222,8 @@ public class GrouperDataAlias implements GcSqlAssignPrimaryKey, GcDbVersionable 
 
 
   public void storePrepare() {
-    if (this.createdOn == -1) {
-      this.createdOn = System.currentTimeMillis();
+    if (this.createdOn == null) {
+      this.createdOn = new Timestamp(System.currentTimeMillis());
     }
     this.lowerName = StringUtils.lowerCase(this.name);
   }

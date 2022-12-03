@@ -1,5 +1,9 @@
 package edu.internet2.middleware.grouper.dictionary;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -17,6 +21,35 @@ public class GrouperDictionaryDao {
 
 
   public GrouperDictionaryDao() {
+  }
+
+  /**
+   * get dictionary items by data provider
+   * @param dataProviderInternalId
+   * @return internal id to value
+   */
+  public static Map<Long, String> selectByDataProvider(Long dataProviderInternalId) {
+
+    if (dataProviderInternalId == null) {
+      throw new NullPointerException();
+    }
+    
+    
+    List<Object[]> internalIdAndTexts = new GcDbAccess()
+        .sql("select gd.internal_id, gd.the_text from grouper_dictionary gd where gd.internal_id in ( "
+            + " select gdfa.value_dictionary_internal_id from grouper_data_field_assign gdfa where data_provider_internal_id = ? ) "
+            + " union select gd.internal_id, gd.the_text from grouper_dictionary gd where gd.internal_id in ( "
+            + " select gdrfa.value_dictionary_internal_id from grouper_data_row_field_assign gdrfa where exists "
+            + " (select 1 from grouper_data_row_assign gdra where gdrfa.data_row_assign_internal_id = gdra.internal_id and gdra.data_provider_internal_id = ? ))")
+        .addBindVar(dataProviderInternalId).addBindVar(dataProviderInternalId).selectList(Object[].class);
+
+    Map<Long, String> result = new HashMap<Long, String>();
+    
+    for (Object[] internalIdAndText : GrouperUtil.nonNull(internalIdAndTexts)) {
+      result.put(GrouperUtil.longObjectValue(internalIdAndText[0], false), (String)internalIdAndText[1]);
+    }
+
+    return result;
   }
 
   /**
