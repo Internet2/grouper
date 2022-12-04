@@ -9821,7 +9821,7 @@ public class GrouperClientCommonUtils  {
    * ^(\\d+)\\.(\\d+)\\.(\\d+)$
    * </pre>
    */
-  private static Pattern versionPattern = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)$");
+  private static Pattern versionPattern = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)[\\._]?\\d*$");
 
   /**
    * 

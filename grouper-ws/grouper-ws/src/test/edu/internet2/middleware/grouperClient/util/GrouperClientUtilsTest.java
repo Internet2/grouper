@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.TestCase;
+import junit.textui.TestRunner;
 
 
 /**
@@ -35,6 +36,18 @@ public class GrouperClientUtilsTest extends TestCase {
    */
   public GrouperClientUtilsTest(String name) {
     super(name);
+  }
+  
+  public static void main(String[] args) {
+    TestRunner.run(new GrouperClientUtilsTest("testVersions"));
+  }
+  
+  public void testVersions() {
+    
+    
+    assertEquals("v1_2_003", GrouperClientUtils.grouperWsVersionConvert("1.2.3"));
+    assertEquals("v1_2_003", GrouperClientUtils.grouperWsVersionConvert("1.2.3.4"));
+    
   }
 
   /**

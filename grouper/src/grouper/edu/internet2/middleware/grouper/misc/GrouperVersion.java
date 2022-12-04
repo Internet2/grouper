@@ -205,30 +205,77 @@ public class GrouperVersion {
     return grouperVersion;
   }
   
+  
+  public int getMajor() {
+    return major;
+  }
+
+  
+  public int getMinor() {
+    return minor;
+  }
+
+  
+  public int getBuild() {
+    return build;
+  }
+
+  
+  public Integer getRc() {
+    return rc;
+  }
+
+  public Integer getPatch() {
+    return rc;
+  }
+
   /**
    * private constructor
    * @param versionString
    */
   public GrouperVersion(String versionString) {
     if (versionString != null) {
-      Matcher grouperMatcher = pattern.matcher(versionString);
-      if (!grouperMatcher.matches()) {
-        throw new RuntimeException("Invalid grouper version: " + versionString
-            + ", expecting something like: 1.2.3, 1.2.3rc4, or 1.2.3-SNAPSHOT");
+      Matcher grouperMatcher = pattern1.matcher(versionString);
+      if (grouperMatcher.matches()) {
+        this.major = GrouperUtil.intValue(grouperMatcher.group(1));
+        this.minor = GrouperUtil.intValue(grouperMatcher.group(2));
+        this.build = GrouperUtil.intValue(grouperMatcher.group(3));
+        return;
       }
 
-      //get the grouper versions
-      this.major = GrouperUtil.intValue(grouperMatcher.group(1));
-      this.minor = GrouperUtil.intValue(grouperMatcher.group(2));
-      this.build = GrouperUtil.intValue(grouperMatcher.group(3), 0);
+      grouperMatcher = pattern2.matcher(versionString);
+      if (grouperMatcher.matches()) {
+       this.major = GrouperUtil.intValue(grouperMatcher.group(1));
+       this.minor = GrouperUtil.intValue(grouperMatcher.group(2));
+       this.build = GrouperUtil.intValue(grouperMatcher.group(3), 0);
 
-      this.rcString = grouperMatcher.group(4);
-      if ("-SNAPSHOT".equals(grouperMatcher.group(4))) {
         // snapshot will always be less than any rc version
         this.rc = -1;
-      } else if (grouperMatcher.group(5) != null) {
-        this.rc = GrouperUtil.intValue(grouperMatcher.group(5));
+        return;
       }
+      
+      grouperMatcher = pattern3.matcher(versionString);
+      if (grouperMatcher.matches()) {
+        this.major = GrouperUtil.intValue(grouperMatcher.group(1));
+        this.minor = GrouperUtil.intValue(grouperMatcher.group(2));
+        this.build = GrouperUtil.intValue(grouperMatcher.group(3));
+        this.rcString = grouperMatcher.group(4);
+        this.rc = GrouperUtil.intValue(grouperMatcher.group(4));
+        return;
+      }
+      
+      grouperMatcher = pattern4.matcher(versionString);
+      if (grouperMatcher.matches()) {
+        this.major = GrouperUtil.intValue(grouperMatcher.group(1));
+        this.minor = GrouperUtil.intValue(grouperMatcher.group(2));
+        this.build = GrouperUtil.intValue(grouperMatcher.group(3));
+        this.rcString = grouperMatcher.group(4);
+        this.rc = GrouperUtil.intValue(grouperMatcher.group(4));
+        return;
+      }
+      
+      throw new RuntimeException("Invalid grouper version: " + versionString
+          + ", expecting something like: 1.2.3, 1.2.3.4, 1.2.3rc4, or 1.2.3-SNAPSHOT");
     }
 
   }
@@ -308,13 +355,25 @@ public class GrouperVersion {
   }
 
   /**
-   * <pre>
    * start of string, optional v or V, first digit, period or underscore, second digit, period or underscore, third digit, end of string
-   * parens are for capturing
-   * ^(\\d+)\\.(\\d+)\\.(\\d+)$
-   * </pre>
+   * 1.2.3
    */
-  private static Pattern pattern = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._]?(\\d+)?(-?rc(\\d+)|-SNAPSHOT)?$");
+  private static Pattern pattern1 = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)$");
+  
+  /**
+   * 1.2.3-SNAPSHOT
+   */
+  private static Pattern pattern2 = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)-SNAPSHOT$");
+  
+  /**
+   * 1.2.3-rc4
+   */
+  private static Pattern pattern3 = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)[\\.-_]?rc(\\d+)$");
+  
+  /**
+   * 1.2.3.4
+   */
+  private static Pattern pattern4 = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)[\\._](\\d+)$");
 
   /**
    * helper method for unit testing

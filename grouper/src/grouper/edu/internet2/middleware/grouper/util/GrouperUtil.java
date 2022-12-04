@@ -379,16 +379,26 @@ public class GrouperUtil {
 //        "${grouperProvisioningGroup.name}", elVariableMap, true, false, false);
 //    System.out.println(result);
     
-      ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
-      grouperProvisioningGroup.setName("First:Second");
-      //grouperProvisioningGroup.assignAttributeValue("displayName", "a:b");
-      Map<String, Object> elVariableMap = new HashMap<String, Object>();
-      elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
-      Object result = GrouperUtil.substituteExpressionLanguageScript(
-          "${ var extensionExists = grouperProvisioningGroup.extension ? true : false;  var idIndexExists = grouperProvisioningGroup.idIndex ? true : false;  if (extensionExists && idIndexExists) { edu.internet2.middleware.grouper.util.GrouperUtil.ldapEscapeRdnValue(grouperProvisioningGroup.extension + '-' + grouperProvisioningGroup.idIndex) ; } else {null;} } ", 
-          elVariableMap, true, false, false);
-      System.out.println(result);
-    
+//      ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+//      grouperProvisioningGroup.setName("First:Second");
+//      //grouperProvisioningGroup.assignAttributeValue("displayName", "a:b");
+//      Map<String, Object> elVariableMap = new HashMap<String, Object>();
+//      elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+//      Object result = GrouperUtil.substituteExpressionLanguageScript(
+//          "${ var extensionExists = grouperProvisioningGroup.extension ? true : false;  var idIndexExists = grouperProvisioningGroup.idIndex ? true : false;  if (extensionExists && idIndexExists) { edu.internet2.middleware.grouper.util.GrouperUtil.ldapEscapeRdnValue(grouperProvisioningGroup.extension + '-' + grouperProvisioningGroup.idIndex) ; } else {null;} } ", 
+//          elVariableMap, true, false, false);
+//      System.out.println(result);
+
+    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+    grouperProvisioningGroup.setName("First:Second");
+    //grouperProvisioningGroup.assignAttributeValue("displayName", "a:b");
+    Map<String, Object> elVariableMap = new HashMap<String, Object>();
+    //elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+    Object result = GrouperUtil.substituteExpressionLanguageScript(
+        "${ grouperProvisioningGroup.name != null }", 
+        elVariableMap, true, false, true);
+    System.out.println(result);
+
     } finally {
       GrouperShutdown.shutdown();
     }
