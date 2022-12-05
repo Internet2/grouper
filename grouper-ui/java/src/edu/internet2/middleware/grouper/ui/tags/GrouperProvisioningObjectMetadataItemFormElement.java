@@ -7,6 +7,7 @@ import java.util.List;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItemFormElementType;
@@ -278,6 +279,15 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           String key = (String) multiKey.getKey(0);
           String radioButtonValue = (String) multiKey.getKey(1);
           boolean checked = GrouperUtil.equals(key, value);
+          
+          // maybe the value is boolean
+          try {
+            Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(key);
+            if (!checked) {
+              checked = GrouperUtil.equals(booleanObjectValue, value);
+            }
+          } catch (Exception e) {}
+          
           if (!checked) {
             continue;
           }
@@ -289,6 +299,14 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           String key = (String) multiKey.getKey(0);
           String radioButtonValue = (String) multiKey.getKey(1);
           boolean checked = GrouperUtil.equals(key, value);
+          
+          // maybe the value is boolean
+          try {
+            Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(key);
+            if (!checked) {
+              checked = GrouperUtil.equals(booleanObjectValue, value);
+            }
+          } catch (Exception e) {}
 
           field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='"+name+"_id' name='"+name+"' value='"+key+"' ");
           field.append(checked ? " checked ": "");

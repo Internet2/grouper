@@ -38,8 +38,19 @@ public class GrouperProvisioningObjectMetadataItem {
   
   private String showEl;
   
+  /**
+   * canUpdate false means if the object is not in the target then you can edit it and once the object is in the target, 
+   * you cannot edit it
+   */
   private boolean canUpdate = true;
+  
+  /**
+   *  canChange false means when there's no value in the json or the object is not in the target, 
+   *  you can assign it but once value is there in the json and the object is in the target then you cannot edit it
+   *  then it's read only 
+   */
   private boolean canChange = true;
+  
   private boolean readOnly;
   
   /**

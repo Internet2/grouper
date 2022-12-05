@@ -190,7 +190,9 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setName("md_grouper_resourceProvisioningOptionsTeam");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
       grouperProvisioningObjectMetadataItem.setShowForFolder(true);
+      
       grouperProvisioningObjectMetadataItem.setCanChange(false);
+
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);

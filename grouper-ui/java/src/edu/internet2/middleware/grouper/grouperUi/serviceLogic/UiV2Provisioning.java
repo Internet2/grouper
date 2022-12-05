@@ -1957,8 +1957,10 @@ public class UiV2Provisioning {
               }
             }
             
-            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncGroup == null || gcGrouperSyncGroup.isInTarget())) {
-              metadataItem.setReadOnly(true);
+            if (!metadataItem.isCanChange()) {
+              if (value != null && gcGrouperSyncGroup != null && gcGrouperSyncGroup.isInTarget()) {
+                metadataItem.setReadOnly(true);
+              }
             }
             metadataItems.add(metadataItem);
           }
