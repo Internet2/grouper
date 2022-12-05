@@ -33,9 +33,11 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -77,6 +79,7 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -974,6 +977,38 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         
     byHqlStatic.createQuery(query.toString());
     return byHqlStatic.listSet(String.class);  
+  }
+
+  /**
+   * get all the members that are assigned in a data provider
+   * @param dataProviderInternalId
+   * @return the members
+   */
+  @Override
+  public Map<Long, Member> selectByDataProvider(Long dataProviderInternalId) {
+
+    if (dataProviderInternalId == null) {
+      throw new NullPointerException();
+    }
+    
+    Map<Long, Member> result = new HashMap<Long, Member>();
+    
+    List<Member> members = HibernateSession.byHqlStatic().setCacheable(false)
+        .createQuery("(select * from grouper_members gm where gm.internal_id in ( "
+            + " select gdfa.member_internal_id from grouper_data_field_assign gdfa where data_provider_internal_id = :dataProviderInternalId1 )) union "
+            + " (select * from grouper_members gm where gm.internal_id in ( "   
+            + " select gdra.member_internal_id "   
+            + " from grouper_data_row_assign gdra where gdra.data_provider_internal_id = :dataProviderInternalId2))")
+        .setLong("dataProviderInternalId1", dataProviderInternalId)
+        .setLong("dataProviderInternalId2", dataProviderInternalId)
+        .list(Member.class);
+
+    for (Member member : GrouperUtil.nonNull(members)) {
+      result.put(member.getInternalId(), member);
+    }
+    
+    return result;
+
   }
 
   /**

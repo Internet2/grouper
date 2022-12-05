@@ -1,7 +1,18 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import edu.internet2.middleware.grouper.Member;
 
 public class GrouperDataFieldAssignWrapper {
+
+  private Member member;
+  
+  public Member getMember() {
+    return member;
+  }
+  
+  public void setMember(Member member) {
+    this.member = member;
+  }
 
   private GrouperDataFieldAssign grouperDataFieldAssign;
 
@@ -15,18 +26,18 @@ public class GrouperDataFieldAssignWrapper {
     this.grouperDataFieldAssign = grouperDataFieldAssign;
   }
   
-  private GrouperDataField grouperDataField;
+  private GrouperDataFieldWrapper grouperDataFieldWrapper;
 
 
   
-  public GrouperDataField getGrouperDataField() {
-    return grouperDataField;
+  public GrouperDataFieldWrapper getGrouperDataFieldWrapper() {
+    return grouperDataFieldWrapper;
   }
 
 
   
-  public void setGrouperDataField(GrouperDataField grouperDataField) {
-    this.grouperDataField = grouperDataField;
+  public void setGrouperDataFieldWrapper(GrouperDataFieldWrapper grouperDataFieldWrapper) {
+    this.grouperDataFieldWrapper = grouperDataFieldWrapper;
   }
   
   private String textValue;

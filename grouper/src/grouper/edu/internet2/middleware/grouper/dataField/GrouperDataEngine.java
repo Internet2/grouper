@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
@@ -366,15 +367,21 @@ public class GrouperDataEngine {
     }
     
     Map<Long, String> dictionaryInternalIdToText = GrouperDictionaryDao.selectByDataProvider(grouperDataProvider.getInternalId());
+
+    Map<Long, Member> memberInternalIdToMember = GrouperDAOFactory.getFactory().getMember().selectByDataProvider(grouperDataProvider.getInternalId());
     
     
     // get field assignments for this provider
     List<GrouperDataFieldAssign> grouperDataFieldAssigns = GrouperDataFieldAssignDao.selectByProvider(grouperDataProvider.getInternalId());
+
     List<GrouperDataFieldAssignWrapper> grouperDataFieldAssignWrappers = new ArrayList<GrouperDataFieldAssignWrapper>();
 
     for (GrouperDataFieldAssign grouperDataFieldAssign : grouperDataFieldAssigns) {
       GrouperDataFieldAssignWrapper grouperDataFieldAssignWrapper = new GrouperDataFieldAssignWrapper();
-      grouperDataFieldAssignWrapper.setGrouperDataField(internalIdToField.get(grouperDataFieldAssign.getDataFieldInternalId()));
+      grouperDataFieldAssignWrappers.add(grouperDataFieldAssignWrapper);
+      grouperDataFieldAssignWrapper.setGrouperDataFieldWrapper(new GrouperDataFieldWrapper(internalIdToField.get(grouperDataFieldAssign.getDataFieldInternalId())));
+      grouperDataFieldAssignWrapper.setGrouperDataFieldAssign(grouperDataFieldAssign);
+      grouperDataFieldAssignWrapper.setMember(memberInternalIdToMember.get(grouperDataFieldAssign.getMemberInternalId()));
       if (grouperDataFieldAssign.getValueDictionaryInternalId() != null) {
         String textValue = dictionaryInternalIdToText.get(grouperDataFieldAssign.getValueDictionaryInternalId());
         GrouperUtil.assertion(!StringUtils.isNotBlank(textValue), "Cant find text: " + grouperDataFieldAssign.getValueDictionaryInternalId());
@@ -382,9 +389,33 @@ public class GrouperDataEngine {
       }
     }
     
-    List<GrouperDataRowAssign> grouperDataRowAssigns = GrouperDataRowAssignDao.selectByProvider(grouperDataProvider.getInternalId());
-    List<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByProvider(grouperDataProvider.getInternalId());
+    List<GrouperDataRowAssign> grouperDataRowAssigns = GrouperUtil.nonNull(GrouperDataRowAssignDao.selectByProvider(grouperDataProvider.getInternalId()));
+    Map<Long, GrouperDataRowAssign> internalIdToGrouperDataRowAssign = new HashMap<>();
+    List<GrouperDataRowAssignWrapper> grouperDataRowAssignWrappers = new ArrayList<GrouperDataRowAssignWrapper>();
+
+    for (GrouperDataRowAssign grouperDataRowAssign : grouperDataRowAssigns) {
+      GrouperDataRowAssignWrapper grouperDataRowAssignWrapper = new GrouperDataRowAssignWrapper();
+      grouperDataRowAssignWrappers.add(grouperDataRowAssignWrapper);
+      grouperDataRowAssignWrapper.setGrouperDataRowWrapper(new GrouperDataRowWrapper(internalIdToRow.get(grouperDataRowAssign.getDataRowInternalId())));
+      grouperDataRowAssignWrapper.setGrouperDataRowAssign(grouperDataRowAssign);
+      grouperDataRowAssignWrapper.setMember(memberInternalIdToMember.get(grouperDataRowAssign.getMemberInternalId()));
+      
+      internalIdToGrouperDataRowAssign.put(grouperDataRowAssign.getInternalId(), grouperDataRowAssign);
+      
+    }
     
+    
+    List<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns = GrouperUtil.nonNull(GrouperDataRowFieldAssignDao.selectByProvider(grouperDataProvider.getInternalId()));
+
+    List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers = new ArrayList<GrouperDataRowFieldAssignWrapper>();
+
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssign : grouperDataRowFieldAssigns) {
+
+      GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper = new GrouperDataRowFieldAssignWrapper(grouperDataRowFieldAssign);
+      grouperDataRowFieldAssignWrappers.add(grouperDataRowFieldAssignWrapper);
+      grouperDataRowFieldAssignWrapper.setGrouperDataRowAssignWrapper(new GrouperDataRowAssignWrapper(
+          internalIdToGrouperDataRowAssign.get(grouperDataRowFieldAssign.getDataRowAssignInternalId())));
+    }
     
     // wrapper object for fields, rows, and columns
     // index by person

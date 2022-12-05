@@ -133,6 +133,37 @@ ALTER TABLE grouper_data_row_field_assign ADD CONSTRAINT grouper_data_row_field_
 ALTER TABLE grouper_data_row_field_assign ADD CONSTRAINT grouper_data_row_field_assign_fk_1 FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id);
 ALTER TABLE grouper_data_row_field_assign ADD CONSTRAINT grouper_data_row_field_assign_fk_3 FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id);
 
+create view grouper_data_field_assign_v as
+select gdf.config_id data_field_config_id, gm.subject_id, gd.the_text value_text, gdfa.value_integer,  
+gdf.internal_id data_field_internal_id, gdfa.internal_id data_field_assign_internal_id,
+gm.subject_source subject_source_id, gm.id member_id
+from grouper_data_field gdf, grouper_members gm, grouper_data_field_assign gdfa 
+left join grouper_dictionary gd on gdfa.value_dictionary_internal_id = gd.internal_id  
+where gdfa.member_internal_id = gm.internal_id
+and gdfa.data_field_internal_id = gdf.internal_id;
+
+
+create view grouper_data_row_assign_v as
+select gdr.config_id data_row_config_id, gm.subject_id, 
+gdra.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id,
+gm.subject_source subject_source_id, gm.id member_id
+from grouper_members gm, grouper_data_row_assign gdra, grouper_data_row gdr 
+where gdra.member_internal_id = gm.internal_id
+and gdr.internal_id = gdra.data_row_internal_id;
+
+
+create view grouper_data_row_field_asgn_v as
+select gdr.config_id data_row_config_id, gdf.config_id data_field_config_id, gm.subject_id, gd.the_text value_text, gdrfa.value_integer,  
+gm.subject_source subject_source_id, gm.id member_id, gdf.internal_id data_field_internal_id, gdrfa.internal_id data_field_assign_internal_id, 
+gdra.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id
+from grouper_data_field gdf, grouper_members gm, grouper_data_row_assign gdra, grouper_data_row gdr,
+grouper_data_row_field_assign gdrfa 
+left join grouper_dictionary gd on gdrfa.value_dictionary_internal_id = gd.internal_id 
+where gdra.member_internal_id = gm.internal_id
+and gdrfa.data_field_internal_id = gdf.internal_id
+and gdr.internal_id = gdra.data_row_internal_id 
+and gdra.internal_id = gdrfa.data_row_assign_internal_id ;
+
 update grouper_ddl set last_updated = to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substring((to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V45, ' || history) from 1 for 3500), db_version = 45 where object_name = 'Grouper';
 commit;
 

@@ -31,7 +31,10 @@
 */
 
 package edu.internet2.middleware.grouper.internal.dao;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Field;
@@ -52,6 +55,13 @@ import edu.internet2.middleware.subject.Subject;
  */
 public interface MemberDAO extends GrouperDAO {
 
+  /**
+   * get all the members that are assigned in a data provider
+   * @param dataProviderInternalId
+   * @return the members by internal id
+   */
+  Map<Long, Member> selectByDataProvider(Long dataProviderInternalId);
+  
   /**
    * find by ids secure
    * @param ids
