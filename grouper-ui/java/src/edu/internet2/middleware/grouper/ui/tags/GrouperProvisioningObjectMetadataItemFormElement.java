@@ -202,7 +202,10 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
       if (configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON && 
           configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN && 
           configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.CHECKBOX) {
-        field.append(GrouperUtil.escapeHtml(value.toString(), true) + " ");
+        
+        if (value != null) {
+          field.append(GrouperUtil.escapeHtml(value.toString(), true) + " ");
+        }
       }
       
       displayClass = " display: none; ";
