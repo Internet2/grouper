@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class GrouperDataRowWrapper {
   
@@ -7,10 +10,35 @@ public class GrouperDataRowWrapper {
     super();
   }
 
-  public GrouperDataRowWrapper(GrouperDataRow grouperDataRow) {
+  public GrouperDataRowWrapper(GrouperDataEngine grouperDataEngine, GrouperDataRow grouperDataRow) {
+    this.grouperDataEngine = grouperDataEngine;
     this.grouperDataRow = grouperDataRow;
   }
 
+  private GrouperDataEngine grouperDataEngine;
+  
+  
+  private Map<Long, List<GrouperDataRowFieldAssignWrapper>> rowFieldAssignsByFieldInternalId = new HashMap<>();
+
+  
+  public Map<Long, List<GrouperDataRowFieldAssignWrapper>> getRowFieldAssignsByFieldInternalId() {
+    return rowFieldAssignsByFieldInternalId;
+  }
+
+  
+  public void setRowFieldAssignsByFieldInternalId(
+      Map<Long, List<GrouperDataRowFieldAssignWrapper>> rowFieldAssignsByFieldInternalId) {
+    this.rowFieldAssignsByFieldInternalId = rowFieldAssignsByFieldInternalId;
+  }
+
+  public GrouperDataEngine getGrouperDataEngine() {
+    return grouperDataEngine;
+  }
+
+  
+  public void setGrouperDataEngine(GrouperDataEngine grouperDataEngine) {
+    this.grouperDataEngine = grouperDataEngine;
+  }
 
   private GrouperDataRow grouperDataRow;
 

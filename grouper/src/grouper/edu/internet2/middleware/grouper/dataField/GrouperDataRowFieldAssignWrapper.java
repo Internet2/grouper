@@ -4,11 +4,26 @@ import edu.internet2.middleware.grouper.Member;
 
 public class GrouperDataRowFieldAssignWrapper {
 
-  public GrouperDataRowFieldAssignWrapper(
+  public GrouperDataRowFieldAssignWrapper(GrouperDataEngine grouperDataEngine,
       GrouperDataRowFieldAssign grouperDataRowFieldAssign) {
+    this.grouperDataEngine = grouperDataEngine;
     this.grouperDataRowFieldAssign = grouperDataRowFieldAssign;
   }
 
+
+  private GrouperDataEngine grouperDataEngine;
+  
+  
+  
+  
+  public GrouperDataEngine getGrouperDataEngine() {
+    return grouperDataEngine;
+  }
+
+  
+  public void setGrouperDataEngine(GrouperDataEngine grouperDataEngine) {
+    this.grouperDataEngine = grouperDataEngine;
+  }
 
   public GrouperDataRowFieldAssignWrapper() {
   }
@@ -17,15 +32,10 @@ public class GrouperDataRowFieldAssignWrapper {
   private GrouperDataFieldWrapper grouperDataFieldWrapper;
   private GrouperDataRowFieldAssign grouperDataRowFieldAssign;
   private GrouperDataRowAssignWrapper grouperDataRowAssignWrapper;
-  private Member member;
   private String textValue;
 
   public GrouperDataFieldWrapper getGrouperDataFieldWrapper() {
     return grouperDataFieldWrapper;
-  }
-
-  public Member getMember() {
-    return member;
   }
 
   public String getTextValue() {
@@ -34,10 +44,6 @@ public class GrouperDataRowFieldAssignWrapper {
 
   public void setGrouperDataFieldWrapper(GrouperDataFieldWrapper grouperDataFieldWrapper) {
     this.grouperDataFieldWrapper = grouperDataFieldWrapper;
-  }
-
-  public void setMember(Member member) {
-    this.member = member;
   }
 
   public void setTextValue(String textValue) {

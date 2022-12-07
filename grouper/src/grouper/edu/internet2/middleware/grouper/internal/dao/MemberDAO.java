@@ -60,7 +60,7 @@ public interface MemberDAO extends GrouperDAO {
    * @param dataProviderInternalId
    * @return the members by internal id
    */
-  Map<Long, Member> selectByDataProvider(Long dataProviderInternalId);
+  Set<Long> selectByDataProvider(Long dataProviderInternalId);
   
   /**
    * find by ids secure

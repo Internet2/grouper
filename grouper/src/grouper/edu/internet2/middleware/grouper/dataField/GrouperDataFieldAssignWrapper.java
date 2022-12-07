@@ -4,14 +4,40 @@ import edu.internet2.middleware.grouper.Member;
 
 public class GrouperDataFieldAssignWrapper {
 
-  private Member member;
   
-  public Member getMember() {
-    return member;
+  
+  public GrouperDataFieldAssignWrapper() {
+  }
+
+
+  public GrouperDataFieldAssignWrapper(GrouperDataEngine grouperDataEngine,
+      GrouperDataFieldAssign grouperDataFieldAssign) {
+    this.grouperDataEngine = grouperDataEngine;
+    this.grouperDataFieldAssign = grouperDataFieldAssign;
+  }
+
+  private GrouperDataEngine grouperDataEngine;
+  
+  
+  
+  
+  public GrouperDataEngine getGrouperDataEngine() {
+    return grouperDataEngine;
+  }
+
+  
+  public void setGrouperDataEngine(GrouperDataEngine grouperDataEngine) {
+    this.grouperDataEngine = grouperDataEngine;
+  }
+
+  private GrouperDataMemberWrapper memberWrapper;
+  
+  public GrouperDataMemberWrapper getMemberWrapper() {
+    return memberWrapper;
   }
   
-  public void setMember(Member member) {
-    this.member = member;
+  public void setMemberWrapper(GrouperDataMemberWrapper memberWrapper) {
+    this.memberWrapper = memberWrapper;
   }
 
   private GrouperDataFieldAssign grouperDataFieldAssign;

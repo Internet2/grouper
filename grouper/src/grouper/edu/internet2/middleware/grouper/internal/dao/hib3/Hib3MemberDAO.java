@@ -982,32 +982,25 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   /**
    * get all the members that are assigned in a data provider
    * @param dataProviderInternalId
-   * @return the members
+   * @return the member internal ids
    */
   @Override
-  public Map<Long, Member> selectByDataProvider(Long dataProviderInternalId) {
+  public Set<Long> selectByDataProvider(Long dataProviderInternalId) {
 
     if (dataProviderInternalId == null) {
       throw new NullPointerException();
     }
     
-    Map<Long, Member> result = new HashMap<Long, Member>();
-    
-    List<Member> members = HibernateSession.byHqlStatic().setCacheable(false)
-        .createQuery("(select * from grouper_members gm where gm.internal_id in ( "
-            + " select gdfa.member_internal_id from grouper_data_field_assign gdfa where data_provider_internal_id = :dataProviderInternalId1 )) union "
-            + " (select * from grouper_members gm where gm.internal_id in ( "   
+    List<Long> memberInternalIds = new GcDbAccess()
+        .sql("(select gm.internal_id from grouper_members gm where gm.internal_id in ( "
+            + " select gdfa.member_internal_id from grouper_data_field_assign gdfa where data_provider_internal_id = ? )) union "
+            + " (select gm.internal_id from grouper_members gm where gm.internal_id in ( "   
             + " select gdra.member_internal_id "   
-            + " from grouper_data_row_assign gdra where gdra.data_provider_internal_id = :dataProviderInternalId2))")
-        .setLong("dataProviderInternalId1", dataProviderInternalId)
-        .setLong("dataProviderInternalId2", dataProviderInternalId)
-        .list(Member.class);
+            + " from grouper_data_row_assign gdra where gdra.data_provider_internal_id = ?))")
+        .addBindVar(dataProviderInternalId)
+        .addBindVar(dataProviderInternalId).selectList(Long.class);
 
-    for (Member member : GrouperUtil.nonNull(members)) {
-      result.put(member.getInternalId(), member);
-    }
-    
-    return result;
+    return new HashSet<Long>(GrouperUtil.nonNull(memberInternalIds));
 
   }
 

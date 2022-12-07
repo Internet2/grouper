@@ -22,7 +22,7 @@ CREATE TABLE public.grouper_data_provider (
   created_on timestamp with time zone NOT NULL,
   CONSTRAINT grouper_data_loader_config_pk PRIMARY KEY (internal_id)
 );
-CREATE UNIQUE INDEX grouper_data_loader_config_config_id_idx ON public.grouper_data_provider_config USING btree (config_id);
+CREATE UNIQUE INDEX grouper_data_loader_config_config_id_idx ON public.grouper_data_provider USING btree (config_id);
 
 
 CREATE TABLE grouper_data_field (

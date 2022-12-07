@@ -1796,6 +1796,9 @@ public class GrouperDdlUtils {
         
         autoDdl2_5orAbove = false;
       } else {
+        if (autoDdlUpToVersion.endsWith(".*.*")) {
+          autoDdlUpToVersion = StringUtils.replace(autoDdlUpToVersion, ".*.*", ".0.0");
+        }
         if (autoDdlUpToVersion.endsWith(".*")) {
           autoDdlUpToVersion = StringUtils.replace(autoDdlUpToVersion, ".*", ".0");
         }
@@ -1811,6 +1814,9 @@ public class GrouperDdlUtils {
     String autoDdlUpToVersionString = GrouperHibernateConfig.retrieveConfig().propertyValueString("registry.auto.ddl.upToVersion");
     if (StringUtils.isBlank(autoDdlUpToVersionString)) {
       return false;
+    }
+    if (autoDdlUpToVersionString.endsWith(".*.*")) {
+      autoDdlUpToVersionString = StringUtils.replace(autoDdlUpToVersionString, ".*.*", ".9999.9999");
     }
     if (autoDdlUpToVersionString.endsWith(".*")) {
       autoDdlUpToVersionString = StringUtils.replace(autoDdlUpToVersionString, ".*", ".9999");

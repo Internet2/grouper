@@ -7,10 +7,24 @@ public class GrouperDataFieldWrapper {
     super();
   }
 
-  public GrouperDataFieldWrapper(GrouperDataField grouperDataField) {
+  public GrouperDataFieldWrapper(GrouperDataEngine grouperDataEngine, GrouperDataField grouperDataField) {
+    this.grouperDataEngine = grouperDataEngine;
     this.grouperDataField = grouperDataField;
   }
 
+  private GrouperDataEngine grouperDataEngine;
+  
+  
+
+  
+  public GrouperDataEngine getGrouperDataEngine() {
+    return grouperDataEngine;
+  }
+
+  
+  public void setGrouperDataEngine(GrouperDataEngine grouperDataEngine) {
+    this.grouperDataEngine = grouperDataEngine;
+  }
 
   private GrouperDataField grouperDataField;
 
