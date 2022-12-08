@@ -248,20 +248,22 @@ public class ExampleGroupAttributeSqlDao extends SqlProvisioningDao {
         groupAttributesTableName, GrouperUtil.toList("attribute_name"),  GrouperUtil.toList("members"), 
         groupAttributesFilterColumn, mainTableIdsFound, null, false);
 
-    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
+    List<ProvisioningGroup> provisioningGroup = new ArrayList<ProvisioningGroup>();
 
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig();
 
-    retrieveGroupsAddRecord(result, 
+    retrieveGroupsAddRecord(provisioningGroup, 
         groupPrimaryAttributeValues, attributeValuesSeparateTable, 
         groupTablePrimaryColNamesList, groupTableAttributesColNamesList,
         groupTableIdColumn, groupAttributeNameToConfigAttribute);
    
-    GrouperUtil.assertion(GrouperUtil.length(result) == 1, "found multiple results!");
+    GrouperUtil.assertion(GrouperUtil.length(provisioningGroup) == 1, "found multiple results!");
     
-    return new TargetDaoRetrieveMembershipsByGroupResponse(GrouperUtil.toList(result.get(0)));
+    TargetDaoRetrieveMembershipsByGroupResponse resultResponse = new TargetDaoRetrieveMembershipsByGroupResponse();
+    resultResponse.setTargetMemberships(GrouperUtil.toList(provisioningGroup.get(0)));
+    return resultResponse;
   }
 
   @Override
@@ -271,7 +273,6 @@ public class ExampleGroupAttributeSqlDao extends SqlProvisioningDao {
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
