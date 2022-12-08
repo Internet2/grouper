@@ -203,8 +203,8 @@ public class ExampleGroupAttributeSqlDao extends SqlProvisioningDao {
     
     if (attributeTableDeletes.size() > 0 ) {
       SqlProvisionerCommands.deleteObjects(attributeTableDeletes, dbExternalSystemConfigId, groupAttributesTableName, 
-          groupTableAttributesColNamesList, null, null, null, false, 
-          false); 
+          groupTableAttributesColNamesList, null, null, null, true, 
+          true); 
       
     }
 
@@ -218,7 +218,7 @@ public class ExampleGroupAttributeSqlDao extends SqlProvisioningDao {
     ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
 
     SqlProvisionerCommands.deleteObjects(toListObjectArray(new Object[] {targetGroup.getId()}), dbExternalSystemConfigId, groupTableName, GrouperUtil.toList("uugid"),
-        groupAttributesTableName, "group_uuid", null, false, true);
+        groupAttributesTableName, "group_uuid", null, true, true);
 
     markProvisioned(targetGroup, true);
     return new TargetDaoDeleteGroupResponse();
