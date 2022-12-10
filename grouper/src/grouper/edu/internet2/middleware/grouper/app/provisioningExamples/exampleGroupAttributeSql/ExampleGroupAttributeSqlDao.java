@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
@@ -29,6 +30,9 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerCommands;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioningDao;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
+import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueSave;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
