@@ -13,9 +13,11 @@
     <div class="top-container" id="theTopContainer">
       <div class="navbar navbar-static-top">
         <div class="navbar-inner">
-          <div class="container-fluid"><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" /></a><br 
-              /><%--<a id="grouperHideSidePanelId" href="#" onclick="grouperHideSidePanel">${textContainer.text['grouperHideSidePanel']}</a><a 
-                   id="grouperShowSidePanelId" href="#" onclick="grouperShowSidePanel" style="display:none">${textContainer.text['grouperShowSidePanel']}</a> --%>              
+          <div class="container-fluid">
+            <div class="pull-left"><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');"><img class="brand" src="../../${mediaMap['image.organisation-logo']}" alt="Logo" style="padding-top: 5px; padding-bottom: 5px" /></a><br />
+              <a id="grouperHideSidePanelId" href="#" style="font-size: smaller" onclick="ajax('../app/UiV2Main.grouperHideSidePanel'); return false;">${textContainer.text['grouperHideSidePanel']}</a><a 
+                   id="grouperShowSidePanelId" href="#" style="font-size: smaller" onclick="ajax('../app/UiV2Main.grouperShowSidePanel'); return false;" style="display:none">${textContainer.text['grouperShowSidePanel']}</a>
+            </div>
             <div class="pull-right">
 
               <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" class="navbar-search">

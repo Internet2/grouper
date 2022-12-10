@@ -242,6 +242,42 @@ public class UiV2Main extends UiServiceLogicBase {
     }
   }
 
+  /**
+   * hide left panel
+   * @param httpServletRequest
+   * @param response
+   */
+  public void grouperHideSidePanel(HttpServletRequest httpServletRequest, HttpServletResponse response) {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('.left-column').hide()"));
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('.main-content').removeClass('offset3')"));
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('.main-content').removeClass('span9')"));
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('.main-content').addClass('span12')"));
+    
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('#grouperHideSidePanelId').hide()"));
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('#grouperShowSidePanelId').show()"));
+    
+  }
+  
+  /**
+   * show left panel
+   * @param httpServletRequest
+   * @param response
+   */
+  public void grouperShowSidePanel(HttpServletRequest httpServletRequest, HttpServletResponse response) {
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('.main-content').removeClass('span12')"));
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('.main-content').addClass('offset3')"));
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('.main-content').addClass('span9')"));
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('.left-column').show()"));
+
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('#grouperShowSidePanelId').hide()"));
+    guiResponseJs.addAction(GuiScreenAction.newScript("$('#grouperHideSidePanelId').show()"));
+
+  }
   
   /**
    * request for a folder menu item
