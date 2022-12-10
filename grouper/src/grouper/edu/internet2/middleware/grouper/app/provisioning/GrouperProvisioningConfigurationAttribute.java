@@ -459,6 +459,36 @@ public class GrouperProvisioningConfigurationAttribute {
   private String translateFromStaticValuesCreateOnly;
   
   /**
+   * Check for nulls for jexl translation
+   */
+  private boolean checkForNullsInScript;
+  
+  /**
+   * condition that must be evaluated to true in order to continue translation e.g. ${grouperProvisioningEntity.subjectIdentifier2 != null}
+   */
+  private String translationContinueCondition;
+  
+  
+  public boolean isCheckForNullsInScript() {
+    return checkForNullsInScript;
+  }
+
+  
+  public void setCheckForNullsInScript(boolean checkForNullsInScript) {
+    this.checkForNullsInScript = checkForNullsInScript;
+  }
+
+  
+  public String getTranslationContinueCondition() {
+    return translationContinueCondition;
+  }
+
+  
+  public void setTranslationContinueCondition(String translationContinueCondition) {
+    this.translationContinueCondition = translationContinueCondition;
+  }
+
+  /**
    * attribute or field name
    * @return
    */
