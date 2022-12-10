@@ -444,6 +444,19 @@ public class UiV2Configure {
           value = "*******";
         }
         value = GrouperUtil.whitespaceNormalizeNewLines(value);
+
+        // escape backslashes
+        value = GrouperUtil.replace(value, "\\", "\\u005C");
+
+        // $
+        value = GrouperUtil.replace(value, "$", "\\u0024");
+        
+        // #
+        value = GrouperUtil.replace(value, "#", "\\u0023");
+        
+        // :
+        value = GrouperUtil.replace(value, ":", "\\u003A");
+        
         // the end of a newline must be literally: \n\{newline}
         value = GrouperUtil.replace(value, "\n", "\\n\\\n");
         
