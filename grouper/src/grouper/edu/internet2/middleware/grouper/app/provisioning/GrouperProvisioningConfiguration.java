@@ -2318,6 +2318,16 @@ public abstract class GrouperProvisioningConfiguration {
         }
         
         {
+          boolean nullChecksInScript = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".nullChecksInScript" , false), false);
+          attributeConfig.setCheckForNullsInScript(nullChecksInScript);
+        }
+        
+        {
+          String translationContinueCondition = this.retrieveConfigString(objectType + "."+i+".translationContinueCondition" , false);
+          attributeConfig.setTranslationContinueCondition(translationContinueCondition);
+        }
+        
+        {
           String translateExpressionCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateExpressionCreateOnly" , false);
           attributeConfig.setTranslateExpressionCreateOnly(translateExpressionCreateOnly);
         }

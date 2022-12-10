@@ -159,6 +159,12 @@ public class GrouperProvisioningTranslator {
         // attribute translations
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()) {
           String expressionToUse = getTargetExpressionToUse(!gcGrouperSyncMembership.isInTarget(), grouperProvisioningConfigurationAttribute);
+          
+          boolean continueTranslation = continueTranslation(elVariableMap, grouperProvisioningConfigurationAttribute);
+          if (!continueTranslation) {
+            throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
+          }
+          
           if (StringUtils.isNotBlank(expressionToUse) 
               || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
               || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
@@ -395,6 +401,11 @@ public class GrouperProvisioningTranslator {
             String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
             String grouperProvisioningEntityField = getTranslateFromGrouperProvisioningEntityField(forCreate, grouperProvisioningConfigurationAttribute);
 
+            boolean continueTranslation = continueTranslation(elVariableMap, grouperProvisioningConfigurationAttribute);
+            if (!continueTranslation) {
+              throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
+            }
+            
             if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningEntityField)
                 || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isEntityAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())
                 || this.shouldTranslateEntityAttribute(provisioningEntityWrapper, grouperProvisioningConfigurationAttribute)) { 
@@ -450,6 +461,34 @@ public class GrouperProvisioningTranslator {
     }
 
     return grouperTargetEntities;
+  }
+
+  /**
+   * @param elVariableMap
+   * @param grouperProvisioningConfigurationAttribute
+   * @return true if continue with translation otherwise false
+   */
+  private boolean continueTranslation(Map<String, Object> elVariableMap,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    
+    boolean checkForNullsInScript = grouperProvisioningConfigurationAttribute.isCheckForNullsInScript();
+    
+    if (checkForNullsInScript) {
+      String translationContinueCondition = grouperProvisioningConfigurationAttribute.getTranslationContinueCondition();
+      if (StringUtils.isNotBlank(translationContinueCondition)) {
+        try {
+          Object result = GrouperUtil.substituteExpressionLanguageScript(translationContinueCondition, elVariableMap, true, false, true);
+          boolean resultBoolean = GrouperUtil.booleanValue(result, false);
+          return resultBoolean;
+        } catch (RuntimeException re) {
+          GrouperUtil.injectInException(re, ", script: '" + translationContinueCondition + "', ");
+          GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(elVariableMap));
+          throw re;
+        }
+      }
+    }
+    
+    return true;
   }
 
   /**
@@ -526,6 +565,11 @@ public class GrouperProvisioningTranslator {
             String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
             String grouperProvisioningGroupField = getTranslateFromGrouperProvisioningGroupField(forCreate, grouperProvisioningConfigurationAttribute);
 
+            boolean continueTranslation = continueTranslation(elVariableMap, grouperProvisioningConfigurationAttribute);
+            if (!continueTranslation) {
+              throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
+            }
+            
             if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningGroupField)
                 || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isGroupAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())
                 || this.shouldTranslateGroupAttribute(provisioningGroupWrapper, grouperProvisioningConfigurationAttribute)) { 
@@ -1185,6 +1229,10 @@ public class GrouperProvisioningTranslator {
   }
 
   public Object runScript(String script, Map<String, Object> elVariableMap) {
+    return runScriptStatic(script, elVariableMap);
+  }
+
+  public static Object runScriptStatic(String script, Map<String, Object> elVariableMap) {
     try {
       if (!script.contains("${")) {
         script = "${" + script + "}";
