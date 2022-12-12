@@ -21,6 +21,7 @@ import static edu.psu.swe.scim.spec.schema.ResourceReference.ReferenceType.INDIR
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -172,6 +173,10 @@ public class TierGroupService implements Provider<ScimGroup> {
       }
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
+      
+      if (shouldLogDeprecationForSubject(subject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + subject);
+      }
      
       Group savedGroup = saveGroup(grouperSession, scimGroup);
       scimGroupOutput = convertGrouperGroupToScimGroup(savedGroup, false);
@@ -205,6 +210,11 @@ public class TierGroupService implements Provider<ScimGroup> {
     try {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
+      
+      if (shouldLogDeprecationForSubject(subject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + subject);
+      }
+      
       rootSession = GrouperSession.startRootSession();
       Optional<Group> optionalGroup = findGroup(updateRequest.getOriginal().getId(), subject, rootSession);
       
@@ -245,6 +255,11 @@ public class TierGroupService implements Provider<ScimGroup> {
     try {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
+      
+      if (shouldLogDeprecationForSubject(subject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + subject);
+      }
+      
       rootSession = GrouperSession.startRootSession();
       Optional<Group> optionalGroup = findGroup(id, subject, rootSession);
       if (!optionalGroup.isPresent()) {
@@ -271,6 +286,11 @@ public class TierGroupService implements Provider<ScimGroup> {
     try {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
+      
+      if (shouldLogDeprecationForSubject(subject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + subject);
+      }
+      
       rootSession = GrouperSession.startRootSession();
       Optional<Group> optionalGroup = findGroup(id, subject, rootSession);
       
@@ -308,6 +328,11 @@ public class TierGroupService implements Provider<ScimGroup> {
     try {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
+      
+      if (shouldLogDeprecationForSubject(subject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + subject);
+      }
+      
       if (filter == null) {
         Set<Group> groups = new GroupFinder().findGroups();
         scimGroupList = groups.stream()
@@ -466,4 +491,24 @@ public class TierGroupService implements Provider<ScimGroup> {
     return optionalGroup;
   }
   
+  private static Map<Subject, Long> deprecationLastLogBySubject = Collections.synchronizedMap(new HashMap<Subject, Long>());
+
+  /**
+   * Should log once a day per subject
+   * @param subject
+   * @return boolean
+   */
+  private static boolean shouldLogDeprecationForSubject(Subject subject) {
+    if (subject == null) {
+      // could this happen?
+      return true;
+    }
+
+    if (deprecationLastLogBySubject.get(subject) != null && (deprecationLastLogBySubject.get(subject) + 24*60*60*1000L) > System.currentTimeMillis()) {
+      return false;
+    }
+
+    deprecationLastLogBySubject.put(subject, System.currentTimeMillis());
+    return true;
+  }
 }

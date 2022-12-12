@@ -6,7 +6,9 @@ package edu.internet2.middleware.grouper.ws.scim.membership;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -66,6 +68,10 @@ public class TierMembershipService implements Provider<MembershipResource> {
     try {
       Subject authenticatedSubject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(authenticatedSubject);
+      
+      if (shouldLogDeprecationForSubject(authenticatedSubject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + authenticatedSubject);
+      }
       
       Group membershipGroup = null;
       if (resource.getOwner() == null || resource.getMember() == null) {
@@ -137,6 +143,11 @@ public class TierMembershipService implements Provider<MembershipResource> {
     try {
       Subject authenticatedSubject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(authenticatedSubject);
+      
+      if (shouldLogDeprecationForSubject(authenticatedSubject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + authenticatedSubject);
+      }
+      
       MembershipResource originalResource = updateRequest.getOriginal();
       MembershipResource newResource = updateRequest.getResource();
       Membership membership = MembershipFinder.findByUuid(grouperSession, originalResource.getId(), false, false);
@@ -173,6 +184,10 @@ public class TierMembershipService implements Provider<MembershipResource> {
     try {
       Subject authenticatedSubject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(authenticatedSubject);
+      
+      if (shouldLogDeprecationForSubject(authenticatedSubject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + authenticatedSubject);
+      }
       
       Membership membership = MembershipFinder.findByUuid(grouperSession, id, false, false);
       if (membership == null) {
@@ -284,6 +299,11 @@ public class TierMembershipService implements Provider<MembershipResource> {
     try {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
+      
+      if (shouldLogDeprecationForSubject(subject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + subject);
+      }
+      
       if (filter == null) {
         throw new UnableToRetrieveResourceException(Status.BAD_REQUEST, "Must pass in group and/or subject");
       } else {
@@ -371,6 +391,11 @@ public class TierMembershipService implements Provider<MembershipResource> {
     try {
       Subject authenticatedSubject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(authenticatedSubject);
+      
+      if (shouldLogDeprecationForSubject(authenticatedSubject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + authenticatedSubject);
+      }
+      
       Membership membership = MembershipFinder.findByUuid(grouperSession, id, false, false);
       if (membership == null) {
         throw new UnableToDeleteResourceException(Status.NOT_FOUND, "Membership with id "+id+" doesn't exist.");
@@ -390,5 +415,24 @@ public class TierMembershipService implements Provider<MembershipResource> {
     return Collections.emptyList();
   }
   
+  private static Map<Subject, Long> deprecationLastLogBySubject = Collections.synchronizedMap(new HashMap<Subject, Long>());
 
+  /**
+   * Should log once a day per subject
+   * @param subject
+   * @return boolean
+   */
+  private static boolean shouldLogDeprecationForSubject(Subject subject) {
+    if (subject == null) {
+      // could this happen?
+      return true;
+    }
+
+    if (deprecationLastLogBySubject.get(subject) != null && (deprecationLastLogBySubject.get(subject) + 24*60*60*1000L) > System.currentTimeMillis()) {
+      return false;
+    }
+
+    deprecationLastLogBySubject.put(subject, System.currentTimeMillis());
+    return true;
+  }
 }
