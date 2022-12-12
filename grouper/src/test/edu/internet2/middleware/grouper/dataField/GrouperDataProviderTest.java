@@ -3,8 +3,17 @@ package edu.internet2.middleware.grouper.dataField;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupSave;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
@@ -16,6 +25,7 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
 
@@ -49,6 +59,8 @@ public class GrouperDataProviderTest extends GrouperTest {
    * 
    */
   public void testProvider() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
     
     List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
 
@@ -190,10 +202,45 @@ public class GrouperDataProviderTest extends GrouperTest {
     // load data
     GrouperDataEngine.loadFull(grouperDataProvider);
 
+    
     // abac data
-    String abac = "entity.hasAttribute('jobNumber', 123) || entity.hasAttribute('jobNumber', 234)";
-    abac = "entity.hasAttribute('twoStepEnrolled')";
-    abac = "entity.hasRow('affiliation', \"affiliationCode !='alumni / alumnae' && affiliationActive && affiliationOrg==engl\")";
+    String abac = "entity.hasAttribute('affiliationCode', 'staf') || entity.hasAttribute('affiliationCode', 'stu')";
+//    abac = "entity.hasAttribute('twoStepEnrolled')";
+//    abac = "entity.hasRow('affiliation', \"affiliationCode !='alumni / alumnae' && affiliationActive && affiliationOrg==engl\")";
+
+    
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroup2 = new GroupSave().assignName("test:testGroup2").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroup3 = new GroupSave().assignName("test:testGroup3").assignCreateParentStemsIfNotExist(true).save();
+    
+    Subject testSubject0 = SubjectFinder.findById("test.subject.0", true);
+    Subject testSubject1 = SubjectFinder.findById("test.subject.1", true);
+    Subject testSubject2 = SubjectFinder.findById("test.subject.2", true);
+    
+    testGroup2.addMember(testSubject1);
+    
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+    
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+    
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "${entity.memberOf('test:testGroup2')}");
+
+    
+    attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup3)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+    
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), 
+        "${entity.hasAttribute('affiliationCode', 'staf') || entity.hasAttribute('affiliationCode', 'stu')}");
+
+    GrouperLoaderJexlScriptFullSync.runDaemonStandalone();
+
+    assertTrue(testGroup.hasMember(testSubject1));
+
+    assertTrue(testGroup3.hasMember(testSubject0));
+    assertTrue(testGroup3.hasMember(testSubject1));
+    assertTrue(testGroup3.hasMember(testSubject2));
 
   }
 
