@@ -22,6 +22,7 @@ import java.util.Random;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdl;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -160,7 +161,7 @@ public class Hib3TableIndexDAO extends Hib3DAO implements TableIndexDAO {
             
             //lets get the table index... see if it exists
             TableIndex localTableIndex = findByType(tableIndexType);
-            int minIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex." + tableIndexType + ".minIndex", 10000);
+            int minIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex." + tableIndexType + ".minIndex", GrouperDdl.defaultMinIdIndex());
 
             if (localTableIndex == null) {
               localTableIndex = new TableIndex();
