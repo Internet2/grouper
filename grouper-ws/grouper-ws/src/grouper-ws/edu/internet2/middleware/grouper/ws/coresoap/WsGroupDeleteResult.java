@@ -20,9 +20,9 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupDeleteLiteResult.WsGroupDeleteLiteResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -37,7 +37,7 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 public class WsGroupDeleteResult implements ResultMetadataHolder {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WsGroupDeleteResult.class);
+  private static final Log LOG = GrouperUtil.getLog(WsGroupDeleteResult.class);
 
   /**
    * empty constructor

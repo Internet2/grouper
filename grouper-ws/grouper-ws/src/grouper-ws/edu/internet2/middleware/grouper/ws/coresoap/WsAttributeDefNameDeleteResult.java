@@ -20,9 +20,9 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteLiteResult.WsAttributeDefNameDeleteLiteResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
@@ -195,7 +195,7 @@ public class WsAttributeDefNameDeleteResult  {
   private WsResultMeta resultMetadata = new WsResultMeta();
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefNameDeleteResult.class);
+  private static final Log LOG = GrouperUtil.getLog(WsAttributeDefNameDeleteResult.class);
 
   /**
    * @return the wsAttributeDefName

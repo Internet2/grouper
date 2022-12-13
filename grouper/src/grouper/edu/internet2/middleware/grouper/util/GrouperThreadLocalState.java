@@ -20,11 +20,10 @@ import org.apache.logging.log4j.ThreadContext;
 
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader.GrouperLoaderDryRunBean;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoader.GrouperLoaderDryRunBean;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
@@ -36,6 +35,8 @@ import edu.internet2.middleware.morphString.Crypto;
  * keep state of thread local to propagate to worker threads
  */
 public class GrouperThreadLocalState {
+  
+  private GrouperLoggerState grouperLoggerState = null;
   
   private GrouperProvisioner grouperProvisioner = null;
 
@@ -81,6 +82,7 @@ public class GrouperThreadLocalState {
    * store current thread locals here
    */
   public void storeCurrentThreadLocals() {
+    this.grouperLoggerState = GrouperLogger.retrieveGrouperLoggerState(false);
     this.grouperContextCurrentInnerContext = GrouperContext.internal_retrieveCurrentInnerContext();
     this.grouperContextCurrentOuterContext = GrouperContext.internal_retrieveCurrentOuterContext();
     this.grouperContextDefaultContext = GrouperContext.internal_retrieveDefaultContext();
@@ -95,6 +97,7 @@ public class GrouperThreadLocalState {
    * assign current thread locals here
    */
   public void assignCurrentThreadLocals() {
+    GrouperLogger.assignGrouperLoggerState(this.grouperLoggerState);
     GrouperContext.internal_assignCurrentInnerContext(this.grouperContextCurrentInnerContext);
     GrouperContext.internal_assignCurrentOuterContext(this.grouperContextCurrentOuterContext);
     GrouperContext.internal_assignDefaultContext(this.grouperContextDefaultContext);
@@ -110,6 +113,7 @@ public class GrouperThreadLocalState {
    */
   @SuppressWarnings("rawtypes")
   public static void removeCurrentThreadLocals() {
+    GrouperLogger.clearGrouperLoggerState();
     GrouperContext.internal_assignCurrentInnerContext(null);
     GrouperContext.internal_assignCurrentOuterContext(null);
     GrouperContext.internal_assignDefaultContext(null);

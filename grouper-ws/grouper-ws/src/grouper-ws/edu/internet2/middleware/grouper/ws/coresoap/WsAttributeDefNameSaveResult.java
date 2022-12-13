@@ -20,7 +20,6 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.exception.AttributeDefNameAddAlreadyExistsException;
@@ -28,6 +27,7 @@ import edu.internet2.middleware.grouper.exception.AttributeDefNameNotFoundExcept
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameSaveLiteResult.WsAttributeDefNameSaveLiteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -222,7 +222,7 @@ public class WsAttributeDefNameSaveResult  {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefNameSaveResult.class);
+  private static final Log LOG = GrouperUtil.getLog(WsAttributeDefNameSaveResult.class);
 
   /**
    * @return the resultMetadata

@@ -51,7 +51,7 @@ import edu.internet2.middleware.subject.Subject;
 public class VootServlet extends HttpServlet {
 
   /** logger facility for this class. */
-  private static final Log LOG = LogFactory.getLog(VootServlet.class);
+  private static final Log LOG = GrouperUtil.getLog(VootServlet.class);
 
   /**
    * Method called when GET method received on the servlet.

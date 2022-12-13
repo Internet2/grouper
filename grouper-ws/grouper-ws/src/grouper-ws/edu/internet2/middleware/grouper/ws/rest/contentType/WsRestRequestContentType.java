@@ -277,7 +277,7 @@ public enum WsRestRequestContentType {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsRestRequestContentType.class);
+  private static final Log LOG = GrouperUtil.getLog(WsRestRequestContentType.class);
 
   /**
    * friendly content type error

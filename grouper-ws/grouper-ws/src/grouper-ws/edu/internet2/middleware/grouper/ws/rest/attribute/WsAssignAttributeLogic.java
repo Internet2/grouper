@@ -954,6 +954,6 @@ public class WsAssignAttributeLogic {
   /**
    * logger 
    */
-  public static final Log LOG = LogFactory.getLog(WsAssignAttributeLogic.class);
+  public static final Log LOG = GrouperUtil.getLog(WsAssignAttributeLogic.class);
 
 }

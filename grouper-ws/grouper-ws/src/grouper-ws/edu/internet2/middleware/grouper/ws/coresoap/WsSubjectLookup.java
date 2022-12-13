@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
@@ -39,6 +38,7 @@ import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberResult.WsHasMemberResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -216,7 +216,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
   private MemberFindResult memberFindResult = null;
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WsSubjectLookup.class);
+  private static final Log LOG = GrouperUtil.getLog(WsSubjectLookup.class);
 
   /**
    * create if any not null, otherwise null

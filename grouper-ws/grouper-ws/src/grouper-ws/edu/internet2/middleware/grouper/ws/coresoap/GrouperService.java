@@ -125,7 +125,7 @@ public class GrouperService {
   
   /** logger */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(GrouperService.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperService.class);
 
   /**
    * find a group or groups
