@@ -79,7 +79,7 @@ public class WsStemToSave {
    * logger
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsSubjectLookup.class);
+  private static final Log LOG = GrouperUtil.getLog(WsSubjectLookup.class);
 
   /** if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default) */
   private String saveMode;

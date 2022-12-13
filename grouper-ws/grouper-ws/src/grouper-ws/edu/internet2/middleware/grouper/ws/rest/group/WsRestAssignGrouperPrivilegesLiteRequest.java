@@ -20,8 +20,8 @@ package edu.internet2.middleware.grouper.ws.rest.group;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
@@ -47,7 +47,7 @@ public class WsRestAssignGrouperPrivilegesLiteRequest implements WsRequestBean {
    * logger 
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsRestAssignGrouperPrivilegesLiteRequest.class);
+  private static final Log LOG = GrouperUtil.getLog(WsRestAssignGrouperPrivilegesLiteRequest.class);
 
   /**
    * @see edu.internet2.middleware.grouper.ws.rest.WsRequestBean#retrieveRestHttpMethod()

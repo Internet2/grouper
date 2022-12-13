@@ -20,8 +20,8 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 
 /**
@@ -46,7 +46,7 @@ public class WsMemberChangeSubject {
    * logger 
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsMemberChangeSubject.class);
+  private static final Log LOG = GrouperUtil.getLog(WsMemberChangeSubject.class);
 
   /**
    * subject of the member which is going to change

@@ -63,7 +63,7 @@ public class DiscoveryClientTest extends TestCase {
   }
   
   /** logger */
-  private static final Log LOG = LogFactory.getLog(DiscoveryClientTest.class);
+  private static final Log LOG = GrouperUtil.getLog(DiscoveryClientTest.class);
 
   /**
    * test delete old files

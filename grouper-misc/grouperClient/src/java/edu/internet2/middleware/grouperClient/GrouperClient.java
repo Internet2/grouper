@@ -356,12 +356,17 @@ public class GrouperClient {
         String grouperActAsSourceId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "grouperActAsSubjectSource", false);
         String grouperActAsSubjectId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "grouperActAsSubjectId", false);
         String grouperActAsSubjectIdentifier = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "grouperActAsSubjectIdentifier", false);
+
+        String xRequestId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "xRequestId", false);
+        String xCorrelationId = GrouperClientUtils.argMapString(argMap, argMapNotUsed, "xCorrelationId", false);
         
         GrouperClientState grouperClientState = GrouperClientState.retrieveGrouperClientState(true);
         
         grouperClientState.setGrouperActAsSourceId(grouperActAsSourceId);
         grouperClientState.setGrouperActAsSubjectId(grouperActAsSubjectId);
         grouperClientState.setGrouperActAsSubjectIdentifier(grouperActAsSubjectIdentifier);
+        grouperClientState.setXrequestId(xRequestId);
+        grouperClientState.setXcorrelationId(xCorrelationId);
         
       }      
       

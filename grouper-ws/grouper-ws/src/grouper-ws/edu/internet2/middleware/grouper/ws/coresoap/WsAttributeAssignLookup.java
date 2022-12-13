@@ -67,7 +67,7 @@ public class WsAttributeAssignLookup implements GrouperWsToStringCompact {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsAttributeAssignLookup.class);
+  private static final Log LOG = GrouperUtil.getLog(WsAttributeAssignLookup.class);
 
   /** find the attributeAssign */
   @XStreamOmitField

@@ -94,7 +94,7 @@ public class GrouperWsException extends RuntimeException {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(GrouperWsException.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperWsException.class);
 
   public static void logWarn(Object message, Exception exception) {
     if (exception instanceof GrouperWsException) {

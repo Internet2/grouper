@@ -81,7 +81,7 @@ public class WsGrouperKerberosAuthentication implements WsCustomAuthentication {
   }
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WsGrouperKerberosAuthentication.class);
+  private static final Log LOG = GrouperUtil.getLog(WsGrouperKerberosAuthentication.class);
 
   /**
    * cache the logins in a hash cache

@@ -77,7 +77,7 @@ public class WsAttributeDefToSave {
    * logger
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefToSave.class);
+  private static final Log LOG = GrouperUtil.getLog(WsAttributeDefToSave.class);
 
   /** if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default) */
   private String saveMode;

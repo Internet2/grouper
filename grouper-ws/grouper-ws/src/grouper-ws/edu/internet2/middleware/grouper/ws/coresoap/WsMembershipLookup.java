@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 
@@ -32,6 +31,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
@@ -76,7 +76,7 @@ public class WsMembershipLookup implements GrouperWsToStringCompact {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsMembershipLookup.class);
+  private static final Log LOG = GrouperUtil.getLog(WsMembershipLookup.class);
 
   /** find the membership */
   @XStreamOmitField

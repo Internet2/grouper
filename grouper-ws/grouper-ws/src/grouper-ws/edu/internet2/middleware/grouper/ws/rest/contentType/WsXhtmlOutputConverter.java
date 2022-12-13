@@ -56,7 +56,7 @@ public class WsXhtmlOutputConverter {
    * logger 
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsXhtmlOutputConverter.class);
+  private static final Log LOG = GrouperUtil.getLog(WsXhtmlOutputConverter.class);
 
   /** writer for the output */
   private XMLStreamWriter xmlWriter = null;

@@ -212,7 +212,7 @@ public class WsGroupLookup implements GrouperWsToStringCompact {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsGroupLookup.class);
+  private static final Log LOG = GrouperUtil.getLog(WsGroupLookup.class);
 
   /** find the group */
   @XStreamOmitField

@@ -127,7 +127,7 @@ public class WsMembershipAnyLookup implements GrouperWsToStringCompact {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsMembershipAnyLookup.class);
+  private static final Log LOG = GrouperUtil.getLog(WsMembershipAnyLookup.class);
 
   /** group / subject combination */
   @XStreamOmitField
