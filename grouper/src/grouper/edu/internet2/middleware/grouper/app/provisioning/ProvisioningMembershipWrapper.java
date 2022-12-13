@@ -7,13 +7,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper {
-
-  private ProvisioningStateMembership provisioningStateMembership = new ProvisioningStateMembership();
   
-  public ProvisioningStateMembership getProvisioningStateMembership() {
-    return provisioningStateMembership;
-  }
-
   public ProvisioningGroupWrapper getProvisioningGroupWrapper() {
     
     if (this.grouperProvisioningMembership != null) {
@@ -83,6 +77,28 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     
   }
 
+  /**
+   * if this is an incremental action without recalc, then this is the action that occurred in Grouper
+   */
+  private GrouperIncrementalDataAction grouperIncrementalDataAction;
+  
+  /**
+   * if this is an incremental action without recalc, then this is the action that occurred in Grouper
+   * @return
+   */
+  public GrouperIncrementalDataAction getGrouperIncrementalDataAction() {
+    return grouperIncrementalDataAction;
+  }
+
+  /**
+   * if this is an incremental action without recalc, then this is the action that occurred in Grouper
+   * @param grouperIncrementalDataAction
+   */
+  public void setGrouperIncrementalDataAction(
+      GrouperIncrementalDataAction grouperIncrementalDataAction) {
+    this.grouperIncrementalDataAction = grouperIncrementalDataAction;
+  }
+
   private MultiKey groupIdMemberId = null;
   
   private MultiKey syncGroupIdSyncMemberId = null;
@@ -113,7 +129,6 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
 
   public ProvisioningMembershipWrapper() {
     super();
-    this.provisioningStateMembership.setProvisioningMembershipWrapper(this);
   }
 
   /**
@@ -166,6 +181,19 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
   
   private GcGrouperSyncMembership gcGrouperSyncMembership;
 
+  /**
+   * if this is for a create in target
+   */
+  private boolean create;
+
+  /**
+   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   */
+  private boolean delete;
+
+  
   public ProvisioningMembership getGrouperProvisioningMembership() {
     return grouperProvisioningMembership;
   }
@@ -228,14 +256,7 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     this.targetProvisioningMembership = targetProvisioningMembership;
     
     if (this.targetProvisioningMembership != null) {
-      ProvisioningMembershipWrapper newTargetMembershipOldWrapper = this.targetProvisioningMembership.getProvisioningMembershipWrapper();
-      
       this.targetProvisioningMembership.setProvisioningMembershipWrapper(this);
-      
-      if (newTargetMembershipOldWrapper != null && newTargetMembershipOldWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
-        this.getProvisioningStateMembership().setSelectResultProcessed(true);
-      }
-
     }
 
     if (oldTargetProvisioningMembership != null) {
@@ -300,6 +321,45 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
 
   }
 
+
+  /**
+   * if this is for a create in target
+   * @return
+   */
+  public boolean isCreate() {
+    return create;
+  }
+
+
+  /**
+   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @return
+   */
+  public boolean isDelete() {
+    return delete;
+  }
+
+
+  /**
+   * if this is for a create in target
+   * @param create
+   */
+  public void setCreate(boolean create) {
+    this.create = create;
+  }
+
+
+  /**
+   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
+   * to be needed to be deleted.  This is used to retrieve the correct
+   * incremental state from the target
+   * @param delete
+   */
+  public void setDelete(boolean delete) {
+    this.delete = delete;
+  }
 
   @Override
   public String objectTypeName() {
