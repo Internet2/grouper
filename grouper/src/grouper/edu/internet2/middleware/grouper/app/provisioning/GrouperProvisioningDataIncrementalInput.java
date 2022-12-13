@@ -64,6 +64,20 @@ public class GrouperProvisioningDataIncrementalInput {
   
   private GrouperProvisioner grouperProvisioner = null;
 
+//  private Set<String> groupUuidsToRetrieveMemberships = new HashSet<String>();
+//
+//  private Set<String> memberUuidsToRetrieveMemberships = new HashSet<String>();
+//
+//  
+//  public Set<String> getGroupUuidsToRetrieveMemberships() {
+//    return groupUuidsToRetrieveMemberships;
+//  }
+//
+//  
+//  public Set<String> getMemberUuidsToRetrieveMemberships() {
+//    return memberUuidsToRetrieveMemberships;
+//  }
+//
   /**
    * grouper uuids to retrieve without first retrieving from target
    */

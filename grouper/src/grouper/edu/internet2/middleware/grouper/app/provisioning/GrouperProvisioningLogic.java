@@ -990,6 +990,9 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, true, false);
           }
           
+          // ######### Mark memberships retrieved by group or entity as recalc
+          this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental().markMembershipsRecalcIfRetrievedByGroupOrEntity();
+          
           // ######### STEP 36: compare target objects
           try {
             debugMap.put("state", "compareTargetObjectsIncremental");
