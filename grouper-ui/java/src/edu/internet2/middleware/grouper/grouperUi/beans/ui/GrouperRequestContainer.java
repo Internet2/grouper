@@ -665,6 +665,11 @@ public class GrouperRequestContainer {
    */
   private WorkflowContainer workflowContainer;
   
+  /**
+   * container for entity data fields
+   */
+  private EntityDataFieldsContainer entityDataFieldsContainer;
+  
   
   /**
    * container for grouper reports
@@ -805,6 +810,17 @@ public class GrouperRequestContainer {
       this.workflowContainer = new WorkflowContainer();
     }
     return this.workflowContainer;
+  }
+  
+  /**
+   * lazy load the entity data fields container
+   * @return the entity data fields container
+   */
+  public EntityDataFieldsContainer getEntityDataFieldsContainer() {
+    if (this.entityDataFieldsContainer == null) {
+      this.entityDataFieldsContainer = new EntityDataFieldsContainer();
+    }
+    return this.entityDataFieldsContainer;
   }
 
   /** lazy load the grouper report container

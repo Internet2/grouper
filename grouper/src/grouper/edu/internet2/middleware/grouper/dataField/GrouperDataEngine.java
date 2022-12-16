@@ -25,25 +25,31 @@ import edu.internet2.middleware.subject.Subject;
 
 public class GrouperDataEngine {
 
+  
+  /**
+   * privacy realm
+   */
+  public static final Pattern privacyRealmPattern = Pattern.compile("^grouperPrivacyRealm\\.([^.]+)\\.privacyRealmName$");
+  
   /**
    * data field
    */
-  private static Pattern dataFieldPattern = Pattern.compile("^grouperDataField\\.([^.]+)\\.fieldAliases$");
+  public static final Pattern dataFieldPattern = Pattern.compile("^grouperDataField\\.([^.]+)\\.fieldAliases$");
   
   /**
    * data provider
    */
-  private static Pattern dataProviderPattern = Pattern.compile("^grouperDataProvider\\.([^.]+)\\.name$");
+  public static final Pattern dataProviderPattern = Pattern.compile("^grouperDataProvider\\.([^.]+)\\.name$");
   
   /**
    * data provider
    */
-  private static Pattern dataRowPattern = Pattern.compile("^grouperDataRow\\.([^.]+)\\.rowAliases$");
+  public static final Pattern dataRowPattern = Pattern.compile("^grouperDataRow\\.([^.]+)\\.rowAliases$");
   
   /**
    * data provider query
    */
-  private static Pattern dataProviderQueryPattern = Pattern.compile("^grouperDataProviderQuery\\.([^.]+)\\.providerConfigId$");
+  public static final Pattern dataProviderQueryPattern = Pattern.compile("^grouperDataProviderQuery\\.([^.]+)\\.providerConfigId$");
   
   /**
    * field configs by config id

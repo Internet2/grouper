@@ -16,7 +16,8 @@ public class GrouperPrivacyRealm implements OptionValueDriver {
   /**
    * some required config to see what the privacy realms
    */
-  private static Pattern fieldConfigIds = Pattern.compile("^grouperPrivacyRealm\\.[^.]+\\.privacyRealmName$");
+  private static Pattern fieldConfigIds = Pattern.compile("^grouperPrivacyRealm\\.([^.]+)\\.privacyRealmName$");
+  
   
   @Override
   public List<MultiKey> retrieveKeysAndLabels() {

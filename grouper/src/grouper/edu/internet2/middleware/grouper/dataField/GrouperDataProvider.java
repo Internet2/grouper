@@ -31,7 +31,7 @@ public class GrouperDataProvider implements GcSqlAssignPrimaryKey, GcDbVersionab
   /**
    * some required config to see what the providers are
    */
-  private static Pattern providerConfigIds = Pattern.compile("^grouperDataProvider\\.[^.]+\\.name$");
+  private static Pattern providerConfigIds = Pattern.compile("^grouperDataProvider\\.([^.])+\\.name$");
   
   @Override
   public List<MultiKey> retrieveKeysAndLabels() {
