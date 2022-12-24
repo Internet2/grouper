@@ -1,0 +1,1 @@
+${new('edu.internet2.middleware.grouperClient.collections.MultiKey', grouperTargetGroup.retrieveAttributeValueString('group_name'), grouperTargetEntity.retrieveAttributeValueString('subject_id'))}
