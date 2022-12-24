@@ -20,9 +20,9 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.coresoap.WsMemberChangeSubjectLiteResult.WsMemberChangeSubjectLiteResultCode;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.MemberFindResult;
@@ -36,7 +36,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup.SubjectFindR
 public class WsMemberChangeSubjectResult implements ResultMetadataHolder {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WsMemberChangeSubjectResult.class);
+  private static final Log LOG = GrouperUtil.getLog(WsMemberChangeSubjectResult.class);
 
   /** subject that was switched to */
   private WsSubject wsSubjectNew;

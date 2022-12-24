@@ -4,7 +4,7 @@
  */
 package edu.internet2.middleware.grouperClient;
 
-
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * client threadlocal state
@@ -44,6 +44,31 @@ public class GrouperClientState {
     threadLocal.set(grouperClientState);
   }
   
+  private String xrequestId;
+
+  private String xcorrelationId;
+
+
+  
+  public String getXrequestId() {
+    return xrequestId;
+  }
+
+  
+  public void setXrequestId(String xrequestId) {
+    this.xrequestId = xrequestId;
+  }
+
+  
+  public String getXcorrelationId() {
+    return xcorrelationId;
+  }
+
+  
+  public void setXcorrelationId(String xcorrelationId) {
+    this.xcorrelationId = xcorrelationId;
+  }
+
   /** second level grouper act as source id */
   private String grouperActAsSourceId;
   

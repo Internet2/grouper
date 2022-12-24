@@ -200,7 +200,7 @@ public class GrouperServiceLogic {
    * logger 
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(GrouperServiceLogic.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperServiceLogic.class);
 
   /**
    * add member to a group (if already a direct member, ignore)

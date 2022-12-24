@@ -8,6 +8,75 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 
 public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper {
   
+  public ProvisioningGroupWrapper getProvisioningGroupWrapper() {
+    
+    if (this.grouperProvisioningMembership != null) {
+      if (this.grouperProvisioningMembership.getProvisioningGroup() != null) {
+        if (this.grouperProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper() != null) {
+          return this.grouperProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper();
+        }
+      }
+    }
+
+    if (this.grouperTargetMembership != null) {
+      if (this.grouperTargetMembership.getProvisioningGroup() != null) {
+        if (this.grouperTargetMembership.getProvisioningGroup().getProvisioningGroupWrapper() != null) {
+          return this.grouperTargetMembership.getProvisioningGroup().getProvisioningGroupWrapper();
+        }
+      }
+    }
+
+    if (this.targetProvisioningMembership != null) {
+      if (this.targetProvisioningMembership.getProvisioningGroup() != null) {
+        if (this.targetProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper() != null) {
+          return this.targetProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper();
+        }
+      }
+    }
+    if (this.commonProvisionToTargetMembership != null) {
+      if (this.commonProvisionToTargetMembership.getProvisioningGroup() != null) {
+        if (this.commonProvisionToTargetMembership.getProvisioningGroup().getProvisioningGroupWrapper() != null) {
+          return this.commonProvisionToTargetMembership.getProvisioningGroup().getProvisioningGroupWrapper();
+        }
+      }
+    }
+    return null;
+  }
+
+  public ProvisioningEntityWrapper getProvisioningEntityWrapper() {
+    if (this.grouperProvisioningMembership != null) {
+      if (this.grouperProvisioningMembership.getProvisioningEntity() != null) {
+        if (this.grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper() != null) {
+          return this.grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper();
+        }
+      }
+    }
+    if (this.grouperTargetMembership != null) {
+      if (this.grouperTargetMembership.getProvisioningEntity() != null) {
+        if (this.grouperTargetMembership.getProvisioningEntity().getProvisioningEntityWrapper() != null) {
+          return this.grouperTargetMembership.getProvisioningEntity().getProvisioningEntityWrapper();
+        }
+      }
+    }
+    if (this.targetProvisioningMembership != null) {
+      if (this.targetProvisioningMembership.getProvisioningEntity() != null) {
+        if (this.targetProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper() != null) {
+          return this.targetProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper();
+        }
+      }
+    }
+    if (this.commonProvisionToTargetMembership != null) {
+      if (this.commonProvisionToTargetMembership.getProvisioningEntity() != null) {
+        if (this.commonProvisionToTargetMembership.getProvisioningEntity().getProvisioningEntityWrapper() != null) {
+          return this.commonProvisionToTargetMembership.getProvisioningEntity().getProvisioningEntityWrapper();
+        }
+      }
+    }
+
+    return null;
+    
+  }
+
   /**
    * if this is an incremental action without recalc, then this is the action that occurred in Grouper
    */

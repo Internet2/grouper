@@ -76,6 +76,8 @@ import edu.internet2.middleware.grouper.j2ee.ServletRequestUtils;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.util.GrouperLogger;
+import edu.internet2.middleware.grouper.util.GrouperLoggerState;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.GrouperWsException;
@@ -97,7 +99,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 public class GrouperServiceJ2ee implements Filter {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperServiceJ2ee.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperServiceJ2ee.class);
   
   /**
    * if in request, get the start time
@@ -951,6 +953,19 @@ public class GrouperServiceJ2ee implements Filter {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     Long start = System.nanoTime();
+    HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+    
+    String xRequestId = httpServletRequest.getHeader("X-Request-Id");
+    if (!StringUtils.isBlank(xRequestId)) {
+      GrouperLoggerState grouperLoggerState = GrouperLogger.retrieveGrouperLoggerState(true);
+      grouperLoggerState.setRequestId(xRequestId);
+    }
+
+    String xCorrelationId = httpServletRequest.getHeader("X-Correlation-Id");
+    if (!StringUtils.isBlank(xCorrelationId)) {
+      GrouperLoggerState grouperLoggerState = GrouperLogger.retrieveGrouperLoggerState(true);
+      grouperLoggerState.setCorrelationId(xCorrelationId);
+    }
     try {
 
       request.setCharacterEncoding("UTF-8");
@@ -1081,6 +1096,8 @@ public class GrouperServiceJ2ee implements Filter {
       GrouperWsLog.wsLog(debugMap, start);
       GrouperWsLongRunningLog.wsLog(debugMap, start);
       
+      GrouperLogger.clearGrouperLoggerState();
+
       threadLocalRequest.remove();
       threadLocalResponse.remove();
       threadLocalRequestStartMillis.remove();

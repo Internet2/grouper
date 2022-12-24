@@ -90,7 +90,7 @@ public class WsStemLookup implements GrouperWsToStringCompact {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsSubjectLookup.class);
+  private static final Log LOG = GrouperUtil.getLog(WsSubjectLookup.class);
 
   /** find the stem */
   private Stem stem = null;

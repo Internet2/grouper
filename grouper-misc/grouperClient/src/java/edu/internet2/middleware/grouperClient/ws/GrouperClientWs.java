@@ -989,6 +989,13 @@ public class GrouperClientWs {
       GrouperClientState grouperClientState = GrouperClientState.retrieveGrouperClientState(false);
       
       if (grouperClientState != null) {
+        if (!StringUtils.isBlank(grouperClientState.getXcorrelationId())) {
+          postMethod.addRequestHeader("X-Correlation-Id", grouperClientState.getXcorrelationId());
+        }
+        if (!StringUtils.isBlank(grouperClientState.getXrequestId())) {
+          postMethod.addRequestHeader("X-Request-Id", grouperClientState.getXrequestId());
+        }
+        
         if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSourceId())) {
           
           if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectId()) 
@@ -1055,6 +1062,14 @@ public class GrouperClientWs {
             postMethod.getRequestEntity().getContentLength()).append("\n");
         headers.append("Content-Type: ").append(
             postMethod.getRequestEntity().getContentType()).append("\n");
+        if (grouperClientState != null) {
+          if (!StringUtils.isBlank(grouperClientState.getXcorrelationId())) {
+            headers.append("X-Correlation-Id: ").append(grouperClientState.getXcorrelationId()).append("\n");
+          }
+          if (!StringUtils.isBlank(grouperClientState.getXrequestId())) {
+            headers.append("X-Request-Id: ").append(grouperClientState.getXrequestId()).append("\n");
+          }
+        }
         for (String requestHeaderKey : requestHeaders.keySet()) {
           headers.append(requestHeaderKey).append(": ").append(new String(new Base64().encode(requestHeaders.get(requestHeaderKey).getBytes("UTF-8")))).append("\n");
         }

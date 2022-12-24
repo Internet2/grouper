@@ -606,6 +606,16 @@ public class GrouperProvisioningGrouperDao {
     Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper
       = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
 
+//    GrouperProvisioningDataIncrementalInput retrieveGrouperProvisioningDataIncrementalInput = grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput();
+//    Set<String> groupUuidsToRetrieveMemberships = null;
+//    Set<String> memberUuidsToRetrieveMemberships = null;
+//    if (retrieveGrouperProvisioningDataIncrementalInput != null) {
+//      groupUuidsToRetrieveMemberships = retrieveGrouperProvisioningDataIncrementalInput.getGroupUuidsToRetrieveMemberships();
+//      memberUuidsToRetrieveMemberships = retrieveGrouperProvisioningDataIncrementalInput.getMemberUuidsToRetrieveMemberships();
+//    }
+//    groupUuidsToRetrieveMemberships = GrouperUtil.nonNull(groupUuidsToRetrieveMemberships);
+//    memberUuidsToRetrieveMemberships = GrouperUtil.nonNull(memberUuidsToRetrieveMemberships);
+    
     // add wrappers for memberships
     for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(grouperProvisioningObjects.getProvisioningMemberships())) {
 
@@ -619,6 +629,15 @@ public class GrouperProvisioningGrouperDao {
       } else {
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
       }
+//      // if the group retrieved all memberships incrementally, then mark the memberships as recalc
+//      if (!StringUtils.isBlank(provisioningMembership.getProvisioningGroupId()) 
+//          && groupUuidsToRetrieveMemberships.contains(provisioningMembership.getProvisioningGroupId())) {
+//        provisioningMembershipWrapper.setRecalcObject(true);
+//      }
+//      if (!StringUtils.isBlank(provisioningMembership.getProvisioningEntityId()) 
+//          && groupUuidsToRetrieveMemberships.contains(provisioningMembership.getProvisioningEntityId())) {
+//        provisioningMembershipWrapper.setRecalcObject(true);
+//      }
     }
   }
   
@@ -963,8 +982,12 @@ public class GrouperProvisioningGrouperDao {
         }
       }
       groupIdsToRetrieve.addAll(groupIdsToRetrieveForMemberships);
+      
+      // grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGroupUuidsToRetrieveMemberships().addAll(groupIdsToRetrieveForMemberships);
+      
       memberIdsToRetrieve.addAll(memberIdsToRetrieveForMemberships);
 
+      // grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getMemberUuidsToRetrieveMemberships().addAll(memberIdsToRetrieveForMemberships);
 
       grouperProvisioningLists.setProvisioningMemberships(retrieveMemberships(false, groupIdsToRetrieveForMemberships, 
           memberIdsToRetrieveForMemberships, groupIdsMemberIdsToRetrieveForMemberships));

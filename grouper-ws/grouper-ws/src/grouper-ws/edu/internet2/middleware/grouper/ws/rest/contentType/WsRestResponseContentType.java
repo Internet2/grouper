@@ -130,7 +130,7 @@ public enum WsRestResponseContentType {
   public abstract void writeString(Object object, Writer writer);
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WsRestResponseContentType.class);
+  private static final Log LOG = GrouperUtil.getLog(WsRestResponseContentType.class);
 
   /**
    * parse a string to an object

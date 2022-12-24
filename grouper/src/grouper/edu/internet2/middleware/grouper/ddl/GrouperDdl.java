@@ -13363,6 +13363,9 @@ public enum GrouperDdl implements DdlVersionable {
     }
   }
   
+  public static int defaultMinIdIndex() {
+    return GrouperConfig.retrieveConfig().propertyValueInt("grouperTableIndexDefaultMinIndex", 1000000);
+  }
 
   /** dont do this twice */
   static boolean alreadyAddedTableIndices = false;
@@ -13446,7 +13449,7 @@ public enum GrouperDdl implements DdlVersionable {
           //we need the next available index
           int nextIndex = 0;
           
-          int minGroupIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.group.minIndex", 10000);
+          int minGroupIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.group.minIndex", defaultMinIdIndex());
 
           if (!tableIndexTableNew) {
             
@@ -13546,7 +13549,7 @@ public enum GrouperDdl implements DdlVersionable {
           //we need the next available index
           int nextIndex = 0;
           
-          int minStemIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.stem.minIndex", 10000);
+          int minStemIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.stem.minIndex", defaultMinIdIndex());
 
           if (!tableIndexTableNew) {
             
@@ -13646,7 +13649,7 @@ public enum GrouperDdl implements DdlVersionable {
           //we need the next available index
           int nextIndex = 0;
           
-          int minAttributeDefIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.attributeDef.minIndex", 10000);
+          int minAttributeDefIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.attributeDef.minIndex", defaultMinIdIndex());
 
           if (!tableIndexTableNew) {
             
@@ -13746,7 +13749,7 @@ public enum GrouperDdl implements DdlVersionable {
           //we need the next available index
           int nextIndex = 0;
           
-          int minAttributeDefNameIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.attributeDefName.minIndex", 10000);
+          int minAttributeDefNameIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.attributeDefName.minIndex", defaultMinIdIndex());
 
           if (!tableIndexTableNew) {
             

@@ -65,7 +65,7 @@ public class WsGrouperLdapAuthentication implements WsCustomAuthentication {
   }
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WsGrouperLdapAuthentication.class);
+  private static final Log LOG = GrouperUtil.getLog(WsGrouperLdapAuthentication.class);
 
   /**
    * cache the logins in a hash cache

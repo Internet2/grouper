@@ -4,7 +4,10 @@ import static javax.ws.rs.core.Response.Status.BAD_REQUEST;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
@@ -58,6 +61,11 @@ public class TierUserService implements Provider<ScimUser> {
     try {
       Subject authenticatedSubject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(authenticatedSubject);
+      
+      if (shouldLogDeprecationForSubject(authenticatedSubject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + authenticatedSubject);
+      }
+      
       Subject subject = SubjectFinder.findByIdOrIdentifier(id, false);
       if (subject == null) {
         throw new UnableToRetrieveResourceException(Status.NOT_FOUND, "User with id "+id+" does not exist.");
@@ -102,6 +110,11 @@ public class TierUserService implements Provider<ScimUser> {
     try {
       Subject subject = TierFilter.retrieveSubjectFromRemoteUser();
       grouperSession = GrouperSession.start(subject);
+      
+      if (shouldLogDeprecationForSubject(subject)) {
+        LOG.warn("DEPRECATED-SCIM (PennState implementation) will be removed in a future version.  subjectLoggedIn=" + subject);
+      }
+      
       if (filter == null) {
         throw new UnableToRetrieveResourceException(Status.BAD_REQUEST, "filter cannot be blank or null");
       }
@@ -154,4 +167,24 @@ public class TierUserService implements Provider<ScimUser> {
     return Arrays.asList(TierMetaExtension.class);
   }
 
+  private static Map<Subject, Long> deprecationLastLogBySubject = Collections.synchronizedMap(new HashMap<Subject, Long>());
+
+  /**
+   * Should log once a day per subject
+   * @param subject
+   * @return boolean
+   */
+  private static boolean shouldLogDeprecationForSubject(Subject subject) {
+    if (subject == null) {
+      // could this happen?
+      return true;
+    }
+
+    if (deprecationLastLogBySubject.get(subject) != null && (deprecationLastLogBySubject.get(subject) + 24*60*60*1000L) > System.currentTimeMillis()) {
+      return false;
+    }
+
+    deprecationLastLogBySubject.put(subject, System.currentTimeMillis());
+    return true;
+  }
 }

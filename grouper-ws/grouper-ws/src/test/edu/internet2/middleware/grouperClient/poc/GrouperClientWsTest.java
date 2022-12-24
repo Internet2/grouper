@@ -328,7 +328,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperClient
           .main(GrouperClientUtils
               .splitTrim(
-                  "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1",
+                  "--operation=addMemberWs --groupName=aStem:aGroup --subjectIds=test.subject.0,test.subject.1 --xRequestId=abc --xCorrelationId=xyz --debug=true",
                   " "));
       System.out.flush();
       String output = new String(baos.toByteArray());
@@ -363,7 +363,7 @@ public class GrouperClientWsTest extends GrouperTest {
       GrouperClient
           .main(GrouperClientUtils
               .splitTrim(
-                  "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0,test.subject.1",
+                  "--operation=addMemberWs --groupName=aStem:aGroup --pennIds=test.subject.0,test.subject.1 --xRequestId=abc --xCorrelationId=xyz --debug=true",
                   " "));
       System.out.flush();
       output = new String(baos.toByteArray());

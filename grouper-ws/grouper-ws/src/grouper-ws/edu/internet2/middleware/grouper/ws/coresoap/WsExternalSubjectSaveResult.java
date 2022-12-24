@@ -20,10 +20,10 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -40,7 +40,7 @@ public class WsExternalSubjectSaveResult implements ResultMetadataHolder {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsExternalSubjectSaveResult.class);
+  private static final Log LOG = GrouperUtil.getLog(WsExternalSubjectSaveResult.class);
 
   /** external subject saved */
   private WsExternalSubject wsExternalSubject;
