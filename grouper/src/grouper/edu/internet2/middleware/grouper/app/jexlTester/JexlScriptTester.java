@@ -9,12 +9,29 @@ import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-/**
- * Test jexl scripts
- */
 public class JexlScriptTester {
   
-  public static ThreadLocal<Object> outputFromGshScript = new ThreadLocal<Object>();
+  public static ThreadLocal<Object> outputFromGshScript = new ThreadLocal();
+  
+  
+  public static String retrieveAvailableBeansGshScript(ScriptExample scriptExample) {
+    //TODO probably delete it because all it is doing is just delegating. Have the caller do that itself.
+    return scriptExample.retrieveAvailableBeansGshScript();
+  }
+  
+  public static String retrieveNullCheckingJexlScript(String scriptType, String example) {
+    
+    StringBuilder nullCheckingJexlScript = new StringBuilder();
+    
+    if (StringUtils.equals(scriptType, "Provisioning group translation") && 
+        StringUtils.equals(example, "Metadata override")) {
+      
+      nullCheckingJexlScript.append("${grouperUtil.defaultIfBlank(grouperProvisioningGroup.retrieveAttributeValueString('md_entitlementValue') , grouperProvisioningGroup.name)}");
+     
+    }
+    
+    return nullCheckingJexlScript.toString();
+  }
   
   /**
    * @param scriptExample

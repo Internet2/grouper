@@ -37,7 +37,6 @@
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="scriptTypeId">${textContainer.text['scriptTypeLabel']}</label></strong></td>
                           <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
                           <td>
-                          <input type="hidden" name="previousScriptType" value="${grouperRequestContainer.scriptTesterContainer.selectedScriptType}" />
                             <select name="scriptType" id="scriptTypeId" style="width: 30em"
                             onchange="ajax('../app/UiV2ScriptTester.testScript', {formIds: 'scriptTesterForm'}); return false;"
                             >
@@ -51,12 +50,7 @@
                             <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                             data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                             <br />
-                            <c:if test="${!grouper:isBlank(grouperRequestContainer.scriptTesterContainer.scriptDescription)}">
-                              <span class="description">${grouperRequestContainer.scriptTesterContainer.scriptDescription}</span>
-                            </c:if>
-                            <c:if test="${grouper:isBlank(grouperRequestContainer.scriptTesterContainer.scriptDescription)}">
-                              <span class="description">${textContainer.text['scriptTypeHint']}</span>
-                            </c:if>
+                            <span class="description">${textContainer.text['scriptTypeHint']}</span>
                           </td>
                         </tr>
                         
@@ -80,13 +74,7 @@
                             <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                             data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                             <br />
-                            
-                            <c:if test="${!grouper:isBlank(grouperRequestContainer.scriptTesterContainer.exampleDescription)}">
-                              <span class="description">${grouperRequestContainer.scriptTesterContainer.exampleDescription}</span>
-                            </c:if>
-                            <c:if test="${grouper:isBlank(grouperRequestContainer.scriptTesterContainer.exampleDescription)}">
                               <span class="description">${textContainer.text['exampleHint']}</span>
-                            </c:if>
                             </td>
                           </tr>
                        </c:if>
@@ -107,7 +95,7 @@
                           </tr>
                           
                           
-                          <c:if test="${grouperRequestContainer.scriptTesterContainer.showNullCheckingJexlScript}">
+                          <c:if test="${!grouper:isBlank(grouperRequestContainer.scriptTesterContainer.nullCheckingJexlScript)}">
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="nullCheckingJexlScriptId">${textContainer.text['nullCheckingJexlScriptLabel']}</label></strong></td>
                               <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
