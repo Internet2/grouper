@@ -6,6 +6,7 @@ import java.util.List;
 import edu.internet2.middleware.grouper.app.jexlTester.JexlScriptTesterResult;
 import edu.internet2.middleware.grouper.app.jexlTester.ScriptExample;
 import edu.internet2.middleware.grouper.app.jexlTester.ScriptType;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
@@ -119,6 +120,16 @@ public class ScriptTesterContainer {
     String exampleJexlScript = scriptExample.retrieveExampleJexlScript();
     
     return exampleJexlScript;
+  }
+  
+  public String getScriptDescription() {
+    //jexlScriptType_PROVISIONING_GROUP_TRANSLATION_description
+    return GrouperTextContainer.textOrNull("jexlScriptType_"+this.selectedScriptType+"_description");
+  }
+  
+  public String getExampleDescription() {
+    // jexlScriptExample_PROVISIONING_GROUP_TRANSLATION__GENERIC_description
+    return GrouperTextContainer.textOrNull("jexlScriptExample_"+this.selectedScriptType+"__"+this.selectedExample+"_description");
   }
 
   public boolean isCanScriptTester() {
