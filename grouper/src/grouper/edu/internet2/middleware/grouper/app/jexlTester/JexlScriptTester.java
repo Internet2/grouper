@@ -13,12 +13,6 @@ public class JexlScriptTester {
   
   public static ThreadLocal<Object> outputFromGshScript = new ThreadLocal();
   
-  
-  public static String retrieveAvailableBeansGshScript(ScriptExample scriptExample) {
-    //TODO probably delete it because all it is doing is just delegating. Have the caller do that itself.
-    return scriptExample.retrieveAvailableBeansGshScript();
-  }
-  
   public static String retrieveNullCheckingJexlScript(String scriptType, String example) {
     
     StringBuilder nullCheckingJexlScript = new StringBuilder();
