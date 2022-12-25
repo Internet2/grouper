@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.jexlTester;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
+import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
@@ -84,7 +85,7 @@ public enum ScriptType {
 
     @Override
     public Object runJexl(Map<String, Object> elVariableMap, String jexlScript) {
-      return null;
+      return LoaderLdapUtils.runScriptStatic(jexlScript, elVariableMap);
     }
     
   };

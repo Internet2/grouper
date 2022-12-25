@@ -52,6 +52,17 @@ public class UiV2ScriptTester {
         
         String exampleType = request.getParameter("exampleType");
         if (StringUtils.isNotBlank(exampleType)) {
+          
+          ScriptType scriptTypeEnum = ScriptType.valueOf(scriptType);
+          Class scriptExampleForTypeClass = scriptTypeEnum.retrieveScriptExampleForType();
+          try {
+            ScriptExample scriptExample = (ScriptExample) Enum.valueOf(scriptExampleForTypeClass, exampleType);
+          } catch (Exception e) {
+            guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+                "/WEB-INF/grouperUi2/scriptTester/scriptTesterScreen.jsp"));
+            return;
+          }
+          
           scriptTesterContainer.setSelectedExample(exampleType);
         }
         
