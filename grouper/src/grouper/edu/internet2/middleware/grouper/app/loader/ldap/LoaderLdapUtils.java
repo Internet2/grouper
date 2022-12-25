@@ -717,9 +717,13 @@ public class LoaderLdapUtils {
     
     String result = null;
     //dont be lenient on undefined variables
-    result = GrouperUtil.substituteExpressionLanguage(expression, loaderEnvVars, false, false, false);
+    result = runScriptStatic(expression, loaderEnvVars);
     
     return result;
+  }
+  
+  public static String runScriptStatic(String jexlScript, Map<String, Object> elVariableMap) {
+    return GrouperUtil.substituteExpressionLanguage(jexlScript, elVariableMap, false, false, false);
   }
   
   

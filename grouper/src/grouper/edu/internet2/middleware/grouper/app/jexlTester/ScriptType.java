@@ -10,19 +10,32 @@ import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 public enum ScriptType {
   
-  PROVISIONING_GROUP_TRANSLATION {
-
+  ABAC {
+    
     @Override
     public Class<? extends ScriptExample> retrieveScriptExampleForType() {
-      return ScriptExampleForProvisioningGroupTranslation.class;
+      return ScriptExampleForAbacTranslation.class;
     }
 
     @Override
     public Object runJexl(Map<String, Object> elVariableMap, String jexlScript) {
-      return GrouperProvisioningTranslator.runScriptStatic(jexlScript, elVariableMap);
+      return GrouperAbac.runScriptStatic(jexlScript, elVariableMap);
     }
     
+  },
+  
+  LDAP_LOADER_NAME_EXPRESSION {
+    
+    @Override
+    public Class<? extends ScriptExample> retrieveScriptExampleForType() {
+      return ScriptExampleForLdapLoaderNameExpression.class;
+    }
 
+    @Override
+    public Object runJexl(Map<String, Object> elVariableMap, String jexlScript) {
+      return LoaderLdapUtils.runScriptStatic(jexlScript, elVariableMap);
+    }
+    
   },
   
   PROVISIONING_ENTITY_TRANSLATION {
@@ -36,6 +49,21 @@ public enum ScriptType {
     public Object runJexl(Map<String, Object> elVariableMap, String jexlScript) {
       return GrouperProvisioningTranslator.runScriptStatic(jexlScript, elVariableMap);
     }
+  },
+  
+  PROVISIONING_GROUP_TRANSLATION {
+
+    @Override
+    public Class<? extends ScriptExample> retrieveScriptExampleForType() {
+      return ScriptExampleForProvisioningGroupTranslation.class;
+    }
+
+    @Override
+    public Object runJexl(Map<String, Object> elVariableMap, String jexlScript) {
+      return GrouperProvisioningTranslator.runScriptStatic(jexlScript, elVariableMap);
+    }
+    
+
   },
   
   PROVISIONING_MEMBERSHIP_TRANSLATION {
@@ -62,32 +90,6 @@ public enum ScriptType {
     public Object runJexl(Map<String, Object> elVariableMap, String jexlScript) {
       return SubjectImpl.runScriptStatic(jexlScript, elVariableMap);
     }
-  },
-  ABAC {
-    
-    @Override
-    public Class<? extends ScriptExample> retrieveScriptExampleForType() {
-      return ScriptExampleForAbacTranslation.class;
-    }
-
-    @Override
-    public Object runJexl(Map<String, Object> elVariableMap, String jexlScript) {
-      return GrouperAbac.runScriptStatic(jexlScript, elVariableMap);
-    }
-    
-  },
-  LDAP_LOADER_NAME_EXPRESSION {
-    
-    @Override
-    public Class<? extends ScriptExample> retrieveScriptExampleForType() {
-      return ScriptExampleForLdapLoaderNameExpression.class;
-    }
-
-    @Override
-    public Object runJexl(Map<String, Object> elVariableMap, String jexlScript) {
-      return LoaderLdapUtils.runScriptStatic(jexlScript, elVariableMap);
-    }
-    
   };
   
   /**
@@ -129,5 +131,4 @@ public enum ScriptType {
     return result.getClass().getName() + ": " + GrouperUtil.stringValue(result);
   }
   
-
 }
