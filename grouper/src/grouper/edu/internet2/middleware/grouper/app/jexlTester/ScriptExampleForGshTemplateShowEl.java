@@ -1,24 +1,22 @@
 package edu.internet2.middleware.grouper.app.jexlTester;
 
 
-public enum ScriptExampleForSubjectSourceTranslation implements ScriptExample {
+public enum ScriptExampleForGshTemplateShowEl implements ScriptExample {
   
-  GENERIC {
+  ACTION_IN_SET {
 
     @Override
     public Object expectedOutput() {
-      return "John Smith";
+      return true;
     }
   };
 
   @Override
   public ScriptType retrieveScriptType() {
-    return ScriptType.SUBJECT_SOURCE;
+    return ScriptType.GSH_TEMPLATE_SHOW_EL;
   }
 
   @Override
   public abstract Object expectedOutput();
-  
-  
 
 }

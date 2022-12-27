@@ -721,7 +721,12 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   /**
    * delete gsh template
    */
-  GSH_TEMPLATE_DELETE(new AuditType("gshTemplate", "gshTemplateDelete", null, "gshTemplateConfigId"))
+  GSH_TEMPLATE_DELETE(new AuditType("gshTemplate", "gshTemplateDelete", null, "gshTemplateConfigId")),
+  
+  /**
+   * jexl script test execute
+   */
+  JEXL_TEST_EXEC(new AuditType("jexlTest", "jexlTestExec", null, "jexlTestExample", "script"))
   ;
 
   /**

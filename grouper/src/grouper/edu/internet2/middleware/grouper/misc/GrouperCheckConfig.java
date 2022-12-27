@@ -1050,7 +1050,17 @@ public class GrouperCheckConfig {
                 "wheel group from grouper.properties key: groups.wheel.group", null);
           }
         }
+      } 
+      
+      {
+        String groupName = GrouperConfig.retrieveConfig().propertyValueString("jexlScriptTestingGroup");
+        if (StringUtils.isBlank(groupName) && wasInCheckConfig) {
+        } else {
+          checkGroup(grouperSession, groupName, wasInCheckConfig, null, wasInCheckConfig, null, "members of this group can run jexl script testing from UI", 
+              "jexlScriptTestingGroup group from grouper.properties key: jexlScriptTestingGroup", null);
+        }
       }      
+      
       {
         boolean useViewonlyWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.viewonly.use", false);
         if (useViewonlyWheel) {

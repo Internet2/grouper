@@ -3,12 +3,19 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.jexlTester.JexlScriptTesterResult;
 import edu.internet2.middleware.grouper.app.jexlTester.ScriptExample;
 import edu.internet2.middleware.grouper.app.jexlTester.ScriptType;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class ScriptTesterContainer {
@@ -72,11 +79,10 @@ public class ScriptTesterContainer {
     List<String> examples = new ArrayList<>();
     
     ScriptType scriptType = ScriptType.valueOf(this.selectedScriptType);
-    Class<? extends ScriptExample> scriptExampleForTypeClass = scriptType.retrieveScriptExampleForType();
     
-    ScriptExample[] enumConstants = scriptExampleForTypeClass.getEnumConstants();
+    List<ScriptExample> scriptExamplesForType = scriptType.retrieveScriptExamplesForType();
     
-    for (ScriptExample scriptExample: enumConstants) {
+    for (ScriptExample scriptExample: scriptExamplesForType) {
       examples.add(scriptExample.name());
     }
     
@@ -86,11 +92,13 @@ public class ScriptTesterContainer {
   
   public String getAvailableBeansForSelectedScriptType() {
     
+    if (StringUtils.isNotBlank(this.availableBeansGshScript)) {
+      return this.availableBeansGshScript;
+    }
+    
     ScriptType scriptType = ScriptType.valueOf(this.selectedScriptType);
     
-    Class scriptExampleForTypeClass = scriptType.retrieveScriptExampleForType();
-    
-    ScriptExample scriptExample = (ScriptExample) Enum.valueOf(scriptExampleForTypeClass, this.selectedExample);
+    ScriptExample scriptExample = ScriptExample.retrieveInstance(scriptType, selectedExample);
     
     String availableBeansScript = scriptExample.retrieveAvailableBeansGshScript();
     
@@ -98,25 +106,35 @@ public class ScriptTesterContainer {
   }
   
   public String getNullCheckingJexlScript() {
+    
+    if (StringUtils.isNotBlank(this.nullCheckingJexlScript)) {
+      return this.nullCheckingJexlScript;
+    }
+    
     ScriptType scriptType = ScriptType.valueOf(this.selectedScriptType);
     
-    Class scriptExampleForTypeClass = scriptType.retrieveScriptExampleForType();
-    
-    ScriptExample scriptExample = (ScriptExample) Enum.valueOf(scriptExampleForTypeClass, this.selectedExample);
+    ScriptExample scriptExample = ScriptExample.retrieveInstance(scriptType, selectedExample);
     
     String nullCheckingJexlScript = scriptExample.retrieveNullCheckingJexlScript();
     
     return nullCheckingJexlScript;
   }
   
+  public boolean isShowNullCheckingJexlScript() {
+    
+    ScriptType scriptType = ScriptType.valueOf(this.selectedScriptType);
+    return scriptType.hasNullCheckingOption();
+  }
+  
   public String getJexlScript() {
+    
+    if (StringUtils.isNotBlank(this.jexlScript)) {
+      return this.jexlScript;
+    }
     
     ScriptType scriptType = ScriptType.valueOf(this.selectedScriptType);
     
-    Class scriptExampleForTypeClass = scriptType.retrieveScriptExampleForType();
-    
-    ScriptExample scriptExample = (ScriptExample) Enum.valueOf(scriptExampleForTypeClass, this.selectedExample);
-    
+    ScriptExample scriptExample = ScriptExample.retrieveInstance(scriptType, selectedExample);
     String exampleJexlScript = scriptExample.retrieveExampleJexlScript();
     
     return exampleJexlScript;
@@ -134,10 +152,35 @@ public class ScriptTesterContainer {
 
   public boolean isCanScriptTester() {
     
+    String groupName = GrouperConfig.retrieveConfig().propertyValueString("jexlScriptTestingGroup");
+    if (StringUtils.isBlank(groupName)) {
+      return false;
+    }
+
+    return (boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Group group = GroupFinder.findByName(grouperSession, groupName, false);
+        if (group == null) {
+          return false;
+        }
+        Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+        
+        return group.hasMember(loggedInSubject);
+        
+      }
+    });
+    
+  }
+  
+  public boolean isCanScriptTesterLink() {
+    
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
       return true;
     }
+    
     return false;
   }
   
