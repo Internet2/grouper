@@ -88,7 +88,7 @@
                       >${textContainer.text['gshTemplatesMainLink'] }</a>
                     </c:if>
                     
-                    <c:if test="${grouperRequestContainer.scriptTesterContainer.canScriptTester}">
+                    <c:if test="${grouperRequestContainer.scriptTesterContainer.canScriptTesterLink}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ScriptTester.testScript');" style="white-space: nowrap;"
                         >${textContainer.text['scriptTesterLink'] }</a>
                     </c:if>

@@ -37,6 +37,7 @@
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="scriptTypeId">${textContainer.text['scriptTypeLabel']}</label></strong></td>
                           <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
                           <td>
+                          <input type="hidden" name="previousScriptType" value="${grouperRequestContainer.scriptTesterContainer.selectedScriptType}" />
                             <select name="scriptType" id="scriptTypeId" style="width: 30em"
                             onchange="ajax('../app/UiV2ScriptTester.testScript', {formIds: 'scriptTesterForm'}); return false;"
                             >
@@ -106,7 +107,7 @@
                           </tr>
                           
                           
-                          <c:if test="${!grouper:isBlank(grouperRequestContainer.scriptTesterContainer.nullCheckingJexlScript)}">
+                          <c:if test="${grouperRequestContainer.scriptTesterContainer.showNullCheckingJexlScript}">
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="nullCheckingJexlScriptId">${textContainer.text['nullCheckingJexlScriptLabel']}</label></strong></td>
                               <td style="vertical-align: top; white-space: nowrap;">&nbsp;</td>
