@@ -2159,12 +2159,12 @@ public abstract class GrouperProvisioningConfiguration {
       }
       
       {
-        boolean canChange = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canChange", false), false);
+        boolean canChange = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canChange", false), true);
         grouperProvisioningObjectMetadataItem.setCanChange(canChange);
       }
 
       {
-        boolean canUpdate = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canUpdate", false), false);
+        boolean canUpdate = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canUpdate", false), true);
         grouperProvisioningObjectMetadataItem.setCanUpdate(canUpdate);
       }
       
