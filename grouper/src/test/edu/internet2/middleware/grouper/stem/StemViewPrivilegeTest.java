@@ -10,10 +10,13 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.LoadData;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
@@ -33,7 +36,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new StemViewPrivilegeTest("testPrivilegeAddedOnFolderCreateYesCalulatingForUser"));
+    TestRunner.run(new StemViewPrivilegeTest("testPrivilegeAddedByGroupIncrementalPublic"));
   }
   
   @Override
@@ -44,6 +47,10 @@ public class StemViewPrivilegeTest extends GrouperTest {
     // these should be clear but make sure
     new GcDbAccess().sql("delete from grouper_stem_view_privilege").executeSql();
     new GcDbAccess().sql("delete from grouper_last_login").executeSql();
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
+
 
   }
 
@@ -346,6 +353,127 @@ public class StemViewPrivilegeTest extends GrouperTest {
     assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege").select(int.class).intValue());
     assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
     
+  }
+
+  public void testPrivilegeAddedByGroupFullPublic() {
+    
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+  
+    long now = System.currentTimeMillis();
+    GrouperUtil.sleep(100);
+    
+    Set<Stem> stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_last_login gll, grouper_members gm where gll.member_uuid = gm.id "
+        + " and gll.last_stem_view_need >= ?  and gll.last_stem_view_compute >= ? and gm.subject_source = ? and gm.subject_id = ?")
+        .addBindVar(now).addBindVar(now)
+        .addBindVar("jdbc").addBindVar(SubjectTestHelper.SUBJ0.getId()).select(int.class).intValue());
+    
+    assertEquals(0, stems.size());
+    
+    grouperSession = GrouperSession.startRootSession();
+  
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+  
+    Stem stemA = new StemSave().assignName("a").assignCreateParentStemsIfNotExist(true).save();
+    
+    Stem stemB = new StemSave().assignName("a:b").save();
+    
+    Group groupAb = new GroupSave().assignName("a:b:c").save();
+    groupAb.addMember(SubjectTestHelper.SUBJ0);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_stemViewPrivilegesFull");
+  
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege where stem_uuid in (?, ?)")
+        .addBindVar(stemA.getId()).addBindVar(stemB.getId()).select(int.class).intValue());
+    // test0 and grouperall
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
+  
+    groupAb.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+  
+    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_stemViewPrivilegesFull");
+  
+    assertNull((String)StemViewPrivilegeFullDaemonLogic.test_debugMapLast.get("exception"), StemViewPrivilegeFullDaemonLogic.test_debugMapLast.get("exception"));
+    assertNull((String)StemViewPrivilegeFullDaemonLogic.test_debugMapLast.get("exception2"), StemViewPrivilegeFullDaemonLogic.test_debugMapLast.get("exception2"));
+  
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege where stem_uuid in (?, ?)")
+        .addBindVar(stemA.getId()).addBindVar(stemB.getId()).select(int.class).intValue());
+    Set<MultiKey> grouperStemViewPrivileges = GrouperUtil.multiKeySet(new GcDbAccess()
+        .sql("select member_uuid, stem_uuid, object_type from grouper_stem_view_privilege where stem_uuid in (?, ?)")
+        .addBindVar(stemA.getId()).addBindVar(stemB.getId()).selectList(Object[].class));
+    Set<MultiKey> grouperStemViewPrivilegesExpected = GrouperUtil.toSet(new MultiKey(MemberFinder.internal_findAllMember().getId(), stemB.getId(), "G"));
+    assertEqualsMultiKey(grouperStemViewPrivilegesExpected, grouperStemViewPrivileges);
+    
+    // test0 and grouperall
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
+    
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertTrue(stems.size() >= 3);
+    assertTrue(stems.contains(StemFinder.findByName(grouperSession, ":", true)));
+    assertTrue(stems.contains(StemFinder.findByName(grouperSession, "a", true)));
+    assertTrue(stems.contains(StemFinder.findByName(grouperSession, "a:b", true)));
+  }
+
+  public void testPrivilegeAddedByGroupIncrementalPublic() {
+    
+    GrouperSession grouperSession = GrouperSession.start(SubjectTestHelper.SUBJ0);
+  
+    long now = System.currentTimeMillis();
+    GrouperUtil.sleep(100);
+    
+    Set<Stem> stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_last_login gll, grouper_members gm where gll.member_uuid = gm.id "
+        + " and gll.last_stem_view_need >= ?  and gll.last_stem_view_compute >= ? and gm.subject_source = ? and gm.subject_id = ?")
+        .addBindVar(now).addBindVar(now)
+        .addBindVar("jdbc").addBindVar(SubjectTestHelper.SUBJ0.getId()).select(int.class).intValue());
+    
+    assertEquals(0, stems.size());
+  
+    grouperSession = GrouperSession.startRootSession();
+  
+    Member member0 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+  
+    Stem stemA = new StemSave().assignName("a").assignCreateParentStemsIfNotExist(true).save();
+    
+    Stem stemB = new StemSave().assignName("a:b").save();
+    
+    Group groupAb = new GroupSave().assignName("a:b:c").save();
+    groupAb.addMember(SubjectTestHelper.SUBJ0);
+    
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_stemViewPrivileges");
+  
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege where stem_uuid in (?, ?)")
+        .addBindVar(stemA.getId()).addBindVar(stemB.getId()).select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
+  
+    groupAb.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
+  
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_stemViewPrivileges");
+  
+    assertNull((String)StemViewPrivilegeEsbListener.test_debugMapLast.get("exception"), StemViewPrivilegeEsbListener.test_debugMapLast.get("exception"));
+    assertNull((String)StemViewPrivilegeEsbListener.test_debugMapLast.get("exception2"), StemViewPrivilegeEsbListener.test_debugMapLast.get("exception2"));
+  
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege where stem_uuid in (?, ?)")
+        .addBindVar(stemA.getId()).addBindVar(stemB.getId()).select(int.class).intValue());
+    Set<MultiKey> grouperStemViewPrivileges = GrouperUtil.multiKeySet(new GcDbAccess()
+        .sql("select member_uuid, stem_uuid, object_type from grouper_stem_view_privilege where stem_uuid in (?, ?)")
+        .addBindVar(stemA.getId()).addBindVar(stemB.getId()).selectList(Object[].class));
+    Set<MultiKey> grouperStemViewPrivilegesExpected = GrouperUtil.toSet(new MultiKey(MemberFinder.internal_findAllMember().getId(), stemB.getId(), "G"));
+    assertEqualsMultiKey(grouperStemViewPrivilegesExpected, grouperStemViewPrivileges);
+    
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
+    
+    stems = new StemFinder().assignSubject(SubjectTestHelper.SUBJ0).findStems();
+    
+    assertTrue(stems.size() >= 3);
+    assertTrue(stems.contains(StemFinder.findByName(grouperSession, ":", true)));
+    assertTrue(stems.contains(StemFinder.findByName(grouperSession, "a", true)));
+    assertTrue(stems.contains(StemFinder.findByName(grouperSession, "a:b", true)));
+  
   }
 }
 
