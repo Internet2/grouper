@@ -132,6 +132,7 @@ public class EhcacheController implements CacheController {
     if (this.mgr != null) {
       synchronized(CacheManager.class) {
         this.mgr.shutdown();
+        this.mgr = null;
       }
     }
   }

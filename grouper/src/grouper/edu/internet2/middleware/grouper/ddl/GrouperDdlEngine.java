@@ -602,10 +602,15 @@ public class GrouperDdlEngine {
         //ok, we stored, are we in there?
         GrouperUtil.sleep(3000);
         
-        grouperDdlWorker = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null).get(0);
-        
-        if (!StringUtils.equals(thisDdlDatabaseLockingUuid, grouperDdlWorker.getWorkerUuid())) {
-          waitForOtherProcessesToDoDdl = true;
+        List<Hib3GrouperDdlWorker> ddlWorkerRows = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
+        if (GrouperUtil.length(ddlWorkerRows) > 0) {
+          grouperDdlWorker = ddlWorkerRows.get(0);
+          
+          if (!StringUtils.equals(thisDdlDatabaseLockingUuid, grouperDdlWorker.getWorkerUuid())) {
+            waitForOtherProcessesToDoDdl = true;
+          }
+        } else {
+          return false;
         }
 
         // lets do it!
@@ -624,12 +629,17 @@ public class GrouperDdlEngine {
           System.out.println(waitingErrorMessage);
         }
         GrouperUtil.sleep(5000);
-        grouperDdlWorker = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null).get(0);
-        if (grouperDdlWorker.getHeartbeat() == null) {
+        List<Hib3GrouperDdlWorker> ddlWorkerRows = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
+        if (GrouperUtil.length(ddlWorkerRows) > 0) {
+          grouperDdlWorker = ddlWorkerRows.get(0);
+          if (grouperDdlWorker.getHeartbeat() == null) {
+            return false;
+          }
+          if (System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime() > 90000) {
+            throw new RuntimeException("Heartbeat of DDL worker is not updating!!!!");
+          }
+        } else {
           return false;
-        }
-        if (System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime() > 90000) {
-          throw new RuntimeException("Heartbeat of DDL worker is not updating!!!!");
         }
       }
       throw new RuntimeException("DDL updates never completed successfully!");

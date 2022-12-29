@@ -2768,10 +2768,47 @@ public enum GrouperDdl implements DdlVersionable {
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      
       GrouperDdl5_0_0.addGrouperMemberInternalIdColumn(database, ddlVersionBean);
       GrouperDdl5_0_0.addGrouperMemberInternalIdIndex(database, ddlVersionBean);
       GrouperDdl5_0_0.addGrouperMemberInternalIdComments(database, ddlVersionBean);
 
+      GrouperDdl5_0_0.addGrouperDictionaryTable(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDictionaryTableIndexes(database, ddlVersionBean);
+      
+      GrouperDdl5_0_0.addGrouperDataProviderTable(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataProviderTableIndexes(database, ddlVersionBean);
+      
+      GrouperDdl5_0_0.addGrouperDataFieldTable(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataFieldTableIndexes(database, ddlVersionBean);
+      
+      GrouperDdl5_0_0.addGrouperDataRowTable(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataRowTableIndexes(database, ddlVersionBean);
+      
+      GrouperDdl5_0_0.addGrouperDataFieldAliasTable(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataFieldAliasTableIndexes(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataFieldAliasForeignKey(database, ddlVersionBean);
+      
+      GrouperDdl5_0_0.addGrouperDataFieldAssignTable(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataFieldAssignTableIndexes(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataFieldAssignTableForeignKey(database, ddlVersionBean);
+
+      GrouperDdl5_0_0.addGrouperDataRowAssignTable(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataRowAssignTableIndexes(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataRowAssignTableForeignKey(database, ddlVersionBean);
+
+      GrouperDdl5_0_0.addGrouperDataRowFieldAssignTable(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataRowFieldAssignTableIndexes(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataRowFieldAssignTableForeignKey(database, ddlVersionBean);
+
+      GrouperDdl5_0_0.addGrouperDataGlobalAssignTable(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataGlobalAssignTableIndexes(database, ddlVersionBean);
+      GrouperDdl5_0_0.addGrouperDataGlobalAssignTableForeignKey(database, ddlVersionBean);
+
+      GrouperDdl5_0_0.createViewGrouperDataFieldAssignV(ddlVersionBean);
+      GrouperDdl5_0_0.createViewGrouperDataRowAssignV(ddlVersionBean);
+      GrouperDdl5_0_0.createViewGrouperDataRowFieldAssignV(ddlVersionBean);
+      
     }
   },
   V46 {
@@ -3574,6 +3611,10 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_stem_set_v", false);
         
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sync_membership_v", false);
+
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_data_field_assign_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_data_row_assign_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_data_row_field_asgn_v", false);
   }
 
   /**

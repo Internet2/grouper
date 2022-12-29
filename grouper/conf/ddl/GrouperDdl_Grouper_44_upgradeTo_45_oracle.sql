@@ -1,15 +1,15 @@
-ALTER TABLE grouper_members ADD COLUMN internal_id BIGINT;
+ALTER TABLE grouper_members ADD internal_id NUMBER(38);
 
 CREATE UNIQUE INDEX grouper_mem_internal_id_idx ON grouper_members (internal_id);
 
-ALTER TABLE grouper_members ADD CONSTRAINT members_internal_id_unique UNIQUE USING INDEX grouper_mem_internal_id_idx;
+ALTER TABLE grouper_members ADD CONSTRAINT members_internal_id_unique unique (internal_id);
 
 CREATE TABLE grouper_dictionary (
-  internal_id BIGINT NOT NULL,
-  created_on timestamp NOT NULL,
-  last_referenced timestamp not NULL,
-  pre_load varchar(1) NOT NULL DEFAULT 'F',
-  the_text varchar(4000) NOT NULL,
+  internal_id NUMBER(38) NOT NULL,
+  created_on DATE NOT NULL,
+  last_referenced DATE not NULL,
+  pre_load VARCHAR2(1) DEFAULT 'F' NOT NULL,
+  the_text VARCHAR2(4000) NOT NULL,
   PRIMARY KEY (internal_id)
 );
 CREATE INDEX dictionary_last_referenced_idx ON grouper_dictionary (last_referenced);
@@ -17,39 +17,39 @@ CREATE INDEX dictionary_pre_load_idx ON grouper_dictionary (pre_load);
 CREATE UNIQUE INDEX dictionary_the_text_idx ON grouper_dictionary (the_text);
 
 CREATE TABLE grouper_data_provider (
-  internal_id BIGINT NOT NULL,
-  config_id varchar(100) NOT NULL,
-  created_on timestamp NOT NULL,
+  internal_id NUMBER(38) NOT NULL,
+  config_id varchar2(100) NOT NULL,
+  created_on DATE NOT NULL,
   PRIMARY KEY (internal_id)
 );
 CREATE UNIQUE INDEX data_provider_config_id_idx ON  grouper_data_provider (config_id);
 
 
 CREATE TABLE grouper_data_field (
-  internal_id BIGINT NOT NULL,
-  config_id varchar(100) NOT NULL,
-  created_on timestamp NOT NULL,
+  internal_id NUMBER(38) NOT NULL,
+  config_id varchar2(100) NOT NULL,
+  created_on DATE NOT NULL,
   PRIMARY KEY (internal_id)
 );
 CREATE UNIQUE INDEX data_field_config_id_idx ON grouper_data_field (config_id);
 
 CREATE TABLE grouper_data_row (
-  internal_id BIGINT NOT NULL,
-  created_on timestamp NOT NULL,
-  config_id varchar(100) NOT NULL,
+  internal_id NUMBER(38) NOT NULL,
+  created_on DATE NOT NULL,
+  config_id varchar2(100) NOT NULL,
   PRIMARY KEY (internal_id)
 );
 CREATE UNIQUE INDEX grouper_data_row_config_id_idx ON grouper_data_row (config_id);
 
 
 CREATE TABLE grouper_data_alias (
-  internal_id BIGINT NOT NULL,
-  data_field_internal_id BIGINT NULL,
-  name varchar(100) NOT NULL,
-  lower_name varchar(100) NOT NULL,
-  created_on timestamp NOT NULL,
-  data_row_internal_id BIGINT NULL,
-  alias_type varchar(1) NULL,
+  internal_id NUMBER(38) NOT NULL,
+  data_field_internal_id NUMBER(38) NULL,
+  name varchar2(100) NOT NULL,
+  lower_name varchar2(100) NOT NULL,
+  created_on DATE NOT NULL,
+  data_row_internal_id NUMBER(38) NULL,
+  alias_type varchar2(1) NULL,
   PRIMARY KEY (internal_id)
 );
 CREATE INDEX alias_data_field_intrnl_id_idx ON grouper_data_alias (data_field_internal_id);
@@ -60,13 +60,13 @@ CREATE UNIQUE INDEX alias_name_idx ON grouper_data_alias (name);
 ALTER TABLE grouper_data_alias ADD CONSTRAINT grouper_data_alias_fk FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id);
 
 CREATE TABLE grouper_data_field_assign (
-  member_internal_id BIGINT NOT NULL,
-  data_field_internal_id BIGINT NOT NULL,
-  created_on timestamp NOT NULL,
-  internal_id BIGINT NOT NULL,
-  value_integer BIGINT NULL,
-  value_dictionary_internal_id BIGINT NULL,
-  data_provider_internal_id BIGINT NOT NULL,
+  member_internal_id NUMBER(38) NOT NULL,
+  data_field_internal_id NUMBER(38) NOT NULL,
+  created_on DATE NOT NULL,
+  internal_id NUMBER(38) NOT NULL,
+  value_integer NUMBER(38) NULL,
+  value_dictionary_internal_id NUMBER(38) NULL,
+  data_provider_internal_id NUMBER(38) NOT NULL,
   PRIMARY KEY (internal_id)
 );
 CREATE INDEX fld_assgn_prvdr_intrnl_id_idx ON grouper_data_field_assign (data_provider_internal_id);
@@ -79,12 +79,12 @@ ALTER TABLE grouper_data_field_assign ADD CONSTRAINT grouper_data_field_assign_f
 ALTER TABLE grouper_data_field_assign ADD CONSTRAINT grouper_data_field_assign_fk_2 FOREIGN KEY (member_internal_id) REFERENCES  grouper_members(internal_id);
 ALTER TABLE grouper_data_field_assign ADD CONSTRAINT grouper_data_field_assign_fk_3 FOREIGN KEY (data_provider_internal_id) REFERENCES  grouper_data_provider(internal_id);
 
-CREATE TABLE  grouper_data_row_assign (
-  member_internal_id BIGINT NOT NULL,
-  data_row_internal_id BIGINT NOT NULL,
-  created_on timestamp NOT NULL,
-  internal_id BIGINT NOT NULL,
-  data_provider_internal_id BIGINT NOT NULL,
+CREATE TABLE grouper_data_row_assign (
+  member_internal_id NUMBER(38) NOT NULL,
+  data_row_internal_id NUMBER(38) NOT NULL,
+  created_on DATE NOT NULL,
+  internal_id NUMBER(38) NOT NULL,
+  data_provider_internal_id NUMBER(38) NOT NULL,
   PRIMARY KEY (internal_id)
 );
 
@@ -97,12 +97,12 @@ ALTER TABLE  grouper_data_row_assign ADD CONSTRAINT grouper_data_row_assign_fk_1
 ALTER TABLE  grouper_data_row_assign ADD CONSTRAINT grouper_data_row_assign_fk_2 FOREIGN KEY (data_provider_internal_id) REFERENCES grouper_data_provider(internal_id);
 
 CREATE TABLE grouper_data_row_field_assign (
-  data_row_assign_internal_id BIGINT NOT NULL,
-  created_on timestamp NOT NULL,
-  internal_id BIGINT NOT NULL,
-  value_integer BIGINT NULL,
-  value_dictionary_internal_id BIGINT NULL,
-  data_field_internal_id BIGINT NOT NULL,
+  data_row_assign_internal_id NUMBER(38) NOT NULL,
+  created_on DATE NOT NULL,
+  internal_id NUMBER(38) NOT NULL,
+  value_integer NUMBER(38) NULL,
+  value_dictionary_internal_id NUMBER(38) NULL,
+  data_field_internal_id NUMBER(38) NOT NULL,
   PRIMARY KEY (internal_id)
 );
 CREATE INDEX dt_rw_fld_asg_fld_intrnl_ididx ON grouper_data_row_field_assign (data_field_internal_id);
@@ -114,12 +114,12 @@ ALTER TABLE grouper_data_row_field_assign ADD CONSTRAINT grpr_dt_row_field_assig
 
 
 CREATE TABLE grouper_data_global_assign (
-  data_field_internal_id bigint NOT NULL,
-  internal_id bigint NOT NULL,
-  value_integer bigint NULL,
-  value_dictionary_internal_id bigint NULL,
-  data_provider_internal_id bigint NOT NULL,
-  created_on timestamp NOT NULL,
+  data_field_internal_id NUMBER(38) NOT NULL,
+  internal_id NUMBER(38) NOT NULL,
+  value_integer NUMBER(38) NULL,
+  value_dictionary_internal_id NUMBER(38) NULL,
+  data_provider_internal_id NUMBER(38) NOT NULL,
+  created_on DATE NOT NULL,
   PRIMARY KEY (internal_id)
 );
 CREATE INDEX grouper_data_global1_idx ON grouper_data_global_assign (data_provider_internal_id);
@@ -164,7 +164,7 @@ and gdrfa.data_field_internal_id = gdf.internal_id
 and gdr.internal_id = gdra.data_row_internal_id 
 and gdra.internal_id = gdrfa.data_row_assign_internal_id ;
 
-update grouper_ddl set last_updated = to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substring((to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V45, ' || history) from 1 for 3500), db_version = 45 where object_name = 'Grouper';
+update grouper_ddl set last_updated = to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substr((to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V45, ' || history), 1, 3500), db_version = 45 where object_name = 'Grouper';
 commit;
 
 

@@ -866,37 +866,44 @@ public class GrouperDaemonDeleteOldRecords {
     //lets see if there are any nulls
     for (TableIndexType tableIndexType : TableIndexType.values()) {
       
-      if (tableIndexType == TableIndexType.membershipRequire) {
+      if (!tableIndexType.isHasIdColumn()) {
         continue;
       }
-      List<String> ids = HibernateSession.bySqlStatic().listSelect(
-          String.class, "select id from " + tableIndexType.tableName() + " where " + tableIndexType.getIncrementingColumn() + " is null order by id" , null, null);
+      
+      try {
+        List<String> ids = HibernateSession.bySqlStatic().listSelect(
+            String.class, "select id from " + tableIndexType.tableName() + " where " + tableIndexType.getIncrementingColumn() + " is null order by id" , null, null);
 
-      if (GrouperUtil.length(ids) > 0) {
-        String message = "Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null " + tableIndexType.getIncrementingColumn() + "... correcting...";
-        LOG.error(message);
-        if (jobMessage != null) {
-          jobMessage.append("\n" + message + "\n");
-        }
-        
-        int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 1000, false);
-        List<Long> idIndexes = TableIndex.reserveIds(tableIndexType, ids.size());
-        int idIndexIndex = 0;
-        for (int i=0;i<numberOfBatches; i++) {
-          List<String> idBatch = GrouperUtil.batchList(ids, 1000, i);
-          String sql = "update " + tableIndexType.tableName() 
-              + " set " + tableIndexType.getIncrementingColumn() + " = ? where id = ?";
-          List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
-          for (String id : idBatch) {
-            batchBindVars.add(GrouperUtil.toListObject(idIndexes.get(idIndexIndex++), id));
+        if (GrouperUtil.length(ids) > 0) {
+          String message = "Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null " + tableIndexType.getIncrementingColumn() + "... correcting...";
+          LOG.error(message);
+          if (jobMessage != null) {
+            jobMessage.append("\n" + message + "\n");
           }
-          new GcDbAccess().sql(sql).batchBindVars(batchBindVars).executeBatchSql();
-          if (i+1 % 100 == 0) {
-            LOG.warn("Updated " + ((i+1)*1000) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
+          
+          int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 1000, false);
+          List<Long> idIndexes = TableIndex.reserveIds(tableIndexType, ids.size());
+          int idIndexIndex = 0;
+          for (int i=0;i<numberOfBatches; i++) {
+            List<String> idBatch = GrouperUtil.batchList(ids, 1000, i);
+            String sql = "update " + tableIndexType.tableName() 
+                + " set " + tableIndexType.getIncrementingColumn() + " = ? where id = ?";
+            List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+            for (String id : idBatch) {
+              batchBindVars.add(GrouperUtil.toListObject(idIndexes.get(idIndexIndex++), id));
+            }
+            new GcDbAccess().sql(sql).batchBindVars(batchBindVars).executeBatchSql();
+            if (i+1 % 100 == 0) {
+              LOG.warn("Updated " + ((i+1)*1000) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
+            }
           }
+          LOG.warn("Finished " + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
         }
-        LOG.warn("Finished " + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
+      } catch (RuntimeException e) {
+        GrouperUtil.injectInException(e, "tableIndexType: "+tableIndexType.name() + ", tableName: "+tableIndexType.tableName());
+        throw e;
       }
+
     }
   }
 }

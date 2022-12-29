@@ -41,6 +41,11 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "id_index";
     }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
   },
   
   /** index assigned to a dictionary item */
@@ -54,6 +59,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
     }
   },
   
@@ -69,6 +79,11 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "internal_id";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
   },
   
   /** index assigned to a data field */
@@ -82,6 +97,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
     }
   },
   
@@ -97,6 +117,11 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "internal_id";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
   },
   
   /** index assigned to a data field alias */
@@ -110,6 +135,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
     }
   },
   
@@ -125,6 +155,11 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "internal_id";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
   },
   
   /** index assigned to a data field assign */
@@ -138,6 +173,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
     }
   },
   
@@ -153,6 +193,11 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "internal_id";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
   },
   
   /** index assigned to a member */
@@ -166,6 +211,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "id_index";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
     }
   },
   
@@ -181,6 +231,11 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "internal_id";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
   },
   
   /** index assigned to a stem */
@@ -194,6 +249,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "id_index";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
     }
   },
   
@@ -209,6 +269,11 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "id_index";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
   },
   
   /** index assigned to an attribute name */
@@ -222,6 +287,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "id_index";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
     }
 
   },
@@ -237,6 +307,11 @@ public enum TableIndexType {
     @Override
     public String getIncrementingColumn() {
       return "id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
     }
   };
 
@@ -264,5 +339,11 @@ public enum TableIndexType {
    * @return column name
    */
   public abstract String getIncrementingColumn();
+  
+  /**
+   * does this index type table has the id column
+   * @return column name
+   */
+  public abstract boolean isHasIdColumn();
 
 }

@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -69,7 +70,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_6_14To2_6_16ddlUtils"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_6_16To5_0_0ddlUtils"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -1809,4 +1810,178 @@ public class GrouperDdlUtilsTest extends GrouperTest {
         grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
   }
   
+  
+  public void testUpgradeFrom2_6_16To5_0_0ddlUtils() {
+    
+    //lets make sure everything is there on install
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_members", "internal_id"));
+    
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_dictionary"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_provider"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_field"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_row"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_alias"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_field_assign"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_row_assign"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_row_field_assign"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_global_assign"));
+    
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_field_assign_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_row_assign_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_row_field_asgn_v"));
+
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_members", "grouper_mem_internal_id_idx"));
+    
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_dictionary", "dictionary_last_referenced_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_dictionary", "dictionary_pre_load_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_dictionary", "dictionary_the_text_idx"));
+//
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_provider", "data_provider_config_id_idx"));
+//
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_field", "data_field_config_id_idx"));
+//
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row", "grouper_data_row_config_id_idx"));
+//    
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_alias", "alias_data_field_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_alias", "alias_lower_name_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_alias", "alias_name_idx"));
+//    
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_field_assign", "fld_assgn_prvdr_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_field_assign", "fld_assgn_field_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_field_assign", "fld_assgn_mbrs_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_field_assign", "fld_assgn_mbr_intrnl_id_idx"));
+//    
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row_assign", "rw_assg_dt_prvdr_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row_assign", "rw_assg_dt_rw_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row_assign", "rw_assg_mbr_intrnl_id_idx"));
+//
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row_field_assign", "dt_rw_fld_asg_fld_intrnl_ididx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row_field_assign", "dtrwfldasg_dtrwsg_intrnl_ididx"));
+//    
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_global_assign", "grouper_data_global1_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_global_assign", "grouper_data_global2_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_global_assign", "grouper_data_global3_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_global_assign", "grouper_data_global4_idx"));
+
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    // get to 2.6.16
+    File scriptToGetTo2_6_16 = retrieveScriptFile("GrouperDdl_2_6_16_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_6_16, true, true);
+  
+    // stuff gone
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_members", "internal_id"));
+    
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_dictionary"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_provider"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_field"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_row"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_alias"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_field_assign"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_row_assign"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_row_field_assign"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_global_assign"));
+    
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_field_assign_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_row_assign_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_data_row_field_asgn_v"));
+
+//    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_members", "grouper_mem_internal_id_idx"));
+    
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, "
+        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings",
+        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount()
+            + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+  
+    UpgradeTasks.V8.updateVersionFromPrevious();
+    
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_members", "internal_id"));
+    
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_dictionary"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_provider"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_field"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_row"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_alias"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_field_assign"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_row_assign"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_row_field_assign"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_global_assign"));
+    
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_field_assign_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_row_assign_v"));
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_data_row_field_asgn_v"));
+
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_members", "grouper_mem_internal_id_idx"));
+//    
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_dictionary", "dictionary_last_referenced_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_dictionary", "dictionary_pre_load_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_dictionary", "dictionary_the_text_idx"));
+//
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_provider", "data_provider_config_id_idx"));
+//
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_field", "data_field_config_id_idx"));
+//
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row", "grouper_data_row_config_id_idx"));
+//    
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_alias", "alias_data_field_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_alias", "alias_lower_name_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_alias", "alias_name_idx"));
+//    
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_field_assign", "fld_assgn_prvdr_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_field_assign", "fld_assgn_field_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_field_assign", "fld_assgn_mbrs_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_field_assign", "fld_assgn_mbr_intrnl_id_idx"));
+//    
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row_assign", "rw_assg_dt_prvdr_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row_assign", "rw_assg_dt_rw_intrnl_id_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row_assign", "rw_assg_mbr_intrnl_id_idx"));
+//
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row_field_assign", "dt_rw_fld_asg_fld_intrnl_ididx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_row_field_assign", "dtrwfldasg_dtrwsg_intrnl_ididx"));
+//    
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_global_assign", "grouper_data_global1_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_global_assign", "grouper_data_global2_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_global_assign", "grouper_data_global3_idx"));
+//    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_global_assign", "grouper_data_global4_idx"));
+  
+    scriptToGetTo2_6_16.delete();
+    
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  }
 }

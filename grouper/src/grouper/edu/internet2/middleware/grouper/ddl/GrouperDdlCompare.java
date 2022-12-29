@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Column;
@@ -266,7 +266,13 @@ public class GrouperDdlCompare {
       
       ForeignKey databaseForeignKey = databaseForeignKeys.get(foreignKeyName);
       ForeignKey javaForeignKey = javaForeignKeys.get(foreignKeyName);
-  
+      
+      // oracle needs the foriegn keys to be associated with only primary keys
+      // and these are not attached to primary keys but regular unique columns
+      if (GrouperDdlUtils.isOracle() && StringUtils.equalsAny(foreignKeyName, "grouper_data_field_assign_fk_2", "grouper_data_row_assign_fk")) {
+        continue;
+      }
+      
       if (databaseForeignKey == null) {
         tableErrors.append("Missing foreign key '" + foreignKeyName + "'.  ");
       } else if (javaForeignKey == null) {
