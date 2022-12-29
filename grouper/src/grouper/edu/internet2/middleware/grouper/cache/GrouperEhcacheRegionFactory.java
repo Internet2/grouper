@@ -16,21 +16,22 @@
 
 package edu.internet2.middleware.grouper.cache;
 
-import java.util.Properties;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.hibernate.boot.spi.SessionFactoryOptions;
 import org.hibernate.cache.CacheException;
-import org.hibernate.cache.ehcache.EhCacheRegionFactory;
+import org.hibernate.cache.ehcache.internal.EhcacheRegionFactory;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import net.sf.ehcache.CacheManager;
 
 
 /**
  *
  */
-public class GrouperEhcacheRegionFactory extends EhCacheRegionFactory {
+public class GrouperEhcacheRegionFactory extends EhcacheRegionFactory {
 
   /**
    * 
@@ -38,42 +39,38 @@ public class GrouperEhcacheRegionFactory extends EhCacheRegionFactory {
   private static final long serialVersionUID = -5628907054629045714L;
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperEhcacheRegionFactory.class);
-
+  
   /**
-   * @see org.hibernate.cache.ehcache.EhCacheRegionFactory#start(org.hibernate.boot.spi.SessionFactoryOptions, java.util.Properties)
+   * @see org.hibernate.cache.ehcache.internal.EhcacheRegionFactory#resolveCacheManager(org.hibernate.boot.spi.SessionFactoryOptions, java.util.Map)
    */
   @Override
-  public void start(SessionFactoryOptions sessionFactorOptions, Properties properties) throws CacheException {
+  public CacheManager resolveCacheManager(SessionFactoryOptions settings, Map properties) throws CacheException {
     if (EhcacheController.ehcacheController().isConfiguredViaProperties() 
         && GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.ehcache.useGrouperEhcacheRegionFactoryForHibernate", true)) {
-      if ( manager != null ) {
+      if ( super.getCacheManager() != null ) {
           LOG.warn("Attempting to start ehcache region facotry that has already been started");
-          return;
+          return super.getCacheManager();
       }
 
       try {
-        manager = EhcacheController.ehcacheController().getCacheManager();
-        mbeanRegistrationHelper.registerMBean( manager, properties );
+        return EhcacheController.ehcacheController().getCacheManager();
       } catch (net.sf.ehcache.CacheException e) {
         throw new RuntimeException("Cache exception", e);
       }
     } else {
-      super.start(sessionFactorOptions, properties);
+      return super.resolveCacheManager(settings, properties);
     }
   }
-
+  
   /**
-   * @see org.hibernate.cache.ehcache.EhCacheRegionFactory#stop()
+   * @see org.hibernate.cache.ehcache.internal.EhcacheRegionFactory#releaseFromUse()
    */
   @Override
-  public void stop() {
+  public void releaseFromUse() {
     if (EhcacheController.ehcacheController().isConfiguredViaProperties()) {
       
     } else {
-      super.stop();
+      super.releaseFromUse();
     }
   }
-
-  
-  
 }

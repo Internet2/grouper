@@ -120,6 +120,16 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-ehcache</artifactId>
+            <exclusions>
+              <exclusion>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache</artifactId>
+              </exclusion>            
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.jcraft</groupId>
@@ -254,17 +264,6 @@
         <dependency>
             <groupId>com.auth0</groupId>
             <artifactId>java-jwt</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
-            <!-- pulls in slf4j-api 1.6.1 -->
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- override slf4j-api version (in downstream projects) pulled from ehcache-core -->
         <dependency>

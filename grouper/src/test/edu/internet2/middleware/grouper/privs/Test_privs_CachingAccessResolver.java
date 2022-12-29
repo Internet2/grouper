@@ -38,7 +38,6 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.internal.util.Realize;
@@ -140,7 +139,7 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
 //    assertEquals(1L, cc.getStats("someCache").getMisses());
 //    assertEquals(0L, cc.getStats("someCache").getHits());
     
-    EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
+    //EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
 
     long before = resolver.getStats(CachingAccessResolver.CACHE_HASPRIV).getMisses();
     resolver.hasPrivilege( this.g, SubjectFinder.findAllSubject(), AccessPrivilege.ADMIN );
@@ -152,7 +151,7 @@ public class Test_privs_CachingAccessResolver extends GrouperTest {
    */
   public void test_hasPrivilege_cacheHit() {
 
-    EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
+    //EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).setStatisticsEnabled(true);
 
 //    EhcacheController.ehcacheController().getCache(CachingAccessResolver.CACHE_HASPRIV).put(
 //        new Element(new MultiKey(this.g.getUuid(), 

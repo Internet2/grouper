@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.persistence.OptimisticLockException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -586,6 +588,9 @@ public class HibernateSession {
     if (e instanceof StaleStateException) {
       throw new GrouperStaleStateException(errorString, e);
     }
+    if (e instanceof OptimisticLockException && e.getCause() != null && e.getCause() instanceof StaleStateException) {
+      throw new GrouperStaleStateException(errorString, e);
+    }
     // if hibernate exception, repackage
     if (e instanceof HibernateException) {
       throw new GrouperDAOException(errorString, e);
@@ -1056,7 +1061,10 @@ public class HibernateSession {
           param = GrouperUtil.toTimestamp(param);
         }
         
-        query.setParameter(i, param, type);
+        // Appears to be numbered from 1 now.  
+        // Alternatively, could have set hibernate.query.sql.jdbc_style_params_base = true
+        //query.setParameter(i, param, type);
+        query.setParameter((i+1), param, type);
       }
 
 
