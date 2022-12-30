@@ -110,9 +110,9 @@ import org.apache.commons.jexl2.parser.JexlNode;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.jexl3.JxltEngine.Template;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -3148,7 +3148,11 @@ public class GrouperUtil {
         result.append(", ");
       }
       first = false;
-      result.append(object);
+      
+      String objectString = GrouperUtil.stringValue(object);
+      objectString = StringUtils.replace(objectString, ",", "U+002C");
+      
+      result.append(objectString);
     }
     return result.toString();
 
