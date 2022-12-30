@@ -2,12 +2,12 @@ package edu.internet2.middleware.grouper.ui.tags;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.tagext.SimpleTagSupport;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItemFormElementType;
@@ -197,14 +197,25 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
     String displayClass = "";
     GrouperProvisioningObjectMetadataItemFormElementType configItemFormElement = GrouperProvisioningObjectMetadataItemFormElementType.valueOfIgnoreCase(formElementType, true);
 
-    if (readOnly) {
+    String valueToDisplay = null;
+    
+    if (this.value != null) {
+      if (this.value instanceof Collection) {
+        Collection<Object> valueCollection = (Collection<Object>)this.value;
+        valueToDisplay = GrouperUtil.collectionToString(valueCollection);
+      } else {
+        valueToDisplay = GrouperUtil.stringValue(this.value);
+      }
+    }
+    
+    if (this.readOnly) {
       
       if (configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON && 
           configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN && 
           configItemFormElement != GrouperProvisioningObjectMetadataItemFormElementType.CHECKBOX) {
         
-        if (value != null) {
-          field.append(GrouperUtil.escapeHtml(value.toString(), true) + " ");
+        if (valueToDisplay != null) {
+          field.append(GrouperUtil.escapeHtml(valueToDisplay, true) + " ");
         }
       }
       
@@ -216,8 +227,8 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
       
       field.append(
           "<input style='width:30em; "+ displayClass + "' type='text' id='"+name+"_id' name='" + name + "'");
-      if (value != null) {
-        field.append(" value = '"+GrouperUtil.escapeHtml(value.toString(), true)+"'");
+      if (valueToDisplay != null) {
+        field.append(" value = '"+GrouperUtil.escapeHtml(valueToDisplay, true)+"'");
       }
       field.append("></input>");
       
@@ -227,8 +238,8 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
             
       field.append("<textarea style='width:30em; "+ displayClass + "' cols='20' rows='3' id='"+name+"_id' name='"
           + name + "'>");
-      if (value != null) {
-        field.append(GrouperUtil.escapeHtml(value.toString(), true));
+      if (valueToDisplay != null) {
+        field.append(GrouperUtil.escapeHtml(valueToDisplay, true));
       }
       field.append("</textarea>");
       
@@ -260,7 +271,7 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           String key = (String) multiKey.getKey(0);
           String optionValue = (String) multiKey.getKey(1);
           
-          boolean selected = GrouperUtil.equals(key, value);
+          boolean selected = GrouperUtil.equals(key, valueToDisplay);
           
           field.append("<option value='"+key+"'" + (selected ? " selected='selected'" : "") + ">");
           field.append(GrouperUtil.escapeHtml(optionValue, true));
@@ -281,13 +292,13 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           
           String key = (String) multiKey.getKey(0);
           String radioButtonValue = (String) multiKey.getKey(1);
-          boolean checked = GrouperUtil.equals(key, value);
+          boolean checked = GrouperUtil.equals(key, valueToDisplay);
           
           // maybe the value is boolean
           try {
             Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(key);
             if (!checked) {
-              checked = GrouperUtil.equals(booleanObjectValue, value);
+              checked = GrouperUtil.equals(booleanObjectValue, valueToDisplay);
             }
           } catch (Exception e) {}
           
@@ -301,13 +312,13 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           
           String key = (String) multiKey.getKey(0);
           String radioButtonValue = (String) multiKey.getKey(1);
-          boolean checked = GrouperUtil.equals(key, value);
+          boolean checked = GrouperUtil.equals(key, valueToDisplay);
           
           // maybe the value is boolean
           try {
             Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(key);
             if (!checked) {
-              checked = GrouperUtil.equals(booleanObjectValue, value);
+              checked = GrouperUtil.equals(booleanObjectValue, valueToDisplay);
             }
           } catch (Exception e) {}
 
@@ -379,15 +390,24 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
     
     field.append("<br>");
     field.append("<span class='description'>");
+    
+    String description = "";
+    
     if (StringUtils.isNotBlank(descriptionKey)) {
       
-      String description = GrouperTextContainer.textOrNull(descriptionKey);
+      description = GrouperTextContainer.textOrNull(descriptionKey);
       if (StringUtils.isBlank(description)) {
         description = descriptionKey;
       }
       
-      field.append(description);
     }
+    
+    if (this.value != null && this.value instanceof Collection) {
+      description = description + ". "+GrouperTextContainer.textOrNull("metadataValueCollectionTypeSuffix");
+    }
+    
+    field.append(description);
+    
     
     field.append("</span>");
     
