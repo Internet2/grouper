@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.app.boxProvisioner.BoxMockServiceHandler
 import edu.internet2.middleware.grouper.app.duo.DuoMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleMockServiceHandler;
 import edu.internet2.middleware.grouper.app.google.GoogleMockServiceHandler;
+import edu.internet2.middleware.grouper.app.remedyV2.RemedyMockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.AwsScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GithubScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -51,7 +52,8 @@ public class MockServiceServlet extends HttpServlet {
       "duo", DuoMockServiceHandler.class.getName(),
       "duoRole", DuoRoleMockServiceHandler.class.getName(),
       "githubScim", GithubScim2MockServiceHandler.class.getName(),
-      "google", GoogleMockServiceHandler.class.getName()
+      "google", GoogleMockServiceHandler.class.getName(),
+      "remedy", RemedyMockServiceHandler.class.getName()
       );
   
   static {

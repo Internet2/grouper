@@ -7,11 +7,8 @@ package edu.internet2.middleware.grouper.app.remedy;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyLog;
-
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyLog;import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
 

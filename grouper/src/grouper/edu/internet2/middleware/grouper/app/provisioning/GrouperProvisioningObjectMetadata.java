@@ -149,7 +149,7 @@ public class GrouperProvisioningObjectMetadata {
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       
       String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
-//      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
       
       valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
       valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
