@@ -68,10 +68,13 @@ import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyAuth;
 import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyGroup;
 import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyMembership;
 import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyUser;
+<<<<<<< GROUPER_5_BRANCH
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperDigitalMarketplaceAuth;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperDigitalMarketplaceGroup;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperDigitalMarketplaceMembership;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperDigitalMarketplaceUser;
+=======
+>>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
@@ -263,11 +266,14 @@ public abstract class Hib3DAO {
         addClass(configuration, GrouperRemedyMembership.class);
         addClass(configuration, GrouperRemedyAuth.class);
         
+<<<<<<< GROUPER_5_BRANCH
         addClass(configuration, GrouperDigitalMarketplaceGroup.class);
         addClass(configuration, GrouperDigitalMarketplaceUser.class);
         addClass(configuration, GrouperDigitalMarketplaceMembership.class);
         addClass(configuration, GrouperDigitalMarketplaceAuth.class);
         
+=======
+>>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
       }
       addClass(configuration, Hib3MemberDAO.class);
       addClass(configuration, Hib3MembershipDAO.class);

@@ -1365,6 +1365,7 @@ public class GrouperProvisioningBehavior {
     if (this.selectMembershipsAll != null) {
       return this.selectMembershipsAll;
     }
+<<<<<<< GROUPER_5_BRANCH
     
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()) {
       selectMembershipsAll = false;
@@ -1377,6 +1378,13 @@ public class GrouperProvisioningBehavior {
             .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)) {
       this.selectMembershipsAll = true;
       return this.selectMembershipsAll;
+=======
+//    if (!this.isSelectMemberships()) {
+//      return false;
+//    }
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false)) {
+      return false;
+>>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
     }
     
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {

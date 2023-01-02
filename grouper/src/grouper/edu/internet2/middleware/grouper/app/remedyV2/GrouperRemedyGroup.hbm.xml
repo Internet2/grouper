@@ -30,7 +30,13 @@
       <generator class="assigned" />
     </id>
     
+<<<<<<< GROUPER_5_BRANCH
     <property name="permissionGroup" column="permission_group" />
+=======
+    <property name="status" column="status" />
+    <property name="permissionGroup" column="permission_group" />
+    <!-- <property name="permissionGroupId" column="permission_group_id" /> -->
+>>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
 
   </class>
 </hibernate-mapping>
