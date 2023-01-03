@@ -1661,7 +1661,8 @@ public class GrouperProvisioningBehavior {
       
     }
     
-    if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable)) {
+    if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable) || 
+        StringUtils.equals("subjectIdentifier", currSubjectIdentifierForMemberSyncTable)) {
       // default
       currSubjectIdentifierForMemberSyncTable = "subjectIdentifier0";
     }

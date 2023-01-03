@@ -30,9 +30,7 @@
       <generator class="assigned" />
     </id>
     
-    <property name="status" column="status" />
     <property name="permissionGroup" column="permission_group" />
-    <!-- <property name="permissionGroupId" column="permission_group_id" /> -->
 
   </class>
 </hibernate-mapping>

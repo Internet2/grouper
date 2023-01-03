@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class GrouperRemedyApiCommands {
@@ -86,7 +87,9 @@ public class GrouperRemedyApiCommands {
         
         {
           String status = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Status");
-          grouperRemedyGroup.setStatus(status);
+          if (!StringUtils.equals("Enabled", status)) {
+            continue;
+          }
         }
         
         {
@@ -488,7 +491,7 @@ public class GrouperRemedyApiCommands {
    * @param permissionGroupId
    * @return the group based on permission group id
    */
-  public static GrouperRemedyGroup retrieveRemedyGroup(String remedyExternalSystemConfigId, String permissionGroupId) {
+  public static GrouperRemedyGroup retrieveRemedyGroup(String remedyExternalSystemConfigId, Long permissionGroupId) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -525,7 +528,9 @@ public class GrouperRemedyApiCommands {
         
         {
           String status = GrouperUtil.jsonJacksonGetString(jsonObjectGroupValues, "Status");
-          grouperRemedyGroup.setStatus(status);
+          if (!StringUtils.equals(status, "Enabled")) {
+            continue;
+          }
         }
         
         {
@@ -674,18 +679,22 @@ public class GrouperRemedyApiCommands {
    * @return true if added, false if already exists, null if enabled a past disabled memberships
    */
   public static Boolean assignUserToRemedyGroup(String remedyExternalSystemConfigId,
-      GrouperRemedyUser grouperRemedyUser, GrouperRemedyGroup grouperRemedyGroup) {
+      String remedyLoginId, String personId, String permissionGroup, Long permissionGroupId) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
     debugMap.put("method", "assignUserToRemedyGroup");
-    debugMap.put("userLoginId", grouperRemedyUser.getRemedyLoginId());
-    debugMap.put("permissionGroupId", grouperRemedyGroup.getPermissionGroupId());
-    debugMap.put("permissionGroup", grouperRemedyGroup.getPermissionGroup());
+    debugMap.put("remedyLoginId", remedyLoginId);
+    debugMap.put("permissionGroupId", permissionGroupId);
+    debugMap.put("permissionGroup", permissionGroup);
+    debugMap.put("personId", personId);
     
     JsonNode[] grouperRemedyMembershipJsonObject = new JsonNode[1];
     
-    GrouperRemedyMembership grouperRemedyMembership = retrieveRemedyMembership(remedyExternalSystemConfigId, Long.toString(grouperRemedyGroup.getPermissionGroupId()), grouperRemedyUser.getRemedyLoginId(), grouperRemedyMembershipJsonObject);
+    GrouperRemedyMembership grouperRemedyMembership = retrieveRemedyMembership(remedyExternalSystemConfigId,
+        String.valueOf(permissionGroupId),
+        remedyLoginId, 
+        grouperRemedyMembershipJsonObject);
 
     debugMap.put("foundExistingMembership", grouperRemedyMembership != null ? true : false);
     
@@ -746,10 +755,10 @@ public class GrouperRemedyApiCommands {
       ObjectMapper objectMapper = new ObjectMapper();
       ObjectNode jsonObject = objectMapper.createObjectNode();
       ObjectNode valuesObject = objectMapper.createObjectNode();
-      valuesObject.put("Permission Group ID", grouperRemedyGroup.getPermissionGroupId());
-      valuesObject.put("Permission Group", grouperRemedyGroup.getPermissionGroup());
-      valuesObject.put("Person ID", grouperRemedyUser.getPersonId());
-      valuesObject.put("Remedy Login ID", grouperRemedyUser.getRemedyLoginId());
+      valuesObject.put("Permission Group ID", permissionGroupId);
+      valuesObject.put("Permission Group", permissionGroup);
+      valuesObject.put("Person ID", personId);
+      valuesObject.put("Remedy Login ID", remedyLoginId);
       valuesObject.put("Status", "Enabled");
       jsonObject.set("values", valuesObject);
       executePutPostMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", null, jsonObject.toString(), false);

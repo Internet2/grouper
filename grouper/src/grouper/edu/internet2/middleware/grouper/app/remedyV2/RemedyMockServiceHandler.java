@@ -140,22 +140,28 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(permissionGroupId) > 0, "permissionGroupId is required");
     
+    Long permissionGroupIdLong = Long.valueOf(permissionGroupId);
+    
     List<GrouperRemedyGroup> grouperRemedyGroups = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyGroup where permissionGroupId = :theId")
-        .setString("theId", permissionGroupId).list(GrouperRemedyGroup.class);
-
-    if (GrouperUtil.length(grouperRemedyGroups) == 1) {
-      mockServiceResponse.setResponseCode(200);
-
-      mockServiceResponse.setContentType("application/json");
-      ObjectNode objectNode = grouperRemedyGroups.get(0).toJson(null);
+        .setLong("theId", permissionGroupIdLong).list(GrouperRemedyGroup.class);
+    
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    
+    ArrayNode entriesArray = GrouperUtil.jsonJacksonArrayNode();
+    
+    for (GrouperRemedyGroup grouperRemedyGroup : grouperRemedyGroups) {
       
-      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
-
-    } else if (GrouperUtil.length(grouperRemedyGroups) == 0) {
-      mockServiceResponse.setResponseCode(404);
-    } else {
-      throw new RuntimeException("groupsById: " + GrouperUtil.length(grouperRemedyGroups) + ", id: " + permissionGroupId);
+      ObjectNode valuesNode = GrouperUtil.jsonJacksonNode();
+      ObjectNode objectNode = grouperRemedyGroup.toJson(null);
+      valuesNode.set("values", objectNode);
+      entriesArray.add(valuesNode);
     }
+    
+    resultNode.set("entries", entriesArray);
+    mockServiceResponse.setResponseCode(200);
+
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
 
   }
   
@@ -279,27 +285,57 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
       return;
     }
 
-    String userId = mockServiceRequest.getPostMockNamePaths()[1];
+    String remedyLoginId = mockServiceRequest.getPostMockNamePaths()[1];
     
-    GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
+    GrouperUtil.assertion(GrouperUtil.length(remedyLoginId) > 0, "userId is required");
     
-    List<GrouperRemedyUser> grouperRemedyUsers = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyUser where personId = :theId")
-        .setString("theId", userId).list(GrouperRemedyUser.class);
+    List<GrouperRemedyUser> grouperRemedyUsers = HibernateSession.byHqlStatic().createQuery("from GrouperRemedyUser where remedyLoginId = :theId")
+        .setString("remedyLoginId", remedyLoginId).list(GrouperRemedyUser.class);
 
-    if (GrouperUtil.length(grouperRemedyUsers) == 1) {
-      mockServiceResponse.setResponseCode(200);
-
-      mockServiceResponse.setContentType("application/json");
-      ObjectNode objectNode = grouperRemedyUsers.get(0).toJson(null);
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    /**
+     * //  {
+    //    "entries": [
+    //      {
+    //        "values": {
+    //          "Person ID": "PPL000000000306",
+    //          "Remedy Login ID": "foundationdataadmin"
+    //        },
+    //        "_links": {
+    //          "self": [
+    //            {
+    //              "href": "https://school-dev-restapi.onbmc.com/api/arsys/v1/entry/CTM:People/PPL000000000306"
+    //            }
+    //          ]
+    //        }
+    //      }
+    //    ],
+    //    "_links": {
+    //      "self": [
+    //        {
+    //          "href": "https://school-dev-restapi.onbmc.com/api/arsys/v1/entry/CTM:People"
+    //        }
+    //      ]
+    //    }
+    //  }      
+     */
+    
+    ArrayNode entriesArray = GrouperUtil.jsonJacksonArrayNode();
+    
+    for (GrouperRemedyUser grouperRemedyUser : grouperRemedyUsers) {
       
-      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
-
-    } else if (GrouperUtil.length(grouperRemedyUsers) == 0) {
-      mockServiceResponse.setResponseCode(404);
-    } else {
-      throw new RuntimeException("usersById: " + GrouperUtil.length(grouperRemedyUsers) + ", id: " + userId);
+      ObjectNode valuesNode = GrouperUtil.jsonJacksonNode();
+      ObjectNode objectNode = grouperRemedyUser.toJson(null);
+      valuesNode.set("values", objectNode);
+      entriesArray.add(valuesNode);
     }
+    
+    resultNode.set("entries", entriesArray);
+    mockServiceResponse.setResponseCode(200);
 
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+   
   }
   
   
@@ -360,7 +396,7 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
     
     //check if this groupId and userId are already connected
     List<GrouperRemedyMembership> memberships = HibernateSession.byHqlStatic()
-        .createQuery("from GrouperRemedyMembership m where m.remedyLoginId = :userId and m.permissionGroupId = :groupId ")
+        .createQuery("from GrouperRemedyMembership where remedyLoginId = :remedyLoginId and permissionGroupId = :permissionGroupId")
         .setString("remedyLoginId", remedyLoginId)
         .setLong("permissionGroupId", permissionGroupId)
         .list(GrouperRemedyMembership.class);
@@ -478,7 +514,7 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
         return;
       }
       
-      if ("ENT:SYS%20People%20Entitlement%20Groups".equals(mockNamePaths.get(0)) && 1 == mockNamePaths.size()) {
+      if ("ENT:SYS People Entitlement Groups".equals(mockNamePaths.get(0)) && 1 == mockNamePaths.size()) {
         associateOrDisassociateGroupWithUser(mockServiceRequest, mockServiceResponse);
         return;
       }
@@ -486,7 +522,12 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
     
     if (StringUtils.equals("PUT", mockServiceRequest.getHttpServletRequest().getMethod())) {
       
-      if ("ENT:SYS%20People%20Entitlement%20Groups".equals(mockNamePaths.get(0)) && 1 == mockNamePaths.size()) {
+      if ("ENT:SYS People Entitlement Groups".equals(mockNamePaths.get(0)) && 1 == mockNamePaths.size()) {
+        associateOrDisassociateGroupWithUser(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      
+      if ("ENT:SYS People Entitlement Groups".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
         associateOrDisassociateGroupWithUser(mockServiceRequest, mockServiceResponse);
         return;
       }
