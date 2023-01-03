@@ -31,12 +31,18 @@
     </id>
     
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     <property name="permissionGroup" column="permission_group" />
 =======
     <property name="status" column="status" />
+=======
+>>>>>>> 52cdbbb RemedyV2
     <property name="permissionGroup" column="permission_group" />
+<<<<<<< GROUPER_5_BRANCH
     <!-- <property name="permissionGroupId" column="permission_group_id" /> -->
 >>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
+=======
+>>>>>>> 52cdbbb RemedyV2
 
   </class>
 </hibernate-mapping>

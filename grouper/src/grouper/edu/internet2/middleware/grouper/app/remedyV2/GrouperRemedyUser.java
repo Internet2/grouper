@@ -71,6 +71,7 @@ public class GrouperRemedyUser {
     ProvisioningEntity targetEntity = new ProvisioningEntity();
     
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     targetEntity.assignAttributeValue("personId", this.personId);
     targetEntity.assignAttributeValue("remedyLoginId", this.remedyLoginId);
     
@@ -97,9 +98,12 @@ public class GrouperRemedyUser {
 =======
     targetEntity.assignAttributeValue("Person ID", this.personId);
     targetEntity.assignAttributeValue("Remedy Login ID", this.remedyLoginId);
+=======
+    targetEntity.assignAttributeValue("personId", this.personId);
+    targetEntity.assignAttributeValue("remedyLoginId", this.remedyLoginId);
+>>>>>>> 52cdbbb RemedyV2
     
-    //TODO do we need this?
-//    targetEntity.setId(this.id);
+    
     return targetEntity;
   }
   
@@ -113,13 +117,18 @@ public class GrouperRemedyUser {
     
     GrouperRemedyUser grouperRemedyUser = new GrouperRemedyUser();
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("Person ID")) {      
-      grouperRemedyUser.setPersonId(targetEntity.retrieveAttributeValueString("Person ID"));
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("personId")) {      
+      grouperRemedyUser.setPersonId(targetEntity.retrieveAttributeValueString("personId"));
     }
     
+<<<<<<< GROUPER_5_BRANCH
     if (fieldNamesToSet == null || fieldNamesToSet.contains("Remedy Login ID")) {      
       grouperRemedyUser.setRemedyLoginId(targetEntity.retrieveAttributeValueString("Remedy Login ID"));
 >>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
+=======
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("remedyLoginId")) {      
+      grouperRemedyUser.setRemedyLoginId(targetEntity.retrieveAttributeValueString("remedyLoginId"));
+>>>>>>> 52cdbbb RemedyV2
     }
     
     return grouperRemedyUser;

@@ -20,6 +20,7 @@ public class GrouperRemedyGroup {
   
   /**
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
    * "Permission Group": "adminUsers",
    */
   private String permissionGroup;
@@ -176,6 +177,9 @@ public class GrouperRemedyGroup {
 
   /**
    * "Permission Group": "2000000001",
+=======
+   * "Permission Group": "adminUsers",
+>>>>>>> 52cdbbb RemedyV2
    */
   private String permissionGroup;
 
@@ -235,7 +239,6 @@ public class GrouperRemedyGroup {
       
       Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "status", Types.VARCHAR, "40", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "permission_group", Types.VARCHAR, "40", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "permission_group_id", Types.BIGINT, "40", true, true);
 
@@ -247,11 +250,7 @@ public class GrouperRemedyGroup {
     ProvisioningGroup targetGroup = new ProvisioningGroup();
     
     targetGroup.assignAttributeValue("permissionGroup", this.permissionGroup);
-    targetGroup.assignAttributeValue("status", this.status);
     targetGroup.assignAttributeValue("permissionGroupId", this.permissionGroupId);
-    
-    //TODO do we need this?
-    //targetGroup.setId(this.permissionGroupId.toString());
     
     return targetGroup;
   }
@@ -265,10 +264,6 @@ public class GrouperRemedyGroup {
   public static GrouperRemedyGroup fromProvisioningGroup(ProvisioningGroup targetGroup, Set<String> fieldNamesToSet) {
     
     GrouperRemedyGroup grouperRemedyGroup = new GrouperRemedyGroup();
-    
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("status")) {      
-      grouperRemedyGroup.setStatus(targetGroup.retrieveAttributeValueString("status"));
-    }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("permissionGroup")) {      
       grouperRemedyGroup.setPermissionGroup(targetGroup.retrieveAttributeValueString("permissionGroup"));
@@ -287,7 +282,7 @@ public class GrouperRemedyGroup {
     return GrouperClientUtils.toStringReflection(this);
   }
 
-  public static final String fieldsToSelect="Status,Permission Group,Permission Group ID";
+  public static final String fieldsToSelect="Permission Group,Permission Group ID";
   
   /**
    * convert from jackson json
@@ -304,7 +299,6 @@ public class GrouperRemedyGroup {
     
     grouperRemedyGroup.permissionGroupId = GrouperUtil.jsonJacksonGetLong(groupNode, "Permission Group ID");
     grouperRemedyGroup.permissionGroup = GrouperUtil.jsonJacksonGetString(groupNode, "Permission Group");
-    grouperRemedyGroup.status = GrouperUtil.jsonJacksonGetString(groupNode, "Status");
     
     return grouperRemedyGroup;
   }
@@ -318,9 +312,6 @@ public class GrouperRemedyGroup {
     ObjectMapper objectMapper = new ObjectMapper();
     ObjectNode result = objectMapper.createObjectNode();
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("Status")) {      
-      result.put("Status", this.status);
-    }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("Permission Group")) {      
       result.put("Permission Group", this.permissionGroup);
     }
@@ -328,6 +319,8 @@ public class GrouperRemedyGroup {
       result.put("Permission Group ID", this.permissionGroupId);
     }
 >>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
+    
+    result.put("Status", "Enabled");
     
     return result;
   }
