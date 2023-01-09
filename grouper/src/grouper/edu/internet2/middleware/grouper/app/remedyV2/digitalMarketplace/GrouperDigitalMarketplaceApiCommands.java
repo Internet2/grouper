@@ -1,20 +1,20 @@
-package edu.internet2.middleware.grouper.app.remedy.digitalMarketplace;
+package edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -22,78 +22,14 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.exception.ExceptionUtils;
-import edu.internet2.middleware.morphString.Crypto;
 
-
-
-/**
- * commands against the box api
- */
-public class GrouperDigitalMarketplaceCommands {
-
+public class GrouperDigitalMarketplaceApiCommands {
+  
   /**
-   * 
-   * @param args
-   */
-  public static void main(String[] args) {
-    GrouperStartup.startup();
-//    deleteDigitalMarketplaceGroup("pg_ISC_staff", false);
-//    deleteDigitalMarketplaceGroup("pg_IT_staff", false);
-//    deleteDigitalMarketplaceGroup("pg_data_center_hosting_clients", false);
-//    deleteDigitalMarketplaceGroup("pg_hire_IT_clients", false);
-//    deleteDigitalMarketplaceGroup("pg_penn_community_admins", false);
-//    deleteDigitalMarketplaceGroup("pg_telephone_support_providers", false);
-//    deleteDigitalMarketplaceGroup("pg_test2", false);
-//    deleteDigitalMarketplaceGroup("pg_test", false);
-    
-    
-//    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
-//    for (GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup : mapNameToGroup.values()) {
-//      if (grouperDigitalMarketplaceGroup.getGroupName().startsWith("pg_")) {
-//        System.out.println(grouperDigitalMarketplaceGroup.getGroupName() + " #### " + grouperDigitalMarketplaceGroup.getLongGroupName());
-//        for (GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser : grouperDigitalMarketplaceGroup.getMemberUsers().values()) {
-//          System.out.println(grouperDigitalMarketplaceGroup.getGroupName() + " #### " + grouperDigitalMarketplaceUser.getLoginName());
-//        }
-//      }
-//    }
-
-//    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
-//    for (GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup : mapNameToGroup.values()) {
-//      System.out.println(grouperDigitalMarketplaceGroup.getGroupName() + " #### " + grouperDigitalMarketplaceGroup.getLongGroupName());
-//    }
-
-    
-//    createDigitalMarketplaceGroup("pg_test2", "pg_test2", "comments", false);
-    
-//    Map<String, GrouperDigitalMarketplaceUser> mapNameToUser = retrieveDigitalMarketplaceUsers();
-//    for (GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser : mapNameToUser.values()) {
-//      System.out.println(grouperDigitalMarketplaceUser);
-//    }
-    
-    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("mchyzer");
-    System.out.println(grouperDigitalMarketplaceUser.getLoginName());
-    for (String groupName : grouperDigitalMarketplaceUser.getGroups()) {
-      System.out.println(groupName);
-    }
-
-//    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("adrianj");
-//    System.out.println(grouperDigitalMarketplaceUser.getLoginName());
-//    for (String groupName : grouperDigitalMarketplaceUser.getGroups()) {
-//      System.out.println(groupName);
-//    }
-
-    Map<String, GrouperDigitalMarketplaceGroup> mapNameToGroup = retrieveDigitalMarketplaceGroups();
-    GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = mapNameToGroup.get("pg_ISC_staff_old");
-//    GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser("adrianj");
-    assignUserToDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup, true);
-//    removeUserFromDigitalMarketplaceGroup(grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup, true);
-    
-  }
-
-  /**
+   * @param digitalMarketplaceExternalSystemConfigId
    * @return remedy login id to user never null
    */
-  public static Map<String, GrouperDigitalMarketplaceUser> retrieveDigitalMarketplaceUsers() {
+  public static Map<String, GrouperDigitalMarketplaceUser> retrieveDigitalMarketplaceUsers(String digitalMarketplaceExternalSystemConfigId) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -109,7 +45,7 @@ public class GrouperDigitalMarketplaceCommands {
       
       for (int i=0;i<6000;i++) {
       
-        Map<String, GrouperDigitalMarketplaceUser> localResults = retrieveDigitalMarketplaceUsersHelper(pageSize, 0+results.size());
+        Map<String, GrouperDigitalMarketplaceUser> localResults = retrieveDigitalMarketplaceUsersHelper(digitalMarketplaceExternalSystemConfigId, pageSize, 0+results.size());
         
         if (localResults.size() == 0) {
           break;
@@ -134,11 +70,14 @@ public class GrouperDigitalMarketplaceCommands {
   }
 
   /**
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param pageSize 
    * @param startIndex 
    * @return remedy login id to user never null
    */
-  private static Map<String, GrouperDigitalMarketplaceUser> retrieveDigitalMarketplaceUsersHelper(int pageSize, int startIndex) {
+  private static Map<String, GrouperDigitalMarketplaceUser> retrieveDigitalMarketplaceUsersHelper(
+      String digitalMarketplaceExternalSystemConfigId,
+      int pageSize, int startIndex) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -154,7 +93,7 @@ public class GrouperDigitalMarketplaceCommands {
       paramMap.put("pageSize", "" + pageSize);
       paramMap.put("startIndex", "" + startIndex);
       
-      JsonNode jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
+      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/datapage", paramMap);
       
       Map<String, GrouperDigitalMarketplaceUser> results = convertMarketplaceUsersFromJson(jsonObject);
       debugMap.put("totalSize", GrouperUtil.jsonJacksonGetInteger(jsonObject, "totalSize")); 
@@ -165,8 +104,6 @@ public class GrouperDigitalMarketplaceCommands {
         debugMap.put("first", ids.get(0));
         debugMap.put("last", ids.get(ids.size()-1));
       }      
-      
-      
   
       return results;
     } catch (RuntimeException re) {
@@ -179,10 +116,11 @@ public class GrouperDigitalMarketplaceCommands {
   }
 
   /**
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param loginid
    * @return the user based on loginid
    */
-  public static GrouperDigitalMarketplaceUser retrieveDigitalMarketplaceUser(String loginid) {
+  public static GrouperDigitalMarketplaceUser retrieveDigitalMarketplaceUser(String digitalMarketplaceExternalSystemConfigId, String loginid) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -201,7 +139,7 @@ public class GrouperDigitalMarketplaceCommands {
       paramMap.put("startIndex", "0");
       paramMap.put("loginName", loginid);
 
-      JsonNode jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
+      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/datapage", paramMap);
 
       Map<String, GrouperDigitalMarketplaceUser> results = convertMarketplaceUsersFromJson(jsonObject);
 
@@ -225,28 +163,109 @@ public class GrouperDigitalMarketplaceCommands {
     }
     
   }
+  
+  /**
+   * @param digitalMarketplaceExternalSystemConfigId
+   * @param groupName
+   * @return the group based on group name
+   */
+  public static GrouperDigitalMarketplaceGroup retrieveDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, String groupName) {
+    
+    Map<String, GrouperDigitalMarketplaceGroup> results = new TreeMap<String, GrouperDigitalMarketplaceGroup>();
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveDigitalMarketplaceGroup");
+    debugMap.put("groupName", groupName);
+
+    long startTime = System.nanoTime();
+
+    try {
+  
+      Map<String, String> paramMap = new HashMap<String, String>();
+
+      //doesnt work since the url shouldnt be encoded
+      paramMap.put("dataPageType", "com.bmc.arsys.rx.application.group.datapage.GroupDataPageQuery");
+      paramMap.put("pageSize", "1");
+      paramMap.put("startIndex", "0");
+      paramMap.put("groupName", groupName);
+
+      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/datapage", paramMap);
+
+      JsonNode jsonObjectEntries = jsonObject.get("data");
+      for (int i=0; i < jsonObjectEntries.size(); i++) {
+        
+        JsonNode jsonObjectGroup = jsonObjectEntries.get(i);
+        
+        GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = new GrouperDigitalMarketplaceGroup();
+  
+        {
+          String groupName1 = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "groupName");
+          grouperDigitalMarketplaceGroup.setGroupName(groupName1);
+        }
+        
+        {
+          String comments = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "comments");
+          grouperDigitalMarketplaceGroup.setComments(comments);
+        }
+        
+        {
+          String groupType = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "groupType");
+          grouperDigitalMarketplaceGroup.setGroupType(groupType);
+        }
+
+        {
+          String longGroupName = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "longGroupName");
+          grouperDigitalMarketplaceGroup.setLongGroupName(longGroupName);
+        }
+
+        {
+          // note: this might be blank: com.bmc.arsys.rx.services.group.domain.RegularGroup
+          if (jsonObjectGroup.has("resourceType")) {
+            String resourceType = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "resourceType");
+            grouperDigitalMarketplaceGroup.setResourceType(resourceType);
+          }
+        }
+
+        results.put(grouperDigitalMarketplaceGroup.getGroupName(), grouperDigitalMarketplaceGroup);
+      }
+      
+      debugMap.put("size", GrouperClientUtils.length(results));
+
+      if (GrouperClientUtils.length(results) == 0) {
+        
+        return null;
+        
+      }
+      if (GrouperClientUtils.length(results) == 1) {
+        return results.values().iterator().next();
+      }
+      throw new RuntimeException("Found multiple results for groupName '" + groupName + "', results: " + GrouperClientUtils.length(results));
+      
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperDigitalMarketplaceLog.marketplaceLog(debugMap, startTime);
+    }
+    
+  }
 
   /**
    * execute a GET method
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param debugMap
    * @param path
    * @param paramMap
    * @return the json object
    */
-  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
+  private static JsonNode executeGetMethod(String digitalMarketplaceExternalSystemConfigId, Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
   
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
     
-    String proxyUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.proxyUrl");
-    String proxyType = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.proxyType");
-    
-    grouperHttpClient.assignProxyUrl(proxyUrl);
-    grouperHttpClient.assignProxyType(proxyType);
-
+    String jwtToken = retrieveJwtToken(digitalMarketplaceExternalSystemConfigId, debugMap);
   
-    String jwtToken = retrieveJwtToken(debugMap);
-  
-    String fullUrl = calculateUrl(path, paramMap);
+    String fullUrl = calculateUrl(digitalMarketplaceExternalSystemConfigId, path, paramMap);
     grouperHttpClient.assignUrl(fullUrl);
     grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
     
@@ -292,10 +311,11 @@ public class GrouperDigitalMarketplaceCommands {
 
   /**
    * get the login token
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param debugMap
    * @return the login token
    */
-  private static String retrieveJwtToken(Map<String, Object> debugMap) {
+  private static String retrieveJwtToken(String digitalMarketplaceExternalSystemConfigId, Map<String, Object> debugMap) {
     
     String jwtToken = retrieveJwtTokenCache.get(Boolean.TRUE);
 
@@ -304,28 +324,21 @@ public class GrouperDigitalMarketplaceCommands {
       synchronized (retrieveJwtTokenCache) {
         jwtToken = retrieveJwtTokenCache.get(Boolean.TRUE);
         if (GrouperClientUtils.isBlank(jwtToken)) {
-          String username = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperDigitalMarketplace.user");
-        
-          boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
-              "encrypt.disableExternalFileLookup");
           
-          //lets lookup if file
-          String wsPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperDigitalMarketplace.pass");
-          String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(wsPass, disableExternalFileLookup);
-        
-          if (!GrouperClientUtils.equals(wsPass, wsPassFromFile)) {
-        
-            String encryptKey = GrouperClientUtils.encryptKey();
-            wsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
-            
-          }
+          String username = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+digitalMarketplaceExternalSystemConfigId+".username");
+          
+          String password = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+digitalMarketplaceExternalSystemConfigId+".password");
+      
+          //login and get a token
+          String loginUrl = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+digitalMarketplaceExternalSystemConfigId+".tokenUrl");
         
           //login and get a token
-          String url = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperDigitalMarketplace.url");
+          String url = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+digitalMarketplaceExternalSystemConfigId+".url");
         
           url = GrouperClientUtils.stripEnd(url, "/");
           
-          String loginUrl = url + "/api/myit-sb/users/login";
+//          String loginUrl = url + "/api/myit-sb/users/login";
+          
           
           GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
           
@@ -343,17 +356,11 @@ public class GrouperDigitalMarketplaceCommands {
           
           ObjectNode jsonObject = objectMapper.createObjectNode();
           jsonObject.put("id", username);
-          jsonObject.put("password", wsPass);
+          jsonObject.put("password", password);
           
           String postBody = jsonObject.toString();
 
           grouperHttpClient.assignBody(postBody);
-
-          String proxyUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.proxyUrl");
-          String proxyType = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.proxyType");
-          
-          grouperHttpClient.assignProxyUrl(proxyUrl);
-          grouperHttpClient.assignProxyType(proxyType);
 
           int responseCodeInt = -1;
 
@@ -389,13 +396,15 @@ public class GrouperDigitalMarketplaceCommands {
   }
 
   /**
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param path
    * @param paramMap
    * @return the url
    */
-  private static String calculateUrl(String path, Map<String, String> paramMap) {
-    String url = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperDigitalMarketplace.url");
-  
+  private static String calculateUrl(String digitalMarketplaceExternalSystemConfigId,  String path, Map<String, String> paramMap) {
+    
+    String url = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+digitalMarketplaceExternalSystemConfigId+".url");
+    
     url = GrouperClientUtils.stripEnd(url, "/");
     
     StringBuilder fullUrlBuilder = new StringBuilder(url).append(path);
@@ -509,9 +518,10 @@ public class GrouperDigitalMarketplaceCommands {
   }
 
   /**
+   * @param digitalMarketplaceExternalSystemConfigId
    * @return the name of group extension mapped to group
    */
-  public static Map<String, GrouperDigitalMarketplaceGroup> retrieveDigitalMarketplaceGroups() {
+  public static Map<String, GrouperDigitalMarketplaceGroup> retrieveDigitalMarketplaceGroups(String digitalMarketplaceExternalSystemConfigId) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
@@ -530,7 +540,7 @@ public class GrouperDigitalMarketplaceCommands {
       
       //doesnt work since the url shouldnt be encoded
       
-      JsonNode jsonObject = executeGetMethod(debugMap, "/api/rx/application/datapage", paramMap);
+      JsonNode jsonObject = executeGetMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/datapage", paramMap);
       
       //  { 
       //    "totalSize":555,
@@ -610,26 +620,28 @@ public class GrouperDigitalMarketplaceCommands {
   }
 
   /**
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param grouperDigitalMarketplaceUser
    * @param grouperDigitalMarketplaceGroup
    * @param isIncremental
    * @return true if added, false if already exists
    */
-  public static Boolean assignUserToDigitalMarketplaceGroup(GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser, GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup, boolean isIncremental) {
+  public static Boolean assignUserToDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser, GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
     debugMap.put("method", "assignUserToDigitalMarketplaceGroup");
     debugMap.put("loginName", grouperDigitalMarketplaceUser.getLoginName());
     debugMap.put("groupName", grouperDigitalMarketplaceGroup.getGroupName());
-    debugMap.put("daemonType", isIncremental ? "incremental" : "full");
 
     long startTime = System.nanoTime();
     
     try {
   
       // refresh the user object
-      grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser(grouperDigitalMarketplaceUser.getLoginName());
+      grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser(
+          digitalMarketplaceExternalSystemConfigId,
+          grouperDigitalMarketplaceUser.getLoginName());
       
       // restart timer
       startTime = System.nanoTime();
@@ -649,7 +661,7 @@ public class GrouperDigitalMarketplaceCommands {
         
         ArrayNode groups = (ArrayNode)jsonObject.get("groups");
 
-        removeNonExistentGroups(groups, debugMap);
+//        removeNonExistentGroups(groups, debugMap);
 
         ObjectMapper objectMapper = new ObjectMapper();
         
@@ -666,7 +678,7 @@ public class GrouperDigitalMarketplaceCommands {
         String userJson = userWithGroupsJson.toString();
         
         // /api/rx/application/user/Allen
-        executePutPostMethod(debugMap, "/api/rx/application/user/" + grouperDigitalMarketplaceUser.getLoginName(), null, userJson, true);
+        executePutPostMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/user/" + grouperDigitalMarketplaceUser.getLoginName(), null, userJson, true);
         
         return true;
       } 
@@ -685,6 +697,7 @@ public class GrouperDigitalMarketplaceCommands {
 
   /**
    * execute a GET method
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param debugMap
    * @param path
    * @param paramMap
@@ -692,20 +705,13 @@ public class GrouperDigitalMarketplaceCommands {
    * @param isPutNotPost 
    * @return the json object
    */
-  private static JsonNode executePutPostMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap, String requestBody, boolean isPutNotPost) {
+  private static JsonNode executePutPostMethod(String digitalMarketplaceExternalSystemConfigId, Map<String, Object> debugMap, String path, Map<String, String> paramMap, String requestBody, boolean isPutNotPost) {
   
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
     
-    String proxyUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.proxyUrl");
-    String proxyType = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.proxyType");
-    
-    grouperHttpClient.assignProxyUrl(proxyUrl);
-    grouperHttpClient.assignProxyType(proxyType);
-
+    String jwtToken = retrieveJwtToken(digitalMarketplaceExternalSystemConfigId, debugMap);
   
-    String jwtToken = retrieveJwtToken(debugMap);
-  
-    String fullUrl = calculateUrl(path, paramMap);
+    String fullUrl = calculateUrl(digitalMarketplaceExternalSystemConfigId, path, paramMap);
     grouperHttpClient.assignUrl(fullUrl);
     if (isPutNotPost) {
       grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.put);
@@ -717,8 +723,9 @@ public class GrouperDigitalMarketplaceCommands {
     //debugMap.put("requestBody", requestBody);
     grouperHttpClient.addHeader("authorization", "AR-JWT " + jwtToken);
     grouperHttpClient.addHeader("Content-Type", "application/json");
-    //TODO this should not be hard coded
-    grouperHttpClient.addHeader("X-Requested-By", "hannah_admin@upenn-qa-mtvip.onbmc.com");
+    
+    String xRequestedBy = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+digitalMarketplaceExternalSystemConfigId+".xRequestedByHeader");
+    grouperHttpClient.addHeader("X-Requested-By", xRequestedBy);
     if (!GrouperClientUtils.isBlank(requestBody)) {
       grouperHttpClient.assignBody(requestBody);
     }
@@ -757,58 +764,57 @@ public class GrouperDigitalMarketplaceCommands {
     return jsonObject;
   }
 
-  /**
-   * 
-   * @param groups
-   * @param debugMap 
-   * @return the new node with removed groups
-   */
-  private static void removeNonExistentGroups(ArrayNode groups, Map<String, Object> debugMap) {
-
-    if (groups == null || groups.size() == 0) {
-      return;
-    }
-
-    //get all groupNames
-    Set<String> groupNames = new LinkedHashSet<String>();
-    for (int i=0;i<groups.size();i++) {
-      String groupName = groups.get(i).asText();
-      groupNames.add(groupName);
-    }
-
-    List<String> originalGroupNames = new ArrayList<String>(groupNames);
-
-    for (int i=0;i<originalGroupNames.size();i++) {
-      String groupName = originalGroupNames.get(i);
-      if (!GrouperDigitalMarketplaceGroup.retrieveGroups().containsKey(groupName)) {
-        groups.remove(i);
-        debugMap.put("removeGroup_" + groupName, true);
-      }
-    }
-  }
+//  /**
+//   * 
+//   * @param groups
+//   * @param debugMap 
+//   * @return the new node with removed groups
+//   */
+//  private static void removeNonExistentGroups(ArrayNode groups, Map<String, Object> debugMap) {
+//
+//    if (groups == null || groups.size() == 0) {
+//      return;
+//    }
+//
+//    //get all groupNames
+//    Set<String> groupNames = new LinkedHashSet<String>();
+//    for (int i=0;i<groups.size();i++) {
+//      String groupName = groups.get(i).asText();
+//      groupNames.add(groupName);
+//    }
+//
+//    List<String> originalGroupNames = new ArrayList<String>(groupNames);
+//
+//    for (int i=0;i<originalGroupNames.size();i++) {
+//      String groupName = originalGroupNames.get(i);
+//      if (!GrouperDigitalMarketplaceGroup.retrieveGroups().containsKey(groupName)) {
+//        groups.remove(i);
+//        debugMap.put("removeGroup_" + groupName, true);
+//      }
+//    }
+//  }
   
   /**
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param grouperDigitalMarketplaceUser
    * @param grouperDigitalMarketplaceGroup
-   * @param isIncremental
    * @return true if removed, false if not in there
    */
-  public static Boolean removeUserFromDigitalMarketplaceGroup(GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser, 
-      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup, boolean isIncremental) {
+  public static Boolean removeUserFromDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser, 
+      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
     debugMap.put("method", "removeUserFromDigitalMarketplaceGroup");
     debugMap.put("loginName", grouperDigitalMarketplaceUser.getLoginName());
     debugMap.put("groupName", grouperDigitalMarketplaceGroup.getGroupName());
-    debugMap.put("daemonType", isIncremental ? "incremental" : "full");
   
     long startTime = System.nanoTime();
     
     try {
   
       // refresh the user object
-      grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser(grouperDigitalMarketplaceUser.getLoginName());
+      grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser(digitalMarketplaceExternalSystemConfigId, grouperDigitalMarketplaceUser.getLoginName());
       
       // restart timer
       startTime = System.nanoTime();
@@ -816,7 +822,7 @@ public class GrouperDigitalMarketplaceCommands {
       JsonNode jsonObject = grouperDigitalMarketplaceUser.getJsonObject();
       ArrayNode groups = (ArrayNode)jsonObject.get("groups");
       
-      removeNonExistentGroups(groups, debugMap);
+//      removeNonExistentGroups(groups, debugMap);
       
       int groupIndex = -1;
       
@@ -846,7 +852,7 @@ public class GrouperDigitalMarketplaceCommands {
         debugMap.put("foundExistingMembership", true);
         
         // /api/rx/application/user/Allen
-        executePutPostMethod(debugMap, "/api/rx/application/user/" + grouperDigitalMarketplaceUser.getLoginName(), null, userJson, true);
+        executePutPostMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/user/" + grouperDigitalMarketplaceUser.getLoginName(), null, userJson, true);
         
         return true;
       } 
@@ -864,26 +870,26 @@ public class GrouperDigitalMarketplaceCommands {
   }
 
   /**
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param groupName 
    * @param longGroupName 
    * @param comments 
-   * @param isIncremental
+   * @param groupType
    * @return true if added, false if already exists
    */
-  public static Boolean createDigitalMarketplaceGroup(String groupName, String longGroupName, String comments, boolean isIncremental) {
+  public static Boolean createDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, String groupName, String longGroupName, String comments, String groupType) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
     debugMap.put("method", "createDigitalMarketplaceGroup");
     debugMap.put("groupName", groupName);
-    debugMap.put("daemonType", isIncremental ? "incremental" : "full");
 
     long startTime = System.nanoTime();
     
     try {
   
       // refresh the user object
-      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroupExisting = retrieveDigitalMarketplaceGroups().get(groupName);
+      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroupExisting = retrieveDigitalMarketplaceGroups(digitalMarketplaceExternalSystemConfigId).get(groupName);
       
       // restart timer
       startTime = System.nanoTime();
@@ -909,7 +915,8 @@ public class GrouperDigitalMarketplaceCommands {
           longGroupName = groupName;
         }
         groupJsonObject.put("longGroupName", longGroupName);
-        groupJsonObject.put("groupType", "Change");
+        groupType = StringUtils.defaultIfBlank(groupType, "Change");
+        groupJsonObject.put("groupType", groupType);
         if (!GrouperClientUtils.isBlank(comments)) {
           groupJsonObject.put("comments", comments);
         }
@@ -921,9 +928,7 @@ public class GrouperDigitalMarketplaceCommands {
         String groupJson = groupJsonObject.toString();
         
         // /api/rx/application/user/Allen
-        executePutPostMethod(debugMap, "/api/rx/application/group/", null, groupJson, false);
-
-        GrouperDigitalMarketplaceGroup.clearGroupCache();
+        executePutPostMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/group/", null, groupJson, false);
 
         return true;
       } 
@@ -941,24 +946,23 @@ public class GrouperDigitalMarketplaceCommands {
   }
 
   /**
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param groupName 
-   * @param isIncremental
    * @return true if added, false if already exists
    */
-  public static Boolean deleteDigitalMarketplaceGroup(String groupName, boolean isIncremental) {
+  public static Boolean deleteDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, String groupName) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
     debugMap.put("method", "deleteDigitalMarketplaceGroup");
     debugMap.put("groupName", groupName);
-    debugMap.put("daemonType", isIncremental ? "incremental" : "full");
   
     long startTime = System.nanoTime();
     
     try {
   
       // refresh the user object
-      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroupExisting = retrieveDigitalMarketplaceGroups().get(groupName);
+      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroupExisting = retrieveDigitalMarketplaceGroups(digitalMarketplaceExternalSystemConfigId).get(groupName);
       
       // restart timer
       startTime = System.nanoTime();
@@ -967,9 +971,7 @@ public class GrouperDigitalMarketplaceCommands {
         debugMap.put("foundExistingGroup", true);
         
         // /api/rx/application/user/Allen
-        executeDeleteMethod(debugMap, "/api/rx/application/group/" + groupName, null);
-
-        GrouperDigitalMarketplaceGroup.clearGroupCache();
+        executeDeleteMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/group/" + groupName, null);
 
         return true;
       } 
@@ -988,25 +990,20 @@ public class GrouperDigitalMarketplaceCommands {
 
   /**
    * execute a DELETE method
+   * @param digitalMarketplaceExternalSystemConfigId
    * @param debugMap
    * @param path
    * @param paramMap
    * @return the json object
    */
-  private static JsonNode executeDeleteMethod(Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
+  private static JsonNode executeDeleteMethod(String digitalMarketplaceExternalSystemConfigId, Map<String, Object> debugMap, String path, Map<String, String> paramMap) {
   
     GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
     
-    String proxyUrl = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.proxyUrl");
-    String proxyType = GrouperClientConfig.retrieveConfig().propertyValueString("grouperDigitalMarketplace.proxyType");
-    
-    grouperHttpClient.assignProxyUrl(proxyUrl);
-    grouperHttpClient.assignProxyType(proxyType);
-
   
-    String jwtToken = retrieveJwtToken(debugMap);
+    String jwtToken = retrieveJwtToken(digitalMarketplaceExternalSystemConfigId, debugMap);
   
-    String fullUrl = calculateUrl(path, paramMap);
+    String fullUrl = calculateUrl(digitalMarketplaceExternalSystemConfigId, path, paramMap);
     
     grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.delete);
     grouperHttpClient.assignUrl(fullUrl);
@@ -1016,8 +1013,8 @@ public class GrouperDigitalMarketplaceCommands {
     //debugMap.put("requestBody", requestBody);
     grouperHttpClient.addHeader("authorization", "AR-JWT " + jwtToken);
     grouperHttpClient.addHeader("Content-Type", "application/json");
-    //TODO do not hard code
-    grouperHttpClient.addHeader("X-Requested-By", "hannah_admin@upenn-qa-mtvip.onbmc.com");
+    String xRequestedBy = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.remedyDigitalMarketplaceConnector."+digitalMarketplaceExternalSystemConfigId+".xRequestedByHeader");
+    grouperHttpClient.addHeader("X-Requested-By", xRequestedBy);
     
     int responseCodeInt = -1;
     String responseBody = null;

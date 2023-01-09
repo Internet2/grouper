@@ -1348,31 +1348,53 @@ public class GrouperProvisioningBehavior {
     if (this.selectMembershipsAll != null) {
       return this.selectMembershipsAll;
     }
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()) {
+      selectMembershipsAll = false;
+      return selectMembershipsAll;
+    }
 //    if (!this.isSelectMemberships()) {
 //      return false;
 //    }
-    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false)) {
-      return false;
+    
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false) && 
+        !GrouperUtil.booleanValue(this.getGrouperProvisioner()
+            .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)) {
+      this.selectMembershipsAll = false;
+      return this.selectMembershipsAll;
     }
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       if (!this.isSelectEntitiesAll()) {
-        return false;
+        this.selectMembershipsAll = false;
+        return this.selectMembershipsAll;
       }
     }
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       if (!this.isSelectGroupsAll()) {
-        return false;
+        this.selectMembershipsAll = false;
+        return this.selectMembershipsAll;
       }
     }
     
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
 
+      if (GrouperUtil.booleanValue(this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false) || 
+          GrouperUtil.booleanValue(this.getGrouperProvisioner()
+              .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)) {
+        
+        this.selectMembershipsAll = true;
+        return this.selectMembershipsAll;
+      }
+      
       if (!this.isSelectEntitiesAll() &&
           (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
               .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)
             || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
                 .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false))) {
-        return false;
+        this.selectMembershipsAll = false;
+        return this.selectMembershipsAll;
       }
 
       if (!this.isSelectGroupsAll() &&
@@ -1380,13 +1402,16 @@ public class GrouperProvisioningBehavior {
               .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)
             || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
                 .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false))) {
-        return false;
+        this.selectMembershipsAll = false;
+        return this.selectMembershipsAll;
       }
       
-      return true;
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
     }
     
-    return false;
+    this.selectMembershipsAll = false;
+    return this.selectMembershipsAll;
   }
 
   public void setSelectMembershipsAll(Boolean membershipsRetrieveAll) {

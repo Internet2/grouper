@@ -120,6 +120,9 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     super();
   }
 
+  /**
+   * this is the representation of grouper side that grouper retrieves from its database 
+   */
   private ProvisioningGroup grouperProvisioningGroup;
 
   /**
@@ -182,6 +185,9 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     this.update = update;
   }
 
+  /**
+   * this is what is retrieved from the target and structured in the target representation
+   */
   private ProvisioningGroup targetProvisioningGroup;
   
   /**
@@ -210,6 +216,9 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     this.create = create;
   }
 
+  /**
+   * this comes from the commands class and is target specific bean
+   */
   private Object targetNativeGroup;
   
   private GcGrouperSyncGroup gcGrouperSyncGroup;

@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.midpointProvisioning.MidPointProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.remedyV2.RemedyProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -86,6 +87,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     List<String> configClassNamesList = new ArrayList<>();
     
     configClassNamesList.add(AzureProvisionerConfiguration.class.getName());
+    configClassNamesList.add(DigitalMarketplaceProvisionerConfiguration.class.getName());
     configClassNamesList.add(DuoProvisionerConfiguration.class.getName());
     configClassNamesList.add(DuoRoleProvisionerConfiguration.class.getName());
     configClassNamesList.add(GenericProvisionerConfiguration.class.getName());
