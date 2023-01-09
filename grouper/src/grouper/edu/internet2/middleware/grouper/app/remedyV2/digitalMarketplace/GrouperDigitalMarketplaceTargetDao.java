@@ -450,8 +450,15 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       GrouperDigitalMarketplaceConfiguration digitalMarketplaceConfiguration = (GrouperDigitalMarketplaceConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String digitalMarketplaceExternalSystemConfigId = digitalMarketplaceConfiguration.getDigitalMarketplaceExternalSystemConfigId();
       ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
+<<<<<<< GROUPER_5_BRANCH
       String groupName = resolveTargetGroupId(targetGroup);
 >>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
+=======
+      String groupName = null;
+      if (targetGroup != null && StringUtils.isNotBlank(targetGroup.retrieveAttributeValueString("groupName"))) {
+        groupName = targetGroup.retrieveAttributeValueString("groupName");
+      }
+>>>>>>> 59ea315 Add digital marketplace provisioner full sync test
       if (StringUtils.isBlank(groupName)) {
         return new TargetDaoDeleteGroupResponse();
       }
