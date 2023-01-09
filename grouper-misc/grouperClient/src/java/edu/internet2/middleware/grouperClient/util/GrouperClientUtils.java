@@ -228,17 +228,34 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
    */
   public static final String PERFORMANCE_LOG_LABEL_SQL = "sqlQueries";
 
-  
   /**
    * to string reflection
    * @param object
    * @return the string representation
    */
   public static String toStringReflection(Object object, Set<String> fieldsToIgnore) {
+    return toStringReflection(object, fieldsToIgnore, null);
+  }
+  
+  /**
+   * to string reflection
+   * @param object
+   * @return the string representation
+   */
+  public static String toStringReflection(Object object, Set<String> fieldsToIgnore, String extraInfo) {
     
     StringBuilder result = new StringBuilder();
     
     result.append(object.getClass().getSimpleName()).append("(");
+    if (!isBlank(extraInfo)) {
+      result.append(extraInfo);
+      if (!trim(extraInfo).endsWith(",")) {
+        result.append(", ");
+      }
+      if (!trim(extraInfo).endsWith(" ")) {
+        result.append(" ");
+      }
+    }
     Set<String> fieldNames = GrouperClientUtils.fieldNames(object.getClass(), 
         Object.class, null, false, false, false);
     
@@ -269,6 +286,9 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
         firstField = false;
         result.append(fieldName).append(" = '").append(GrouperClientUtils.toStringForLog(value, false)).append("'");
       }
+    }
+    if (result.toString().endsWith(", ")) {
+      result.setLength(result.length()-2);
     }
     result.append(")");
     return result.toString();

@@ -307,17 +307,17 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     firstField = toStringAppendField(result, firstField, "entityId", this.provisioningEntityId);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     if (this.provisioningMembershipWrapper != null) {
-      if (this.provisioningMembershipWrapper.isRecalcObject()) {
-        firstField = toStringAppendField(result, firstField, "recalc", this.provisioningMembershipWrapper.isRecalcObject());
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
+        firstField = toStringAppendField(result, firstField, "recalc", this.provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
       }
-      if (this.provisioningMembershipWrapper.getGrouperIncrementalDataAction() != null) {
-        firstField = toStringAppendField(result, firstField, "incrementalDataAction", this.provisioningMembershipWrapper.getGrouperIncrementalDataAction());
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() != null) {
+        firstField = toStringAppendField(result, firstField, "incrementalDataAction", this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction());
       }
-      if (this.provisioningMembershipWrapper.isDelete()) {
-        firstField = toStringAppendField(result, firstField, "delete", this.provisioningMembershipWrapper.isDelete());
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
+        firstField = toStringAppendField(result, firstField, "delete", this.provisioningMembershipWrapper.getProvisioningStateMembership().isDelete());
       }
-      if (this.provisioningMembershipWrapper.isCreate()) {
-        firstField = toStringAppendField(result, firstField, "create", this.provisioningMembershipWrapper.isCreate());
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate());
       }
       if (this.provisioningMembershipWrapper.getErrorCode() != null) {
         firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningMembershipWrapper.getErrorCode().name());

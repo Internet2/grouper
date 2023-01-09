@@ -365,14 +365,13 @@ private static boolean handleSpecialCase(String[] args) {
       
       boolean exitOnError = !GrouperShell.runFromGshInteractive && GrouperConfig.retrieveConfig().propertyValueBoolean("gsh.exitOnNonInteractiveError", false);
 
-      if (useTerminalFactoryAuto) {
+      if (runFromGshInteractive && useTerminalFactoryAuto) {
         try {
           org.codehaus.groovy.tools.shell.Main.setTerminalType(TerminalFactory.AUTO, false);
         } catch (UnsatisfiedLinkError e) {
           useTerminalFactoryAuto = false;
         }
-      }
-      if (!useTerminalFactoryAuto) {
+      } else {
         org.codehaus.groovy.tools.shell.Main.setTerminalType(TerminalFactory.NONE, false);
       }
       IO io = new IO();

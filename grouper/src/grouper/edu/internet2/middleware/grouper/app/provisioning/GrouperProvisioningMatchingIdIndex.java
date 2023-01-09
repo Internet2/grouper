@@ -131,7 +131,7 @@ public class GrouperProvisioningMatchingIdIndex {
             }
 
             // make sure we are doing the right deleted flag
-            if (deleted != provisioningGroupWrapper.isDelete()) {
+            if (deleted != provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
               continue;
             }
 
@@ -300,7 +300,7 @@ public class GrouperProvisioningMatchingIdIndex {
         provisioningGroupWrappersWithNoMatchingId++;
         continue;
       }
-      if (provisioningGroupWrapper.isRecalcObject()) {
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
         provisioningGroupWrappersWithNoMatch++;
       }
       continue;
@@ -426,7 +426,7 @@ public class GrouperProvisioningMatchingIdIndex {
           }
 
           // make sure we are doing the right deleted flag
-          if (deleted != provisioningMembershipWrapper.isDelete()) {
+          if (deleted != provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
             continue;
           }
 
@@ -711,7 +711,7 @@ public class GrouperProvisioningMatchingIdIndex {
             }
   
             // make sure we are doing the right deleted flag
-            if (deleted != provisioningEntityWrapper.isDelete()) {
+            if (deleted != provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
               continue;
             }
   
@@ -880,7 +880,7 @@ public class GrouperProvisioningMatchingIdIndex {
         provisioningEntityWrappersWithNoMatchingId++;
         continue;
       }
-      if (provisioningEntityWrapper.isRecalcObject()) {
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
         provisioningEntityWrappersWithNoMatch++;
       }
       continue;

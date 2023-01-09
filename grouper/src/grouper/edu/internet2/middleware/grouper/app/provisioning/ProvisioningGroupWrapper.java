@@ -4,25 +4,11 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   
-  /**
-   * if recalcing the groupAttribute memberships 
-   */
-  private boolean recalcGroupMemberships;
+  private ProvisioningStateGroup provisioningStateGroup = new ProvisioningStateGroup();
 
-  /**
-   * if recalcing the groupAttribute memberships 
-   * @return
-   */
-  public boolean isRecalcGroupMemberships() {
-    return recalcGroupMemberships;
-  }
 
-  /**
-   * if recalcing the group memberships 
-   * @param recalcGroupMemberships1
-   */
-  public void setRecalcGroupMemberships(boolean recalcGroupMemberships1) {
-    this.recalcGroupMemberships = recalcGroupMemberships1;
+  public ProvisioningStateGroup getProvisioningStateGroup() {
+    return provisioningStateGroup;
   }
 
   private boolean grouperTargetGroupFromCacheInitted = false;
@@ -55,27 +41,6 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     
   public ProvisioningGroup getTargetProvisioningGroupFromCache() {
     return targetProvisioningGroupFromCache;
-  }
-
-  /**
-   * if this is incremental, and syncing memberships for this group
-   */
-  private boolean incrementalSyncMemberships;
-  
-  /**
-   * if this is incremental, and syncing memberships for this group
-   * @return
-   */
-  public boolean isIncrementalSyncMemberships() {
-    return incrementalSyncMemberships;
-  }
-
-  /**
-   * if this is incremental, and syncing memberships for this group
-   * @param incrementalSyncMemberships1
-   */
-  public void setIncrementalSyncMemberships(boolean incrementalSyncMemberships1) {
-    this.incrementalSyncMemberships = incrementalSyncMemberships1;
   }
 
   private String groupId;
@@ -194,27 +159,6 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
    * grouper side translated for target
    */
   private ProvisioningGroup grouperTargetGroup;
-
-  /**
-   * if this is for a create in target
-   */
-  private boolean create;
-  
-  /**
-   * if this is for a create in target
-   * @return
-   */
-  public boolean isCreate() {
-    return create;
-  }
-
-  /**
-   * if this is for a create in target
-   * @param create
-   */
-  public void setCreate(boolean create) {
-    this.create = create;
-  }
 
   /**
    * this comes from the commands class and is target specific bean
@@ -360,6 +304,10 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
       return "targetProvisioningGroup: " + this.targetProvisioningGroup;
     }
     
+    if (this.provisioningStateGroup != null) {
+      return "provisioningStateGroup: " + this.provisioningStateGroup;
+    }
+
     return this.toString();
   }
 

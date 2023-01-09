@@ -130,20 +130,20 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     
     if (this.provisioningGroupWrapper != null) {
-      if (this.provisioningGroupWrapper.isRecalcObject()) {
-        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningGroupWrapper.isRecalcObject());
+      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
       }
-      if (this.provisioningGroupWrapper.isRecalcGroupMemberships()) {
-        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningGroupWrapper.isRecalcGroupMemberships());
+      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
+        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
       }
-      if (this.provisioningGroupWrapper.isCreate()) {
-        firstField = toStringAppendField(result, firstField, "create", this.provisioningGroupWrapper.isCreate());
+      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate());
       }
-      if (this.provisioningGroupWrapper.isDelete()) {
-        firstField = toStringAppendField(result, firstField, "delete", this.provisioningGroupWrapper.isDelete());
+      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
+        firstField = toStringAppendField(result, firstField, "delete", this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete());
       }
-      if (this.provisioningGroupWrapper.isIncrementalSyncMemberships()) {
-        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningGroupWrapper.isIncrementalSyncMemberships());
+      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships()) {
+        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships());
       }
       if (this.provisioningGroupWrapper.getErrorCode() != null) {
         firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningGroupWrapper.getErrorCode().name());

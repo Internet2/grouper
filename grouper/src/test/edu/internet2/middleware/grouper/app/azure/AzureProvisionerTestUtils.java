@@ -64,13 +64,17 @@ public class AzureProvisionerTestUtils {
     
         
     configureProvisionerSuffix(provisioningTestConfigInput, "azureGroupType", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0entityAttribute", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "target");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "entityAttribute");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1entityAttribute", "userPrincipalName");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1source", "target");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1type", "entityAttribute");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "userPrincipalName");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "errorHandlingMatchingValidationIsAnError", "false");
+    configureProvisionerSuffix(provisioningTestConfigInput, "errorHandlingRequiredValidationIsAnError", "false");
+    configureProvisionerSuffix(provisioningTestConfigInput, "errorHandlingTargetObjectDoesNotExistIsAnError", "false");
+    configureProvisionerSuffix(provisioningTestConfigInput, "errorHandlingShow", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0groupAttribute", "id");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "target");
@@ -90,6 +94,7 @@ public class AzureProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "membershipObjects");
     configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectAllGroups", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "startWith", "this is start with read only");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "id");
@@ -99,7 +104,7 @@ public class AzureProvisionerTestUtils {
     
 //    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpression", "${grouperProvisioningEntity.subjectIdentifier0 + '@"+domain+"'}");
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpression", "${grouperProvisioningEntity.getSubjectId() + '@" + domain + "'}");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpression", "${grouperProvisioningEntity.subjectIdentifier0 ? (grouperProvisioningEntity.subjectIdentifier0 + '@" + domain + "') : null}");
 
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "translationScript");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.insert", "false");
@@ -116,7 +121,6 @@ public class AzureProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "description");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "grouperProvisioningGroupField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateFromGrouperProvisioningGroupField", "description");
-    configureProvisionerSuffix(provisioningTestConfigInput, "threadPoolSize", "1");
    
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "showProvisioningDiagnostics", "true");

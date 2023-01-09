@@ -249,20 +249,20 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     
     if (this.provisioningEntityWrapper != null) {
-      if (this.provisioningEntityWrapper.isRecalcObject()) {
-        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningEntityWrapper.isRecalcObject());
+      if (this.provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
+        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
       }
-      if (this.provisioningEntityWrapper.isRecalcEntityMemberships()) {
-        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningEntityWrapper.isRecalcEntityMemberships());
+      if (this.provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()) {
+        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
       }
-      if (this.provisioningEntityWrapper.isCreate()) {
-        firstField = toStringAppendField(result, firstField, "create", this.provisioningEntityWrapper.isCreate());
+      if (this.provisioningEntityWrapper.getProvisioningStateEntity().isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningEntityWrapper.getProvisioningStateEntity().isCreate());
       }
-      if (this.provisioningEntityWrapper.isDelete()) {
-        firstField = toStringAppendField(result, firstField, "delete", this.provisioningEntityWrapper.isDelete());
+      if (this.provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
+        firstField = toStringAppendField(result, firstField, "delete", this.provisioningEntityWrapper.getProvisioningStateEntity().isDelete());
       }
-      if (this.provisioningEntityWrapper.isIncrementalSyncMemberships()) {
-        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningEntityWrapper.isIncrementalSyncMemberships());
+      if (this.provisioningEntityWrapper.getProvisioningStateEntity().isIncrementalSyncMemberships()) {
+        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningEntityWrapper.getProvisioningStateEntity().isIncrementalSyncMemberships());
       }
       if (this.provisioningEntityWrapper.getErrorCode() != null) {
         firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningEntityWrapper.getErrorCode().name());

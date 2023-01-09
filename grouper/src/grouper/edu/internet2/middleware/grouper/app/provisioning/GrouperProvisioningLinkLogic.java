@@ -928,7 +928,7 @@ public class GrouperProvisioningLinkLogic {
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
 
-      if (provisioningEntityWrapper.isRecalcObject()) {
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
         continue;
       }
 
@@ -1014,7 +1014,7 @@ public class GrouperProvisioningLinkLogic {
   
     for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappers) {
   
-      if (provisioningGroupWrapper.isRecalcObject()) {
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
         continue;
       }
 

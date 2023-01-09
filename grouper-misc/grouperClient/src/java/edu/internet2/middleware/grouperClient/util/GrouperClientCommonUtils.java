@@ -3631,7 +3631,18 @@ public class GrouperClientCommonUtils  {
   public static Method getter(Class theClass, String fieldName, boolean callOnSupers, 
       boolean throwExceptionIfNotFound) {
     String getterName = getterNameFromPropertyName(fieldName);
-    return getterHelper(theClass, fieldName, getterName, callOnSupers, throwExceptionIfNotFound);
+    RuntimeException re = null;
+    try {
+      return getterHelper(theClass, fieldName, getterName, callOnSupers, throwExceptionIfNotFound);
+    } catch (RuntimeException runtimeException) {
+      re = runtimeException;
+    }
+    String iserName = iserNameFromPropertyName(fieldName);
+    try {
+      return getterHelper(theClass, fieldName, iserName, callOnSupers, throwExceptionIfNotFound);
+    } catch (RuntimeException runtimeException) {
+    }
+    throw re;
   }
 
   /**
@@ -3675,6 +3686,15 @@ public class GrouperClientCommonUtils  {
    */
   public static String getterNameFromPropertyName(String propertyName) {
     return "get" + capitalize(propertyName);
+  }
+
+  /**
+   * generate getBb from bb
+   * @param propertyName
+   * @return the getter 
+   */
+  public static String iserNameFromPropertyName(String propertyName) {
+    return "is" + capitalize(propertyName);
   }
 
   /**
@@ -4717,6 +4737,19 @@ public class GrouperClientCommonUtils  {
     }
     
     return Double.valueOf(doubleValue(input));
+  }
+
+  /**
+   * get the Double value of an object
+   * 
+   * @param input
+   *          is a number or String
+   * @param allowNullBlank used to default to false, if true, return null if nul inputted 
+   * 
+   * @return the Double equivalent
+   */
+  public static Double doubleObjectValue(Object input) {
+    return doubleObjectValue(input, true);
   }
 
   /**

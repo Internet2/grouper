@@ -318,24 +318,24 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) > 0);
       
       for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
-        assertTrue(provisioningGroupWrapper.isRecalcObject());
+        assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
         
-        assertTrue(provisioningGroupWrapper.isRecalcGroupMemberships());
+        assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
       }
       
       assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) > 0);
       
       for (ProvisioningEntityWrapper provisioningEntityWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
-        assertTrue(provisioningEntityWrapper.isRecalcObject());
+        assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
         
-        assertTrue(provisioningEntityWrapper.isRecalcEntityMemberships());
+        assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
         
       }
       
       assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) > 0);
       
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
-        assertTrue(provisioningMembershipWrapper.isRecalcObject());
+        assertTrue(provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
       }
       
       assertEquals("test:testGroup", grouperGoogleGroup.getName());

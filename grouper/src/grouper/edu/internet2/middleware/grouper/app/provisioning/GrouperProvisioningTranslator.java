@@ -237,7 +237,7 @@ public class GrouperProvisioningTranslator {
               }
 
               if (result != null) {
-                if (!grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper().isDelete()) {
+                if (!grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper().getProvisioningStateEntity().isDelete()) {
                   MultiKey validationError = this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validFieldOrAttributeValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, result);
                   if (validationError != null) {
                     
@@ -452,9 +452,9 @@ public class GrouperProvisioningTranslator {
       
       provisioningEntityWrapper.setGrouperTargetEntity(grouperTargetEntity);
       if (includeDelete) {
-        provisioningEntityWrapper.setDelete(true);
+        provisioningEntityWrapper.getProvisioningStateEntity().setDelete(true);
       } else if (forCreate) {
-        provisioningEntityWrapper.setCreate(true);
+        provisioningEntityWrapper.getProvisioningStateEntity().setCreate(true);
       }
 
     }
@@ -612,9 +612,9 @@ public class GrouperProvisioningTranslator {
 
       provisioningGroupWrapper.setGrouperTargetGroup(grouperTargetGroup);
       if (includeDelete) {
-        provisioningGroupWrapper.setDelete(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(true);
       } else if (forCreate) {
-        provisioningGroupWrapper.setCreate(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(true);
       }
       grouperTargetGroups.add(grouperTargetGroup);
         
@@ -877,11 +877,11 @@ public class GrouperProvisioningTranslator {
       }
     }
     
-    if (provisioningEntityWrapper != null && provisioningEntityWrapper.isDelete()) {
+    if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
       shouldRetrieveFromCache[0] = true;
     }
     
-    if (provisioningGroupWrapper != null && provisioningGroupWrapper.isDelete()) {
+    if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
       shouldRetrieveFromCache[0] = true;
     }
     return result;

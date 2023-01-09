@@ -173,14 +173,14 @@ public class GrouperProvisioningLogic {
       // everything in a full sync is a recalc if it can be
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
         for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
-          provisioningGroupWrapper.setRecalcObject(true);
-          provisioningGroupWrapper.setRecalcGroupMemberships(true);
+          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
+          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
         }
       }
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
         for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
-          provisioningEntityWrapper.setRecalcObject(true);
-          provisioningEntityWrapper.setRecalcEntityMemberships(true);
+          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
         }
       }
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMemberships() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()
@@ -189,7 +189,7 @@ public class GrouperProvisioningLogic {
           || (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
               && (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()))) {
         for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
-          provisioningMembershipWrapper.setRecalcObject(true);
+          provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
         }
       }
     }
@@ -743,6 +743,12 @@ public class GrouperProvisioningLogic {
       }
       
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {
+        // ######### STEP 11: filter by entity sync
+        debugMap.put("state", "filterByEntitySync");
+        grouperProvisioningLogicIncremental.filterByEntitySync();
+      }
+      
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {
         // ######### STEP 12: convert to group sync
         debugMap.put("state", "convertToGroupSync");
         grouperProvisioningLogicIncremental.convertToGroupSync();
@@ -770,8 +776,6 @@ public class GrouperProvisioningLogic {
         
         this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.logIncomingDataToProcess);
 
-        // index recalc data
-        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().indexIncrementalData();
         
         if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {
           // ######### STEP 15: retrieve all membership sync objects
@@ -785,6 +789,8 @@ public class GrouperProvisioningLogic {
             assignSyncObjectsToWrappersMembers(grouperSyncMemberIdToProvisioningEntityWrapper);
   
             Map<String, ProvisioningGroupWrapper> grouperSyncGroupIdToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper();
+            assignSyncObjectsToWrappersGroups(grouperSyncGroupIdToProvisioningGroupWrapper);
+  
             Map<MultiKey, ProvisioningMembershipWrapper> grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper 
               = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper();
             assignSyncObjectsToWrappersMemberships(grouperSyncGroupIdToProvisioningGroupWrapper, grouperSyncMemberIdToProvisioningEntityWrapper, grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper);
@@ -811,10 +817,6 @@ public class GrouperProvisioningLogic {
           // ######### STEP 19: convert inconsistent events to recalc
           debugMap.put("state", "convertInconsistentEventsToRecalc");
           grouperProvisioningLogicIncremental.convertInconsistentEventsToRecalc();
-          
-          // ######### STEP 20: copy incremental state to wrappers (so wrapper knows if recalc or whatever)
-          debugMap.put("state", "copyIncrementalStateToWrappers");
-          grouperProvisioningLogicIncremental.copyIncrementalStateToWrappers();
           
           // ######### STEP 21: resolve subjects for subject link if recalc or for subjects missing data
           debugMap.put("state", "retrieveSubjectLink");
@@ -1230,7 +1232,7 @@ public class GrouperProvisioningLogic {
     StringBuilder errorSummary = new StringBuilder();
     
     for (MultiKey objectTypeErrorCode : objectTypeErrorCodeToCount.keySet()) {
-      if (errorSummary.length() == 0) {
+      if (errorSummary.length() != 0) {
         errorSummary.append(", ");
       }
       errorSummary.append(objectTypeErrorCode.getKey(0) + " error " + objectTypeErrorCode.getKey(1) + " count " + objectTypeErrorCodeToCount.get(objectTypeErrorCode));
@@ -1281,10 +1283,6 @@ public class GrouperProvisioningLogic {
   }
 
   public void createMissingGroupsFull() {
-    // first lets see if we should even be doing this
-    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertGroups(), false)) {
-      return;
-    }
       
     //do we have missing groups?
     List<ProvisioningGroup> missingGroups = new ArrayList<ProvisioningGroup>();
@@ -1294,20 +1292,20 @@ public class GrouperProvisioningLogic {
       
       ProvisioningGroup provisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
       
-      boolean shouldSkip = provisioningGroup == null || !provisioningGroupWrapper.isRecalcObject();
+      boolean shouldSkip = provisioningGroup == null || !provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject();
 
       // shouldnt be null at this point
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
 
       if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups() 
           && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()
-          && provisioningGroupWrapper.isCreate()
+          && provisioningGroupWrapper.getProvisioningStateGroup().isCreate()
           && gcGrouperSyncGroup != null
           && !gcGrouperSyncGroup.isInTarget()) {
         shouldSkip = false;
       }
       
-      if (provisioningGroupWrapper.isDelete()) {
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
         shouldSkip = true;
       }
 
@@ -1331,6 +1329,20 @@ public class GrouperProvisioningLogic {
     }
 
     if (GrouperUtil.length(missingGroups) == 0) {
+      return;
+    }
+
+    // first lets see if we should even be doing this
+    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertGroups(), false)) {
+
+      // entity not there
+      for (ProvisioningGroup missingGroup : missingGroups) {
+        if (missingGroup.getProvisioningGroupWrapper() != null) {
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignGroupError(
+              missingGroup.getProvisioningGroupWrapper(), GcGrouperSyncErrorCode.DNE, 
+              "Group does not exist in target or cannot be found, and not creating groups");
+        }
+      }
       return;
     }
 
@@ -1431,7 +1443,7 @@ public class GrouperProvisioningLogic {
       ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroup.getProvisioningGroupWrapper();
       if (provisioningGroupWrapper != null) {
         // this is already created!  :)
-        provisioningGroupWrapper.setCreate(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(true);
       }
     }
 
@@ -1571,11 +1583,6 @@ public class GrouperProvisioningLogic {
 
   
   public void createMissingEntitiesFull() {
-    // first lets see if we should even be doing this
-    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertEntities(), false)) {
-      return;
-    }
-      
     
     //do we have missing entities?
     List<ProvisioningEntity> missingEntities = new ArrayList<ProvisioningEntity>();
@@ -1584,7 +1591,7 @@ public class GrouperProvisioningLogic {
       
       ProvisioningEntity provisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
       
-      boolean shouldSkip = provisioningEntity == null || !provisioningEntityWrapper.isRecalcObject();
+      boolean shouldSkip = provisioningEntity == null || !provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject();
 
       // shouldnt be null at this point
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
@@ -1597,7 +1604,7 @@ public class GrouperProvisioningLogic {
         shouldSkip = false;
       }
       
-      if (provisioningEntityWrapper.isDelete()) {
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
         shouldSkip = true;
       }
       
@@ -1625,6 +1632,19 @@ public class GrouperProvisioningLogic {
       missingEntityWrappers.add(provisioningEntityWrapper);    
     }
     if (GrouperUtil.length(missingEntities) == 0) {
+      return;
+    }
+    // first lets see if we should even be doing this
+    if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertEntities(), false)) {
+
+      // entity not there
+      for (ProvisioningEntity missingEntity : missingEntities) {
+        if (missingEntity.getProvisioningEntityWrapper() != null) {
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignEntityError(
+              missingEntity.getProvisioningEntityWrapper(), GcGrouperSyncErrorCode.DNE, 
+              "Entity does not exist in target or cannot be found, and not creating entities");
+        }
+      }
       return;
     }
     
@@ -1713,7 +1733,7 @@ public class GrouperProvisioningLogic {
       ProvisioningEntityWrapper provisioningEntityWrapper = provisioningEntity.getProvisioningEntityWrapper();
       if (provisioningEntityWrapper != null) {
         // this is already created!  :)
-        provisioningEntityWrapper.setCreate(true);
+        provisioningEntityWrapper.getProvisioningStateEntity().setCreate(true);
       }
     }
     
@@ -2402,7 +2422,7 @@ public class GrouperProvisioningLogic {
       Map<MultiKey, ProvisioningMembershipWrapper> grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper) {
     {
 
-      List<GcGrouperSyncMembership> gcGrouperSyncMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMemberships();
+      Set<GcGrouperSyncMembership> gcGrouperSyncMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningDataSync().getGcGrouperSyncMemberships();
 
       Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
 
@@ -2844,7 +2864,7 @@ public class GrouperProvisioningLogic {
       }
       
       provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
-      provisioningEntityWrapper.setDelete(true);
+      provisioningEntityWrapper.getProvisioningStateEntity().setDelete(true);
       
       memberUuidToProvisioningMemberWrapper.put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
       
@@ -2915,7 +2935,7 @@ public class GrouperProvisioningLogic {
         }
         
         provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
-        provisioningGroupWrapper.setDelete(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(true);
         
         groupUuidToProvisioningGroupWrapper.put(gcGrouperSyncGroup.getGroupId(), provisioningGroupWrapper);
         
@@ -2992,7 +3012,7 @@ public class GrouperProvisioningLogic {
         }
           
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
-        provisioningMembershipWrapper.setDelete(true);
+        provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
         
         groupUuidMemberUuidToProvisioningMembershipWrapper.put(provisioningMembershipWrapper.getGroupIdMemberId(), provisioningMembershipWrapper);
         
@@ -3086,7 +3106,7 @@ public class GrouperProvisioningLogic {
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
       
       if (provisioningGroupWrapper.getGrouperProvisioningGroup() == null || provisioningGroupWrapper.getGrouperTargetGroup() == null
-          || !provisioningGroupWrapper.isRecalcObject()) {
+          || !provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
         continue;
       }
 
@@ -3227,7 +3247,7 @@ public class GrouperProvisioningLogic {
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
       
       if (provisioningEntityWrapper.getGrouperProvisioningEntity() == null || provisioningEntityWrapper.getGrouperTargetEntity() == null
-          || !provisioningEntityWrapper.isRecalcObject()) {
+          || !provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
         continue;
       }
   

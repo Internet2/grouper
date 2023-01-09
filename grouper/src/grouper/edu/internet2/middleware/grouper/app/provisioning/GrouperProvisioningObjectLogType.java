@@ -384,11 +384,11 @@ public enum GrouperProvisioningObjectLogType {
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      appendIncomingData(grouperProvisioner, logMessage, "Incoming data unprocessed", "(with recalc from target)",     
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc());
-      appendIncomingData(grouperProvisioner, logMessage, "Incoming data unprocessed", "(without recalc from target)",     
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc());
       
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data unprocessed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data unprocessed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data unprocessed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalMemberships(), "memberships");
+
     }
     
   },
@@ -397,11 +397,11 @@ public enum GrouperProvisioningObjectLogType {
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      appendIncomingData(grouperProvisioner, logMessage, "Incoming data to process", "(with recalc from target)",     
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithRecalc());
-      appendIncomingData(grouperProvisioner, logMessage, "Incoming data to process", "(without recalc from target)",     
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getGrouperIncrementalDataToProcessWithoutRecalc());
-      
+
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data to processed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data to processed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data to processed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalMemberships(), "memberships");
+
     }
     
   };
@@ -523,20 +523,6 @@ public enum GrouperProvisioningObjectLogType {
     }
   }
 
-  private static void appendIncomingData(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
-      String type, GrouperIncrementalDataToProcess grouperIncrementalDataToProcess) {
-    if (logMessage.charAt(logMessage.length()-1) != '\n') {
-      logMessage.append("\n");
-    }
-    logMessage.append(label).append(" ").append(type).append(":\n");
-    if (grouperIncrementalDataToProcess != null) {
-      appendList(logMessage, "groupUuidsForGroupOnly", grouperIncrementalDataToProcess.getGroupUuidsForGroupOnly());
-      appendList(logMessage, "groupUuidsForGroupMembershipSync", grouperIncrementalDataToProcess.getGroupUuidsForGroupMembershipSync());
-      appendList(logMessage, "memberUuidsForEntityOnly", grouperIncrementalDataToProcess.getMemberUuidsForEntityOnly());
-      appendList(logMessage, "memberUuidsForEntityMembershipSync", grouperIncrementalDataToProcess.getMemberUuidsForEntityMembershipSync());
-      appendList(logMessage, "groupUuidsMemberUuidsMembershipSync", grouperIncrementalDataToProcess.getGroupUuidsMemberUuidsForMembershipSync());
-    }
-  }
   private static void appendList(StringBuilder logMessage, String label, Collection<?> someList) {
     if (GrouperUtil.length(someList) > 0) {
       logMessage.append(" - ").append(label).append(" (").append(GrouperUtil.length(someList)).append("): ");
