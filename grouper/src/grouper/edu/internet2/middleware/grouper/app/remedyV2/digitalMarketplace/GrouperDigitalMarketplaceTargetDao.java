@@ -400,7 +400,10 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       GrouperDigitalMarketplaceConfiguration digitalMarketplaceConfiguration = (GrouperDigitalMarketplaceConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String digitalMarketplaceExternalSystemConfigId = digitalMarketplaceConfiguration.getDigitalMarketplaceExternalSystemConfigId();
       ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
-      String groupName = resolveTargetGroupId(targetGroup);
+      String groupName = null;
+      if (targetGroup != null && StringUtils.isNotBlank(targetGroup.retrieveAttributeValueString("groupName"))) {
+        groupName = targetGroup.retrieveAttributeValueString("groupName");
+      }
       if (StringUtils.isBlank(groupName)) {
         return new TargetDaoDeleteGroupResponse();
       }
