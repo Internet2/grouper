@@ -168,8 +168,37 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
     }
 
+<<<<<<< GROUPER_5_BRANCH
     assignRecalcForGroupsAndEntities();
     
+=======
+    {
+      debugMap.put("state", "assignRecalc");
+      // everything in a full sync is a recalc if it can be
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
+        for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
+          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+        }
+      }
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
+        for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+        }
+      }
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMemberships() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()
+          || (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+          && (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()))
+          || (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
+              && (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()))) {
+        for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+        }
+      }
+    }
+
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
     debugMap.put("state", "retrieveIndividualMissingGroups");
     this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualMissingGroups();
     
@@ -872,6 +901,7 @@ public class GrouperProvisioningLogic {
           debugMap.put("state", "convertInconsistentMembershipEventActions");
           grouperProvisioningLogicIncremental.convertInconsistentMembershipEventActions();
           
+<<<<<<< GROUPER_5_BRANCH
           // ######### STEP 20: convert groups and entities to recalc when needed
           // e.g. a new group should be recalc to be sure
           debugMap.put("state", "convertGroupsToRecalc");
@@ -881,6 +911,8 @@ public class GrouperProvisioningLogic {
           
           
           
+=======
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
           // ######### STEP 21: resolve subjects for subject link if recalc or for subjects missing data
           debugMap.put("state", "retrieveSubjectLink");
           this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().retrieveSubjectLink();
@@ -1429,6 +1461,7 @@ public class GrouperProvisioningLogic {
     // first lets see if we should even be doing this
     if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertGroups(), false)) {
 
+<<<<<<< GROUPER_5_BRANCH
       // TODO maybe this should be moved somewhere else, where things are validated, if we are not inserting, then why mark as errors?
       if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
         // entity not there
@@ -1438,6 +1471,14 @@ public class GrouperProvisioningLogic {
                 missingGroup.getProvisioningGroupWrapper(), GcGrouperSyncErrorCode.DNE, 
                 "Group does not exist in target or cannot be found, and not creating groups");
           }
+=======
+      // entity not there
+      for (ProvisioningGroup missingGroup : missingGroups) {
+        if (missingGroup.getProvisioningGroupWrapper() != null) {
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignGroupError(
+              missingGroup.getProvisioningGroupWrapper(), GcGrouperSyncErrorCode.DNE, 
+              "Group does not exist in target or cannot be found, and not creating groups");
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
         }
       }
       return;
@@ -1740,6 +1781,7 @@ public class GrouperProvisioningLogic {
     // first lets see if we should even be doing this
     if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertEntities(), false)) {
 
+<<<<<<< GROUPER_5_BRANCH
       // TODO maybe this should be moved somewhere else, where things are validated, if we are not inserting, then why mark as errors?
       if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectEntities()) {
         // entity not there
@@ -1749,6 +1791,14 @@ public class GrouperProvisioningLogic {
                 missingEntity.getProvisioningEntityWrapper(), GcGrouperSyncErrorCode.DNE, 
                 "Entity does not exist in target or cannot be found, and not creating entities");
           }
+=======
+      // entity not there
+      for (ProvisioningEntity missingEntity : missingEntities) {
+        if (missingEntity.getProvisioningEntityWrapper() != null) {
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignEntityError(
+              missingEntity.getProvisioningEntityWrapper(), GcGrouperSyncErrorCode.DNE, 
+              "Entity does not exist in target or cannot be found, and not creating entities");
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
         }
       }
       return;

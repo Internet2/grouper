@@ -64,10 +64,10 @@ public class AzureProvisionerTestUtils {
     
         
     configureProvisionerSuffix(provisioningTestConfigInput, "azureGroupType", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0entityAttribute", "id");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "target");
-    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "entityAttribute");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1entityAttribute", "userPrincipalName");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1source", "target");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1type", "entityAttribute");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "userPrincipalName");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");

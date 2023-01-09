@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningStateMembership extends ProvisioningStateBase {
 
+<<<<<<< GROUPER_5_BRANCH
   
   
   private ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
@@ -68,5 +69,31 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
     }
     return true;
   }
+=======
+  private MultiKey groupIdMemberId = null;
+
+  
+  
+  
+  public MultiKey getGroupIdMemberId() {
+    return groupIdMemberId;
+  }
+
+  
+  public void setGroupIdMemberId(MultiKey groupIdMemberId) {
+    this.groupIdMemberId = groupIdMemberId;
+  }
+
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet();
+  
+  /**
+   * 
+   */
+  @Override
+  public String toString() {
+    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
+  }
+
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
   
 }

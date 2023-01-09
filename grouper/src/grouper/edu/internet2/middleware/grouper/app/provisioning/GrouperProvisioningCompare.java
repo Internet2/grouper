@@ -982,7 +982,11 @@ public class GrouperProvisioningCompare {
         
         if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable() && !provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
         
+<<<<<<< GROUPER_5_BRANCH
           if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+=======
+          if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
           
             if (provisioningEntityWrapper.getGrouperTargetEntity() != null && provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
               
@@ -1010,7 +1014,11 @@ public class GrouperProvisioningCompare {
       if (provisioningEntityWrapper.getGcGrouperSyncMember() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable()) {
         
         boolean deleteMembershipAttributeValues = false;
+<<<<<<< GROUPER_5_BRANCH
         if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+=======
+        if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
           
           if ( (provisioningEntityWrapper.getGrouperTargetEntity() == null || provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) && provisioningEntityWrapper.getTargetProvisioningEntity() != null) { 
             
@@ -1077,7 +1085,11 @@ public class GrouperProvisioningCompare {
       }
       
       // updates
+<<<<<<< GROUPER_5_BRANCH
       if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+=======
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
         
         if (provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
           
@@ -1109,7 +1121,11 @@ public class GrouperProvisioningCompare {
         
         ProvisioningEntity entityToDelete = null;
         
+<<<<<<< GROUPER_5_BRANCH
         if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed() && provisioningEntityWrapper.getProvisioningStateEntity().isDelete() && provisioningEntityWrapper.getGrouperTargetEntity() != null 
+=======
+        if (!provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject() && provisioningEntityWrapper.getProvisioningStateEntity().isDelete() && provisioningEntityWrapper.getGrouperTargetEntity() != null 
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
             && provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
           entityToDelete = provisioningEntityWrapper.getGrouperTargetEntity();
         } else {
@@ -1215,7 +1231,11 @@ public class GrouperProvisioningCompare {
         
         if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable() && !provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
         
+<<<<<<< GROUPER_5_BRANCH
           if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+=======
+          if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
           
             if (provisioningGroupWrapper.getGrouperTargetGroup() != null && provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
               
@@ -1240,7 +1260,11 @@ public class GrouperProvisioningCompare {
       if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
         
         boolean deleteMembershipAttributeValues = false;
+<<<<<<< GROUPER_5_BRANCH
         if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+=======
+        if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
           
           if ( (provisioningGroupWrapper.getGrouperTargetGroup() == null || provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) && provisioningGroupWrapper.getTargetProvisioningGroup() != null) { 
             
@@ -1307,7 +1331,11 @@ public class GrouperProvisioningCompare {
       }
       
       // updates
+<<<<<<< GROUPER_5_BRANCH
       if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+=======
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
         
         if (provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
           
@@ -1350,7 +1378,11 @@ public class GrouperProvisioningCompare {
         
         ProvisioningGroup groupToDelete = null;
         
+<<<<<<< GROUPER_5_BRANCH
         if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed() && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getGrouperTargetGroup() != null 
+=======
+        if (!provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject() && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getGrouperTargetGroup() != null 
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
             && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
           groupToDelete = provisioningGroupWrapper.getGrouperTargetGroup();
         } else {
@@ -1499,7 +1531,11 @@ public class GrouperProvisioningCompare {
       
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(provisioningMembershipWrappers)) { 
         
+<<<<<<< GROUPER_5_BRANCH
         boolean shouldReplace = provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed() || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync();
+=======
+        boolean shouldReplace = provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject() || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync();
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
         if (!shouldReplace) {
           
           shouldReplace = !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
@@ -1580,12 +1616,16 @@ public class GrouperProvisioningCompare {
       Set<Object> matchingIdsToInsert = new HashSet<Object>();
       for (Object key : grouperMatchingIdToTargetMembership.keySet()) {
         ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(key);
+<<<<<<< GROUPER_5_BRANCH
         
         if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()) {
           continue;
         }
         
         if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed() || this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
+=======
+        if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
           matchingIdsToInsert.add(key);
         } else if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.insert) {
           matchingIdsToInsert.add(key);
@@ -1620,14 +1660,22 @@ public class GrouperProvisioningCompare {
       Set<Object> groupIdEntityIdsToDelete = new HashSet<Object>();
       for (Object key : targetMatchingIdToTargetMembership.keySet()) {
         ProvisioningMembership grouperTargetMembership = targetMatchingIdToTargetMembership.get(key);
+<<<<<<< GROUPER_5_BRANCH
         if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed()) {
+=======
+        if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
           groupIdEntityIdsToDelete.add(key);
         }
       }
       groupIdEntityIdsToDelete.removeAll(grouperMatchingIdToTargetMembership.keySet());
       for (Object key : grouperMatchingIdToTargetMembership.keySet()) {
         ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(key);
+<<<<<<< GROUPER_5_BRANCH
         if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed()) {
+=======
+        if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
           if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.delete || 
               (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
                   && (grouperTargetMembership.getProvisioningMembershipWrapper().getTargetProvisioningMembership() != null 

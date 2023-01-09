@@ -130,6 +130,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     
     if (this.provisioningGroupWrapper != null) {
+<<<<<<< GROUPER_5_BRANCH
       if (this == this.provisioningGroupWrapper.getGrouperProvisioningGroup() || this == this.provisioningGroupWrapper.getGrouperTargetGroup()) {
         if (this.provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction() != null) {
           firstField = toStringAppendField(result, firstField, "action", this.provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction());
@@ -164,6 +165,25 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
         if (this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdateResultProcessed()) {
           firstField = toStringAppendField(result, firstField, "updateProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdateResultProcessed());
         }
+=======
+      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
+      }
+      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
+        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
+      }
+      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate());
+      }
+      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
+        firstField = toStringAppendField(result, firstField, "delete", this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete());
+      }
+      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships()) {
+        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships());
+      }
+      if (this.provisioningGroupWrapper.getErrorCode() != null) {
+        firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningGroupWrapper.getErrorCode().name());
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
       }
     }
     

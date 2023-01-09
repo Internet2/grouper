@@ -307,20 +307,40 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     firstField = toStringAppendField(result, firstField, "entityId", this.provisioningEntityId);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     if (this.provisioningMembershipWrapper != null) {
+<<<<<<< GROUPER_5_BRANCH
 
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() != null) {
         firstField = toStringAppendField(result, firstField, "action", this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction());
+=======
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
+        firstField = toStringAppendField(result, firstField, "recalc", this.provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
       }
+<<<<<<< GROUPER_5_BRANCH
       firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
 
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate()) {
         firstField = toStringAppendField(result, firstField, "create", this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate());
+=======
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() != null) {
+        firstField = toStringAppendField(result, firstField, "incrementalDataAction", this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction());
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
       }
+<<<<<<< GROUPER_5_BRANCH
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isInsertResultProcessed()) {
         firstField = toStringAppendField(result, firstField, "createProcessed", this.provisioningMembershipWrapper.getProvisioningStateMembership().isInsertResultProcessed());
-      }
+=======
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
         firstField = toStringAppendField(result, firstField, "delete", this.provisioningMembershipWrapper.getProvisioningStateMembership().isDelete());
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+      }
+<<<<<<< GROUPER_5_BRANCH
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
+        firstField = toStringAppendField(result, firstField, "delete", this.provisioningMembershipWrapper.getProvisioningStateMembership().isDelete());
+=======
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate());
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
       }
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed()) {
         firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed());

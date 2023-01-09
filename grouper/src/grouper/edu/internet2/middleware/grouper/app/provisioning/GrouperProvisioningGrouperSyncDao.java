@@ -143,6 +143,7 @@ public class GrouperProvisioningGrouperSyncDao {
 
     long start = System.currentTimeMillis();
 
+<<<<<<< GROUPER_5_BRANCH
     Set<String> groupIdsToRetrieve = new HashSet<String>();
     Set<String> groupIdsToIgnore = new HashSet<String>();
 
@@ -207,6 +208,8 @@ public class GrouperProvisioningGrouperSyncDao {
 
     long start = System.currentTimeMillis();
 
+=======
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
     Set<GcGrouperSyncGroup> gcGrouperSyncGroups = this.grouperProvisioner.retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups();
 
     Set<String> groupIdsToRetrieve = new HashSet<String>();
@@ -1427,7 +1430,11 @@ public class GrouperProvisioningGrouperSyncDao {
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil
         .nonNull(values)) {
       
+<<<<<<< GROUPER_5_BRANCH
       if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+=======
+      if (!provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
         continue;
       }
       
@@ -1469,7 +1476,11 @@ public class GrouperProvisioningGrouperSyncDao {
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil
         .nonNull(values)) {
       
+<<<<<<< GROUPER_5_BRANCH
       if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+=======
+      if (!provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
         continue;
       }
       
@@ -1622,7 +1633,11 @@ public class GrouperProvisioningGrouperSyncDao {
           for (ProvisioningMembershipWrapper provisioningMembershipWrapper : syncGroupIdSyncMemberIdToMembershipWrappersProcessed
               .values()) {
             
+<<<<<<< GROUPER_5_BRANCH
             if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
+=======
+            if (!provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
               continue;
             }
             
@@ -1748,7 +1763,11 @@ public class GrouperProvisioningGrouperSyncDao {
           for (ProvisioningMembershipWrapper provisioningMembershipWrapper : syncGroupIdSyncMemberIdToMembershipWrappersProcessed
               .values()) {
             
+<<<<<<< GROUPER_5_BRANCH
             if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
+=======
+            if (!provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
               continue;
             }
             
@@ -1776,7 +1795,11 @@ public class GrouperProvisioningGrouperSyncDao {
         for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil
             .nonNull(provisioningMembershipWrappers)) {
           
+<<<<<<< GROUPER_5_BRANCH
           if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
+=======
+          if (!provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
             continue;
           }
           

@@ -249,6 +249,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     
     if (this.provisioningEntityWrapper != null) {
+<<<<<<< GROUPER_5_BRANCH
       
       if (this == this.provisioningEntityWrapper.getGrouperProvisioningEntity() || this == this.provisioningEntityWrapper.getGrouperTargetEntity()) {
         if (this.provisioningEntityWrapper.getProvisioningStateEntity().getGrouperIncrementalDataAction() != null) {
@@ -284,9 +285,31 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
         if (this.provisioningEntityWrapper.getProvisioningStateEntity().isUpdateResultProcessed()) {
           firstField = toStringAppendField(result, firstField, "updateProcessed", this.provisioningEntityWrapper.getProvisioningStateEntity().isUpdateResultProcessed());
         }
+=======
+      if (this.provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
+        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
       }
+<<<<<<< GROUPER_5_BRANCH
       
       
+=======
+      if (this.provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()) {
+        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
+      }
+      if (this.provisioningEntityWrapper.getProvisioningStateEntity().isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningEntityWrapper.getProvisioningStateEntity().isCreate());
+      }
+      if (this.provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
+        firstField = toStringAppendField(result, firstField, "delete", this.provisioningEntityWrapper.getProvisioningStateEntity().isDelete());
+      }
+      if (this.provisioningEntityWrapper.getProvisioningStateEntity().isIncrementalSyncMemberships()) {
+        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningEntityWrapper.getProvisioningStateEntity().isIncrementalSyncMemberships());
+      }
+      if (this.provisioningEntityWrapper.getErrorCode() != null) {
+        firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningEntityWrapper.getErrorCode().name());
+      }
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
     }
     
     return result.append(")").toString();

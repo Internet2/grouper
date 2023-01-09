@@ -163,6 +163,7 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   private ProvisioningGroup grouperTargetGroup;
 
   /**
+<<<<<<< GROUPER_5_BRANCH
    * this comes from the commands class and is target specific bean
    */
 <<<<<<< GROUPER_5_BRANCH
@@ -186,6 +187,8 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   }
 
   /**
+=======
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
    * this comes from the commands class and is target specific bean
    */
 >>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner

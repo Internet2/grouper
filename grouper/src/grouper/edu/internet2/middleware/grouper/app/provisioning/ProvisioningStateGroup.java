@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningStateGroup extends ProvisioningStateBase {
 
+<<<<<<< GROUPER_5_BRANCH
   public ProvisioningStateGroup() {
     
   }
@@ -117,6 +118,27 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   @Override
   public String toString() {
     return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore, "id='" + this.getProvisioningGroupWrapper().getGroupId() + "'");
+=======
+  /**
+   * if this is incremental, and syncing memberships for this group
+   */
+  private boolean incrementalSyncMemberships;
+  /**
+   * if recalcing the groupAttribute memberships 
+   */
+  private boolean recalcGroupMemberships;
+  private String groupId;
+  
+  
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet();
+  
+  /**
+   * 
+   */
+  @Override
+  public String toString() {
+    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
   }
 
 

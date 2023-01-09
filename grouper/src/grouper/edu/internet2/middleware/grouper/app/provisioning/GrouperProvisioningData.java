@@ -549,6 +549,7 @@ public class GrouperProvisioningData {
     ProvisioningEntityWrapper provisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberId);
     if (provisioningEntityWrapper == null) {
       provisioningEntityWrapper = new ProvisioningEntityWrapper();
+<<<<<<< GROUPER_5_BRANCH
       provisioningEntityWrapper.setGrouperProvisioner(grouperProvisioner);
       provisioningEntityWrapper.setMemberId(memberId);
       this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().add(provisioningEntityWrapper);
@@ -583,6 +584,40 @@ public class GrouperProvisioningData {
     if (provisioningMembershipWrapper == null) {
       provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
       provisioningMembershipWrapper.setGrouperProvisioner(grouperProvisioner);
+=======
+      provisioningEntityWrapper.setMemberId(memberId);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().add(provisioningEntityWrapper);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().put(memberId, provisioningEntityWrapper);
+    }
+    
+    if (millisSince1970 != null 
+        && (provisioningEntityWrapper.getProvisioningStateEntity().getMillisSince1970() == null 
+          || millisSince1970 > provisioningEntityWrapper.getProvisioningStateEntity().getMillisSince1970())) {
+      provisioningEntityWrapper.getProvisioningStateEntity().setMillisSince1970(millisSince1970);
+    }
+
+    if (recalcEntity) {
+      provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+    }
+
+    if (recalcMemberships) {
+      provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+    }
+    
+    if (grouperIncrementalDataAction != null) {
+      provisioningEntityWrapper.getProvisioningStateEntity().setGrouperIncrementalDataAction(grouperIncrementalDataAction);
+    }
+  }
+
+  
+  public void addIncrementalMembership(String groupId, String memberId, boolean recalcMembership, Long millisSince1970, GrouperIncrementalDataAction grouperIncrementalDataAction) {
+
+    MultiKey multiKey = new MultiKey(groupId, memberId);
+    
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(multiKey);
+    if (provisioningMembershipWrapper == null) {
+      provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
+>>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
       provisioningMembershipWrapper.setGroupIdMemberId(multiKey);
       this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().add(provisioningMembershipWrapper);
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().put(multiKey, provisioningMembershipWrapper);
