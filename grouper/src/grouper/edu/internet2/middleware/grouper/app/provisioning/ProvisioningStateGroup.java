@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class ProvisioningStateGroup extends ProvisioningStateBase {
 
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
   public ProvisioningStateGroup() {
     
   }
@@ -119,6 +120,12 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   public String toString() {
     return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore, "id='" + this.getProvisioningGroupWrapper().getGroupId() + "'");
 =======
+=======
+  public ProvisioningStateGroup() {
+    
+  }
+  
+>>>>>>> a8d0568 improve logging of new provisioning state
   /**
    * if this is incremental, and syncing memberships for this group
    */
@@ -130,15 +137,36 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   private String groupId;
   
   
-  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet();
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningGroupWrapper");
   
+  private ProvisioningGroupWrapper provisioningGroupWrapper = null;
+  
+  
+  
+  
+  public ProvisioningGroupWrapper getProvisioningGroupWrapper() {
+    return provisioningGroupWrapper;
+  }
+
+
+  
+  public void setProvisioningGroupWrapper(
+      ProvisioningGroupWrapper provisioningGroupWrapper) {
+    this.provisioningGroupWrapper = provisioningGroupWrapper;
+  }
+
+
   /**
    * 
    */
   @Override
   public String toString() {
+<<<<<<< GROUPER_5_BRANCH
     return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore, "id='" + this.getProvisioningGroupWrapper().getGroupId() + "'");
+>>>>>>> a8d0568 improve logging of new provisioning state
   }
 
 

@@ -1071,8 +1071,11 @@ public class GrouperProvisioningLogic {
 
           this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false), true);
 
+<<<<<<< GROUPER_5_BRANCH
           grouperProvisioningLogicIncremental.determineMembershipsToSelect();
           
+=======
+>>>>>>> a8d0568 improve logging of new provisioning state
           // ######## Retrieve memberships from target that are recalc where the group is not recalc
           {
             debugMap.put("state", "retrieveIncrementalTargetMemberships");

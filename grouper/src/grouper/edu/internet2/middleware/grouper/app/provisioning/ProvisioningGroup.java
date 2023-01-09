@@ -131,6 +131,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     
     if (this.provisioningGroupWrapper != null) {
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       if (this == this.provisioningGroupWrapper.getGrouperProvisioningGroup() || this == this.provisioningGroupWrapper.getGrouperTargetGroup()) {
         if (this.provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction() != null) {
           firstField = toStringAppendField(result, firstField, "action", this.provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction());
@@ -167,23 +168,49 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
         }
 =======
       if (this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+=======
+      if (this == this.provisioningGroupWrapper.getGrouperProvisioningGroup() || this == this.provisioningGroupWrapper.getGrouperTargetGroup()) {
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction() != null) {
+          firstField = toStringAppendField(result, firstField, "action", this.provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction());
+        }
+>>>>>>> a8d0568 improve logging of new provisioning state
         firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
-      }
-      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
         firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
-      }
-      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate()) {
-        firstField = toStringAppendField(result, firstField, "create", this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate());
-      }
-      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
-        firstField = toStringAppendField(result, firstField, "delete", this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete());
-      }
-      if (this.provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships()) {
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate()) {
+          firstField = toStringAppendField(result, firstField, "create", this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isInsertResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "createProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isInsertResultProcessed());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
+          firstField = toStringAppendField(result, firstField, "delete", this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isDeleteResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isDeleteResultProcessed());
+        }
         firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships());
+<<<<<<< GROUPER_5_BRANCH
       }
       if (this.provisioningGroupWrapper.getErrorCode() != null) {
         firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningGroupWrapper.getErrorCode().name());
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+        if (this.provisioningGroupWrapper.getErrorCode() != null) {
+          firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningGroupWrapper.getErrorCode().name());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().getMillisSince1970() != null) {
+          firstField = toStringAppendField(result, firstField, "millis1970", this.provisioningGroupWrapper.getProvisioningStateGroup().getMillisSince1970());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "selectProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdate()) {
+          firstField = toStringAppendField(result, firstField, "update", this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdate());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdateResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "updateProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdateResultProcessed());
+        }
+>>>>>>> a8d0568 improve logging of new provisioning state
       }
     }
     

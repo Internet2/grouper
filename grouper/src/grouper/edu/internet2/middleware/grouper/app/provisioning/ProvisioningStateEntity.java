@@ -198,14 +198,30 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
     this.memberId = memberId;
   }
   
-  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet();
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningEntityWrapper");
   
   /**
    * 
    */
   @Override
   public String toString() {
-    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
+    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore, "id='" + this.getProvisioningEntityWrapper().getMemberId() + "'");
+  }
+
+  private ProvisioningEntityWrapper provisioningEntityWrapper = null;
+  
+  
+  
+  
+  public ProvisioningEntityWrapper getProvisioningEntityWrapper() {
+    return provisioningEntityWrapper;
+  }
+
+
+  
+  public void setProvisioningEntityWrapper(
+      ProvisioningEntityWrapper provisioningEntityWrapper) {
+    this.provisioningEntityWrapper = provisioningEntityWrapper;
   }
 
 

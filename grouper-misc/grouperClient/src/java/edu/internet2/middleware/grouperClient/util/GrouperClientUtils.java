@@ -251,11 +251,15 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
       if (!trim(extraInfo).endsWith(",")) {
         result.append(", ");
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       } else if (!extraInfo.endsWith(" ")) {
 =======
       }
       if (!trim(extraInfo).endsWith(" ")) {
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+      } else if (!extraInfo.endsWith(" ")) {
+>>>>>>> a8d0568 improve logging of new provisioning state
         result.append(" ");
       }
     }

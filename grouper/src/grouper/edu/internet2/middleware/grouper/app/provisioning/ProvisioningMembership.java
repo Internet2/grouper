@@ -308,6 +308,7 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     if (this.provisioningMembershipWrapper != null) {
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() != null) {
         firstField = toStringAppendField(result, firstField, "action", this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction());
@@ -325,7 +326,27 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() != null) {
         firstField = toStringAppendField(result, firstField, "incrementalDataAction", this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction());
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() != null) {
+        firstField = toStringAppendField(result, firstField, "action", this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction());
       }
+      firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
+
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate());
+      }
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isInsertResultProcessed()) {
+        firstField = toStringAppendField(result, firstField, "createProcessed", this.provisioningMembershipWrapper.getProvisioningStateMembership().isInsertResultProcessed());
+      }
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
+        firstField = toStringAppendField(result, firstField, "delete", this.provisioningMembershipWrapper.getProvisioningStateMembership().isDelete());
+      }
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed()) {
+        firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed());
+>>>>>>> a8d0568 improve logging of new provisioning state
+      }
+<<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isInsertResultProcessed()) {
         firstField = toStringAppendField(result, firstField, "createProcessed", this.provisioningMembershipWrapper.getProvisioningStateMembership().isInsertResultProcessed());
@@ -345,6 +366,8 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed()) {
         firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed());
       }
+=======
+>>>>>>> a8d0568 improve logging of new provisioning state
 
       if (this.provisioningMembershipWrapper.getErrorCode() != null) {
         firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningMembershipWrapper.getErrorCode().name());
