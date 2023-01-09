@@ -307,20 +307,39 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     firstField = toStringAppendField(result, firstField, "entityId", this.provisioningEntityId);
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     if (this.provisioningMembershipWrapper != null) {
-      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
-        firstField = toStringAppendField(result, firstField, "recalc", this.provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
-      }
+
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() != null) {
-        firstField = toStringAppendField(result, firstField, "incrementalDataAction", this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction());
+        firstField = toStringAppendField(result, firstField, "action", this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction());
+      }
+      firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
+
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate()) {
+        firstField = toStringAppendField(result, firstField, "create", this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate());
+      }
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isInsertResultProcessed()) {
+        firstField = toStringAppendField(result, firstField, "createProcessed", this.provisioningMembershipWrapper.getProvisioningStateMembership().isInsertResultProcessed());
       }
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
         firstField = toStringAppendField(result, firstField, "delete", this.provisioningMembershipWrapper.getProvisioningStateMembership().isDelete());
       }
-      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate()) {
-        firstField = toStringAppendField(result, firstField, "create", this.provisioningMembershipWrapper.getProvisioningStateMembership().isCreate());
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed()) {
+        firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningMembershipWrapper.getProvisioningStateMembership().isDeleteResultProcessed());
       }
+
       if (this.provisioningMembershipWrapper.getErrorCode() != null) {
         firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningMembershipWrapper.getErrorCode().name());
+      }
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().getMillisSince1970() != null) {
+        firstField = toStringAppendField(result, firstField, "millis1970", this.provisioningMembershipWrapper.getProvisioningStateMembership().getMillisSince1970());
+      }
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
+        firstField = toStringAppendField(result, firstField, "selectProcessed", this.provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed());
+      }
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isUpdate()) {
+        firstField = toStringAppendField(result, firstField, "update", this.provisioningMembershipWrapper.getProvisioningStateMembership().isUpdate());
+      }
+      if (this.provisioningMembershipWrapper.getProvisioningStateMembership().isUpdateResultProcessed()) {
+        firstField = toStringAppendField(result, firstField, "updateProcessed", this.provisioningMembershipWrapper.getProvisioningStateMembership().isUpdateResultProcessed());
       }
 
     }

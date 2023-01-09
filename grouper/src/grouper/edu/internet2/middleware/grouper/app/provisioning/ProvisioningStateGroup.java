@@ -6,6 +6,10 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningStateGroup extends ProvisioningStateBase {
 
+  public ProvisioningStateGroup() {
+    
+  }
+  
   /**
    * if this is incremental, and syncing memberships for this group
    */
@@ -17,14 +21,31 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   private String groupId;
   
   
-  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet();
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningGroupWrapper");
   
+  private ProvisioningGroupWrapper provisioningGroupWrapper = null;
+  
+  
+  
+  
+  public ProvisioningGroupWrapper getProvisioningGroupWrapper() {
+    return provisioningGroupWrapper;
+  }
+
+
+  
+  public void setProvisioningGroupWrapper(
+      ProvisioningGroupWrapper provisioningGroupWrapper) {
+    this.provisioningGroupWrapper = provisioningGroupWrapper;
+  }
+
+
   /**
    * 
    */
   @Override
   public String toString() {
-    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
+    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore, "id='" + this.getProvisioningGroupWrapper().getGroupId() + "'");
   }
 
 

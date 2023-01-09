@@ -7,6 +7,22 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningStateMembership extends ProvisioningStateBase {
 
+  private ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
+  
+  
+  
+  
+  public ProvisioningMembershipWrapper getProvisioningMembershipWrapper() {
+    return provisioningMembershipWrapper;
+  }
+
+
+  
+  public void setProvisioningMembershipWrapper(
+      ProvisioningMembershipWrapper provisioningMembershipWrapper) {
+    this.provisioningMembershipWrapper = provisioningMembershipWrapper;
+  }
+
   private MultiKey groupIdMemberId = null;
 
   
@@ -21,14 +37,20 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
     this.groupIdMemberId = groupIdMemberId;
   }
 
-  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet();
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningMembershipWrapper");
   
   /**
    * 
    */
   @Override
   public String toString() {
-    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
+    String ids = null;
+    if (this.getProvisioningMembershipWrapper().getGroupIdMemberId() != null) {
+      ids = "groupId='" + this.getProvisioningMembershipWrapper().getGroupIdMemberId().getKey(0) + "', memberId='" + this.getProvisioningMembershipWrapper().getGroupIdMemberId().getKey(1) + "'";
+    } else {
+      ids = "groupId='null', memberId='null'";
+    }
+    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore, ids);
   }
 
   

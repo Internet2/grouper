@@ -113,6 +113,7 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
 
   public ProvisioningMembershipWrapper() {
     super();
+    this.provisioningStateMembership.setProvisioningMembershipWrapper(this);
   }
 
   /**

@@ -251,8 +251,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
       result.append(extraInfo);
       if (!trim(extraInfo).endsWith(",")) {
         result.append(", ");
-      }
-      if (!trim(extraInfo).endsWith(" ")) {
+      } else if (!extraInfo.endsWith(" ")) {
         result.append(" ");
       }
     }
@@ -284,7 +283,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
           result.append(", ");
         }
         firstField = false;
-        result.append(fieldName).append(" = '").append(GrouperClientUtils.toStringForLog(value, false)).append("'");
+        result.append(fieldName).append("='").append(GrouperClientUtils.toStringForLog(value, false)).append("'");
       }
     }
     if (result.toString().endsWith(", ")) {

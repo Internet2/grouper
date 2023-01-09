@@ -63,6 +63,7 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
 
   public ProvisioningEntityWrapper() {
     super();
+    this.provisioningStateEntity.setProvisioningEntityWrapper(this);
   }
 
   public String toString() {

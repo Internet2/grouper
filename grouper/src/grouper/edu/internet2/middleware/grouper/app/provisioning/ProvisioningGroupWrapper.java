@@ -83,6 +83,7 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
 
   public ProvisioningGroupWrapper() {
     super();
+    this.provisioningStateGroup.setProvisioningGroupWrapper(this);
   }
 
   /**
