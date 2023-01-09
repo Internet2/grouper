@@ -112,6 +112,7 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
       assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) > 0);
       
       for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
+<<<<<<< GROUPER_5_BRANCH
         assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
         
         assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
@@ -130,6 +131,26 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
       
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
         assertTrue(provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
+=======
+        assertTrue(provisioningGroupWrapper.isRecalcObject());
+        
+        assertTrue(provisioningGroupWrapper.isRecalcGroupMemberships());
+      }
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) > 0);
+      
+      for (ProvisioningEntityWrapper provisioningEntityWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
+        assertTrue(provisioningEntityWrapper.isRecalcObject());
+        
+        assertTrue(provisioningEntityWrapper.isRecalcEntityMemberships());
+        
+      }
+      
+      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) > 0);
+      
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        assertTrue(provisioningMembershipWrapper.isRecalcObject());
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
       }
       
       assertEquals("P123", grouperRemedyMembership.getPersonId());

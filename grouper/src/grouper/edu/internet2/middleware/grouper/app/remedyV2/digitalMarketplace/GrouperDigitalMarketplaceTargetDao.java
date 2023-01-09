@@ -356,6 +356,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
     ProvisioningEntity targetEntity = targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity();
     
     String targetEntityId = resolveTargetEntityId(targetEntity);
+<<<<<<< GROUPER_5_BRANCH
     List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
     
     if (StringUtils.isBlank(targetEntityId)) {
@@ -404,6 +405,53 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       if (targetGroup != null && StringUtils.isNotBlank(targetGroup.retrieveAttributeValueString("groupName"))) {
         groupName = targetGroup.retrieveAttributeValueString("groupName");
       }
+=======
+    List<Object> provisioningMemberships = new ArrayList<Object>();
+    
+    if (StringUtils.isBlank(targetEntityId)) {
+      return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
+    }
+    
+    try {
+      GrouperDigitalMarketplaceConfiguration digitalMarketplaceConfiguration = (GrouperDigitalMarketplaceConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      String digitalMarketplaceExternalSystemConfigId = digitalMarketplaceConfiguration.getDigitalMarketplaceExternalSystemConfigId();
+      
+      GrouperDigitalMarketplaceUser digitalMarketplaceUser = GrouperDigitalMarketplaceApiCommands.retrieveDigitalMarketplaceUser(digitalMarketplaceExternalSystemConfigId, targetEntityId);
+      
+      if (digitalMarketplaceUser == null) {
+        return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
+      }
+      
+      for (String group : digitalMarketplaceUser.getGroups()) {
+        
+        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        
+        targetMembership.assignAttributeValue("groupName", group);
+        targetMembership.assignAttributeValue("loginName", targetEntityId);
+        
+        provisioningMemberships.add(targetMembership);
+      }
+      
+      return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
+      
+    } finally {
+      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
+    }
+  }
+  
+
+  @Override
+  public TargetDaoDeleteGroupResponse deleteGroup(
+      TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
+    
+    long startNanos = System.nanoTime();
+    
+    try {
+      GrouperDigitalMarketplaceConfiguration digitalMarketplaceConfiguration = (GrouperDigitalMarketplaceConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      String digitalMarketplaceExternalSystemConfigId = digitalMarketplaceConfiguration.getDigitalMarketplaceExternalSystemConfigId();
+      ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
+      String groupName = resolveTargetGroupId(targetGroup);
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
       if (StringUtils.isBlank(groupName)) {
         return new TargetDaoDeleteGroupResponse();
       }

@@ -37,9 +37,13 @@ import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvi
 import edu.internet2.middleware.grouper.app.midpointProvisioning.MidPointProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.remedyV2.RemedyProvisionerConfiguration;
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceProvisionerConfiguration;
 =======
 >>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
+=======
+import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceProvisionerConfiguration;
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;

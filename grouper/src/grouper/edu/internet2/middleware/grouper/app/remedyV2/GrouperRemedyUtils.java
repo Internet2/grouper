@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.app.remedyV2;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 
 
 /**
@@ -26,6 +27,8 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+=======
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
 
 
 /**
@@ -39,6 +42,7 @@ public class GrouperRemedyUtils {
   public GrouperRemedyUtils() {
   }
 
+<<<<<<< GROUPER_5_BRANCH
   /**
    * folder for duo groups with colon appended
    * @return the config folder for duo groups
@@ -112,6 +116,8 @@ public class GrouperRemedyUtils {
     return true;
   }
 >>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
+=======
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
 
   /**
    * escape url chars (e.g. a # is %23)

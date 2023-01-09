@@ -52,6 +52,7 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       String remedyLoginId = targetMembership.retrieveAttributeValueString("remedyLoginId");
       String personId = targetMembership.retrieveAttributeValueString("personId");
       String permissionGroup = targetMembership.retrieveAttributeValueString("permissionGroup");
+<<<<<<< GROUPER_5_BRANCH
       
       //TODO see if we can fetch the group by id
       Map<Long, GrouperRemedyGroup> remedyGroups = GrouperRemedyApiCommands.retrieveRemedyGroups(remedyExternalSystemConfigId);
@@ -374,19 +375,21 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       
       String groupId = targetMembership.getProvisioningGroupId();
       String entityId = targetMembership.getProvisioningEntityId();
+=======
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
       
       //TODO see if we can fetch the group by id
       Map<Long, GrouperRemedyGroup> remedyGroups = GrouperRemedyApiCommands.retrieveRemedyGroups(remedyExternalSystemConfigId);
       GrouperRemedyGroup grouperRemedyGroup = null;
-      if (remedyGroups.containsKey(Long.valueOf(groupId))) {
-        grouperRemedyGroup = remedyGroups.get(Long.valueOf(groupId));
+      if (remedyGroups.containsKey(permissionGroupId)) {
+        grouperRemedyGroup = remedyGroups.get(permissionGroupId);
       }
       
       if (grouperRemedyGroup == null) {
         return new TargetDaoDeleteMembershipResponse();
       }
       
-      GrouperRemedyUser grouperRemedyUser = GrouperRemedyApiCommands.retrieveRemedyUser(remedyExternalSystemConfigId, entityId);
+      GrouperRemedyUser grouperRemedyUser = GrouperRemedyApiCommands.retrieveRemedyUser(remedyExternalSystemConfigId, remedyLoginId);
       if (grouperRemedyUser == null) {
         return new TargetDaoDeleteMembershipResponse();
       }

@@ -23,9 +23,13 @@ import edu.internet2.middleware.grouper.app.duo.role.DuoRoleMockServiceHandler;
 import edu.internet2.middleware.grouper.app.google.GoogleMockServiceHandler;
 import edu.internet2.middleware.grouper.app.remedyV2.RemedyMockServiceHandler;
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceMockServiceHandler;
 =======
 >>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
+=======
+import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceMockServiceHandler;
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
 import edu.internet2.middleware.grouper.app.scim2Provisioning.AwsScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GithubScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -58,11 +62,16 @@ public class MockServiceServlet extends HttpServlet {
       "githubScim", GithubScim2MockServiceHandler.class.getName(),
       "google", GoogleMockServiceHandler.class.getName(),
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       "remedy", RemedyMockServiceHandler.class.getName(),
       "digitalMarketplace", DigitalMarketplaceMockServiceHandler.class.getName()
 =======
       "remedy", RemedyMockServiceHandler.class.getName()
 >>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
+=======
+      "remedy", RemedyMockServiceHandler.class.getName(),
+      "digitalMarketplace", DigitalMarketplaceMockServiceHandler.class.getName()
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
       );
   
   static {

@@ -1366,6 +1366,7 @@ public class GrouperProvisioningBehavior {
       return this.selectMembershipsAll;
     }
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()) {
       selectMembershipsAll = false;
@@ -1379,43 +1380,101 @@ public class GrouperProvisioningBehavior {
       this.selectMembershipsAll = true;
       return this.selectMembershipsAll;
 =======
+=======
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()) {
+      selectMembershipsAll = false;
+      return selectMembershipsAll;
+    }
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
 //    if (!this.isSelectMemberships()) {
 //      return false;
 //    }
+<<<<<<< GROUPER_5_BRANCH
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false)) {
       return false;
 >>>>>>> 8d5d6fa Remedy WIP and add blank value for policy groups only metadata
+=======
+    
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false) && 
+        !GrouperUtil.booleanValue(this.getGrouperProvisioner()
+            .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)) {
+      this.selectMembershipsAll = false;
+      return this.selectMembershipsAll;
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
     }
     
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+<<<<<<< GROUPER_5_BRANCH
       if (this.isSelectEntitiesAll() || this.isSelectEntities()) {
         this.selectMembershipsAll = true;
         return this.selectMembershipsAll;
       } else {
+=======
+      if (!this.isSelectEntitiesAll()) {
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
         this.selectMembershipsAll = false;
         return this.selectMembershipsAll;
       }
     }
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+<<<<<<< GROUPER_5_BRANCH
       if (this.isSelectGroupsAll() || this.isSelectGroups()) {
         this.selectMembershipsAll = true;
         return this.selectMembershipsAll;
       } else {
+=======
+      if (!this.isSelectGroupsAll()) {
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
         this.selectMembershipsAll = false;
         return this.selectMembershipsAll;
       }
     }
     
+<<<<<<< GROUPER_5_BRANCH
     if (this.isSelectEntitiesAll()) {
       if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
           .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)
         || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)) {
         this.selectMembershipsAll = true;
+=======
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+
+      if (GrouperUtil.booleanValue(this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false) || 
+          GrouperUtil.booleanValue(this.getGrouperProvisioner()
+              .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)) {
+        
+        this.selectMembershipsAll = true;
         return this.selectMembershipsAll;
       }
-    }
       
+      if (!this.isSelectEntitiesAll() &&
+          (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
+              .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)
+            || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
+                .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false))) {
+        this.selectMembershipsAll = false;
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
+        return this.selectMembershipsAll;
+      }
+<<<<<<< GROUPER_5_BRANCH
+    }
+=======
+
+      if (!this.isSelectGroupsAll() &&
+          (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
+              .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)
+            || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
+                .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false))) {
+        this.selectMembershipsAll = false;
+        return this.selectMembershipsAll;
+      }
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
+      
+<<<<<<< GROUPER_5_BRANCH
     if (this.isSelectGroupsAll()) {
       if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
           .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)
@@ -1424,8 +1483,16 @@ public class GrouperProvisioningBehavior {
         this.selectMembershipsAll = true;
         return this.selectMembershipsAll;
       }
+=======
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
     }
+<<<<<<< GROUPER_5_BRANCH
 
+=======
+    
+>>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
     this.selectMembershipsAll = false;
     return this.selectMembershipsAll;
   }
