@@ -10912,10 +10912,10 @@ public class GrouperInstaller {
     downloadAndUnzipMaven();
     
     //####################################
-    //download apache tomee
-    File tomeeDir = downloadTomee();
-    File unzippedTomeeFile = unzip(tomeeDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
-    this.untarredTomeeDir = untar(unzippedTomeeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", null);
+    //download apache tomcat
+    File tomcatDir = downloadTomcat();
+    File unzippedTomcatFile = unzip(tomcatDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
+    this.untarredTomcatDir = untar(unzippedTomcatFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", null);
     
     // download grouper tag from github
     File grouperSourceCodeDir = downloadGrouperSourceTagFromGithub();
@@ -10926,10 +10926,10 @@ public class GrouperInstaller {
     String grouperUntarredReleaseDir = untarredGrouperSourceCodeDir.getAbsolutePath().substring(0, untarredGrouperSourceCodeDir.getAbsolutePath().lastIndexOf(File.separator));
     grouperUntarredReleaseDir = grouperUntarredReleaseDir + File.separator + "grouper-" + untarredGrouperSourceCodeDir.getName() ;
     
-    // now create an output directory (webapp) and tomee
+    // now create an output directory (webapp) and tomcat
     String containerDirString = grouperContainerDirectory();
-    File containerTomeeDir = new File(containerDirString + "tomee");
-    containerTomeeDir.mkdirs();
+    File containerTomcatDir = new File(containerDirString + "tomcat");
+    containerTomcatDir.mkdirs();
     
     File webAppDir = new File(containerDirString + "webapp");
     webAppDir.mkdirs();
@@ -11110,17 +11110,17 @@ public class GrouperInstaller {
     reportOnConflictingJars(libUiAndDaemonDir.getAbsolutePath());
     reportOnConflictingJars(libWsDir.getAbsolutePath());
     
-    // copy apache-tomee-webprofile-x.y.z to tomee
+    // copy apache-tomcat-x.y.z to tomcat
     // why can't uncompressed directory has the same name??? :((
-    File tomeeUntarredDir = new File(this.grouperTarballDirectoryString + File.separator + "apache-tomee-webprofile-" + TOMEE_VERSION);
+    File tomcatUntarredDir = new File(this.grouperTarballDirectoryString + File.separator + "apache-tomcat-" + this.tomcatVersion());
     try {      
-      GrouperInstallerUtils.copyDirectory(tomeeUntarredDir, containerTomeeDir, null, true);
+      GrouperInstallerUtils.copyDirectory(tomcatUntarredDir, containerTomcatDir, null, true);
     } catch (Exception e) {
-      throw new RuntimeException("Could not copy untarred tomee into container/tomee", e);
+      throw new RuntimeException("Could not copy untarred tomcat into container/tomcat", e);
     }
     
-    // put logging related jars in tomee/bin directory
-    File tomeeBinDir = new File(containerTomeeDir + File.separator + "bin");
+    // put logging related jars in tomcat/bin directory
+    File tomcatBinDir = new File(containerTomcatDir + File.separator + "bin");
     
 //    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.13.1/log4j-core-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-core-2.13.1.jar", "");
 //    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul/2.13.1/log4j-jul-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-jul-2.13.1.jar", "");
@@ -11129,8 +11129,8 @@ public class GrouperInstaller {
 //    // put slf4j in lib dir
 //    downloadFile("https://repo1.maven.org/maven2/org/slf4j/slf4j-log4j12/1.7.21/slf4j-log4j12-1.7.21.jar", libDir + File.separator + "slf4j-log4j12-1.7.21.jar", "");
     
-    // point tomee to downloaded webpp
-    configureTomeeGrouperUberWebapp(containerTomeeDir, webAppDir);
+    // point tomcat to downloaded webpp
+    configureTomcatGrouperUberWebapp(containerTomcatDir, webAppDir);
     
     // copy slf4j from tomee/lib to web-inf/lib
 //    File tomeeLibDir = new File(containerTomeeDir + File.separator + "lib");
@@ -13305,7 +13305,7 @@ public class GrouperInstaller {
   /**
    * tomcat version
    */
-  private String tomcatVersion = "8.5.42";
+  private String tomcatVersion = "8.5.84";
   
   /**
    * 
@@ -13317,15 +13317,15 @@ public class GrouperInstaller {
     if (this.tomcatVersion == null) {
       
       String defaultTomcatVersion = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.tomcat.version", false);
-      defaultTomcatVersion = GrouperInstallerUtils.defaultIfBlank(defaultTomcatVersion, "8.5.42");
+      defaultTomcatVersion = GrouperInstallerUtils.defaultIfBlank(defaultTomcatVersion, "8.5.84");
       
-      System.out.print("Enter the tomcat version (8.5.42 or 8.5.12 or 6.0.35) [" + defaultTomcatVersion + "]: ");
+      System.out.print("Enter the tomcat version (8.5.84 or 8.5.12 or 6.0.35) [" + defaultTomcatVersion + "]: ");
       this.tomcatVersion = readFromStdIn("grouperInstaller.autorun.tomcat.version");
       
       this.tomcatVersion = GrouperInstallerUtils.defaultIfBlank(this.tomcatVersion, defaultTomcatVersion);
       
-      if (!GrouperInstallerUtils.equals(this.tomcatVersion, "8.5.42") && !GrouperInstallerUtils.equals(this.tomcatVersion, "6.0.35")) {
-        System.out.print("Warning: this *should* be 8.5.42 or 8.5.12 or 6.0.35, hit <Enter> to continue: ");
+      if (!GrouperInstallerUtils.equals(this.tomcatVersion, "8.5.84") && !GrouperInstallerUtils.equals(this.tomcatVersion, "6.0.35")) {
+        System.out.print("Warning: this *should* be 8.5.84 or 8.5.12 or 6.0.35, hit <Enter> to continue: ");
         readFromStdIn("grouperInstaller.autorun.tomcat.version.mismatch");
       }
       
@@ -13816,12 +13816,12 @@ public class GrouperInstaller {
   /**
    * 
    */
-  private void configureTomeeGrouperUberWebapp(File tommeDir, File webAppDir) {
+  private void configureTomcatGrouperUberWebapp(File tomcatDir, File webAppDir) {
     
     //GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh");
     Set<String> shFileNames = new HashSet<String>();
 
-    File binDir = new File(tommeDir.getAbsolutePath() + File.separator + "bin");
+    File binDir = new File(tomcatDir.getAbsolutePath() + File.separator + "bin");
 
     //get all sh files, doing wildcards doesnt work
     for (File file : binDir.listFiles()) {
@@ -13837,13 +13837,13 @@ public class GrouperInstaller {
       commands.add("chmod");
       commands.add("+x");
       //have to do * since all the  sh files need chmod
-      commands.add(tommeDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
+      commands.add(tomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
 
-      System.out.println("Making tomee file executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+      System.out.println("Making tomcat file executable with command: " + convertCommandsIntoCommand(commands) + "\n");
 
       CommandResult commandResult = GrouperInstallerUtils.execCommand(
           GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-          new File(tommeDir.getAbsolutePath() + File.separator + "bin"), null, true);
+          new File(tomcatDir.getAbsolutePath() + File.separator + "bin"), null, true);
       
       if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
         System.out.println("stderr: " + commandResult.getErrorText());
