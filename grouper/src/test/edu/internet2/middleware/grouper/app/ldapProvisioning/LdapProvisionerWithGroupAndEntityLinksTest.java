@@ -57,7 +57,11 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
+<<<<<<< GROUPER_5_BRANCH
     TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideFlat"));    
+=======
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullUmassActiveDirectory"));    
+>>>>>>> 473f975 add umass test
   }
   
   @Override
