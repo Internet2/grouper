@@ -1071,7 +1071,9 @@ public abstract class ProvisioningUpdatable {
       
       if (provisioningAttribute != null) {
         Collection collection = (Collection)provisioningAttribute.getValue();
-        collection.clear();
+        if (collection != null) {
+          collection.clear();
+        }
       }
     }
     
