@@ -1055,7 +1055,6 @@ public class GrouperInstaller {
     final List<String> commands = new ArrayList<String>();
     
     commands.add(getJavaCommand());
-    commands.add("-XX:MaxPermSize=150m");
     commands.add("-Xmx640m");
     
     commands.add("-Dcatalina.home=" + this.untarredTomeeDir.getAbsolutePath());
@@ -1208,7 +1207,6 @@ public class GrouperInstaller {
 //    11      </java>
     
     commands.add(getJavaCommand());
-    commands.add("-XX:MaxPermSize=150m");
     commands.add("-Xmx640m");
     
     commands.add("-Dcatalina.home=" + this.untarredTomcatDir.getAbsolutePath());
@@ -12244,10 +12242,7 @@ public class GrouperInstaller {
         
         Boolean edited = editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
         if (edited == null) {
-          addToFile(catalinaBatFile, "\nset \"JAVA_OPTS=-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
-        }
-        if (null == editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
-          throw new RuntimeException("Why not edit permgen in file " + catalinaBatFile);
+          addToFile(catalinaBatFile, "\nset \"JAVA_OPTS=-server -Xmx512M\"\n", 65, "max memory");
         }
       }
       
@@ -12258,10 +12253,7 @@ public class GrouperInstaller {
 
         Boolean edited = editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
         if (edited == null) {
-          addToFile(catalinaShFile, "\nJAVA_OPTS=\"-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
-        }
-        if (null == editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
-          throw new RuntimeException("Why not edit permgen in file " + catalinaShFile);
+          addToFile(catalinaShFile, "\nJAVA_OPTS=\"-server -Xmx512M\"\n", 65, "max memory");
         }
       }
     }      
@@ -12429,10 +12421,7 @@ public class GrouperInstaller {
         
         Boolean edited = editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
         if (edited == null) {
-          addToFile(catalinaBatFile, "\nset \"JAVA_OPTS=-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
-        }
-        if (null == editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
-          throw new RuntimeException("Why not edit permgen in file " + catalinaBatFile);
+          addToFile(catalinaBatFile, "\nset \"JAVA_OPTS=-server -Xmx512M\"\n", 65, "max memory");
         }
       }
       
@@ -12443,10 +12432,7 @@ public class GrouperInstaller {
 
         Boolean edited = editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
         if (edited == null) {
-          addToFile(catalinaShFile, "\nJAVA_OPTS=\"-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
-        }
-        if (null == editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
-          throw new RuntimeException("Why not edit permgen in file " + catalinaShFile);
+          addToFile(catalinaShFile, "\nJAVA_OPTS=\"-server -Xmx512M\"\n", 65, "max memory");
         }
       }
     }      
