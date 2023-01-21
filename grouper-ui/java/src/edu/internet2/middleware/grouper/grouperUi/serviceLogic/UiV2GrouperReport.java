@@ -1501,6 +1501,11 @@ public class UiV2GrouperReport {
       bean.setReportConfigType(configType);
     }
     
+    String grouperReportSqlConfig = request.getParameter("grouperReportSqlConfig");
+    if (StringUtils.isNotBlank(grouperReportSqlConfig)) {
+      bean.setSqlConfig(grouperReportSqlConfig);
+    }
+    
     String reportConfigFormat = request.getParameter("grouperReportConfigFormat");
     ReportConfigFormat configFormat = null;
     if (StringUtils.isNotBlank(reportConfigFormat)) {
@@ -1622,6 +1627,13 @@ public class UiV2GrouperReport {
       guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
           "#grouperReportConfigHasFormatId",
           TextContainer.retrieveFromRequest().getText().get("grouperReportConfigFormatBlankError")));
+      return false;
+    }
+    
+    if (bean.getReportConfigType() == ReportConfigType.SQL && StringUtils.isBlank(bean.getSqlConfig())) {
+      guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+          "#grouperReportSqlConfigId",
+          TextContainer.retrieveFromRequest().getText().get("grouperReportSqlConfigBlankError")));
       return false;
     }
     

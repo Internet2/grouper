@@ -4,13 +4,8 @@
  */
 package edu.internet2.middleware.grouper.app.reports;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
-
-import org.hibernate.internal.SessionImpl;
+import java.util.List;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
@@ -20,13 +15,9 @@ import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
-import edu.internet2.middleware.grouper.hibernate.AuditControl;
-import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
-import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
-import edu.internet2.middleware.grouper.hibernate.HibernateSession;
-import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
 
 
 /**
@@ -120,52 +111,39 @@ public enum ReportConfigType {
      */
     public GrouperReportData retrieveReportDataByConfig(GrouperReportConfigurationBean grouperReportConfigurationBean, GrouperReportInstance grouperReportInstance) {
 
-      GrouperReportData grouperReportData = (GrouperReportData)HibernateSession.callbackHibernateSession(
-              GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
-                public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                        throws GrouperDAOException {
+      String dbExternalSystemConfigId = grouperReportConfigurationBean.getSqlConfig();
+      GrouperReportData grouperReportData = new GrouperReportData();
+      String sql = grouperReportConfigurationBean.getReportConfigQuery();
+      
+      try {
+        GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+        
+        List<Object[]> results = gcDbAccess.sql(sql).selectList(Object[].class);
+        
+        GcTableSyncTableMetadata metadataFromDatabase = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(dbExternalSystemConfigId, sql);
+        
+        // set headers from metadata
+        int columnCount = metadataFromDatabase.getColumnMetadata().size();
+        ArrayList<String> cols = new ArrayList<>();
+        for (int index = 1; index <= columnCount; index++) {
+          cols.add(metadataFromDatabase.getColumnMetadata().get(0).getColumnName());
+        }
+        grouperReportData.setHeaders(cols);
 
-                  HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
-                  PreparedStatement preparedStatement = null;
-                  GrouperReportData grouperReportData = new GrouperReportData();
-                  String sql = grouperReportConfigurationBean.getReportConfigQuery();
-
-                  try {
-                    //we dont close this connection or anything since could be pooled
-                    Connection connection = ((SessionImpl) hibernateSession.getSession()).connection();
-                    preparedStatement = connection.prepareStatement(sql);
-
-                    ResultSet resultSet = preparedStatement.executeQuery();
-
-                    ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-
-                    // set headers from metadata
-                    int columnCount = resultSetMetaData.getColumnCount();
-                    ArrayList<String> cols = new ArrayList<>();
-                    for (int index = 1; index <= columnCount; index++) {
-                      cols.add(resultSetMetaData.getColumnName(index));
-                    }
-                    grouperReportData.setHeaders(cols);
-
-                    // load rows as list of String[]
-                    ArrayList<String[]> resultList = new ArrayList<>();
-                    while (resultSet.next()) {
-                      String[] row = new String[columnCount];
-                      for (int i = 0; i < columnCount; i++) {
-                        row[i] = resultSet.getString(i + 1);
-                      }
-                      resultList.add(row);
-                    }
-                    grouperReportData.setData(resultList);
-
-                    return grouperReportData;
-                  } catch (Exception e) {
-                    throw new RuntimeException("Problem with query in listSelect: " + sql, e);
-                  } finally {
-                    GrouperUtil.closeQuietly(preparedStatement);
-                  }
-                }
-              });
+        // load rows as list of String[]
+        ArrayList<String[]> resultList = new ArrayList<>();
+        
+        for (Object[] result: results) {
+          String[] row = new String[columnCount];
+          for (int i = 0; i < columnCount; i++) {
+            row[i] = GrouperUtil.stringValue(result[i]);
+          }
+          resultList.add(row);
+        }
+        grouperReportData.setData(resultList);
+      } catch (Exception e) {
+        throw new RuntimeException("Problem with query in listSelect: " + sql, e);
+      }
 
       return grouperReportData;
     }

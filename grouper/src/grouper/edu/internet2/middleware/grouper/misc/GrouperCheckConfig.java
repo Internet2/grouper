@@ -3150,6 +3150,10 @@ public class GrouperCheckConfig {
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_DESCRIPTION, 
             "Textarea which describes the information in the report. Must be less than 4k", wasInCheckConfig);
         
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SQL_CONFIG, 
+            "sql config id", wasInCheckConfig);
+        
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_VIEWERS_GROUP_ID, 
             "GroupId of people who can view this report. Grouper admins can view any report", wasInCheckConfig);
         
