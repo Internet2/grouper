@@ -362,9 +362,21 @@ public class GrouperDuoApiCommands {
       }
     });
     
+    String PARAMS_LINE = paramsLine;
+    grouperHttpCall.setGrouperHttpClientSetupAuthorization(new GrouperHttpClientSetupAuthorization() {
+      
+      @Override
+      public void setupAuthorization(GrouperHttpClient httpClient) {
+        assignDateAndAuthorizationHeader(grouperHttpCall, httpMethodName, 
+            adminDomainName, version, urlSuffix, PARAMS_LINE, configId);
+        
+      }
+    });
+    
     int code = -1;
     String json = null;
     
+<<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
     grouperHttpCall.executeRequest();
@@ -416,6 +428,17 @@ public class GrouperDuoApiCommands {
         break;
       }
 >>>>>>> 87f4ca6 Handle 429s and connection time outs for duo
+=======
+    grouperHttpCall.executeRequest();
+    code = grouperHttpCall.getResponseCode();
+    returnCode[0] = code;
+    json = grouperHttpCall.getResponseBody();
+    int timesItWasRetried = grouperHttpCall.getRetryForThrottlingTimesItWasRetried();
+    
+    GrouperProvisioner currentGrouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    if (currentGrouperProvisioner != null) {
+      GrouperUtil.mapAddValue(currentGrouperProvisioner.getDebugMap(), "duoCommandsRetryCount", timesItWasRetried);
+>>>>>>> c1e55fe Allow group and entity attributes for midpoint provisioning. Move retry logic to http client
 =======
     grouperHttpCall.executeRequest();
     code = grouperHttpCall.getResponseCode();
