@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.midpointProvisioning;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioningDao;
@@ -39,6 +40,11 @@ public class MidPointProvisioner extends GrouperProvisioner {
   @Override
   protected Class<? extends GrouperProvisioningObjectMetadata> grouperProvisioningObjectMetadataClass() {
     return MidpointSyncObjectMetadata.class;
+  }
+  
+  @Override
+  protected Class<? extends GrouperProvisioningConfigurationValidation> grouperProvisioningConfigurationValidationClass() {
+    return MidPointProvisoningConfigurationValidation.class;
   }
 
 }

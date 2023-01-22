@@ -349,12 +349,14 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           String key = (String) multiKey.getKey(0);
           String radioButtonValue = (String) multiKey.getKey(1);
           
-          if (value != null) {
-            List<Object> selectedValues = (List)value;
-            boolean checked = selectedValues.contains(key);
-            if (!checked) {
-              continue;
-            }
+          if (this.value instanceof List) {
+            
+              List<Object> selectedValues = (List)value;
+              boolean checked = selectedValues.contains(key);
+              if (!checked) {
+                continue;
+              }
+            
             field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
           }
         }
@@ -366,7 +368,7 @@ public class GrouperProvisioningObjectMetadataItemFormElement extends SimpleTagS
           
           boolean checked = false;
           
-          if (value != null) {
+          if (this.value instanceof List) {
             List<Object> selectedValues = (List)value;
             checked = selectedValues.contains(key);
           }

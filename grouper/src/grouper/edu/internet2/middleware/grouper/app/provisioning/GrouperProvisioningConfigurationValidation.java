@@ -69,9 +69,12 @@ public class GrouperProvisioningConfigurationValidation {
       
     Collection<String> groupAttributeNamesAllowed = validateGroupAttributeNamesAllowed();
     Collection<String> groupAttributeNamesRequired = validateGroupAttributeNamesRequired();
+    Collection<String> groupAttributeNamesForbidden = validateGroupAttributeNamesForbidden();
     if (groupAttributeNamesRequired != null) {
       groupAttributeNamesRequired = new HashSet<String>(groupAttributeNamesRequired);
-      
+    }    
+    if (groupAttributeNamesForbidden != null) {
+      groupAttributeNamesForbidden = new HashSet<String>(groupAttributeNamesForbidden);
     }    
     if (groupAttributeNamesAllowed != null) {
       groupAttributeNamesAllowed = new HashSet<String>(groupAttributeNamesAllowed);
@@ -90,6 +93,12 @@ public class GrouperProvisioningConfigurationValidation {
       
       if (StringUtils.isBlank(name)) {
         break;
+      }
+      
+      if (groupAttributeNamesForbidden != null && groupAttributeNamesForbidden.contains(name)) {
+        String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.incorrectGroupAttributeConfigured");
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", name);
+        this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(nameConfigKey));
       }
 
       if (groupAttributeNamesAllowed != null && !groupAttributeNamesAllowed.contains(name)) {
@@ -153,8 +162,12 @@ public class GrouperProvisioningConfigurationValidation {
       
     Collection<String> entityAttributeNamesAllowed = validateEntityAttributeNamesAllowed();
     Collection<String> entityAttributeNamesRequired = validateEntityAttributeNamesRequired();
+    Collection<String> entityAttributeNamesForbidden = validateEntityAttributeNamesForbidden();
     if (entityAttributeNamesRequired != null) {
       entityAttributeNamesRequired = new HashSet<String>(entityAttributeNamesRequired);
+    }    
+    if (entityAttributeNamesForbidden != null) {
+      entityAttributeNamesForbidden = new HashSet<String>(entityAttributeNamesForbidden);
     }    
  
     if (entityAttributeNamesAllowed != null) {
@@ -174,6 +187,13 @@ public class GrouperProvisioningConfigurationValidation {
       
       if (StringUtils.isBlank(name)) {
         break;
+      }
+      
+      if (entityAttributeNamesForbidden != null && entityAttributeNamesForbidden.contains(name)) {
+
+        String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.incorrectEntityAttributeConfigured");
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", name);
+        this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(nameConfigKey));
       }
 
       if (entityAttributeNamesAllowed != null && !entityAttributeNamesAllowed.contains(name)) {
@@ -1574,6 +1594,14 @@ public class GrouperProvisioningConfigurationValidation {
         }
       }
     }      
+  }
+
+  public Collection<String> validateGroupAttributeNamesForbidden() {
+    return null;
+  }
+
+  public Collection<String> validateEntityAttributeNamesForbidden() {
+    return null;
   }
 
 }

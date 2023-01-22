@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpClientSetupAuthorization;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -336,49 +337,31 @@ public class GrouperDuoApiCommands {
     
     grouperHttpCall.assignBody(body);
     
+    String PARAMS_LINE = paramsLine;
+    grouperHttpCall.setGrouperHttpClientSetupAuthorization(new GrouperHttpClientSetupAuthorization() {
+      
+      @Override
+      public void setupAuthorization(GrouperHttpClient httpClient) {
+        assignDateAndAuthorizationHeader(grouperHttpCall, httpMethodName, 
+            adminDomainName, version, urlSuffix, PARAMS_LINE, configId);
+        
+      }
+    });
+    
     int code = -1;
     String json = null;
     
-    for (int i=0; i<5; i++) {
-      RuntimeException runtimeException = null;
-      boolean retry = false;
-      try {
-        assignDateAndAuthorizationHeader(grouperHttpCall, httpMethodName, 
-            adminDomainName, version, urlSuffix, paramsLine, configId);
-        grouperHttpCall.executeRequest();
-        code = grouperHttpCall.getResponseCode();
-        returnCode[0] = code;
-        json = grouperHttpCall.getResponseBody();
-      } catch (Exception e) {
-        
-        String fullStackTrace = GrouperUtil.getFullStackTrace(e);
-        if (StringUtils.isNotBlank(fullStackTrace) && StringUtils.contains(fullStackTrace, "timed out")) {
-          retry = true;
-        }
-        runtimeException = new RuntimeException("Error connecting to '" + debugMap.get("url") + "'", e);
-      }
-      if (code == 429) {
-        retry = true;
-      }
-      
-      if (i != 4 && retry) {
-        GrouperUtil.sleep(60000 * (i+1)); // 1 min -> 2 mins -> 3 mins ->>>>
-        GrouperProvisioner currentGrouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentGrouperProvisioner != null) {
-          GrouperUtil.mapAddValue(currentGrouperProvisioner.getDebugMap(), "duoCommandsRetryCount", 1);
-        }
-        continue;
-      }
-      
-      if (runtimeException != null) {
-        throw runtimeException;
-      }
-      
-      if (!retry) {
-        break;
-      }
+    grouperHttpCall.executeRequest();
+    code = grouperHttpCall.getResponseCode();
+    returnCode[0] = code;
+    json = grouperHttpCall.getResponseBody();
+    int timesItWasRetried = grouperHttpCall.getRetryForThrottlingTimesItWasRetried();
+    
+    GrouperProvisioner currentGrouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    if (currentGrouperProvisioner != null) {
+      GrouperUtil.mapAddValue(currentGrouperProvisioner.getDebugMap(), "duoCommandsRetryCount", timesItWasRetried);
     }
-
+      
     if (!allowedReturnCodes.contains(code)) {
       throw new RuntimeException(
           "Invalid return code '" + code + "', expecting: " + GrouperUtil.setToString(allowedReturnCodes)
