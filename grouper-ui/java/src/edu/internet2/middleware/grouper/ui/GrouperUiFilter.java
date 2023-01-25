@@ -744,7 +744,15 @@ public class GrouperUiFilter implements Filter {
           String shouldBeUrl = GrouperUtil.stripLastSlashIfExists(grouperUiUrl) + "/grouperUi/app/UiV2Main.oidc";
           
           if (!StringUtils.equals(requestUrl, shouldBeUrl)) {
+            
+            if (!requestUrl.startsWith(GrouperUtil.stripLastSlashIfExists(grouperUiUrl))) {
+
+              throw new RuntimeException("requestUrl "+requestUrl + " is not valid.  Note your grouper.properties grouper.ui.url needs to be set correctly");
+              
+            }
+
             throw new RuntimeException("requestUrl "+requestUrl + " is not valid.");
+
           }
           
           grouperOidc.assignAuthorizationCode(authorizationCodeReturnedFromOidc);
