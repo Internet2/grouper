@@ -179,12 +179,16 @@ public class GrouperProvisioningLogic {
         for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
           provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
           provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+          //TODO looks correct?
+          //should it be done at line#109 retrieveAllDataFromGrouperAndTarget
+          provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
         }
       }
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
         for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
           provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
           provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+          provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
         }
       }
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMemberships() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()
@@ -194,6 +198,7 @@ public class GrouperProvisioningLogic {
               && (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()))) {
         for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
           provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
         }
       }
     }
@@ -898,8 +903,22 @@ public class GrouperProvisioningLogic {
           // ######### STEP 19: convert inconsistent events to recalc
           // e.g. change log action is delete and membership does exist in grouper so we don't know who is right so in that case
           // we just recalc to be on the safe side
+<<<<<<< GROUPER_5_BRANCH
           debugMap.put("state", "convertInconsistentMembershipEventActions");
           grouperProvisioningLogicIncremental.convertInconsistentMembershipEventActions();
+=======
+          debugMap.put("state", "convertInconsistentMembershipEventsToRecalc");
+          grouperProvisioningLogicIncremental.convertInconsistentMembershipEventsToRecalc();
+          
+          // ######### STEP 20: convert groups and entities to recalc when needed
+          // e.g. a new group should be recalc to be sure
+          debugMap.put("state", "convertGroupsToRecalc");
+          grouperProvisioningLogicIncremental.convertGroupsToRecalc();
+          debugMap.put("state", "convertEntitiesToRecalc");
+          grouperProvisioningLogicIncremental.convertEntitiesToRecalc();
+          
+          
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
           
 <<<<<<< GROUPER_5_BRANCH
           // ######### STEP 20: convert groups and entities to recalc when needed
@@ -994,6 +1013,10 @@ public class GrouperProvisioningLogic {
             
             long start = System.currentTimeMillis();
             GrouperProvisioningLists targetProvisioningLists = grouperProvisioningLogicIncremental.retrieveIncrementalTargetGroupsAndEntities();
+<<<<<<< GROUPER_5_BRANCH
+=======
+            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().addAll(targetProvisioningLists);
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
             if (targetProvisioningLists != null) {
               processTargetDataEntities(targetProvisioningLists.getProvisioningEntities());
               processTargetDataGroups(targetProvisioningLists.getProvisioningGroups());
@@ -1072,20 +1095,34 @@ public class GrouperProvisioningLogic {
           this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false), true);
 
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
           grouperProvisioningLogicIncremental.determineMembershipsToSelect();
           
 =======
 >>>>>>> a8d0568 improve logging of new provisioning state
+=======
+          grouperProvisioningLogicIncremental.determineMembershipsToSelect();
+          
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
           // ######## Retrieve memberships from target that are recalc where the group is not recalc
           {
             debugMap.put("state", "retrieveIncrementalTargetMemberships");
             long start = System.currentTimeMillis();
             GrouperProvisioningLists targetProvisioningLists = grouperProvisioningLogicIncremental.retrieveIncrementalTargetMemberships();
+<<<<<<< GROUPER_5_BRANCH
             
             if (targetProvisioningLists != null) {
               processTargetDataGroups(targetProvisioningLists.getProvisioningGroups());
               processTargetDataEntities(targetProvisioningLists.getProvisioningEntities());
               processTargetDataMemberships(targetProvisioningLists.getProvisioningMemberships());
+=======
+            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().addAll(targetProvisioningLists);
+            
+            if (targetProvisioningLists != null) {
+              processTargetDataMemberships(targetProvisioningLists.getProvisioningMemberships());
+              processTargetDataGroups(targetProvisioningLists.getProvisioningGroups());
+              processTargetDataEntities(targetProvisioningLists.getProvisioningEntities());
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
             }
             
 //            grouperProvisioningLogicIncremental.retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc();
@@ -1113,6 +1150,16 @@ public class GrouperProvisioningLogic {
             
 //            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, true, false);
 //            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, true, false);
+<<<<<<< GROUPER_5_BRANCH
+          }
+          
+          // ######### Mark memberships retrieved by group or entity as recalc
+          for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+            if (provisioningMembershipWrapper.getTargetProvisioningMembership() != null) {
+              provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+            }
+=======
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
           }
           
           // ######### Mark memberships retrieved by group or entity as recalc
@@ -1121,9 +1168,6 @@ public class GrouperProvisioningLogic {
               provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
             }
           }
-          
-          // ######### Mark memberships retrieved by group or entity as recalc
-          this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental().markMembershipsRecalcIfRetrievedByGroupOrEntity();
           
           // ######### STEP 36: compare target objects
           try {
@@ -2613,7 +2657,13 @@ public class GrouperProvisioningLogic {
           if (provisioningMembershipWrapper == null) {
             provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
             provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
+<<<<<<< GROUPER_5_BRANCH
             provisioningMembershipWrapper.setGroupIdMemberId(groupIdMemberId);
+=======
+            //TODO looks correct?
+            provisioningMembershipWrapper.setGroupIdMemberId(groupIdMemberId);
+            groupUuidMemberUuidToProvisioningMembershipWrapper.put(groupIdMemberId, provisioningMembershipWrapper);
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
             this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexMembershipWrapper(provisioningMembershipWrapper);
           }
           
@@ -3608,9 +3658,14 @@ public class GrouperProvisioningLogic {
           .retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembershipsByGroups(targetDaoRetrieveMembershipsByGroupsRequest);
 
       List<ProvisioningMembership> membershipObjects = retrieveMembershipsByGroups.getTargetMemberships();
+<<<<<<< GROUPER_5_BRANCH
       
       this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedIndividualMemberships(true);
       
+=======
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists()
+        .setProvisioningMemberships(membershipObjects);
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
       return membershipObjects;
     } else if (GrouperUtil.booleanValue(
           this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
@@ -3638,9 +3693,13 @@ public class GrouperProvisioningLogic {
           .retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembershipsByEntities(targetDaoRetrieveMembershipsByEntitiesRequest);
 
       List<ProvisioningMembership> membershipObjects = retrieveMembershipsByEntities.getTargetMemberships();
+<<<<<<< GROUPER_5_BRANCH
       
       this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedIndividualMemberships(true);
       
+=======
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().setProvisioningMemberships(membershipObjects);
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
       return membershipObjects;
     } else {
       throw new RuntimeException("Not expecting DAO capabilities when selecting memberships!  Should be able to select memberships by group or entity!");

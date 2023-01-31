@@ -2113,9 +2113,15 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       return targetDaoRetrieveMembershipsResponse;
     }
 
+<<<<<<< GROUPER_5_BRANCH
     List<ProvisioningMembership> targetMemberships = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetMemberships());
     List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetGroups());
     List<ProvisioningEntity> targetEntities = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetEntities());
+=======
+    List<ProvisioningMembership> targetMemberships = targetDaoRetrieveMembershipsRequest.getTargetMemberships();
+    List<ProvisioningGroup> targetGroups = targetDaoRetrieveMembershipsRequest.getTargetGroups();
+    List<ProvisioningEntity> targetEntities = targetDaoRetrieveMembershipsRequest.getTargetEntities();
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
     List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {

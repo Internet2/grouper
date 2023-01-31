@@ -88,6 +88,7 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   /**
    * if this is incremental and the membership type is groupAttributes and recalcing any memberships for this group then all change log events for this group
    * will be recalced
+<<<<<<< GROUPER_5_BRANCH
    */
   private boolean incrementalSyncMemberships;
   /**
@@ -128,6 +129,8 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
 >>>>>>> a8d0568 improve logging of new provisioning state
   /**
    * if this is incremental, and syncing memberships for this group
+=======
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
    */
   private boolean incrementalSyncMemberships;
   /**
@@ -140,9 +143,6 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningGroupWrapper");
   
   private ProvisioningGroupWrapper provisioningGroupWrapper = null;
-  
-  
-  
   
   public ProvisioningGroupWrapper getProvisioningGroupWrapper() {
     return provisioningGroupWrapper;

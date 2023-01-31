@@ -1110,19 +1110,25 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       membershipAttributeName = ldapSyncConfiguration.getGroupMembershipAttributeName();
       dn = (targetDaoRetrieveMembershipRequest.getTargetGroup()).retrieveAttributeValueString(ldap_dn);
+<<<<<<< GROUPER_5_BRANCH
       
       if (targetDaoRetrieveMembershipRequest.getTargetGroup() != null) {
         membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetGroup()).retrieveAttributeValueSet(membershipAttributeName);
       }
       
+=======
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
     } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       membershipAttributeName = ldapSyncConfiguration.getEntityMembershipAttributeName();
       dn = (targetDaoRetrieveMembershipRequest.getTargetEntity()).retrieveAttributeValueString(ldap_dn);
+<<<<<<< GROUPER_5_BRANCH
 
       if (targetDaoRetrieveMembershipRequest.getTargetEntity() != null) {
         membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetEntity()).retrieveAttributeValueSet(membershipAttributeName);
       }
 
+=======
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
     } else {
       throw new RuntimeException("Unexpected grouperProvisioningBehaviorMembershipType: " + this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType());
     }
@@ -1182,6 +1188,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     byGroupsResponse.setTargetGroups(targetDaoRetrieveGroupsResponse.getTargetGroups());
     
     return byGroupsResponse;
+<<<<<<< GROUPER_5_BRANCH
     
   }
 
@@ -1209,6 +1216,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     byEntitiesResponse.setTargetEntities(targetDaoRetrieveEntitiesResponse.getTargetEntities());
     
     return byEntitiesResponse;
+=======
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
     
   }
 

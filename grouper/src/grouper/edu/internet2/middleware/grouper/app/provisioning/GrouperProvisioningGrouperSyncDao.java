@@ -133,11 +133,63 @@ public class GrouperProvisioningGrouperSyncDao {
   }
   
   
+<<<<<<< GROUPER_5_BRANCH
+=======
   /**
    * get sync objects from the database
    * @param logLabel
    */
   public void retrieveIncrementalSyncGroups(String logLabel) {
+
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+
+    long start = System.currentTimeMillis();
+
+    Set<String> groupIdsToRetrieve = new HashSet<String>();
+
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
+      if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null) {
+        groupIdsToRetrieve.add(provisioningGroupWrapper.getGroupId());
+      }
+    }
+
+    debugMap.put("syncGroupsToQuery_"+logLabel,
+        GrouperUtil.length(groupIdsToRetrieve));
+    
+    int syncGroupCount = 0; 
+    if (groupIdsToRetrieve.size() > 0) {
+      GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+      Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToSyncGroup = gcGrouperSync
+          .getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(groupIdsToRetrieve);
+      
+      for (ProvisioningGroupWrapper provisioningGroupWrapper : this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
+        if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null && StringUtils.isNotBlank(provisioningGroupWrapper.getGroupId())) {
+          if (grouperSyncGroupIdToSyncGroup.containsKey(provisioningGroupWrapper.getGroupId())) {
+            GcGrouperSyncGroup grouperSyncGroup = grouperSyncGroupIdToSyncGroup.get(provisioningGroupWrapper.getGroupId());
+            provisioningGroupWrapper.setGcGrouperSyncGroup(grouperSyncGroup);
+            syncGroupCount++;
+          }
+        }
+      }
+      
+      clearErrorsGroup(grouperSyncGroupIdToSyncGroup.values());
+    }
+    
+    debugMap.put("syncGroupCount_"+logLabel, syncGroupCount);
+    debugMap.put("retrieveSyncGroupsMillis_"+logLabel, System.currentTimeMillis() - start);
+  }
+
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
+  /**
+   * get sync objects from the database
+   * @param logLabel
+   */
+<<<<<<< GROUPER_5_BRANCH
+  public void retrieveIncrementalSyncGroups(String logLabel) {
+=======
+  //TODO remove it after testing
+  private void retrieveIncrementalSyncGroups_old() {
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
 
@@ -257,6 +309,7 @@ public class GrouperProvisioningGrouperSyncDao {
     long start = System.currentTimeMillis();
 
     Set<String> memberIdsToRetrieve = new HashSet<String>();
+<<<<<<< GROUPER_5_BRANCH
     Set<String> memberIdsToIgnore = new HashSet<String>();
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper : this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
@@ -304,6 +357,32 @@ public class GrouperProvisioningGrouperSyncDao {
         provisioningEntityWrapper.setGcGrouperSyncMember(grouperSyncMember);
         
         syncMembersCount++;
+=======
+    
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
+      if (provisioningEntityWrapper.getGcGrouperSyncMember() == null) {
+        memberIdsToRetrieve.add(provisioningEntityWrapper.getMemberId());
+      }
+    }
+
+    debugMap.put("syncMembersToQuery_"+logLabel,
+        GrouperUtil.length(memberIdsToRetrieve));
+    
+    int syncMembersCount = 0 ;
+    if (memberIdsToRetrieve.size() > 0) {
+      GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+      Map<String, GcGrouperSyncMember> grouperSyncMemberIdToSyncMember = gcGrouperSync
+          .getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(memberIdsToRetrieve);
+      
+      for (ProvisioningEntityWrapper provisioningEntityWrapper : this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
+        if (provisioningEntityWrapper.getGcGrouperSyncMember() == null && StringUtils.isNotBlank(provisioningEntityWrapper.getMemberId())) {
+          if (grouperSyncMemberIdToSyncMember.containsKey(provisioningEntityWrapper.getMemberId())) {
+            GcGrouperSyncMember grouperSyncMember = grouperSyncMemberIdToSyncMember.get(provisioningEntityWrapper.getMemberId());
+            provisioningEntityWrapper.setGcGrouperSyncMember(grouperSyncMember);
+            syncMembersCount++;
+          }
+        }
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
       }
       
       clearErrorsMember(grouperSyncMemberIdToSyncMember.values());
@@ -1431,10 +1510,14 @@ public class GrouperProvisioningGrouperSyncDao {
         .nonNull(values)) {
       
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
 =======
       if (!provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+      if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelect()) {
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
         continue;
       }
       
@@ -1477,10 +1560,14 @@ public class GrouperProvisioningGrouperSyncDao {
         .nonNull(values)) {
       
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
 =======
       if (!provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+      if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelect()) {
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
         continue;
       }
       
@@ -1634,10 +1721,14 @@ public class GrouperProvisioningGrouperSyncDao {
               .values()) {
             
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
             if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
 =======
             if (!provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+            if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
               continue;
             }
             
@@ -1764,10 +1855,14 @@ public class GrouperProvisioningGrouperSyncDao {
               .values()) {
             
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
             if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
 =======
             if (!provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+            if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
               continue;
             }
             
@@ -1796,10 +1891,14 @@ public class GrouperProvisioningGrouperSyncDao {
             .nonNull(provisioningMembershipWrappers)) {
           
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
           if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
 =======
           if (!provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+          if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
             continue;
           }
           

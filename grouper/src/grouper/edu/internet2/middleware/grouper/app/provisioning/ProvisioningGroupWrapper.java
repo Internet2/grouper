@@ -92,6 +92,7 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   private ProvisioningGroup grouperProvisioningGroup;
 
   /**
+<<<<<<< GROUPER_5_BRANCH
    * this is what is retrieved from the target and structured in the target representation
    */
 <<<<<<< GROUPER_5_BRANCH
@@ -152,6 +153,8 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   }
 
   /**
+=======
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
    * this is what is retrieved from the target and structured in the target representation
    */
 >>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner

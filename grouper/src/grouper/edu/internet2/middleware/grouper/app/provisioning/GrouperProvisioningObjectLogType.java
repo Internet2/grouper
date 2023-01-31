@@ -56,6 +56,7 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   }, 
+<<<<<<< GROUPER_5_BRANCH
   retrieveIndividualTargetMemberships {
 
     @Override
@@ -78,6 +79,8 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   }, 
+=======
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
   retrieveTargetDataGroupsAndEntities {
 
     @Override

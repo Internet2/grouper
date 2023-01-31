@@ -6,12 +6,16 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningStateEntity extends ProvisioningStateBase {
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
   
   
   /**
    * if the memberships for this entity was attempted to be selected from target
    */
   private boolean selectAllMembershipResultProcessed;
+=======
+  
+>>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
   
   /**
    * in incremental, if we're doing entity attributes and any membership events for this entity 
