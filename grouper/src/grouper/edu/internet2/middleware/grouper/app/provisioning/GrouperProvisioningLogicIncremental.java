@@ -1094,7 +1094,8 @@ public class GrouperProvisioningLogicIncremental {
           }
           
           // if we are insert or delete, lets recalc memberships
-          this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(esbEvent.getGroupId(), false, esbEventType != EsbEventType.GROUP_UPDATE, createdOnMillis, grouperIncrementalDataAction);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(esbEvent.getGroupId(), esbEventType != EsbEventType.GROUP_UPDATE,
+              esbEventType != EsbEventType.GROUP_UPDATE, createdOnMillis, grouperIncrementalDataAction);
             
           break;
         case MEMBERSHIP_ADD:
@@ -1610,7 +1611,7 @@ public class GrouperProvisioningLogicIncremental {
     if (convertToFullSyncScore > 0) {
       this.getGrouperProvisioner().getDebugMap().put("convertToFullSyncScore", convertToFullSyncScore);
     }
-    if (convertToFullSyncScore >= scoreConvertToFullSyncThreshold) {
+    if (convertToFullSyncScore >= scoreConvertToFullSyncThreshold && scoreConvertToFullSyncThreshold >= 0) {
       this.getGrouperProvisioner().getDebugMap().put("convertToFullSync", true);
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().setFullSync(true);
     }
