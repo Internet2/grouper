@@ -356,7 +356,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
     ProvisioningEntity targetEntity = targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity();
     
     String targetEntityId = resolveTargetEntityId(targetEntity);
-    List<Object> provisioningMemberships = new ArrayList<Object>();
+    List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
     
     if (StringUtils.isBlank(targetEntityId)) {
       return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);

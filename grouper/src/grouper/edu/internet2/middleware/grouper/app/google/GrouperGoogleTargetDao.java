@@ -524,12 +524,12 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       String targetGroupId = resolveTargetGroupId(targetGroup);
       
       if (StringUtils.isBlank(targetGroupId)) {
-        return new TargetDaoRetrieveMembershipsByGroupResponse(new ArrayList<Object>());
+        return new TargetDaoRetrieveMembershipsByGroupResponse(new ArrayList<ProvisioningMembership>());
       }
       
       Set<String> groupMembers = GrouperGoogleApiCommands.retrieveGoogleGroupMembers(googleConfiguration.getGoogleExternalSystemConfigId(), targetGroupId);
       
-      List<Object> provisioningMemberships = new ArrayList<Object>(); 
+      List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>(); 
       
       for (String userId : groupMembers) {
 

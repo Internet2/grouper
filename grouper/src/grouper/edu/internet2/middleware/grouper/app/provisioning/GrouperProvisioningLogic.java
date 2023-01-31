@@ -175,12 +175,16 @@ public class GrouperProvisioningLogic {
         for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
           provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
           provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+          //TODO looks correct?
+          //should it be done at line#109 retrieveAllDataFromGrouperAndTarget
+          provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
         }
       }
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
         for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
           provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
           provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+          provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
         }
       }
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMemberships() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()
@@ -190,6 +194,7 @@ public class GrouperProvisioningLogic {
               && (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()))) {
         for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
           provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
         }
       }
     }
@@ -714,23 +719,23 @@ public class GrouperProvisioningLogic {
         grouperProvisioningLogicIncremental.filterNonRecalcActionsCapturedByRecalc();
       }
   
-//      // ######### STEP 8: organize recalc and non recalc requests groups
-//      debugMap.put("state", "organizeRecalcAndNonRecalcRequestsGroups");
-//      grouperProvisioningLogicIncremental.organizeRecalcAndNonRecalcRequestsGroups();
-
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {
         // ######### STEP 8: retrieve all group sync objects for 
         debugMap.put("state", "retrieveIncrementalSyncGroups");
         {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncGroups();
+          this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncGroups("Pass1");
           Map<String, ProvisioningGroupWrapper> grouperSyncGroupIdToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper();
           assignSyncObjectsToWrappersGroups(grouperSyncGroupIdToProvisioningGroupWrapper);
         }
         
-        // ######### STEP 9: retrieve provisioning attributes for recalc groups and adjust sync objects
-        //debugMap.put("state", "retrieveProvisioningGroupAttributesAndFixGroupSync");
-        //grouperProvisioningLogicIncremental.retrieveProvisioningGroupAttributesAndFixGroupSync();
-      
+        // ######### STEP 9: retrieve all member sync objects for 
+        debugMap.put("state", "retrieveIncrementalSyncMembers");
+        {
+          this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers("Pass1");
+          Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
+          assignSyncObjectsToWrappersMembers(grouperSyncMemberIdToProvisioningEntityWrapper);
+        }
+        
         // ######### STEP 10: filter if not provisionable
         debugMap.put("state", "filterByNotProvisionable");
         grouperProvisioningLogicIncremental.filterByGroupNotProvisionable();
@@ -772,6 +777,8 @@ public class GrouperProvisioningLogic {
           // ######### STEP 14: events without recalc that occurred during group sync (after start before finish), should be recalc'ed
           debugMap.put("state", "recalcActionsDuringGroupSync");
           grouperProvisioningLogicIncremental.recalcEventsDuringGroupSync();
+          debugMap.put("state", "recalcActionsDuringEntitySync");
+          grouperProvisioningLogicIncremental.recalcEventsDuringEntitySync();
         }
         
         this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.logIncomingDataToProcess);
@@ -782,8 +789,10 @@ public class GrouperProvisioningLogic {
           // ######### STEP 16: retrieve all members sync objects
           debugMap.put("state", "retrieveIncrementalSyncMemberships");
           {
-            this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMemberships();
-            this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers();
+            
+            this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMemberships(); 
+            this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncGroups("Pass2");
+            this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers("Pass2");
   
             Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
             assignSyncObjectsToWrappersMembers(grouperSyncMemberIdToProvisioningEntityWrapper);
@@ -803,7 +812,7 @@ public class GrouperProvisioningLogic {
             this.retrieveDataStartMillisSince1970 = start;
             // keep track of when this started so we can update when group syncs occurred
             debugMap.put("retrieveDataStartMillisSince1970", start);
-            grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncremental();
+            this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncremental();
             long retrieveGrouperDataMillis = System.currentTimeMillis()-start;
             debugMap.put("retrieveGrouperDataMillis", retrieveGrouperDataMillis);
           } finally {
@@ -811,12 +820,24 @@ public class GrouperProvisioningLogic {
           }
           
           // ######### STEP 18: filter unneeded actions
+          // e.g action is no-op for example user is already in target and also in grouper so it's a no-op, don't send it to target 
           debugMap.put("state", "filterUnneededActions");
           grouperProvisioningLogicIncremental.filterUnneededActions();
           
           // ######### STEP 19: convert inconsistent events to recalc
-          debugMap.put("state", "convertInconsistentEventsToRecalc");
-          grouperProvisioningLogicIncremental.convertInconsistentEventsToRecalc();
+          // e.g. change log action is delete and membership does exist in grouper so we don't know who is right so in that case
+          // we just recalc to be on the safe side
+          debugMap.put("state", "convertInconsistentMembershipEventsToRecalc");
+          grouperProvisioningLogicIncremental.convertInconsistentMembershipEventsToRecalc();
+          
+          // ######### STEP 20: convert groups and entities to recalc when needed
+          // e.g. a new group should be recalc to be sure
+          debugMap.put("state", "convertGroupsToRecalc");
+          grouperProvisioningLogicIncremental.convertGroupsToRecalc();
+          debugMap.put("state", "convertEntitiesToRecalc");
+          grouperProvisioningLogicIncremental.convertEntitiesToRecalc();
+          
+          
           
           // ######### STEP 21: resolve subjects for subject link if recalc or for subjects missing data
           debugMap.put("state", "retrieveSubjectLink");
@@ -840,7 +861,8 @@ public class GrouperProvisioningLogic {
   
           // ######### STEP 23: based on configs manipulate the defaults, types, etc for grouper target groups/entities translated attributes and fields
           {
-            debugMap.put("state", "manipulateGrouperTargetAttributes");
+            
+            debugMap.put("state", "manipulateGrouperTargetGroups");
             List<ProvisioningGroup> grouperTargetGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetGroups();
             Set<ProvisioningGroup> affectedGroups = this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesGroups(
                 grouperTargetGroups, true, true, false, false);
@@ -872,7 +894,6 @@ public class GrouperProvisioningLogic {
           // ######### STEP 25: take all the matching ids of grouper groups/entities and index those for quick lookups
           {
             debugMap.put("state", "indexMatchingIdGroups");
-            
             // index the groups and entity matching ids
             this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(null);
             
@@ -889,21 +910,25 @@ public class GrouperProvisioningLogic {
           this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroupsHaveMembers(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false);
           this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, false, true);
 
-          // ######### STEP 27: recalc retrieve data from target
+          // ######### STEP 27: retrieve recalc groups and entities from target
           try {
-            debugMap.put("state", "retrieveIncrementalTargetData");
+            
+            grouperProvisioningLogicIncremental.determineGroupsToSelect();
+            grouperProvisioningLogicIncremental.determineEntitiesToSelect();
+            
+            debugMap.put("state", "retrieveIncrementalTargetGroupsAndEntities");
+            
             long start = System.currentTimeMillis();
-            GrouperProvisioningLists targetProvisioningLists = grouperProvisioningLogicIncremental.retrieveIncrementalTargetData();
+            GrouperProvisioningLists targetProvisioningLists = grouperProvisioningLogicIncremental.retrieveIncrementalTargetGroupsAndEntities();
             this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().addAll(targetProvisioningLists);
             if (targetProvisioningLists != null) {
               processTargetDataEntities(targetProvisioningLists.getProvisioningEntities());
               processTargetDataGroups(targetProvisioningLists.getProvisioningGroups());
-              processTargetDataMemberships(targetProvisioningLists.getProvisioningMemberships());
             }
             long retrieveTargetDataMillis = System.currentTimeMillis()-start;
-            debugMap.put("retrieveTargetDataMillis", retrieveTargetDataMillis);
+            debugMap.put("retrieveIncrementalTargetGroupsAndEntitiesMillis", retrieveTargetDataMillis);
           } finally {
-            this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetDataIncremental);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetDataGroupsAndEntities);
           }
 
           // ######### STEP 30: create groups / entities
@@ -914,11 +939,17 @@ public class GrouperProvisioningLogic {
           createMissingEntitiesFull();
   
           // ######### STEP 31: retrieve target group and entity link
-          debugMap.put("state", "retrieveTargetGroupLink");
+          debugMap.put("state", "updateGroupLinkFull");
           this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateGroupLinkFull();
           
-          debugMap.put("state", "retrieveTargetEntityLink");
+          debugMap.put("state", "updateEntityLinkFull");
           this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateEntityLinkFull();
+          
+          
+          // ######### STEP 31.5: convert memberships to recalc when needed
+          // e.g. inconsistent membership should be recalc
+          debugMap.put("state", "convertMembershipsToRecalc");
+          grouperProvisioningLogicIncremental.convertMembershipsToRecalc();
 
           // ######### STEP 32: translate grouper memberships to target format
           {
@@ -964,38 +995,54 @@ public class GrouperProvisioningLogic {
 
           this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false), true);
 
+          grouperProvisioningLogicIncremental.determineMembershipsToSelect();
+          
           // ######## Retrieve memberships from target that are recalc where the group is not recalc
           {
-            debugMap.put("state", "retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc");
+            debugMap.put("state", "retrieveIncrementalTargetMemberships");
             long start = System.currentTimeMillis();
-            grouperProvisioningLogicIncremental.retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc();
+            GrouperProvisioningLists targetProvisioningLists = grouperProvisioningLogicIncremental.retrieveIncrementalTargetMemberships();
+            this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().addAll(targetProvisioningLists);
+            
+            if (targetProvisioningLists != null) {
+              processTargetDataMemberships(targetProvisioningLists.getProvisioningMemberships());
+              processTargetDataGroups(targetProvisioningLists.getProvisioningGroups());
+              processTargetDataEntities(targetProvisioningLists.getProvisioningEntities());
+            }
+            
+//            grouperProvisioningLogicIncremental.retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc();
             long retrieveTargetDataMillis = System.currentTimeMillis()-start;
-            debugMap.put("retrieveTargetIncrementalMembershipsMillis", retrieveTargetDataMillis);
+            debugMap.put("retrieveIncrementalTargetMemberships", retrieveTargetDataMillis);
           }
           {
             // index the memberships
 //            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
 
-            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
-              this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
-            }
+//            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+            this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
+//            }
             
-            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
-              this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectEntitiesFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
-            }
+//            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+            this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectEntitiesFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers());
+//            }
             
-            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMemberships()) {
-              this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectMembershipsFull(
-                  this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers(),
-                  this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers(),
-                  this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
-            }
+//            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMemberships()) {
+            this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectMembershipsFull(
+                this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers(),
+                this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers(),
+                this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
+//            }
             
-            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, true, false);
+//            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, true, false);
+//            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, true, false);
           }
           
           // ######### Mark memberships retrieved by group or entity as recalc
-          this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental().markMembershipsRecalcIfRetrievedByGroupOrEntity();
+          for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+            if (provisioningMembershipWrapper.getTargetProvisioningMembership() != null) {
+              provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+            }
+          }
           
           // ######### STEP 36: compare target objects
           try {
@@ -1431,6 +1478,12 @@ public class GrouperProvisioningLogic {
       
       registerRetrievedGroups(grouperTargetGroupsToInsert, targetGroups);
       
+      for (ProvisioningGroup groupInsertedAndReadyToBeFetched: grouperTargetGroupsToInsert) {
+        if (groupInsertedAndReadyToBeFetched.getProvisioningGroupWrapper() != null) {
+          groupInsertedAndReadyToBeFetched.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectResultProcessed(true);
+        }
+      }
+      
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesGroups(targetGroups, false, true, false, false);
 
       // index
@@ -1722,6 +1775,13 @@ public class GrouperProvisioningLogic {
       }
 
       registerRetrievedEntities(grouperTargetEntitiesToInsert, targetEntities);
+      
+      for (ProvisioningEntity entityInsertedAndReadyToBeFetched: grouperTargetEntitiesToInsert) {
+        if (entityInsertedAndReadyToBeFetched.getProvisioningEntityWrapper() != null) {
+          entityInsertedAndReadyToBeFetched.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectResultProcessed(true);
+        }
+      }
+      
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesEntities(targetEntities, false, true, false, false);
 
       // index
@@ -2457,6 +2517,8 @@ public class GrouperProvisioningLogic {
           if (provisioningMembershipWrapper == null) {
             provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
             provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
+            //TODO looks correct?
+            provisioningMembershipWrapper.setGroupIdMemberId(groupIdMemberId);
             groupUuidMemberUuidToProvisioningMembershipWrapper.put(groupIdMemberId, provisioningMembershipWrapper);
             this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexMembershipWrapper(provisioningMembershipWrapper);
           }
@@ -3363,14 +3425,10 @@ public class GrouperProvisioningLogic {
       TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups = this.getGrouperProvisioner()
           .retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembershipsByGroups(targetDaoRetrieveMembershipsByGroupsRequest);
 
-      List<Object> membershipObjects = retrieveMembershipsByGroups.getTargetMemberships();
-      List<ProvisioningMembership> memberships = new ArrayList<ProvisioningMembership>();
-      this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().setProvisioningMemberships(memberships);
-      for (Object membershipObject : GrouperUtil.nonNull(membershipObjects)) {
-        // cast exception
-        memberships.add((ProvisioningMembership)membershipObject);
-      }
-      return memberships;
+      List<ProvisioningMembership> membershipObjects = retrieveMembershipsByGroups.getTargetMemberships();
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists()
+        .setProvisioningMemberships(membershipObjects);
+      return membershipObjects;
     } else if (GrouperUtil.booleanValue(
           this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)
@@ -3391,13 +3449,9 @@ public class GrouperProvisioningLogic {
       TargetDaoRetrieveMembershipsByEntitiesResponse retrieveMembershipsByEntities = this.getGrouperProvisioner()
           .retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembershipsByEntities(targetDaoRetrieveMembershipsByEntitiesRequest);
 
-      List<Object> membershipObjects = retrieveMembershipsByEntities.getTargetMemberships();
-      List<ProvisioningMembership> memberships = new ArrayList<ProvisioningMembership>();
-      this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().setProvisioningMemberships(memberships);
-      for (Object membershipObject : GrouperUtil.nonNull(membershipObjects)) {
-        memberships.add((ProvisioningMembership)membershipObject);
-      }
-      return memberships;
+      List<ProvisioningMembership> membershipObjects = retrieveMembershipsByEntities.getTargetMemberships();
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().getTargetProvisioningLists().setProvisioningMemberships(membershipObjects);
+      return membershipObjects;
     } else {
       throw new RuntimeException("Not expecting DAO capabilities when selecting memberships!  Should be able to select memberships by group or entity!");
     }

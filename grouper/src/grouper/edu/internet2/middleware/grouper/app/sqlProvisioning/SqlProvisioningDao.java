@@ -121,8 +121,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       }
     }
     
-    List<ProvisioningMembership> memberships = retrieveMemberships(grouperTargetGroups, grouperTargetEntities, (List<Object>)(Object)grouperTargetMemberships);
-    targetDaoRetrieveMembershipsResponse.setTargetMemberships((List<Object>)(Object)memberships);
+    List<ProvisioningMembership> memberships = retrieveMemberships(grouperTargetGroups, grouperTargetEntities, (List<ProvisioningMembership>)(ProvisioningMembership)grouperTargetMemberships);
+    targetDaoRetrieveMembershipsResponse.setTargetMemberships(memberships);
     return targetDaoRetrieveMembershipsResponse;
   }
 
@@ -134,7 +134,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
    * @return memberships
    */
   public List<ProvisioningMembership> retrieveMemberships(List<ProvisioningGroup> grouperTargetGroups, 
-      List<ProvisioningEntity> grouperTargetEntities, List<Object> grouperTargetMembershipsInput) {
+      List<ProvisioningEntity> grouperTargetEntities, List<ProvisioningMembership> grouperTargetMembershipsInput) {
     
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     
@@ -1855,11 +1855,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   public TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk(TargetDaoRetrieveMembershipsBulkRequest targetDaoRetrieveMembershipsBulkRequest) {
     List<ProvisioningGroup> grouperTargetGroups = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroupsForAllMemberships();
     List<ProvisioningEntity> grouperTargetEntities = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetEntitiesForAllMemberships();
-    List<Object> grouperTargetMemberships = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetMemberships();
+    List<ProvisioningMembership> grouperTargetMemberships = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetMemberships();
     List<ProvisioningMembership> targetMemberships = this.retrieveMemberships(grouperTargetGroups, grouperTargetEntities, grouperTargetMemberships);
-    List<Object> targetMembershipsObjects = new ArrayList<Object>();
-    targetMembershipsObjects.addAll(targetMemberships);
-    return new TargetDaoRetrieveMembershipsBulkResponse(targetMembershipsObjects);
+    return new TargetDaoRetrieveMembershipsBulkResponse(targetMemberships);
   }
 
   /**

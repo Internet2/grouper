@@ -4,6 +4,7 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 
 public class TargetDaoRetrieveIncrementalDataRequest {
 
@@ -11,19 +12,52 @@ public class TargetDaoRetrieveIncrementalDataRequest {
   }
 
   /**
-   * get the group objects and the memberships for these.
+   * get the group objects and all the memberships for these.
    * note, these are also included in targetGroupsForGroupOnly
    */
-  private List<ProvisioningGroup> targetGroupsForGroupMembershipSync = null;
+  private List<ProvisioningGroup> targetGroupsForGroupAllMembershipSync = null;
   
+  /**
+   * get the group objects and some of the memberships for these.
+   * let's say a group has 100 net ids as memberships in the group attribute 
+   * and we only want to fetch 5 because they changed and one or more is recalc
+   *  when one is recalc, all 5 become recalc
+   * the netId will be the attribute based on which we want to fetch
+   * note, these are also included in targetGroupsForGroupOnly
+   */
+  private List<ProvisioningGroup> targetGroupsForGroupSomeMembershipSync = null;
   
+  /**
+   * get the group objects and some of the memberships for these.
+   * let's say a group has 100 net ids as memberships in the group attribute 
+   * and we only want to fetch 5 because they changed and one or more is recalc
+   * the netId will be the attribute based on which we want to fetch
+   * note, these are also included in targetGroupsForGroupOnly
+   */
+  public List<ProvisioningGroup> getTargetGroupsForGroupSomeMembershipSync() {
+    return targetGroupsForGroupSomeMembershipSync;
+  }
+
+  /**
+   * get the group objects and some of the memberships for these.
+   * let's say a group has 100 net ids as memberships in the group attribute 
+   * and we only want to fetch 5 because they changed and one or more is recalc
+   * the netId will be the attribute based on which we want to fetch
+   * note, these are also included in targetGroupsForGroupOnly
+   */
+  public void setTargetGroupsForGroupSomeMembershipSync(
+      List<ProvisioningGroup> targetGroupsForGroupSomeMembershipSync) {
+    this.targetGroupsForGroupSomeMembershipSync = targetGroupsForGroupSomeMembershipSync;
+  }
+
+
   /**
    * get the group objects and the memberships for these.
    * note, these are also included in targetGroupsForGroupOnly
    * @return
    */
-  public List<ProvisioningGroup> getTargetGroupsForGroupMembershipSync() {
-    return targetGroupsForGroupMembershipSync;
+  public List<ProvisioningGroup> getTargetGroupsForGroupAllMembershipSync() {
+    return targetGroupsForGroupAllMembershipSync;
   }
 
 
@@ -32,24 +66,47 @@ public class TargetDaoRetrieveIncrementalDataRequest {
    * note, these are also included in targetGroupsForGroupOnly
    * @param targetGroupsForGroupMembershipSync
    */
-  public void setTargetGroupsForGroupMembershipSync(
+  public void setTargetGroupsForGroupAllMembershipSync(
       List<ProvisioningGroup> targetGroupsForGroupMembershipSync) {
-    this.targetGroupsForGroupMembershipSync = targetGroupsForGroupMembershipSync;
+    this.targetGroupsForGroupAllMembershipSync = targetGroupsForGroupMembershipSync;
   }
 
   /**
-   * get the entity objects and the memberships for these.
+   * get the entity objects and all the memberships for these.
    * note, these are also included in targetEntitiesForEntityOnly
    */
-  private List<ProvisioningEntity> targetEntitiesForEntityMembershipSync = null;
+  private List<ProvisioningEntity> targetEntitiesForEntityAllMembershipSync = null;
+
+  /**
+   * get the entity objects and some of the memberships for these.
+   * note, these are also included in targetEntitiesForEntityOnly
+   */
+  private List<ProvisioningEntity> targetEntitiesForEntitySomeMembershipSync = null;
+  
+  /**
+   * get the entity objects and some of the memberships for these.
+   * note, these are also included in targetEntitiesForEntityOnly
+   */
+  public List<ProvisioningEntity> getTargetEntitiesForEntitySomeMembershipSync() {
+    return targetEntitiesForEntitySomeMembershipSync;
+  }
+
+  /**
+   * get the entity objects and some of the memberships for these.
+   * note, these are also included in targetEntitiesForEntityOnly
+   */
+  public void setTargetEntitiesForEntitySomeMembershipSync(
+      List<ProvisioningEntity> targetEntitiesForEntitySomeMembershipSync) {
+    this.targetEntitiesForEntitySomeMembershipSync = targetEntitiesForEntitySomeMembershipSync;
+  }
 
   /**
    * get the entity objects and the memberships for these.
    * note, these are also included in targetEntitiesForEntityOnly
    * @return the uuids
    */
-  public List<ProvisioningEntity> getTargetEntitiesForEntityMembershipSync() {
-    return targetEntitiesForEntityMembershipSync;
+  public List<ProvisioningEntity> getTargetEntitiesForEntityAllMembershipSync() {
+    return targetEntitiesForEntityAllMembershipSync;
   }
 
 
@@ -58,9 +115,9 @@ public class TargetDaoRetrieveIncrementalDataRequest {
    * note, these are also included in targetEntitiesForEntityOnly
    * @param memberUuidsForEntityMembershipSync
    */
-  public void setTargetEntitiesForEntityMembershipSync(
+  public void setTargetEntitiesForEntityAllMembershipSync(
       List<ProvisioningEntity> memberUuidsForEntityMembershipSync) {
-    this.targetEntitiesForEntityMembershipSync = memberUuidsForEntityMembershipSync;
+    this.targetEntitiesForEntityAllMembershipSync = memberUuidsForEntityMembershipSync;
   }
 
   /**
@@ -120,15 +177,36 @@ public class TargetDaoRetrieveIncrementalDataRequest {
   }
 
   /**
-   * multi key of targetGroup, targetEntity, and optionally targetMembership for membership sync
+   * targetMembership for membership sync
    */
-  private List<Object> targetMembershipObjectsForMembershipSync = null;
+  private List<ProvisioningMembership> targetMembershipObjectsForMembershipSync = null;
   
+  /**
+   * targetGroup for membership sync
+   */
+  private List<ProvisioningGroup> targetGroupsForSomeMembershipSync = null;
+  
+  /**
+   * targetGroup for membership sync
+   */
+  public List<ProvisioningGroup> getTargetGroupsForSomeMembershipSync() {
+    return targetGroupsForSomeMembershipSync;
+  }
+
+
+  /**
+   * targetGroup for membership sync
+   */
+  public void setTargetGroupsForSomeMembershipSync(
+      List<ProvisioningGroup> targetGroupsForSomeMembershipSync) {
+    this.targetGroupsForSomeMembershipSync = targetGroupsForSomeMembershipSync;
+  }
+
   /**
    * multi key of targetGroup, targetEntity, and optionally targetMembership for membership sync
    * @return
    */
-  public List<Object> getTargetMembershipObjectsForMembershipSync() {
+  public List<ProvisioningMembership> getTargetMembershipObjectsForMembershipSync() {
     return targetMembershipObjectsForMembershipSync;
   }
 
@@ -137,7 +215,7 @@ public class TargetDaoRetrieveIncrementalDataRequest {
    * @param groupUuidsMemberUuidsForMembershipSync
    */
   public void setTargetMembershipObjectsForMembershipSync(
-      List<Object> targetMembershipObjectsForMembershipSync) {
+      List<ProvisioningMembership> targetMembershipObjectsForMembershipSync) {
     this.targetMembershipObjectsForMembershipSync = targetMembershipObjectsForMembershipSync;
   }
   

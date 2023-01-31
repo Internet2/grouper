@@ -7,6 +7,8 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningStateMembership extends ProvisioningStateBase {
 
+  
+  
   private ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
   
   

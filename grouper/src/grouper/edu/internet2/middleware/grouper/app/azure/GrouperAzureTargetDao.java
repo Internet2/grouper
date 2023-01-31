@@ -46,8 +46,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupsResponse;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -611,7 +609,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningEntity targetEntity = targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity();
 
     String targetEntityId = resolveTargetEntityId(targetEntity);
-    List<Object> provisioningMemberships = new ArrayList<Object>();
+    List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
     
     if (StringUtils.isBlank(targetEntityId)) {
       return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
@@ -668,7 +666,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
     
     String targetGroupId = resolveTargetGroupId(targetGroup);
-    List<Object> provisioningMemberships = new ArrayList<Object>();
+    List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
     
     if (StringUtils.isBlank(targetGroupId)) {
       return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);

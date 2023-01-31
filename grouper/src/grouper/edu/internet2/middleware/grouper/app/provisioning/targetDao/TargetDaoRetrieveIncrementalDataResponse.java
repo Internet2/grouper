@@ -4,16 +4,17 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 
 public class TargetDaoRetrieveIncrementalDataResponse {
+  
   private List<ProvisioningEntity> provisioningEntities;
   private List<ProvisioningGroup> provisioningGroups;
   
   /**
-   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * provisioning memberships from target
    */
-  private List<Object> provisioningMemberships;
-
+  private List<ProvisioningMembership> provisioningMemberships;
   
   public List<ProvisioningEntity> getProvisioningEntities() {
     return provisioningEntities;
@@ -25,10 +26,10 @@ public class TargetDaoRetrieveIncrementalDataResponse {
   }
 
   /**
-   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * provisioning memberships from target
    * @return
    */
-  public List<Object> getProvisioningMemberships() {
+  public List<ProvisioningMembership> getProvisioningMemberships() {
     return provisioningMemberships;
   }
 
@@ -43,11 +44,11 @@ public class TargetDaoRetrieveIncrementalDataResponse {
   }
 
   /**
-   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * provisioning memberships from target
    * @param provisioningMemberships
    */
   public void setProvisioningMemberships(
-      List<Object> provisioningMemberships) {
+      List<ProvisioningMembership> provisioningMemberships) {
     this.provisioningMemberships = provisioningMemberships;
   }
 
@@ -59,12 +60,11 @@ public class TargetDaoRetrieveIncrementalDataResponse {
    * 
    * @param provisioningGroups1
    * @param provisioningEntities1
-   * @param provisioningMemberships1 depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, 
-   * ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
+   * @param provisioningMemberships1 provisioning memberships from target 
    */
   public TargetDaoRetrieveIncrementalDataResponse(List<ProvisioningGroup> provisioningGroups1, 
       List<ProvisioningEntity> provisioningEntities1, 
-      List<Object> provisioningMemberships1) {
+      List<ProvisioningMembership> provisioningMemberships1) {
     this.provisioningGroups = provisioningGroups1;
     this.provisioningEntities = provisioningEntities1;
     this.provisioningMemberships = provisioningMemberships1;

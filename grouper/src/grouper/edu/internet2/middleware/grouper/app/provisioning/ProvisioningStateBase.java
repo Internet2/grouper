@@ -6,7 +6,6 @@ package edu.internet2.middleware.grouper.app.provisioning;
  *
  */
 public class ProvisioningStateBase {
-
   
   /**
    * insert, update, or delete
@@ -14,7 +13,10 @@ public class ProvisioningStateBase {
   private GrouperIncrementalDataAction grouperIncrementalDataAction;
 
   /**
-   * if we are recalcing this object (not including memberships)
+   * if we are recalcing this object (not including group memberships or entity memberships)
+   * this means compare the grouper and target side. for groups and entities, if recalcObject is true, we always fetch from target then
+   * for memberships, even if recalcObject is true, we might not fetch individual memberships from target. 
+   * for e.g. we're recalcing group memberships, we don't need to fetch individual memberships for that group
    */
   private boolean recalcObject;
   
@@ -74,6 +76,20 @@ public class ProvisioningStateBase {
   }
   
   /**
+   * should we select this from target
+   */
+  private boolean select;
+  
+  
+  public boolean isSelect() {
+    return select;
+  }
+  
+  public void setSelect(boolean select) {
+    this.select = select;
+  }
+
+  /**
    * if this item was attempted to be selected from target
    */
   private boolean selectResultProcessed;
@@ -118,7 +134,7 @@ public class ProvisioningStateBase {
   private boolean create;
 
   /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
+   * if the grouperProvisioningGroup side is for a delete.  includes things that are known 
    * to be needed to be deleted.  This is used to retrieve the correct
    * incremental state from the target
    */
@@ -135,7 +151,7 @@ public class ProvisioningStateBase {
   }
 
   /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
+   * if the grouperProvisioningGroup side is for an update.  includes things that are known 
    * to be needed to be updated.  This is used to retrieve the correct
    * incremental state from the target
    */
@@ -197,7 +213,7 @@ public class ProvisioningStateBase {
   }
 
   /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
+   * if the grouperProvisioningGroup side is for a delete.  includes things that are known 
    * to be needed to be deleted.  This is used to retrieve the correct
    * incremental state from the target
    * @return
@@ -207,7 +223,7 @@ public class ProvisioningStateBase {
   }
 
   /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
+   * if the grouperProvisioningGroup side is for an update.  includes things that are known 
    * to be needed to be updated.  This is used to retrieve the correct
    * incremental state from the target
    * @return
@@ -225,7 +241,7 @@ public class ProvisioningStateBase {
   }
 
   /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
+   * if the grouperProvisioningGroup side is for a delete.  includes things that are known 
    * to be needed to be deleted.  This is used to retrieve the correct
    * incremental state from the target
    * @param delete

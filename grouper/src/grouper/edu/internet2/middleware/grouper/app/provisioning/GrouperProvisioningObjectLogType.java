@@ -45,7 +45,7 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   }, 
-  retrieveTargetDataIncremental {
+  retrieveTargetDataGroupsAndEntities {
 
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
@@ -53,12 +53,24 @@ public enum GrouperProvisioningObjectLogType {
       
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request group only", 
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupOnly(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request group mships", 
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupMembershipSync(), "groups");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request entity only", 
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityOnly(), "entities");
+
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
+    }
+  }, 
+  
+  retrieveTargetDataMemberships {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request group mships", 
+          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupAllMembershipSync(), "groups");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request entity mships", 
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityMembershipSync(), "entities");
+          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityAllMembershipSync(), "entities");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request mships", 
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetMembershipObjectsForMembershipSync(), "memberships");
 

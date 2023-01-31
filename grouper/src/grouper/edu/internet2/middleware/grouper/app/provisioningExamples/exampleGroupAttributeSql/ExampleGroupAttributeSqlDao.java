@@ -266,7 +266,7 @@ public class ExampleGroupAttributeSqlDao extends SqlProvisioningDao {
     GrouperUtil.assertion(GrouperUtil.length(provisioningGroup) == 1, "found multiple results!");
     
     TargetDaoRetrieveMembershipsByGroupResponse resultResponse = new TargetDaoRetrieveMembershipsByGroupResponse();
-    resultResponse.setTargetMemberships(GrouperUtil.toList(provisioningGroup.get(0)));
+    resultResponse.setTargetGroups(GrouperUtil.toList(provisioningGroup.get(0)));
     return resultResponse;
   }
 

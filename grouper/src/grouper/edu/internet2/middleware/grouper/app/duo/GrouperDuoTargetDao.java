@@ -389,12 +389,12 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       String targetEntityId = resolveTargetEntityId(targetEntity);
       
       if (StringUtils.isBlank(targetEntityId)) {
-        return new TargetDaoRetrieveMembershipsByEntityResponse(new ArrayList<Object>());
+        return new TargetDaoRetrieveMembershipsByEntityResponse(new ArrayList<ProvisioningMembership>());
       }
 
       List<GrouperDuoGroup> duoGroups = GrouperDuoApiCommands.retrieveDuoGroupsByUser(duoConfiguration.getDuoExternalSystemConfigId(), targetEntityId);
       
-      List<Object> provisioningMemberships = new ArrayList<Object>();
+      List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
       
       for (GrouperDuoGroup duoGroup : duoGroups) {
 
@@ -475,12 +475,12 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       String targetGroupId = resolveTargetGroupId(targetGroup);
       
       if (StringUtils.isBlank(targetGroupId)) {
-        return new TargetDaoRetrieveMembershipsByGroupResponse(new ArrayList<Object>());
+        return new TargetDaoRetrieveMembershipsByGroupResponse(new ArrayList<ProvisioningMembership>());
       }
       
       List<GrouperDuoUser> duoUsers = GrouperDuoApiCommands.retrieveDuoUserIdsUserNamesByGroup(duoConfiguration.getDuoExternalSystemConfigId(), targetGroupId);
       
-      List<Object> provisioningMemberships = new ArrayList<Object>(); 
+      List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>(); 
       
       for (GrouperDuoUser duoUser : duoUsers) {
 

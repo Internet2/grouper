@@ -334,7 +334,7 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
     
     String targetGroupId = resolveTargetGroupId(targetGroup);
-    List<Object> provisioningMemberships = new ArrayList<Object>();
+    List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
     
     if (StringUtils.isBlank(targetGroupId)) {
       return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
