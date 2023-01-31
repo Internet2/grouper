@@ -179,9 +179,6 @@ public class GrouperProvisioningLogic {
         for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
           provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
           provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
-          //TODO looks correct?
-          //should it be done at line#109 retrieveAllDataFromGrouperAndTarget
-          provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
         }
       }
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
@@ -2498,6 +2495,11 @@ public class GrouperProvisioningLogic {
         ProvisioningGroupWrapper provisioningGroupWrapper = new ProvisioningGroupWrapper();
         provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexGroupWrapper(provisioningGroupWrapper);
+<<<<<<< GROUPER_5_BRANCH
+=======
+  
+        provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
+>>>>>>> 9906c6e answer vivek todos
         provisioningGroupWrapper.setTargetProvisioningGroup(targetProvisioningGroup);
       }
     }
@@ -2531,6 +2533,10 @@ public class GrouperProvisioningLogic {
   
         provisioningEntityWrapper.setTargetProvisioningEntity(targetProvisioningEntity);
         provisioningEntityWrapper.setTargetNativeEntity(targetEntityToTargetNativeEntity.get(targetProvisioningEntity));
+<<<<<<< GROUPER_5_BRANCH
+=======
+        provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
+>>>>>>> 9906c6e answer vivek todos
 
       }
     }
@@ -2559,6 +2565,11 @@ public class GrouperProvisioningLogic {
         ProvisioningMembershipWrapper provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
         provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexMembershipWrapper(provisioningMembershipWrapper);
+<<<<<<< GROUPER_5_BRANCH
+=======
+  
+        provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
+>>>>>>> 9906c6e answer vivek todos
         provisioningMembershipWrapper.setTargetProvisioningMembership(targetProvisioningMembership);
       }
       
@@ -2658,12 +2669,18 @@ public class GrouperProvisioningLogic {
             provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
             provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
             provisioningMembershipWrapper.setGroupIdMemberId(groupIdMemberId);
 =======
             //TODO looks correct?
+=======
+>>>>>>> 9906c6e answer vivek todos
             provisioningMembershipWrapper.setGroupIdMemberId(groupIdMemberId);
+<<<<<<< GROUPER_5_BRANCH
             groupUuidMemberUuidToProvisioningMembershipWrapper.put(groupIdMemberId, provisioningMembershipWrapper);
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
+=======
+>>>>>>> 9906c6e answer vivek todos
             this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexMembershipWrapper(provisioningMembershipWrapper);
           }
           
