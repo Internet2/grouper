@@ -175,9 +175,6 @@ public class GrouperProvisioningLogic {
         for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
           provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
           provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
-          //TODO looks correct?
-          //should it be done at line#109 retrieveAllDataFromGrouperAndTarget
-          provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
         }
       }
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
@@ -2358,6 +2355,7 @@ public class GrouperProvisioningLogic {
         provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexGroupWrapper(provisioningGroupWrapper);
   
+        provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
         provisioningGroupWrapper.setTargetProvisioningGroup(targetProvisioningGroup);
       }
     }
@@ -2392,6 +2390,8 @@ public class GrouperProvisioningLogic {
         provisioningEntityWrapper.setTargetProvisioningEntity(targetProvisioningEntity);
 
         provisioningEntityWrapper.setTargetNativeEntity(targetEntityToTargetNativeEntity.get(targetProvisioningEntity));
+        provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
+
       }
     }
 
@@ -2420,6 +2420,7 @@ public class GrouperProvisioningLogic {
         provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexMembershipWrapper(provisioningMembershipWrapper);
   
+        provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
         provisioningMembershipWrapper.setTargetProvisioningMembership(targetProvisioningMembership);
       }
     }
@@ -2517,9 +2518,7 @@ public class GrouperProvisioningLogic {
           if (provisioningMembershipWrapper == null) {
             provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
             provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
-            //TODO looks correct?
             provisioningMembershipWrapper.setGroupIdMemberId(groupIdMemberId);
-            groupUuidMemberUuidToProvisioningMembershipWrapper.put(groupIdMemberId, provisioningMembershipWrapper);
             this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexMembershipWrapper(provisioningMembershipWrapper);
           }
           

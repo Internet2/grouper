@@ -974,7 +974,6 @@ public class GrouperProvisioningGrouperDao {
         memberIdsToRetrieve.add(provisioningEntityWrapper.getMemberId());
       }
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
-        //TODO looks correct?
         if (provisioningMembershipWrapper.getGroupIdMemberId() != null) {
           groupIdsMemberIdsToRetrieveForMemberships.add(provisioningMembershipWrapper.getGroupIdMemberId());
           groupIdsToRetrieve.add((String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(0));

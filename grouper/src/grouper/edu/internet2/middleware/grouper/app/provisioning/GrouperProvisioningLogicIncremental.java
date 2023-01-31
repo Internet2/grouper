@@ -2500,7 +2500,6 @@ public class GrouperProvisioningLogicIncremental {
                 ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGrouperTargetEntity();
                 if (memberId != null && !memberIdsAdded.contains(memberId) && grouperTargetEntity != null) {
                   provisioningEntitySomeMembershipsSync.add(grouperTargetEntity);
-                  //TODO looks correct?
                   provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
                   memberIdsAdded.add(memberId);
                 }
@@ -2524,7 +2523,6 @@ public class GrouperProvisioningLogicIncremental {
                 ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperTargetGroup();
                 if (groupId != null && !groupIdsAdded.contains(groupId) && grouperTargetGroup != null) {
                   provisioningGroupSomeMembershipsSync.add(grouperTargetGroup);
-                  //TODO looks correct?
                   provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
                   groupIdsAdded.add(groupId);
                 }
@@ -2795,17 +2793,17 @@ public class GrouperProvisioningLogicIncremental {
         // that's why, we skip them here
         if (provisioningGroupWrapper != null && (provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships() 
             || provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships())) {
-          //TODO looks correct?
-          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
+          // we are not individually selecting this
+          //provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
           continue;
         }
         // by the time, it reachs here, determineEntitiesToSelect might have set selectSomeMemberships to true and
         // that's why, we skip them here
         if (provisioningEntityWrapper != null && (provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships()
             || provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMemberships())) {
-          //TODO looks correct?
-          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
-           continue;
+          // we are not individually selecting this
+          //provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
+          continue;
         } 
         
         // when provisioning type is membership objects and it's recalc, 
