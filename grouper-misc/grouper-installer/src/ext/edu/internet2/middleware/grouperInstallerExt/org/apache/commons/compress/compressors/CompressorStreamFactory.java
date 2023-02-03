@@ -32,8 +32,6 @@ import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.xz.XZUtils;
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.pack200.Pack200CompressorInputStream;
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.pack200.Pack200CompressorOutputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.snappy.SnappyCompressorInputStream;
 import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.z.ZCompressorInputStream;
@@ -78,11 +76,6 @@ public class CompressorStreamFactory {
      * @since 1.1
      */
     public static final String GZIP = "gz";
-    /**
-     * Constant used to identify the PACK200 compression algorithm.
-     * @since 1.3
-     */
-    public static final String PACK200 = "pack200";
 
     /**
      * Constant used to identify the XZ compression method.
@@ -173,11 +166,7 @@ public class CompressorStreamFactory {
             if (GzipCompressorInputStream.matches(signature, signatureLength)) {
                 return new GzipCompressorInputStream(in, decompressConcatenated);
             }
-
-            if (Pack200CompressorInputStream.matches(signature, signatureLength)) {
-                return new Pack200CompressorInputStream(in);
-            }
-
+            
             if (FramedSnappyCompressorInputStream.matches(signature, signatureLength)) {
                 return new FramedSnappyCompressorInputStream(in);
             }
@@ -233,10 +222,6 @@ public class CompressorStreamFactory {
                 return new LZMACompressorInputStream(in);
             }
 
-            if (PACK200.equalsIgnoreCase(name)) {
-                return new Pack200CompressorInputStream(in);
-            }
-
             if (SNAPPY_RAW.equalsIgnoreCase(name)) {
                 return new SnappyCompressorInputStream(in);
             }
@@ -289,10 +274,6 @@ public class CompressorStreamFactory {
 
             if (XZ.equalsIgnoreCase(name)) {
                 return new XZCompressorOutputStream(out);
-            }
-
-            if (PACK200.equalsIgnoreCase(name)) {
-                return new Pack200CompressorOutputStream(out);
             }
 
             if (DEFLATE.equalsIgnoreCase(name)) {

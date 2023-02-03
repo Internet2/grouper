@@ -54,8 +54,8 @@
         <project.site.deployDirectory>/tmp/groupersite/grouper-parent</project.site.deployDirectory>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss Z</maven.build.timestamp.format>
 
         <!-- Plugin Versions -->
@@ -78,7 +78,7 @@
         <maven-taglist-plugin.version>2.4</maven-taglist-plugin.version>
         <maven-versions-plugin.version>2.7</maven-versions-plugin.version>
         <maven-site-plugin.version>3.8.2</maven-site-plugin.version>
-        <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+        <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
 
         <!-- the default checkstyle is more rigorous and has a lot of output during a full scan -->
         <!--<checkstyle.config.location>src/checkstyle/checkstyle.xml</checkstyle.config.location>-->
