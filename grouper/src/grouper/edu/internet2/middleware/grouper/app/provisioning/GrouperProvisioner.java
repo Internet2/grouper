@@ -44,6 +44,22 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.D
  *
  */
 public abstract class GrouperProvisioner {
+  
+  private ProvisioningStateGlobal provisioningStateGlobal = new ProvisioningStateGlobal();
+  
+  
+  public GrouperProvisioner() {
+    this.provisioningStateGlobal.setGrouperProvisioner(this);
+  }
+  
+  public ProvisioningStateGlobal getProvisioningStateGlobal() {
+    return provisioningStateGlobal;
+  }
+  
+  
+  public void setProvisioningStateGlobal(ProvisioningStateGlobal provisioningStateGlobal) {
+    this.provisioningStateGlobal = provisioningStateGlobal;
+  }
 
   /**
    * cache the thread pool

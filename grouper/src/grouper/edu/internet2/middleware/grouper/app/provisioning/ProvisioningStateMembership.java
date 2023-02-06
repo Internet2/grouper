@@ -54,6 +54,19 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
     }
     return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore, ids);
   }
-
+  
+  /**
+   * this must be called after retrieving data from grouper
+   * @return
+   */
+  public boolean isExistInGrouper() {
+    if (this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership() == null) {
+      return false;
+    }
+    if(this.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()) {
+      return false;
+    }
+    return true;
+  }
   
 }

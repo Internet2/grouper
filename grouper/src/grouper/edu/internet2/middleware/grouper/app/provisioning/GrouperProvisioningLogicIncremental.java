@@ -392,8 +392,8 @@ public class GrouperProvisioningLogicIncremental {
 
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
       
-      long millisSince1970 = provisioningEntityWrapper.getProvisioningStateEntity().getMillisSince1970();
-      if (millisSince1970 == -1) {
+      Long millisSince1970 = provisioningEntityWrapper.getProvisioningStateEntity().getMillisSince1970();
+      if (millisSince1970 == null) {
         continue;
       }
 
@@ -1094,7 +1094,7 @@ public class GrouperProvisioningLogicIncremental {
           }
           
           // if we are insert or delete, lets recalc memberships
-          this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(esbEvent.getGroupId(), esbEventType != EsbEventType.GROUP_UPDATE,
+          this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(esbEvent.getGroupId(), true,
               esbEventType != EsbEventType.GROUP_UPDATE, createdOnMillis, grouperIncrementalDataAction);
             
           break;
@@ -1141,7 +1141,7 @@ public class GrouperProvisioningLogicIncremental {
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalEntity(esbEvent.getMemberId(), true, true, createdOnMillis, null);
           
         } else { 
-
+          
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalMembership(esbEvent.getGroupId(), esbEvent.getMemberId(), false, createdOnMillis, grouperIncrementalDataAction);
         }
         
@@ -1690,6 +1690,9 @@ public class GrouperProvisioningLogicIncremental {
     this.getGrouperProvisioner().getDebugMap().put("recalcEventsDuringEntitySync", recalcEventsDuringEntitySync);
   }
 
+  
+  
+  
   /**
    * if a non recalc action is expected to not change the target, then ignore it
    */
@@ -1712,21 +1715,14 @@ public class GrouperProvisioningLogicIncremental {
       
       ProvisioningMembership provisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
-      // fix the incremental data action
-      if (provisioningMembership == null && (gcGrouperSyncMembership == null || !gcGrouperSyncMembership.isInTarget())) {
-        shouldRemoveMembershipAction = true;
-      }
       
-      if (provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() != GrouperIncrementalDataAction.update
-          && provisioningMembership != null && (gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget())) {
-        shouldRemoveMembershipAction = true;
-      }
-      
+      boolean hasGrouperMembership = provisioningMembershipWrapper.getProvisioningStateMembership().isExistInGrouper();
+
       if (!shouldRemoveMembershipAction) {
         switch (provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction()) {
           case delete:
             
-            if (provisioningMembership == null && gcGrouperSyncMembership != null && !gcGrouperSyncMembership.isInTarget()) {
+            if (!hasGrouperMembership && gcGrouperSyncMembership != null && !gcGrouperSyncMembership.isInTarget()) {
               shouldRemoveMembershipAction = true;
             }
             
@@ -1734,7 +1730,7 @@ public class GrouperProvisioningLogicIncremental {
             
           case insert:
 
-            if (provisioningMembership != null && gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
+            if (hasGrouperMembership && gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
               shouldRemoveMembershipAction = true;
             }
 
@@ -1756,9 +1752,8 @@ public class GrouperProvisioningLogicIncremental {
 
   }
 
-  public void convertInconsistentMembershipEventsToRecalc() {
-    int convertInconsistentEventsToRecalc = 0;
-    int convertMissingEntityEventsToRecalc = 0;
+  public void convertInconsistentMembershipEventActions() {
+    int convertInconsistentEventsActions = 0;
 
     Iterator<ProvisioningMembershipWrapper> iterator = this.getGrouperProvisioner().retrieveGrouperProvisioningData()
         .getProvisioningMembershipWrappers().iterator();
@@ -1767,9 +1762,6 @@ public class GrouperProvisioningLogicIncremental {
       
       ProvisioningMembershipWrapper provisioningMembershipWrapper = iterator.next();
 
-      ProvisioningMembership provisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
-      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
-      
       if (provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()
           || provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() == null) {
         continue;
@@ -1778,9 +1770,9 @@ public class GrouperProvisioningLogicIncremental {
       switch (provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction()) {
         case delete:
           
-          if (provisioningMembership != null) {
-            convertInconsistentEventsToRecalc++;
-            provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+          if (provisioningMembershipWrapper.getProvisioningStateMembership().isExistInGrouper()) {
+            convertInconsistentEventsActions++;
+            provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(false);
             continue;
           }
           
@@ -1796,9 +1788,9 @@ public class GrouperProvisioningLogicIncremental {
 //            continue;
 //          }
 
-          if (provisioningMembershipWrapper.getProvisioningStateMembership().isDelete() || provisioningMembership == null) {
-            convertInconsistentEventsToRecalc++;
-            provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+          if (!provisioningMembershipWrapper.getProvisioningStateMembership().isExistInGrouper()) {
+            convertInconsistentEventsActions++;
+            provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
             continue;
           }
 
@@ -1807,11 +1799,8 @@ public class GrouperProvisioningLogicIncremental {
       }
       
     }
-    if (convertInconsistentEventsToRecalc > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("convertInconsistentEventsToRecalc", convertInconsistentEventsToRecalc);
-    }
-    if (convertMissingEntityEventsToRecalc > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("convertMissingEntityEventsToRecalc", convertMissingEntityEventsToRecalc);
+    if (convertInconsistentEventsActions > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("convertInconsistentEventsActions", convertInconsistentEventsActions);
     }
   }
 
@@ -2793,16 +2782,14 @@ public class GrouperProvisioningLogicIncremental {
         // that's why, we skip them here
         if (provisioningGroupWrapper != null && (provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships() 
             || provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships())) {
-          // we are not individually selecting this
-          //provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
           continue;
         }
         // by the time, it reachs here, determineEntitiesToSelect might have set selectSomeMemberships to true and
         // that's why, we skip them here
         if (provisioningEntityWrapper != null && (provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships()
             || provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMemberships())) {
-          // we are not individually selecting this
-          //provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
           continue;
         } 
         

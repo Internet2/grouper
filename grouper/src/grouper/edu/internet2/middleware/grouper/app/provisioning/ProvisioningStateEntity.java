@@ -8,6 +8,11 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
   
   
   /**
+   * if the memberships for this entity was attempted to be selected from target
+   */
+  private boolean selectAllMembershipResultProcessed;
+  
+  /**
    * in incremental, if we're doing entity attributes and any membership events for this entity 
    * are recalc, then recalc all events for this entity in this incremental run and select
    * those memberships from the target. Since this is entity attributes, we need to select those via
@@ -159,4 +164,15 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
     this.recalcEntityMemberships = recalcEntityMemberships1;
   }
 
+  
+  public boolean isSelectAllMembershipResultProcessed() {
+    return selectAllMembershipResultProcessed;
+  }
+
+  
+  public void setSelectAllMembershipResultProcessed(
+      boolean selectAllMembershipResultProcessed) {
+    this.selectAllMembershipResultProcessed = selectAllMembershipResultProcessed;
+  }
+  
 }

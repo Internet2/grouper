@@ -3,7 +3,6 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,10 +37,23 @@ public enum GrouperProvisioningObjectLogType {
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
 
-      GrouperProvisioningLists targetProvisioningData = grouperProvisioner.retrieveGrouperProvisioningData().getTargetProvisioningLists();
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", targetProvisioningData.getProvisioningGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", targetProvisioningData.getProvisioningEntities(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", targetProvisioningData.getProvisioningMemberships(), "memberships");
+      GrouperProvisioningData grouperProvisioningData = grouperProvisioner.retrieveGrouperProvisioningData();
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningMemberships(), "memberships");
+
+    }
+  },
+  retrieveIndividualTargetData {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+
+      GrouperProvisioningData grouperProvisioningData = grouperProvisioner.retrieveGrouperProvisioningData();
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningMemberships(), "memberships");
 
     }
   }, 
@@ -378,6 +390,17 @@ public enum GrouperProvisioningObjectLogType {
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       Collection<ProvisioningEntity> targetEntities = (Collection<ProvisioningEntity>)data[0];
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", targetEntities, "entities");
+      
+    }
+    
+  },
+  retrieveIndividualMissingMemberships {
+    
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+      Collection<ProvisioningMembership> targetMemberships = (Collection<ProvisioningMembership>)data[0];
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", targetMemberships, "memberships");
       
     }
     

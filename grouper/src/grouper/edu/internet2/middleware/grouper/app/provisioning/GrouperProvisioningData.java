@@ -11,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.emory.mathcs.backport.java.util.Collections;
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -37,21 +36,6 @@ public class GrouperProvisioningData {
    */
   public Map<ProvisioningEntity, Object> getTargetEntityToTargetNativeEntity() {
     return targetEntityToTargetNativeEntity;
-  }
-
-  /**
-   * this is stored when target data is retrieved, either all at start of full, or 
-   * certain data if not selecting all
-   */
-  private GrouperProvisioningLists targetProvisioningLists = new GrouperProvisioningLists();
-  
-  /**
-   * this is stored when target data is retrieved, either all at start of full, or 
-   * certain data if not selecting all
-   * @return data
-   */
-  public GrouperProvisioningLists getTargetProvisioningLists() {
-    return this.targetProvisioningLists;
   }
 
   /**
@@ -143,16 +127,6 @@ public class GrouperProvisioningData {
     return this.cacheJsonToProvisioningEntity;
   }
 
-  public GrouperProvisioningData() {
-    this.targetProvisioningLists = new GrouperProvisioningLists();
-
-    // init lists no nulls
-    this.targetProvisioningLists.setProvisioningEntities(new ArrayList<ProvisioningEntity>());
-    this.targetProvisioningLists.setProvisioningGroups(new ArrayList<ProvisioningGroup>());
-    this.targetProvisioningLists.setProvisioningMemberships(new ArrayList<ProvisioningMembership>());
-
-  }
-  
   /**
    * 
    * @param provisioningGroupWrapper
@@ -575,6 +549,7 @@ public class GrouperProvisioningData {
     ProvisioningEntityWrapper provisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberId);
     if (provisioningEntityWrapper == null) {
       provisioningEntityWrapper = new ProvisioningEntityWrapper();
+      provisioningEntityWrapper.setGrouperProvisioner(grouperProvisioner);
       provisioningEntityWrapper.setMemberId(memberId);
       this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().add(provisioningEntityWrapper);
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().put(memberId, provisioningEntityWrapper);
@@ -607,6 +582,7 @@ public class GrouperProvisioningData {
     ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(multiKey);
     if (provisioningMembershipWrapper == null) {
       provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
+      provisioningMembershipWrapper.setGrouperProvisioner(grouperProvisioner);
       provisioningMembershipWrapper.setGroupIdMemberId(multiKey);
       this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().add(provisioningMembershipWrapper);
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().put(multiKey, provisioningMembershipWrapper);
