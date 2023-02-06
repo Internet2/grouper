@@ -10,6 +10,7 @@ public class ProvisioningStateGlobal {
   private boolean selectResultProcessedEntities;
 
   private boolean selectResultProcessedMemberships;
+<<<<<<< GROUPER_5_BRANCH
   
   private boolean selectResultProcessedIndividualMemberships;
   
@@ -27,6 +28,8 @@ public class ProvisioningStateGlobal {
     this.selectResultProcessedIndividualMemberships = selectResultProcessedIndividualMemberships;
   }
 
+=======
+>>>>>>> dad5d51 Provisioning related changes, wip
 
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;

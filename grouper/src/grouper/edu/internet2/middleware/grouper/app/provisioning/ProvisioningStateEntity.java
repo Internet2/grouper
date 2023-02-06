@@ -13,9 +13,12 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
    * if the memberships for this entity was attempted to be selected from target
    */
   private boolean selectAllMembershipResultProcessed;
+<<<<<<< GROUPER_5_BRANCH
 =======
   
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
+=======
+>>>>>>> dad5d51 Provisioning related changes, wip
   
   /**
    * in incremental, if we're doing entity attributes and any membership events for this entity 
@@ -180,6 +183,7 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
     this.selectAllMembershipResultProcessed = selectAllMembershipResultProcessed;
   }
   
+<<<<<<< GROUPER_5_BRANCH
 =======
 
   private String memberId;
@@ -265,4 +269,6 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
   }
 
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+>>>>>>> dad5d51 Provisioning related changes, wip
 }

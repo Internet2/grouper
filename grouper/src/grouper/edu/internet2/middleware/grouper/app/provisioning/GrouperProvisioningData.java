@@ -550,6 +550,9 @@ public class GrouperProvisioningData {
     if (provisioningEntityWrapper == null) {
       provisioningEntityWrapper = new ProvisioningEntityWrapper();
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
+=======
+>>>>>>> dad5d51 Provisioning related changes, wip
       provisioningEntityWrapper.setGrouperProvisioner(grouperProvisioner);
       provisioningEntityWrapper.setMemberId(memberId);
       this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().add(provisioningEntityWrapper);
@@ -584,6 +587,7 @@ public class GrouperProvisioningData {
     if (provisioningMembershipWrapper == null) {
       provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
       provisioningMembershipWrapper.setGrouperProvisioner(grouperProvisioner);
+<<<<<<< GROUPER_5_BRANCH
 =======
       provisioningEntityWrapper.setMemberId(memberId);
       this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().add(provisioningEntityWrapper);
@@ -618,6 +622,8 @@ public class GrouperProvisioningData {
     if (provisioningMembershipWrapper == null) {
       provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+>>>>>>> dad5d51 Provisioning related changes, wip
       provisioningMembershipWrapper.setGroupIdMemberId(multiKey);
       this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().add(provisioningMembershipWrapper);
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().put(multiKey, provisioningMembershipWrapper);

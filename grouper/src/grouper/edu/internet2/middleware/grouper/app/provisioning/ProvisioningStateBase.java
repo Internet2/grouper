@@ -519,7 +519,11 @@ public class ProvisioningStateBase {
   public void setUpdate(boolean update) {
     this.update = update;
   }
+<<<<<<< GROUPER_5_BRANCH
 
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+  
+>>>>>>> dad5d51 Provisioning related changes, wip
   
 }

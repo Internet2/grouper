@@ -73,6 +73,7 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
     }
     return true;
   }
+<<<<<<< GROUPER_5_BRANCH
 =======
 =======
   private ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
@@ -123,5 +124,7 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
   }
 
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+>>>>>>> dad5d51 Provisioning related changes, wip
   
 }

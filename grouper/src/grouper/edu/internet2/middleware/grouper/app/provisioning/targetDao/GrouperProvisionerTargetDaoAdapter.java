@@ -227,6 +227,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         boolean retrieveMembershipsByEntity = false;
         TargetDaoRetrieveAllMembershipsResponse targetDaoRetrieveAllMembershipsResponse = null;
         
+<<<<<<< GROUPER_5_BRANCH
         
         
         // if not retrieving all groups by configuration, and there’s capability retrieve membershps by group, then loop over group wrappers and get memberships for each of them 
@@ -281,6 +282,42 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             targetEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectAllMembershipResultProcessed(true);
           }
           
+=======
+        // if not retrieving all groups by configuration, and there’s capability retrieve membershps by group, then loop over group wrappers and get memberships for each of them 
+        if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups() && canRetrieveMembershipsByGroupOrGroups) {
+          retrieveMembershipsByGroup = true;
+        }
+        
+        // if not retrieving all entities by configuration, and there’s capability retrieve membershps by entity, then loop over entity wrappers and get memberships for each of them 
+        if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities() && canRetrieveMembershipsByEntityOrEntities) {
+          retrieveMembershipsByEntity = true;
+        }
+        // if the capability to retrieve all memberships is there, call that
+        if (!retrieveMembershipsByGroup && !retrieveMembershipsByEntity && 
+            GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false) ) {
+          GrouperUtil.mapAddValue(GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner().getDebugMap(), "targetRetrieveAllMemberships", 1);
+          targetDaoRetrieveAllMembershipsResponse = this.wrappedDao.retrieveAllMemberships(targetDaoRetrieveAllMembershipsRequest);
+        } else if (canRetrieveMembershipsByGroupOrGroups) {
+          if (retrieveMembershipsByGroup) {
+            GrouperUtil.mapAddValue(GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner().getDebugMap(), "targetRetrieveMembershipsByProvisionableGroups", 1);
+          } else {
+            GrouperUtil.mapAddValue(GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner().getDebugMap(), "targetRetrieveAllMembershipsByGroups", 1);
+          }
+          TargetDaoRetrieveMembershipsByGroupsRequest groupsRequest = new TargetDaoRetrieveMembershipsByGroupsRequest();
+          groupsRequest.setTargetGroups(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups());
+          TargetDaoRetrieveMembershipsByGroupsResponse targetDaoRetrieveMembershipsByGroupsResponse = retrieveMembershipsByGroups(groupsRequest);
+          targetDaoRetrieveAllMembershipsResponse = new TargetDaoRetrieveAllMembershipsResponse(targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships());
+        } else if (canRetrieveMembershipsByEntityOrEntities) {
+          if (retrieveMembershipsByEntity) {
+            GrouperUtil.mapAddValue(GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner().getDebugMap(), "targetRetrieveMembershipsByProvisionableEntities", 1);
+          } else {
+            GrouperUtil.mapAddValue(GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner().getDebugMap(), "targetRetrieveAllMembershipsByEntities", 1);
+          }
+          TargetDaoRetrieveMembershipsByEntitiesRequest entitiesRequest = new TargetDaoRetrieveMembershipsByEntitiesRequest();
+          entitiesRequest.setTargetEntities(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities());
+          TargetDaoRetrieveMembershipsByEntitiesResponse targetDaoRetrieveMembershipsByEntitiesResponse = retrieveMembershipsByEntities(entitiesRequest);
+          targetDaoRetrieveAllMembershipsResponse = new TargetDaoRetrieveAllMembershipsResponse(targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships());
+>>>>>>> dad5d51 Provisioning related changes, wip
         } else {
           throw new RuntimeException("Dao cannot retrieve all memberships");
         }
@@ -783,6 +820,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().processTargetDataGroups(targetData.getProvisioningGroups());
           this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().processTargetDataEntities(targetData.getProvisioningEntities());
           this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().processTargetDataMemberships(targetData.getProvisioningMemberships());
+<<<<<<< GROUPER_5_BRANCH
           
           // we retrieved all we could from target, so everything that came back, is select result processed
           for (ProvisioningGroup provisioningGroup :  GrouperUtil.nonNull(targetData.getProvisioningGroups())) {
@@ -798,6 +836,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           }
 
           
+=======
+>>>>>>> dad5d51 Provisioning related changes, wip
         } else {
           targetDaoRetrieveAllDataResponse.setTargetData(new GrouperProvisioningLists());
         }
@@ -823,11 +863,14 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
       this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().processTargetDataGroups(targetObjects.getProvisioningGroups());
       this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedGroups(true);
+<<<<<<< GROUPER_5_BRANCH
       
       // we retrieved all we could from target based on grouper target groups, so every wrapper, is select result processed
       for (ProvisioningGroupWrapper provisioningGroupWrapper :  this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
         provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
       }
+=======
+>>>>>>> dad5d51 Provisioning related changes, wip
     }
     
     
@@ -844,12 +887,15 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().processTargetDataEntities(targetObjects.getProvisioningEntities());
       this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedEntities(true);
       
+<<<<<<< GROUPER_5_BRANCH
       // we retrieved all we could from target based on grouper target entities, so every wrapper, is select result processed
       for (ProvisioningEntityWrapper provisioningEntityWrapper :  this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
         provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
       }
 
 
+=======
+>>>>>>> dad5d51 Provisioning related changes, wip
     }
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()) {
@@ -860,12 +906,15 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
       this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().processTargetDataMemberships(targetObjects.getProvisioningMemberships());
       this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedMemberships(true);
+<<<<<<< GROUPER_5_BRANCH
       
       // we retrieved all we could from target based on grouper target groups or entities, so every wrapper, is select result processed
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper :  this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
         provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
       }
 
+=======
+>>>>>>> dad5d51 Provisioning related changes, wip
     }
     
     return result;

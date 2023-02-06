@@ -44,6 +44,7 @@ public enum GrouperProvisioningObjectLogType {
 
     }
   },
+<<<<<<< GROUPER_5_BRANCH
   retrieveIndividualTargetGroupsAndEntities {
 
     @Override
@@ -53,6 +54,18 @@ public enum GrouperProvisioningObjectLogType {
       GrouperProvisioningData grouperProvisioningData = grouperProvisioner.retrieveGrouperProvisioningData();
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningGroups(), "groups");
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningEntities(), "entities");
+=======
+  retrieveIndividualTargetData {
+
+    @Override
+    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
+        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
+
+      GrouperProvisioningData grouperProvisioningData = grouperProvisioner.retrieveGrouperProvisioningData();
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioningData.retrieveTargetProvisioningMemberships(), "memberships");
+>>>>>>> dad5d51 Provisioning related changes, wip
 
     }
   }, 
