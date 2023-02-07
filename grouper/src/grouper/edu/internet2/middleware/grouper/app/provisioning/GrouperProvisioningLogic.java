@@ -174,6 +174,7 @@ public class GrouperProvisioningLogic {
     }
 
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     assignRecalcForGroupsAndEntities();
     
 =======
@@ -196,6 +197,10 @@ public class GrouperProvisioningLogic {
     }
 
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+    assignRecalcForGroupsAndEntities();
+    
+>>>>>>> d89ba3e Provisioning related changes. testing pending
     debugMap.put("state", "retrieveIndividualMissingGroups");
     this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualMissingGroups();
     
@@ -421,6 +426,7 @@ public class GrouperProvisioningLogic {
   public void assignRecalcForGroupsAndEntities() {
     
     this.grouperProvisioner.getDebugMap().put("state", "assignRecalc");
+<<<<<<< GROUPER_5_BRANCH
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
     
@@ -440,6 +446,25 @@ public class GrouperProvisioningLogic {
   }
 
   public void retrieveFullIndividualTargetGroupsAndEntities() {
+=======
+    // everything in a full sync is a recalc if it can be
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+      }
+    }
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+      }
+    }
+
+  }
+
+  public void retrieveFullIndividualTargetData() {
+>>>>>>> d89ba3e Provisioning related changes. testing pending
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     
@@ -459,6 +484,25 @@ public class GrouperProvisioningLogic {
       processTargetDataGroups(targetGroups);
     }
     
+<<<<<<< GROUPER_5_BRANCH
+=======
+    debugMap.put("state", "retrieveIndividualMembershipsIfNeeded");
+    
+    // when select all memberships is false fetch groups one by one.
+    List<ProvisioningMembership> targetMemberships = this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualTargetMembershipsIfNeeded();
+    if (targetMemberships != null) {
+      processTargetDataMemberships(targetMemberships);
+    }
+
+    if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedIndividualMemberships()) {
+      Set<ProvisioningMembershipWrapper> membershipWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers();
+      
+      for (ProvisioningMembershipWrapper membershipWrapper: membershipWrappers) {
+        membershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
+      }
+    }
+    
+>>>>>>> d89ba3e Provisioning related changes. testing pending
     // get the total count of what is in the target
     int totalTargetCount = 0;
             
@@ -3768,11 +3812,14 @@ public class GrouperProvisioningLogic {
     }
     
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 =======
     //TODO looks correct?
     // do we want to set selectResultProcessed over groups or entities or memberships
     
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+>>>>>>> d89ba3e Provisioning related changes. testing pending
     // see if we can get memberships by group
     if (GrouperUtil.booleanValue(
         this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
@@ -3802,6 +3849,7 @@ public class GrouperProvisioningLogic {
       List<ProvisioningMembership> membershipObjects = retrieveMembershipsByGroups.getTargetMemberships();
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       
       this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedIndividualMemberships(true);
       
@@ -3811,6 +3859,11 @@ public class GrouperProvisioningLogic {
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
 =======
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+      
+      this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedIndividualMemberships(true);
+      
+>>>>>>> d89ba3e Provisioning related changes. testing pending
       return membershipObjects;
     } else if (GrouperUtil.booleanValue(
           this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
@@ -3840,6 +3893,7 @@ public class GrouperProvisioningLogic {
       List<ProvisioningMembership> membershipObjects = retrieveMembershipsByEntities.getTargetMemberships();
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       
       this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedIndividualMemberships(true);
       
@@ -3848,6 +3902,11 @@ public class GrouperProvisioningLogic {
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
 =======
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+      
+      this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedIndividualMemberships(true);
+      
+>>>>>>> d89ba3e Provisioning related changes. testing pending
       return membershipObjects;
     } else {
       throw new RuntimeException("Not expecting DAO capabilities when selecting memberships!  Should be able to select memberships by group or entity!");
