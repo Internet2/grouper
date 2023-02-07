@@ -3524,6 +3524,11 @@ public class GrouperProvisioningLogic {
       return;
     }
     
+    //TODO looks correct?
+    if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
+      return;
+    }
+    
     List<ProvisioningMembership> membershipsRetrieved = new ArrayList<>();
     
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup()) {
