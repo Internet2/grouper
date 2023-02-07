@@ -2358,8 +2358,7 @@ public class GcDbAccess {
       return resultSetCallback.callback(rs);
       
     } catch (Exception e){
-      GrouperClientUtils.injectInException(e, "sql: " + this.sql + ", " + (GrouperClientUtils.length(this.bindVars) > 1 ? ("args: " + GrouperClientUtils.toStringForLog(this.bindVars)) : ""));
-      throw new RuntimeException(e);
+      throw new RuntimeException("sql: " + this.sql + ", " + (GrouperClientUtils.length(this.bindVars) > 1 ? ("args: " + GrouperClientUtils.toStringForLog(this.bindVars)) : ""), e);
     } finally {
       this.resultSetMetaData = null;
       this.resultSetMetadataColumnNameLowerToIndex = null;

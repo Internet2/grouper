@@ -95,8 +95,8 @@ public class GcElUtilsSafe {
       }
       return fileContents;
     } catch (RuntimeException re) {
-      GrouperClientUtils.injectInException(re, "error reading from fileName: '" + fileName + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
-      throw re;
+      RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, "error reading from fileName: '" + fileName + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
+      throw re2;
     }
   }
   
@@ -138,8 +138,8 @@ public class GcElUtilsSafe {
           }
           return fileContents;
         } catch (RuntimeException re) {
-          GrouperClientUtils.injectInException(re, "error with env var: '" + envVarFile + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
-          throw re;
+          RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, "error with env var: '" + envVarFile + "', file: '" + (theFile == null ? null : theFile.getAbsolutePath()) +  "'");
+          throw re2;
         }
          
       }

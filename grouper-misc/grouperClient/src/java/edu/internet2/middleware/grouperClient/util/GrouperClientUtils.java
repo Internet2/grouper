@@ -197,8 +197,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     try {
       return mapper.readValue(jsonBody, theClass);
     } catch(Exception e) {
-      injectInException(e, abbreviate(json, 2000));
-      throw new RuntimeException(e);
+      throw new RuntimeException(abbreviate(json, 2000), e);
     }
   }
 
