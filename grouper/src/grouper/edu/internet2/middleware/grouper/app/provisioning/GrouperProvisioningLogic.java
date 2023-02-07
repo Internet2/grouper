@@ -168,29 +168,15 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
     }
 
-    {
-      debugMap.put("state", "assignRecalc");
-      // everything in a full sync is a recalc if it can be
-      for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
-        if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
-          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
-          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
-        }
-      }
-      for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
-        if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
-          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
-          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
-        }
-      }
-
-    }
-
+    assignRecalcForGroupsAndEntities();
+    
     debugMap.put("state", "retrieveIndividualMissingGroups");
     this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualMissingGroups();
     
     debugMap.put("state", "retrieveIndividualMissingEntities");
     this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualMissingEntities();
+    
+    assignRecalcForGroupsAndEntities();
     
     debugMap.put("state", "loadDataToGrouper");
     long start = System.currentTimeMillis();
@@ -382,6 +368,25 @@ public class GrouperProvisioningLogic {
     
   }
 
+  public void assignRecalcForGroupsAndEntities() {
+    
+    this.grouperProvisioner.getDebugMap().put("state", "assignRecalc");
+    // everything in a full sync is a recalc if it can be
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+      }
+    }
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+      }
+    }
+
+  }
+
   public void retrieveFullIndividualTargetData() {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
@@ -410,6 +415,14 @@ public class GrouperProvisioningLogic {
       processTargetDataMemberships(targetMemberships);
     }
 
+    if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedIndividualMemberships()) {
+      Set<ProvisioningMembershipWrapper> membershipWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers();
+      
+      for (ProvisioningMembershipWrapper membershipWrapper: membershipWrappers) {
+        membershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
+      }
+    }
+    
     // get the total count of what is in the target
     int totalTargetCount = 0;
             
@@ -3193,6 +3206,9 @@ public class GrouperProvisioningLogic {
         continue;
       }
             
+      
+      provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
+      
       missingGrouperTargetGroups.add(provisioningGroupWrapper.getGrouperTargetGroup());
       missingGroupWrappers.add(provisioningGroupWrapper);
     }
@@ -3395,6 +3411,8 @@ public class GrouperProvisioningLogic {
       if (!gcGrouperSyncMember.isInTarget() || provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
         continue;
       }
+      
+      provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
             
       missingGrouperTargetEntities.add(provisioningEntityWrapper.getGrouperTargetEntity());
       missingEntityWrappers.add(provisioningEntityWrapper);
@@ -3473,9 +3491,6 @@ public class GrouperProvisioningLogic {
       return null;
     }
     
-    //TODO looks correct?
-    // do we want to set selectResultProcessed over groups or entities or memberships
-    
     // see if we can get memberships by group
     if (GrouperUtil.booleanValue(
         this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
@@ -3503,6 +3518,9 @@ public class GrouperProvisioningLogic {
           .retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembershipsByGroups(targetDaoRetrieveMembershipsByGroupsRequest);
 
       List<ProvisioningMembership> membershipObjects = retrieveMembershipsByGroups.getTargetMemberships();
+      
+      this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedIndividualMemberships(true);
+      
       return membershipObjects;
     } else if (GrouperUtil.booleanValue(
           this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
@@ -3530,6 +3548,9 @@ public class GrouperProvisioningLogic {
           .retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembershipsByEntities(targetDaoRetrieveMembershipsByEntitiesRequest);
 
       List<ProvisioningMembership> membershipObjects = retrieveMembershipsByEntities.getTargetMemberships();
+      
+      this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedIndividualMemberships(true);
+      
       return membershipObjects;
     } else {
       throw new RuntimeException("Not expecting DAO capabilities when selecting memberships!  Should be able to select memberships by group or entity!");

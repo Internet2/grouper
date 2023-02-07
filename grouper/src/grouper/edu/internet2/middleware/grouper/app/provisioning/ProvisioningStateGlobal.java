@@ -10,6 +10,23 @@ public class ProvisioningStateGlobal {
   private boolean selectResultProcessedEntities;
 
   private boolean selectResultProcessedMemberships;
+  
+  private boolean selectResultProcessedIndividualMemberships;
+  
+  
+
+  
+  public boolean isSelectResultProcessedIndividualMemberships() {
+    return selectResultProcessedIndividualMemberships;
+  }
+
+
+  
+  public void setSelectResultProcessedIndividualMemberships(
+      boolean selectResultProcessedIndividualMemberships) {
+    this.selectResultProcessedIndividualMemberships = selectResultProcessedIndividualMemberships;
+  }
+
 
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
