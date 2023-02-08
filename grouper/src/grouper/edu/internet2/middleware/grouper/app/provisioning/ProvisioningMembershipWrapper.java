@@ -228,7 +228,14 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     this.targetProvisioningMembership = targetProvisioningMembership;
     
     if (this.targetProvisioningMembership != null) {
+      ProvisioningMembershipWrapper newTargetMembershipOldWrapper = this.targetProvisioningMembership.getProvisioningMembershipWrapper();
+      
       this.targetProvisioningMembership.setProvisioningMembershipWrapper(this);
+      
+      if (newTargetMembershipOldWrapper != null && newTargetMembershipOldWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
+        this.getProvisioningStateMembership().setSelectResultProcessed(true);
+      }
+
     }
 
     if (oldTargetProvisioningMembership != null) {

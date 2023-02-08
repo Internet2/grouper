@@ -2088,6 +2088,7 @@ public class GrouperProvisioningLogic {
     }
     
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 =======
     if (this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedGroups()) {
       for (ProvisioningGroupWrapper provisioningGroupWrapper :  this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
@@ -2108,6 +2109,8 @@ public class GrouperProvisioningLogic {
     }
 
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+>>>>>>> 3d82486 change select result processed
     long retrieveDataPass1 = System.currentTimeMillis()-start;
     this.getGrouperProvisioner().getDebugMap().put("retrieveDataPass1_millis", retrieveDataPass1);
 
@@ -3521,11 +3524,6 @@ public class GrouperProvisioningLogic {
   public void retrieveIndividualMissingMemberships() {
     
     if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMemberships()) {
-      return;
-    }
-    
-    //TODO looks correct?
-    if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
       return;
     }
     
