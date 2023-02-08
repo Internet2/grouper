@@ -161,7 +161,18 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     this.targetProvisioningGroup = targetProvisioningGroup;
     
     if (this.targetProvisioningGroup != null) {
+      
+      ProvisioningGroupWrapper newTargetGroupOldWrapper = this.targetProvisioningGroup.getProvisioningGroupWrapper();
+      
       this.targetProvisioningGroup.setProvisioningGroupWrapper(this);
+      
+      if (newTargetGroupOldWrapper != null && newTargetGroupOldWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+        this.getProvisioningStateGroup().setSelectResultProcessed(true);
+      }
+      if (newTargetGroupOldWrapper != null && newTargetGroupOldWrapper.getProvisioningStateGroup().isSelectAllMembershipResultProcessed()) {
+        this.getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
+      }
+      
     }
 
     if (oldTargetProvisioningGroup != null) {

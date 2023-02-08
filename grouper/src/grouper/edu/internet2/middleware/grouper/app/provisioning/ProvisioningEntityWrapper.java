@@ -132,7 +132,17 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
     this.targetProvisioningEntity = targetProvisioningEntity;
     
     if (this.targetProvisioningEntity != null) {
+      ProvisioningEntityWrapper newTargetEntityOldWrapper = this.targetProvisioningEntity.getProvisioningEntityWrapper();
+      
       this.targetProvisioningEntity.setProvisioningEntityWrapper(this);
+      
+      if (newTargetEntityOldWrapper != null && newTargetEntityOldWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+        this.getProvisioningStateEntity().setSelectResultProcessed(true);
+      }
+      if (newTargetEntityOldWrapper != null && newTargetEntityOldWrapper.getProvisioningStateEntity().isSelectAllMembershipResultProcessed()) {
+        this.getProvisioningStateEntity().setSelectAllMembershipResultProcessed(true);
+      }
+
     }
 
     if (oldTargetProvisioningEntity != null) {

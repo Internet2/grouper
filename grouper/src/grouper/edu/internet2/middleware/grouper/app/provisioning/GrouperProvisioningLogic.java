@@ -1871,24 +1871,6 @@ public class GrouperProvisioningLogic {
       processTargetDataMemberships(extraTargetData.getProvisioningMemberships());
     }
     
-    if (this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedGroups()) {
-      for (ProvisioningGroupWrapper provisioningGroupWrapper :  this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
-        provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
-      }
-    }
-    
-    if (this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedEntities()) {
-      for (ProvisioningEntityWrapper provisioningEntityWrapper :  this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
-        provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
-      }
-    }
-    
-    if (this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
-      for (ProvisioningMembershipWrapper provisioningMembershipWrapper :  this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
-        provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
-      }
-    }
-
     long retrieveDataPass1 = System.currentTimeMillis()-start;
     this.getGrouperProvisioner().getDebugMap().put("retrieveDataPass1_millis", retrieveDataPass1);
 
@@ -3267,11 +3249,6 @@ public class GrouperProvisioningLogic {
   public void retrieveIndividualMissingMemberships() {
     
     if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMemberships()) {
-      return;
-    }
-    
-    //TODO looks correct?
-    if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
       return;
     }
     
