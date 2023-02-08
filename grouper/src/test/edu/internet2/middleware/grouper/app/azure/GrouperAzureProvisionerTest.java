@@ -67,7 +67,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testAddUserNotExistMichiganIncremental"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzure"));
     //realAzureAddUsers();
   }
 
@@ -294,7 +294,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     Set<String> groupMembers = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", azureGroups.keySet().iterator().next().getId());
     
-    assertTrue(groupMembers.size() == 0);
+    assertEquals(0, groupMembers.size());
     
   }
   
@@ -553,6 +553,14 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperSession grouperSession = GrouperSession.startRootSession();
     String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
     
+    AzureProvisionerTestUtils.configureAzureProvisioner(
+        new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(2)
+          .assignRealAzure(true)
+          .assignProvisioningStrategy("michiganAzure")
+          .addExtraConfig("errorHandlingShow", "true")
+          .addExtraConfig("errorHandlingTargetObjectDoesNotExistIsAnError", "false")
+        );
+    
     RegistrySubject.add(grouperSession, "Fred400", "person", "Fred400");
     Subject fred = SubjectFinder.findById("Fred400", true);
     
@@ -577,14 +585,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       GrouperUtil.sleep(10000);
     }
     
-    AzureProvisionerTestUtils.configureAzureProvisioner(
-        new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(2)
-          .assignRealAzure(true)
-          .assignProvisioningStrategy("michiganAzure")
-          .addExtraConfig("errorHandlingShow", "true")
-          .addExtraConfig("errorHandlingTargetObjectDoesNotExistIsAnError", "false")
-        );
-        
     if (!isFull) {
       fullProvision();
       incrementalProvision();
@@ -1142,7 +1142,8 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAll"), 0));
       assertTrue(0 < GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllGroups")));
       assertTrue(0 < GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllEntities")));
-      assertTrue(0 < GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllMemberships")));
+      //TODO looks correct?
+      assertTrue(0 < GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllMembershipsByGroups")));
       
     } finally {
       
