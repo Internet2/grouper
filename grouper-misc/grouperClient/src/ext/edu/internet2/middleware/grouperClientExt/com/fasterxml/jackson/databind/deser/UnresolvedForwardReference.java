@@ -37,24 +37,6 @@ public class UnresolvedForwardReference extends JsonMappingException {
         _unresolvedIds = new ArrayList<UnresolvedId>();
     }
 
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    public UnresolvedForwardReference(String msg, JsonLocation loc, ReadableObjectId roid) {
-        super(msg, loc);
-        _roid = roid;
-    }
-
-    /**
-     * @deprecated Since 2.7
-     */
-    @Deprecated // since 2.7
-    public UnresolvedForwardReference(String msg) {
-        super(msg);
-        _unresolvedIds = new ArrayList<UnresolvedId>();
-    }
-
     /*
     /**********************************************************
     /* Accessor methods

@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.form
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.format.MatchStrength;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.io.*;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.json.*;
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.json.async.NonBlockingByteBufferJsonParser;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.json.async.NonBlockingJsonParser;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer;
@@ -980,7 +981,7 @@ public class JsonFactory
 
     /**
      * Method for associating a {@link ObjectCodec} (typically
-     * a <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
+     * a <code>edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper</code>)
      * with this factory (and more importantly, parsers and generators
      * it constructs). This is needed to use data-binding methods
      * of {@link JsonParser} and {@link JsonGenerator} instances.
@@ -1026,7 +1027,7 @@ public class JsonFactory
     public JsonParser createParser(File f) throws IOException, JsonParseException {
         // true, since we create InputStream from File
         IOContext ctxt = _createContext(_createContentReference(f), true);
-        InputStream in = new FileInputStream(f);
+        InputStream in = _fileInputStream(f);
         return _createParser(_decorate(in, ctxt), ctxt);
     }
 
@@ -1134,6 +1135,7 @@ public class JsonFactory
      */
     @Override
     public JsonParser createParser(byte[] data, int offset, int len) throws IOException, JsonParseException {
+        _checkRangeBoundsForByteArray(data, offset, len);
         IOContext ctxt = _createContext(_createContentReference(data, offset, len), true);
         // [JACKSON-512]: allow wrapping with InputDecorator
         if (_inputDecorator != null) {
@@ -1184,6 +1186,7 @@ public class JsonFactory
      */
     @Override
     public JsonParser createParser(char[] content, int offset, int len) throws IOException {
+        _checkRangeBoundsForCharArray(content, offset, len);
         if (_inputDecorator != null) { // easier to just wrap in a Reader than extend InputDecorator
             return createParser(new CharArrayReader(content, offset, len));
         }
@@ -1239,6 +1242,33 @@ public class JsonFactory
         IOContext ctxt = _createNonBlockingContext(null);
         ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
         return new NonBlockingJsonParser(ctxt, _parserFeatures, can);
+    }
+
+    /**
+     * Optional method for constructing parser for non-blocking parsing
+     * via {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.async.ByteBufferFeeder}
+     * interface (accessed using {@link JsonParser#getNonBlockingInputFeeder()}
+     * from constructed instance).
+     *<p>
+     * If this factory does not support non-blocking parsing (either at all,
+     * or from byte array),
+     * will throw {@link UnsupportedOperationException}.
+     *<p>
+     * Note that JSON-backed factory only supports parsing of UTF-8 encoded JSON content
+     * (and US-ASCII since it is proper subset); other encodings are not supported
+     * at this point.
+     *
+     * @since 2.14
+     */
+    @Override
+    public JsonParser createNonBlockingByteBufferParser() throws IOException
+    {
+        // 17-May-2017, tatu: Need to take care not to accidentally create JSON parser
+        //   for non-JSON input:
+        _requireJSONFactory("Non-blocking source not (yet?) supported for this format (%s)");
+        IOContext ctxt = _createNonBlockingContext(null);
+        ByteQuadsCanonicalizer can = _byteSymbolCanonicalizer.makeChild(_factoryFeatures);
+        return new NonBlockingByteBufferJsonParser(ctxt, _parserFeatures, can);
     }
 
     /*
@@ -1336,7 +1366,7 @@ public class JsonFactory
     @Override
     public JsonGenerator createGenerator(File f, JsonEncoding enc) throws IOException
     {
-        OutputStream out = new FileOutputStream(f);
+        OutputStream out = _fileOutputStream(f);
         // true -> yes, we have to manage the stream since we created it
         IOContext ctxt = _createContext(_createContentReference(out), true);
         ctxt.setEncoding(enc);
@@ -1651,9 +1681,20 @@ public class JsonFactory
      * @since 2.1
      */
     protected JsonParser _createParser(InputStream in, IOContext ctxt) throws IOException {
-        // As per [JACKSON-259], may want to fully disable canonicalization:
-        return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
-                _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+        try {
+            return new ByteSourceJsonBootstrapper(ctxt, in).constructParser(_parserFeatures,
+                    _objectCodec, _byteSymbolCanonicalizer, _rootCharSymbols, _factoryFeatures);
+        } catch (IOException | RuntimeException e) {
+            // 10-Jun-2022, tatu: For [core#763] may need to close InputStream here
+            if (ctxt.isResourceManaged()) {
+                try {
+                    in.close();
+                } catch (Exception e2) {
+                    e.addSuppressed(e2);
+                }
+            }
+            throw e;
+        }
     }
 
     /**

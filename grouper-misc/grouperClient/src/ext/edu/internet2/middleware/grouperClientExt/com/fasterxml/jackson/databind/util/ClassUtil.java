@@ -489,9 +489,8 @@ public final class ClassUtil
     public static void closeOnFailAndThrowAsIOE(JsonGenerator g, Exception fail)
         throws IOException
     {
-        /* 04-Mar-2014, tatu: Let's try to prevent auto-closing of
-         *    structures, which typically causes more damage.
-         */
+        // 04-Mar-2014, tatu: Let's try to prevent auto-closing of
+        //    structures, which typically causes more damage.
         g.disable(JsonGenerator.Feature.AUTO_CLOSE_JSON_CONTENT);
         try {
             g.close();
@@ -1411,7 +1410,7 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
             }
             // If not found, indicate with exception
             throw new IllegalStateException(String.format(
-"No field named '%s' in class '%s'", expectedName, fromClass.getTypeName()));
+"No field named '%s' in class '%s'", expectedName, fromClass.getName()));
         }
     }
 
@@ -1448,7 +1447,7 @@ cls.getName(), rootCause.getClass().getName(), rootCause.getMessage()),
         public int getParamCount() {
             int c = _paramCount;
             if (c < 0) {
-                c = _ctor.getParameterTypes().length;
+                c = _ctor.getParameterCount();
                 _paramCount = c;
             }
             return c;

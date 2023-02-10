@@ -14,7 +14,7 @@ public interface ObjectIdResolver {
      * Method exists so that implementation can keep track of existing object in
      * JSON stream that could be useful for further resolution.
      * 
-     * @param id The Object Identifer
+     * @param id The Object Identifier
      * @param pojo The POJO associated to that Identifier
      */
     void bindItem(IdKey id, Object pojo);
@@ -34,13 +34,13 @@ public interface ObjectIdResolver {
      * objects).
      * <p>
      * Note that actual type of 'context' is
-     * <code>com.fasterxml.jackson.databind.DeserializationContext</code>, but
+     * <code>edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.DeserializationContext</code>, but
      * can not be declared here as type itself (as well as call to this object)
      * comes from databind package.
      * 
      * @param context
      *            Deserialization context object used (of type
-     *            <code>com.fasterxml.jackson.databind.DeserializationContext</code>
+     *            <code>edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.DeserializationContext</code>)
      *            ; may be needed by more complex resolvers to access contextual
      *            information such as configuration.
      */

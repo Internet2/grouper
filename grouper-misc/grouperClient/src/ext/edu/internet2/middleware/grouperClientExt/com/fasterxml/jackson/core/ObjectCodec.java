@@ -17,7 +17,7 @@ import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.type
  * Java objects (POJOs aka Beans).
  *<p>
  * The standard implementation of this class is
- * <code>com.fasterxml.jackson.databind.ObjectMapper</code>,
+ * <code>edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper</code>,
  * defined in the "jackson-databind".
  */
 public abstract class ObjectCodec

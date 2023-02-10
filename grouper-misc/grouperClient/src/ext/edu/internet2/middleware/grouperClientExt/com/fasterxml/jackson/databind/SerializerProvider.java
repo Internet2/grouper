@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.annotatio
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.JsonGenerator;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.ObjectCodec;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.exc.InvalidDefinitionException;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.exc.InvalidTypeIdException;
@@ -356,6 +357,11 @@ public abstract class SerializerProvider
 
     @Override
     public final boolean isEnabled(MapperFeature feature) {
+        return _config.isEnabled(feature);
+    }
+
+    @Override // @since 2.14
+    public final boolean isEnabled(DatatypeFeature feature) {
         return _config.isEnabled(feature);
     }
 

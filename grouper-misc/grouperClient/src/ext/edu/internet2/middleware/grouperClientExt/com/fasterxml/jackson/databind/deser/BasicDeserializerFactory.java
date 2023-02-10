@@ -1784,15 +1784,14 @@ factory.toString()));
 
         // Ok: if there is no explicit type info handler, we may want to
         // use a default. If so, config object knows what to use.
-        Collection<NamedType> subtypes = null;
         if (b == null) {
             b = config.getDefaultTyper(baseType);
             if (b == null) {
                 return null;
             }
-        } else {
-            subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config, ac);
         }
+        final Collection<NamedType> subtypes = config.getSubtypeResolver().collectAndResolveSubtypesByTypeId(config, ac);
+
         // May need to figure out default implementation, if none found yet
         // (note: check for abstract type is not 100% mandatory, more of an optimization)
         if ((b.getDefaultImpl() == null) && baseType.isAbstract()) {
@@ -2125,7 +2124,7 @@ factory.toString()));
         if (deser != null) {
             return deser;
         }
-        return JdkDeserializers.find(rawType, clsName);
+        return JdkDeserializers.find(ctxt, rawType, clsName);
     }
 
     protected JavaType _findRemappedType(DeserializationConfig config, Class<?> rawType) throws JsonMappingException {

@@ -19,7 +19,12 @@ public class WriterBasedJsonGenerator
 {
     protected final static int SHORT_WRITE = 32;
 
-    protected final static char[] HEX_CHARS = CharTypes.copyHexChars();
+    protected final static char[] HEX_CHARS_UPPER = CharTypes.copyHexChars(true);
+    protected final static char[] HEX_CHARS_LOWER = CharTypes.copyHexChars(false);
+
+    private char[] getHexChars() {
+        return _cfgWriteHexUppercase ? HEX_CHARS_UPPER : HEX_CHARS_LOWER;
+    }
 
     /*
     /**********************************************************
@@ -334,6 +339,11 @@ public class WriterBasedJsonGenerator
         }
     }
 
+    @Override // since 2.14
+    public void writeStartObject(Object forValue, int size) throws IOException {
+        writeStartObject(forValue);
+    }
+
     @Override
     public void writeEndObject() throws IOException
     {
@@ -558,8 +568,10 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeRaw(String text, int start, int len) throws IOException
+    public void writeRaw(String text, int offset, int len) throws IOException
     {
+        _checkRangeBoundsForString(text, offset, len);
+
         // Nothing to check, can just output as is
         int room = _outputEnd - _outputTail;
 
@@ -569,10 +581,10 @@ public class WriterBasedJsonGenerator
         }
         // But would it nicely fit in? If yes, it's easy
         if (room >= len) {
-            text.getChars(start, start+len, _outputBuffer, _outputTail);
+            text.getChars(offset, offset+len, _outputBuffer, _outputTail);
             _outputTail += len;
         } else {            	
-            writeRawLong(text.substring(start, start+len));
+            writeRawLong(text.substring(offset, offset+len));
         }
     }
 
@@ -588,21 +600,23 @@ public class WriterBasedJsonGenerator
     }
 
     @Override
-    public void writeRaw(char[] text, int offset, int len) throws IOException
+    public void writeRaw(char[] cbuf, int offset, int len) throws IOException
     {
+        _checkRangeBoundsForCharArray(cbuf, offset, len);
+
         // Only worth buffering if it's a short write?
         if (len < SHORT_WRITE) {
             int room = _outputEnd - _outputTail;
             if (len > room) {
                 _flushBuffer();
             }
-            System.arraycopy(text, offset, _outputBuffer, _outputTail, len);
+            System.arraycopy(cbuf, offset, _outputBuffer, _outputTail, len);
             _outputTail += len;
             return;
         }
         // Otherwise, better just pass through:
         _flushBuffer();
-        _writer.write(text, offset, len);
+        _writer.write(cbuf, offset, len);
     }
 
     @Override
@@ -649,6 +663,8 @@ public class WriterBasedJsonGenerator
     public void writeBinary(Base64Variant b64variant, byte[] data, int offset, int len)
         throws IOException, JsonGenerationException
     {
+        _checkRangeBoundsForByteArray(data, offset, len);
+
         _verifyValueWrite(WRITE_BINARY);
         // Starting quotes
         if (_outputTail >= _outputEnd) {
@@ -796,12 +812,12 @@ public class WriterBasedJsonGenerator
     {
         if (_cfgNumbersAsStrings ||
                 (NumberOutput.notFinite(d) && isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS))) {
-            writeString(String.valueOf(d));
+            writeString(NumberOutput.toString(d, isEnabled(Feature.USE_FAST_DOUBLE_WRITER)));
             return;
         }
         // What is the max length for doubles? 40 chars?
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(String.valueOf(d));
+        writeRaw(NumberOutput.toString(d, isEnabled(Feature.USE_FAST_DOUBLE_WRITER)));
     }
 
     @SuppressWarnings("deprecation")
@@ -810,12 +826,12 @@ public class WriterBasedJsonGenerator
     {
         if (_cfgNumbersAsStrings ||
                 (NumberOutput.notFinite(f) && isEnabled(Feature.QUOTE_NON_NUMERIC_NUMBERS))) {
-            writeString(String.valueOf(f));
+            writeString(NumberOutput.toString(f, isEnabled(Feature.USE_FAST_DOUBLE_WRITER)));
             return;
         }
         // What is the max length for floats?
         _verifyValueWrite(WRITE_NUMBER);
-        writeRaw(String.valueOf(f));
+        writeRaw(NumberOutput.toString(f, isEnabled(Feature.USE_FAST_DOUBLE_WRITER)));
     }
 
     @Override
@@ -976,20 +992,27 @@ public class WriterBasedJsonGenerator
 
         // 05-Dec-2008, tatu: To add [JACKSON-27], need to close open scopes
         // First: let's see that we still have buffers...
-        if (_outputBuffer != null
-            && isEnabled(Feature.AUTO_CLOSE_JSON_CONTENT)) {
-            while (true) {
-                JsonStreamContext ctxt = getOutputContext();
-                if (ctxt.inArray()) {
-                    writeEndArray();
-                } else if (ctxt.inObject()) {
-                    writeEndObject();
-                } else {
-                    break;
+        IOException flushFail = null;
+        try {
+            if ((_outputBuffer != null)
+                && isEnabled(Feature.AUTO_CLOSE_JSON_CONTENT)) {
+                while (true) {
+                    JsonStreamContext ctxt = getOutputContext();
+                    if (ctxt.inArray()) {
+                        writeEndArray();
+                    } else if (ctxt.inObject()) {
+                        writeEndObject();
+                    } else {
+                        break;
+                    }
                 }
             }
+            _flushBuffer();
+        } catch (IOException e) {
+            // 10-Jun-2022, tatu: [core#764] Need to avoid failing here; may
+            //    still need to close the underlying output stream
+            flushFail = e;
         }
-        _flushBuffer();
         _outputHead = 0;
         _outputTail = 0;
 
@@ -1000,15 +1023,26 @@ public class WriterBasedJsonGenerator
          *   may not be properly recycled if we don't close the writer.
          */
         if (_writer != null) {
-            if (_ioContext.isResourceManaged() || isEnabled(Feature.AUTO_CLOSE_TARGET)) {
-                _writer.close();
-            } else  if (isEnabled(Feature.FLUSH_PASSED_TO_STREAM)) {
-                // If we can't close it, we should at least flush
-                _writer.flush();
+            try {
+                if (_ioContext.isResourceManaged() || isEnabled(Feature.AUTO_CLOSE_TARGET)) {
+                    _writer.close();
+                } else  if (isEnabled(Feature.FLUSH_PASSED_TO_STREAM)) {
+                    // If we can't close it, we should at least flush
+                    _writer.flush();
+                }
+            } catch (IOException | RuntimeException e) {
+                if (flushFail != null) {
+                    e.addSuppressed(flushFail);
+                }
+                throw e;
             }
         }
         // Internal buffer(s) generator has can now be released as well
         _releaseBuffers();
+
+        if (flushFail != null) {
+            throw flushFail;
+        }
     }
 
     @Override
@@ -1785,6 +1819,7 @@ public class WriterBasedJsonGenerator
             return;
         }
         if (escCode != CharacterEscapes.ESCAPE_CUSTOM) { // std, \\uXXXX
+            char[] HEX_CHARS = getHexChars();
             if (_outputTail >= 6) { // fits, prepend to buffer
                 char[] buf = _outputBuffer;
                 int ptr = _outputTail - 6;
@@ -1873,6 +1908,7 @@ public class WriterBasedJsonGenerator
             return ptr;
         }
         if (escCode != CharacterEscapes.ESCAPE_CUSTOM) { // std, \\uXXXX
+            char[] HEX_CHARS = getHexChars();
             if (ptr > 5 && ptr < end) { // fits, prepend to buffer
                 ptr -= 6;
                 buffer[ptr++] = '\\';
@@ -1951,6 +1987,7 @@ public class WriterBasedJsonGenerator
             }
             int ptr = _outputTail;
             char[] buf = _outputBuffer;
+            char[] HEX_CHARS = getHexChars();
             buf[ptr++] = '\\';
             buf[ptr++] = 'u';
             // We know it's a control char, so only the last 2 chars are non-0

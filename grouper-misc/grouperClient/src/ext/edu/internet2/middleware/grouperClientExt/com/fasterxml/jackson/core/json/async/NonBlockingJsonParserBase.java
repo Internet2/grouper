@@ -14,6 +14,8 @@ import static edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.co
 
 /**
  * Intermediate base class for non-blocking JSON parsers.
+ *
+ * @since 2.9
  */
 public abstract class NonBlockingJsonParserBase
     extends ParserBase
@@ -98,6 +100,8 @@ public abstract class NonBlockingJsonParserBase
     protected final static int MINOR_VALUE_TOKEN_FALSE = 18;
 
     protected final static int MINOR_VALUE_TOKEN_NON_STD = 19;
+
+    protected final static int MINOR_NUMBER_PLUS = 22;
 
     protected final static int MINOR_NUMBER_MINUS = 23;
     protected final static int MINOR_NUMBER_ZERO = 24; // zero as first, possibly trimming multiple
@@ -839,7 +843,7 @@ public abstract class NonBlockingJsonParserBase
         String tokenStr = NON_STD_TOKENS[type];
         _textBuffer.resetWithString(tokenStr);
         if (!isEnabled(Feature.ALLOW_NON_NUMERIC_NUMBERS)) {
-            _reportError("Non-standard token '%s': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow",
+            _reportError("Non-standard token '%s': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow",
                     tokenStr);
         }
         _intLength = 0;

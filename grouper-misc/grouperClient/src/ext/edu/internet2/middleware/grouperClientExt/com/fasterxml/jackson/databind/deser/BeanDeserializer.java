@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.CoercionAction;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.deser.impl.*;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.deser.impl.ReadableObjectId.Referring;
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.ClassUtil;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.NameTransformer;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.TokenBuffer;
@@ -615,8 +616,8 @@ public class BeanDeserializer
         final boolean unwrap = ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS);
 
         if (unwrap || (act != CoercionAction.Fail)) {
-            JsonToken t = p.nextToken();
-            if (t == JsonToken.END_ARRAY) {
+            JsonToken unwrappedToken = p.nextToken();
+            if (unwrappedToken == JsonToken.END_ARRAY) {
                 switch (act) {
                 case AsEmpty:
                     return getEmptyValue(ctxt);
@@ -628,12 +629,23 @@ public class BeanDeserializer
                 return ctxt.handleUnexpectedToken(getValueType(ctxt), JsonToken.START_ARRAY, p, null);
             }
             if (unwrap) {
+                // 23-Aug-2022, tatu: To prevent unbounded nested arrays, we better
+                //   check there is NOT another START_ARRAY lurking there..
+                if (unwrappedToken == JsonToken.START_ARRAY) {
+                    JavaType targetType = getValueType(ctxt);
+                    return ctxt.handleUnexpectedToken(targetType, JsonToken.START_ARRAY, p,
+"Cannot deserialize value of type %s from deeply-nested Array: only single wrapper allowed with `%s`",
+                            ClassUtil.getTypeDescription(targetType),
+                                    "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
+                }
                 final Object value = deserialize(p, ctxt);
                 if (p.nextToken() != JsonToken.END_ARRAY) {
                     handleMissingEndArrayForSingle(p, ctxt);
                 }
                 return value;
             }
+            // 15-Nov-2022, tatu: ... we probably should pass original `JsonToken.START_ARRAY`
+            //     as unexpected token, since `p` now points to `unwrappedToken` instead...
         }
         return ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }

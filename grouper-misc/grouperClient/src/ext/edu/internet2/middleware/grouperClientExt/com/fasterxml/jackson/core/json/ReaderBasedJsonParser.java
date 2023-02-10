@@ -211,7 +211,7 @@ public class ReaderBasedJsonParser
     protected char getNextChar(String eofMsg) throws IOException {
         return getNextChar(eofMsg, null);
     }
-    
+
     protected char getNextChar(String eofMsg, JsonToken forToken) throws IOException {
         if (_inputPtr >= _inputEnd) {
             if (!_loadMore()) {
@@ -777,14 +777,17 @@ public class ReaderBasedJsonParser
             break;
 
         case '-':
-            /* Should we have separate handling for plus? Although
-             * it is not allowed per se, it may be erroneously used,
-             * and could be indicate by a more specific error message.
-             */
-            t = _parseNegNumber();
+            t = _parseSignedNumber(true);
+            break;
+        case '+':
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                t = _parseSignedNumber(false);
+            } else {
+                t = _handleOddValue(i);
+            }
             break;
         case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod();
+            t = _parseFloatThatStartsWithPeriod(false);
             break;
         case '0':
         case '1':
@@ -796,7 +799,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         default:
             t = _handleOddValue(i);
@@ -977,10 +980,17 @@ public class ReaderBasedJsonParser
 
         switch (i) {
         case '-':
-            t = _parseNegNumber();
+            t = _parseSignedNumber(true);
+            break;
+        case '+':
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                t = _parseSignedNumber(false);
+            } else {
+                t = _handleOddValue(i);
+            }
             break;
         case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod();
+            t = _parseFloatThatStartsWithPeriod(false);
             break;
         case '0':
         case '1':
@@ -992,7 +1002,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         case 'f':
             _matchFalse();
@@ -1049,10 +1059,17 @@ public class ReaderBasedJsonParser
             _nextToken = JsonToken.VALUE_NULL;
             return;
         case '-':
-            _nextToken = _parseNegNumber();
+            _nextToken = _parseSignedNumber(true);
+            return;
+        case '+':
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                _nextToken = _parseSignedNumber(false);
+            } else {
+                _nextToken = _handleOddValue(i);
+            }
             return;
         case '.': // [core#61]]
-            _nextToken = _parseFloatThatStartsWithPeriod();
+            _nextToken = _parseFloatThatStartsWithPeriod(false);
             return;
         case '0':
         case '1':
@@ -1064,7 +1081,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            _nextToken = _parsePosNumber(i);
+            _nextToken = _parseUnsignedNumber(i);
             return;
         }
         _nextToken = _handleOddValue(i);
@@ -1087,10 +1104,17 @@ public class ReaderBasedJsonParser
         JsonToken t;
         switch (i) {
         case '-':
-            t = _parseNegNumber();
+            t = _parseSignedNumber(true);
             break;
-        case '.': // [core#61]]
-            t = _parseFloatThatStartsWithPeriod();
+        case '+':
+            if (isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature())) {
+                t = _parseSignedNumber(false);
+            } else {
+                t = _handleOddValue(i);
+            }
+            break;
+        case '.': // [core#61]
+            t = _parseFloatThatStartsWithPeriod(false);
             break;
         case '0':
         case '1':
@@ -1102,7 +1126,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            t = _parsePosNumber(i);
+            t = _parseUnsignedNumber(i);
             break;
         case 'f':
             _matchFalse();
@@ -1153,13 +1177,13 @@ public class ReaderBasedJsonParser
             _matchToken("null", 1);
             return (_currToken = JsonToken.VALUE_NULL);
         case '-':
-            return (_currToken = _parseNegNumber());
+            return (_currToken = _parseSignedNumber(true));
             /* Should we have separate handling for plus? Although
              * it is not allowed per se, it may be erroneously used,
              * and could be indicated by a more specific error message.
              */
         case '.': // [core#61]]
-            return (_currToken = _parseFloatThatStartsWithPeriod());
+            return (_currToken = _parseFloatThatStartsWithPeriod(false));
         case '0':
         case '1':
         case '2':
@@ -1170,7 +1194,7 @@ public class ReaderBasedJsonParser
         case '7':
         case '8':
         case '9':
-            return (_currToken = _parsePosNumber(i));
+            return (_currToken = _parseUnsignedNumber(i));
         /*
          * This check proceeds only if the Feature.ALLOW_MISSING_VALUES is enabled
          * The Check is for missing values. In case of missing values in an array, the next token will be either ',' or ']'.
@@ -1301,14 +1325,29 @@ public class ReaderBasedJsonParser
     /**********************************************************
      */
 
-    // @since 2.11, [core#611]
-    protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException
+    @Deprecated // since 2.14
+    protected final JsonToken _parseFloatThatStartsWithPeriod() throws IOException {
+        return _parseFloatThatStartsWithPeriod(false);
+    }
+
+    protected final JsonToken _parseFloatThatStartsWithPeriod(final boolean neg)
+        throws IOException
     {
         // [core#611]: allow optionally leading decimal point
         if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
             return _handleOddValue('.');
         }
-        return _parseFloat(INT_PERIOD, _inputPtr-1, _inputPtr, false, 0);
+        // 26-Jun-2022, tatu: At this point it is assumed that the whole input is
+        //    within input buffer so we can "rewind" not just one but two characters
+        //    (leading sign, period) within same buffer. Caller must ensure this is
+        //    the case.
+        //    Little bit suspicious of code paths that would go to "_parseNumber2(...)"
+        // 27-Jun-2022, tatu: [core#784] would add plus here too but not yet
+        int startPtr = _inputPtr - 1;
+        if (neg) {
+            --startPtr;
+        }
+        return _parseFloat(INT_PERIOD, startPtr, _inputPtr, neg, 0);
     }
 
     /**
@@ -1334,7 +1373,7 @@ public class ReaderBasedJsonParser
      * @throws IOException for low-level read issues, or
      *   {@link JsonParseException} for decoding problems
      */
-    protected final JsonToken _parsePosNumber(int ch) throws IOException
+    protected final JsonToken _parseUnsignedNumber(int ch) throws IOException
     {
         /* Although we will always be complete with respect to textual
          * representation (that is, all characters will be parsed),
@@ -1408,7 +1447,9 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (fractLen == 0) {
-                reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                    _reportUnexpectedNumberChar(ch, "Decimal point not followed by a digit");
+                }
             }
         }
         int expLen = 0;
@@ -1436,7 +1477,7 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (expLen == 0) {
-                reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
+                _reportUnexpectedNumberChar(ch, "Exponent indicator not followed by a digit");
             }
         }
         --ptr; // need to push back following separator
@@ -1451,32 +1492,37 @@ public class ReaderBasedJsonParser
         return resetFloat(neg, intLen, fractLen, expLen);
     }
 
-    protected final JsonToken _parseNegNumber() throws IOException
+    private final JsonToken _parseSignedNumber(final boolean negative) throws IOException
     {
         int ptr = _inputPtr;
-        int startPtr = ptr-1; // to include sign/digit already read
-        final int inputLen = _inputEnd;
+        // 26-Jun-2022, tatu: We always have a sign; positive should be allowed as deviation
+        //      But unfortunately that won't yet work
+        int startPtr = negative ? ptr-1 : ptr; // to include sign/digit already read
+        final int inputEnd = _inputEnd;
 
-        if (ptr >= inputLen) {
-            return _parseNumber2(true, startPtr);
+        if (ptr >= inputEnd) {
+            return _parseNumber2(negative, startPtr);
         }
         int ch = _inputBuffer[ptr++];
         // First check: must have a digit to follow minus sign
         if (ch > INT_9 || ch < INT_0) {
             _inputPtr = ptr;
-            return _handleInvalidNumberStart(ch, true);
+            if (ch == INT_PERIOD) {
+                return _parseFloatThatStartsWithPeriod(negative);
+            }
+            return _handleInvalidNumberStart(ch, negative, true);
         }
         // One special case, leading zero(es):
         if (ch == INT_0) {
-            return _parseNumber2(true, startPtr);
+            return _parseNumber2(negative, startPtr);
         }
         int intLen = 1; // already got one
 
         // First let's get the obligatory integer part:
         int_loop:
         while (true) {
-            if (ptr >= inputLen) {
-                return _parseNumber2(true, startPtr);
+            if (ptr >= inputEnd) {
+                return _parseNumber2(negative, startPtr);
             }
             ch = (int) _inputBuffer[ptr++];
             if (ch < INT_0 || ch > INT_9) {
@@ -1487,7 +1533,7 @@ public class ReaderBasedJsonParser
 
         if (ch == INT_PERIOD || ch == INT_e || ch == INT_E) {
             _inputPtr = ptr;
-            return _parseFloat(ch, startPtr, ptr, true, intLen);
+            return _parseFloat(ch, startPtr, ptr, negative, intLen);
         }
         --ptr;
         _inputPtr = ptr;
@@ -1496,7 +1542,7 @@ public class ReaderBasedJsonParser
         }
         int len = ptr-startPtr;
         _textBuffer.resetWithShared(_inputBuffer, startPtr, len);
-        return resetInt(true, intLen);
+        return resetInt(negative, intLen);
     }
 
     /**
@@ -1530,6 +1576,7 @@ public class ReaderBasedJsonParser
         int intLen = 0;
         char c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
                 : getNextChar("No digit following minus sign", JsonToken.VALUE_NUMBER_INT);
+        
         if (c == '0') {
             c = _verifyNoLeadingZeroes();
         }
@@ -1554,12 +1601,16 @@ public class ReaderBasedJsonParser
         }
         // Also, integer part is not optional
         if (intLen == 0) {
-            return _handleInvalidNumberStart(c, neg);
+            // [core#611]: allow optionally leading decimal point
+            if (!isEnabled(JsonReadFeature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                return _handleInvalidNumberStart(c, neg);
+            }
         }
 
-        int fractLen = 0;
+        int fractLen = -1;
         // And then see if we get other parts
         if (c == '.') { // yes, fraction
+            fractLen = 0;
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
@@ -1585,12 +1636,15 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (fractLen == 0) {
-                reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
+                if (!isEnabled(JsonReadFeature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS.mappedFeature())) {
+                    _reportUnexpectedNumberChar(c, "Decimal point not followed by a digit");
+                }
             }
         }
 
-        int expLen = 0;
+        int expLen = -1;
         if (c == 'e' || c == 'E') { // exponent?
+            expLen = 0;
             if (outPtr >= outBuf.length) {
                 outBuf = _textBuffer.finishCurrentSegment();
                 outPtr = 0;
@@ -1598,7 +1652,7 @@ public class ReaderBasedJsonParser
             outBuf[outPtr++] = c;
             // Not optional, can require that we get one more char
             c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
-                : getNextChar("expected a digit for number exponent");
+                : getNextChar("expected a digit for number exponent", JsonToken.VALUE_NUMBER_FLOAT);
             // Sign indicator?
             if (c == '-' || c == '+') {
                 if (outPtr >= outBuf.length) {
@@ -1608,7 +1662,7 @@ public class ReaderBasedJsonParser
                 outBuf[outPtr++] = c;
                 // Likewise, non optional:
                 c = (_inputPtr < _inputEnd) ? _inputBuffer[_inputPtr++]
-                    : getNextChar("expected a digit for number exponent");
+                    : getNextChar("expected a digit for number exponent", JsonToken.VALUE_NUMBER_FLOAT);
             }
 
             exp_loop:
@@ -1627,7 +1681,7 @@ public class ReaderBasedJsonParser
             }
             // must be followed by sequence of ints, one minimum
             if (expLen == 0) {
-                reportUnexpectedNumberChar(c, "Exponent indicator not followed by a digit");
+                _reportUnexpectedNumberChar(c, "Exponent indicator not followed by a digit");
             }
         }
 
@@ -1639,8 +1693,14 @@ public class ReaderBasedJsonParser
             }
         }
         _textBuffer.setCurrentLength(outPtr);
+
         // And there we have it!
-        return reset(neg, intLen, fractLen, expLen);
+        // 26-Jun-2022, tatu: Careful here, as non-standard numbers can
+        //    cause surprises - cannot use plain "reset()" but apply diff logic
+        if (fractLen < 0 && expLen < 0) { // integer
+            return resetInt(neg, intLen);
+        }
+        return resetFloat(neg, intLen, fractLen, expLen);
     }
 
     // Method called when we have seen one zero, and want to ensure
@@ -1692,6 +1752,11 @@ public class ReaderBasedJsonParser
     // look like a number
     protected JsonToken _handleInvalidNumberStart(int ch, boolean negative) throws IOException
     {
+        return _handleInvalidNumberStart(ch, negative, false);
+    }
+
+    protected JsonToken _handleInvalidNumberStart(int ch, final boolean negative, final boolean hasSign) throws IOException
+    {
         if (ch == 'I') {
             if (_inputPtr >= _inputEnd) {
                 if (!_loadMore()) {
@@ -1705,17 +1770,23 @@ public class ReaderBasedJsonParser
                 if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                     return resetAsNaN(match, negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
                 }
-                _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+                _reportError("Non-standard token '"+match+"': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
             } else if (ch == 'n') {
                 String match = negative ? "-Infinity" :"+Infinity";
                 _matchToken(match, 3);
                 if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                     return resetAsNaN(match, negative ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY);
                 }
-                _reportError("Non-standard token '"+match+"': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+                _reportError("Non-standard token '"+match+"': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
             }
         }
-        reportUnexpectedNumberChar(ch, "expected digit (0-9) to follow minus sign, for valid numeric value");
+        if (!isEnabled(JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS.mappedFeature()) && hasSign && !negative) {
+            _reportUnexpectedNumberChar('+', "JSON spec does not allow numbers to have plus signs: enable `JsonReadFeature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS` to allow");
+        }
+        final String message = negative ?
+                "expected digit (0-9) to follow minus sign, for valid numeric value" :
+                "expected digit (0-9) for valid numeric value";
+        _reportUnexpectedNumberChar(ch, message);
         return null;
     }
 
@@ -1740,7 +1811,13 @@ public class ReaderBasedJsonParser
         case '\t':
             return;
         case '\r':
-            _skipCR();
+            // 29-Oct-2022, tatu: [core#834] requires change here, we MUST NOT
+            //    force a read. As such let's simply push back the \r without
+            //    further ado; it is enough to know there is valid WS separating
+            //  NOTE: may need to revisit handling of plain \n to keep Location
+            //    info more uniform. But has to do for now.
+            // _skipCR();
+            --_inputPtr;
             return;
         case '\n':
             ++_currInputRow;
@@ -1980,14 +2057,14 @@ public class ReaderBasedJsonParser
             if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                 return resetAsNaN("NaN", Double.NaN);
             }
-            _reportError("Non-standard token 'NaN': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+            _reportError("Non-standard token 'NaN': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
             break;
         case 'I':
             _matchToken("Infinity", 1);
             if ((_features & FEAT_MASK_NON_NUM_NUMBERS) != 0) {
                 return resetAsNaN("Infinity", Double.POSITIVE_INFINITY);
             }
-            _reportError("Non-standard token 'Infinity': enable JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS to allow");
+            _reportError("Non-standard token 'Infinity': enable `JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS` to allow");
             break;
         case '+': // note: '-' is taken as number
             if (_inputPtr >= _inputEnd) {
@@ -1995,7 +2072,7 @@ public class ReaderBasedJsonParser
                     _reportInvalidEOFInValue(JsonToken.VALUE_NUMBER_INT);
                 }
             }
-            return _handleInvalidNumberStart(_inputBuffer[_inputPtr++], false);
+            return _handleInvalidNumberStart(_inputBuffer[_inputPtr++], false, true);
         }
         // [core#77] Try to decode most likely token
         if (Character.isJavaIdentifierStart(i)) {

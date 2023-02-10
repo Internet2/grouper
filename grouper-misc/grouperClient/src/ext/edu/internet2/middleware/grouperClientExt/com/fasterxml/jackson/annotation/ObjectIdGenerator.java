@@ -35,7 +35,7 @@ public abstract class ObjectIdGenerator<T>
      * Accessor that needs to be overridden to return <code>true</code>
      * if the Object Id may be serialized as JSON Object; used by, for example,
      * JSOG handling.
-     * The reason accessor is needed is because handling such Object Ids is
+     * The reason accessor is needed is that handling such Object Ids is
      * more complex and may incur additional buffering or performance overhead,
      * avoiding of which makes sense for common case of scalar object ids
      * (or native object ids some formats support).
@@ -82,12 +82,12 @@ public abstract class ObjectIdGenerator<T>
      * (next id to produce).
      *<p>
      * Note that actual type of 'context' is
-     * <code>com.fasterxml.jackson.databind.SerializerProvider</code>,
+     * <code>edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.SerializerProvider</code>,
      * but can not be declared here as type itself (as well as call
      * to this object) comes from databind package.
      * 
      * @param context Serialization context object used (of type
-     *    <code>com.fasterxml.jackson.databind.SerializerProvider</code>;
+     *    <code>edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.SerializerProvider</code>);
      *    may be needed by more complex generators to access contextual
      *    information such as configuration.
      */
