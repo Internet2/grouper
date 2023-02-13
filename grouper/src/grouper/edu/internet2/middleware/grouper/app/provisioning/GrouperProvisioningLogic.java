@@ -239,6 +239,7 @@ public class GrouperProvisioningLogic {
 
 =======
     
+<<<<<<< GROUPER_5_BRANCH
     
     {
       debugMap.put("state", "retrieveIndividualMissingMemberships");
@@ -253,6 +254,8 @@ public class GrouperProvisioningLogic {
     
     
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+>>>>>>> bf20834 Provisioning related changes - index
     {
   
       debugMap.put("state", "translateGrouperMembershipsToTarget");
@@ -288,6 +291,7 @@ public class GrouperProvisioningLogic {
     
     if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+<<<<<<< GROUPER_5_BRANCH
         if (provisioningMembershipWrapper.getProvisioningGroupWrapper() != null) {
           provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
         }
@@ -300,6 +304,20 @@ public class GrouperProvisioningLogic {
       
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
         provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+=======
+        provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
+      }
+    }
+    
+    {
+      debugMap.put("state", "retrieveIndividualMissingMemberships");
+      this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualMissingMemberships(); 
+      
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+        if (provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+        }
+>>>>>>> bf20834 Provisioning related changes - index
       }
     }
 
@@ -3533,6 +3551,7 @@ public class GrouperProvisioningLogic {
       List<ProvisioningGroup> groupsToRetrieve = new ArrayList<ProvisioningGroup>();
       for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
         
         if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMembershipResultProcessed()) {
           continue;
@@ -3597,10 +3616,17 @@ public class GrouperProvisioningLogic {
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships(membershipsRetrieved);
 
 =======
+=======
+        
+>>>>>>> bf20834 Provisioning related changes - index
         if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMembershipResultProcessed()) {
           continue;
         }
         provisioningGroupWrapper.getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
+        
+        if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+          continue;
+        }
         groupsToRetrieve.add(provisioningGroupWrapper.getTargetProvisioningGroup());
       }
       this.grouperProvisioner.getDebugMap().put("missingGroupsForMembershipsRetrieve", GrouperUtil.length(groupsToRetrieve));
@@ -3620,6 +3646,11 @@ public class GrouperProvisioningLogic {
           continue;
         }
         provisioningEntityWrapper.getProvisioningStateEntity().setSelectAllMembershipResultProcessed(true);
+        
+        if (provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+          continue;
+        }
+        
         entitiesToRetrieve.add(provisioningEntityWrapper.getTargetProvisioningEntity());
       }
       this.grouperProvisioner.getDebugMap().put("missingEntitiesForMembershipsRetrieve", GrouperUtil.length(entitiesToRetrieve));
@@ -3640,10 +3671,20 @@ public class GrouperProvisioningLogic {
     }
     
     this.grouperProvisioner.getDebugMap().put("missingMembershipsForRetrieveFound", GrouperUtil.length(membershipsRetrieved));
+    
+    if (GrouperUtil.length(membershipsRetrieved) == 0) {
+      return;
+    }
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().processTargetDataMemberships(membershipsRetrieved);
     
+<<<<<<< GROUPER_5_BRANCH
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+    // index the memberships
+    this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships(membershipsRetrieved);
+
+>>>>>>> bf20834 Provisioning related changes - index
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualMissingMemberships, membershipsRetrieved);
 
   }
