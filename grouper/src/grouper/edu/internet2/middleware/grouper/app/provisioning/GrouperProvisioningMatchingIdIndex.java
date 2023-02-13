@@ -334,6 +334,65 @@ public class GrouperProvisioningMatchingIdIndex {
    */
   public void indexMatchingIdMemberships(List<ProvisioningMembership> useTheseTargetProvisioningMemberships) {
   
+    /**
+     * 
+     *  4 membership wrappers 
+     *    2 have grouper and target side and matching ids are populated
+     *    2 have only the target side and matching ids
+     *    
+     *    the matching ids can be more than one plain object. It can be a set - Set(String(uuid), MultiKey(groupId, entityId))
+     *  
+     *    loop through membership wrappers and find ones that have grouper side and target side
+     *    // for each one of them, get their matching id value objects ProvisioningUpdatableAttributeAndValue
+     *    // and for each one add them to the set
+     *    // e.g. you can have 1 or more ProvisioningUpdatableAttributeAndValue objects per wrapper 
+     *      Set<ProvisioningUpdatableAttributeAndValue> 
+     *      
+     *    //  membershipWrappers.iterator use this to iterate and when we find a wrapper that has only the target side
+     *    // look through their matching ids and if even one of them matches with the items in the set above, toss it out
+     *    
+     *     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup()) {
+        iterator.remove();
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
+        filterNonRecalcActionsCapturedByRecalc++;
+      }
+     * 
+     */
+    
+    Set<ProvisioningUpdatableAttributeAndValue> matchingIds = new HashSet<>();
+    
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
+        GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()))) {
+      
+      
+      if (provisioningMembershipWrapper.getGrouperProvisioningMembership() != null 
+          && provisioningMembershipWrapper.getTargetProvisioningMembership() != null) {
+        
+        ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
+        
+        matchingIds.addAll(GrouperUtil.nonNull(targetProvisioningMembership.getMatchingIdAttributeNameToValues()));
+        
+      }
+      
+    }
+    
+    Iterator<ProvisioningMembershipWrapper> membershipWrappersIterator = this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().iterator();
+    
+    while (membershipWrappersIterator.hasNext()) {
+      
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = membershipWrappersIterator.next();
+      if (provisioningMembershipWrapper.getTargetProvisioningMembership() != null 
+          && provisioningMembershipWrapper.getGrouperTargetMembership() == null) {
+        
+        for (ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue : GrouperUtil.nonNull(provisioningMembershipWrapper.getTargetProvisioningMembership().getMatchingIdAttributeNameToValues())) {
+          if (matchingIds.contains(provisioningUpdatableAttributeAndValue)) {
+            membershipWrappersIterator.remove();
+          }
+        }
+        
+      }
+    }
+    
     Map<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningMembership>> membershipMatchingIdToTargetProvisioningMembershipWrapper = new HashMap<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningMembership>>();
     
     if (useTheseTargetProvisioningMemberships == null) {
