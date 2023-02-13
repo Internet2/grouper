@@ -2685,6 +2685,22 @@ public abstract class GrouperProvisioningConfiguration {
     
     this.customizeGroupCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeGroupCrud", false), false);
     
+    if (!this.operateOnGrouperGroups) {
+      this.insertGroups = false;
+      
+      this.deleteGroups = false;
+  
+      this.updateGroups = false;
+  
+      this.selectGroups = false;
+  
+      this.deleteGroupsIfNotExistInGrouper = false;
+  
+      this.deleteGroupsIfGrouperDeleted = false;
+  
+      this.deleteGroupsIfGrouperCreated = false;
+    }
+    
     if (this.customizeGroupCrud) {
 
       this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), true);
@@ -2701,6 +2717,22 @@ public abstract class GrouperProvisioningConfiguration {
 
       this.deleteGroupsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperCreated", false), 
           (deleteGroups && !this.deleteGroupsIfNotExistInGrouper && !this.deleteGroupsIfGrouperDeleted));
+    }
+
+    
+    if (!this.operateOnGrouperMemberships) {
+      this.insertMemberships = false;
+      
+      this.deleteMemberships = false;
+  
+      this.selectMemberships = false;
+  
+      this.deleteMembershipsIfNotExistInGrouper = false;
+  
+      this.deleteMembershipsIfGrouperDeleted = false;
+  
+      this.deleteMembershipsIfGrouperCreated = false;
+      
     }
 
     
@@ -2760,6 +2792,23 @@ public abstract class GrouperProvisioningConfiguration {
 
     this.customizeEntityCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeEntityCrud", false), false);
   
+    if (!this.operateOnGrouperEntities) {
+      this.insertEntities = false;
+      
+      this.deleteEntities = false;
+  
+      this.updateEntities = false;
+  
+      this.selectEntities = false;
+  
+      this.deleteEntitiesIfNotExistInGrouper = false;
+  
+      this.deleteEntitiesIfGrouperDeleted = false;
+  
+      this.deleteEntitiesIfGrouperCreated = false;
+      
+    }
+    
     if (this.customizeEntityCrud) {
       this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), this.insertEntities);
       
@@ -2777,8 +2826,8 @@ public abstract class GrouperProvisioningConfiguration {
           (this.makeChangesToEntities && deleteEntities && !this.deleteEntitiesIfNotExistInGrouper && !this.deleteEntitiesIfGrouperDeleted));
           
     }
-    this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
-    this.selectAllGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllGroups", false), true);
+    this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), this.operateOnGrouperEntities);
+    this.selectAllGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllGroups", false), this.operateOnGrouperGroups);
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
     

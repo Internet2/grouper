@@ -1401,12 +1401,15 @@ public class GrouperProvisioningLogic {
     // first lets see if we should even be doing this
     if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertGroups(), false)) {
 
-      // entity not there
-      for (ProvisioningGroup missingGroup : missingGroups) {
-        if (missingGroup.getProvisioningGroupWrapper() != null) {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignGroupError(
-              missingGroup.getProvisioningGroupWrapper(), GcGrouperSyncErrorCode.DNE, 
-              "Group does not exist in target or cannot be found, and not creating groups");
+      // TODO maybe this should be moved somewhere else, where things are validated, if we are not inserting, then why mark as errors?
+      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
+        // entity not there
+        for (ProvisioningGroup missingGroup : missingGroups) {
+          if (missingGroup.getProvisioningGroupWrapper() != null) {
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignGroupError(
+                missingGroup.getProvisioningGroupWrapper(), GcGrouperSyncErrorCode.DNE, 
+                "Group does not exist in target or cannot be found, and not creating groups");
+          }
         }
       }
       return;
@@ -1709,12 +1712,15 @@ public class GrouperProvisioningLogic {
     // first lets see if we should even be doing this
     if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertEntities(), false)) {
 
-      // entity not there
-      for (ProvisioningEntity missingEntity : missingEntities) {
-        if (missingEntity.getProvisioningEntityWrapper() != null) {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignEntityError(
-              missingEntity.getProvisioningEntityWrapper(), GcGrouperSyncErrorCode.DNE, 
-              "Entity does not exist in target or cannot be found, and not creating entities");
+      // TODO maybe this should be moved somewhere else, where things are validated, if we are not inserting, then why mark as errors?
+      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectEntities()) {
+        // entity not there
+        for (ProvisioningEntity missingEntity : missingEntities) {
+          if (missingEntity.getProvisioningEntityWrapper() != null) {
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignEntityError(
+                missingEntity.getProvisioningEntityWrapper(), GcGrouperSyncErrorCode.DNE, 
+                "Entity does not exist in target or cannot be found, and not creating entities");
+          }
         }
       }
       return;

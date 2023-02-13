@@ -61,6 +61,13 @@ public class GrouperProvisioningTranslator {
   public List<ProvisioningMembership> translateGrouperToTargetMemberships(
       List<ProvisioningMembership> grouperProvisioningMemberships, boolean includeDelete) {
     
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertMemberships()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMemberships()
+        ) {
+      return null;
+    }
+
     Collection<Object> changedMemberships = new HashSet<Object>();
 
     int invalidMembershipsDuringTranslation = 0;
@@ -348,6 +355,13 @@ public class GrouperProvisioningTranslator {
   public List<ProvisioningEntity> translateGrouperToTargetEntities(
       List<ProvisioningEntity> grouperProvisioningEntities, boolean includeDelete, boolean forCreate) {
     
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertEntities()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateEntities()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntities()) {
+      return null;
+    }
+
     Collection<Object> changedEntities = new HashSet<Object>();
     List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
 
@@ -511,6 +525,14 @@ public class GrouperProvisioningTranslator {
 
   public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups, boolean includeDelete, boolean forCreate) {
 
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertGroups()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateGroups()
+        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteGroups()) {
+      return null;
+    }
+    
     Collection<Object> changedEntities = new HashSet<Object>();
 
     List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(

@@ -679,7 +679,12 @@ public class GrouperProvisioningGrouperSyncDao {
           }
           
         }
-        
+        if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+          gcGrouperSyncGroup.setLastGroupMetadataSync(new Timestamp(
+              this.getGrouperProvisioner().retrieveGrouperProvisioningLogic()
+                  .getRetrieveDataStartMillisSince1970()));
+        }
+
         if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
           GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
           gcGrouperSync.setGroupCount(GrouperUtil.intValue(gcGrouperSync.getGroupCount(), 0) + 1);
@@ -1062,6 +1067,12 @@ public class GrouperProvisioningGrouperSyncDao {
 
           }
         }
+        if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+          gcGrouperSyncGroup.setLastGroupMetadataSync(new Timestamp(
+              this.getGrouperProvisioner().retrieveGrouperProvisioningLogic()
+                  .getRetrieveDataStartMillisSince1970()));
+        }
+
       } else {
         
         if (GrouperProvisioningBehaviorMembershipType.groupAttributes == this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
@@ -1324,6 +1335,11 @@ public class GrouperProvisioningGrouperSyncDao {
                 }
               }
             }
+          }
+          if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+            gcGrouperSyncGroup.setLastGroupMetadataSync(new Timestamp(
+                this.getGrouperProvisioner().retrieveGrouperProvisioningLogic()
+                    .getRetrieveDataStartMillisSince1970()));
           }
           
           if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
