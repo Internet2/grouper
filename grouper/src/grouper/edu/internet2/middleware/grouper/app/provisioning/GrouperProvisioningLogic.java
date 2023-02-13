@@ -1608,6 +1608,7 @@ public class GrouperProvisioningLogic {
     if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertGroups(), false)) {
 
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       // TODO maybe this should be moved somewhere else, where things are validated, if we are not inserting, then why mark as errors?
       if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
         // entity not there
@@ -1625,6 +1626,17 @@ public class GrouperProvisioningLogic {
               missingGroup.getProvisioningGroupWrapper(), GcGrouperSyncErrorCode.DNE, 
               "Group does not exist in target or cannot be found, and not creating groups");
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+      // TODO maybe this should be moved somewhere else, where things are validated, if we are not inserting, then why mark as errors?
+      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
+        // entity not there
+        for (ProvisioningGroup missingGroup : missingGroups) {
+          if (missingGroup.getProvisioningGroupWrapper() != null) {
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignGroupError(
+                missingGroup.getProvisioningGroupWrapper(), GcGrouperSyncErrorCode.DNE, 
+                "Group does not exist in target or cannot be found, and not creating groups");
+          }
+>>>>>>> aea4f73 fix simpleLdap unit test
         }
       }
       return;
@@ -1928,6 +1940,7 @@ public class GrouperProvisioningLogic {
     if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertEntities(), false)) {
 
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       // TODO maybe this should be moved somewhere else, where things are validated, if we are not inserting, then why mark as errors?
       if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectEntities()) {
         // entity not there
@@ -1945,6 +1958,17 @@ public class GrouperProvisioningLogic {
               missingEntity.getProvisioningEntityWrapper(), GcGrouperSyncErrorCode.DNE, 
               "Entity does not exist in target or cannot be found, and not creating entities");
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+      // TODO maybe this should be moved somewhere else, where things are validated, if we are not inserting, then why mark as errors?
+      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectEntities()) {
+        // entity not there
+        for (ProvisioningEntity missingEntity : missingEntities) {
+          if (missingEntity.getProvisioningEntityWrapper() != null) {
+            this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignEntityError(
+                missingEntity.getProvisioningEntityWrapper(), GcGrouperSyncErrorCode.DNE, 
+                "Entity does not exist in target or cannot be found, and not creating entities");
+          }
+>>>>>>> aea4f73 fix simpleLdap unit test
         }
       }
       return;
