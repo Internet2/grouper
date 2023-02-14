@@ -1427,7 +1427,7 @@ public class GrouperProvisioningGrouperSyncDao {
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil
         .nonNull(values)) {
       
-      if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelect()) {
+      if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
         continue;
       }
       
@@ -1469,7 +1469,7 @@ public class GrouperProvisioningGrouperSyncDao {
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil
         .nonNull(values)) {
       
-      if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelect()) {
+      if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
         continue;
       }
       
@@ -1622,7 +1622,7 @@ public class GrouperProvisioningGrouperSyncDao {
           for (ProvisioningMembershipWrapper provisioningMembershipWrapper : syncGroupIdSyncMemberIdToMembershipWrappersProcessed
               .values()) {
             
-            if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
+            if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
               continue;
             }
             
