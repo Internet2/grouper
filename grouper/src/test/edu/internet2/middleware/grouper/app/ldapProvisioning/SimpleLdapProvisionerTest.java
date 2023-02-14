@@ -68,7 +68,11 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    */
   public static void main(String[] args) {
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLatestConfig_1"));    
+=======
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullOverrideDn"));    
+>>>>>>> 1159d64 fix ldap provisioning test
 =======
     TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullOverrideDn"));    
 >>>>>>> 1159d64 fix ldap provisioning test
