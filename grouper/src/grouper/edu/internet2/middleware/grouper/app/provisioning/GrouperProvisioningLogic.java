@@ -447,6 +447,7 @@ public class GrouperProvisioningLogic {
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
     
@@ -461,7 +462,18 @@ public class GrouperProvisioningLogic {
       provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
       provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
 >>>>>>> 1159d64 fix ldap provisioning test
+=======
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
+    
+      // everything in a full sync is a recalc if it can be
+      for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+      }
+>>>>>>> 4572c59 fix ldap tests
     }
+<<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities()) {
@@ -474,7 +486,16 @@ public class GrouperProvisioningLogic {
       provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
       provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
 >>>>>>> 1159d64 fix ldap provisioning test
+=======
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities()) {
+      for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+      }
+>>>>>>> 4572c59 fix ldap tests
     }
+<<<<<<< GROUPER_5_BRANCH
   }
 
   public void retrieveFullIndividualTargetGroupsAndEntities() {
@@ -501,6 +522,8 @@ public class GrouperProvisioningLogic {
         provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
       }
     }
+=======
+>>>>>>> 4572c59 fix ldap tests
   }
 
   public void retrieveFullIndividualTargetData() {
