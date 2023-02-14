@@ -1560,6 +1560,7 @@ public class GrouperProvisioningGrouperSyncDao {
       
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
 =======
       if (!provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
@@ -1567,6 +1568,9 @@ public class GrouperProvisioningGrouperSyncDao {
 =======
       if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelect()) {
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
+=======
+      if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+>>>>>>> 4cc2654 fix test about tracking target side in grouper
         continue;
       }
       
@@ -1610,6 +1614,7 @@ public class GrouperProvisioningGrouperSyncDao {
       
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
 =======
       if (!provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
@@ -1617,6 +1622,9 @@ public class GrouperProvisioningGrouperSyncDao {
 =======
       if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelect()) {
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
+=======
+      if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+>>>>>>> 4cc2654 fix test about tracking target side in grouper
         continue;
       }
       
@@ -1771,6 +1779,7 @@ public class GrouperProvisioningGrouperSyncDao {
             
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
             if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
 =======
             if (!provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
@@ -1778,6 +1787,9 @@ public class GrouperProvisioningGrouperSyncDao {
 =======
             if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
+=======
+            if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
+>>>>>>> 4cc2654 fix test about tracking target side in grouper
               continue;
             }
             
