@@ -61,9 +61,7 @@ public class GrouperProvisioningTranslator {
   public List<ProvisioningMembership> translateGrouperToTargetMemberships(
       List<ProvisioningMembership> grouperProvisioningMemberships, boolean includeDelete) {
     
-    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()
-        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertMemberships()
-        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMemberships()
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships()
         ) {
       return null;
     }
@@ -355,10 +353,7 @@ public class GrouperProvisioningTranslator {
   public List<ProvisioningEntity> translateGrouperToTargetEntities(
       List<ProvisioningEntity> grouperProvisioningEntities, boolean includeDelete, boolean forCreate) {
     
-    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities()
-        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertEntities()
-        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateEntities()
-        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntities()) {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
       return null;
     }
 
@@ -526,10 +521,7 @@ public class GrouperProvisioningTranslator {
   public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups, boolean includeDelete, boolean forCreate) {
 
     
-    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()
-        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertGroups()
-        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateGroups()
-        && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteGroups()) {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperGroups()) {
       return null;
     }
     
