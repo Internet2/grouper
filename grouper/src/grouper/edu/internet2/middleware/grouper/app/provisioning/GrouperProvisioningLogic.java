@@ -467,16 +467,12 @@ public class GrouperProvisioningLogic {
 =======
     // everything in a full sync is a recalc if it can be
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
-      if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
-        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
-        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
-      }
+      provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
+      provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
     }
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
-      if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
-        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
-        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
-      }
+      provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+      provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
     }
 
   }
