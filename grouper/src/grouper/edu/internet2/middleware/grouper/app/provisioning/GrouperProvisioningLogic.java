@@ -292,6 +292,7 @@ public class GrouperProvisioningLogic {
     if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
         if (provisioningMembershipWrapper.getProvisioningGroupWrapper() != null) {
           provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
         }
@@ -306,6 +307,11 @@ public class GrouperProvisioningLogic {
         provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
 =======
         provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
+=======
+        if (provisioningMembershipWrapper.getProvisioningGroupWrapper() != null) {
+          provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
+        }
+>>>>>>> 0da8531 Check for null
       }
     }
     
