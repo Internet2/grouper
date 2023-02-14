@@ -62,12 +62,16 @@ public class GrouperProvisioningTranslator {
       List<ProvisioningMembership> grouperProvisioningMemberships, boolean includeDelete) {
     
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships()
 =======
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()
         && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isInsertMemberships()
         && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMemberships()
 >>>>>>> aea4f73 fix simpleLdap unit test
+=======
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships()
+>>>>>>> 196fe13 fix ldap test
         ) {
       return null;
     }
@@ -360,6 +364,7 @@ public class GrouperProvisioningTranslator {
       List<ProvisioningEntity> grouperProvisioningEntities, boolean includeDelete, boolean forCreate) {
     
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
 =======
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities()
@@ -367,6 +372,9 @@ public class GrouperProvisioningTranslator {
         && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateEntities()
         && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteEntities()) {
 >>>>>>> aea4f73 fix simpleLdap unit test
+=======
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
+>>>>>>> 196fe13 fix ldap test
       return null;
     }
 
@@ -535,6 +543,7 @@ public class GrouperProvisioningTranslator {
 
     
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperGroups()) {
 =======
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()
@@ -542,6 +551,9 @@ public class GrouperProvisioningTranslator {
         && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isUpdateGroups()
         && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteGroups()) {
 >>>>>>> aea4f73 fix simpleLdap unit test
+=======
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperGroups()) {
+>>>>>>> 196fe13 fix ldap test
       return null;
     }
     
