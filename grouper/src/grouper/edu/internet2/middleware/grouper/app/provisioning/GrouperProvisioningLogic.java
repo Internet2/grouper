@@ -237,7 +237,9 @@ public class GrouperProvisioningLogic {
     
     if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
-        provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
+        if (provisioningMembershipWrapper.getProvisioningGroupWrapper() != null) {
+          provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
+        }
       }
     }
     
