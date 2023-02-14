@@ -375,16 +375,22 @@ public class GrouperProvisioningLogic {
   public void assignRecalcForGroupsAndEntities() {
     
     this.grouperProvisioner.getDebugMap().put("state", "assignRecalc");
-    // everything in a full sync is a recalc if it can be
-    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
-      provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
-      provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
+    
+      // everything in a full sync is a recalc if it can be
+      for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+      }
     }
-    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
-      provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
-      provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities()) {
+      for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+      }
     }
-
   }
 
   public void retrieveFullIndividualTargetData() {
