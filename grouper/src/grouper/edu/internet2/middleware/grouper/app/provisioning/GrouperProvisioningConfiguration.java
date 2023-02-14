@@ -2597,7 +2597,9 @@ public abstract class GrouperProvisioningConfiguration {
     this.debugLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("debugLog", false), false);
     
     this.operateOnGrouperEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperEntities", false), false);
-
+    this.operateOnGrouperMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperMemberships", false), false);
+    this.operateOnGrouperGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperGroups", false), false);
+    
     this.subjectSourcesToProvision = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(this.retrieveConfigString("subjectSourcesToProvision", false), ","));
 
     for (String sourceId : this.subjectSourcesToProvision) {
@@ -3042,9 +3044,6 @@ public abstract class GrouperProvisioningConfiguration {
     
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());
-    
-    this.operateOnGrouperMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperMemberships", false), false);
-    this.operateOnGrouperGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperGroups", false), false);
     
     assignAutoTranslatedGroupsConfiguration();
 
