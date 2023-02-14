@@ -67,7 +67,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdap"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullOverrideDn"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -2059,10 +2059,10 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
     assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
     assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
-    assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
+    assertNotNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
     assertNull(gcGrouperSyncGroup.getErrorMessage());
     assertNull(gcGrouperSyncGroup.getErrorTimestamp());
-    assertNull(gcGrouperSyncGroup.getLastGroupSync());
+    assertNotNull(gcGrouperSyncGroup.getLastGroupSync());
 
     Member testSubject0member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
     

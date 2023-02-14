@@ -1267,7 +1267,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             }
 
             // add these to the overall result
-            for (Object membershipObject : targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships()) {
+            for (Object membershipObject : GrouperUtil.nonNull(targetDaoRetrieveMembershipsByGroupsResponse.getTargetMemberships())) {
               ProvisioningGroup retrievedTargetGroup = (ProvisioningGroup)membershipObject;
               targetGroupsFound.add(retrievedTargetGroup);
 
