@@ -1111,6 +1111,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       membershipAttributeName = ldapSyncConfiguration.getGroupMembershipAttributeName();
       dn = (targetDaoRetrieveMembershipRequest.getTargetGroup()).retrieveAttributeValueString(ldap_dn);
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
       
       if (targetDaoRetrieveMembershipRequest.getTargetGroup() != null) {
         membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetGroup()).retrieveAttributeValueSet(membershipAttributeName);
@@ -1118,9 +1119,17 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       
 =======
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
+=======
+      
+      if (targetDaoRetrieveMembershipRequest.getTargetGroup() != null) {
+        membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetGroup()).retrieveAttributeValueSet(membershipAttributeName);
+      }
+      
+>>>>>>> d80cfe3 fix ldap membership test
     } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       membershipAttributeName = ldapSyncConfiguration.getEntityMembershipAttributeName();
       dn = (targetDaoRetrieveMembershipRequest.getTargetEntity()).retrieveAttributeValueString(ldap_dn);
+<<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
 
       if (targetDaoRetrieveMembershipRequest.getTargetEntity() != null) {
@@ -1129,6 +1138,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
 =======
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
+=======
+
+      if (targetDaoRetrieveMembershipRequest.getTargetEntity() != null) {
+        membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetEntity()).retrieveAttributeValueSet(membershipAttributeName);
+      }
+
+>>>>>>> d80cfe3 fix ldap membership test
     } else {
       throw new RuntimeException("Unexpected grouperProvisioningBehaviorMembershipType: " + this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType());
     }

@@ -2233,6 +2233,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
 
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     List<ProvisioningMembership> targetMemberships = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetMemberships());
     List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetGroups());
     List<ProvisioningEntity> targetEntities = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetEntities());
@@ -2241,6 +2242,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     List<ProvisioningGroup> targetGroups = targetDaoRetrieveMembershipsRequest.getTargetGroups();
     List<ProvisioningEntity> targetEntities = targetDaoRetrieveMembershipsRequest.getTargetEntities();
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
+=======
+    List<ProvisioningMembership> targetMemberships = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetMemberships());
+    List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetGroups());
+    List<ProvisioningEntity> targetEntities = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetEntities());
+>>>>>>> d80cfe3 fix ldap membership test
     List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
