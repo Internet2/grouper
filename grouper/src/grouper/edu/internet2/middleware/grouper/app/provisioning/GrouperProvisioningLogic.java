@@ -154,8 +154,8 @@ public class GrouperProvisioningLogic {
       this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperGroupsEntities);
     }
 
-    retrieveFullIndividualTargetData();
-    this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualTargetData);
+    retrieveFullIndividualTargetGroupsAndEntities();
+    this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualTargetGroupsAndEntities);
     
     {
       debugMap.put("state", "indexMatchingIdGroups");
@@ -201,7 +201,10 @@ public class GrouperProvisioningLogic {
     this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateEntities(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities(), false, false, false);
     this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroupsHaveMembers(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false);
     this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, false, false);
-    
+
+    retrieveFullIndividualTargetMemberships();
+    this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualTargetMemberships);
+
     {
   
       debugMap.put("state", "translateGrouperMembershipsToTarget");
@@ -395,7 +398,7 @@ public class GrouperProvisioningLogic {
     }
   }
 
-  public void retrieveFullIndividualTargetData() {
+  public void retrieveFullIndividualTargetGroupsAndEntities() {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     
@@ -415,6 +418,31 @@ public class GrouperProvisioningLogic {
       processTargetDataGroups(targetGroups);
     }
     
+    // get the total count of what is in the target
+    int totalTargetCount = 0;
+            
+    GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetGroupCount", GrouperUtil.length(targetGroups));
+    GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetEntityCount", GrouperUtil.length(targetEntities));
+
+    totalTargetCount += GrouperUtil.length(targetEntities)
+        + GrouperUtil.length(targetGroups);
+
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "originalTargetTotalCount", totalTargetCount);
+    
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetGroupsRetrieved", GrouperUtil.length(targetGroups));
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetEntitiesRetrieved", GrouperUtil.length(targetEntities));
+
+    long retrieveTargetDataMillis = System.currentTimeMillis()-start;
+    debugMap.put("retrieveTargetGroupsAndEntitiesMillis", retrieveTargetDataMillis);
+
+  }
+
+  public void retrieveFullIndividualTargetMemberships() {
+
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+    
+    long start = System.currentTimeMillis();
+
     debugMap.put("state", "retrieveIndividualMembershipsIfNeeded");
     
     // when select all memberships is false fetch groups one by one.
@@ -434,12 +462,6 @@ public class GrouperProvisioningLogic {
     // get the total count of what is in the target
     int totalTargetCount = 0;
             
-    GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetGroupCount", GrouperUtil.length(targetGroups));
-    GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetEntityCount", GrouperUtil.length(targetEntities));
-
-    totalTargetCount += GrouperUtil.length(targetEntities)
-        + GrouperUtil.length(targetGroups);
-
     int originalTargetMembershipCount = GrouperUtil.length(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships());
     
     String membershipAttribute = GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
@@ -464,12 +486,10 @@ public class GrouperProvisioningLogic {
     GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "originalTargetMembershipCount", originalTargetMembershipCount);
     GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "originalTargetTotalCount", totalTargetCount);
     
-    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetGroupsRetrieved", GrouperUtil.length(targetGroups));
-    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetEntitiesRetrieved", GrouperUtil.length(targetEntities));
     GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetMembershipsRetrieved", GrouperUtil.length(targetMemberships));
 
     long retrieveTargetDataMillis = System.currentTimeMillis()-start;
-    debugMap.put("retrieveTargetDataMillis", retrieveTargetDataMillis);
+    debugMap.put("retrieveTargetMembershipsMillis", retrieveTargetDataMillis);
 
   }
 
