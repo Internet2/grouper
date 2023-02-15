@@ -2113,9 +2113,9 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       return targetDaoRetrieveMembershipsResponse;
     }
 
-    List<ProvisioningMembership> targetMemberships = targetDaoRetrieveMembershipsRequest.getTargetMemberships();
-    List<ProvisioningGroup> targetGroups = targetDaoRetrieveMembershipsRequest.getTargetGroups();
-    List<ProvisioningEntity> targetEntities = targetDaoRetrieveMembershipsRequest.getTargetEntities();
+    List<ProvisioningMembership> targetMemberships = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetMemberships());
+    List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetGroups());
+    List<ProvisioningEntity> targetEntities = GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetEntities());
     List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
 
     if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {

@@ -1093,17 +1093,34 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     String membershipAttributeName;
     String dn;
     
+    Set<?> membershipAttributeValueSet = null;
+    
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       membershipAttributeName = ldapSyncConfiguration.getGroupMembershipAttributeName();
       dn = (targetDaoRetrieveMembershipRequest.getTargetGroup()).retrieveAttributeValueString(ldap_dn);
+      
+      if (targetDaoRetrieveMembershipRequest.getTargetGroup() != null) {
+        membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetGroup()).retrieveAttributeValueSet(membershipAttributeName);
+      }
+      
     } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       membershipAttributeName = ldapSyncConfiguration.getEntityMembershipAttributeName();
       dn = (targetDaoRetrieveMembershipRequest.getTargetEntity()).retrieveAttributeValueString(ldap_dn);
+
+      if (targetDaoRetrieveMembershipRequest.getTargetEntity() != null) {
+        membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetEntity()).retrieveAttributeValueSet(membershipAttributeName);
+      }
+
     } else {
       throw new RuntimeException("Unexpected grouperProvisioningBehaviorMembershipType: " + this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType());
     }
 
-    Set<?> membershipAttributeValueSet = ((ProvisioningUpdatable)targetDaoRetrieveMembershipRequest.getTargetMembership()).retrieveAttributeValueSet(membershipAttributeName);
+    if (targetDaoRetrieveMembershipRequest.getTargetMembership() != null && GrouperUtil.length(membershipAttributeValueSet) == 0) {
+      membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetMembership()).retrieveAttributeValueSet(membershipAttributeName);
+    }
+    
+    GrouperUtil.assertion(GrouperUtil.length(membershipAttributeValueSet) == 1, "Should be looking for one membership: " + GrouperUtil.length(membershipAttributeValueSet));
+    
     String membershipAttributeValue = (String)membershipAttributeValueSet.iterator().next();
     String filter = "(" + membershipAttributeName + "=" + GrouperUtil.ldapFilterEscape(membershipAttributeValue) + ")";
 
@@ -1113,7 +1130,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, dn, filter, LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>());
       
       if (ldapEntries.size() > 0) {
-        targetDaoRetrieveMembershipResponse.setTargetMembership(targetDaoRetrieveMembershipRequest.getTargetMembership());
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+          targetDaoRetrieveMembershipResponse.setTargetGroup(targetDaoRetrieveMembershipRequest.getTargetGroup());
+        } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+          targetDaoRetrieveMembershipResponse.setTargetEntity(targetDaoRetrieveMembershipRequest.getTargetEntity());
+        }
       }
     } catch (Exception e) {
       if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {

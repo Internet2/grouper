@@ -158,8 +158,8 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
       TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(
           targetDaoRetrieveMembershipsRequest);
 
-      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
-      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetMemberships().get(0));
+      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetGroups());
+      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetGroups().get(0).retrieveAttributeValue("member"));
     }
     
     {
@@ -174,8 +174,8 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
       TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(
           targetDaoRetrieveMembershipsRequest);
 
-      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetMemberships());
-      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetMemberships().get(0));
+      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetGroups());
+      assertNotNull(targetDaoRetrieveMembershipsResponse.getTargetGroups().get(0).retrieveAttributeValue("member"));
     }
     
     {
@@ -190,7 +190,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
       TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(
           targetDaoRetrieveMembershipsRequest);
 
-      assertEquals(0, GrouperUtil.length(targetDaoRetrieveMembershipsResponse.getTargetMemberships()));
+      assertEquals(0, GrouperUtil.length(targetDaoRetrieveMembershipsResponse.getTargetGroups()));
     }
     
     {
@@ -205,7 +205,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
       TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMemberships(
           targetDaoRetrieveMembershipsRequest);
 
-      assertEquals(0, GrouperUtil.length(targetDaoRetrieveMembershipsResponse.getTargetMemberships()));
+      assertEquals(0, GrouperUtil.length(targetDaoRetrieveMembershipsResponse.getTargetGroups()));
     }
   }
 }
