@@ -155,12 +155,17 @@ public class GrouperProvisioningLogic {
     }
 
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     retrieveFullIndividualTargetGroupsAndEntities();
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualTargetGroupsAndEntities);
 =======
     retrieveFullIndividualTargetData();
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualTargetData);
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+    retrieveFullIndividualTargetGroupsAndEntities();
+    this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualTargetGroupsAndEntities);
+>>>>>>> f2cf110 more memberships below groups and entities
     
     {
       debugMap.put("state", "indexMatchingIdGroups");
@@ -233,6 +238,7 @@ public class GrouperProvisioningLogic {
     this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroupsHaveMembers(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false);
     this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateGroups(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups(), false, false, false);
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 
     retrieveFullIndividualTargetMemberships();
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualTargetMemberships);
@@ -256,6 +262,12 @@ public class GrouperProvisioningLogic {
 >>>>>>> dad5d51 Provisioning related changes, wip
 =======
 >>>>>>> bf20834 Provisioning related changes - index
+=======
+
+    retrieveFullIndividualTargetMemberships();
+    this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualTargetMemberships);
+
+>>>>>>> f2cf110 more memberships below groups and entities
     {
   
       debugMap.put("state", "translateGrouperMembershipsToTarget");
@@ -532,8 +544,12 @@ public class GrouperProvisioningLogic {
 >>>>>>> 4572c59 fix ldap tests
   }
 
+<<<<<<< GROUPER_5_BRANCH
   public void retrieveFullIndividualTargetData() {
 >>>>>>> d89ba3e Provisioning related changes. testing pending
+=======
+  public void retrieveFullIndividualTargetGroupsAndEntities() {
+>>>>>>> f2cf110 more memberships below groups and entities
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     
@@ -554,6 +570,7 @@ public class GrouperProvisioningLogic {
     }
     
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 =======
     debugMap.put("state", "retrieveIndividualMembershipsIfNeeded");
     
@@ -572,6 +589,8 @@ public class GrouperProvisioningLogic {
     }
     
 >>>>>>> d89ba3e Provisioning related changes. testing pending
+=======
+>>>>>>> f2cf110 more memberships below groups and entities
     // get the total count of what is in the target
     int totalTargetCount = 0;
             
@@ -617,6 +636,7 @@ public class GrouperProvisioningLogic {
     int totalTargetCount = 0;
             
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 =======
     GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetGroupCount", GrouperUtil.length(targetGroups));
     GrouperProvisioningLogic.this.grouperProvisioner.getDebugMap().put("originalTargetEntityCount", GrouperUtil.length(targetEntities));
@@ -625,6 +645,8 @@ public class GrouperProvisioningLogic {
         + GrouperUtil.length(targetGroups);
 
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+>>>>>>> f2cf110 more memberships below groups and entities
     int originalTargetMembershipCount = GrouperUtil.length(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships());
     
     String membershipAttribute = GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
@@ -650,10 +672,13 @@ public class GrouperProvisioningLogic {
     GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "originalTargetTotalCount", totalTargetCount);
     
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 =======
     GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetGroupsRetrieved", GrouperUtil.length(targetGroups));
     GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetEntitiesRetrieved", GrouperUtil.length(targetEntities));
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+>>>>>>> f2cf110 more memberships below groups and entities
     GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetMembershipsRetrieved", GrouperUtil.length(targetMemberships));
 
     long retrieveTargetDataMillis = System.currentTimeMillis()-start;
