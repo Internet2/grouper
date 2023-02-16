@@ -1105,7 +1105,9 @@ public class GrouperTest extends TestCase {
   protected void setUp () {
     
     try {
-      shutdownDelayThread.interrupt();
+      if (shutdownDelayThread.isAlive()) {
+        shutdownDelayThread.interrupt();
+      }
     } catch (Throwable e) {
       //ignore
     }
