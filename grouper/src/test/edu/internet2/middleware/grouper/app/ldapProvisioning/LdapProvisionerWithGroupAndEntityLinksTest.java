@@ -58,10 +58,14 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    */
   public static void main(String[] args) {
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideFlat"));    
 =======
     TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullUmassActiveDirectory"));    
 >>>>>>> 473f975 add umass test
+=======
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideFlat"));    
+>>>>>>> 68048c1 adjust how we know if we are selecting memberships for group/entity in provisioning
   }
   
   @Override

@@ -23,6 +23,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @return
    */
   public boolean canRecalcGroupMemberships() {
+<<<<<<< GROUPER_5_BRANCH
     boolean result = false;
     if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups() != null) {
       result = this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups();
@@ -46,6 +47,21 @@ public abstract class GrouperProvisionerTargetDaoBase {
       result = result || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity();
     }
     return result;
+=======
+    return this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups()
+        || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup();
+        
+  }
+  
+  /**
+   * indicate if the dao is configured and able to recalc entity memberships
+   * @return
+   */
+  public boolean canRecalcEntityMemberships() {
+    return this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities()
+        || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity();
+        
+>>>>>>> 68048c1 adjust how we know if we are selecting memberships for group/entity in provisioning
   }
   
   /**
