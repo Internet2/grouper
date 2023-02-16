@@ -17,6 +17,26 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
  * 
  */
 public abstract class GrouperProvisionerTargetDaoBase {
+
+  /**
+   * indicate if the dao is configured and able to recalc group memberships
+   * @return
+   */
+  public boolean canRecalcGroupMemberships() {
+    return this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups()
+        || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup();
+        
+  }
+  
+  /**
+   * indicate if the dao is configured and able to recalc entity memberships
+   * @return
+   */
+  public boolean canRecalcEntityMemberships() {
+    return this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities()
+        || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity();
+        
+  }
   
   /**
    * start logging the source low level actions

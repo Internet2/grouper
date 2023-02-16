@@ -57,7 +57,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullUmassActiveDirectory"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideFlat"));    
   }
   
   @Override
@@ -105,13 +105,14 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
-    
+
     SubjectConfig.retrieveConfig().propertiesOverrideMap().clear();
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();   
     SourceManager.getInstance().internal_removeSource("personLdapSource");
     GrouperSession.stopQuietly(this.grouperSession);
 
+    super.tearDown();
+    
   }
   
   /**

@@ -539,11 +539,17 @@ public class GrouperProvisioningBehavior {
     if (this.selectMembershipsForGroup != null) {
       return selectMembershipsForGroup;
     }
-    
-    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-        .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false) ||
-        GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false);
+    if (!this.isSelectGroups()) {
+      this.selectMembershipsForGroup = false;
+      return selectMembershipsForGroup;
+    }
+    if (!this.isSelectMemberships()) {
+      this.selectMembershipsForGroup = false;
+      return selectMembershipsForGroup;
+    }
+
+    this.selectMembershipsForGroup = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().canRecalcGroupMemberships();
+    return this.selectMembershipsForGroup;
   }
   
   private Boolean selectMembershipsForEntity;
@@ -558,11 +564,18 @@ public class GrouperProvisioningBehavior {
     if (this.selectMembershipsForEntity != null) {
       return selectMembershipsForEntity;
     }
+    if (!this.isSelectEntities()) {
+      this.selectMembershipsForEntity = false;
+      return selectMembershipsForEntity;
+    }
+    if (!this.isSelectMemberships()) {
+      this.selectMembershipsForEntity = false;
+      return selectMembershipsForEntity;
+    }
     
-    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-        .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false) ||
-        GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false) ;
+    this.selectMembershipsForEntity = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().canRecalcEntityMemberships();
+    return this.selectMembershipsForEntity;
+    
   }
   
   private Boolean replaceMemberships;

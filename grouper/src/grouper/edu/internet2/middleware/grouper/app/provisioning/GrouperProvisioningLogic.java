@@ -1027,7 +1027,10 @@ public class GrouperProvisioningLogic {
                 this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false));
             
           } finally {
-            this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
+            if (GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+                == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+              this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
+            }
           }
 
           // ######### STEP 35: index matching ID of grouper and target objects
