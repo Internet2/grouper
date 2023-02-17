@@ -317,6 +317,7 @@ public class GrouperProvisioningLogic {
       
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
         provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+<<<<<<< GROUPER_5_BRANCH
 =======
         provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
 =======
@@ -336,6 +337,8 @@ public class GrouperProvisioningLogic {
           provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
         }
 >>>>>>> bf20834 Provisioning related changes - index
+=======
+>>>>>>> 478737e Provisioning related changes
       }
     }
 

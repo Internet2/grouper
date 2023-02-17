@@ -24,6 +24,7 @@ public abstract class GrouperProvisionerTargetDaoBase {
    */
   public boolean canRecalcGroupMemberships() {
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     boolean result = false;
     if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups() != null) {
       result = this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups();
@@ -51,6 +52,16 @@ public abstract class GrouperProvisionerTargetDaoBase {
     return this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups()
         || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup();
         
+=======
+    boolean result = false;
+    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups() != null) {
+      result = this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups();
+    }
+    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup() != null) {
+      result = result || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup();
+    }
+    return result;
+>>>>>>> 478737e Provisioning related changes
   }
   
   /**
@@ -58,10 +69,21 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @return
    */
   public boolean canRecalcEntityMemberships() {
+<<<<<<< GROUPER_5_BRANCH
     return this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities()
         || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity();
         
 >>>>>>> 68048c1 adjust how we know if we are selecting memberships for group/entity in provisioning
+=======
+    boolean result = false;
+    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities() != null) {
+      result = this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities();
+    }
+    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity() != null) {
+      result = result || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity();
+    }
+    return result;
+>>>>>>> 478737e Provisioning related changes
   }
   
   /**
