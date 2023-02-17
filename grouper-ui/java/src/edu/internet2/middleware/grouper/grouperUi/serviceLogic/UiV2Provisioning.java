@@ -1210,8 +1210,11 @@ public class UiV2Provisioning {
           } else if (metadataNameValues.containsKey(metadataItem.getName())) {
             elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
           } else {
-            elVariableMap.put(name,  metadataItem.getDefaultValue());
+            elVariableMap.put(name,  "");
           }
+//          else {
+//            elVariableMap.put(name,  metadataItem.getDefaultValue());
+//          }
           
         }
         
@@ -1929,8 +1932,11 @@ public class UiV2Provisioning {
           } else if (metadataNameValues.containsKey(metadataItem.getName())) {
             elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
           } else {
-            elVariableMap.put(name,  metadataItem.getDefaultValue());
-          }
+            elVariableMap.put(name,  "");
+          } 
+//          else {
+//            elVariableMap.put(name,  metadataItem.getDefaultValue());
+//          }
           
         }
         
@@ -2132,8 +2138,11 @@ public class UiV2Provisioning {
           } else if (metadataNameValues.containsKey(metadataItem.getName())) {
             elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
           } else {
-            elVariableMap.put(name,  metadataItem.getDefaultValue());
-          }
+            elVariableMap.put(name,  "");
+          } 
+//          else {
+//            elVariableMap.put(name,  metadataItem.getDefaultValue());
+//          }
           
         }
         
@@ -2272,9 +2281,10 @@ public class UiV2Provisioning {
       if (!errors && StringUtils.isNotBlank(value)) {
         try {          
           Object convertedValue = metadataItem.getValueType().convert(value);
-          if (!GrouperUtil.equals(value, metadataItem.getDefaultValue())) {
-            metadataNameValuesToPopulate.put(name, convertedValue);
-          }
+          metadataNameValuesToPopulate.put(name, convertedValue);
+//          if (!GrouperUtil.equals(convertedValue, metadataItem.getDefaultValue())) {
+//            metadataNameValuesToPopulate.put(name, convertedValue);
+//          }
         } catch (Exception e) {
           String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataValueNotCorrectTypeRequired");
           errorMessage = errorMessage.replace("$$value$$", "'"+value+"'");

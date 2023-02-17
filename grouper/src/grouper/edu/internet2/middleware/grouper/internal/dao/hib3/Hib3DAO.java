@@ -64,6 +64,14 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyAuth;
+import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyGroup;
+import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyMembership;
+import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyUser;
+import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperDigitalMarketplaceAuth;
+import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperDigitalMarketplaceGroup;
+import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperDigitalMarketplaceMembership;
+import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperDigitalMarketplaceUser;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
@@ -249,6 +257,16 @@ public abstract class Hib3DAO {
         addClass(configuration, GrouperBoxUser.class);
         addClass(configuration, GrouperBoxMembership.class);
         addClass(configuration, GrouperBoxAuth.class);
+        
+        addClass(configuration, GrouperRemedyGroup.class);
+        addClass(configuration, GrouperRemedyUser.class);
+        addClass(configuration, GrouperRemedyMembership.class);
+        addClass(configuration, GrouperRemedyAuth.class);
+        
+        addClass(configuration, GrouperDigitalMarketplaceGroup.class);
+        addClass(configuration, GrouperDigitalMarketplaceUser.class);
+        addClass(configuration, GrouperDigitalMarketplaceMembership.class);
+        addClass(configuration, GrouperDigitalMarketplaceAuth.class);
         
       }
       addClass(configuration, Hib3MemberDAO.class);

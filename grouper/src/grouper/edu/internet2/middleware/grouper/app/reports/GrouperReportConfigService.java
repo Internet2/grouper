@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.reports;
 
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_DESCRIPTION;
+import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SQL_CONFIG;
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_EMAIL_BODY;
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_EMAIL_SUBJECT;
 import static edu.internet2.middleware.grouper.app.reports.GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_ENABLED;
@@ -124,6 +125,9 @@ public class GrouperReportConfigService {
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_DESCRIPTION, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigDescription());
+
+    attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SQL_CONFIG, true);
+    attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getSqlConfig());
     
     attributeDefName = AttributeDefNameFinder.findByName(reportConfigStemName()+":"+GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_EMAIL_BODY, true);
     attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), reportConfigBean.getReportConfigEmailBody());
@@ -305,6 +309,9 @@ public class GrouperReportConfigService {
     
     AttributeAssignValue assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_DESCRIPTION);
     result.setReportConfigDescription(assignValue != null ? assignValue.getValueString(): null);
+    
+    assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_SQL_CONFIG);
+    result.setSqlConfig(assignValue != null ? assignValue.getValueString(): null);
     
     assignValue = attributeValueDelegate.retrieveAttributeAssignValue(reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_EMAIL_BODY);
     result.setReportConfigEmailBody(assignValue != null ? assignValue.getValueString(): null);

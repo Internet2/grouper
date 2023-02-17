@@ -220,40 +220,6 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
   
-  @Override
-  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
-    long startNanos = System.nanoTime();
-
-    try {
-      GrouperGoogleConfiguration googleConfiguration = (GrouperGoogleConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-
-      List<ProvisioningMembership> results = new ArrayList<>();
-      
-      List<ProvisioningGroup> targetGroups = new ArrayList<ProvisioningGroup>();
-      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId());
-      for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
-        ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
-        targetGroups.add(targetGroup);
-      }
-
-      for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
-        Set<String> groupMemberIds = GrouperGoogleApiCommands.retrieveGoogleGroupMembers(googleConfiguration.getGoogleExternalSystemConfigId(), grouperGoogleGroup.getId());
-        
-        for (String groupMemberId: groupMemberIds) {
-          ProvisioningMembership provisioningMembership = new ProvisioningMembership();
-          provisioningMembership.setProvisioningGroupId(grouperGoogleGroup.getId());
-          provisioningMembership.setProvisioningEntityId(groupMemberId);
-          results.add(provisioningMembership);
-        }
-        
-      }
-      
-      return new TargetDaoRetrieveAllMembershipsResponse(results);
-    } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllMemberships", startNanos));
-    }
-  }
-  
   private static ExpirableCache<Boolean, Map<String, GrouperGoogleGroup>> cacheGroupNameToGroup = new ExpirableCache<Boolean, Map<String, GrouperGoogleGroup>>(5);
   private static ExpirableCache<Boolean, Map<String, GrouperGoogleUser>> cacheUserEmailToUser = new ExpirableCache<Boolean, Map<String, GrouperGoogleUser>>(5);
 
@@ -524,12 +490,12 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       String targetGroupId = resolveTargetGroupId(targetGroup);
       
       if (StringUtils.isBlank(targetGroupId)) {
-        return new TargetDaoRetrieveMembershipsByGroupResponse(new ArrayList<Object>());
+        return new TargetDaoRetrieveMembershipsByGroupResponse(new ArrayList<ProvisioningMembership>());
       }
       
       Set<String> groupMembers = GrouperGoogleApiCommands.retrieveGoogleGroupMembers(googleConfiguration.getGoogleExternalSystemConfigId(), targetGroupId);
       
-      List<Object> provisioningMemberships = new ArrayList<Object>(); 
+      List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>(); 
       
       for (String userId : groupMembers) {
 
@@ -660,7 +626,6 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);

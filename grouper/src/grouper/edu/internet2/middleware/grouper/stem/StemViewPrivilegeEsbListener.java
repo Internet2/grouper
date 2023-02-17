@@ -12,6 +12,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
@@ -425,7 +427,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         String subjectId = esbEventContainer.getEsbEvent().getSubjectId();
         MultiKey sourceIdSubjectId = new MultiKey(sourceId, subjectId);
         String memberId = sourceIdSubjectIdToMemberId.get(sourceIdSubjectId);
-        GrouperUtil.assertion(memberId != null, "Cant find memberId!");
+        GrouperUtil.assertion(memberId != null, "Cant find memberId! " + sourceIdSubjectId);
         
         String stemName = null;
         if (PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())
@@ -558,6 +560,9 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         
       }
       
+      Member allMember = MemberFinder.internal_findAllMember();
+      sourceIdSubjectIdToMemberId.put(new MultiKey(allMember.getSubjectSourceId(), allMember.getSubjectId()), allMember.getId());
+      
       this.debugMap.put("subjectsNeededInChangeLog", GrouperUtil.length(sourceIdSubjectIdToMemberId));
 
       iterator = GrouperUtil.nonNull(this.eventsToProcess).iterator();
@@ -570,7 +575,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         String sourceId = esbEventContainer.getEsbEvent().getSourceId();
         String subjectId = esbEventContainer.getEsbEvent().getSubjectId();
         MultiKey sourceIdSubjectId = new MultiKey(sourceId, subjectId);
-        if (sourceIdSubjectIdToMemberId.containsKey(sourceIdSubjectId) || SubjectHelper.subjectEqualsGrouperAll(sourceId, subjectId)) {
+        if (sourceIdSubjectIdToMemberId.containsKey(sourceIdSubjectId)) {
           continue;
         }
         iterator.remove();
@@ -786,7 +791,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         
       }
 
-      List<String> stemNamesList = new ArrayList<String>();
+      List<String> stemNamesList = new ArrayList<String>(stemNamesSet);
 
       this.debugMap.put("stemCount", GrouperUtil.length(stemNamesSet));
       
@@ -803,7 +808,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         sql.append("select s.id, s.name from grouper_stems s where s.name in ( ");
         GrouperClientUtils.appendQuestions(sql, stemNameBatch.size());
         sql.append(" ) ");
-        GcDbAccess gcDbAccess = new GcDbAccess();
+        GcDbAccess gcDbAccess = new GcDbAccess().sql(sql.toString());
         for (String stemName : stemNameBatch) {
           gcDbAccess.addBindVar(stemName);
         }

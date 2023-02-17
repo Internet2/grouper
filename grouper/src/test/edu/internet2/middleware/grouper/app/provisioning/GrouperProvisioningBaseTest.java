@@ -70,6 +70,13 @@ public abstract class GrouperProvisioningBaseTest extends GrouperTest {
   }
   
   /**
+   * @return GrouperProvisioningOutput
+   */
+  public Hib3GrouperLoaderLog incrementalProvision(String configId) {
+    return incrementalProvision(configId, true, true, false);
+  }
+  
+  /**
    * @param runChangeLog
    * @param runConsumer
    * @return GrouperProvisioningOutput

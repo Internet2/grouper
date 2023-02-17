@@ -202,7 +202,7 @@ public class GrouperTest extends TestCase {
    */
   public static void assertEnoughMemory() {
     if (Runtime.getRuntime().maxMemory() < 400000000) {
-      throw new RuntimeException("Not enough memory, you should have at least 500 megs, e.g. -XX:MaxPermSize=300m -Xms80m -Xmx640m, but this much was detected: " + Runtime.getRuntime().maxMemory());
+      throw new RuntimeException("Not enough memory, you should have at least 500 megs, e.g. -Xms80m -Xmx640m, but this much was detected: " + Runtime.getRuntime().maxMemory());
     }
   }
   
@@ -1105,7 +1105,9 @@ public class GrouperTest extends TestCase {
   protected void setUp () {
     
     try {
-      shutdownDelayThread.interrupt();
+      if (shutdownDelayThread.isAlive()) {
+        shutdownDelayThread.interrupt();
+      }
     } catch (Throwable e) {
       //ignore
     }

@@ -1,14 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.commons.lang.StringUtils;
-
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
@@ -138,23 +130,40 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     
     if (this.provisioningGroupWrapper != null) {
-      if (this.provisioningGroupWrapper.isRecalcObject()) {
-        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningGroupWrapper.isRecalcObject());
-      }
-      if (this.provisioningGroupWrapper.isRecalcGroupMemberships()) {
-        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningGroupWrapper.isRecalcGroupMemberships());
-      }
-      if (this.provisioningGroupWrapper.isCreate()) {
-        firstField = toStringAppendField(result, firstField, "create", this.provisioningGroupWrapper.isCreate());
-      }
-      if (this.provisioningGroupWrapper.isDelete()) {
-        firstField = toStringAppendField(result, firstField, "delete", this.provisioningGroupWrapper.isDelete());
-      }
-      if (this.provisioningGroupWrapper.isIncrementalSyncMemberships()) {
-        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningGroupWrapper.isIncrementalSyncMemberships());
-      }
-      if (this.provisioningGroupWrapper.getErrorCode() != null) {
-        firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningGroupWrapper.getErrorCode().name());
+      if (this == this.provisioningGroupWrapper.getGrouperProvisioningGroup() || this == this.provisioningGroupWrapper.getGrouperTargetGroup()) {
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction() != null) {
+          firstField = toStringAppendField(result, firstField, "action", this.provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction());
+        }
+        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
+        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate()) {
+          firstField = toStringAppendField(result, firstField, "create", this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isInsertResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "createProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isInsertResultProcessed());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
+          firstField = toStringAppendField(result, firstField, "delete", this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isDeleteResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isDeleteResultProcessed());
+        }
+        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships());
+        if (this.provisioningGroupWrapper.getErrorCode() != null) {
+          firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningGroupWrapper.getErrorCode().name());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().getMillisSince1970() != null) {
+          firstField = toStringAppendField(result, firstField, "millis1970", this.provisioningGroupWrapper.getProvisioningStateGroup().getMillisSince1970());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "selectProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdate()) {
+          firstField = toStringAppendField(result, firstField, "update", this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdate());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdateResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "updateProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdateResultProcessed());
+        }
       }
     }
     

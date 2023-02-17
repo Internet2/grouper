@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeTranslationType;
@@ -82,9 +82,9 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
     
     setMembershipTableName(this.midPointTablesPrefix + "_mp_memberships");
     
-    setSqlLastModifiedColumnType(this.retrieveConfigString("midPointLastModifiedColumnType", false));
-    setSqlLastModifiedColumnName(this.retrieveConfigString("midPointLastModifiedColumnName", false));
-    setSqlDeletedColumnName(this.retrieveConfigString("midPointDeletedColumnName", false));
+    setSqlLastModifiedColumnType("long");
+    setSqlLastModifiedColumnName("last_modified");
+    setSqlDeletedColumnName("deleted");
     
     setMembershipGroupForeignKeyColumn("group_id_index");
     setMembershipEntityForeignKeyColumn("subject_id_index");
@@ -116,32 +116,65 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
     setUseSeparateTableForEntityAttributes(true);
     setUseSeparateTableForGroupAttributes(true);
     
+    setHasTargetGroupLink(true);
+    setHasTargetEntityLink(true);
+    
 //    setMembershipMatchingIdExpression("${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('"+getMembershipGroupMatchingIdAttribute()+"'), targetMembership.retrieveAttributeValueString('"+getMembershipEntityMatchingIdAttribute()+"'))}");
     setMembershipMatchingIdExpression("${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.getAttributes().get('group_id_index').getValue(), targetMembership.getAttributes().get('subject_id_index').getValue())}");
     
     
+    for (String attributeName : getTargetGroupAttributeNameToConfig().keySet()) {
+      
+      // if user has defined an attribute with one of these names then we need to set its storage type to entityTableColumn
+      if (StringUtils.equalsAny(attributeName.toLowerCase(), "group_name", "id_index", "display_name", "description", "last_modified", "deleted")) {
+        SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) getTargetGroupAttributeNameToConfig().get(attributeName);
+        attributeConfig.setStorageType("groupTableColumn");
+      } else {
+        SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) getTargetGroupAttributeNameToConfig().get(attributeName);
+        attributeConfig.setStorageType("separateAttributesTable");
+      }
+      
+    }
+    
+    for (String attributeName : getTargetEntityAttributeNameToConfig().keySet()) {
+      
+      // if user has defined an attribute with one of these names then we need to set its storage type to groupTableColumn
+      if (StringUtils.equalsAny(attributeName.toLowerCase(), "subject_id_index", "subject_id", "last_modified", "deleted")) {
+        SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) getTargetEntityAttributeNameToConfig().get(attributeName);
+        attributeConfig.setStorageType("entityTableColumn");
+      } else {
+        SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) getTargetEntityAttributeNameToConfig().get(attributeName);
+        attributeConfig.setStorageType("separateAttributesTable");
+      }
+      
+    }
+    
     // group_name - group attribute
     {
-      SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
       
-      attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-      attributeConfig.setConfigIndex(0);
-      attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
-      attributeConfig.setName("group_name");
-      attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningGroupField);
-      attributeConfig.setTranslateFromGrouperProvisioningGroupField("name");
-      attributeConfig.setStorageType("groupTableColumn");
-      
-      getTargetGroupAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
+      if (!getTargetGroupAttributeNameToConfig().containsKey("group_name")) {
+        SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
+        
+        attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
+//        attributeConfig.setConfigIndex(0);
+        attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+        attributeConfig.setName("group_name");
+        attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningGroupField);
+        attributeConfig.setTranslateFromGrouperProvisioningGroupField("name");
+        attributeConfig.setStorageType("groupTableColumn");
+        
+        getTargetGroupAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
+      }
       
     }
     
     // id_index - group attribute
     {
+      
       SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
       
       attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-      attributeConfig.setConfigIndex(1);
+//      attributeConfig.setConfigIndex(1);
       attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
       attributeConfig.setName("id_index");
       attributeConfig.setValueType(GrouperProvisioningConfigurationAttributeValueType.LONG);
@@ -164,33 +197,38 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
     
     // display_name - group attribute
     {
-      SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
-      
-      attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-      attributeConfig.setConfigIndex(2);
-      attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
-      attributeConfig.setName("display_name");
-      attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningGroupField);
-      attributeConfig.setTranslateFromGrouperProvisioningGroupField("displayName");
-      attributeConfig.setStorageType("groupTableColumn");
-      
-      getTargetGroupAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
+      if (!getTargetGroupAttributeNameToConfig().containsKey("display_name")) {
+        SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
+        
+        attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
+//        attributeConfig.setConfigIndex(2);
+        attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+        attributeConfig.setName("display_name");
+        attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningGroupField);
+        attributeConfig.setTranslateFromGrouperProvisioningGroupField("displayName");
+        attributeConfig.setStorageType("groupTableColumn");
+        
+        getTargetGroupAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
+      }
       
     }
     
     // description - group attribute
     {
-      SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
       
-      attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-      attributeConfig.setConfigIndex(3);
-      attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
-      attributeConfig.setName("description");
-      attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningGroupField);
-      attributeConfig.setTranslateFromGrouperProvisioningGroupField("description");
-      attributeConfig.setStorageType("groupTableColumn");
-      
-      getTargetGroupAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
+      if (!getTargetGroupAttributeNameToConfig().containsKey("description")) {
+        SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
+        
+        attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
+//        attributeConfig.setConfigIndex(3);
+        attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+        attributeConfig.setName("description");
+        attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningGroupField);
+        attributeConfig.setTranslateFromGrouperProvisioningGroupField("description");
+        attributeConfig.setStorageType("groupTableColumn");
+        
+        getTargetGroupAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
+      }
       
     }
     
@@ -201,7 +239,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
         SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
         
         attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-        attributeConfig.setConfigIndex(4);
+//        attributeConfig.setConfigIndex(4);
         attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
         attributeConfig.setName(this.getSqlLastModifiedColumnName());
         attributeConfig.setValueType(GrouperProvisioningConfigurationAttributeValueType.LONG);
@@ -217,7 +255,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
         SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
         
         attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-        attributeConfig.setConfigIndex(5);
+//        attributeConfig.setConfigIndex(5);
         attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
         attributeConfig.setName(this.getSqlDeletedColumnName());
         getTargetGroupAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
@@ -231,7 +269,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
       SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
       
       attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-      attributeConfig.setConfigIndex(4);
+//      attributeConfig.setConfigIndex(4);
       attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
       attributeConfig.setName("target");
       attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.translationScript);
@@ -249,7 +287,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
       SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
       
       attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-      attributeConfig.setConfigIndex(0);
+//      attributeConfig.setConfigIndex(0);
       attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.membership);
       attributeConfig.setName("group_id_index");
       attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningGroupField);
@@ -265,7 +303,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
       SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
       
       attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-      attributeConfig.setConfigIndex(1);
+//      attributeConfig.setConfigIndex(1);
       attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.membership);
       attributeConfig.setName("subject_id_index");
       attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningEntityField);
@@ -282,7 +320,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
         SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
         
         attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-        attributeConfig.setConfigIndex(2);
+//        attributeConfig.setConfigIndex(2);
         attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.membership);
         attributeConfig.setName(this.getSqlLastModifiedColumnName());
         attributeConfig.setValueType(GrouperProvisioningConfigurationAttributeValueType.LONG);
@@ -298,7 +336,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
         SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
         
         attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-        attributeConfig.setConfigIndex(3);
+//        attributeConfig.setConfigIndex(3);
         attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.membership);
         attributeConfig.setName(this.getSqlDeletedColumnName());
         getTargetMembershipAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
@@ -313,7 +351,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
       SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
       
       attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-      attributeConfig.setConfigIndex(0);
+//      attributeConfig.setConfigIndex(0);
       attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
       attributeConfig.setName("subject_id_index");
       attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningEntityField);
@@ -336,17 +374,19 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
     
     // subject_id - subject attribute
     {
-      SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
-      
-      attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-      attributeConfig.setConfigIndex(1);
-      attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
-      attributeConfig.setName("subject_id");
-      attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningEntityField);
-      attributeConfig.setTranslateFromGrouperProvisioningEntityField("subjectId");
-      attributeConfig.setStorageType("entityTableColumn");
-      
-      getTargetEntityAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
+      if (!getTargetEntityAttributeNameToConfig().containsKey("subject_id")) {
+        SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
+        
+        attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
+//        attributeConfig.setConfigIndex(1);
+        attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
+        attributeConfig.setName("subject_id");
+        attributeConfig.setTranslateExpressionType(GrouperProvisioningConfigurationAttributeTranslationType.grouperProvisioningEntityField);
+        attributeConfig.setTranslateFromGrouperProvisioningEntityField("subjectId");
+        attributeConfig.setStorageType("entityTableColumn");
+        
+        getTargetEntityAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
+      }
       
     }
     
@@ -357,7 +397,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
         SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
         
         attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-        attributeConfig.setConfigIndex(2);
+//        attributeConfig.setConfigIndex(2);
         attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
         attributeConfig.setName(this.getSqlLastModifiedColumnName());
         attributeConfig.setValueType(GrouperProvisioningConfigurationAttributeValueType.LONG);
@@ -373,7 +413,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
         SqlGrouperProvisioningConfigurationAttribute attributeConfig = (SqlGrouperProvisioningConfigurationAttribute) GrouperUtil.newInstance(this.grouperProvisioningConfigurationAttributeClass());
         
         attributeConfig.setGrouperProvisioner(this.getGrouperProvisioner());
-        attributeConfig.setConfigIndex(3);
+//        attributeConfig.setConfigIndex(3);
         attributeConfig.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.entity);
         attributeConfig.setName(this.getSqlDeletedColumnName());
         getTargetEntityAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);

@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.introspect;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,8 +41,13 @@ public class DefaultAccessorNamingStrategy
     protected final BaseNameValidator _baseNameValidator;
 
     protected final boolean _stdBeanNaming;
+    protected final boolean _isGettersNonBoolean;
 
     protected final String _getterPrefix;
+
+    /**
+     * @since 2.14
+     */
     protected final String _isGetterPrefix;
 
     /**
@@ -57,6 +64,7 @@ public class DefaultAccessorNamingStrategy
         _forClass = forClass;
 
         _stdBeanNaming = config.isEnabled(MapperFeature.USE_STD_BEAN_NAMING);
+        _isGettersNonBoolean = config.isEnabled(MapperFeature.ALLOW_IS_GETTERS_FOR_NON_BOOLEAN);
         _mutatorPrefix = mutatorPrefix;
         _getterPrefix = getterPrefix;
         _isGetterPrefix = isGetterPrefix;
@@ -68,7 +76,7 @@ public class DefaultAccessorNamingStrategy
     {
         if (_isGetterPrefix != null) {
             final Class<?> rt = am.getRawType();
-            if (rt == Boolean.class || rt == Boolean.TYPE) {
+            if (_isGettersNonBoolean || rt == Boolean.class || rt == Boolean.TYPE) {
                 if (name.startsWith(_isGetterPrefix)) {
                     return _stdBeanNaming
                             ? stdManglePropertyName(name, 2)
@@ -527,10 +535,11 @@ public class DefaultAccessorNamingStrategy
                     // trickier: regular fields are ok (handled differently), but should
                     // we also allow getter discovery? For now let's do so
                     "get", "is", null);
-            _fieldNames = new HashSet<>();
-            for (String name : JDK14Util.getRecordFieldNames(forClass.getRawType())) {
-                _fieldNames.add(name);
-            }
+            String[] recordFieldNames = JDK14Util.getRecordFieldNames(forClass.getRawType());
+            // 01-May-2022, tatu: Due to [databind#3417] may return null when no info available
+            _fieldNames = recordFieldNames == null ?
+                    Collections.emptySet() :
+                    new HashSet<>(Arrays.asList(recordFieldNames));
         }
 
         @Override

@@ -1,13 +1,24 @@
 package edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.io;
 
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.io.doubleparser.FastDoubleParser;
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.io.doubleparser.FastFloatParser;
+
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 public final class NumberInput
 {
+    // numbers with more than these characters are better parsed with BigDecimalParser
+    // parsing numbers with many digits in Java is slower than O(n)
+    private final static int LARGE_INT_SIZE = 1250;
+
     /**
-     * Textual representation of a double constant that can cause nasty problems
-     * with JDK (see http://www.exploringbinary.com/java-hangs-when-converting-2-2250738585072012e-308).
+     * Formerly used constant for a value that was problematic on certain
+     * pre-1.8 JDKs.
+     *
+     * @deprecated Since 2.14 -- do not use
      */
+    @Deprecated // since 2.14
     public final static String NASTY_SMALL_DOUBLE = "2.2250738585072012e-308";
 
     /**
@@ -34,6 +45,11 @@ public final class NumberInput
      */
     public static int parseInt(char[] ch, int off, int len)
     {
+        if (len > 0 && ch[off] == '+') {
+            off++;
+            len--;
+        }
+
         int num = ch[off + len - 1] - '0';
         
         switch(len) {
@@ -236,7 +252,9 @@ public final class NumberInput
             // if other symbols, parse as Double, coerce
             if (c > '9' || c < '0') {
                 try {
-                    return (int) parseDouble(s);
+                    //useFastParser=true is used because there is a lot less risk that small changes in result will have an affect
+                    //and performance benefit is useful
+                    return (int) parseDouble(s, true);
                 } catch (NumberFormatException e) {
                     return def;
                 }
@@ -273,7 +291,9 @@ public final class NumberInput
             // if other symbols, parse as Double, coerce
             if (c > '9' || c < '0') {
                 try {
-                    return (long) parseDouble(s);
+                    //useFastParser=true is used because there is a lot less risk that small changes in result will have an affect
+                    //and performance benefit is useful
+                    return (long) parseDouble(s, true);
                 } catch (NumberFormatException e) {
                     return def;
                 }
@@ -284,8 +304,26 @@ public final class NumberInput
         } catch (NumberFormatException e) { }
         return def;
     }
-    
-    public static double parseAsDouble(String s, double def)
+
+    /**
+     * @param s a string representing a number to parse
+     * @param def the default to return if `s` is not a parseable number
+     * @return closest matching double (or `def` if there is an issue with `s`) where useFastParser=false
+     * @see #parseAsDouble(String, double, boolean)
+     */
+    public static double parseAsDouble(final String s, final double def)
+    {
+        return parseAsDouble(s, def, false);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @param def the default to return if `s` is not a parseable number
+     * @param useFastParser whether to use {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.io.doubleparser}
+     * @return closest matching double (or `def` if there is an issue with `s`)
+     * @since 2.14
+     */
+    public static double parseAsDouble(String s, final double def, final boolean useFastParser)
     {
         if (s == null) { return def; }
         s = s.trim();
@@ -294,20 +332,52 @@ public final class NumberInput
             return def;
         }
         try {
-            return parseDouble(s);
+            return parseDouble(s, useFastParser);
         } catch (NumberFormatException e) { }
         return def;
     }
 
-    public static double parseDouble(String s) throws NumberFormatException {
-        // [JACKSON-486]: avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
-        /* as per [JACKSON-827], let's use MIN_VALUE as it is available on all JDKs; normalized
-         * only in JDK 1.6. In practice, should not really matter.
-         */
-        if (NASTY_SMALL_DOUBLE.equals(s)) {
-            return Double.MIN_VALUE;
-        }
-        return Double.parseDouble(s);
+    /**
+     * @param s a string representing a number to parse
+     * @return closest matching double
+     * @throws NumberFormatException if string cannot be represented by a double where useFastParser=false
+     * @see #parseDouble(String, boolean)
+     */
+    public static double parseDouble(final String s) throws NumberFormatException {
+        return parseDouble(s, false);
+    }
+    
+    /**
+     * @param s a string representing a number to parse
+     * @param useFastParser whether to use {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.io.doubleparser}
+     * @return closest matching double
+     * @throws NumberFormatException if string cannot be represented by a double
+     * @since v2.14
+     */
+    public static double parseDouble(final String s, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ? FastDoubleParser.parseDouble(s) : Double.parseDouble(s);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @return closest matching float
+     * @throws NumberFormatException if string cannot be represented by a float where useFastParser=false
+     * @see #parseFloat(String, boolean)
+     * @since v2.14
+     */
+    public static float parseFloat(final String s) throws NumberFormatException {
+        return parseFloat(s, false);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @param useFastParser whether to use {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.io.doubleparser}
+     * @return closest matching float
+     * @throws NumberFormatException if string cannot be represented by a float
+     * @since v2.14
+     */
+    public static float parseFloat(final String s, final boolean useFastParser) throws NumberFormatException {
+        return useFastParser ? FastFloatParser.parseFloat(s) : Float.parseFloat(s);
     }
 
     public static BigDecimal parseBigDecimal(String s) throws NumberFormatException {
@@ -320,5 +390,18 @@ public final class NumberInput
 
     public static BigDecimal parseBigDecimal(char[] ch) throws NumberFormatException {
         return BigDecimalParser.parse(ch);
+    }
+
+    /**
+     * @param s a string representing a number to parse
+     * @return a BigInteger
+     * @throws NumberFormatException if string cannot be represented by a BigInteger
+     * @since v2.14
+     */
+    public static BigInteger parseBigInteger(String s) throws NumberFormatException {
+        if (s.length() > LARGE_INT_SIZE) {
+            return BigDecimalParser.parse(s).toBigInteger();
+        }
+        return new BigInteger(s);
     }
 }

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
@@ -33,7 +34,25 @@ public class GrouperProvisioningDataIndex {
   private Map<MultiKey, ProvisioningMembershipWrapper> grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper = new HashMap<MultiKey, ProvisioningMembershipWrapper>();
 
   
-  
+  public boolean isHasIncrementalDataToProcess() {
+    
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers().size() > 0) {
+      return true;
+    }
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().size() > 0) {
+      return true;
+    }
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().size() > 0) {
+      return true;
+    }
+    
+    return false;
+
+  }
+
   
   public Map<String, ProvisioningGroupWrapper> getGrouperSyncGroupIdToProvisioningGroupWrapper() {
     return grouperSyncGroupIdToProvisioningGroupWrapper;

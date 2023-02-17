@@ -1055,7 +1055,6 @@ public class GrouperInstaller {
     final List<String> commands = new ArrayList<String>();
     
     commands.add(getJavaCommand());
-    commands.add("-XX:MaxPermSize=150m");
     commands.add("-Xmx640m");
     
     commands.add("-Dcatalina.home=" + this.untarredTomeeDir.getAbsolutePath());
@@ -1208,7 +1207,6 @@ public class GrouperInstaller {
 //    11      </java>
     
     commands.add(getJavaCommand());
-    commands.add("-XX:MaxPermSize=150m");
     commands.add("-Xmx640m");
     
     commands.add("-Dcatalina.home=" + this.untarredTomcatDir.getAbsolutePath());
@@ -3205,63 +3203,6 @@ public class GrouperInstaller {
     }
 
     System.out.println("\nEnd building PSP");
-    System.out.println("##################################\n");
-    
-  }
-  
-  /**
-   * build ws scim
-   */
-  private void buildWsScim() {
-    
-    File grouperWsScimSourcesDir =  new File(this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws-scim");
-    
-    if (!grouperWsScimSourcesDir.exists() || grouperWsScimSourcesDir.isFile()) {
-      throw new RuntimeException("Cant find grouper-ws-scim: " + grouperWsScimSourcesDir.getAbsolutePath());
-    }
-    
-    File grouperWsScimBuildToDir = new File(grouperWsScimSourcesDir.getAbsolutePath() + File.separator + "target" + File.separator + "classes");
-    
-    boolean rebuildWsScim = true;
-    
-    if (grouperWsScimBuildToDir.exists()) {
-      System.out.print("The Grouper WS Scim has been built in the past, do you want it rebuilt? (t|f) [t]: ");
-      rebuildWsScim = readFromStdInBoolean(true, "grouperInstaller.autorun.rebuildWsScimAfterHavingBeenBuilt");
-    }
-    
-    if (!rebuildWsScim) {
-      return;
-    }
-    
-    List<String> commands = new ArrayList<String>();
-    
-//    \bin\mvn compile -DskipTests
-    addMavenCommands(commands);
-
-    //put 'compile -DskipTests' in there so it wont run tests which we dont want to do
-    // dependency:copy-dependencies package -DskipTests
-    //not compile
-    commands.add("dependency:copy-dependencies");
-    commands.add("package");
-    commands.add("-DskipTests");
-    commands.add("-Drat.ignoreErrors=true");
-    commands.add("-Dlicense.skip=true");
-    
-    System.out.println("\n##################################");
-    System.out.println("Building Grouper WS Scim with command:\n" + grouperWsScimSourcesDir.getAbsolutePath() + "> " 
-        + convertCommandsIntoCommand(commands) + "\n");
-    
-    CommandResult commandResult = GrouperInstallerUtils.execCommand(GrouperInstallerUtils.toArray(commands, String.class),
-        true, true, null, new File(grouperWsScimSourcesDir.getAbsolutePath()), null, true);
-    
-    if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
-      System.out.println("stderr: " + commandResult.getErrorText());
-    }
-    if (!GrouperInstallerUtils.isBlank(commandResult.getOutputText())) {
-      System.out.println("stdout: " + commandResult.getOutputText());
-    }
-
-    System.out.println("\nEnd building grouper-ws-scim");
     System.out.println("##################################\n");
     
   }
@@ -9917,9 +9858,6 @@ public class GrouperInstaller {
     
     contentToWrite.append("grouper.is.ws.basicAuthn = true");
     contentToWrite.append("\n");
-    
-    contentToWrite.append("grouper.is.scim.basicAuthn = true");
-    contentToWrite.append("\n");
     contentToWrite.append("\n");
     contentToWrite.append("\n");
     
@@ -10096,7 +10034,6 @@ public class GrouperInstaller {
       
       editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.ui.basicAuthn", "true", false);
       editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.ws.basicAuthn", "true", false);
-      editPropertiesFile(grouperHibernatePropertiesFile, "grouper.is.scim.basicAuthn", "true", false);
     } 
     
     System.out.print("Do you want to init the database and auto-upgrade for subsequent containers of the same major and minor version of Grouper (t|f)? [t] ");
@@ -10898,7 +10835,7 @@ public class GrouperInstaller {
     contentToWrite.append("\n");
     StringBuilder grouperContainerStartDockerCommand = new StringBuilder();
     grouperContainerStartDockerCommand.append("docker run");
-    //grouperContainerStartDockerCommand.append(" -e GROUPER_UI='true' -e GROUPER_WS='true' -e GROUPER_DAEMON='true' -e GROUPER_SCIM='true' ");
+    //grouperContainerStartDockerCommand.append(" -e GROUPER_UI='true' -e GROUPER_WS='true' -e GROUPER_DAEMON='true' ");
     //grouperContainerStartDockerCommand.append("-e RUN_APACHE='true' -e RUN_SHIB_SP='false' -e RUN_TOMEE='true' ");
     grouperContainerStartDockerCommand.append(" --detach --publish "+portNumberInt.toString()+":8080 ");
     grouperContainerStartDockerCommand.append("--mount type=bind,src=");
@@ -10973,10 +10910,10 @@ public class GrouperInstaller {
     downloadAndUnzipMaven();
     
     //####################################
-    //download apache tomee
-    File tomeeDir = downloadTomee();
-    File unzippedTomeeFile = unzip(tomeeDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
-    this.untarredTomeeDir = untar(unzippedTomeeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", null);
+    //download apache tomcat
+    File tomcatDir = downloadTomcat();
+    File unzippedTomcatFile = unzip(tomcatDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
+    this.untarredTomcatDir = untar(unzippedTomcatFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", null);
     
     // download grouper tag from github
     File grouperSourceCodeDir = downloadGrouperSourceTagFromGithub();
@@ -10987,10 +10924,10 @@ public class GrouperInstaller {
     String grouperUntarredReleaseDir = untarredGrouperSourceCodeDir.getAbsolutePath().substring(0, untarredGrouperSourceCodeDir.getAbsolutePath().lastIndexOf(File.separator));
     grouperUntarredReleaseDir = grouperUntarredReleaseDir + File.separator + "grouper-" + untarredGrouperSourceCodeDir.getName() ;
     
-    // now create an output directory (webapp) and tomee
+    // now create an output directory (webapp) and tomcat
     String containerDirString = grouperContainerDirectory();
-    File containerTomeeDir = new File(containerDirString + "tomee");
-    containerTomeeDir.mkdirs();
+    File containerTomcatDir = new File(containerDirString + "tomcat");
+    containerTomcatDir.mkdirs();
     
     File webAppDir = new File(containerDirString + "webapp");
     webAppDir.mkdirs();
@@ -11012,9 +10949,6 @@ public class GrouperInstaller {
     File libWsDir = new File(webInfDir+File.separator+"libWs");
     libWsDir.mkdirs();
     
-    File libScimDir = new File(webInfDir+File.separator+"libScim");
-    libScimDir.mkdirs();
-    
     File modulesDir = new File(webInfDir+File.separator+"modules");
     modulesDir.mkdirs();
     File servicesDir = new File(webInfDir+File.separator+"services");
@@ -11029,7 +10963,6 @@ public class GrouperInstaller {
     projectDirToOutputLibDir.put(new File(grouperUntarredReleaseDir + File.separator + "grouper-container" + File.separator + "grouper-api-container"), libDir);
     projectDirToOutputLibDir.put(new File(grouperUntarredReleaseDir + File.separator + "grouper-container" + File.separator + "grouper-uiDaemon-container"), libUiAndDaemonDir);
     projectDirToOutputLibDir.put(new File(grouperUntarredReleaseDir + File.separator + "grouper-container" + File.separator + "grouper-ws-container"), libWsDir);
-    projectDirToOutputLibDir.put(new File(grouperUntarredReleaseDir + File.separator + "grouper-container" + File.separator + "grouper-scim-container"), libScimDir);
     
     List<String> commands = new ArrayList<String>();
     addMavenCommands(commands);
@@ -11055,7 +10988,7 @@ public class GrouperInstaller {
       }
     }
     
-    // now copy all dependency jars into corresponding container/webapp/WEB-INF/lib{""|UiAndDaemon|Ws|Scim|}
+    // now copy all dependency jars into corresponding container/webapp/WEB-INF/lib{""|UiAndDaemon|Ws|}
     try {
       Set<String> allGrouperApiJars = new HashSet<String>();
       for (File file: projectDirToOutputLibDir.keySet()) {        
@@ -11174,19 +11107,18 @@ public class GrouperInstaller {
     reportOnConflictingJars(libDir.getAbsolutePath());
     reportOnConflictingJars(libUiAndDaemonDir.getAbsolutePath());
     reportOnConflictingJars(libWsDir.getAbsolutePath());
-    reportOnConflictingJars(libScimDir.getAbsolutePath());
     
-    // copy apache-tomee-webprofile-x.y.z to tomee
+    // copy apache-tomcat-x.y.z to tomcat
     // why can't uncompressed directory has the same name??? :((
-    File tomeeUntarredDir = new File(this.grouperTarballDirectoryString + File.separator + "apache-tomee-webprofile-" + TOMEE_VERSION);
+    File tomcatUntarredDir = new File(this.grouperTarballDirectoryString + File.separator + "apache-tomcat-" + this.tomcatVersion());
     try {      
-      GrouperInstallerUtils.copyDirectory(tomeeUntarredDir, containerTomeeDir, null, true);
+      GrouperInstallerUtils.copyDirectory(tomcatUntarredDir, containerTomcatDir, null, true);
     } catch (Exception e) {
-      throw new RuntimeException("Could not copy untarred tomee into container/tomee", e);
+      throw new RuntimeException("Could not copy untarred tomcat into container/tomcat", e);
     }
     
-    // put logging related jars in tomee/bin directory
-    File tomeeBinDir = new File(containerTomeeDir + File.separator + "bin");
+    // put logging related jars in tomcat/bin directory
+    File tomcatBinDir = new File(containerTomcatDir + File.separator + "bin");
     
 //    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.13.1/log4j-core-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-core-2.13.1.jar", "");
 //    downloadFile("https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-jul/2.13.1/log4j-jul-2.13.1.jar", tomeeBinDir.getAbsolutePath() + File.separator + "log4j-jul-2.13.1.jar", "");
@@ -11195,8 +11127,8 @@ public class GrouperInstaller {
 //    // put slf4j in lib dir
 //    downloadFile("https://repo1.maven.org/maven2/org/slf4j/slf4j-log4j12/1.7.21/slf4j-log4j12-1.7.21.jar", libDir + File.separator + "slf4j-log4j12-1.7.21.jar", "");
     
-    // point tomee to downloaded webpp
-    configureTomeeGrouperUberWebapp(containerTomeeDir, webAppDir);
+    // point tomcat to downloaded webpp
+    configureTomcatGrouperUberWebapp(containerTomcatDir, webAppDir);
     
     // copy slf4j from tomee/lib to web-inf/lib
 //    File tomeeLibDir = new File(containerTomeeDir + File.separator + "lib");
@@ -11559,9 +11491,6 @@ public class GrouperInstaller {
     //start the loader
     startLoader(true);
     
-    //prompt and install ws scim
-    installWsScim();
-    
     //prompt and install rabbitmq messaging
     installMessagingRabbitMq();
     
@@ -11593,59 +11522,6 @@ public class GrouperInstaller {
     }
     System.out.println("\n##################################\n");
 
-  }
-
-  /**
-   * 
-   */
-  private void installWsScim() {
-    //#####################################
-    // Install Grouper WS Scim Tier API
-    //####################################
-    System.out.print("Do you want to install the grouper ws scim (t|f)? [t]: ");
-    boolean installWsScim = readFromStdInBoolean(true, "grouperInstaller.autorun.installGrouperWsScim");
-    if (installWsScim) {
-      downloadAndUntarWs();
-      
-      //####################################
-      //get maven
-      // NOTE: we dont need maven, ship the binary
-      //downloadAndUnzipMaven();
-      
-      //####################################
-      //look for or ask or download apache tomee
-      File tomeeDir = downloadTomee();
-      File unzippedTomeeFile = unzip(tomeeDir.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc");
-      this.untarredTomeeDir = untar(unzippedTomeeFile.getAbsolutePath(), "grouperInstaller.autorun.useLocalToolsDownloadTarEtc", 
-          new File(this.grouperInstallDirectoryString));
-
-      //####################################
-      //ask for tomee port
-      configureTomee();
-
-      //####################################
-      //build grouper ws scim
-      // NOTE: we dont need to build it, ship the binary
-      //buildWsScim();
-
-      //####################################
-      //configureTomeeGrouperWsScimWebapp
-      configureTomeeGrouperWsScimWebapp();
-      
-      //####################################
-      //set the GrouperSystem password
-      tomeeConfigureGrouperSystem();
-
-      //####################################
-      //bounce tomcat
-      tomeeBounce("restart");
-      
-      //####################################
-      //tell user to go to url
-      System.out.println("##################################\n");
-      System.out.println("Go here for the Grouper WS Scim (change hostname if on different host): http://localhost:" + this.tomeeHttpPort + "/" + "grouper-ws-scim" + "/");
-      System.out.println("\n##################################\n");
-    }
   }
 
   /**
@@ -12366,10 +12242,7 @@ public class GrouperInstaller {
         
         Boolean edited = editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
         if (edited == null) {
-          addToFile(catalinaBatFile, "\nset \"JAVA_OPTS=-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
-        }
-        if (null == editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
-          throw new RuntimeException("Why not edit permgen in file " + catalinaBatFile);
+          addToFile(catalinaBatFile, "\nset \"JAVA_OPTS=-server -Xmx512M\"\n", 65, "max memory");
         }
       }
       
@@ -12380,10 +12253,7 @@ public class GrouperInstaller {
 
         Boolean edited = editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
         if (edited == null) {
-          addToFile(catalinaShFile, "\nJAVA_OPTS=\"-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
-        }
-        if (null == editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
-          throw new RuntimeException("Why not edit permgen in file " + catalinaShFile);
+          addToFile(catalinaShFile, "\nJAVA_OPTS=\"-server -Xmx512M\"\n", 65, "max memory");
         }
       }
     }      
@@ -12551,10 +12421,7 @@ public class GrouperInstaller {
         
         Boolean edited = editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
         if (edited == null) {
-          addToFile(catalinaBatFile, "\nset \"JAVA_OPTS=-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
-        }
-        if (null == editFile(catalinaBatFile, "^\\s*set\\s+\"JAVA_OPTS\\s*=.*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
-          throw new RuntimeException("Why not edit permgen in file " + catalinaBatFile);
+          addToFile(catalinaBatFile, "\nset \"JAVA_OPTS=-server -Xmx512M\"\n", 65, "max memory");
         }
       }
       
@@ -12565,10 +12432,7 @@ public class GrouperInstaller {
 
         Boolean edited = editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-Xmx([0-9mMgG]+)", null, null, "512M", "max memory");
         if (edited == null) {
-          addToFile(catalinaShFile, "\nJAVA_OPTS=\"-server -Xmx512M -XX:MaxPermSize=256M\"\n", 65, "max memory");
-        }
-        if (null == editFile(catalinaShFile, "^\\s*JAVA_OPTS\\s*=\".*-XX:MaxPermSize=([0-9mMgG]+)", null, null, "256M", "permgen memory")) {
-          throw new RuntimeException("Why not edit permgen in file " + catalinaShFile);
+          addToFile(catalinaShFile, "\nJAVA_OPTS=\"-server -Xmx512M\"\n", 65, "max memory");
         }
       }
     }      
@@ -13427,7 +13291,7 @@ public class GrouperInstaller {
   /**
    * tomcat version
    */
-  private String tomcatVersion = "8.5.42";
+  private String tomcatVersion = "8.5.84";
   
   /**
    * 
@@ -13439,15 +13303,15 @@ public class GrouperInstaller {
     if (this.tomcatVersion == null) {
       
       String defaultTomcatVersion = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.tomcat.version", false);
-      defaultTomcatVersion = GrouperInstallerUtils.defaultIfBlank(defaultTomcatVersion, "8.5.42");
+      defaultTomcatVersion = GrouperInstallerUtils.defaultIfBlank(defaultTomcatVersion, "8.5.84");
       
-      System.out.print("Enter the tomcat version (8.5.42 or 8.5.12 or 6.0.35) [" + defaultTomcatVersion + "]: ");
+      System.out.print("Enter the tomcat version (8.5.84 or 8.5.12 or 6.0.35) [" + defaultTomcatVersion + "]: ");
       this.tomcatVersion = readFromStdIn("grouperInstaller.autorun.tomcat.version");
       
       this.tomcatVersion = GrouperInstallerUtils.defaultIfBlank(this.tomcatVersion, defaultTomcatVersion);
       
-      if (!GrouperInstallerUtils.equals(this.tomcatVersion, "8.5.42") && !GrouperInstallerUtils.equals(this.tomcatVersion, "6.0.35")) {
-        System.out.print("Warning: this *should* be 8.5.42 or 8.5.12 or 6.0.35, hit <Enter> to continue: ");
+      if (!GrouperInstallerUtils.equals(this.tomcatVersion, "8.5.84") && !GrouperInstallerUtils.equals(this.tomcatVersion, "6.0.35")) {
+        System.out.print("Warning: this *should* be 8.5.84 or 8.5.12 or 6.0.35, hit <Enter> to continue: ");
         readFromStdIn("grouperInstaller.autorun.tomcat.version.mismatch");
       }
       
@@ -13593,7 +13457,6 @@ public class GrouperInstaller {
     libDirs.add(new File(webInfDir+File.separator+"lib"));
     libDirs.add(new File(webInfDir+File.separator+"libUiAndDaemon"));
     libDirs.add(new File(webInfDir+File.separator+"libWs"));
-    libDirs.add(new File(webInfDir+File.separator+"libScim"));
     
 //    for (File libDir: libDirs) {
 //      File[] filesFromLibToBeDeleted = libDir.listFiles(new FilenameFilter() {
@@ -13659,13 +13522,6 @@ public class GrouperInstaller {
       String wsUrlToDownload = basePath+"grouper-ws/"+this.version+"/grouper-ws-"+this.version+".jar";
       String wsJarfileName = wsUrlToDownload.substring(wsUrlToDownload.lastIndexOf(File.separator)+1, wsUrlToDownload.length());
       downloadFile(wsUrlToDownload, libWsDir.getAbsolutePath() + File.separator+ wsJarfileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
-    }
-    
-    {
-      File libScimDir = new File(webInfDir+File.separator+"libScim");
-      String scimUrlToDownload = basePath+"grouper-ws-scim/"+this.version+"/grouper-ws-scim-"+this.version+".jar";
-      String scimJarfileName = scimUrlToDownload.substring(scimUrlToDownload.lastIndexOf(File.separator)+1, scimUrlToDownload.length());
-      downloadFile(scimUrlToDownload, libScimDir.getAbsolutePath() + File.separator+ scimJarfileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
     }
     
   }
@@ -13942,108 +13798,16 @@ public class GrouperInstaller {
 
   /** gi db utils */
   private GiDbUtils giDbUtils = null;
-    
-  /**
-   * 
-   */
-  private void configureTomeeGrouperWsScimWebapp() {
-    
-    File serverXmlFile = new File(this.untarredTomeeDir.getAbsolutePath() 
-        + File.separator + "conf" + File.separator + "server.xml");
-    
-    //C:\mchyzer\grouper\trunk\grouper-installer\grouper.ui-2.0.2\dist\grouper
-    //
-    //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
-    //Server
-    //Service
-    //Engine
-    //Host
-
-    System.out.print("Enter the URL path for the Grouper WS Scim [grouper-ws-scim]: ");
-    this.tomeeWsScimPath = readFromStdIn("grouperInstaller.autorun.urlPathForGropuerWsScim");
-    
-    if (GrouperInstallerUtils.isBlank(this.tomeeWsScimPath)) {
-      this.tomeeWsScimPath = "grouper-ws-scim";
-    }
-
-    if (this.tomeeWsScimPath.endsWith("/") || this.tomeeWsScimPath.endsWith("\\")) {
-      this.tomeeWsScimPath = this.tomeeWsScimPath.substring(0, this.tomeeWsScimPath.length()-1);
-    }
-    if (this.tomeeWsScimPath.startsWith("/") || this.tomeeWsScimPath.startsWith("\\")) {
-      this.tomeeWsScimPath = this.tomeeWsScimPath.substring(1, this.tomeeWsScimPath.length());
-    }
-    
-    String currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
-        "Server/Service/Engine/Host/Context[@path='/" + this.tomeeWsScimPath + "']", "docBase");
-
-    String shouldBeDocBase = this.untarredWsDir.getAbsolutePath() + File.separator + "grouper-ws-scim" + File.separator + "targetBuiltin" + File.separator + "grouper-ws-scim";
-
-    System.out.println("Editing tomee config file: " + serverXmlFile.getAbsolutePath());
-    
-    if (GrouperInstallerUtils.isBlank(currentDocBase)) {
-
-      //need to add it
-      //<Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="true" xmlNamespaceAware="false" xmlValidation="false">
-      //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
-      addToXmlFile(serverXmlFile, ">", new String[]{"<Host "}, 
-          "<Context docBase=\"" + shouldBeDocBase + "\" path=\"/" + this.tomeeWsScimPath + "\" reloadable=\"false\"/>", "tomee context for Grouper WS Scim");
-
-    } else {
-
-      if (!GrouperInstallerUtils.equals(currentDocBase, shouldBeDocBase)) {
-        
-        //lets edit the file
-        //<Context docBase="C:\mchyzer\grouper\trunk\grouper-ws_trunk\webapp" path="/grouper-ws" reloadable="false"/>
-        editFile(serverXmlFile, "docBase=\"([^\"]+)\"", new String[]{"<Context", "path=\"/" + this.tomeeWsScimPath + "\""}, 
-            null, shouldBeDocBase, "tomee context for Grouper WS Scim");
-
-      } else {
-        
-        System.out.println("  - Context is already set for Grouper WS Scim");
-        
-      }
-      
-      
-    }
-    
-    currentDocBase = GrouperInstallerUtils.xpathEvaluateAttribute(serverXmlFile, 
-        "Server/Service/Engine/Host/Context[@path='/" + this.tomeeWsScimPath + "']", "docBase");
-    
-    if (!GrouperInstallerUtils.equals(currentDocBase, shouldBeDocBase)) {
-      System.out.println("Tried to edit server.xml but it didnt work, should have context of: '" 
-          + shouldBeDocBase + "', but was: '" + currentDocBase + "'");
-    }
-    
-    File[] allFiles = new File(this.untarredApiDir + File.separator + "conf").listFiles(new FilenameFilter() {
-      
-      @Override
-      public boolean accept(File file, String name) {
-        return name.endsWith(".properties") || name.endsWith(".xml") || name.endsWith(".txt");
-      }
-    });
-    
-    
-    for (File fileToCopyFrom : allFiles) {
-      if (fileToCopyFrom.isFile()) {
-        File destFile = new File(shouldBeDocBase + File.separator + "WEB-INF" + File.separator + "classes" + File.separator + fileToCopyFrom.getName());
-        if (!destFile.exists()) {
-          GrouperInstallerUtils.fileCreate(destFile);
-        }
-        GrouperInstallerUtils.copyFile(fileToCopyFrom, destFile, false);
-      }
-    }
-    
-  }
   
   /**
    * 
    */
-  private void configureTomeeGrouperUberWebapp(File tommeDir, File webAppDir) {
+  private void configureTomcatGrouperUberWebapp(File tomcatDir, File webAppDir) {
     
     //GrouperInstallerUtils.toSet("catalina.sh", "startup.sh", "shutdown.sh");
     Set<String> shFileNames = new HashSet<String>();
 
-    File binDir = new File(tommeDir.getAbsolutePath() + File.separator + "bin");
+    File binDir = new File(tomcatDir.getAbsolutePath() + File.separator + "bin");
 
     //get all sh files, doing wildcards doesnt work
     for (File file : binDir.listFiles()) {
@@ -14059,13 +13823,13 @@ public class GrouperInstaller {
       commands.add("chmod");
       commands.add("+x");
       //have to do * since all the  sh files need chmod
-      commands.add(tommeDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
+      commands.add(tomcatDir.getAbsolutePath() + File.separator + "bin" + File.separator + command);
 
-      System.out.println("Making tomee file executable with command: " + convertCommandsIntoCommand(commands) + "\n");
+      System.out.println("Making tomcat file executable with command: " + convertCommandsIntoCommand(commands) + "\n");
 
       CommandResult commandResult = GrouperInstallerUtils.execCommand(
           GrouperInstallerUtils.toArray(commands, String.class), true, true, null, 
-          new File(tommeDir.getAbsolutePath() + File.separator + "bin"), null, true);
+          new File(tomcatDir.getAbsolutePath() + File.separator + "bin"), null, true);
       
       if (!GrouperInstallerUtils.isBlank(commandResult.getErrorText())) {
         System.out.println("stderr: " + commandResult.getErrorText());
@@ -14080,7 +13844,7 @@ public class GrouperInstaller {
       shFiles.add(new File(shFileName));
     }
 // do this in container since its too dynamic
-//    for (String path : new String[] {"grouper", "grouper-ws", "grouper-ws-scim"}) {
+//    for (String path : new String[] {"grouper", "grouper-ws"}) {
 //      // create grouper.xml in conf/Catalina/localhost/grouper.xml
 //      File tomeeGrouperFile = new File(tommeDir.getAbsolutePath() + File.separator + "conf" + File.separator +
 //          "Catalina" + File.separator + "localhost" + File.separator + path + ".xml");
@@ -14088,7 +13852,7 @@ public class GrouperInstaller {
 //      GrouperInstallerUtils.createParentDirectories(tomeeGrouperFile);
 //      GrouperInstallerUtils.fileCreate(tomeeGrouperFile);
 //      String cookiesFalse = "";
-//      if ("grouper-ws".equals(path) || "grouper-ws-scim".equals(path)) {
+//      if ("grouper-ws".equals(path)) {
 //        cookiesFalse = " cookies=\"false\" ";
 //      }
 //      String contentToWrite = "<Context docBase=\"/opt/grouper/grouperWebapp/\" path=\"/" + path + "\" reloadable=\"false\"" 
@@ -14783,9 +14547,6 @@ public class GrouperInstaller {
 
   /** tomcat ws path */
   private String tomcatWsPath = null;
-  
-  /** tomee grouper ws scim path */
-  private String tomeeWsScimPath = null;
 
   /** untarred dir, this does NOT end in file.separator */
   private File untarredClientDir;

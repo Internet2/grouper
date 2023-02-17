@@ -87,7 +87,7 @@ public final class AnnotatedConstructor
 
     @Override
     public int getParameterCount() {
-        return _constructor.getParameterTypes().length;
+        return _constructor.getParameterCount();
     }
 
     @Override
@@ -169,7 +169,7 @@ public final class AnnotatedConstructor
 
     @Override
     public String toString() {
-        final int argCount = _constructor.getParameterTypes().length;
+        final int argCount = _constructor.getParameterCount();
         return String.format("[constructor for %s (%d arg%s), annotations: %s",
                 ClassUtil.nameOf(_constructor.getDeclaringClass()), argCount,
                 (argCount == 1) ? "" : "s", _annotations);

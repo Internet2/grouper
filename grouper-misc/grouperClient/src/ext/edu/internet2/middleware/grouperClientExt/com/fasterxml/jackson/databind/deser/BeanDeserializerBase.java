@@ -961,8 +961,8 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
                 // and is inner class of the bean class...
                 if ((enclosing != null) && (enclosing == _beanType.getRawClass())) {
                     for (Constructor<?> ctor : valueClass.getConstructors()) {
-                        Class<?>[] paramTypes = ctor.getParameterTypes();
-                        if (paramTypes.length == 1) {
+                        if (ctor.getParameterCount() == 1) {
+                            Class<?>[] paramTypes = ctor.getParameterTypes();
                             if (enclosing.equals(paramTypes[0])) {
                                 if (ctxt.canOverrideAccessModifiers()) {
                                     ClassUtil.checkAndFixAccess(ctor, ctxt.isEnabled(MapperFeature.OVERRIDE_PUBLIC_ACCESS_MODIFIERS));
@@ -1411,6 +1411,11 @@ ClassUtil.name(refName), ClassUtil.getTypeDescription(backRefType),
         if (ClassUtil.isNonStaticInnerClass(raw)) {
             return ctxt.handleMissingInstantiator(raw, null, p,
 "non-static inner classes like this can only by instantiated using default, no-argument constructor");
+        }
+        // 01-May-2022, tatu: [databind#3417] special handling for (Graal) native images
+        if (NativeImageUtil.needsReflectionConfiguration(raw)) {
+            return ctxt.handleMissingInstantiator(raw, null, p,
+                    "cannot deserialize from Object value (no delegate- or property-based Creator): this appears to be a native image, in which case you may need to configure reflection for the class that is to be deserialized");
         }
         return ctxt.handleMissingInstantiator(raw, getValueInstantiator(), p,
 "cannot deserialize from Object value (no delegate- or property-based Creator)");

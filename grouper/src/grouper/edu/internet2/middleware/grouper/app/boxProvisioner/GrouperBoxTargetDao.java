@@ -334,7 +334,7 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
     ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
     
     String targetGroupId = resolveTargetGroupId(targetGroup);
-    List<Object> provisioningMemberships = new ArrayList<Object>();
+    List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
     
     if (StringUtils.isBlank(targetGroupId)) {
       return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
@@ -518,41 +518,10 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
   }
   
   @Override
-  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
-    long startNanos = System.nanoTime();
-
-    try {
-      GrouperBoxConfiguration boxConfiguration = (GrouperBoxConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-      Set<String> attributesToRetrieve = boxConfiguration.getGroupAttributesToRetrieve();
-      
-      List<GrouperBoxGroup> grouperBoxGroups = GrouperBoxApiCommands.retrieveBoxGroups(boxConfiguration.getBoxExternalSystemConfigId(),
-          null, attributesToRetrieve);
-
-      List<ProvisioningMembership> results = new ArrayList<>();
-
-      for (GrouperBoxGroup grouperBoxGroup : GrouperUtil.nonNull(grouperBoxGroups)) {
-        Map<String, String> userIdToMembershipId = GrouperBoxApiCommands.retrieveBoxGroupMembers(boxConfiguration.getBoxExternalSystemConfigId(), grouperBoxGroup.getId());
-        for (String userId : userIdToMembershipId.keySet()) {
-          ProvisioningMembership targetMembership = new ProvisioningMembership();
-          targetMembership.setProvisioningEntityId(userId);
-          targetMembership.setProvisioningGroupId(grouperBoxGroup.getId());
-          results.add(targetMembership);
-        }
-
-      }
-
-      return new TargetDaoRetrieveAllMembershipsResponse(results);
-    } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllMemberships", startNanos));
-    }
-  }
-  
-  @Override
   public void registerGrouperProvisionerDaoCapabilities(GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
 
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
     
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);

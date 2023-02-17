@@ -91,6 +91,86 @@ public abstract class GrouperProvisioningConfiguration {
   }
 
   /**
+   * Level 1 error handling percent.  This is the percent chance that the incremental will process errors.
+   */
+  private float errorHandlingPercentLevel1 = 1;
+  
+  /**
+   * Level 1 error handling minutes.  This is how many minutes in the past that error will be retried (+20 seconds).
+   */
+  private float errorHandlingMinutesLevel1 = 180;
+  
+  /**
+   * Level 2 error handling percent.  This is the percent chance that the incremental will process errors.  Note, this does not include the level 1, so it actually occurs level2% - level1% of the time.
+   */
+  private float errorHandlingPercentLevel2 = 5;
+
+  /**
+   * Level 2 error handling minutes.  This is how many minutes in the past that error will be retried (+20 seconds).
+   */
+  private float errorHandlingMinutesLevel2 = 120;
+
+  /**
+   * Level 3 error handling percent.  This is the percent chance that the incremental will process errors.  Note, this does not include the level 1+2, so it actually occurs level3% - level1+2% of the time.
+   */
+  private float errorHandlingPercentLevel3 = 10;
+
+  /**
+   * Level 3 error handling minutes.  This is how many minutes in the past that error will be retried (+20 seconds).
+   */
+  private float errorHandlingMinutesLevel3 = 12;
+
+  /**
+   * Level 4 error handling percent.  This is the percent chance that the incremental will process errors.  Note, this does not include the level 1+2+3, so it actually occurs level4% - level1+2+3% of the time.  If 100 then do this all the time.
+   */
+  private float errorHandlingPercentLevel4 = 100;
+
+  /**
+   * Level 4 error handling minutes.  This is how many minutes in the past that error will be retried (+20 seconds).
+   */
+  private float errorHandlingMinutesLevel4 = 3;
+
+  
+  public float getErrorHandlingPercentLevel1() {
+    return errorHandlingPercentLevel1;
+  }
+
+  
+  public float getErrorHandlingMinutesLevel1() {
+    return errorHandlingMinutesLevel1;
+  }
+
+  
+  public float getErrorHandlingPercentLevel2() {
+    return errorHandlingPercentLevel2;
+  }
+
+  
+  public float getErrorHandlingMinutesLevel2() {
+    return errorHandlingMinutesLevel2;
+  }
+
+  
+  public float getErrorHandlingPercentLevel3() {
+    return errorHandlingPercentLevel3;
+  }
+
+  
+  public float getErrorHandlingMinutesLevel3() {
+    return errorHandlingMinutesLevel3;
+  }
+
+  
+  public float getErrorHandlingPercentLevel4() {
+    return errorHandlingPercentLevel4;
+  }
+
+  
+  public float getErrorHandlingMinutesLevel4() {
+    return errorHandlingMinutesLevel4;
+  }
+
+  /**
    * # Object errors will be logged, at least a handful of each type
    * # {valueType: "boolean", order: 130020, defaultValue: "true", subSection: "errorHandling", showEl: "${errorHandlingShow}"}
    * # provisioner.genericProvisioner.errorHandlingLogErrors =
@@ -1100,6 +1180,17 @@ public abstract class GrouperProvisioningConfiguration {
   public Boolean retrieveConfigBoolean(String configName, boolean required) {
     String configValueString = retrieveConfigString(configName, required);
     return GrouperClientUtils.booleanObjectValue(configValueString);
+  }
+
+  /**
+   * get a config name for this or dependency
+   * @param configName
+   * @param required 
+   * @return the config
+   */
+  public Double retrieveConfigDouble(String configName, boolean required) {
+    String configValueString = retrieveConfigString(configName, required);
+    return GrouperClientUtils.doubleObjectValue(configValueString);
   }
 
   /**
@@ -2159,12 +2250,12 @@ public abstract class GrouperProvisioningConfiguration {
       }
       
       {
-        boolean canChange = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canChange", false), false);
+        boolean canChange = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canChange", false), true);
         grouperProvisioningObjectMetadataItem.setCanChange(canChange);
       }
 
       {
-        boolean canUpdate = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canUpdate", false), false);
+        boolean canUpdate = GrouperUtil.booleanValue(this.retrieveConfigBoolean("metadata."+i+".canUpdate", false), true);
         grouperProvisioningObjectMetadataItem.setCanUpdate(canUpdate);
       }
       
@@ -2353,6 +2444,16 @@ public abstract class GrouperProvisioningConfiguration {
         }
         
         {
+          String translateFromGrouperTargetGroupField = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperTargetGroupField" , false);
+          attributeConfig.setTranslateFromGrouperTargetGroupField(translateFromGrouperTargetGroupField);
+        }
+        
+        {
+          String translateFromGrouperTargetEntityField = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperTargetEntityField" , false);
+          attributeConfig.setTranslateFromGrouperTargetEntityField(translateFromGrouperTargetEntityField);
+        }
+        
+        {
           String translateFromGrouperProvisioningGroupFieldCreateOnly = this.retrieveConfigString(objectType+"."+i+".translateFromGrouperProvisioningGroupFieldCreateOnly" , false);
           attributeConfig.setTranslateFromGrouperProvisioningGroupFieldCreateOnly(translateFromGrouperProvisioningGroupFieldCreateOnly);
         }
@@ -2496,7 +2597,9 @@ public abstract class GrouperProvisioningConfiguration {
     this.debugLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("debugLog", false), false);
     
     this.operateOnGrouperEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperEntities", false), false);
-
+    this.operateOnGrouperMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperMemberships", false), false);
+    this.operateOnGrouperGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperGroups", false), false);
+    
     this.subjectSourcesToProvision = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(this.retrieveConfigString("subjectSourcesToProvision", false), ","));
 
     for (String sourceId : this.subjectSourcesToProvision) {
@@ -2584,6 +2687,22 @@ public abstract class GrouperProvisioningConfiguration {
     
     this.customizeGroupCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeGroupCrud", false), false);
     
+    if (!this.operateOnGrouperGroups) {
+      this.insertGroups = false;
+      
+      this.deleteGroups = false;
+  
+      this.updateGroups = false;
+  
+      this.selectGroups = false;
+  
+      this.deleteGroupsIfNotExistInGrouper = false;
+  
+      this.deleteGroupsIfGrouperDeleted = false;
+  
+      this.deleteGroupsIfGrouperCreated = false;
+    }
+    
     if (this.customizeGroupCrud) {
 
       this.insertGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertGroups", false), true);
@@ -2600,6 +2719,22 @@ public abstract class GrouperProvisioningConfiguration {
 
       this.deleteGroupsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperCreated", false), 
           (deleteGroups && !this.deleteGroupsIfNotExistInGrouper && !this.deleteGroupsIfGrouperDeleted));
+    }
+
+    
+    if (!this.operateOnGrouperMemberships) {
+      this.insertMemberships = false;
+      
+      this.deleteMemberships = false;
+  
+      this.selectMemberships = false;
+  
+      this.deleteMembershipsIfNotExistInGrouper = false;
+  
+      this.deleteMembershipsIfGrouperDeleted = false;
+  
+      this.deleteMembershipsIfGrouperCreated = false;
+      
     }
 
     
@@ -2636,6 +2771,15 @@ public abstract class GrouperProvisioningConfiguration {
       this.errorHandlingRequiredValidationIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingRequiredValidationIsAnError", false), true);
       this.errorHandlingTargetObjectDoesNotExistIsAnError = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingTargetObjectDoesNotExistIsAnError", false), true);
       
+      this.errorHandlingPercentLevel1 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingPercentLevel1", false), 1);
+      this.errorHandlingMinutesLevel1 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingMinutesLevel1", false), 180);
+      this.errorHandlingPercentLevel2 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingPercentLevel2", false), 5);
+      this.errorHandlingMinutesLevel2 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingMinutesLevel2", false), 120);
+      this.errorHandlingPercentLevel3 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingPercentLevel3", false), 10);
+      this.errorHandlingMinutesLevel3 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingMinutesLevel3", false), 12);
+      this.errorHandlingPercentLevel4 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingPercentLevel4", false), 100);
+      this.errorHandlingMinutesLevel4 = GrouperUtil.floatValue(this.retrieveConfigDouble("errorHandlingMinutesLevel4", false), 3);
+      
     }
     
     this.makeChangesToEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("makeChangesToEntities", false), false);
@@ -2650,6 +2794,23 @@ public abstract class GrouperProvisioningConfiguration {
 
     this.customizeEntityCrud = GrouperUtil.booleanValue(this.retrieveConfigBoolean("customizeEntityCrud", false), false);
   
+    if (!this.operateOnGrouperEntities) {
+      this.insertEntities = false;
+      
+      this.deleteEntities = false;
+  
+      this.updateEntities = false;
+  
+      this.selectEntities = false;
+  
+      this.deleteEntitiesIfNotExistInGrouper = false;
+  
+      this.deleteEntitiesIfGrouperDeleted = false;
+  
+      this.deleteEntitiesIfGrouperCreated = false;
+      
+    }
+    
     if (this.customizeEntityCrud) {
       this.insertEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("insertEntities", false), this.insertEntities);
       
@@ -2667,8 +2828,8 @@ public abstract class GrouperProvisioningConfiguration {
           (this.makeChangesToEntities && deleteEntities && !this.deleteEntitiesIfNotExistInGrouper && !this.deleteEntitiesIfGrouperDeleted));
           
     }
-    this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), true);
-    this.selectAllGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllGroups", false), true);
+    this.selectAllEntities = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllEntities", false), this.operateOnGrouperEntities);
+    this.selectAllGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllGroups", false), this.operateOnGrouperGroups);
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
     
@@ -2883,9 +3044,6 @@ public abstract class GrouperProvisioningConfiguration {
     
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());
-    
-    this.operateOnGrouperMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperMemberships", false), false);
-    this.operateOnGrouperGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("operateOnGrouperGroups", false), false);
     
     assignAutoTranslatedGroupsConfiguration();
 

@@ -305,10 +305,10 @@ public class BeanUtil
                 return null;
             }
             typeName =  "Java 8 date/time";
-            moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310";
+            moduleName = "edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.datatype:jackson-datatype-jsr310";
         } else if (isJodaTimeClass(className)) {
             typeName =  "Joda date/time";
-            moduleName = "com.fasterxml.jackson.datatype:jackson-datatype-joda";
+            moduleName = "edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.datatype:jackson-datatype-joda";
         } else {
             return null;
         }

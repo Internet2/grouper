@@ -1,0 +1,57 @@
+package edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace;
+
+import java.util.HashMap;
+import java.util.Map;
+
+
+public class DigitalMarketplaceProvisionerTestConfigInput {
+  
+  /**
+   * extra config by suffix and value
+   */
+  private Map<String, String> extraConfig = new HashMap<String, String>();
+
+  /**
+   * extra config by suffix and value
+   * @param suffix
+   * @param value
+   * @return this for chaining
+   */
+  public DigitalMarketplaceProvisionerTestConfigInput addExtraConfig(String suffix, String value) {
+    this.extraConfig.put(suffix, value);
+    return this;
+  }
+
+  
+  /**
+   * extra config by suffix and value
+   * @return map
+   */
+  public Map<String, String> getExtraConfig() {
+    return this.extraConfig;
+  }
+
+  /**
+   * default to myDigitalMarketplaceProvisioner
+   */
+  private String configId = "myDigitalMarketplaceProvisioner";
+
+  /**
+   * default to myDigitalMarketplaceProvisioner
+   * @param string
+   * @return this for chaining
+   */
+  public DigitalMarketplaceProvisionerTestConfigInput assignConfigId(String string) {
+    this.configId = string;
+    return this;
+  }
+
+  /**
+   * default to myDigitalMarketplaceProvisioner
+   * @return config id
+   */
+  public String getConfigId() {
+    return configId;
+  }
+
+}

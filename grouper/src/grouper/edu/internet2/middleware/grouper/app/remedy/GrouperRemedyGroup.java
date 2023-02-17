@@ -5,13 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyCommands;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyMembership;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyUser;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyCommands;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyMembership;
-import edu.internet2.middleware.grouper.app.remedy.GrouperRemedyUser;
 
 /**
  * grouper box group

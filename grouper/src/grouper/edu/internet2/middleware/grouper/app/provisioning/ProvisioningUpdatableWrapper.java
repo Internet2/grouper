@@ -7,80 +7,21 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorC
  * @author mchyzer
  */
 public abstract class ProvisioningUpdatableWrapper {
-  
-  private boolean insertResultProcessed;
-  
-  private boolean updateResultProcessed;
-  
-  private boolean deleteResultProcessed;
-  
-  public boolean isInsertResultProcessed() {
-    return insertResultProcessed;
+
+
+  public ProvisioningStateBase getProvisioningState() {
+    if (this instanceof ProvisioningGroupWrapper) {
+      return ((ProvisioningGroupWrapper)this).getProvisioningStateGroup();
+    }
+    if (this instanceof ProvisioningEntityWrapper) {
+      return ((ProvisioningEntityWrapper)this).getProvisioningStateEntity();
+    }
+    if (this instanceof ProvisioningMembershipWrapper) {
+      return ((ProvisioningMembershipWrapper)this).getProvisioningStateMembership();
+    }
+    throw new RuntimeException("Not expecting type: " + this);
   }
-
   
-  public void setInsertResultProcessed(boolean insertResultProcessed) {
-    this.insertResultProcessed = insertResultProcessed;
-  }
-
-  
-  public boolean isUpdateResultProcessed() {
-    return updateResultProcessed;
-  }
-
-  
-  public void setUpdateResultProcessed(boolean updateResultProcessed) {
-    this.updateResultProcessed = updateResultProcessed;
-  }
-
-  
-  public boolean isDeleteResultProcessed() {
-    return deleteResultProcessed;
-  }
-
-  
-  public void setDeleteResultProcessed(boolean deleteResultProcessed) {
-    this.deleteResultProcessed = deleteResultProcessed;
-  }
-
-
-  /**
-   * after an action happens, process result only once. Do not process twice during inserts and then during sending changes to target.
-   */
-//  private boolean resultProcessed;
-//  
-//  
-//  public boolean isResultProcessed() {
-//    return resultProcessed;
-//  }
-//  
-//  public void setResultProcessed(boolean resultProcessed) {
-//    this.resultProcessed = resultProcessed;
-//  }
-
-
-  /**
-   * if incremental and recalc, this applies to the entity / group / membership, but not the groupMemberships (for that provisioning) or entityMemberships (for that provisioning)
-   */
-  private boolean recalcObject;
-  
-  /**
-   * if incremental and recalc, this applies to the entity / group / membership, but not the groupMemberships (for that provisioning) or entityMemberships (for that provisioning)
-   * @return
-   */
-  public boolean isRecalcObject() {
-    return recalcObject;
-  }
-
-  /**
-   * if incremental and recalc, this applies to the entity / group / membership, but not the groupMemberships (for that provisioning) or entityMemberships (for that provisioning)
-   * @param recalc
-   */
-  public void setRecalcObject(boolean recalc) {
-    this.recalcObject = recalc;
-  }
-
-
   /**
    * if this object should not be provisioned because there is an error, list it here
    */

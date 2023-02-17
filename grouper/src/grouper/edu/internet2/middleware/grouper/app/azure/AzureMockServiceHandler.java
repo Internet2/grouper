@@ -221,7 +221,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
         HibernateSession.byHqlStatic().createQuery("from GrouperAzureAuth where accessToken = :theAccessToken").setString("theAccessToken", authorizationToken).list(GrouperAzureAuth.class);
     
     if (GrouperUtil.length(grouperAzureAuths) != 1) {
-      throw new RuntimeException("Invalid access token, not found!");
+      throw new RuntimeException("Invalid access token, not found! " + StringUtils.abbreviate(authorizationToken, 5));
     }
     
     GrouperAzureAuth grouperAzureAuth = grouperAzureAuths.get(0);    

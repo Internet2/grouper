@@ -11,7 +11,7 @@ import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.util
  */
 public final class PackageVersion implements Versioned {
     public final static Version VERSION = VersionUtil.parseVersion(
-        "2.13.3", "com.fasterxml.jackson.core", "jackson-core");
+        "2.14.2", "edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core", "jackson-core");
 
     @Override
     public Version version() {

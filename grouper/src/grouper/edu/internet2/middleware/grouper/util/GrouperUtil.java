@@ -110,9 +110,9 @@ import org.apache.commons.jexl2.parser.JexlNode;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.jexl3.JxltEngine.Template;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -148,8 +148,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -389,14 +388,29 @@ public class GrouperUtil {
 //          elVariableMap, true, false, false);
 //      System.out.println(result);
 
-    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
-    grouperProvisioningGroup.setName("First:Second");
-    //grouperProvisioningGroup.assignAttributeValue("displayName", "a:b");
+//  ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+//  grouperProvisioningGroup.setName("First:Second");
+//  //grouperProvisioningGroup.assignAttributeValue("displayName", "a:b");
+//  Map<String, Object> elVariableMap = new HashMap<String, Object>();
+//  //elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+//  Object result = GrouperUtil.substituteExpressionLanguageScript(
+//      "${ grouperProvisioningGroup.name != null }", 
+//      elVariableMap, true, false, true);
+//  System.out.println(result);
+
+      ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+      provisioningEntity.setSubjectIdentifier0("hello");
+
     Map<String, Object> elVariableMap = new HashMap<String, Object>();
-    //elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
-    Object result = GrouperUtil.substituteExpressionLanguageScript(
-        "${ grouperProvisioningGroup.name != null }", 
-        elVariableMap, true, false, true);
+      elVariableMap.put("provisioningEntity", provisioningEntity);
+      
+      String el = "${provisioningEntity.subjectIdentifier0 ? provisioningEntity.subjectIdentifier0 : null}";
+      
+      boolean silent = false;
+      boolean lenient = false;
+      boolean allowStaticClasses = true;
+
+      Object result = substituteExpressionLanguageScript(el,elVariableMap, allowStaticClasses, silent, lenient);
     System.out.println(result);
 
     } finally {
@@ -3148,7 +3162,11 @@ public class GrouperUtil {
         result.append(", ");
       }
       first = false;
-      result.append(object);
+      
+      String objectString = GrouperUtil.stringValue(object);
+      objectString = StringUtils.replace(objectString, ",", "U+002C");
+      
+      result.append(objectString);
     }
     return result.toString();
 
@@ -7883,6 +7901,21 @@ public class GrouperUtil {
       return ((Number)input).floatValue();
     }
     throw new RuntimeException("Cannot convert to float: " + className(input));
+  }
+
+  /**
+   * get the float value of an object
+   *
+   * @param input
+   *          is a number or String
+   *
+   * @return the float equivalent
+   */
+  public static float floatValue(Object input, float defaultValue) {
+    if (isEmpty(input)) {
+      return defaultValue;
+    }
+    return floatValue(input);
   }
 
   /**

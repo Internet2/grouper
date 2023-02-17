@@ -20,8 +20,10 @@ import org.apache.commons.lang.StringUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpClientSetupAuthorization;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -224,6 +226,35 @@ public class GrouperDuoApiCommands {
     deleteDuoUser("duo1", duoUserCreated.getId());
     
   }
+  
+  private static void assignDateAndAuthorizationHeader(GrouperHttpClient grouperHttpCall, String httpMethodName,
+      String adminDomainName, String version, String urlSuffix, String paramsLine, String configId ) {
+    
+    //String rfcDate = "Sat, 13 Mar 2010 11:29:05 -0800";
+    String pattern = "EEE, dd MMM yyyy HH:mm:ss Z";
+    SimpleDateFormat format = new SimpleDateFormat(pattern);
+    format.setTimeZone(TimeZone.getTimeZone("UTC"));
+    String dateHeaderValue = format.format(new Date());
+    grouperHttpCall.addHeader("Date", dateHeaderValue);
+    
+    String hmacSource = dateHeaderValue + "\n" + httpMethodName + "\n" + adminDomainName + "\n" + "/admin/"+version+urlSuffix + "\n" + paramsLine;
+    
+    String adminSecretKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminSecretKey");
+    String adminIntegrationKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminIntegrationKey");
+    
+    String hmac = new HmacUtils(HmacAlgorithms.HMAC_SHA_1, adminSecretKey).hmacHex(hmacSource);
+    
+    String bearerToken = adminIntegrationKey + ":" + hmac;
+    
+    String credentials = "";
+    try {
+      credentials = new String(Base64.getEncoder().encode(bearerToken.getBytes()), "UTF-8");
+    } catch (UnsupportedEncodingException e1) {
+      throw new RuntimeException(e1);
+    }
+    grouperHttpCall.addHeader("Authorization", "Basic " + credentials);
+    
+  }
 
   private static JsonNode executeMethod(Map<String, Object> debugMap,
       String httpMethodName, String configId,
@@ -304,44 +335,33 @@ public class GrouperDuoApiCommands {
     grouperHttpCall.assignGrouperHttpMethod(httpMethodName);
     grouperHttpCall.addHeader("Content-Type", "application/x-www-form-urlencoded");
     
-    //String rfcDate = "Sat, 13 Mar 2010 11:29:05 -0800";
-    String pattern = "EEE, dd MMM yyyy HH:mm:ss Z";
-    SimpleDateFormat format = new SimpleDateFormat(pattern);
-    format.setTimeZone(TimeZone.getTimeZone("UTC"));
-    String dateHeaderValue = format.format(new Date());
-    grouperHttpCall.addHeader("Date", dateHeaderValue);
-    
-    String hmacSource = dateHeaderValue + "\n" + httpMethodName + "\n" + adminDomainName + "\n" + "/admin/"+version+urlSuffix + "\n" + paramsLine;
-    
-    String adminSecretKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminSecretKey");
-    String adminIntegrationKey = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.duoConnector."+configId+".adminIntegrationKey");
-    
-    String hmac = new HmacUtils(HmacAlgorithms.HMAC_SHA_1, adminSecretKey).hmacHex(hmacSource);
-    
-    String bearerToken = adminIntegrationKey + ":" + hmac;
-    
-    String credentials = "";
-    try {
-      credentials = new String(Base64.getEncoder().encode(bearerToken.getBytes()), "UTF-8");
-    } catch (UnsupportedEncodingException e1) {
-      throw new RuntimeException(e1);
-    }
-    grouperHttpCall.addHeader("Authorization", "Basic " + credentials);
-    
     grouperHttpCall.assignBody(body);
-    grouperHttpCall.executeRequest();
+    
+    String PARAMS_LINE = paramsLine;
+    grouperHttpCall.setGrouperHttpClientSetupAuthorization(new GrouperHttpClientSetupAuthorization() {
+      
+      @Override
+      public void setupAuthorization(GrouperHttpClient httpClient) {
+        assignDateAndAuthorizationHeader(grouperHttpCall, httpMethodName, 
+            adminDomainName, version, urlSuffix, PARAMS_LINE, configId);
+        
+      }
+    });
     
     int code = -1;
     String json = null;
-
-    try {
-      code = grouperHttpCall.getResponseCode();
-      returnCode[0] = code;
-      json = grouperHttpCall.getResponseBody();
-    } catch (Exception e) {
-      throw new RuntimeException("Error connecting to '" + debugMap.get("url") + "'", e);
+    
+    grouperHttpCall.executeRequest();
+    code = grouperHttpCall.getResponseCode();
+    returnCode[0] = code;
+    json = grouperHttpCall.getResponseBody();
+    int timesItWasRetried = grouperHttpCall.getRetryForThrottlingTimesItWasRetried();
+    
+    GrouperProvisioner currentGrouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    if (currentGrouperProvisioner != null) {
+      GrouperUtil.mapAddValue(currentGrouperProvisioner.getDebugMap(), "duoCommandsRetryCount", timesItWasRetried);
     }
-
+      
     if (!allowedReturnCodes.contains(code)) {
       throw new RuntimeException(
           "Invalid return code '" + code + "', expecting: " + GrouperUtil.setToString(allowedReturnCodes)

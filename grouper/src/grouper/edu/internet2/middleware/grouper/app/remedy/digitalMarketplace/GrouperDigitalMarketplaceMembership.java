@@ -2,8 +2,6 @@ package edu.internet2.middleware.grouper.app.remedy.digitalMarketplace;
 
 import java.util.Map;
 
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceMembership;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceUser;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**

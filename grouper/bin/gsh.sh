@@ -198,6 +198,10 @@ if [ -f /opt/tomee/lib/servlet-api.jar ]; then
         GROUPER_CP=${GROUPER_CP}:/opt/tomee/lib/servlet-api.jar
 fi
 
+GROUPER_ADD_OPENS="--add-opens java.base/java.lang=ALL-UNNAMED \
+  --add-opens java.base/java.util=ALL-UNNAMED \
+  --add-opens java.sql/java.sql=ALL-UNNAMED"
+
 retVal=0
 
 
@@ -213,7 +217,7 @@ fi
 
 GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper
 
-"${JAVA}" -Xms$MEM_START -Xmx$MEM_MAX -Dgrouper.home="$GROUPER_HOME/" -Dfile.encoding=utf-8 $GSH_JVMARGS $GROUPER_GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH "$@"
+"${JAVA}" -Xms$MEM_START -Xmx$MEM_MAX $GROUPER_ADD_OPENS -Dgrouper.home="$GROUPER_HOME/" -Dfile.encoding=utf-8 $GSH_JVMARGS $GROUPER_GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH "$@"
 retVal=$?
 
 # handle return from either execution or bash source

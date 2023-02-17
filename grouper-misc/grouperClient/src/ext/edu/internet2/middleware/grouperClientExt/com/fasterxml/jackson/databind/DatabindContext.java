@@ -5,7 +5,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.annotation.*;
-
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.HandlerInstantiator;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.MapperConfig;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.introspect.Annotated;
@@ -61,9 +61,9 @@ public abstract class DatabindContext
     /* Access to specific config settings
     /**********************************************************
      */
-    
+
     /**
-     * Convenience method for checking whether specified serialization
+     * Convenience method for checking whether specified Mapper
      * feature is enabled or not.
      * Shortcut for:
      *<pre>
@@ -71,6 +71,14 @@ public abstract class DatabindContext
      *</pre>
      */
     public abstract boolean isEnabled(MapperFeature feature);
+
+    /**
+     * Method for checking whether specified datatype
+     * feature is enabled or not.
+     *
+     * @since 2.14
+     */
+    public abstract boolean isEnabled(DatatypeFeature feature);
 
     /**
      * Convenience method for accessing serialization view in use (if any); equivalent to:

@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -26,40 +27,26 @@ public class GrouperProvisioningDataSync {
     this.grouperProvisioner = grouperProvisioner;
   }
 
-  private List<GcGrouperSyncGroup> gcGrouperSyncGroups = null;
+  private Set<GcGrouperSyncGroup> gcGrouperSyncGroups = new HashSet<GcGrouperSyncGroup>();
   
-  private List<GcGrouperSyncMember> gcGrouperSyncMembers = null;
+  private Set<GcGrouperSyncMember> gcGrouperSyncMembers = new HashSet<GcGrouperSyncMember>();
   
-  private List<GcGrouperSyncMembership> gcGrouperSyncMemberships = null;
+  private Set<GcGrouperSyncMembership> gcGrouperSyncMemberships = new HashSet<GcGrouperSyncMembership>();
 
   
-  public List<GcGrouperSyncGroup> getGcGrouperSyncGroups() {
+  public Set<GcGrouperSyncGroup> getGcGrouperSyncGroups() {
     return gcGrouperSyncGroups;
   }
 
-  
-  public void setGcGrouperSyncGroups(List<GcGrouperSyncGroup> gcGrouperSyncGroups) {
-    this.gcGrouperSyncGroups = gcGrouperSyncGroups;
-  }
-
-  
-  public List<GcGrouperSyncMember> getGcGrouperSyncMembers() {
+    
+  public Set<GcGrouperSyncMember> getGcGrouperSyncMembers() {
     return gcGrouperSyncMembers;
   }
 
-  
-  public void setGcGrouperSyncMembers(List<GcGrouperSyncMember> gcGrouperSyncMembers) {
-    this.gcGrouperSyncMembers = gcGrouperSyncMembers;
-  }
 
   
-  public List<GcGrouperSyncMembership> getGcGrouperSyncMemberships() {
+  public Set<GcGrouperSyncMembership> getGcGrouperSyncMemberships() {
     return gcGrouperSyncMemberships;
   }
   
-  public void setGcGrouperSyncMemberships(
-      List<GcGrouperSyncMembership> gcGrouperSyncMemberships) {
-    this.gcGrouperSyncMemberships = gcGrouperSyncMemberships;
-  }
-
 }

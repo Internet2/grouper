@@ -514,28 +514,6 @@ public abstract class ProvisioningUpdatable {
     }
     throw new RuntimeException("Not expecting provisioning updatable: " + this.getClass());
   }
-
-  public boolean isRecalcObject() {
-    if (this instanceof ProvisioningGroup) {
-      return ((ProvisioningGroup)this).getProvisioningGroupWrapper().isRecalcObject();
-    }
-    if (this instanceof ProvisioningEntity) {
-      return ((ProvisioningEntity)this).getProvisioningEntityWrapper().isRecalcObject();
-    }
-    if (this instanceof ProvisioningMembership) {
-      return ((ProvisioningMembership)this).getProvisioningMembershipWrapper().isRecalcObject();
-    }
-    throw new RuntimeException("Not expecting type: " + this.getClass().getName());
-  }
-  public boolean isRecalcObjectMemberships() {
-    if (this instanceof ProvisioningGroup) {
-      return ((ProvisioningGroup)this).getProvisioningGroupWrapper().isRecalcGroupMemberships();
-    }
-    if (this instanceof ProvisioningEntity) {
-      return ((ProvisioningEntity)this).getProvisioningEntityWrapper().isRecalcEntityMemberships();
-    }
-    throw new RuntimeException("Not expecting type: " + this.getClass().getName());
-  }
   
   public abstract boolean canInsertAttribute(String name);
   public abstract boolean canUpdateAttribute(String name);
@@ -719,7 +697,7 @@ public abstract class ProvisioningUpdatable {
     }
 
     // If there are two memberships with the same value, overwrite if the previous one was marked as delete.
-    if (!valueToProvisioningMembershipWrapper.containsKey(value) || valueToProvisioningMembershipWrapper.get(value).isDelete()) {
+    if (!valueToProvisioningMembershipWrapper.containsKey(value) || valueToProvisioningMembershipWrapper.get(value).getProvisioningStateMembership().isDelete()) {
       valueToProvisioningMembershipWrapper.put(value, provisioningMembershipWrapper);
     }
 
@@ -1093,7 +1071,9 @@ public abstract class ProvisioningUpdatable {
       
       if (provisioningAttribute != null) {
         Collection collection = (Collection)provisioningAttribute.getValue();
-        collection.clear();
+        if (collection != null) {
+          collection.clear();
+        }
       }
     }
     

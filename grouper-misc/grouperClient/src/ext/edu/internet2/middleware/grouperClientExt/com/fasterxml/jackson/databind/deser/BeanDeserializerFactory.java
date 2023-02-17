@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.introspect.*;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.jsontype.impl.SubTypeValidator;
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.BeanUtil;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.ClassUtil;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.IgnorePropertiesUtil;
@@ -424,10 +425,27 @@ ClassUtil.name(propName)));
 
         // But then let's decorate things a bit
         // Need to add "initCause" as setter for exceptions (sub-classes of Throwable).
+        // 26-May-2022, tatu: [databind#3275] Looks like JDK 12 added "setCause()"
+        //    which can wreak havoc, at least with NamingStrategy
+        Iterator<SettableBeanProperty> it = builder.getProperties();
+        while (it.hasNext()) {
+            SettableBeanProperty prop = it.next();
+            if ("setCause".equals(prop.getMember().getName())) {
+                // For now this is allowed as we are returned "live" Iterator...
+                it.remove();
+                break;
+            }
+        }
         AnnotatedMethod am = beanDesc.findMethod("initCause", INIT_CAUSE_PARAMS);
         if (am != null) { // should never be null
+            // [databind#3497]: must consider possible PropertyNamingStrategy
+            String name = "cause";
+            PropertyNamingStrategy pts = config.getPropertyNamingStrategy();
+            if (pts != null) {
+                name = pts.nameForSetterMethod(config, am, "cause");
+            }
             SimpleBeanPropertyDefinition propDef = SimpleBeanPropertyDefinition.construct(ctxt.getConfig(), am,
-                    new PropertyName("cause"));
+                    new PropertyName(name));
             SettableBeanProperty prop = constructSettableProperty(ctxt, beanDesc, propDef,
                     am.getParameterType(0));
             if (prop != null) {
@@ -436,16 +454,6 @@ ClassUtil.name(propName)));
                 builder.addOrReplaceProperty(prop, true);
             }
         }
-
-        // And also need to ignore "localizedMessage"
-        builder.addIgnorable("localizedMessage");
-        // Java 7 also added "getSuppressed", skip if we have such data:
-        builder.addIgnorable("suppressed");
-        // As well as "message": it will be passed via constructor,
-        // as there's no 'setMessage()' method
-        // 23-Jan-2018, tatu: ... although there MAY be Creator Property... which is problematic
-//        builder.addIgnorable("message");
-
         // update builder now that all information is in?
         if (_factoryConfig.hasDeserializerModifiers()) {
             for (BeanDeserializerModifier mod : _factoryConfig.deserializerModifiers()) {
@@ -453,12 +461,11 @@ ClassUtil.name(propName)));
             }
         }
         JsonDeserializer<?> deserializer = builder.build();
-        
-        /* At this point it ought to be a BeanDeserializer; if not, must assume
-         * it's some other thing that can handle deserialization ok...
-         */
+
+        // At this point it ought to be a BeanDeserializer; if not, must assume
+        // it's some other thing that can handle deserialization ok...
         if (deserializer instanceof BeanDeserializer) {
-            deserializer = new ThrowableDeserializer((BeanDeserializer) deserializer);
+            deserializer = ThrowableDeserializer.construct(ctxt, (BeanDeserializer) deserializer);
         }
 
         // may have modifier(s) that wants to modify or replace serializer we just built:
@@ -800,6 +807,7 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
         BeanProperty prop;
         JavaType keyType;
         JavaType valueType;
+        final boolean isField = mutator instanceof AnnotatedField;
 
         if (mutator instanceof AnnotatedMethod) {
             // we know it's a 2-arg method, second arg is the value
@@ -811,18 +819,39 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
                     valueType, null, mutator,
                     PropertyMetadata.STD_OPTIONAL);
 
-        } else if (mutator instanceof AnnotatedField) {
+        } else if (isField) {
             AnnotatedField af = (AnnotatedField) mutator;
             // get the type from the content type of the map object
-            JavaType mapType = af.getType();
-            mapType = resolveMemberAndTypeAnnotations(ctxt, mutator, mapType);
-            keyType = mapType.getKeyType();
-            valueType = mapType.getContentType();
-            prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
-                    mapType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            JavaType fieldType = af.getType();
+            // 31-Jul-2022, tatu: Not just Maps any more but also JsonNode, so:
+            if (fieldType.isMapLikeType()) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                keyType = fieldType.getKeyType();
+                valueType = fieldType.getContentType();
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+            } else if (fieldType.hasRawClass(JsonNode.class)
+                    || fieldType.hasRawClass(ObjectNode.class)) {
+                fieldType = resolveMemberAndTypeAnnotations(ctxt, mutator, fieldType);
+                // Deserialize is individual values of ObjectNode, not full ObjectNode, so:
+                valueType = ctxt.constructType(JsonNode.class);
+                prop = new BeanProperty.Std(PropertyName.construct(mutator.getName()),
+                        fieldType, null, mutator, PropertyMetadata.STD_OPTIONAL);
+
+                // Unlike with more complicated types, here we do not allow any annotation
+                // overrides etc but instead short-cut handling:
+                return SettableAnyProperty.constructForJsonNodeField(ctxt,
+                        prop, mutator, valueType,
+                        ctxt.findRootValueDeserializer(valueType));
+            } else {
+                return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
+                        "Unsupported type for any-setter: %s -- only support `Map`s, `JsonNode` and `ObjectNode` ",
+                        ClassUtil.getTypeDescription(fieldType)));
+            }
         } else {
             return ctxt.reportBadDefinition(beanDesc.getType(), String.format(
-                    "Unrecognized mutator type for any setter: %s", mutator.getClass()));
+                    "Unrecognized mutator type for any-setter: %s",
+                    ClassUtil.nameOf(mutator.getClass())));
         }
         // First: see if there are explicitly specified 
         // and then possible direct deserializer override on accessor
@@ -847,8 +876,12 @@ ClassUtil.name(name), ((AnnotatedParameter) m).getIndex());
             deser = (JsonDeserializer<Object>) ctxt.handlePrimaryContextualization(deser, prop, valueType);
         }
         TypeDeserializer typeDeser = valueType.getTypeHandler();
-        return new SettableAnyProperty(prop, mutator, valueType,
-                keyDeser, deser, typeDeser);
+        if (isField) {
+            return SettableAnyProperty.constructForMapField(ctxt,
+                    prop, mutator, valueType, keyDeser, deser, typeDeser);
+        }
+        return SettableAnyProperty.constructForMethod(ctxt,
+                prop, mutator, valueType, keyDeser, deser, typeDeser);
     }
 
     /**

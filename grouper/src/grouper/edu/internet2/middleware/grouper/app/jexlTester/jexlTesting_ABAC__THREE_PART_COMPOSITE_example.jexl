@@ -1,0 +1,1 @@
+${(entity.memberOf('app:wiki:adminsManual') && entity.memberOf('ref:employee')) && !entity.memberOf('ref:lockout')}

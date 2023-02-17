@@ -21,6 +21,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
@@ -958,8 +959,8 @@ public enum GcTableSyncSubtype {
       
       return gcTableSyncTableData;
     } catch (RuntimeException re) {
-      GrouperClientUtils.injectInException(re, "Error in '" + queryLogLabel + "' connectionName: " + connectionName + ", query '" + sql + "', " + GrouperClientUtils.toStringForLog(bindVars));
-      throw re;
+      RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, "Error in '" + queryLogLabel + "' connectionName: " + connectionName + ", query '" + sql + "', " + GrouperClientUtils.toStringForLog(bindVars));
+      throw re2;
     } finally {
       //temporarily store as micros, then divide in the end
       logIncrement(debugMap, queryLogLabel + "Millis", (long)((System.nanoTime() - start)/1000));
@@ -1154,8 +1155,8 @@ public enum GcTableSyncSubtype {
       return totalInserts;
       
     } catch (RuntimeException re) {
-      GrouperClientUtils.injectInException(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
-      throw re;
+      RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
+      throw re2;
     } finally {
       //temporarily store as micros, then divide in the end
       logIncrement(debugMap,queryLogLabel + "Millis", (int)((System.nanoTime() - start)/1000));
@@ -1243,8 +1244,8 @@ public enum GcTableSyncSubtype {
       return totalDeletes;
       
     } catch (RuntimeException re) {
-      GrouperClientUtils.injectInException(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
-      throw re;
+      RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
+      throw re2;
     } finally {
       //temporarily store as micros, then divide in the end
       logIncrement(debugMap,queryLogLabel + "Millis",(int)( (System.nanoTime() - start)/1000));
@@ -1594,8 +1595,8 @@ public enum GcTableSyncSubtype {
       return actualDeletes;
       
     } catch (RuntimeException re) {
-      GrouperClientUtils.injectInException(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
-      throw re;
+      RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
+      throw re2;
     } finally {
       //temporarily store as micros, then divide in the end
       logIncrement(debugMap,queryLogLabel + "Millis",(int)( (System.nanoTime() - start)/1000));
@@ -1874,8 +1875,8 @@ public enum GcTableSyncSubtype {
       return totalUpdates;
       
     } catch (RuntimeException re) {
-      GrouperClientUtils.injectInException(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
-      throw re;
+      RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, "Error in '" + queryLogLabel + "' query: '" + sql + "'");
+      throw re2;
     } finally {
       //temporarily store as micros, then divide in the end
       logIncrement(debugMap,queryLogLabel + "Millis", (System.nanoTime() - start)/1000);

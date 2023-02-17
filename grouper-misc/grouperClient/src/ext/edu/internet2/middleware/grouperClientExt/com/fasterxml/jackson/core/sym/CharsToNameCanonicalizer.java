@@ -83,7 +83,7 @@ public final class CharsToNameCanonicalizer
      * but increased in Jackson 2.13 to 150 to work around specific test case.
      *<p>
      * Note: longest chain we have been able to produce without malicious
-     * intent has been 38 (with "com.fasterxml.jackson.core.main.TestWithTonsaSymbols");
+     * intent has been 38 (with "edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.main.TestWithTonsaSymbols");
      * our setting should be reasonable here.
      * 
      * @since 2.1 (changed in 2.13)

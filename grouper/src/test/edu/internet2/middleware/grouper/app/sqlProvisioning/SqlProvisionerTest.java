@@ -145,7 +145,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testFullSyncPennListserv"));
+    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisioner"));
     
   }
   
@@ -5397,24 +5397,24 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) > 0);
       
       for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
-        assertTrue(provisioningGroupWrapper.isRecalcObject());
+        assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
         // ? should this be here?
-        assertTrue(provisioningGroupWrapper.isRecalcGroupMemberships());
+        assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
       }
       
       assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) > 0);
       
       for (ProvisioningEntityWrapper provisioningEntityWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
-        assertTrue(provisioningEntityWrapper.isRecalcObject());
+        assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
   
         // ? should this be here?
-        assertTrue(provisioningEntityWrapper.isRecalcEntityMemberships());
+        assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
       }
       
       assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) > 0);
       
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
-        assertTrue(provisioningMembershipWrapper.isRecalcObject());
+        assertTrue(provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
       }
       
       assertEquals("test:testGroup", new GcDbAccess().sql("select name from testgrouper_prov_group where uuid = ?").addBindVar(testGroup.getId()).select(String.class));

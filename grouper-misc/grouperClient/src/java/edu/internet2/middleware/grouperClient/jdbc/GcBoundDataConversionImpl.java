@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.util.Date;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -111,9 +112,9 @@ public class GcBoundDataConversionImpl implements GcBoundDataConversion {
       } else {
         try {
           field.set(instance, field.getType().cast(value));
-        } catch (RuntimeException e) {
-          GrouperClientUtils.injectInException(e, instance.getClass() + ", " + field.getName() + ", " + value.getClass());
-          throw e;
+        } catch (RuntimeException e) {          
+          RuntimeException e2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(e, instance.getClass() + ", " + field.getName() + ", " + value.getClass());
+          throw e2;
         }
       }
 

@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -148,7 +149,14 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
       }
       
       if (value instanceof String) {
-        return GrouperUtil.splitTrimToSet(value.toString(), ",");
+        Set<String> set = GrouperUtil.splitTrimToSet(value.toString(), ",");
+        Set<String> newSet  = new LinkedHashSet<>();
+        
+        for (String singleValue: set) {
+          newSet.add(GrouperUtil.replace(singleValue, "U+002C", ","));
+        }
+        
+        return newSet;
       }
       
       if (value instanceof ArrayNode) {

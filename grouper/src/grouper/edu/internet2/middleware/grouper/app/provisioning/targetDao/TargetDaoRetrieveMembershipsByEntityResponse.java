@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
 import java.util.List;
 
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 
 public class TargetDaoRetrieveMembershipsByEntityResponse {
@@ -34,13 +35,24 @@ public class TargetDaoRetrieveMembershipsByEntityResponse {
   /**
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    */
-  private List<Object> targetMemberships;
+  private List<ProvisioningMembership> targetMemberships;
+
+  private List<ProvisioningEntity> targetEntities;
+  
+  public List<ProvisioningEntity> getTargetEntities() {
+    return targetEntities;
+  }
+
+  
+  public void setTargetEntities(List<ProvisioningEntity> targetEntities) {
+    this.targetEntities = targetEntities;
+  }
 
   /**
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    * @return
    */
-  public List<Object> getTargetMemberships() {
+  public List<ProvisioningMembership> getTargetMemberships() {
     return targetMemberships;
   }
 
@@ -48,7 +60,7 @@ public class TargetDaoRetrieveMembershipsByEntityResponse {
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    * @param targetMemberships
    */
-  public void setTargetMemberships(List<Object> targetMemberships) {
+  public void setTargetMemberships(List<ProvisioningMembership> targetMemberships) {
     this.targetMemberships = targetMemberships;
   }
 
@@ -57,7 +69,7 @@ public class TargetDaoRetrieveMembershipsByEntityResponse {
    * @param targetMemberships
    */
   public TargetDaoRetrieveMembershipsByEntityResponse(
-      List<Object> targetMemberships) {
+      List<ProvisioningMembership> targetMemberships) {
     super();
     this.targetMemberships = targetMemberships;
   }

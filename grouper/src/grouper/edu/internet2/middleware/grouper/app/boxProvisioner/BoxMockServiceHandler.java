@@ -1207,7 +1207,7 @@ public class BoxMockServiceHandler extends MockServiceHandler {
     public RSAPublicKey getPublicKeyById(String keyId) {
       PublicKey publicKey = null;
       try {
-        String publicKeyEncoded = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.box.mock.publicKey");
+        String publicKeyEncoded = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.box.mock.publicKey");
         if (StringUtils.isBlank(publicKeyEncoded)) {
           publicKeyEncoded = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAymeK52tp3E5wzN4IIpfAOFKVSX/uC2VSP22cJp2S1VTUx+NiieJWadYYrjQNMPQzaNUw+HNbbHylxk1LTgSOR70UXXp+nCIto6L0PdJpmCSun9KuyIT2KnI43niWioQsPzKTsEkFPraEotyub4FQAwAst5JXgCS0X0V1Bu8YRsxKo/QLOGFWxA8KulqdEC7EJxoqNv1NdBVQmLe8D9uc7bMYPG9Js3BlM9jyTDTN5UsCutWprg7UdmY0ZUSWI4nFrmgranzPtZrrz2LuVHaRbHPlFzGZEH/F43hWlLRNNUa1a7DV1KTc5vE9c3l5AxCtG5lKaTmWwUP1cHIDnCQTUwIDAQAB";
         }

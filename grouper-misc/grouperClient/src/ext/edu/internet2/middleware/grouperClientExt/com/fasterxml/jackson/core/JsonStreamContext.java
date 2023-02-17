@@ -39,7 +39,7 @@ public abstract class JsonStreamContext
     public final static int TYPE_OBJECT = 2;
 
     /**
-     * Indicates logical type of context as one of {@code TYPE_xxx} consants.
+     * Indicates logical type of context as one of {@code TYPE_xxx} constants.
      */
     protected int _type;
 
@@ -303,7 +303,7 @@ public abstract class JsonStreamContext
     public JsonLocation getStartLocation(Object srcRef) {
         return JsonLocation.NA;
     }
-    
+
     /**
      * Overridden to provide developer readable "JsonPath" representation
      * of the context.

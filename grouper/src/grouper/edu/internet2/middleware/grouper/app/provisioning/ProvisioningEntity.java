@@ -1,8 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -252,24 +249,44 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     
     if (this.provisioningEntityWrapper != null) {
-      if (this.provisioningEntityWrapper.isRecalcObject()) {
-        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningEntityWrapper.isRecalcObject());
+      
+      if (this == this.provisioningEntityWrapper.getGrouperProvisioningEntity() || this == this.provisioningEntityWrapper.getGrouperTargetEntity()) {
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().getGrouperIncrementalDataAction() != null) {
+          firstField = toStringAppendField(result, firstField, "action", this.provisioningEntityWrapper.getProvisioningStateEntity().getGrouperIncrementalDataAction());
+        }
+        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
+        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().isCreate()) {
+          firstField = toStringAppendField(result, firstField, "create", this.provisioningEntityWrapper.getProvisioningStateEntity().isCreate());
+        }
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().isInsertResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "createProcessed", this.provisioningEntityWrapper.getProvisioningStateEntity().isInsertResultProcessed());
+        }
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
+          firstField = toStringAppendField(result, firstField, "delete", this.provisioningEntityWrapper.getProvisioningStateEntity().isDelete());
+        }
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().isDeleteResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningEntityWrapper.getProvisioningStateEntity().isDeleteResultProcessed());
+        }
+        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningEntityWrapper.getProvisioningStateEntity().isIncrementalSyncMemberships());
+        if (this.provisioningEntityWrapper.getErrorCode() != null) {
+          firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningEntityWrapper.getErrorCode().name());
+        }
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().getMillisSince1970() != null) {
+          firstField = toStringAppendField(result, firstField, "millis1970", this.provisioningEntityWrapper.getProvisioningStateEntity().getMillisSince1970());
+        }
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "selectProcessed", this.provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed());
+        }
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().isUpdate()) {
+          firstField = toStringAppendField(result, firstField, "update", this.provisioningEntityWrapper.getProvisioningStateEntity().isUpdate());
+        }
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().isUpdateResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "updateProcessed", this.provisioningEntityWrapper.getProvisioningStateEntity().isUpdateResultProcessed());
+        }
       }
-      if (this.provisioningEntityWrapper.isRecalcEntityMemberships()) {
-        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningEntityWrapper.isRecalcEntityMemberships());
-      }
-      if (this.provisioningEntityWrapper.isCreate()) {
-        firstField = toStringAppendField(result, firstField, "create", this.provisioningEntityWrapper.isCreate());
-      }
-      if (this.provisioningEntityWrapper.isDelete()) {
-        firstField = toStringAppendField(result, firstField, "delete", this.provisioningEntityWrapper.isDelete());
-      }
-      if (this.provisioningEntityWrapper.isIncrementalSyncMemberships()) {
-        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningEntityWrapper.isIncrementalSyncMemberships());
-      }
-      if (this.provisioningEntityWrapper.getErrorCode() != null) {
-        firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningEntityWrapper.getErrorCode().name());
-      }
+      
+      
     }
     
     return result.append(")").toString();

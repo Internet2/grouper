@@ -366,7 +366,7 @@ public enum MapperFeature implements ConfigFeature
      * works); if disabled, order is unspecified (based on what JDK gives
      * us, which may be declaration order, but is not guaranteed).
      *<p>
-     * Note that this is just the default behavior, and can be overridden by
+     * Note that this is just the default behavior and can be overridden by
      * explicit overrides in classes (for example with
      * {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.annotation.JsonPropertyOrder} annotation)
      *<p>
@@ -485,6 +485,17 @@ public enum MapperFeature implements ConfigFeature
      * @since 2.7
      */
     ALLOW_EXPLICIT_PROPERTY_RENAMING(false),
+
+    /**
+     * Feature that when enabled will allow getters with is-Prefix also for
+     * non-boolean return types; if disabled only methods that return
+     * {@code boolean} or {@code Boolean} qualify as "is getters".
+     * <p>
+     * Feature is disabled by default for backwards compatibility.
+     *
+     * @since 2.14
+     */
+    ALLOW_IS_GETTERS_FOR_NON_BOOLEAN(false),
 
     /*
     /******************************************************

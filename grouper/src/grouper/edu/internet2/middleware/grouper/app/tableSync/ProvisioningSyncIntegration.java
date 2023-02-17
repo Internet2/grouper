@@ -40,7 +40,7 @@ public class ProvisioningSyncIntegration {
   }
 
   public static void fullSyncGroups(ProvisioningSyncResult provisioningSyncGroupResult, GcGrouperSync gcGrouperSync,
-      List<GcGrouperSyncGroup> initialGcGrouperSyncGroups, Map<String, GrouperProvisioningObjectAttributes> groupUuidToProvisioningObjectAttributes) {
+      Set<GcGrouperSyncGroup> initialGcGrouperSyncGroups, Map<String, GrouperProvisioningObjectAttributes> groupUuidToProvisioningObjectAttributes) {
 
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
       throw new RuntimeException("provisioner name is required");
@@ -319,7 +319,7 @@ public class ProvisioningSyncIntegration {
   }
   
   public static void fullSyncMembers(GrouperProvisioner grouperProvisioner, ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
-      List<GcGrouperSyncMember> initialGcGrouperSyncMembers, 
+      Set<GcGrouperSyncMember> initialGcGrouperSyncMembers, 
       Map<String, GrouperProvisioningObjectAttributes> memberUuidToProvisioningObjectAttributes) {
 
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
@@ -498,7 +498,7 @@ public class ProvisioningSyncIntegration {
 
 
   public static void fullSyncMembersForInitialize(GrouperProvisioner grouperProvisioner, ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
-      List<GcGrouperSyncMember> initialGcGrouperSyncMembers, 
+      Set<GcGrouperSyncMember> initialGcGrouperSyncMembers, 
       Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper) {
   
     initialGcGrouperSyncMembers = GrouperUtil.nonNull(initialGcGrouperSyncMembers);
@@ -571,7 +571,7 @@ public class ProvisioningSyncIntegration {
           
           // see if not provisionable
           if (!gcGrouperSyncMember.isProvisionable() && grouperProvisioningEntity != null
-              && (provisioningEntityWrapper == null || !provisioningEntityWrapper.isDelete())) {
+              && (provisioningEntityWrapper == null || !provisioningEntityWrapper.getProvisioningStateEntity().isDelete())) {
             gcGrouperSyncMember.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
             gcGrouperSyncMember.setProvisionableEnd(null);
             gcGrouperSyncMember.setProvisionable(true);
@@ -583,7 +583,7 @@ public class ProvisioningSyncIntegration {
           
           // see if not provisionable
           if (!gcGrouperSyncMember.isInTarget() && grouperProvisioningEntity != null
-              && (provisioningEntityWrapper == null || !provisioningEntityWrapper.isDelete())) {
+              && (provisioningEntityWrapper == null || !provisioningEntityWrapper.getProvisioningStateEntity().isDelete())) {
             memberIdsToInsert.add(gcGrouperSyncMember.getMemberId());
           }
             
@@ -680,8 +680,8 @@ public class ProvisioningSyncIntegration {
   
 
   public static void fullSyncMemberships(ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
-      List<GcGrouperSyncGroup> initialGcGrouperSyncGroups, List<GcGrouperSyncMember> initialGcGrouperSyncMembers,
-      List<GcGrouperSyncMembership> initialGcGrouperSyncMemberships, Map<MultiKey, 
+      Set<GcGrouperSyncGroup> initialGcGrouperSyncGroups, Set<GcGrouperSyncMember> initialGcGrouperSyncMembers,
+      Set<GcGrouperSyncMembership> initialGcGrouperSyncMemberships, Map<MultiKey, 
       ProvisioningMembershipWrapper> groupIdMemberIdToProvisioningMembershipWrapper) {
   
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
@@ -758,7 +758,7 @@ public class ProvisioningSyncIntegration {
   
           // see if not provisionable
           if (!gcGrouperSyncMembership.isInTarget() && grouperProvisioningMembership != null
-              && (provisioningMembershipWrapper == null || provisioningMembershipWrapper.isDelete())) {
+              && (provisioningMembershipWrapper == null || provisioningMembershipWrapper.getProvisioningStateMembership().isDelete())) {
             groupIdMemberIdsToInsert.add(groupIdMemberId);
           }
             

@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.util
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.CoercionAction;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.CoercionInputShape;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.deser.*;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.deser.impl.ObjectIdReader;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
@@ -273,6 +274,11 @@ public abstract class DeserializationContext
 
     @Override
     public final boolean isEnabled(MapperFeature feature) {
+        return _config.isEnabled(feature);
+    }
+
+    @Override // @since 2.14
+    public final boolean isEnabled(DatatypeFeature feature) {
         return _config.isEnabled(feature);
     }
 
@@ -762,9 +768,8 @@ public abstract class DeserializationContext
      */
     public final void returnObjectBuffer(ObjectBuffer buf)
     {
-        /* Already have a reusable buffer? Let's retain bigger one
-         * (or if equal, favor newer one, shorter life-cycle)
-         */
+        // Already have a reusable buffer? Let's retain bigger one
+        // (or if equal, favor newer one, shorter life-cycle)
         if (_objectBuffer == null
             || buf.initialCapacity() >= _objectBuffer.initialCapacity()) {
             _objectBuffer = buf;

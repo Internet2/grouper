@@ -1050,7 +1050,17 @@ public class GrouperCheckConfig {
                 "wheel group from grouper.properties key: groups.wheel.group", null);
           }
         }
+      } 
+      
+      {
+        String groupName = GrouperConfig.retrieveConfig().propertyValueString("jexlScriptTestingGroup");
+        if (StringUtils.isBlank(groupName) && wasInCheckConfig) {
+        } else {
+          checkGroup(grouperSession, groupName, wasInCheckConfig, null, wasInCheckConfig, null, "members of this group can run jexl script testing from UI", 
+              "jexlScriptTestingGroup group from grouper.properties key: jexlScriptTestingGroup", null);
+        }
       }      
+      
       {
         boolean useViewonlyWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.viewonly.use", false);
         if (useViewonlyWheel) {
@@ -3139,6 +3149,10 @@ public class GrouperCheckConfig {
         
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_DESCRIPTION, 
             "Textarea which describes the information in the report. Must be less than 4k", wasInCheckConfig);
+        
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SQL_CONFIG, 
+            "sql config id", wasInCheckConfig);
         
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_VIEWERS_GROUP_ID, 
             "GroupId of people who can view this report. Grouper admins can view any report", wasInCheckConfig);

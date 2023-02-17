@@ -162,6 +162,10 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
     this.requestURL = super.getRequestURL();
     this.multipart = ServletFileUpload.isMultipartContent(this);
 
+    if (this.multipart) {
+      this.initMultipartMap();
+    }
+
     SessionContainer sessionContainer = null;
     try {
       sessionContainer = SessionContainer.retrieveFromSession();
@@ -173,9 +177,6 @@ public class GrouperRequestWrapper extends HttpServletRequestWrapper {
         sessionContainer.setInitted(true);
       }
     }    
-    if (this.multipart) {
-      this.initMultipartMap();
-    }
   }
   
   /**

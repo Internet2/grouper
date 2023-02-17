@@ -66,6 +66,18 @@ public class GrouperReportConfigurationBean {
   public GrouperReportConfigurationBean() {
   }
 
+  private String sqlConfig;
+  
+  
+  public String getSqlConfig() {
+    return sqlConfig;
+  }
+
+  
+  public void setSqlConfig(String sqlConfig) {
+    this.sqlConfig = sqlConfig;
+  }
+
   /**
    * report type e.g. SQL
    */

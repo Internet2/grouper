@@ -4,6 +4,7 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 
 public class TargetDaoRetrieveMembershipsBulkRequest {
 
@@ -12,7 +13,7 @@ public class TargetDaoRetrieveMembershipsBulkRequest {
 
   public TargetDaoRetrieveMembershipsBulkRequest(List<ProvisioningGroup> targetGroups,
       List<ProvisioningEntity> targetEntities,
-      List<Object> targetGroupsEntitiesMemberships) {
+      List<ProvisioningMembership> targetGroupsEntitiesMemberships) {
     super();
     this.targetGroupsForAllMemberships = targetGroups;
     this.targetEntitiesForAllMemberships = targetEntities;
@@ -26,7 +27,7 @@ public class TargetDaoRetrieveMembershipsBulkRequest {
   /**
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    */
-  private List<Object> targetMemberships;
+  private List<ProvisioningMembership> targetMemberships;
 
   
   public List<ProvisioningGroup> getTargetGroupsForAllMemberships() {
@@ -52,7 +53,7 @@ public class TargetDaoRetrieveMembershipsBulkRequest {
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    * @return
    */
-  public List<Object> getTargetMemberships() {
+  public List<ProvisioningMembership> getTargetMemberships() {
     return targetMemberships;
   }
 
@@ -61,7 +62,7 @@ public class TargetDaoRetrieveMembershipsBulkRequest {
    * @param targetGroupsEntitiesMemberships
    */
   public void setTargetGroupsEntitiesMemberships(
-      List<Object> targetGroupsEntitiesMemberships) {
+      List<ProvisioningMembership> targetGroupsEntitiesMemberships) {
     this.targetMemberships = targetGroupsEntitiesMemberships;
   }
 

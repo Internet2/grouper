@@ -2,6 +2,8 @@ package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
 import java.util.List;
 
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
+
 public class TargetDaoRetrieveMembershipsBulkResponse {
 
   public TargetDaoRetrieveMembershipsBulkResponse() {
@@ -10,13 +12,13 @@ public class TargetDaoRetrieveMembershipsBulkResponse {
   /**
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    */
-  private List<Object> targetMemberships;
+  private List<ProvisioningMembership> targetMemberships;
 
   /**
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    * @return
    */
-  public List<Object> getTargetMemberships() {
+  public List<ProvisioningMembership> getTargetMemberships() {
     return targetMemberships;
   }
 
@@ -24,7 +26,7 @@ public class TargetDaoRetrieveMembershipsBulkResponse {
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    * @param targetMemberships
    */
-  public void setTargetMemberships(List<Object> targetMemberships) {
+  public void setTargetMemberships(List<ProvisioningMembership> targetMemberships) {
     this.targetMemberships = targetMemberships;
   }
 
@@ -33,7 +35,7 @@ public class TargetDaoRetrieveMembershipsBulkResponse {
    * @param targetMemberships
    */
   public TargetDaoRetrieveMembershipsBulkResponse(
-      List<Object> targetMemberships) {
+      List<ProvisioningMembership> targetMemberships) {
     super();
     this.targetMemberships = targetMemberships;
   }

@@ -877,8 +877,8 @@ public class FailoverClient implements Serializable {
         if (isFatal) {
           fatalProblemCountForTesting++;
           if (isException) {
-            GrouperClientUtils.injectInException(re, objectToLog);
-            throw re;
+            RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, objectToLog);
+            throw re2;
           }
           throw new RuntimeException(objectToLog);
         }

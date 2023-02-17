@@ -8,10 +8,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.cfg.annotations.Nullability;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
 public class GrouperProvisioningConfigurationAttribute {
 
@@ -322,6 +320,38 @@ public class GrouperProvisioningConfigurationAttribute {
   public void setTranslateFromGrouperProvisioningGroupField(
       String translateFromGrouperProvisioningGroupField) {
     this.translateFromGrouperProvisioningGroupField = translateFromGrouperProvisioningGroupField;
+  }
+  
+  /**
+   * grouper target group field
+   */
+  private String translateFromGrouperTargetGroupField;
+  
+  /**
+   * grouper target entity field
+   */
+  private String translateFromGrouperTargetEntityField;
+  
+  
+  public String getTranslateFromGrouperTargetGroupField() {
+    return translateFromGrouperTargetGroupField;
+  }
+
+  
+  public void setTranslateFromGrouperTargetGroupField(
+      String translateFromGrouperTargetGroupField) {
+    this.translateFromGrouperTargetGroupField = translateFromGrouperTargetGroupField;
+  }
+
+  
+  public String getTranslateFromGrouperTargetEntityField() {
+    return translateFromGrouperTargetEntityField;
+  }
+
+  
+  public void setTranslateFromGrouperTargetEntityField(
+      String translateFromGrouperTargetEntityField) {
+    this.translateFromGrouperTargetEntityField = translateFromGrouperTargetEntityField;
   }
 
   /**

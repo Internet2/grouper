@@ -1106,7 +1106,7 @@ public class GcGrouperSyncMembershipDao {
     // Ignore membership problems if the membership is not in the target and if the member or group is not provisionable
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
         .sql("select gsg.group_id, gsm.member_id from grouper_sync_membership gsms, grouper_sync_group gsg, grouper_sync_member gsm "
-            + "where gsms.grouper_sync_id = ? and gsms.error_code = 'ERR' and gsms.grouper_sync_group_id = gsg.id and gsms.grouper_sync_member_id = gsm.id "
+            + "where gsms.grouper_sync_id = ? and gsms.error_code is not null and gsms.grouper_sync_group_id = gsg.id and gsms.grouper_sync_member_id = gsm.id "
             + " and (gsms.in_target = 'T' or (gsg.provisionable = 'T' and gsm.provisionable = 'T' ) ) " 
             + (errorTimestampCheckFrom == null ? " and gsms.error_timestamp is not null" : " and gsms.error_timestamp >= ?"))
         .addBindVar(this.getGcGrouperSync().getId());

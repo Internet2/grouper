@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
+import edu.internet2.middleware.grouper.app.jexlTester.ScriptType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -278,7 +279,7 @@ public class UiV2Template {
       String showElScript = gshTemplateInputConfig.getShowEl();
       if (StringUtils.isNotBlank(showElScript)) {
         try {
-          Object substituteExpressionLanguageScript = GrouperUtil.substituteExpressionLanguageScript(showElScript, variableMap, true, false, false);
+          Object substituteExpressionLanguageScript = ScriptType.GSH_TEMPLATE_SHOW_EL.runJexl(variableMap, showElScript);
           Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(substituteExpressionLanguageScript);
           if (booleanObjectValue == null || !booleanObjectValue) {
             guiTemplateInputConfigsMap.remove(gshTemplateInputConfig.getName());

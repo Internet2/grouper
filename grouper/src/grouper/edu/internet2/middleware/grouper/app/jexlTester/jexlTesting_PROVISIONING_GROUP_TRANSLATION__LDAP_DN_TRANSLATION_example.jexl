@@ -1,0 +1,1 @@
+${edu.internet2.middleware.grouper.util.GrouperUtil.ldapBushyDn(edu.internet2.middleware.grouper.util.GrouperUtil.stripPrefix(grouperProvisioningGroup.name, 'school:app:'), 'cn', 'ou', true, false) + ',DC=activeDirectory,DC=school,DC=edu'}

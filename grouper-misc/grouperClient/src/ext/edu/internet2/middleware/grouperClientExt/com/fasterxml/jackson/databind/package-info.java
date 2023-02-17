@@ -29,7 +29,7 @@ of reading/writing, mapper contains additional functionality such as:
 <ul>
  <li>Value conversions using {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper#convertValue(Object, Class)},
   {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper#valueToTree(Object)} and
-  {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper#treeToValue(com.fasterxml.jackson.core.TreeNode, Class)} methods.
+  {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper#treeToValue(edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.TreeNode, Class)} methods.
   </li>
  <li>Type introspection needed for things like generation of Schemas (like JSON Schema, Avro Schema, or protoc
    definitions), using {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper#acceptJsonFormatVisitor(Class, edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper)}

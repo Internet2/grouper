@@ -1,24 +1,43 @@
 package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
+
 public class TargetDaoRetrieveMembershipRequest {
 
   public TargetDaoRetrieveMembershipRequest() {
   }
-  /**
-   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
-   * ProvisioningGroup {
-   *   name: cn=a:b:c,ou=groups,ou=institution,dc=edu
-   *   attribute: member
-   *      value: cn=jsmith,ou=users,ou=institution,dc=edu
-   * }
-   */
-  private Object targetMembership;
+  private ProvisioningMembership targetMembership;
   
+  private ProvisioningGroup targetGroup;
+  
+  private ProvisioningEntity targetEntity;
+  
+  
+  public ProvisioningGroup getTargetGroup() {
+    return targetGroup;
+  }
+
+  
+  public void setTargetGroup(ProvisioningGroup targetGroup) {
+    this.targetGroup = targetGroup;
+  }
+
+  
+  public ProvisioningEntity getTargetEntity() {
+    return targetEntity;
+  }
+
+  
+  public void setTargetEntity(ProvisioningEntity targetEntity) {
+    this.targetEntity = targetEntity;
+  }
+
   /**
-   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    * @return
    */
-  public Object getTargetMembership() {
+  public ProvisioningMembership getTargetMembership() {
     return targetMembership;
   }
   
@@ -26,7 +45,7 @@ public class TargetDaoRetrieveMembershipRequest {
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    * @param targetMembership
    */
-  public void setTargetMembership(Object targetMembership) {
+  public void setTargetMembership(ProvisioningMembership targetMembership) {
     this.targetMembership = targetMembership;
   }
 
@@ -34,7 +53,7 @@ public class TargetDaoRetrieveMembershipRequest {
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    * @param targetMembership
    */
-  public TargetDaoRetrieveMembershipRequest(Object targetMembership) {
+  public TargetDaoRetrieveMembershipRequest(ProvisioningMembership targetMembership) {
     this.targetMembership = targetMembership;
   }
   

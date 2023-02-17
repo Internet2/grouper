@@ -19,7 +19,7 @@
  *  </li>
  *<li>{@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.ObjectCodec} is included so that
  *  reference to the object capable of serializing/deserializing
- *  Objects to/from JSON (usually, <code>com.fasterxml.jackson.databind.ObjectMapper</code>)
+ *  Objects to/from JSON (usually, <code>edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper</code>)
  *  can be exposed, without adding direct dependency to implementation.
  *  </li>
  *</ul>

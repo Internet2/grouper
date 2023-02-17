@@ -357,12 +357,8 @@ public abstract class StdDeserializer<T>
         // 23-Mar-2017, tatu: Let's specifically block recursive resolution to avoid
         //   either supporting nested arrays, or to cause infinite looping.
         if (p.hasToken(JsonToken.START_ARRAY)) {
-            String msg = String.format(
-"Cannot deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
-                    ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
-                    "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
             @SuppressWarnings("unchecked")
-            T result = (T) ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, msg);
+            T result = (T) handleNestedArrayForSingle(p, ctxt);
             return result;
         }
         return (T) deserialize(p, ctxt);
@@ -413,7 +409,9 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_ARRAY:
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (boolean) handleNestedArrayForSingle(p, ctxt);
+                }
                 final boolean parsed = _parseBooleanPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -582,7 +580,9 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_ARRAY: // unwrapping / from-empty-array coercion?
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (byte) handleNestedArrayForSingle(p, ctxt);
+                }
                 final byte parsed = _parseBytePrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -652,7 +652,9 @@ public abstract class StdDeserializer<T>
         case JsonTokenId.ID_START_ARRAY:
             // 12-Jun-2020, tatu: For some reason calling `_deserializeFromArray()` won't work so:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (short) handleNestedArrayForSingle(p, ctxt);
+                }
                 final short parsed = _parseShortPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -719,7 +721,9 @@ public abstract class StdDeserializer<T>
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (int) handleNestedArrayForSingle(p, ctxt);
+                }
                 final int parsed = _parseIntPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -870,7 +874,9 @@ public abstract class StdDeserializer<T>
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (long) handleNestedArrayForSingle(p, ctxt);
+                }
                 final long parsed = _parseLongPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -984,6 +990,14 @@ public abstract class StdDeserializer<T>
             text = p.getText();
             break;
         case JsonTokenId.ID_NUMBER_INT:
+            final CoercionAction act = _checkIntToFloatCoercion(p, ctxt, Float.TYPE);
+            if (act == CoercionAction.AsNull) {
+                return 0.0f;
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return 0.0f;
+            }
+            // fall through to coerce
         case JsonTokenId.ID_NUMBER_FLOAT:
             return p.getFloatValue();
         case JsonTokenId.ID_NULL:
@@ -995,7 +1009,9 @@ public abstract class StdDeserializer<T>
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (float) handleNestedArrayForSingle(p, ctxt);
+                }
                 final float parsed = _parseFloatPrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -1030,7 +1046,7 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return  0.0f;
         }
-        return _parseFloatPrimitive(ctxt, text);
+        return _parseFloatPrimitive(p, ctxt, text);
 }
 
     /**
@@ -1040,7 +1056,21 @@ public abstract class StdDeserializer<T>
         throws IOException
     {
         try {
-            return Float.parseFloat(text);
+            return NumberInput.parseFloat(text);
+        } catch (IllegalArgumentException iae) { }
+        Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
+                "not a valid `float` value");
+        return _nonNullNumber(v).floatValue();
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected final float _parseFloatPrimitive(JsonParser p, DeserializationContext ctxt, String text)
+            throws IOException
+    {
+        try {
+            return NumberInput.parseFloat(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
         } catch (IllegalArgumentException iae) { }
         Number v = (Number) ctxt.handleWeirdStringValue(Float.TYPE, text,
                 "not a valid `float` value");
@@ -1091,6 +1121,14 @@ public abstract class StdDeserializer<T>
             text = p.getText();
             break;
         case JsonTokenId.ID_NUMBER_INT:
+            final CoercionAction act = _checkIntToFloatCoercion(p, ctxt, Double.TYPE);
+            if (act == CoercionAction.AsNull) {
+                return 0.0d;
+            }
+            if (act == CoercionAction.AsEmpty) {
+                return 0.0d;
+            }
+            // fall through to coerce
         case JsonTokenId.ID_NUMBER_FLOAT:
             return p.getDoubleValue();
         case JsonTokenId.ID_NULL:
@@ -1102,7 +1140,9 @@ public abstract class StdDeserializer<T>
             break;
         case JsonTokenId.ID_START_ARRAY:
             if (ctxt.isEnabled(DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS)) {
-                p.nextToken();
+                if (p.nextToken() == JsonToken.START_ARRAY) {
+                    return (double) handleNestedArrayForSingle(p, ctxt);
+                }
                 final double parsed = _parseDoublePrimitive(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -1137,7 +1177,7 @@ public abstract class StdDeserializer<T>
             _verifyNullForPrimitiveCoercion(ctxt, text);
             return  0.0;
         }
-        return _parseDoublePrimitive(ctxt, text);
+        return _parseDoublePrimitive(p, ctxt, text);
     }
 
     /**
@@ -1155,16 +1195,40 @@ public abstract class StdDeserializer<T>
     }
 
     /**
+     * @since 2.14
+     */
+    protected final double _parseDoublePrimitive(JsonParser p, DeserializationContext ctxt, String text)
+            throws IOException
+    {
+        try {
+            return _parseDouble(text, p.isEnabled(StreamReadFeature.USE_FAST_DOUBLE_PARSER));
+        } catch (IllegalArgumentException iae) { }
+        Number v = (Number) ctxt.handleWeirdStringValue(Double.TYPE, text,
+                "not a valid `double` value (as String to convert)");
+        return _nonNullNumber(v).doubleValue();
+    }
+
+    /**
      * Helper method for encapsulating calls to low-level double value parsing; single place
      * just because we need a work-around that must be applied to all calls.
+     * Does not use the new <code>useFastParser</code> support.
+     *
+     * @see #_parseDouble(String, boolean)
      */
-    protected final static double _parseDouble(String numStr) throws NumberFormatException
+    protected final static double _parseDouble(final String numStr) throws NumberFormatException
     {
-        // avoid some nasty float representations... but should it be MIN_NORMAL or MIN_VALUE?
-        if (NumberInput.NASTY_SMALL_DOUBLE.equals(numStr)) {
-            return Double.MIN_NORMAL; // since 2.7; was MIN_VALUE prior
-        }
-        return Double.parseDouble(numStr);
+        return _parseDouble(numStr, false);
+    }
+
+    /**
+     * Helper method for encapsulating calls to low-level double value parsing; single place
+     * just because we need a work-around that must be applied to all calls.
+     *
+     * @since 2.14
+     */
+    protected final static double _parseDouble(final String numStr, final boolean useFastParser) throws NumberFormatException
+    {
+        return NumberInput.parseDouble(numStr, useFastParser);
     }
 
     /**
@@ -1259,6 +1323,9 @@ public abstract class StdDeserializer<T>
                 default:
                 }
             } else if (unwrap) {
+                if (t == JsonToken.START_ARRAY) {
+                    return (java.util.Date) handleNestedArrayForSingle(p, ctxt);
+                }
                 final Date parsed = _parseDate(p, ctxt);
                 _verifyEndArrayForSingle(p, ctxt);
                 return parsed;
@@ -1299,18 +1366,47 @@ public abstract class StdDeserializer<T>
     }
 
     /**
-     * Helper method used for accessing String value, if possible, doing
-     * necessary conversion or throwing exception as necessary.
-     *
      * @since 2.1
+     * @deprecated Since 2.14 (use the non-deprecated overload)
      */
-    protected final String _parseString(JsonParser p, DeserializationContext ctxt) throws IOException
+    @Deprecated
+    protected final String _parseString(JsonParser p, DeserializationContext ctxt)
+        throws IOException
     {
-        if (p.hasToken(JsonToken.VALUE_STRING)) {
+        return _parseString(p, ctxt,
+                // Note: could consider passing `this`, but since this methods is
+                // often called for values "inside" type we are handling (like
+                // String array or Collection of Strings) that would probably
+                // not match. So default to "nulls as nulls" handler.
+                NullsConstantProvider.nuller());
+    }
+
+    /**
+     * Helper method used for deserializing String value, if possible, doing
+     * necessary conversion or throwing exception as necessary.
+     *<p>
+     * Starting with 2.14 will also start checking {@code CoercionConfig}
+     * configuration to check whether coercion needed is allowed.
+     *
+     * @param p Currently active parser being iterated over
+     * @param ctxt Deserialization context
+     * @param nullProvider Entity we (only) need for case of secondary value
+     *    type being coerced into {@code null}: if so, provider is asked for
+     *    possible "null replacement" value.
+     *
+     * @since 2.14 (with this signature)
+     */
+    protected final String _parseString(JsonParser p, DeserializationContext ctxt,
+            NullValueProvider nullProvider)
+        throws IOException
+    {
+        CoercionAction act = CoercionAction.TryConvert;
+
+        switch (p.currentTokenId()) {
+        case JsonTokenId.ID_STRING:
             return p.getText();
-        }
         // 07-Nov-2019, tatu: [databind#2535] Need to support byte[]->Base64 same as `StringDeserializer`
-        if (p.hasToken(JsonToken.VALUE_EMBEDDED_OBJECT)) {
+        case JsonTokenId.ID_EMBEDDED_OBJECT:
             Object ob = p.getEmbeddedObject();
             if (ob instanceof byte[]) {
                 return ctxt.getBase64Variant().encode((byte[]) ob, false);
@@ -1320,17 +1416,38 @@ public abstract class StdDeserializer<T>
             }
             // otherwise, try conversion using toString()...
             return ob.toString();
-        }
         // 29-Jun-2020, tatu: New! "Scalar from Object" (mostly for XML)
-        if (p.hasToken(JsonToken.START_OBJECT)) {
+        case JsonTokenId.ID_START_OBJECT:
             return ctxt.extractScalarFromObject(p, this, _valueClass);
+        case JsonTokenId.ID_NUMBER_INT:
+            act = _checkIntToStringCoercion(p, ctxt, _valueClass);
+            break;
+        case JsonTokenId.ID_NUMBER_FLOAT:
+            act = _checkFloatToStringCoercion(p, ctxt, _valueClass);
+            break;
+        case JsonTokenId.ID_TRUE:
+        case JsonTokenId.ID_FALSE:
+            act = _checkBooleanToStringCoercion(p, ctxt, _valueClass);
+            break;
         }
 
-        String value = p.getValueAsString();
-        if (value != null) {
-            return value;
+        if (act == CoercionAction.AsNull) {
+            return (String) nullProvider.getNullValue(ctxt);
         }
-        return (String) ctxt.handleUnexpectedToken(String.class, p);
+        if (act == CoercionAction.AsEmpty) {
+            return "";
+        }
+
+        // allow coercions for other scalar types
+        // 17-Jan-2018, tatu: Related to [databind#1853] avoid FIELD_NAME by ensuring it's
+        //   "real" scalar
+        if (p.currentToken().isScalarValue()) {
+            String text = p.getValueAsString();
+            if (text != null) {
+                return text;
+            }
+        }
+        return (String) ctxt.handleUnexpectedToken(getValueType(ctxt), p);
     }
 
     /**
@@ -1432,6 +1549,68 @@ value, _coercedTypeDesc());
         if (act == CoercionAction.Fail) {
             return _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
                     "Floating-point value ("+p.getText()+")");
+        }
+        return act;
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected CoercionAction _checkIntToStringCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType)
+        throws IOException
+    {
+        return _checkToStringCoercion(p, ctxt, rawTargetType, p.getNumberValue(), CoercionInputShape.Integer);
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected CoercionAction _checkFloatToStringCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType)
+        throws IOException
+    {
+        return _checkToStringCoercion(p, ctxt, rawTargetType, p.getNumberValue(), CoercionInputShape.Float);
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected CoercionAction _checkBooleanToStringCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType)
+        throws IOException
+    {
+        return _checkToStringCoercion(p, ctxt, rawTargetType, p.getBooleanValue(), CoercionInputShape.Boolean);
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected CoercionAction _checkToStringCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType, Object inputValue, CoercionInputShape inputShape)
+        throws IOException
+    {
+        final CoercionAction act = ctxt.findCoercionAction(LogicalType.Textual,
+                rawTargetType, inputShape);
+        if (act == CoercionAction.Fail) {
+            return _checkCoercionFail(ctxt, act, rawTargetType, inputValue,
+                    inputShape.name() + " value (" + p.getText() + ")");
+        }
+        return act;
+    }
+
+    /**
+     * @since 2.14
+     */
+    protected CoercionAction _checkIntToFloatCoercion(JsonParser p, DeserializationContext ctxt,
+            Class<?> rawTargetType)
+        throws IOException
+    {
+        final CoercionAction act = ctxt.findCoercionAction(LogicalType.Float,
+                rawTargetType, CoercionInputShape.Integer);
+        if (act == CoercionAction.Fail) {
+            return _checkCoercionFail(ctxt, act, rawTargetType, p.getNumberValue(),
+                    "Integer value (" + p.getText() + ")");
         }
         return act;
     }
@@ -2037,6 +2216,21 @@ inputDesc, _coercedTypeDesc());
 handledType().getName());
         // 05-May-2016, tatu: Should recover somehow (maybe skip until END_ARRAY);
         //     but for now just fall through
+    }
+
+    /**
+     * Helper method called when detecting a deep(er) nesting of Arrays when trying
+     * to unwrap value for {@code DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS}.
+     *
+     * @since 2.14
+     */
+    protected Object handleNestedArrayForSingle(JsonParser p, DeserializationContext ctxt) throws IOException
+    {
+        String msg = String.format(
+"Cannot deserialize instance of %s out of %s token: nested Arrays not allowed with %s",
+                ClassUtil.nameOf(_valueClass), JsonToken.START_ARRAY,
+                "DeserializationFeature.UNWRAP_SINGLE_VALUE_ARRAYS");
+        return ctxt.handleUnexpectedToken(getValueType(ctxt), p.currentToken(), p, msg);
     }
 
     protected void _verifyEndArrayForSingle(JsonParser p, DeserializationContext ctxt) throws IOException

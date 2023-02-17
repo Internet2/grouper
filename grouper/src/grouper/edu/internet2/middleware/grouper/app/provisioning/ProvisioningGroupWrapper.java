@@ -4,25 +4,11 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   
-  /**
-   * if recalcing the groupAttribute memberships 
-   */
-  private boolean recalcGroupMemberships;
+  private ProvisioningStateGroup provisioningStateGroup = new ProvisioningStateGroup();
 
-  /**
-   * if recalcing the groupAttribute memberships 
-   * @return
-   */
-  public boolean isRecalcGroupMemberships() {
-    return recalcGroupMemberships;
-  }
 
-  /**
-   * if recalcing the group memberships 
-   * @param recalcGroupMemberships1
-   */
-  public void setRecalcGroupMemberships(boolean recalcGroupMemberships1) {
-    this.recalcGroupMemberships = recalcGroupMemberships1;
+  public ProvisioningStateGroup getProvisioningStateGroup() {
+    return provisioningStateGroup;
   }
 
   private boolean grouperTargetGroupFromCacheInitted = false;
@@ -55,27 +41,6 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     
   public ProvisioningGroup getTargetProvisioningGroupFromCache() {
     return targetProvisioningGroupFromCache;
-  }
-
-  /**
-   * if this is incremental, and syncing memberships for this group
-   */
-  private boolean incrementalSyncMemberships;
-  
-  /**
-   * if this is incremental, and syncing memberships for this group
-   * @return
-   */
-  public boolean isIncrementalSyncMemberships() {
-    return incrementalSyncMemberships;
-  }
-
-  /**
-   * if this is incremental, and syncing memberships for this group
-   * @param incrementalSyncMemberships1
-   */
-  public void setIncrementalSyncMemberships(boolean incrementalSyncMemberships1) {
-    this.incrementalSyncMemberships = incrementalSyncMemberships1;
   }
 
   private String groupId;
@@ -118,70 +83,17 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
 
   public ProvisioningGroupWrapper() {
     super();
+    this.provisioningStateGroup.setProvisioningGroupWrapper(this);
   }
 
+  /**
+   * this is the representation of grouper side that grouper retrieves from its database 
+   */
   private ProvisioningGroup grouperProvisioningGroup;
 
   /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
+   * this is what is retrieved from the target and structured in the target representation
    */
-  private boolean delete;
-  
-  
-  /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @return
-   */
-  public boolean isDelete() {
-    return delete;
-  }
-
-
-
-
-  /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @param delete
-   */
-  public void setDelete(boolean delete) {
-    this.delete = delete;
-  }
-  
-  
-  /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
-   * to be needed to be updated.  This is used to retrieve the correct
-   * incremental state from the target
-   */
-  private boolean update;
-  
-  
-  /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
-   * to be needed to be updated.  This is used to retrieve the correct
-   * incremental state from the target
-   * @return
-   */
-  public boolean isUpdate() {
-    return this.update;
-  }
-
-  /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
-   * to be needed to be updated.  This is used to retrieve the correct
-   * incremental state from the target
-   * @param update
-   */
-  public void setUpdate(boolean update) {
-    this.update = update;
-  }
-
   private ProvisioningGroup targetProvisioningGroup;
   
   /**
@@ -190,26 +102,8 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   private ProvisioningGroup grouperTargetGroup;
 
   /**
-   * if this is for a create in target
+   * this comes from the commands class and is target specific bean
    */
-  private boolean create;
-  
-  /**
-   * if this is for a create in target
-   * @return
-   */
-  public boolean isCreate() {
-    return create;
-  }
-
-  /**
-   * if this is for a create in target
-   * @param create
-   */
-  public void setCreate(boolean create) {
-    this.create = create;
-  }
-
   private Object targetNativeGroup;
   
   private GcGrouperSyncGroup gcGrouperSyncGroup;
@@ -267,7 +161,18 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     this.targetProvisioningGroup = targetProvisioningGroup;
     
     if (this.targetProvisioningGroup != null) {
+      
+      ProvisioningGroupWrapper newTargetGroupOldWrapper = this.targetProvisioningGroup.getProvisioningGroupWrapper();
+      
       this.targetProvisioningGroup.setProvisioningGroupWrapper(this);
+      
+      if (newTargetGroupOldWrapper != null && newTargetGroupOldWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+        this.getProvisioningStateGroup().setSelectResultProcessed(true);
+      }
+      if (newTargetGroupOldWrapper != null && newTargetGroupOldWrapper.getProvisioningStateGroup().isSelectAllMembershipResultProcessed()) {
+        this.getProvisioningStateGroup().setSelectAllMembershipResultProcessed(true);
+      }
+      
     }
 
     if (oldTargetProvisioningGroup != null) {
@@ -351,6 +256,10 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
       return "targetProvisioningGroup: " + this.targetProvisioningGroup;
     }
     
+    if (this.provisioningStateGroup != null) {
+      return "provisioningStateGroup: " + this.provisioningStateGroup;
+    }
+
     return this.toString();
   }
 

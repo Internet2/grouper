@@ -3,7 +3,7 @@
  * sees it, and exposed via
  * {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper#acceptJsonFormatVisitor(Class, JsonFormatVisitorWrapper)}
  * and
- * {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper#acceptJsonFormatVisitor(com.fasterxml.jackson.databind.JavaType, JsonFormatVisitorWrapper)}
+ * {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper#acceptJsonFormatVisitor(edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.JavaType, JsonFormatVisitorWrapper)}
  * methods.
  *<p>
  * The main entrypoint for code, then, is {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper} and other

@@ -109,17 +109,46 @@ public enum JsonReadFeature
 
     /**
      * Feature that determines whether parser will allow
+     * JSON decimal numbers to start with a plus sign
+     * (like: +123). If enabled, no exception is thrown, and the number
+     * is parsed as though a leading sign had not been present.
+     *<p>
+     * Since JSON specification does not allow leading plus signs,
+     * this is a non-standard feature, and as such disabled by default.
+     *
+     * @since 2.14
+     */
+    @SuppressWarnings("deprecation")
+    ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS),
+
+
+    /**
+     * Feature that determines whether parser will allow
      * JSON decimal numbers to start with a decimal point
      * (like: .123). If enabled, no exception is thrown, and the number
      * is parsed as though a leading 0 had been present.
      *<p>
-     * Since JSON specification does not allow leading decimal,
+     * Since JSON specification does not allow leading decimal points,
      * this is a non-standard feature, and as such disabled by default.
      *
      * @since 2.11
      */
     @SuppressWarnings("deprecation")
     ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS),
+
+    /**
+     * Feature that determines whether parser will allow
+     * JSON decimal numbers to end with a decimal point
+     * (like: 123.). If enabled, no exception is thrown, and the number
+     * is parsed as though the trailing decimal point had not been present.
+     *<p>
+     * Since JSON specification does not allow trailing decimal points,
+     * this is a non-standard feature, and as such disabled by default.
+     *
+     * @since 2.14
+     */
+    @SuppressWarnings("deprecation")
+    ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS(false, JsonParser.Feature.ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS),
 
     /**
      * Feature that allows parser to recognize set of

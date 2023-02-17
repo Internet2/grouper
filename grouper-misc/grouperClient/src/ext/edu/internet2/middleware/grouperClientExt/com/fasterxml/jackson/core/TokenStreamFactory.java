@@ -154,7 +154,41 @@ public abstract class TokenStreamFactory
     public abstract JsonParser createParser(String content) throws IOException;
     public abstract JsonParser createParser(URL url) throws IOException;
 
+    /**
+     * Optional method for constructing parser for non-blocking parsing
+     * via {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.async.ByteArrayFeeder}
+     * interface (accessed using {@link JsonParser#getNonBlockingInputFeeder()}
+     * from constructed instance).
+     *<p>
+     * If this factory does not support non-blocking parsing (either at all,
+     * or from byte array),
+     * will throw {@link UnsupportedOperationException}.
+     *<p>
+     * Note that JSON-backed factory only supports parsing of UTF-8 encoded JSON content
+     * (and US-ASCII since it is proper subset); other encodings are not supported
+     * at this point.
+     *
+     * @since 2.9
+     */
     public abstract JsonParser createNonBlockingByteArrayParser() throws IOException;
+
+    /**
+     * Optional method for constructing parser for non-blocking parsing
+     * via {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.async.ByteBufferFeeder}
+     * interface (accessed using {@link JsonParser#getNonBlockingInputFeeder()}
+     * from constructed instance).
+     *<p>
+     * If this factory does not support non-blocking parsing (either at all,
+     * or from byte array),
+     * will throw {@link UnsupportedOperationException}.
+     *<p>
+     * Note that JSON-backed factory only supports parsing of UTF-8 encoded JSON content
+     * (and US-ASCII since it is proper subset); other encodings are not supported
+     * at this point.
+     *
+     * @since 2.14
+     */
+    public abstract JsonParser createNonBlockingByteBufferParser() throws IOException;
 
     /*
     /**********************************************************************
@@ -178,8 +212,9 @@ public abstract class TokenStreamFactory
     protected OutputStream _createDataOutputWrapper(DataOutput out) {
         return new DataOutputAsStream(out);
     }
+
     /**
-     * Helper methods used for constructing an optimal stream for
+     * Helper method used for constructing an optimal stream for
      * parsers to use, when input is to be read from an URL.
      * This helps when reading file content via URL.
      *
@@ -209,5 +244,92 @@ public abstract class TokenStreamFactory
             }
         }
         return url.openStream();
+    }
+
+    /**
+     * Helper methods used for constructing an {@link InputStream} for
+     * parsers to use, when input is to be read from given {@link File}.
+     *
+     * @param f File to open stream for
+     *
+     * @return {@link InputStream} constructed
+     *
+     * @throws IOException If there is a problem opening the stream
+     *
+     * @since 2.14
+     */
+    protected InputStream _fileInputStream(File f) throws IOException {
+        return new FileInputStream(f);
+    }
+
+    /**
+     * Helper methods used for constructing an {@link OutputStream} for
+     * generator to use, when target is to be written into given {@link File}.
+     *
+     * @param f File to open stream for
+     *
+     * @return {@link OutputStream} constructed
+     *
+     * @throws IOException If there is a problem opening the stream
+     *
+     * @since 2.14
+     */
+    protected OutputStream _fileOutputStream(File f) throws IOException {
+        return new FileOutputStream(f);
+    }
+
+    /*
+    /**********************************************************************
+    /* Range check helper methods (2.14)
+    /**********************************************************************
+     */
+
+    // @since 2.14
+    protected void _checkRangeBoundsForByteArray(byte[] data, int offset, int len)
+        throws IllegalArgumentException
+    {
+        if (data == null) {
+            _reportRangeError("Invalid `byte[]` argument: `null`");
+        }
+        final int dataLen = data.length;
+        final int end = offset+len;
+
+        // Note: we are checking that:
+        //
+        // !(offset < 0)
+        // !(len < 0)
+        // !((offset + len) < 0) // int overflow!
+        // !((offset + len) > dataLen) == !((datalen - (offset+len)) < 0)
+
+        // All can be optimized by OR'ing and checking for negative:
+        int anyNegs = offset | len | end | (dataLen - end);
+        if (anyNegs < 0) {
+            _reportRangeError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `byte[]` of length %d",
+offset, len, dataLen));
+        }
+    }
+
+    // @since 2.14
+    protected void _checkRangeBoundsForCharArray(char[] data, int offset, int len)
+        throws IOException
+    {
+        if (data == null) {
+            _reportRangeError("Invalid `char[]` argument: `null`");
+        }
+        final int dataLen = data.length;
+        final int end = offset+len;
+        // Note: we are checking same things as with other bounds-checks
+        int anyNegs = offset | len | end | (dataLen - end);
+        if (anyNegs < 0) {
+            _reportRangeError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `char[]` of length %d",
+offset, len, dataLen));
+        }
+    }
+
+    protected <T> T _reportRangeError(String msg) throws IllegalArgumentException
+    {
+        throw new IllegalArgumentException(msg);
     }
 }

@@ -172,7 +172,10 @@ echo "Executing edu.internet2.middleware.grouper.AllTests" >>$TESTLOG 2>&1
 $JAVA -classpath "$CP" \
   -Dgrouper.allow.db.changes=true \
   -Dgrouper.home=./ \
-  -XX:MaxPermSize=300m -Xms80m -Xmx640m \
+  -Xms80m -Xmx640m \
+  --add-opens java.base/java.lang=ALL-UNNAMED \
+  --add-opens java.base/java.util=ALL-UNNAMED \
+  --add-opens java.sql/java.sql=ALL-UNNAMED \
   edu.internet2.middleware.grouper.AllTests \
   -all -noprompt \
   >>$TESTLOG 2>&1
@@ -205,7 +208,10 @@ echo "CP=$CP" >>$TESTLOG 2>&1
 $JAVA -classpath "$CP" \
   -Dgrouper.allow.db.changes=true \
   -Dgrouper.home=grouper-misc/grouper-pspng \
-  -XX:MaxPermSize=300m -Xms80m -Xmx640m \
+  -Xms80m -Xmx640m \
+  --add-opens java.base/java.lang=ALL-UNNAMED \
+  --add-opens java.base/java.util=ALL-UNNAMED \
+  --add-opens java.sql/java.sql=ALL-UNNAMED \
   edu.internet2.middleware.grouper.AllTests pspng.AllPspngTests \
   -noprompt \
   >>$TESTLOG 2>&1

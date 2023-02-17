@@ -20,7 +20,7 @@ public abstract class Java7Handlers
     static {
         Java7Handlers impl = null;
         try {
-            Class<?> cls = Class.forName("com.fasterxml.jackson.databind.ext.Java7HandlersImpl");
+            Class<?> cls = Class.forName("edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ext.Java7HandlersImpl");
             impl = (Java7Handlers) ClassUtil.createInstance(cls, false);
         } catch (Throwable t) {
             // 09-Sep-2019, tatu: Could choose not to log this, but since this is less likely
