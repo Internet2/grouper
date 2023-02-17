@@ -690,40 +690,6 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByGroup", startNanos));
     }
   }
-
-  @Override
-  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
-    long startNanos = System.nanoTime();
-
-    try {
-      GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-
-      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands
-          .retrieveAzureGroups(azureConfiguration.getAzureExternalSystemConfigId());
-
-      List<ProvisioningMembership> results = new ArrayList<>();
-
-      for (GrouperAzureGroup grouperAzureGroup : GrouperUtil.nonNull(grouperAzureGroups)) {
-        Set<String> userIds = GrouperAzureApiCommands
-            .retrieveAzureGroupMembers(azureConfiguration.getAzureExternalSystemConfigId(), grouperAzureGroup.getId());
-        for (String userId : GrouperUtil.nonNull(userIds)) {
-          
-          ProvisioningMembership targetMembership = new ProvisioningMembership();
-          targetMembership.setProvisioningEntityId(userId);
-          targetMembership.setProvisioningGroupId(grouperAzureGroup.getId());
-          results.add(targetMembership);
-        }
-
-      }
-
-      return new TargetDaoRetrieveAllMembershipsResponse(results);
-    } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllMemberships", startNanos));
-    }
-  }
-
-  
-  
   
   @Override
   public TargetDaoInsertEntitiesResponse insertEntities(TargetDaoInsertEntitiesRequest targetDaoInsertEntitiesRequest) {
@@ -808,7 +774,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
+//    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
 
     grouperProvisionerDaoCapabilities.setCanRetrieveEntities(true);
 

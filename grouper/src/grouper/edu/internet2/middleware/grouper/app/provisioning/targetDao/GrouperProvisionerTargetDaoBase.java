@@ -23,9 +23,14 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @return
    */
   public boolean canRecalcGroupMemberships() {
-    return this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups()
-        || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup();
-        
+    boolean result = false;
+    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups() != null) {
+      result = this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups();
+    }
+    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup() != null) {
+      result = result || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup();
+    }
+    return result;
   }
   
   /**
@@ -33,9 +38,14 @@ public abstract class GrouperProvisionerTargetDaoBase {
    * @return
    */
   public boolean canRecalcEntityMemberships() {
-    return this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities()
-        || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity();
-        
+    boolean result = false;
+    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities() != null) {
+      result = this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities();
+    }
+    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity() != null) {
+      result = result || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity();
+    }
+    return result;
   }
   
   /**

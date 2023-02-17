@@ -499,35 +499,6 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
-  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
-    long startNanos = System.nanoTime();
-
-    try {
-      GrouperDuoConfiguration duoConfiguration = (GrouperDuoConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-
-      List<GrouperDuoUser> duoUsers = GrouperDuoApiCommands.retrieveDuoUsers(duoConfiguration.getDuoExternalSystemConfigId(), false);
-
-      List<ProvisioningMembership> results = new ArrayList<>();
-      
-      for (GrouperDuoUser duoUser: duoUsers) {
-        Set<GrouperDuoGroup> groupsPerUser = duoUser.getGroups();
-        
-        for (GrouperDuoGroup duoGroup: groupsPerUser) {
-          ProvisioningMembership targetMembership = new ProvisioningMembership();
-          targetMembership.setProvisioningEntityId(duoUser.getId());
-          targetMembership.setProvisioningGroupId(duoGroup.getGroup_id());
-          results.add(targetMembership);
-        }
-        
-      }
-
-      return new TargetDaoRetrieveAllMembershipsResponse(results);
-    } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllMemberships", startNanos));
-    }
-  }
-  
-  @Override
   public TargetDaoUpdateEntityResponse updateEntity(TargetDaoUpdateEntityRequest targetDaoUpdateEntityRequest) {
     
     long startNanos = System.nanoTime();
@@ -701,7 +672,6 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);

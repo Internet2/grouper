@@ -1580,7 +1580,12 @@ public class GrouperProvisioningCompare {
       Set<Object> matchingIdsToInsert = new HashSet<Object>();
       for (Object key : grouperMatchingIdToTargetMembership.keySet()) {
         ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(key);
-        if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed()) {
+        
+        if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()) {
+          continue;
+        }
+        
+        if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed() || this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
           matchingIdsToInsert.add(key);
         } else if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.insert) {
           matchingIdsToInsert.add(key);

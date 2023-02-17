@@ -251,9 +251,7 @@ public class GrouperProvisioningLogic {
       this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualMissingMemberships(); 
       
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
-        if (provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
-          provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
-        }
+        provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
       }
     }
 
