@@ -440,6 +440,52 @@ public class GrouperProvisioningData {
   }
 
   /**
+   * extract list of non null sync members
+   * @return groups
+   */
+  public List<GcGrouperSyncMember> retrieveGcGrouperSyncMembers() {
+    List<GcGrouperSyncMember> result = new ArrayList<GcGrouperSyncMember>();
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : this.provisioningEntityWrappers) {
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+      if (gcGrouperSyncMember != null) {
+        result.add(gcGrouperSyncMember);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * extract list of non null sync groups
+   * @return groups
+   */
+  public List<GcGrouperSyncGroup> retrieveGcGrouperSyncGroups() {
+    List<GcGrouperSyncGroup> result = new ArrayList<GcGrouperSyncGroup>();
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : this.provisioningGroupWrappers) {
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+      if (gcGrouperSyncGroup != null) {
+        result.add(gcGrouperSyncGroup);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * extract list of non null sync Memberships
+   * @return groups
+   */
+  public List<GcGrouperSyncMembership> retrieveGcGrouperSyncMemberships() {
+    List<GcGrouperSyncMembership> result = new ArrayList<GcGrouperSyncMembership>();
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.provisioningMembershipWrappers) {
+      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+      if (gcGrouperSyncMembership != null) {
+        result.add(gcGrouperSyncMembership);
+      }
+    }
+    return result;
+  }
+
+
+  /**
    * extract list of non null grouper provisioning entities
    * @return groups
    */

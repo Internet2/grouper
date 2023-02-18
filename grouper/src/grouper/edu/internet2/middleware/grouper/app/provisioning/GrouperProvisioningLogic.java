@@ -964,8 +964,6 @@ public class GrouperProvisioningLogic {
         debugMap.put("state", "retrieveIncrementalSyncGroups");
         {
           this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncGroups("Pass1");
-          Map<String, ProvisioningGroupWrapper> grouperSyncGroupIdToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper();
-          assignSyncObjectsToWrappersGroups(grouperSyncGroupIdToProvisioningGroupWrapper);
         }
         
         
@@ -977,8 +975,6 @@ public class GrouperProvisioningLogic {
         debugMap.put("state", "retrieveIncrementalSyncMembers");
         {
           this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers("Pass1");
-          Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
-          assignSyncObjectsToWrappersMembers(grouperSyncMemberIdToProvisioningEntityWrapper);
         }
         
       }
@@ -1054,15 +1050,6 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncGroups("Pass2");
             this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers("Pass2");
   
-            Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
-            assignSyncObjectsToWrappersMembers(grouperSyncMemberIdToProvisioningEntityWrapper);
-  
-            Map<String, ProvisioningGroupWrapper> grouperSyncGroupIdToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper();
-            assignSyncObjectsToWrappersGroups(grouperSyncGroupIdToProvisioningGroupWrapper);
-  
-            Map<MultiKey, ProvisioningMembershipWrapper> grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper 
-              = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper();
-            assignSyncObjectsToWrappersMemberships(grouperSyncGroupIdToProvisioningGroupWrapper, grouperSyncMemberIdToProvisioningEntityWrapper, grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper);
           }
 
           // ######### STEP 19: retrieve grouper data memberships
@@ -2868,10 +2855,6 @@ public class GrouperProvisioningLogic {
     // add / update / delete sync objects based on grouper data
     this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().fixSyncObjects();
 
-    // put the sync objects in their respective wrapper objects
-    // this is where additional wrapper objects can be added
-    assignSyncObjectsToWrappers();
-
     // incrementals need to consult sync objects to know what to delete
     calculateProvisioningDataToDelete(); 
 
@@ -2884,6 +2867,7 @@ public class GrouperProvisioningLogic {
   }
 
 
+<<<<<<< GROUPER_5_BRANCH
   public void assignSyncObjectsToWrappers() {
     
     Map<String, ProvisioningGroupWrapper> grouperSyncGroupIdToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper();
@@ -3016,6 +3000,8 @@ public class GrouperProvisioningLogic {
     }
   }
   
+=======
+>>>>>>> a6357c0 get rid of sync object data store
   public void retrieveGrouperDataIncrementalGroupsEntities() {
 
     // get all grouper data for the provisioner
@@ -3035,9 +3021,6 @@ public class GrouperProvisioningLogic {
 
     // add / update / delete sync objects based on grouper data
     this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().fixSyncObjects();
-
-    // put the sync objects in their respective wrapper objects
-    assignSyncObjectsToWrappers();
 
     // incrementals need to consult sync objects to know what to delete
     this.calculateProvisioningGroupsToDelete();
@@ -3064,9 +3047,6 @@ public class GrouperProvisioningLogic {
 
     // add / update / delete sync objects based on grouper data
     this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().fixSyncObjects();
-
-    // put the sync objects in their respective wrapper objects
-    assignSyncObjectsToWrappers();
 
     // incrementals need to consult sync objects to know what to delete
     this.calculateProvisioningGroupsToDelete();
@@ -3611,6 +3591,8 @@ public class GrouperProvisioningLogic {
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetGroups(targetGroups);
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(targetGroups);
 
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetGroupsRetrieved", GrouperUtil.length(targetGroups));
+
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetGroupsRetrieved, targetGroups);
 
     
@@ -3905,6 +3887,8 @@ public class GrouperProvisioningLogic {
     // index
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(targetEntities);
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(targetEntities);
+
+    GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetEntitiesRetrieved", GrouperUtil.length(targetEntities));
 
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.missingTargetEntitiesRetrieved, targetEntities);
 
