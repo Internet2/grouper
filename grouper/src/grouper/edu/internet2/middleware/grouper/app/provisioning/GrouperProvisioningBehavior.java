@@ -1380,7 +1380,8 @@ public class GrouperProvisioningBehavior {
     }
     
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-      if (this.isSelectEntitiesAll() || this.isSelectEntities()) {
+      if ((this.isSelectEntitiesAll() || this.isSelectEntities()) 
+            && this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().canRetrieveMembershipsWithEntity()) {
         this.selectMembershipsAll = true;
         return this.selectMembershipsAll;
       } else {
@@ -1389,7 +1390,8 @@ public class GrouperProvisioningBehavior {
       }
     }
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      if (this.isSelectGroupsAll() || this.isSelectGroups()) {
+      if ( (this.isSelectGroupsAll() || this.isSelectGroups()) 
+          && this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().canRetrieveMembershipsWithGroup()) {
         this.selectMembershipsAll = true;
         return this.selectMembershipsAll;
       } else {
