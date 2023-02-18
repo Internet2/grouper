@@ -25,7 +25,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.OtherJobException;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
-import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
+import edu.internet2.middleware.grouper.app.tableSync.GrouperProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -262,9 +262,6 @@ public abstract class GrouperProvisioner {
     if (!(this.retrieveGrouperProvisioningDataIndex().getClass().equals(GrouperProvisioningDataIndex.class))) {
       result.append(", DataIndex: ").append(this.retrieveGrouperProvisioningDataIndex().getClass().getName());
     }
-    if (!(this.retrieveGrouperProvisioningDataSync().getClass().equals(GrouperProvisioningDataSync.class))) {
-      result.append(", DataSync: ").append(this.retrieveGrouperProvisioningDataSync().getClass().getName());
-    }
     if (!(this.retrieveGrouperProvisioningDiagnosticsContainer().getClass().equals(GrouperProvisioningDiagnosticsContainer.class))) {
       result.append(", DiagnosticsContainer: ").append(this.retrieveGrouperProvisioningDiagnosticsContainer().getClass().getName());
     }
@@ -347,8 +344,6 @@ public abstract class GrouperProvisioner {
   }
 
   private GrouperProvisioningData grouperProvisioningData;
-
-  private GrouperProvisioningDataSync grouperProvisioningDataSync;
 
   private GrouperProvisioningDataIncrementalInput grouperProvisioningDataIncrementalInput ;
 
@@ -460,6 +455,30 @@ public abstract class GrouperProvisioner {
 //  }
   
   
+
+  private GrouperProvisioningSyncIntegration grouperProvisioningSyncIntegration = null;
+
+  /**
+   * return the class of the attribute manipulation
+   */
+  protected Class<? extends GrouperProvisioningSyncIntegration> grouperProvisioningSyncIntegrationClass() {
+    return GrouperProvisioningSyncIntegration.class;
+  }
+  
+  /**
+   * return the instance of the attribute manipulation
+   * @return the logic
+   */
+  public GrouperProvisioningSyncIntegration retrieveGrouperProvisioningSyncIntegration() {
+    if (this.grouperProvisioningSyncIntegration == null) {
+      Class<? extends GrouperProvisioningSyncIntegration> grouperProvisioningLogicClass = this.grouperProvisioningSyncIntegrationClass();
+      this.grouperProvisioningSyncIntegration = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningSyncIntegration.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningSyncIntegration;
+    
+  }
+
   private GrouperProvisioningAttributeManipulation grouperProvisioningAttributeManipulation = null;
 
   /**
@@ -1015,14 +1034,6 @@ public abstract class GrouperProvisioner {
   }
 
   
-  public GrouperProvisioningDataSync retrieveGrouperProvisioningDataSync() {
-    if (this.grouperProvisioningDataSync == null) {
-      this.grouperProvisioningDataSync = new GrouperProvisioningDataSync();
-      this.grouperProvisioningDataSync.setGrouperProvisioner(this);
-    }
-    return grouperProvisioningDataSync;
-  }
-
   public GrouperProvisioningData retrieveGrouperProvisioningData() {
     if (this.grouperProvisioningData == null) {
       this.grouperProvisioningData = new GrouperProvisioningData();
@@ -1237,15 +1248,13 @@ public abstract class GrouperProvisioner {
 
     ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
     this.setProvisioningSyncResult(provisioningSyncResult);
-    ProvisioningSyncIntegration.fullSyncGroups(provisioningSyncResult, this.getGcGrouperSync(),
-        this.retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups(),
-        calculatedProvisioningAttributes);
+    
+    this.retrieveGrouperProvisioningSyncIntegration().fullSyncGroups(calculatedProvisioningAttributes);
     
     //Get the attributes from the attributes framework and store those in grouper sync member table
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningMemberAttributes = this.retrieveGrouperDao().retrieveProvisioningMemberAttributes(true, null);
     
-    ProvisioningSyncIntegration.fullSyncMembers(this, provisioningSyncResult, gcGrouperSync, 
-        this.retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers(), grouperProvisioningMemberAttributes);
+    this.retrieveGrouperProvisioningSyncIntegration().fullSyncMembers(calculatedProvisioningAttributes);
     
     this.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
 

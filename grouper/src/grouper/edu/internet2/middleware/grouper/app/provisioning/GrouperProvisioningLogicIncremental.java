@@ -21,7 +21,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsResponse;
-import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
+import edu.internet2.middleware.grouper.app.tableSync.GrouperProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
@@ -933,9 +933,7 @@ public class GrouperProvisioningLogicIncremental {
     ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
     this.getGrouperProvisioner().setProvisioningSyncResult(provisioningSyncResult);
     
-    ProvisioningSyncIntegration.fullSyncMembers(this.grouperProvisioner, provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(), 
-        new HashSet<GcGrouperSyncMember>(grouperSyncMemberIdToSyncMember.values()),
-        grouperProvisioningObjectAttributesForMembers);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningSyncIntegration().fullSyncMembers(grouperProvisioningObjectAttributesForMembers);
     
     this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     
@@ -970,12 +968,7 @@ public class GrouperProvisioningLogicIncremental {
         }
       }
 
-      Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToSyncGroup = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(syncGroupIdsToRetrieve);
-
-      ProvisioningSyncIntegration.fullSyncGroups(provisioningSyncResult, this.getGrouperProvisioner().getGcGrouperSync(),
-          new HashSet<GcGrouperSyncGroup>(grouperSyncGroupIdToSyncGroup.values()),
-          calculatedProvisioningAttributes);
-      
+      this.getGrouperProvisioner().retrieveGrouperProvisioningSyncIntegration().fullSyncGroups(calculatedProvisioningAttributes);
       
       Set<String> groupIdsToTriggerSync = new HashSet<String>();
       for (GcGrouperSyncGroup gcGrouperSyncGroup : this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().retrieveUpdatedCacheSyncGroups()) {

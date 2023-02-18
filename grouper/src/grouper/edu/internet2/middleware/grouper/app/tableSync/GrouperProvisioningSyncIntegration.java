@@ -33,15 +33,28 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 /**
  * Sync up provisioning attributes with grouper group sync provisionable attributes
  */
-public class ProvisioningSyncIntegration {
+public class GrouperProvisioningSyncIntegration {
 
-  public ProvisioningSyncIntegration() {
+  private GrouperProvisioner grouperProvisioner;
+  
+  public GrouperProvisioner getGrouperProvisioner() {
+    return grouperProvisioner;
+  }
+  
+  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    this.grouperProvisioner = grouperProvisioner;
+  }
+
+  public GrouperProvisioningSyncIntegration() {
     
   }
 
-  public static void fullSyncGroups(ProvisioningSyncResult provisioningSyncGroupResult, GcGrouperSync gcGrouperSync,
-      Set<GcGrouperSyncGroup> initialGcGrouperSyncGroups, Map<String, GrouperProvisioningObjectAttributes> groupUuidToProvisioningObjectAttributes) {
+  public void fullSyncGroups(Map<String, GrouperProvisioningObjectAttributes> groupUuidToProvisioningObjectAttributes) {
 
+    ProvisioningSyncResult provisioningSyncGroupResult = this.getGrouperProvisioner().getProvisioningSyncResult();
+    
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+    
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
       throw new RuntimeException("provisioner name is required");
     }
@@ -53,7 +66,7 @@ public class ProvisioningSyncIntegration {
 
     Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
 
-    initialGcGrouperSyncGroups = GrouperUtil.nonNull(initialGcGrouperSyncGroups);
+    List<GcGrouperSyncGroup> initialGcGrouperSyncGroups = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGcGrouperSyncGroups());
 
     for (GcGrouperSyncGroup gcGrouperSyncGroup : initialGcGrouperSyncGroups) {
       groupUuidToSyncGroup.put(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncGroup);
@@ -141,7 +154,7 @@ public class ProvisioningSyncIntegration {
     
   }
 
-  public static void processSyncGroupDelete(
+  public void processSyncGroupDelete(
       Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup,
       Set<String> groupIdsToDelete) {
     if (GrouperUtil.length(groupIdsToDelete) > 0) {
@@ -174,7 +187,7 @@ public class ProvisioningSyncIntegration {
     }
   }
   
-  public static void processSyncMemberDelete(
+  public void processSyncMemberDelete(
       Map<String, GcGrouperSyncMember> memberUuidToSyncMember,
       Set<String> memberIdsToDelete) {
     
@@ -208,7 +221,7 @@ public class ProvisioningSyncIntegration {
     }
   }
 
-  public static void processSyncGroupInsert(GcGrouperSync gcGrouperSync,
+  public void processSyncGroupInsert(GcGrouperSync gcGrouperSync,
       Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup, String groupIdToInsert,
       GcGrouperSyncGroup gcGrouperSyncGroup, String groupName,
       Long groupIdIndex, String metadataJson) {
@@ -223,7 +236,7 @@ public class ProvisioningSyncIntegration {
     groupUuidToSyncGroup.put(groupIdToInsert, gcGrouperSyncGroup);    
   }
 
-  public static void processSyncGroup(
+  public void processSyncGroup(
       Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup,
       int removeSyncRowsAfterSecondsOutOfTarget, Set<String> groupIdsToInsert,
       Set<String> groupIdsToUpdate,
@@ -318,9 +331,12 @@ public class ProvisioningSyncIntegration {
     }
   }
   
-  public static void fullSyncMembers(GrouperProvisioner grouperProvisioner, ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
-      Set<GcGrouperSyncMember> initialGcGrouperSyncMembers, 
+  public void fullSyncMembers(
       Map<String, GrouperProvisioningObjectAttributes> memberUuidToProvisioningObjectAttributes) {
+
+    ProvisioningSyncResult provisioningSyncResult = this.getGrouperProvisioner().getProvisioningSyncResult();
+
+   GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
 
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
       throw new RuntimeException("provisioner name is required");
@@ -333,7 +349,7 @@ public class ProvisioningSyncIntegration {
 
     Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
 
-    initialGcGrouperSyncMembers = GrouperUtil.nonNull(initialGcGrouperSyncMembers);
+    List<GcGrouperSyncMember> initialGcGrouperSyncMembers = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGcGrouperSyncMembers());
 
     for (GcGrouperSyncMember gcGrouperSyncMember : initialGcGrouperSyncMembers) {
       memberUuidToSyncMember.put(gcGrouperSyncMember.getMemberId(), gcGrouperSyncMember);
@@ -403,7 +419,7 @@ public class ProvisioningSyncIntegration {
       // try by query
       GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = memberUuidToProvisioningObjectAttributes.get(gcGrouperSyncMember.getMemberId());
       
-      decorateSyncMemberSubjectInformationIfNull(grouperProvisioner, gcGrouperSyncMember,
+      decorateSyncMemberSubjectInformationIfNull(gcGrouperSyncMember,
           grouperProvisioningObjectAttributes);
     }
     
@@ -456,7 +472,7 @@ public class ProvisioningSyncIntegration {
     
   }
 
-  public static void decorateSyncMemberSubjectInformationIfNull(GrouperProvisioner grouperProvisioner,
+  public void decorateSyncMemberSubjectInformationIfNull(
       GcGrouperSyncMember gcGrouperSyncMember,
       GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes) {
     if (grouperProvisioningObjectAttributes != null) {
@@ -497,11 +513,15 @@ public class ProvisioningSyncIntegration {
   }
 
 
-  public static void fullSyncMembersForInitialize(GrouperProvisioner grouperProvisioner, ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
-      Set<GcGrouperSyncMember> initialGcGrouperSyncMembers, 
-      Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper) {
+  public void fullSyncMembersForInitialize() {
   
-    initialGcGrouperSyncMembers = GrouperUtil.nonNull(initialGcGrouperSyncMembers);
+    ProvisioningSyncResult provisioningSyncResult = this.getGrouperProvisioner().getProvisioningSyncResult();
+
+    Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper();
+    
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+
+    List<GcGrouperSyncMember> initialGcGrouperSyncMembers = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGcGrouperSyncMembers());
 
     Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
 
@@ -679,11 +699,16 @@ public class ProvisioningSyncIntegration {
   }
   
 
-  public static void fullSyncMemberships(ProvisioningSyncResult provisioningSyncResult, GcGrouperSync gcGrouperSync,
-      Set<GcGrouperSyncGroup> initialGcGrouperSyncGroups, Set<GcGrouperSyncMember> initialGcGrouperSyncMembers,
-      Set<GcGrouperSyncMembership> initialGcGrouperSyncMemberships, Map<MultiKey, 
-      ProvisioningMembershipWrapper> groupIdMemberIdToProvisioningMembershipWrapper) {
+  public void fullSyncMemberships() {
   
+    ProvisioningSyncResult provisioningSyncResult = this.getGrouperProvisioner().getProvisioningSyncResult();
+    
+    Map<MultiKey, ProvisioningMembershipWrapper> groupIdMemberIdToProvisioningMembershipWrapper
+      = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+          .getGroupUuidMemberUuidToProvisioningMembershipWrapper();
+    
+    GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
+
     if (gcGrouperSync == null || StringUtils.isBlank(gcGrouperSync.getProvisionerName())) {
       throw new RuntimeException("provisioner name is required");
     }
@@ -693,12 +718,15 @@ public class ProvisioningSyncIntegration {
         + "' is not configured. Go to Miscellaneous -> Provisioning to configure a new target.");
     }
   
-    initialGcGrouperSyncMemberships = GrouperUtil.nonNull(initialGcGrouperSyncMemberships);
+    List<GcGrouperSyncGroup> initialGcGrouperSyncGroups = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGcGrouperSyncGroups());
 
     Map<String, GcGrouperSyncGroup> groupSyncIdToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
     for (GcGrouperSyncGroup gcGrouperSyncGroup : GrouperUtil.nonNull(initialGcGrouperSyncGroups)) {
       groupSyncIdToSyncGroup.put(gcGrouperSyncGroup.getId(), gcGrouperSyncGroup);
     }
+    
+    List<GcGrouperSyncMember> initialGcGrouperSyncMembers = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGcGrouperSyncMembers());
+
     Map<String, GcGrouperSyncMember> memberSyncIdToSyncMember = new HashMap<String, GcGrouperSyncMember>();
     for (GcGrouperSyncMember gcGrouperSyncMember : GrouperUtil.nonNull(initialGcGrouperSyncMembers)) {
       memberSyncIdToSyncMember.put(gcGrouperSyncMember.getId(), gcGrouperSyncMember);
@@ -706,6 +734,8 @@ public class ProvisioningSyncIntegration {
 
     Map<MultiKey, GcGrouperSyncMembership> groupIdMemberIdToSyncMembership = new HashMap<MultiKey, GcGrouperSyncMembership>();
     
+    List<GcGrouperSyncMembership> initialGcGrouperSyncMemberships = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGcGrouperSyncMemberships());
+
     for (GcGrouperSyncMembership gcGrouperSyncMembership : initialGcGrouperSyncMemberships) {
       
       GcGrouperSyncGroup gcGrouperSyncGroup = groupSyncIdToSyncGroup.get(gcGrouperSyncMembership.getGrouperSyncGroupId());

@@ -57,7 +57,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideFlat"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullFlatHarvard"));    
   }
   
   @Override
