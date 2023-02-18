@@ -196,18 +196,21 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
 
   
   private void calculateGroupIdMemberId() {
-    this.groupIdMemberId = null;
+    MultiKey newGroupIdMemberId = null;
     if (this.grouperProvisioningMembership != null) {
-      this.groupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
+      newGroupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
 
     } else if (this.gcGrouperSyncMembership != null) {
       GcGrouperSyncGroup gcGrouperSyncGroup = this.gcGrouperSyncMembership.getGrouperSyncGroup();
       GcGrouperSyncMember gcGrouperSyncMember = this.gcGrouperSyncMembership.getGrouperSyncMember();
       if (gcGrouperSyncGroup != null && gcGrouperSyncMember != null) {
-        this.groupIdMemberId = new MultiKey(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getId());
+        newGroupIdMemberId = new MultiKey(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getId());
       }
     }
-    
+    // in incremental this might already be there and shouldnt be removed
+    if (newGroupIdMemberId != null) {
+      this.groupIdMemberId = newGroupIdMemberId;
+    }
   }
 
   public ProvisioningMembership getTargetProvisioningMembership() {

@@ -542,7 +542,7 @@ public enum GrouperProvisioningObjectLogType {
       } else {
         if (bean instanceof ProvisioningGroup) {
           ProvisioningGroupWrapper provisioningGroupWrapper = ((ProvisioningGroup)bean).getProvisioningGroupWrapper();
-          if (provisioningGroupWrapper != null) {
+          if (provisioningGroupWrapper != null && bean != provisioningGroupWrapper.getTargetProvisioningGroup()) {
             ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
             if (grouperTargetGroup != null) {
               bean = grouperTargetGroup;
@@ -552,7 +552,7 @@ public enum GrouperProvisioningObjectLogType {
         
         if (bean instanceof ProvisioningEntity) {
           ProvisioningEntityWrapper provisioningEntityWrapper = ((ProvisioningEntity)bean).getProvisioningEntityWrapper();
-          if (provisioningEntityWrapper != null) {
+          if (provisioningEntityWrapper != null && bean != provisioningEntityWrapper.getTargetProvisioningEntity()) {
             ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
             if (grouperTargetEntity != null) {
               bean = grouperTargetEntity;
@@ -562,7 +562,7 @@ public enum GrouperProvisioningObjectLogType {
         
         if (bean instanceof ProvisioningMembership) {
           ProvisioningMembershipWrapper provisioningMembershipWrapper = ((ProvisioningMembership)bean).getProvisioningMembershipWrapper();
-          if (provisioningMembershipWrapper != null) {
+          if (provisioningMembershipWrapper != null&& bean != provisioningMembershipWrapper.getTargetProvisioningMembership()) {
             ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
             if (grouperTargetMembership != null) {
               bean = grouperTargetMembership;

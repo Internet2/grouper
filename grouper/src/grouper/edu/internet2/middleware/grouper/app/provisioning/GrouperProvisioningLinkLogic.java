@@ -803,7 +803,7 @@ public class GrouperProvisioningLinkLogic {
         this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(grouperTargetEntities);
         this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(grouperTargetEntities);
         
-        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.linkDataGroups, grouperTargetEntities);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.linkDataEntities, grouperTargetEntities);
 
       }
       

@@ -466,6 +466,8 @@ public class GrouperProvisioningData {
         result.add(provisioningEntityWrapper.getGrouperTargetEntity());
       } else if (provisioningEntityWrapper.getGrouperProvisioningEntity() != null) {
         result.add(provisioningEntityWrapper.getGrouperProvisioningEntity());
+      } else if (provisioningEntityWrapper.getGcGrouperSyncMember() != null) {
+        result.add(provisioningEntityWrapper.getGcGrouperSyncMember());
       } else if (provisioningEntityWrapper.getProvisioningStateEntity() != null) {
         result.add(provisioningEntityWrapper.getProvisioningStateEntity());
       }
@@ -486,6 +488,8 @@ public class GrouperProvisioningData {
         result.add(provisioningGroupWrapper.getGrouperTargetGroup());
       } else if (provisioningGroupWrapper.getGrouperProvisioningGroup() != null) {
         result.add(provisioningGroupWrapper.getGrouperProvisioningGroup());
+      } else if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null) {
+        result.add(provisioningGroupWrapper.getGcGrouperSyncGroup());
       } else if (provisioningGroupWrapper.getProvisioningStateGroup() != null) {
         result.add(provisioningGroupWrapper.getProvisioningStateGroup());
       }
@@ -505,6 +509,8 @@ public class GrouperProvisioningData {
         result.add(provisioningMembershipWrapper.getGrouperTargetMembership());
       } else if (provisioningMembershipWrapper.getGrouperProvisioningMembership() != null) {
         result.add(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+      } else if (provisioningMembershipWrapper.getGcGrouperSyncMembership() != null) {
+        result.add(provisioningMembershipWrapper.getGcGrouperSyncMembership());
       } else if (provisioningMembershipWrapper.getProvisioningStateMembership() != null) {
         result.add(provisioningMembershipWrapper.getProvisioningStateMembership());
       }
