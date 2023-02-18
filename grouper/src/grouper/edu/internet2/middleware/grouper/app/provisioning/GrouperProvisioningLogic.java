@@ -968,7 +968,12 @@ public class GrouperProvisioningLogic {
           assignSyncObjectsToWrappersGroups(grouperSyncGroupIdToProvisioningGroupWrapper);
         }
         
-        // ######### STEP 9: retrieve all member sync objects for 
+        
+        // ######### STEP 9: filter if not provisionable
+        debugMap.put("state", "filterByNotProvisionable");
+        grouperProvisioningLogicIncremental.filterByGroupNotProvisionable();
+        
+        // ######### STEP 10: retrieve all member sync objects for 
         debugMap.put("state", "retrieveIncrementalSyncMembers");
         {
           this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers("Pass1");
@@ -976,9 +981,6 @@ public class GrouperProvisioningLogic {
           assignSyncObjectsToWrappersMembers(grouperSyncMemberIdToProvisioningEntityWrapper);
         }
         
-        // ######### STEP 10: filter if not provisionable
-        debugMap.put("state", "filterByNotProvisionable");
-        grouperProvisioningLogicIncremental.filterByGroupNotProvisionable();
       }
       
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {

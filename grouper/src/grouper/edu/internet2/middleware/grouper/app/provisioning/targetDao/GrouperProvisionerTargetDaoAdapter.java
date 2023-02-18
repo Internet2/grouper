@@ -48,6 +48,14 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   public boolean canRecalcEntityMemberships() {
     return this.wrappedDao.canRecalcEntityMemberships();
   }
+  
+  public boolean canRetrieveMembershipsWithEntity() {
+    return this.wrappedDao.canRetrieveMembershipsWithEntity();
+  }
+  
+  public boolean canRetrieveMembershipsWithGroup() {
+    return this.wrappedDao.canRetrieveMembershipsWithGroup();
+  }
 
   @Override
   public boolean loggingStart() {
@@ -967,7 +975,23 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 >>>>>>> 3d82486 change select result processed
     }
     
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+        == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().canRetrieveMembershipsWithEntity() && 
+          this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedEntities()) {
+        this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedMemberships(true);
+      }
+    }
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+        == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().canRetrieveMembershipsWithGroup() && 
+          this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedGroups()) {
+        this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedMemberships(true);
+      }
+    }
+    
+    if (!this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedMemberships() && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()) {
       
       TargetDaoRetrieveAllMembershipsResponse targetDaoRetrieveAllMembershipsResponse = this.retrieveAllMemberships(new TargetDaoRetrieveAllMembershipsRequest());
       List<ProvisioningMembership> targetMemberships = targetDaoRetrieveAllMembershipsResponse == null ? null : targetDaoRetrieveAllMembershipsResponse.getTargetMemberships();

@@ -509,4 +509,12 @@ public abstract class GrouperProvisionerTargetDaoBase {
 
   }
   
+  public boolean canRetrieveMembershipsWithEntity() {
+    return true;
+  }
+  
+  public boolean canRetrieveMembershipsWithGroup() {
+    return true;
+  }
+  
 }

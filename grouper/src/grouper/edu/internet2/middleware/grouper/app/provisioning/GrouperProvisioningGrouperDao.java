@@ -1057,7 +1057,6 @@ public class GrouperProvisioningGrouperDao {
             memberIdsToRetrieve.add(memberId);
           }
         }
-        memberIdsToRetrieve.add(provisioningMembership.getProvisioningEntityId());
       }
       
     }

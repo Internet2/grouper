@@ -186,11 +186,9 @@ public class GrouperProvisioningLogicIncremental {
       }
       String groupId = (String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(0);
       if (!validGroupIds.contains(groupId)) {
-        if (iterator.hasNext()) {
-          iterator.remove();
-          this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
-          filterByNotProvisionable++;
-        }
+        iteratorMemberships.remove();
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
+        filterByNotProvisionable++;
       }
     }
     
