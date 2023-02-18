@@ -41,6 +41,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTargetDaoBase {
 
+  public boolean canRecalcGroupMemberships() {
+    return this.wrappedDao.canRecalcGroupMemberships();
+  }
+  
+  public boolean canRecalcEntityMemberships() {
+    return this.wrappedDao.canRecalcEntityMemberships();
+  }
+
   @Override
   public boolean loggingStart() {
     return this.wrappedDao.loggingStart();

@@ -1619,7 +1619,7 @@ public class GrouperProvisioningLogicIncremental {
 
 
   /**
-   * filter events that happened after the last group sync
+   * filter events that happened after the last group sync TODO check to see if can do membership recalc... or change back later
    * @param esbEventContainers
    * @param gcGrouperSync
    */
@@ -1655,7 +1655,7 @@ public class GrouperProvisioningLogicIncremental {
   }
   
   /**
-   * filter events that happened after the last entity sync
+   * filter events that happened after the last entity sync TODO check to see if can do membership recalc... or change back later
    * @param esbEventContainers
    * @param gcGrouperSync
    */
@@ -2050,7 +2050,7 @@ public class GrouperProvisioningLogicIncremental {
       List<ProvisioningGroup> grouperTargetGroupsRecalcForGroupOnly = new ArrayList<ProvisioningGroup>();
 
       boolean canRetrieveMembershipsByGroup = this.getGrouperProvisioner()
-          .retrieveGrouperProvisioningBehavior().canSelectMembershipsForGroup(); 
+          .retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup(); 
       
       for (ProvisioningGroupWrapper provisioningGroupWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
         if (provisioningGroupWrapper.getGrouperTargetGroup() != null) {
@@ -2106,7 +2106,7 @@ public class GrouperProvisioningLogicIncremental {
       List<ProvisioningEntity> grouperTargetEntitiesRecalcForEntityOnly = new ArrayList<ProvisioningEntity>();
 
       boolean canRetrieveMembershipsByEntity = this.getGrouperProvisioner()
-          .retrieveGrouperProvisioningBehavior().canSelectMembershipsForEntity();
+          .retrieveGrouperProvisioningBehavior().isSelectMembershipsForEntity();
       
       for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
         if (provisioningEntityWrapper.getGrouperTargetEntity() != null) {
@@ -2391,7 +2391,7 @@ public class GrouperProvisioningLogicIncremental {
       List<ProvisioningGroup> grouperTargetGroupsRecalcForSomeMembershipSync = new ArrayList<ProvisioningGroup>();
 
       boolean canRetrieveMembershipsByGroup = this.getGrouperProvisioner()
-          .retrieveGrouperProvisioningBehavior().canSelectMembershipsForGroup();
+          .retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup();
       
       for (ProvisioningGroupWrapper provisioningGroupWrapper: this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
         if (provisioningGroupWrapper.getGrouperTargetGroup() != null) {
@@ -2424,7 +2424,7 @@ public class GrouperProvisioningLogicIncremental {
       List<ProvisioningEntity> grouperTargetEntitiesRecalcForSomeMembershipSync = new ArrayList<ProvisioningEntity>();
 
       boolean canRetrieveMembershipsByEntity = this.getGrouperProvisioner()
-          .retrieveGrouperProvisioningBehavior().canSelectMembershipsForEntity();
+          .retrieveGrouperProvisioningBehavior().isSelectMembershipsForEntity();
       
       for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
         if (provisioningEntityWrapper.getGrouperTargetEntity() != null) {
@@ -2930,10 +2930,12 @@ public class GrouperProvisioningLogicIncremental {
    * 
    * marks group as having recalc memberships
    */
-  public void convertGroupsToRecalc() {
+  public void convertGroupsToRecalc(boolean includeMemberships) {
     
     int convertGroupsToRecalc = 0;
     
+    boolean selectMembershipsForGroup = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup();
+
     for (ProvisioningGroupWrapper provisioningGroupWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
       if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()
           && provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
@@ -2942,7 +2944,9 @@ public class GrouperProvisioningLogicIncremental {
       if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
         // we need to retrieve or create this, its probably already a recalc but...
         provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
-        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+        if (includeMemberships && selectMembershipsForGroup) {
+          provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+        }
         convertGroupsToRecalc++;
       }
     }
@@ -2959,29 +2963,9 @@ public class GrouperProvisioningLogicIncremental {
         convertGroupsToRecalc++;
       }
     }
-    
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
-        if (provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
-          ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
-          ProvisioningGroup grouperProvisioningGroup = grouperProvisioningMembership == null ? null : grouperProvisioningMembership.getProvisioningGroup();
-          ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getProvisioningGroupWrapper();
-
-          if (provisioningGroupWrapper == null) {
-            continue;
-          }
-          if (provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships()) {
-            continue;
-          }
-          provisioningGroupWrapper.getProvisioningStateGroup().setIncrementalSyncMemberships(true);
-          convertGroupsToRecalc++;
-          
-        }
-      }
-    }
-          
+              
     if (convertGroupsToRecalc > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("convertGroupsToRecalc", convertGroupsToRecalc);
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "convertGroupsToRecalc", convertGroupsToRecalc);
     }
     
   }
@@ -2994,9 +2978,10 @@ public class GrouperProvisioningLogicIncremental {
    * 
    * marks entity as having recalc memberships
    */
-  public void convertEntitiesToRecalc() {
+  public void convertEntitiesToRecalc(boolean includeMemberships) {
     
     int convertEntitiesToRecalc = 0;
+    boolean selectMembershipsForEntity = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForEntity();
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
       if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject() &&
@@ -3006,7 +2991,9 @@ public class GrouperProvisioningLogicIncremental {
       if (provisioningEntityWrapper.getGcGrouperSyncMember() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
         // we need to retrieve or create this, its probably already a recalc but...
         provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
-        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+        if (includeMemberships && selectMembershipsForEntity) {
+          provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+        }
         convertEntitiesToRecalc++;
       }
     }
@@ -3023,6 +3010,41 @@ public class GrouperProvisioningLogicIncremental {
       }
     }
     
+    
+    if (convertEntitiesToRecalc > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "convertEntitiesToRecalc", convertEntitiesToRecalc);
+    }
+    
+  }
+  /**
+   * Convert entity or group to recalc some memberships if any are recalc
+   * 
+   * marks group / entity as having recalc memberships
+   */
+  public void convertMembershipsToIncrementalSync() {
+    
+    int convertGroupsEntitiesToIncrementalSync = 0;
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        if (provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
+          ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+          ProvisioningGroup grouperProvisioningGroup = grouperProvisioningMembership == null ? null : grouperProvisioningMembership.getProvisioningGroup();
+          ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getProvisioningGroupWrapper();
+
+          if (provisioningGroupWrapper == null) {
+            continue;
+          }
+          if (provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships()) {
+            continue;
+          }
+          provisioningGroupWrapper.getProvisioningStateGroup().setIncrementalSyncMemberships(true);
+          convertGroupsEntitiesToIncrementalSync++;
+          
+        }
+      }
+    }
+
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
         if (provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
@@ -3037,14 +3059,15 @@ public class GrouperProvisioningLogicIncremental {
             continue;
           }
           provisioningEntityWrapper.getProvisioningStateEntity().setIncrementalSyncMemberships(true);
-          convertEntitiesToRecalc++;
+          convertGroupsEntitiesToIncrementalSync++;
           
         }
       }
     }
+
     
-    if (convertEntitiesToRecalc > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("convertEntitiesToRecalc", convertEntitiesToRecalc);
+    if (convertGroupsEntitiesToIncrementalSync > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("convertGroupsEntitiesToIncrementalSync", convertGroupsEntitiesToIncrementalSync);
     }
     
   }

@@ -895,7 +895,7 @@ public class GrouperProvisioningLogic {
   public void provisionIncremental() {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
-    Timestamp startTimestamp = new Timestamp(System.currentTimeMillis());
+
 
     GrouperProvisioningLogicIncremental grouperProvisioningLogicIncremental = this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental();
 
@@ -1025,8 +1025,26 @@ public class GrouperProvisioningLogic {
 
         
         if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {
-          // ######### STEP 15: retrieve all membership sync objects
-          // ######### STEP 16: retrieve all members sync objects
+          // ######### STEP 15: retrieve grouper groups entities
+          {
+            debugMap.put("state", "retrieveIncrementalGrouperGroupsEntities");
+            long start = System.currentTimeMillis();
+            this.retrieveDataStartMillisSince1970 = start;
+            // keep track of when this started so we can update when group syncs occurred
+            debugMap.put("retrieveDataStartMillisSince1970", start);
+            this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalGroupsEntities();
+            long retrieveGrouperDataMillis = System.currentTimeMillis()-start;
+            debugMap.put("retrieveGrouperGroupsEntitiesMillis", retrieveGrouperDataMillis);
+          }
+          
+          // ######### STEP 16: convert groups and entities to recalc when needed
+          // e.g. a new group should be recalc to be sure
+          debugMap.put("state", "convertGroupsToRecalc");
+          grouperProvisioningLogicIncremental.convertGroupsToRecalc(true);
+          debugMap.put("state", "convertEntitiesToRecalc");
+          grouperProvisioningLogicIncremental.convertEntitiesToRecalc(true);
+
+          // ######### STEP 17: retrieve all membership sync objects
           debugMap.put("state", "retrieveIncrementalSyncMemberships");
           {
             
@@ -1044,27 +1062,27 @@ public class GrouperProvisioningLogic {
               = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper();
             assignSyncObjectsToWrappersMemberships(grouperSyncGroupIdToProvisioningGroupWrapper, grouperSyncMemberIdToProvisioningEntityWrapper, grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper);
           }
-  
-          // ######### STEP 17: retrieve grouper data
+
+          // ######### STEP 19: retrieve grouper data memberships
           try {
-            debugMap.put("state", "retrieveIncrementalDataFromGrouper");
+            debugMap.put("state", "retrieveIncrementalMembershipsFromGrouper");
             long start = System.currentTimeMillis();
             this.retrieveDataStartMillisSince1970 = start;
             // keep track of when this started so we can update when group syncs occurred
             debugMap.put("retrieveDataStartMillisSince1970", start);
-            this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncremental();
+            this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalMemberships();
             long retrieveGrouperDataMillis = System.currentTimeMillis()-start;
-            debugMap.put("retrieveGrouperDataMillis", retrieveGrouperDataMillis);
+            debugMap.put("retrieveGrouperMembershipsMillis", retrieveGrouperDataMillis);
           } finally {
             this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveDataFromGrouper);
           }
-          
-          // ######### STEP 18: filter unneeded actions
+
+          // ######### STEP 20: filter unneeded actions
           // e.g action is no-op for example user is already in target and also in grouper so it's a no-op, don't send it to target 
           debugMap.put("state", "filterUnneededActions");
           grouperProvisioningLogicIncremental.filterUnneededActions();
           
-          // ######### STEP 19: convert inconsistent events to recalc
+          // ######### STEP 20.1: convert inconsistent events to recalc
           // e.g. change log action is delete and membership does exist in grouper so we don't know who is right so in that case
           // we just recalc to be on the safe side
 <<<<<<< GROUPER_5_BRANCH
@@ -1079,11 +1097,17 @@ public class GrouperProvisioningLogic {
           grouperProvisioningLogicIncremental.convertInconsistentMembershipEventActions();
 >>>>>>> dad5d51 Provisioning related changes, wip
           
-          // ######### STEP 20: convert groups and entities to recalc when needed
-          // e.g. a new group should be recalc to be sure
+          // ######### STEP 20.2: convert groups and entities to membership sync
+          // e.g. if any memberships are recalc, recalc them all for that group/entity
+          debugMap.put("state", "convertMembershipsToIncrementalSync");
+          grouperProvisioningLogicIncremental.convertMembershipsToIncrementalSync();
+
+          // ######### STEP 20.3: convert groups and entities to recalc when needed
+          // e.g. new groups/entities from extra memberships
           debugMap.put("state", "convertGroupsToRecalc");
-          grouperProvisioningLogicIncremental.convertGroupsToRecalc();
+          grouperProvisioningLogicIncremental.convertGroupsToRecalc(false);
           debugMap.put("state", "convertEntitiesToRecalc");
+<<<<<<< GROUPER_5_BRANCH
           grouperProvisioningLogicIncremental.convertEntitiesToRecalc();
           
           
@@ -1101,6 +1125,11 @@ public class GrouperProvisioningLogic {
           
 =======
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
+=======
+          grouperProvisioningLogicIncremental.convertEntitiesToRecalc(false);
+
+
+>>>>>>> 905d38a fix incremental
           // ######### STEP 21: resolve subjects for subject link if recalc or for subjects missing data
           debugMap.put("state", "retrieveSubjectLink");
           this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().retrieveSubjectLink();
@@ -1214,10 +1243,16 @@ public class GrouperProvisioningLogic {
           this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateEntityLinkFull();
           
           
+          // ######### STEP 35: index matching ID of grouper and target objects
+          debugMap.put("state", "indexMatchingIdOfGrouperObjects");
+          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(null);
+          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
+
           // ######### STEP 31.5: convert memberships to recalc when needed
           // e.g. inconsistent membership should be recalc
           debugMap.put("state", "convertMembershipsToRecalc");
           grouperProvisioningLogicIncremental.convertMembershipsToRecalc();
+
 
           // ######### STEP 32: translate grouper memberships to target format
           {
@@ -1257,13 +1292,7 @@ public class GrouperProvisioningLogic {
               this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.matchingIdGrouperMemberships);
             }
           }
-
-          // ######### STEP 35: index matching ID of grouper and target objects
-          debugMap.put("state", "indexMatchingIdOfGrouperObjects");
-          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdGroups(null);
-          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(null);
-          this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships(null);
-
+          
           this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validateMemberships(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(false), true);
 
 <<<<<<< GROUPER_5_BRANCH
@@ -1309,7 +1338,7 @@ public class GrouperProvisioningLogic {
           }
           {
             // index the memberships
-//            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships();
+            this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships(null);
 
 //            if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
             this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
@@ -2985,11 +3014,11 @@ public class GrouperProvisioningLogic {
     }
   }
   
-  public void retrieveGrouperDataIncremental() {
+  public void retrieveGrouperDataIncrementalGroupsEntities() {
 
     // get all grouper data for the provisioner
     // and put in GrouperProvisioningDataGrouper
-    GrouperProvisioningLists grouperProvisioningLists = this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataIncremental();
+    GrouperProvisioningLists grouperProvisioningLists = this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataIncrementalGroupsEntities();
 
     // put wrappers on the grouper objects and put in the grouper uuid maps in data object
     // put these wrapper in the GrouperProvisioningData and GrouperProvisioningDataIndex
@@ -3009,10 +3038,41 @@ public class GrouperProvisioningLogic {
     assignSyncObjectsToWrappers();
 
     // incrementals need to consult sync objects to know what to delete
-    calculateProvisioningDataToDelete(); 
+    this.calculateProvisioningGroupsToDelete();
+    this.calculateProvisioningEntitiesToDelete();
     
   }
-  
+
+  public void retrieveGrouperDataIncrementalMemberships() {
+
+    // get all grouper data for the provisioner
+    // and put in GrouperProvisioningDataGrouper
+    GrouperProvisioningLists grouperProvisioningLists = this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataIncrementalMemberships();
+
+    // put wrappers on the grouper objects and put in the grouper uuid maps in data object
+    // put these wrapper in the GrouperProvisioningData and GrouperProvisioningDataIndex
+    this.grouperProvisioner.retrieveGrouperDao().processWrappers(grouperProvisioningLists);
+    
+    // point the membership pointers to groups and entities to what they should point to
+    // and fix data problems (for instance race conditions as data was retrieved)
+    this.grouperProvisioner.retrieveGrouperDao().fixGrouperProvisioningMembershipReferences();
+    
+//    // incrementals need to clone and setup sync objects as deletes
+//    this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental().setupIncrementalClonesOfGroupProvisioningObjects();
+
+    // add / update / delete sync objects based on grouper data
+    this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().fixSyncObjects();
+
+    // put the sync objects in their respective wrapper objects
+    assignSyncObjectsToWrappers();
+
+    // incrementals need to consult sync objects to know what to delete
+    this.calculateProvisioningGroupsToDelete();
+    this.calculateProvisioningEntitiesToDelete();
+    this.calculateProvisioningMembershipsToDelete();
+    
+  }
+
   protected void countInsertsUpdatesDeletes() {
     countAttributesFieldsInsertsUpdatesDeletes(ProvisioningObjectChangeAction.insert, this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningGroups());
     countAttributesFieldsInsertsUpdatesDeletes(ProvisioningObjectChangeAction.insert, this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningEntities());
@@ -3406,7 +3466,7 @@ public class GrouperProvisioningLogic {
       
     }
     if (provisioningGroupsToDeleteCount > 0) {
-      this.getGrouperProvisioner().getDebugMap().put("provisioningGroupsToDeleteCount", provisioningGroupsToDeleteCount);
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "provisioningGroupsToDeleteCount", provisioningGroupsToDeleteCount);
     }
   
   }
