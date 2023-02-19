@@ -133,11 +133,10 @@ public class GrouperProvisioningData {
    */
   public void addAndIndexGroupWrapper(ProvisioningGroupWrapper provisioningGroupWrapper) {
     this.provisioningGroupWrappers.add(provisioningGroupWrapper);
-    ProvisioningGroup grouperProvisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
     GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
     
-    if (grouperProvisioningGroup != null) {
-      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().put(grouperProvisioningGroup.getId(), provisioningGroupWrapper);
+    if (StringUtils.isNotBlank(provisioningGroupWrapper.getGroupId())) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().put(provisioningGroupWrapper.getGroupId(), provisioningGroupWrapper);
     }
     
     if (gcGrouperSyncGroup != null) {
@@ -151,11 +150,10 @@ public class GrouperProvisioningData {
    */
   public void addAndIndexEntityWrapper(ProvisioningEntityWrapper provisioningEntityWrapper) {
     this.provisioningEntityWrappers.add(provisioningEntityWrapper);
-    ProvisioningEntity grouperProvisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
     GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
     
-    if (grouperProvisioningEntity != null) {
-      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
+    if (StringUtils.isNotBlank(provisioningEntityWrapper.getMemberId())) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().put(provisioningEntityWrapper.getMemberId(), provisioningEntityWrapper);
     }
     
     if (gcGrouperSyncMember != null) {
@@ -176,9 +174,12 @@ public class GrouperProvisioningData {
         && !StringUtils.isBlank(grouperProvisioningMembership.getProvisioningEntityId())) {
       MultiKey groupIdEntityId = new MultiKey(grouperProvisioningMembership.getProvisioningGroupId(), grouperProvisioningMembership.getProvisioningEntityId());
       provisioningMembershipWrapper.setGroupIdMemberId(groupIdEntityId);
+    }
+    
+    if (provisioningMembershipWrapper.getGroupIdMemberId() != null) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
-        .getGroupUuidMemberUuidToProvisioningMembershipWrapper().put(
-            groupIdEntityId, provisioningMembershipWrapper);
+      .getGroupUuidMemberUuidToProvisioningMembershipWrapper().put(
+          provisioningMembershipWrapper.getGroupIdMemberId(), provisioningMembershipWrapper);
     }
     
     if (gcGrouperSyncMembership != null) {
