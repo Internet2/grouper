@@ -1254,7 +1254,7 @@ public abstract class GrouperProvisioner {
     //Get the attributes from the attributes framework and store those in grouper sync member table
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningMemberAttributes = this.retrieveGrouperDao().retrieveProvisioningMemberAttributes(true, null);
     
-    this.retrieveGrouperProvisioningSyncIntegration().fullSyncMembers(calculatedProvisioningAttributes);
+    this.retrieveGrouperProvisioningSyncIntegration().fullSyncMembers(grouperProvisioningMemberAttributes);
     
     this.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
 

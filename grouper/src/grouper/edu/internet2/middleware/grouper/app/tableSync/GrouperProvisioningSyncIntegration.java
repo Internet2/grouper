@@ -371,7 +371,8 @@ public class GrouperProvisioningSyncIntegration {
 
     Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
 
-    List<GcGrouperSyncMember> initialGcGrouperSyncMembers = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGcGrouperSyncMembers());
+    List<GcGrouperSyncMember> initialGcGrouperSyncMembers = GrouperUtil.nonNull(this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningData().retrieveGcGrouperSyncMembers());
 
     for (GcGrouperSyncMember gcGrouperSyncMember : initialGcGrouperSyncMembers) {
       memberUuidToSyncMember.put(gcGrouperSyncMember.getMemberId(), gcGrouperSyncMember);
@@ -539,11 +540,15 @@ public class GrouperProvisioningSyncIntegration {
   
     ProvisioningSyncResult provisioningSyncResult = this.getGrouperProvisioner().getProvisioningSyncResult();
 
-    Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper();
+    // this is all the grouper data
+    Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper();
     
     GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
 
-    List<GcGrouperSyncMember> initialGcGrouperSyncMembers = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGcGrouperSyncMembers());
+    // these are sync objects that already exist in the database
+    List<GcGrouperSyncMember> initialGcGrouperSyncMembers = GrouperUtil.nonNull(this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningData().retrieveGcGrouperSyncMembers());
 
     Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
 
@@ -589,7 +594,7 @@ public class GrouperProvisioningSyncIntegration {
           // see if needs to update
           {
             String newSubjectId = grouperProvisioningEntity == null ? null : grouperProvisioningEntity.retrieveAttributeValueString("subjectId");
-            if (!StringUtils.equals(newSubjectId, gcGrouperSyncMember.getSubjectId())) {
+            if (grouperProvisioningEntity != null && !StringUtils.equals(newSubjectId, gcGrouperSyncMember.getSubjectId())) {
               memberIdsWithChangedSubjectIds.add(gcGrouperSyncMember.getMemberId());
             }
           }
