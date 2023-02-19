@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObje
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -131,16 +132,36 @@ public class GrouperProvisioningSyncIntegration {
         initialGcGrouperSyncGroups.add(gcGrouperSyncGroup);
         GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = groupUuidToProvisioningObjectAttributes.get(groupIdToInsert);
         
-        if (grouperProvisioningObjectAttributes == null) {
-          continue;
-        }
-        String groupName = grouperProvisioningObjectAttributes.getName();
-        Long groupIdIndex = grouperProvisioningObjectAttributes.getIdIndex();
-        String groupMetadataJson = grouperProvisioningObjectAttributes.getProvisioningMetadataJson();
+        Map<String, ProvisioningGroupWrapper> groupIdToProvisioningGroupWrapper = this.grouperProvisioner.retrieveGrouperProvisioningDataIndex()
+              .getGroupUuidToProvisioningGroupWrapper();
+        
+        if (grouperProvisioningObjectAttributes != null) {
+          String groupName = grouperProvisioningObjectAttributes.getName();
+          Long groupIdIndex = grouperProvisioningObjectAttributes.getIdIndex();
+          String groupMetadataJson = grouperProvisioningObjectAttributes.getProvisioningMetadataJson();
 
-        processSyncGroupInsert(gcGrouperSync, groupUuidToSyncGroup, groupIdToInsert,
-            gcGrouperSyncGroup, groupName, groupIdIndex, groupMetadataJson);
+          gcGrouperSyncGroup = processSyncGroupInsert(gcGrouperSync, groupUuidToSyncGroup, groupIdToInsert,
+              gcGrouperSyncGroup, groupName, groupIdIndex, groupMetadataJson);
+        }
+          
+        ProvisioningGroupWrapper provisioningGroupWrapper = groupIdToProvisioningGroupWrapper.get(gcGrouperSyncGroup.getGroupId());
+
+        if (provisioningGroupWrapper == null) {
+          provisioningGroupWrapper = new ProvisioningGroupWrapper();
+          provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
+          provisioningGroupWrapper.setGroupId(gcGrouperSyncGroup.getGroupId());
+          provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+          
+          this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexGroupWrapper(provisioningGroupWrapper);
+        } else {
+          provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper()
+            .put(gcGrouperSyncGroup.getId(), provisioningGroupWrapper);
+        }
+        
       }
+      
+      //work here
       
     }
     
@@ -221,7 +242,7 @@ public class GrouperProvisioningSyncIntegration {
     }
   }
 
-  public void processSyncGroupInsert(GcGrouperSync gcGrouperSync,
+  public GcGrouperSyncGroup processSyncGroupInsert(GcGrouperSync gcGrouperSync,
       Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup, String groupIdToInsert,
       GcGrouperSyncGroup gcGrouperSyncGroup, String groupName,
       Long groupIdIndex, String metadataJson) {
@@ -233,7 +254,8 @@ public class GrouperProvisioningSyncIntegration {
     gcGrouperSyncGroup.setMetadataJson(metadataJson);
     gcGrouperSyncGroup.setProvisionable(true);
     gcGrouperSyncGroup.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
-    groupUuidToSyncGroup.put(groupIdToInsert, gcGrouperSyncGroup);    
+    groupUuidToSyncGroup.put(groupIdToInsert, gcGrouperSyncGroup);   
+    return gcGrouperSyncGroup;
   }
 
   public void processSyncGroup(
