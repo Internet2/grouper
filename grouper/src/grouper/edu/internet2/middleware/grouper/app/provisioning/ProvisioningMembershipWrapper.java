@@ -204,7 +204,7 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
       GcGrouperSyncGroup gcGrouperSyncGroup = this.gcGrouperSyncMembership.getGrouperSyncGroup();
       GcGrouperSyncMember gcGrouperSyncMember = this.gcGrouperSyncMembership.getGrouperSyncMember();
       if (gcGrouperSyncGroup != null && gcGrouperSyncMember != null) {
-        newGroupIdMemberId = new MultiKey(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getId());
+        newGroupIdMemberId = new MultiKey(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getMemberId());
       }
     }
     // in incremental this might already be there and shouldnt be removed
