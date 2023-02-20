@@ -76,28 +76,40 @@ public class ProvisioningStateBase {
   }
   
   /**
-   * should we select this from target
+   * should we select this from target individually... i.e. for memberships, if 
+   * selecting all memberships for group, then no need to select individual memberships
    */
   private boolean select;
   
-  
+  /**
+   * should we select this from target individually... i.e. for memberships, if 
+   * selecting all memberships for group, then no need to select individual memberships
+   * @return
+   */
   public boolean isSelect() {
     return select;
   }
-  
+
+  /**
+   * should we select this from target individually... i.e. for memberships, if 
+   * selecting all memberships for group, then no need to select individual memberships
+   * @param select
+   */
   public void setSelect(boolean select) {
     this.select = select;
   }
 
   /**
-   * if this item was attempted to be selected from target
+   * if this item was attempted to be selected from target.  Note, for memberships, if
+   * selecting all memberships for a group, then the memberships retrieved will be selected result processed true
    */
   private boolean selectResultProcessed;
 
   
   
   /**
-   * if this item was attempted to be selected from target
+   * if this item was attempted to be selected from target.  Note, for memberships, if
+   * selecting all memberships for a group, then the memberships retrieved will be selected result processed true
    * @return
    */
   public boolean isSelectResultProcessed() {
@@ -106,7 +118,8 @@ public class ProvisioningStateBase {
 
 
   /**
-   * if this item was attempted to be selected from target
+   * if this item was attempted to be selected from target.  Note, for memberships, if
+   * selecting all memberships for a group, then the memberships retrieved will be selected result processed true
    * @param selectResultProcessed
    */
   public void setSelectResultProcessed(boolean selectResultProcessed) {
