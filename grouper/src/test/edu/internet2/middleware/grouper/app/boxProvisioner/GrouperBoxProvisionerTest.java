@@ -40,7 +40,7 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperBoxProvisionerTest("testIncrementalSyncBox2"));
+    TestRunner.run(new GrouperBoxProvisionerTest("testIncrementalSyncBox"));
     
   }
   
@@ -97,6 +97,11 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
       testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
       testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
       
+      Member member0 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, false);
+      Member member1 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, false);
+      Member member2 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ2, false);
+      Member member3 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ3, false);
+
       GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
       attributeValue.setDirectAssignment(true);
       attributeValue.setDoProvision("myBoxProvisioner");
@@ -110,6 +115,43 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
       
       incrementalProvision();
   
+      
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(testGroup.getId());
+      
+      assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
+      assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
+
+      ProvisioningEntityWrapper provisioningEntityWrapper0 = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(member0.getId());
+
+      assertEquals(true, provisioningEntityWrapper0.getProvisioningStateEntity().isRecalcObject());
+      assertEquals(false, provisioningEntityWrapper0.getProvisioningStateEntity().isRecalcEntityMemberships());
+      assertEquals(true, provisioningEntityWrapper0.getProvisioningStateEntity().isCreate());
+
+      ProvisioningEntityWrapper provisioningEntityWrapper1 = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(member1.getId());
+
+      assertEquals(true, provisioningEntityWrapper1.getProvisioningStateEntity().isRecalcObject());
+      assertEquals(false, provisioningEntityWrapper1.getProvisioningStateEntity().isRecalcEntityMemberships());
+      assertEquals(true, provisioningEntityWrapper1.getProvisioningStateEntity().isCreate());
+
+      assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
+      assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
+      assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()));
+
+      ProvisioningMembershipWrapper provisioningMembershipWrapper0 = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
+          .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), member0.getId()));
+
+      ProvisioningMembershipWrapper provisioningMembershipWrapper1 = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
+          .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), member1.getId()));
+      
+      assertEquals(true, provisioningMembershipWrapper0.getProvisioningStateMembership().isRecalcObject());
+      assertEquals(false, provisioningMembershipWrapper0.getProvisioningStateMembership().isSelect());
+      assertEquals(true, provisioningMembershipWrapper0.getProvisioningStateMembership().isSelectResultProcessed());
+
+      assertEquals(true, provisioningMembershipWrapper1.getProvisioningStateMembership().isRecalcObject());
+      assertEquals(false, provisioningMembershipWrapper1.getProvisioningStateMembership().isSelect());
+      assertEquals(true, provisioningMembershipWrapper1.getProvisioningStateMembership().isSelectResultProcessed());
+
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperBoxGroup").list(GrouperBoxGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperBoxUser").list(GrouperBoxUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperBoxMembership").list(GrouperBoxMembership.class).size());

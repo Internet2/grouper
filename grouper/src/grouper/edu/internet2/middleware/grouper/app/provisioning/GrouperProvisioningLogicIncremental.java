@@ -2380,7 +2380,7 @@ public class GrouperProvisioningLogicIncremental {
     TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest = new TargetDaoRetrieveIncrementalDataRequest();
     this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().setTargetDaoRetrieveIncrementalDataRequest(targetDaoRetrieveIncrementalDataRequest);
     boolean needsData = false;
-    
+
     {
       List<ProvisioningGroup> grouperTargetGroupsRecalcForAllMembershipSync = new ArrayList<ProvisioningGroup>();
       List<ProvisioningGroup> grouperTargetGroupsRecalcForSomeMembershipSync = new ArrayList<ProvisioningGroup>();
@@ -2452,6 +2452,23 @@ public class GrouperProvisioningLogicIncremental {
       List<ProvisioningGroup> provisioningGroupSomeMembershipsSync = new ArrayList<ProvisioningGroup>();
       List<ProvisioningEntity> provisioningEntitySomeMembershipsSync = new ArrayList<ProvisioningEntity>();
       
+      Set<ProvisioningGroup> grouperTargetGroupsRecalcForAllMembershipSyncSet = new HashSet<ProvisioningGroup>(GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetGroupsForGroupAllMembershipSync()));
+      Set<ProvisioningEntity> grouperTargetEntitiesRecalcForAllMembershipSyncSet = new HashSet<ProvisioningEntity>(GrouperUtil.nonNull(targetDaoRetrieveIncrementalDataRequest.getTargetEntitiesForEntityAllMembershipSync()));
+
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        ProvisioningGroupWrapper provisioningGroupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+        if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGrouperTargetGroup() != null
+            && grouperTargetGroupsRecalcForAllMembershipSyncSet.contains(provisioningGroupWrapper.getGrouperTargetGroup())) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
+        }
+
+        ProvisioningEntityWrapper provisioningEntityWrapper = provisioningMembershipWrapper.getProvisioningEntityWrapper();
+        if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGrouperTargetEntity() != null
+            && grouperTargetEntitiesRecalcForAllMembershipSyncSet.contains(provisioningEntityWrapper.getGrouperTargetEntity())) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
+        }
+      }
+
       
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != null) {
         switch(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
@@ -2775,15 +2792,26 @@ public class GrouperProvisioningLogicIncremental {
 
         // by the time, it reachs here, determineGroupsToSelect might have set selectSomeMemberships to true and
         // that's why, we skip them here
-        if (provisioningGroupWrapper != null && (provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships() 
-            || provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships())) {
+        if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships()) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(false);
+          continue;
+        }
+        // by the time, it reachs here, determineEntitiesToSelect might have set selectSomeMemberships to true and
+        // that's why, we skip them here
+        if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships()) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(false);
+          continue;
+        } 
+
+        // by the time, it reachs here, determineGroupsToSelect might have set selectSomeMemberships to true and
+        // that's why, we skip them here
+        if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships()) {
           provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
           continue;
         }
         // by the time, it reachs here, determineEntitiesToSelect might have set selectSomeMemberships to true and
         // that's why, we skip them here
-        if (provisioningEntityWrapper != null && (provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships()
-            || provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMemberships())) {
+        if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMemberships()) {
           provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
           continue;
         } 
