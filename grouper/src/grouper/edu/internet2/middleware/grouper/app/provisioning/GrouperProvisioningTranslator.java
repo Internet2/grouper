@@ -318,6 +318,15 @@ public class GrouperProvisioningTranslator {
 //        grouperTargetMembership.getProvisioningMembershipWrapper().setDelete(true);
 //      }
 
+      if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isRecalcObject() 
+          && grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.delete) {
+        grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setDelete(true);
+      }
+      if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isRecalcObject() 
+          && grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.insert) {
+        grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setCreate(true);
+      }
+      
       grouperTargetMemberships.add(grouperTargetMembership); 
     }
     
