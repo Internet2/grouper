@@ -1007,6 +1007,7 @@ public class GrouperProvisioningCompare {
       }
       
       // deletes
+      // note the sync object can be null if it is from target and grouper doesnt know about it
       if (provisioningEntityWrapper.getGcGrouperSyncMember() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable()) {
         
         boolean deleteMembershipAttributeValues = false;
@@ -1248,7 +1249,8 @@ public class GrouperProvisioningCompare {
       }
       
       // deletes
-      if (!provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+      // note the sync object can be null if it is from target and grouper doesnt know about it
+      if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
         
         boolean deleteMembershipAttributeValues = false;
         if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
