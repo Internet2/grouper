@@ -1067,6 +1067,7 @@ public class GrouperProvisioningLogic {
 //            grouperProvisioningLogicIncremental.retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc();
             long retrieveTargetDataMillis = System.currentTimeMillis()-start;
             debugMap.put("retrieveIncrementalTargetMemberships", retrieveTargetDataMillis);
+            this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetDataMemberships);
           }
           {
             // index the memberships
@@ -2968,8 +2969,6 @@ public class GrouperProvisioningLogic {
    */
   public void calculateProvisioningMembershipsToDelete() {
   
-    Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper();
-    Map<String, ProvisioningGroupWrapper> groupUuidToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper();
     Map<String, ProvisioningEntityWrapper> gcGrouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
     Map<String, ProvisioningGroupWrapper> gcGrouperSyncGroupIdToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper();
 
@@ -3032,6 +3031,10 @@ public class GrouperProvisioningLogic {
         
       }
       provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+      
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+      .getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), provisioningMembershipWrapper);
+      
     }      
     if (provisioningMshipsToDelete > 0) {
       this.getGrouperProvisioner().getDebugMap().put("provisioningMshipsToDelete", provisioningMshipsToDelete);
