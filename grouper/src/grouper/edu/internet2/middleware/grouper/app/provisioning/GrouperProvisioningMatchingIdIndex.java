@@ -291,6 +291,16 @@ public class GrouperProvisioningMatchingIdIndex {
         continue;
       }
       
+      if (grouperTargetGroup != null && targetProvisioningGroup == null && 
+          provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
+        continue;
+      }
+      
+      if (grouperTargetGroup != null && targetProvisioningGroup == null && 
+          !provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+        continue;
+      }
+      
       if (grouperTargetGroup == null) {
         provisioningGroupWrappersWithNoMatch++;
         continue;
@@ -470,7 +480,7 @@ public class GrouperProvisioningMatchingIdIndex {
         String matchingAttributeName = "id";
         
         // go through unmatched grouper objects and try to find a match
-        LOOP_THROUGH_GROUPS: for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
+        LOOP_THROUGH_MEMBERSHIPS: for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
             GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()))) {
 
           if (provisioningMembershipWrapper.getGrouperTargetMembership() == null) {
@@ -582,7 +592,7 @@ public class GrouperProvisioningMatchingIdIndex {
             }
 
             targetProvisioningMembershipToMatchCount.put(targetProvisioningMembership, 1);
-            continue LOOP_THROUGH_GROUPS;
+            continue LOOP_THROUGH_MEMBERSHIPS;
           }
         }
         
@@ -628,7 +638,7 @@ public class GrouperProvisioningMatchingIdIndex {
     int provisioningMembershipWrappersWithNoMatch = 0;
     
   
-    // go through unmatched grouper objects and try to find a match
+    // go through unmatched grouper objects and try to find a matc
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
         GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()))) {
   
@@ -636,6 +646,16 @@ public class GrouperProvisioningMatchingIdIndex {
       ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
   
       if (grouperTargetMembership != null && targetProvisioningMembership != null) {
+        continue;
+      }
+      
+      if (grouperTargetMembership != null && targetProvisioningMembership == null && 
+          provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
+        continue;
+      }
+      
+      if (grouperTargetMembership != null && targetProvisioningMembership == null && 
+          !provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
         continue;
       }
       
@@ -927,6 +947,17 @@ public class GrouperProvisioningMatchingIdIndex {
   
       if (grouperTargetEntity != null && targetProvisioningEntity != null) {
         provisioningEntityWrappersWithMatch++;
+        continue;
+      }
+      
+
+      if (grouperTargetEntity != null && targetProvisioningEntity == null && 
+          provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
+        continue;
+      }
+      
+      if (grouperTargetEntity != null && targetProvisioningEntity == null && 
+          !provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
         continue;
       }
       

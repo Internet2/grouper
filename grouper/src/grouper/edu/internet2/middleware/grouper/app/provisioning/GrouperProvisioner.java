@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -31,10 +32,12 @@ import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.DurationFormatUtils;
 
@@ -1249,12 +1252,16 @@ public abstract class GrouperProvisioner {
     ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
     this.setProvisioningSyncResult(provisioningSyncResult);
     
-    this.retrieveGrouperProvisioningSyncIntegration().fullSyncGroups(calculatedProvisioningAttributes);
+    List<GcGrouperSyncGroup> initialGcGrouperSyncGroups = GrouperUtil.nonNull(this.retrieveGrouperProvisioningData().retrieveGcGrouperSyncGroups());
+    
+    this.retrieveGrouperProvisioningSyncIntegration().fullSyncGroups(calculatedProvisioningAttributes, new HashSet<GcGrouperSyncGroup>(initialGcGrouperSyncGroups));
     
     //Get the attributes from the attributes framework and store those in grouper sync member table
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningMemberAttributes = this.retrieveGrouperDao().retrieveProvisioningMemberAttributes(true, null);
     
-    this.retrieveGrouperProvisioningSyncIntegration().fullSyncMembers(grouperProvisioningMemberAttributes);
+    List<GcGrouperSyncMember> initialGcGrouperSyncMembers = GrouperUtil.nonNull(this.retrieveGrouperProvisioningData().retrieveGcGrouperSyncMembers());
+    
+    this.retrieveGrouperProvisioningSyncIntegration().fullSyncMembers(grouperProvisioningMemberAttributes, new HashSet<GcGrouperSyncMember>(initialGcGrouperSyncMembers));
     
     this.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
 

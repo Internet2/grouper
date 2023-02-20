@@ -138,8 +138,9 @@ public class GrouperProvisioningGrouperSyncDao {
       if (provisioningMembershipWrapper.getGroupIdMemberId() != null) {
         String groupId = (String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(0);
         if (!groupIdsToIgnore.contains(groupId)) {
-          ProvisioningGroupWrapper provisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(groupId);
-          if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGcGrouperSyncGroup() == null) {
+          ProvisioningGroupWrapper provisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+              .getGroupUuidToProvisioningGroupWrapper().get(groupId);
+          if (provisioningGroupWrapper == null || provisioningGroupWrapper.getGcGrouperSyncGroup() == null) {
             groupIdsToRetrieve.add(groupId);
           }
         }
@@ -172,6 +173,8 @@ public class GrouperProvisioningGrouperSyncDao {
         } else {
         
           provisioningGroupWrapper.setGcGrouperSyncGroup(grouperSyncGroup);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+            .getGrouperSyncGroupIdToProvisioningGroupWrapper().put(grouperSyncGroup.getId(), provisioningGroupWrapper);
         }
         syncGroupCount++;
       }
@@ -335,7 +338,7 @@ public class GrouperProvisioningGrouperSyncDao {
         if (!memberIdsToIgnore.contains(memberId)) {
           ProvisioningEntityWrapper provisioningEntityWrapper = this.getGrouperProvisioner()
               .retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberId);
-          if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGcGrouperSyncMember() == null) {
+          if (provisioningEntityWrapper == null || provisioningEntityWrapper.getGcGrouperSyncMember() == null) {
             memberIdsToRetrieve.add(memberId);
           }
         }
@@ -367,6 +370,8 @@ public class GrouperProvisioningGrouperSyncDao {
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexEntityWrapper(provisioningEntityWrapper);
         } else {
           provisioningEntityWrapper.setGcGrouperSyncMember(grouperSyncMember);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+          .getGrouperSyncMemberIdToProvisioningEntityWrapper().put(grouperSyncMember.getId(), provisioningEntityWrapper);
         }
 
         syncMembersCount++;
@@ -516,6 +521,8 @@ public class GrouperProvisioningGrouperSyncDao {
         continue;
       } else {
         provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+        .getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), provisioningMembershipWrapper);
         
       }
 
@@ -589,6 +596,8 @@ public class GrouperProvisioningGrouperSyncDao {
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexGroupWrapper(provisioningGroupWrapper);
         } else {
           provisioningGroupWrapper.setGcGrouperSyncGroup(gcGrouperSyncGroup);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+          .getGrouperSyncGroupIdToProvisioningGroupWrapper().put(gcGrouperSyncGroup.getId(), provisioningGroupWrapper);
           
         }
         
@@ -618,6 +627,8 @@ public class GrouperProvisioningGrouperSyncDao {
         } else {
         
           provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+            .getGrouperSyncMemberIdToProvisioningEntityWrapper().put(gcGrouperSyncMember.getId(), provisioningEntityWrapper);
         }
         
       }
@@ -655,6 +666,8 @@ public class GrouperProvisioningGrouperSyncDao {
           continue;
         } else {
           provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+          this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+            .getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(new MultiKey(gcGrouperSyncGroup.getId(), gcGrouperSyncMember.getId()), provisioningMembershipWrapper);
         }
 
       }

@@ -933,7 +933,8 @@ public class GrouperProvisioningLogicIncremental {
     ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
     this.getGrouperProvisioner().setProvisioningSyncResult(provisioningSyncResult);
     
-    this.getGrouperProvisioner().retrieveGrouperProvisioningSyncIntegration().fullSyncMembers(grouperProvisioningObjectAttributesForMembers);
+    this.getGrouperProvisioner().retrieveGrouperProvisioningSyncIntegration()
+      .fullSyncMembers(grouperProvisioningObjectAttributesForMembers, new HashSet<GcGrouperSyncMember>(grouperSyncMemberIdToSyncMember.values()));
     
     this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     
@@ -968,7 +969,10 @@ public class GrouperProvisioningLogicIncremental {
         }
       }
 
-      this.getGrouperProvisioner().retrieveGrouperProvisioningSyncIntegration().fullSyncGroups(calculatedProvisioningAttributes);
+      Map<String, GcGrouperSyncGroup> grouperSyncGroupIdToSyncGroup = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveByGroupIds(syncGroupIdsToRetrieve);
+      
+      this.getGrouperProvisioner().retrieveGrouperProvisioningSyncIntegration()
+        .fullSyncGroups(calculatedProvisioningAttributes, new HashSet<GcGrouperSyncGroup>(grouperSyncGroupIdToSyncGroup.values()));
       
       Set<String> groupIdsToTriggerSync = new HashSet<String>();
       for (GcGrouperSyncGroup gcGrouperSyncGroup : this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().retrieveUpdatedCacheSyncGroups()) {

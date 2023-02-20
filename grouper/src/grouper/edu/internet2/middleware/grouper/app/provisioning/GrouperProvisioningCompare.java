@@ -1111,7 +1111,18 @@ public class GrouperProvisioningCompare {
         }
         
       } else {
+        
+        boolean doUpdate = provisioningEntityWrapper.getProvisioningStateEntity().isUpdate();
+        doUpdate = doUpdate 
+            || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes;
+
+        if (!doUpdate) {
+          // if there's no changelog that says it was updated then it might just be a membership change so skip the update
+          continue;
+        }
+        
         provisioningEntityWrappersForUpdate.add(provisioningEntityWrapper);
+        
       }
       
     }
@@ -1277,7 +1288,7 @@ public class GrouperProvisioningCompare {
       }
       
       // deletes
-      if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+      if (!provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
         
         boolean deleteMembershipAttributeValues = false;
 <<<<<<< GROUPER_5_BRANCH
