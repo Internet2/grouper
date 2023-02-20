@@ -50,7 +50,7 @@ public class GrouperProvisioningSyncIntegration {
     
   }
 
-  public void fullSyncGroups(Map<String, GrouperProvisioningObjectAttributes> groupUuidToProvisioningObjectAttributes) {
+  public void fullSyncGroups(Map<String, GrouperProvisioningObjectAttributes> groupUuidToProvisioningObjectAttributes, Set<GcGrouperSyncGroup> initialGcGrouperSyncGroups) {
 
     ProvisioningSyncResult provisioningSyncGroupResult = this.getGrouperProvisioner().getProvisioningSyncResult();
     
@@ -66,8 +66,6 @@ public class GrouperProvisioningSyncIntegration {
     }
 
     Map<String, GcGrouperSyncGroup> groupUuidToSyncGroup = new HashMap<String, GcGrouperSyncGroup>();
-
-    List<GcGrouperSyncGroup> initialGcGrouperSyncGroups = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGcGrouperSyncGroups());
 
     for (GcGrouperSyncGroup gcGrouperSyncGroup : initialGcGrouperSyncGroups) {
       groupUuidToSyncGroup.put(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncGroup);
@@ -354,7 +352,8 @@ public class GrouperProvisioningSyncIntegration {
   }
   
   public void fullSyncMembers(
-      Map<String, GrouperProvisioningObjectAttributes> memberUuidToProvisioningObjectAttributes) {
+      Map<String, GrouperProvisioningObjectAttributes> memberUuidToProvisioningObjectAttributes, 
+      Set<GcGrouperSyncMember> initialGcGrouperSyncMembers) {
 
     ProvisioningSyncResult provisioningSyncResult = this.getGrouperProvisioner().getProvisioningSyncResult();
 
@@ -370,9 +369,6 @@ public class GrouperProvisioningSyncIntegration {
     }
 
     Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
-
-    List<GcGrouperSyncMember> initialGcGrouperSyncMembers = GrouperUtil.nonNull(this.getGrouperProvisioner()
-        .retrieveGrouperProvisioningData().retrieveGcGrouperSyncMembers());
 
     for (GcGrouperSyncMember gcGrouperSyncMember : initialGcGrouperSyncMembers) {
       memberUuidToSyncMember.put(gcGrouperSyncMember.getMemberId(), gcGrouperSyncMember);
@@ -683,6 +679,9 @@ public class GrouperProvisioningSyncIntegration {
         gcGrouperSyncMember.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
         memberUuidToSyncMember.put(memberIdToInsert, gcGrouperSyncMember);
         provisioningEntityWrapper.setGcGrouperSyncMember(gcGrouperSyncMember);
+       
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+        .getGrouperSyncMemberIdToProvisioningEntityWrapper().put(gcGrouperSyncMember.getId(), provisioningEntityWrapper);
 
       }
       
@@ -863,6 +862,9 @@ public class GrouperProvisioningSyncIntegration {
         }
         groupIdMemberIdToSyncMembership.put(groupIdMemberIdToInsert, gcGrouperSyncMembership);
         provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+        
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+        .getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), provisioningMembershipWrapper);
 
       }
       
