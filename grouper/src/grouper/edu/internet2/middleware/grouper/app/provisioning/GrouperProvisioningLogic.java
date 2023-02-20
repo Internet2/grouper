@@ -3523,8 +3523,10 @@ public class GrouperProvisioningLogic {
       }
       provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
       
-      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
-      .getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), provisioningMembershipWrapper);
+      if (gcGrouperSyncMembership != null) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+        .getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), provisioningMembershipWrapper);
+      }
       
     }      
     if (provisioningMshipsToDelete > 0) {
