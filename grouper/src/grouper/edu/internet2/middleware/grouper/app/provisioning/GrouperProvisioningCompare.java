@@ -1559,7 +1559,7 @@ public class GrouperProvisioningCompare {
         continue;
       }
       
-      ProvisioningMembership grouperTargetMembership = (provisioningMembershipWrapper.getProvisioningStateMembership().isDelete() && provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) ? null : provisioningMembershipWrapper.getGrouperTargetMembership();
+      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
       
       if (grouperTargetMembership != null && grouperTargetMembership.getProvisioningMembershipWrapper() == null ) {
         continue;
