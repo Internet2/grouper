@@ -1744,7 +1744,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             }
 
             // add these to the overall result
-            for (Object membershipObject : targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships()) {
+            for (Object membershipObject : GrouperUtil.nonNull(targetDaoRetrieveMembershipsByEntitiesResponse.getTargetMemberships())) {
               ProvisioningEntity retrievedTargetEntity = (ProvisioningEntity)membershipObject;
               targetEntitiesFound.add(retrievedTargetEntity);
 
