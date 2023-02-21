@@ -2985,7 +2985,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     GrouperProvisioningOutput grouperProvisioningOutput = fullProvision("prodActiveDirectory");
     GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
-    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetGroupsRetrieved")));
+    assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetGroupsRetrieved"), 0));
     
     List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=test,ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory", "description"}, null);
     assertEquals(2, ldapEntries.size());
