@@ -2469,7 +2469,6 @@ public class GrouperProvisioningLogicIncremental {
         }
       }
 
-      
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != null) {
         switch(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()) {
           

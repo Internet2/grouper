@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
@@ -155,6 +156,7 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     if (this.targetProvisioningGroup == targetProvisioningGroup) {
       return;
     }
+    
     ProvisioningGroup oldTargetProvisioningGroup = this.targetProvisioningGroup;
     ProvisioningGroupWrapper oldProvisioningGroupWrapper = oldTargetProvisioningGroup == null ? null : oldTargetProvisioningGroup.getProvisioningGroupWrapper();
 
