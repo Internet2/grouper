@@ -60,6 +60,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
     TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideFlat"));    
 =======
     TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullUmassActiveDirectory"));    
@@ -70,6 +71,9 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
 =======
     TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullFlatHarvard"));    
 >>>>>>> a6357c0 get rid of sync object data store
+=======
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullOnlyDnOverrideFlat"));    
+>>>>>>> bc8dc73 fix thread issue, and counts
   }
   
   @Override

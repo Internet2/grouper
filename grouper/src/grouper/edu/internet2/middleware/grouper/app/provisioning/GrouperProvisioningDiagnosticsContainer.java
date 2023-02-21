@@ -767,9 +767,9 @@ public class GrouperProvisioningDiagnosticsContainer {
       
       GrouperProvisioningLists extraTargetData = this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().retrieveExtraTargetData(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetProvisioningLists());
       if (extraTargetData != null) {
-        this.grouperProvisioner.retrieveGrouperProvisioningLogic().processTargetDataEntities(extraTargetData.getProvisioningEntities());
-        this.grouperProvisioner.retrieveGrouperProvisioningLogic().processTargetDataGroups(extraTargetData.getProvisioningGroups());
-        this.grouperProvisioner.retrieveGrouperProvisioningLogic().processTargetDataMemberships(extraTargetData.getProvisioningMemberships());
+        this.grouperProvisioner.retrieveGrouperProvisioningLogic().processTargetDataEntities(extraTargetData.getProvisioningEntities(), false);
+        this.grouperProvisioner.retrieveGrouperProvisioningLogic().processTargetDataGroups(extraTargetData.getProvisioningGroups(), false);
+        this.grouperProvisioner.retrieveGrouperProvisioningLogic().processTargetDataMemberships(extraTargetData.getProvisioningMemberships(), false);
       }
       
       this.provisioningMembershipWrapper = grouperProvisioningMembership.getProvisioningMembershipWrapper();
