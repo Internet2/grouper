@@ -1561,7 +1561,7 @@ public class GrouperProvisioningCompare {
       
       ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
       
-      if (grouperTargetMembership != null && grouperTargetMembership.getProvisioningMembershipWrapper() == null ) {
+       if (grouperTargetMembership != null && grouperTargetMembership.getProvisioningMembershipWrapper() == null ) {
         continue;
       }
       
@@ -1637,7 +1637,16 @@ public class GrouperProvisioningCompare {
           groupIdEntityIdsToDelete.add(key);
         }
       }
-      groupIdEntityIdsToDelete.removeAll(grouperMatchingIdToTargetMembership.keySet());
+      
+      // groupIdEntityIdsToDelete.removeAll(grouperMatchingIdToTargetMembership.keySet());
+      // remove the ones from the delete list that are not actual delete 
+      for (Object key : grouperMatchingIdToTargetMembership.keySet()) {
+        ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(key);
+        if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()) {
+          groupIdEntityIdsToDelete.remove(key);
+        }
+      }
+      
       for (Object key : grouperMatchingIdToTargetMembership.keySet()) {
         ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(key);
         if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed()) {
