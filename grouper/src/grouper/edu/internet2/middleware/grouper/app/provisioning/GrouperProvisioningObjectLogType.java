@@ -99,17 +99,41 @@ public enum GrouperProvisioningObjectLogType {
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request group mships", 
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupAllMembershipSync(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request entity mships", 
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityAllMembershipSync(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request mships", 
-          grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetMembershipObjectsForMembershipSync(), "memberships");
 
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
+      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput()
+          .getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupSomeMembershipSync()) > 0) {
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request some group mships", 
+            grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupSomeMembershipSync(), "groups");
+      }
+      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput()
+          .getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupAllMembershipSync()) > 0) {
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request all group mships", 
+            grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupAllMembershipSync(), "groups");
+      }
+      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput()
+          .getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntitySomeMembershipSync()) > 0) {
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request some entity mships", 
+            grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntitySomeMembershipSync(), "entities");
+      }
+      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput()
+          .getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityAllMembershipSync()) > 0) {
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request all entity mships", 
+            grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityAllMembershipSync(), "entities");
+      }
+      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput()
+          .getTargetDaoRetrieveIncrementalDataRequest().getTargetMembershipObjectsForMembershipSync()) > 0) {
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request mships", 
+            grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetMembershipObjectsForMembershipSync(), "memberships");
+      }
+      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups()) > 0) {
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
+      }
+      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities()) > 0) {
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
+      }
+      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships()) > 0) {
+        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
+      }
     }
   }, 
 

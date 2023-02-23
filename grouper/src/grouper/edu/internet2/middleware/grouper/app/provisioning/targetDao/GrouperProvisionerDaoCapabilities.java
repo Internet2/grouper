@@ -10,6 +10,56 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperProvisionerDaoCapabilities {
 
+  /**
+   * if doing group attributes, if memberships can be retrieved with group when the input flag is passed to do so
+   * default true
+   */
+  private boolean canRetrieveMembershipsWithGroup = true;
+
+  /**
+   * if doing entity attributes, if memberships can be retrieved with entity when the input flag is passed to do so
+   * default true
+   */
+  private boolean canRetrieveMembershipsWithEntity = true;
+
+  /**
+   * if doing entity attributes, if memberships can be retrieved with entity when the input flag is passed to do so
+   * default true
+   * @return
+   */
+  public boolean isCanRetrieveMembershipsWithEntity() {
+    return canRetrieveMembershipsWithEntity;
+  }
+
+  /**
+   * if doing group attributes, if memberships can be retrieved with group when the input flag is passed to do so
+   * default true
+   * @return
+   */
+  public boolean isCanRetrieveMembershipsWithGroup() {
+    return canRetrieveMembershipsWithGroup;
+  }
+
+  /**
+   * if doing group attributes, if memberships can be retrieved with group when the input flag is passed to do so
+   * default true
+   * @param canRetrieveMembershipWithGroup
+   */
+  public void setCanRetrieveMembershipsWithGroup(boolean canRetrieveMembershipWithGroup) {
+    this.canRetrieveMembershipsWithGroup = canRetrieveMembershipWithGroup;
+  }
+
+
+  /**
+   * if doing entity attributes, if memberships can be retrieved with entity when the input flag is passed to do so
+   * @param canRetrieveMembershipWithEntity
+   */
+  public void setCanRetrieveMembershipsWithEntity(boolean canRetrieveMembershipWithEntity) {
+    this.canRetrieveMembershipsWithEntity = canRetrieveMembershipWithEntity;
+  }
+
+
+
   @Override
   public String toString() {
     
@@ -70,13 +120,10 @@ public class GrouperProvisionerDaoCapabilities {
   private Boolean canRetrieveEntities;
   private Boolean canRetrieveEntity;
   private Boolean canRetrieveGroup;
-  private Boolean canRetrieveGroupWithOrWithoutMembershipAttribute;
-  private Boolean canRetrieveEntityWithOrWithoutMembershipAttribute;
   private Boolean canRetrieveGroups;
   private Boolean canRetrieveIncrementalData;
   private Boolean canRetrieveMembership;
   private Boolean canRetrieveMemberships;
-  private Boolean canRetrieveMembershipsBulk;
   private Boolean canRetrieveMembershipsByEntities;
   private Boolean canRetrieveMembershipsByEntity;
   private Boolean canRetrieveMembershipsByGroup;
@@ -565,24 +612,6 @@ public class GrouperProvisionerDaoCapabilities {
     this.canRetrieveGroup = canRetrieveGroup;
   }
   
-  public Boolean getCanRetrieveGroupWithOrWithoutMembershipAttribute() {
-    return canRetrieveGroupWithOrWithoutMembershipAttribute;
-  }
-  
-  public void setCanRetrieveGroupWithOrWithoutMembershipAttribute(
-      Boolean canRetrieveGroupWithOrWithoutMembershipAttribute) {
-    this.canRetrieveGroupWithOrWithoutMembershipAttribute = canRetrieveGroupWithOrWithoutMembershipAttribute;
-  }
-  
-  public Boolean getCanRetrieveEntityWithOrWithoutMembershipAttribute() {
-    return canRetrieveEntityWithOrWithoutMembershipAttribute;
-  }
-  
-  public void setCanRetrieveEntityWithOrWithoutMembershipAttribute(
-      Boolean canRetrieveEntityWithOrWithoutMembershipAttribute) {
-    this.canRetrieveEntityWithOrWithoutMembershipAttribute = canRetrieveEntityWithOrWithoutMembershipAttribute;
-  }
-  
   public Boolean getCanRetrieveGroups() {
     return canRetrieveGroups;
   }
@@ -613,14 +642,6 @@ public class GrouperProvisionerDaoCapabilities {
   
   public void setCanRetrieveMemberships(Boolean canRetrieveMemberships) {
     this.canRetrieveMemberships = canRetrieveMemberships;
-  }
-  
-  public Boolean getCanRetrieveMembershipsBulk() {
-    return canRetrieveMembershipsBulk;
-  }
-  
-  public void setCanRetrieveMembershipsBulk(Boolean canRetrieveMembershipsBulk) {
-    this.canRetrieveMembershipsBulk = canRetrieveMembershipsBulk;
   }
   
   public Boolean getCanRetrieveMembershipsByEntities() {

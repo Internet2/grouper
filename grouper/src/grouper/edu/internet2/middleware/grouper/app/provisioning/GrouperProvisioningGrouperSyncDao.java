@@ -648,8 +648,7 @@ public class GrouperProvisioningGrouperSyncDao {
             processResultsInsertUpdateProvisioningUpdatableAttributeMemberships(nowTimestamp,
                 grouperTargetGroup);
             
-            if (provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships() ||
-                provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
+            if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
               gcGrouperSyncGroup.setLastGroupSync(new Timestamp(System.currentTimeMillis()));
               gcGrouperSyncGroup.setLastGroupSyncStart(new Timestamp(this.getGrouperProvisioner().retrieveGrouperProvisioningLogic().getRetrieveDataStartMillisSince1970()));
             }
@@ -1048,8 +1047,7 @@ public class GrouperProvisioningGrouperSyncDao {
                 nowTimestamp,
                 grouperTargetGroup);
 
-            if (provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships() ||
-                provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
+            if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
               gcGrouperSyncGroup
                   .setLastGroupSync(new Timestamp(System.currentTimeMillis()));
               gcGrouperSyncGroup.setLastGroupSyncStart(new Timestamp(
@@ -1317,8 +1315,7 @@ public class GrouperProvisioningGrouperSyncDao {
               }
 
               if (fullSyncSuccess) {
-                if (provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships() ||
-                    provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
+                if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
                        gcGrouperSyncGroup
                       .setLastGroupSync(new Timestamp(System.currentTimeMillis()));
                   gcGrouperSyncGroup.setLastGroupSyncStart(new Timestamp(

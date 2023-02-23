@@ -9,7 +9,22 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   public ProvisioningStateGroup() {
     
   }
+
+  private boolean selectSomeMembershipsResultProcessed;
+
   
+  
+  
+  public boolean isSelectSomeMembershipsResultProcessed() {
+    return selectSomeMembershipsResultProcessed;
+  }
+
+  
+  public void setSelectSomeMembershipsResultProcessed(
+      boolean selectSomeMembershipsResultProcessed) {
+    this.selectSomeMembershipsResultProcessed = selectSomeMembershipsResultProcessed;
+  }
+
   /**
    * in incremental, if we're doing group attributes and any membership events for this group 
    * are recalc, then recalc all events for this group in this incremental run and select
@@ -28,7 +43,7 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   /**
    * if the memberships for this group was attempted to be selected from target
    */
-  private boolean selectAllMembershipResultProcessed;
+  private boolean selectAllMembershipsResultProcessed;
   
   /**
    * set it to true if we want to select all memberships from the target for this group.
@@ -51,8 +66,8 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   /**
    * if the memberships for this group was attempted to be selected from target
    */
-  public boolean isSelectAllMembershipResultProcessed() {
-    return selectAllMembershipResultProcessed;
+  public boolean isSelectAllMembershipsResultProcessed() {
+    return selectAllMembershipsResultProcessed;
   }
   
   
@@ -79,15 +94,10 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   /**
    * if the memberships for this group was attempted to be selected from target
    */
-  public void setSelectAllMembershipResultProcessed(boolean selectMembershipResultProcessed) {
-    this.selectAllMembershipResultProcessed = selectMembershipResultProcessed;
+  public void setSelectAllMembershipsResultProcessed(boolean selectMembershipResultProcessed) {
+    this.selectAllMembershipsResultProcessed = selectMembershipResultProcessed;
   }
 
-  /**
-   * if this is incremental and the membership type is groupAttributes and recalcing any memberships for this group then all change log events for this group
-   * will be recalced
-   */
-  private boolean incrementalSyncMemberships;
   /**
    * if recalcing the groupAttribute memberships 
    */
@@ -121,29 +131,11 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
 
 
   /**
-   * if this is incremental, and syncing memberships for this group
-   * @return
-   */
-  public boolean isIncrementalSyncMemberships() {
-    return incrementalSyncMemberships;
-  }
-
-
-  /**
    * if recalcing the groupAttribute memberships 
    * @return
    */
   public boolean isRecalcGroupMemberships() {
     return recalcGroupMemberships;
-  }
-
-
-  /**
-   * if this is incremental, and syncing memberships for this group
-   * @param incrementalSyncMemberships1
-   */
-  public void setIncrementalSyncMemberships(boolean incrementalSyncMemberships1) {
-    this.incrementalSyncMemberships = incrementalSyncMemberships1;
   }
 
 

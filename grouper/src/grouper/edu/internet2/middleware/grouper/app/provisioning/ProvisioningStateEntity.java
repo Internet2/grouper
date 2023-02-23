@@ -84,10 +84,6 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
 
   private String memberId;
   /**
-   * if this is incremental, and syncing memberships for this group
-   */
-  private boolean incrementalSyncMemberships;
-  /**
    * if recalcing the entity memberships 
    */
   private boolean recalcEntityMemberships;
@@ -130,29 +126,11 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
 
 
   /**
-   * if this is incremental, and syncing memberships for this group
-   * @return
-   */
-  public boolean isIncrementalSyncMemberships() {
-    return incrementalSyncMemberships;
-  }
-
-
-  /**
    * if recalcing the entity memberships 
    * @return
    */
   public boolean isRecalcEntityMemberships() {
     return recalcEntityMemberships;
-  }
-
-
-  /**
-   * if this is incremental, and syncing memberships for this group
-   * @param incrementalSyncMemberships1
-   */
-  public void setIncrementalSyncMemberships(boolean incrementalSyncMemberships1) {
-    this.incrementalSyncMemberships = incrementalSyncMemberships1;
   }
 
 

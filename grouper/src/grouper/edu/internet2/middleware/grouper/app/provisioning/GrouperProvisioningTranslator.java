@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -119,8 +120,13 @@ public class GrouperProvisioningTranslator {
         }
       }
       
-      if (errorCode == null && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOnlyAddMembershipsIfUserExistsInTarget()
-          && provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+      // if this is an add, and the user isnt there, then there is a problem
+      boolean isDelete = gcGrouperSyncMembership.isInTarget() || provisioningMembershipWrapper.getProvisioningStateMembership().isDelete();
+
+      boolean isEntityInTarget = provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget() || provisioningEntityWrapper.getTargetProvisioningEntity() != null;
+      
+      if (!isDelete && errorCode == null && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOnlyAddMembershipsIfUserExistsInTarget()
+          && !isEntityInTarget) {
         errorCode = GcGrouperSyncErrorCode.DNE;
       }
       
@@ -1057,6 +1063,7 @@ public class GrouperProvisioningTranslator {
       }
       
     }
+    
   }
 
   public void idTargetEntities(List<ProvisioningEntity> targetEntities) {

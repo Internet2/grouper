@@ -8,26 +8,44 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 
 public class TargetDaoRetrieveMembershipsRequest {
   
+  /**
+   * if doing group attributes, then these are groups with some values that should be retrieved (not all)
+   */
   private List<ProvisioningGroup> targetGroups;
-  
+
+  /**
+   * if doing entity attributes, then these are entities with some values that should be retrieved (not all)
+   */
   private List<ProvisioningEntity> targetEntities;
   
-  
+  /**
+   * if doing group attributes, then these are groups with some values that should be retrieved (not all)
+   * @return
+   */
   public List<ProvisioningGroup> getTargetGroups() {
     return targetGroups;
   }
 
-  
+  /**
+   * if doing group attributes, then these are groups with some values that should be retrieved (not all)
+   * @param targetGroups
+   */
   public void setTargetGroups(List<ProvisioningGroup> targetGroups) {
     this.targetGroups = targetGroups;
   }
 
-  
+  /**
+   * if doing entity attributes, then these are entities with some values that should be retrieved (not all)
+   * @return
+   */
   public List<ProvisioningEntity> getTargetEntities() {
     return targetEntities;
   }
 
-  
+  /**
+   * if doing entity attributes, then these are entities with some values that should be retrieved (not all)
+   * @param targetEntities
+   */
   public void setTargetEntities(List<ProvisioningEntity> targetEntities) {
     this.targetEntities = targetEntities;
   }

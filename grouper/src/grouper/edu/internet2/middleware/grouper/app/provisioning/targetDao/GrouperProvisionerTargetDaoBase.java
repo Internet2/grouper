@@ -19,36 +19,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 public abstract class GrouperProvisionerTargetDaoBase {
 
   /**
-   * indicate if the dao is configured and able to recalc group memberships
-   * @return
-   */
-  public boolean canRecalcGroupMemberships() {
-    boolean result = false;
-    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups() != null) {
-      result = this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups();
-    }
-    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup() != null) {
-      result = result || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup();
-    }
-    return result;
-  }
-  
-  /**
-   * indicate if the dao is configured and able to recalc entity memberships
-   * @return
-   */
-  public boolean canRecalcEntityMemberships() {
-    boolean result = false;
-    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities() != null) {
-      result = this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities();
-    }
-    if (this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity() != null) {
-      result = result || this.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity();
-    }
-    return result;
-  }
-  
-  /**
    * start logging the source low level actions
    * @return true if the logging was started (i.e. can be stopped), or false if already started (in which case 
    * somewhere up the stack with stop it so dont stop it)
@@ -218,16 +188,6 @@ public abstract class GrouperProvisionerTargetDaoBase {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * bulk retrieve target provisioning Memberships, generally use the matching Ids in the targetMemberships
-   * @return the target provisioning Memberships
-   */
-  public TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk(
-      TargetDaoRetrieveMembershipsBulkRequest targetDaoRetrieveMembershipsBulkRequest) {
-    throw new UnsupportedOperationException();
-
-  }
-  
   /**
    * bulk retrieve all target provisioning Memberships related to these groups, generally use the matching Ids in the targetGroups
    * @return the target provisioning memberships
@@ -469,14 +429,6 @@ public abstract class GrouperProvisionerTargetDaoBase {
     
     throw new UnsupportedOperationException();
 
-  }
-  
-  public boolean canRetrieveMembershipsWithEntity() {
-    return true;
-  }
-  
-  public boolean canRetrieveMembershipsWithGroup() {
-    return true;
   }
   
 }

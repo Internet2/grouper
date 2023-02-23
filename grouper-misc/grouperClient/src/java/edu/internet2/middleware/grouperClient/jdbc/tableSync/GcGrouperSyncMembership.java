@@ -740,14 +740,6 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
   }
   
   /**
-   * if this group exists in the target/destination
-   * @param inTarget
-   */
-  public void setInTarget(Boolean inTarget) {
-    this.inTargetDb = inTarget ? "T" : "F";
-  }
-  
-  /**
    * when this record was last updated
    */
   private Timestamp lastUpdated;
