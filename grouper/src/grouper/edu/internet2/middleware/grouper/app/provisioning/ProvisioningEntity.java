@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -11,6 +14,85 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
  *
  */
 public class ProvisioningEntity extends ProvisioningUpdatable {
+
+  /**
+   * do a deep clone of the data, but add as many objects as there are objects and membership attribute values, one per wrapper
+   * @param provisioningUpdatables
+   * @return the cloned list
+   */
+  public static List<ProvisioningEntity> cloneWithOneMembership(List<ProvisioningEntity> provisioningEntities) {
+    if (provisioningEntities == null) {
+      return null;
+    }
+    
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    
+    List<ProvisioningEntity> result = new ArrayList<ProvisioningEntity>();
+    for (ProvisioningEntity provisioningEntity : provisioningEntities) {
+      
+      String membershipAttribute = null;
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+        membershipAttribute = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+      }
+      
+      ProvisioningAttribute provisioningAttribute = provisioningEntity.getAttributes().get(membershipAttribute);
+      if (provisioningAttribute == null) {
+        continue;
+      }
+      
+      for (Object value : GrouperUtil.nonNull(provisioningEntity.retrieveAttributeValueSet(membershipAttribute))) {
+        ProvisioningEntity provisioningUpdatableClone = (ProvisioningEntity)provisioningEntity.cloneWithoutMemberships();
+
+        ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(value);
+
+        try {
+          GrouperProvisioningTranslator.assignThreadLocalProvisioningMembershipWrapper(provisioningMembershipWrapper);
+          provisioningUpdatableClone.addAttributeValueForMembership(membershipAttribute, value);
+        } finally {
+          GrouperProvisioningTranslator.clearThreadLocalProvisioningMembershipWrapper();
+        }
+        
+        result.add(provisioningUpdatableClone);
+      }
+      
+    }
+    return result;
+  }
+
+
+  /**
+   * do a deep clone of the data
+   * @param provisioningUpdatables
+   * @return the cloned list
+   */
+  public static List<ProvisioningEntity> cloneWithoutMemberships(List<ProvisioningEntity> provisioningEntities) {
+    if (provisioningEntities == null) {
+      return null;
+    }
+    List<ProvisioningEntity> result = new ArrayList<ProvisioningEntity>();
+    for (ProvisioningEntity provisioningEntity : provisioningEntities) {
+      ProvisioningEntity provisioningUpdatableClone = (ProvisioningEntity)provisioningEntity.cloneWithoutMemberships();
+      result.add(provisioningUpdatableClone);
+    }
+    return result;
+  }
+
+
+  /**
+   * deep clone the fields in this object without the membership attribute
+   */
+  public ProvisioningEntity cloneWithoutMemberships() {
+
+    ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+    String membershipAttributeToIgnore = null;
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      membershipAttributeToIgnore = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    }
+    this.cloneUpdatable(provisioningEntity, membershipAttributeToIgnore);
+    provisioningEntity.provisioningEntityWrapper = this.provisioningEntityWrapper;
+
+    return provisioningEntity;
+  }
 
   public ProvisioningEntity() {
     super();
@@ -364,7 +446,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
 
     ProvisioningEntity provisioningEntity = new ProvisioningEntity();
 
-    this.cloneUpdatable(provisioningEntity);
+    this.cloneUpdatable(provisioningEntity, null);
     provisioningEntity.provisioningEntityWrapper = this.provisioningEntityWrapper;
 
     return provisioningEntity;

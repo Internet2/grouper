@@ -2034,7 +2034,22 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     List<GrouperCallable<Void>> grouperCallables = new ArrayList<GrouperCallable<Void>>();
 
-    if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
+    boolean canRetrieveAll = true;
+    if (!GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)) {
+      canRetrieveAll = false;
+    }
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()
+        == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        && !GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
+      canRetrieveAll = false;
+    }
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()
+        == GrouperProvisioningBehaviorMembershipType.entityAttributes
+        && !GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)) {
+      canRetrieveAll = false;
+    }
+    
+    if (canRetrieveAll) {
       
       boolean hasError = false;
       boolean commandLogStarted = false;

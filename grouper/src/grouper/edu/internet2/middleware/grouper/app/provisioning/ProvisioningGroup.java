@@ -1,5 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -230,7 +233,85 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
 
     ProvisioningGroup provisioningGroup = new ProvisioningGroup();
 
-    this.cloneUpdatable(provisioningGroup);
+    this.cloneUpdatable(provisioningGroup, null);
+    provisioningGroup.provisioningGroupWrapper = this.provisioningGroupWrapper;
+
+    return provisioningGroup;
+  }
+
+  /**
+   * do a deep clone of the data, without memberships
+   * @param provisioningUpdatables
+   * @return the cloned list
+   */
+  public static List<ProvisioningGroup> cloneWithoutMemberships(List<ProvisioningGroup> provisioningGroups) {
+    if (provisioningGroups == null) {
+      return null;
+    }
+    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
+    for (ProvisioningGroup provisioningGroup : provisioningGroups) {
+      ProvisioningGroup provisioningUpdatableClone = (ProvisioningGroup)provisioningGroup.cloneWithoutMemberships();
+      result.add(provisioningUpdatableClone);
+    }
+    return result;
+  }
+
+  /**
+   * do a deep clone of the data, but add as many objects as there are objects and membership attribute values, one per wrapper
+   * @param provisioningUpdatables
+   * @return the cloned list
+   */
+  public static List<ProvisioningGroup> cloneWithOneMembership(List<ProvisioningGroup> provisioningGroups) {
+    if (provisioningGroups == null) {
+      return null;
+    }
+    
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    
+    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
+    for (ProvisioningGroup provisioningGroup : provisioningGroups) {
+      
+      String membershipAttribute = null;
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+        membershipAttribute = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+      }
+      
+      ProvisioningAttribute provisioningAttribute = provisioningGroup.getAttributes().get(membershipAttribute);
+      if (provisioningAttribute == null) {
+        continue;
+      }
+      
+      for (Object value : GrouperUtil.nonNull(provisioningGroup.retrieveAttributeValueSet(membershipAttribute))) {
+        ProvisioningGroup provisioningUpdatableClone = (ProvisioningGroup)provisioningGroup.cloneWithoutMemberships();
+
+        ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(value);
+
+        try {
+          GrouperProvisioningTranslator.assignThreadLocalProvisioningMembershipWrapper(provisioningMembershipWrapper);
+          provisioningUpdatableClone.addAttributeValueForMembership(membershipAttribute, value);
+        } finally {
+          GrouperProvisioningTranslator.clearThreadLocalProvisioningMembershipWrapper();
+        }
+        
+        result.add(provisioningUpdatableClone);
+      }
+      
+    }
+    return result;
+  }
+
+
+  /**
+   * deep clone the fields in this object without the membership attribute
+   */
+  public ProvisioningGroup cloneWithoutMemberships() {
+
+    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+    String membershipAttributeToIgnore = null;
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      membershipAttributeToIgnore = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    }
+    this.cloneUpdatable(provisioningGroup, membershipAttributeToIgnore);
     provisioningGroup.provisioningGroupWrapper = this.provisioningGroupWrapper;
 
     return provisioningGroup;

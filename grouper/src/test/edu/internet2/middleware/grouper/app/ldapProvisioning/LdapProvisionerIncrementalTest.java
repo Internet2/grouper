@@ -879,14 +879,12 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     assertEquals(true, provisioningEntityWrapperAclark.getProvisioningStateEntity().isRecalcObject());
     assertEquals(true, provisioningEntityWrapperAclark.getProvisioningStateEntity().isSelectResultProcessed());
     assertEquals(false, provisioningEntityWrapperAclark.getProvisioningStateEntity().isRecalcEntityMemberships());
-    assertEquals(false, provisioningEntityWrapperAclark.getProvisioningStateEntity().isCreate());
 
     ProvisioningEntityWrapper provisioningEntityWrapperAdoe = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberAdoe.getId());
 
     assertEquals(true, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isRecalcObject());
     assertEquals(true, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isSelectResultProcessed());
     assertEquals(false, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isRecalcEntityMemberships());
-    assertEquals(true, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isCreate());
 
     ProvisioningMembershipWrapper provisioningMembershipWrapperAclark = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
         .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), memberAclark.getId()));
@@ -897,18 +895,30 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isRecalcObject());
     assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isSelect());
     assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isSelectResultProcessed());
-    assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isCreate());
-    assertEquals(false, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isDelete());
     
     assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isRecalcObject());
     assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isSelect());
     assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isSelectResultProcessed());
-    assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isCreate());
-    assertEquals(false, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isDelete());
+
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+    assertEquals(1, ldapEntries.size());
+    
+    ldapEntry = ldapEntries.get(0);
+    
+    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(testGroup.getIdIndex().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+    assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertEquals(3, ldapEntry.getAttribute("description").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=aclark,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=adoe,ou=People,dc=example,dc=edu"));
 
 
-    testGroup.addMember(aclark);
-    testGroup.addMember(adoe);
+    testGroup.deleteMember(aclark);
+    testGroup.deleteMember(adoe);
 
     if (isFull) {
       fullProvision();
@@ -937,7 +947,6 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     assertEquals(true, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isRecalcObject());
     assertEquals(true, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isSelectResultProcessed());
     assertEquals(false, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isRecalcEntityMemberships());
-    assertEquals(true, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isCreate());
 
     assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
     assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
@@ -952,14 +961,24 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isRecalcObject());
     assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isSelect());
     assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isSelectResultProcessed());
-    assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isCreate());
-    assertEquals(false, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isDelete());
     
     assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isRecalcObject());
     assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isSelect());
     assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isSelectResultProcessed());
-    assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isCreate());
-    assertEquals(false, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isDelete());
+
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
+    assertEquals(1, ldapEntries.size());
+    
+    ldapEntry = ldapEntries.get(0);
+    
+    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(testGroup.getIdIndex().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+    assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
 
 
 
