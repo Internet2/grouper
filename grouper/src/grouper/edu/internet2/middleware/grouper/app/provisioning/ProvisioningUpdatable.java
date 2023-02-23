@@ -580,8 +580,6 @@ public abstract class ProvisioningUpdatable {
     return result;
   }
 
-
-  
   /**
    * 
    * @param action insert or delete
@@ -667,7 +665,7 @@ public abstract class ProvisioningUpdatable {
    */
   public void addAttributeValueForMembership(String name, Object value) {
     
-    ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslator.retrieveProvisioningMembershipWrapper();
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslator.retrieveThreadLocalProvisioningMembershipWrapper();
     
     if (provisioningMembershipWrapper == null) {
       throw new NullPointerException("Cant find membership wrapper! " + name + ", " + value + ", " + this);
@@ -1030,13 +1028,17 @@ public abstract class ProvisioningUpdatable {
   
   /**
    * deep clone the fields in this object
+   * @param ignoreAttribute is the attribute name to ignore, e.g. the membership attribute
    */
-  public void cloneUpdatable(ProvisioningUpdatable provisioningUpdatable) {
+  public void cloneUpdatable(ProvisioningUpdatable provisioningUpdatable, String ignoreAttribute) {
 
     Map<String, ProvisioningAttribute> newAttributes = null;
     if (this.attributes != null) {
       newAttributes = new TreeMap<String, ProvisioningAttribute>();
       for (String attributeName : this.attributes.keySet()) {
+        if (StringUtils.equals(ignoreAttribute, attributeName)) {
+          continue;
+        }
         ProvisioningAttribute provisioningAttributeToClone = this.attributes.get(attributeName);
         ProvisioningAttribute newProvisioningAttribute = null;
         if (provisioningAttributeToClone != null) {
@@ -1054,6 +1056,7 @@ public abstract class ProvisioningUpdatable {
     provisioningUpdatable.removeFromList = removeFromList;
     provisioningUpdatable.matchingIdAttributeNameToValues = GrouperUtil.cloneValue(matchingIdAttributeNameToValues);
     provisioningUpdatable.searchIdAttributeNameToValues = GrouperUtil.cloneValue(searchIdAttributeNameToValues);
+    provisioningUpdatable.truncatedAttributeNames = GrouperUtil.cloneValue(truncatedAttributeNames);
     
     
     

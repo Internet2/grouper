@@ -354,12 +354,11 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
 
     ProvisioningMembership provisioningMembership = new ProvisioningMembership();
 
-    this.cloneUpdatable(provisioningMembership);
-    provisioningMembership.provisioningEntityId = this.provisioningEntityId;
-    // set this later
-    provisioningMembership.provisioningEntity = this.provisioningEntity != null ? this.provisioningEntity.clone(): null;
-    provisioningMembership.provisioningGroupId = this.provisioningGroupId;
-    provisioningMembership.provisioningGroup = this.provisioningGroup != null ? this.provisioningGroup.clone(): null;
+    this.cloneUpdatable(provisioningMembership, null);
+//    provisioningMembership.provisioningEntityId = this.provisioningEntityId;
+//    provisioningMembership.provisioningEntity = this.provisioningEntity != null ? this.provisioningEntity.clone(): null;
+//    provisioningMembership.provisioningGroupId = this.provisioningGroupId;
+//    provisioningMembership.provisioningGroup = this.provisioningGroup != null ? this.provisioningGroup.clone(): null;
     provisioningMembership.provisioningMembershipWrapper = this.provisioningMembershipWrapper;
     return provisioningMembership;
   }

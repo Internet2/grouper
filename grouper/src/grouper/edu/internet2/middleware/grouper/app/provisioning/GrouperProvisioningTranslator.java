@@ -50,12 +50,27 @@ public class GrouperProvisioningTranslator {
    */
   private static ThreadLocal<ProvisioningMembershipWrapper> provisioningMembershipWrapperThreadLocal = new InheritableThreadLocal<ProvisioningMembershipWrapper>();
   
+  /**
+   * keep a reference to the membership wrapper so attributes can register with membership
+   * @return membership wrapper
+   */
+  public static void assignThreadLocalProvisioningMembershipWrapper(ProvisioningMembershipWrapper provisioningMembershipWrapper) {
+    provisioningMembershipWrapperThreadLocal.set(provisioningMembershipWrapper);
+  }
   
   /**
    * keep a reference to the membership wrapper so attributes can register with membership
    * @return membership wrapper
    */
-  public static ProvisioningMembershipWrapper retrieveProvisioningMembershipWrapper() {
+  public static void clearThreadLocalProvisioningMembershipWrapper() {
+    provisioningMembershipWrapperThreadLocal.remove();
+  }
+  
+  /**
+   * keep a reference to the membership wrapper so attributes can register with membership
+   * @return membership wrapper
+   */
+  public static ProvisioningMembershipWrapper retrieveThreadLocalProvisioningMembershipWrapper() {
     return provisioningMembershipWrapperThreadLocal.get();
   }
 

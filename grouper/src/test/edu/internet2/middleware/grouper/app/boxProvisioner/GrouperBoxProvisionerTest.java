@@ -40,7 +40,7 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperBoxProvisionerTest("testIncrementalSyncBox"));
+    TestRunner.run(new GrouperBoxProvisionerTest("testIncrementalSyncBox2"));
     
   }
   
