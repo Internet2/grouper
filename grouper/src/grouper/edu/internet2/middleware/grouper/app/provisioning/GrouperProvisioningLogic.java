@@ -243,6 +243,9 @@ public class GrouperProvisioningLogic {
         if (provisioningMembershipWrapper.getProvisioningGroupWrapper() != null) {
           provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectAllMembershipsResultProcessed(true);
         }
+        if (provisioningMembershipWrapper.getProvisioningEntityWrapper() != null) {
+          provisioningMembershipWrapper.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectAllMembershipsResultProcessed(true);
+        }
       }
     }
     
@@ -250,6 +253,7 @@ public class GrouperProvisioningLogic {
       debugMap.put("state", "retrieveIndividualMissingMemberships");
       this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualMissingMemberships(); 
       
+      // at this point everything is a recalc
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
         provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
       }
@@ -635,10 +639,6 @@ public class GrouperProvisioningLogic {
     
     List<ProvisioningEntity> grouperTargetEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetEntities();
     
-    for (ProvisioningEntity provisioningEntity: grouperTargetEntities) {
-      provisioningEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectResultProcessed(true);
-    }
-    
     TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest = new TargetDaoRetrieveEntitiesRequest(grouperTargetEntities, true);
     
     TargetDaoRetrieveEntitiesResponse targetEntitiesResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntities(targetDaoRetrieveEntitiesRequest);
@@ -660,10 +660,6 @@ public class GrouperProvisioningLogic {
     // Step 1 - Get all the grouper target entities and select them from the target (Call the batch method that gets all at once)
     
     List<ProvisioningGroup> grouperTargetGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetGroups();
-    
-    for (ProvisioningGroup provisioningGroup: grouperTargetGroups) {
-      provisioningGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectResultProcessed(true);
-    }
     
     TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest(grouperTargetGroups, true);
     
@@ -1509,12 +1505,6 @@ public class GrouperProvisioningLogic {
       
       registerRetrievedGroups(grouperTargetGroupsToInsert, targetGroups);
       
-      for (ProvisioningGroup groupInsertedAndReadyToBeFetched: grouperTargetGroupsToInsert) {
-        if (groupInsertedAndReadyToBeFetched.getProvisioningGroupWrapper() != null) {
-          groupInsertedAndReadyToBeFetched.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectResultProcessed(true);
-        }
-      }
-      
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesGroups(targetGroups, false, true, false, false);
 
       // index
@@ -1605,6 +1595,9 @@ public class GrouperProvisioningLogic {
       if (searchAttributeValue != null) {
         searchAttributeValueToGrouperTargetGroup.put(searchAttributeValue, grouperTargetGroup);
       }
+      if (grouperTargetGroup.getProvisioningGroupWrapper() != null) {
+        grouperTargetGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectResultProcessed(true);
+      }
     }
 
     for (ProvisioningGroup targetProvisioningGroup : GrouperUtil.nonNull(targetProvisioningGroups)) {
@@ -1649,6 +1642,9 @@ public class GrouperProvisioningLogic {
       Object searchAttributeValue = grouperTargetEntity.retrieveAttributeValue(searchAttribute);
       if (searchAttributeValue != null) {
         searchAttributeValueToGrouperTargetEntity.put(searchAttributeValue, grouperTargetEntity);
+      }
+      if (grouperTargetEntity.getProvisioningEntityWrapper() != null) {
+        grouperTargetEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectResultProcessed(true);
       }
     }
 
@@ -1809,12 +1805,6 @@ public class GrouperProvisioningLogic {
       }
 
       registerRetrievedEntities(grouperTargetEntitiesToInsert, targetEntities);
-      
-      for (ProvisioningEntity entityInsertedAndReadyToBeFetched: grouperTargetEntitiesToInsert) {
-        if (entityInsertedAndReadyToBeFetched.getProvisioningEntityWrapper() != null) {
-          entityInsertedAndReadyToBeFetched.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectResultProcessed(true);
-        }
-      }
       
       this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesEntities(targetEntities, false, true, false, false);
 
@@ -3209,6 +3199,10 @@ public class GrouperProvisioningLogic {
         continue;
       }
 
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+        continue;
+      }
+
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
       
       if (gcGrouperSyncGroup == null) {
@@ -3220,9 +3214,6 @@ public class GrouperProvisioningLogic {
         continue;
       }
             
-      
-      provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
-      
       missingGrouperTargetGroups.add(provisioningGroupWrapper.getGrouperTargetGroup());
       missingGroupWrappers.add(provisioningGroupWrapper);
     }
@@ -3279,7 +3270,7 @@ public class GrouperProvisioningLogic {
    * 
    */
   public void retrieveIndividualMissingMemberships() {
-    
+
     if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()) {
       return;
     }
@@ -3293,12 +3284,13 @@ public class GrouperProvisioningLogic {
         if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMembershipsResultProcessed()) {
           continue;
         }
-        provisioningGroupWrapper.getProvisioningStateGroup().setSelectAllMembershipsResultProcessed(true);
-        
-        if (provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
+        if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMembershipsResultProcessed()) {
           continue;
         }
-        groupsToRetrieve.add(provisioningGroupWrapper.getTargetProvisioningGroup());
+        if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships() && !provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships()) {
+          continue;
+        }
+        groupsToRetrieve.add(provisioningGroupWrapper.getGrouperTargetGroup());
       }
       this.grouperProvisioner.getDebugMap().put("missingGroupsForMembershipsRetrieve", GrouperUtil.length(groupsToRetrieve));
       if (groupsToRetrieve.size() == 0) {
@@ -3313,16 +3305,16 @@ public class GrouperProvisioningLogic {
     } else if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsForEntity()) {
       List<ProvisioningEntity> entitiesToRetrieve = new ArrayList<ProvisioningEntity>();
       for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
-        if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMembershipResultProcessed()) {
+        if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMembershipsResultProcessed()) {
           continue;
         }
-        provisioningEntityWrapper.getProvisioningStateEntity().setSelectAllMembershipResultProcessed(true);
-        
-        if (provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
+        if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMembershipsResultProcessed()) {
           continue;
         }
-        
-        entitiesToRetrieve.add(provisioningEntityWrapper.getTargetProvisioningEntity());
+        if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships() && !provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMemberships()) {
+          continue;
+        }
+        entitiesToRetrieve.add(provisioningEntityWrapper.getGrouperTargetEntity());
       }
       this.grouperProvisioner.getDebugMap().put("missingEntitiesForMembershipsRetrieve", GrouperUtil.length(entitiesToRetrieve));
       if (entitiesToRetrieve.size() == 0) {
@@ -3332,8 +3324,6 @@ public class GrouperProvisioningLogic {
       membershipsByEntitiesRequest.setTargetEntities(entitiesToRetrieve);
       TargetDaoRetrieveMembershipsByEntitiesResponse membershipsByEntities= this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveMembershipsByEntities(membershipsByEntitiesRequest);
       membershipsRetrieved.addAll(GrouperUtil.nonNull(membershipsByEntities.getTargetMemberships()));
-    } else {
-      throw new RuntimeException("cannot retrieve partial memberships");
     }
     
     // we have retrieved memberships by this point from the target so mark all the grouper memberships retrieved
@@ -3432,6 +3422,10 @@ public class GrouperProvisioningLogic {
         continue;
       }
   
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+        continue;
+      }
+      
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
       
       if (gcGrouperSyncMember == null) {
@@ -3443,8 +3437,6 @@ public class GrouperProvisioningLogic {
         continue;
       }
       
-      provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
-            
       missingGrouperTargetEntities.add(provisioningEntityWrapper.getGrouperTargetEntity());
       missingEntityWrappers.add(provisioningEntityWrapper);
     }
@@ -3521,7 +3513,7 @@ public class GrouperProvisioningLogic {
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.membershipObjects) {
       return null;
     }
-    
+
     // see if we can get memberships by group
     if (GrouperUtil.booleanValue(
         this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
@@ -3531,8 +3523,13 @@ public class GrouperProvisioningLogic {
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
       
       // deal with all groups, get the target groups already selected
-      List<ProvisioningGroup> targetProvisioningGroups = this.getGrouperProvisioner()
-          .retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups();
+      List<ProvisioningGroup> targetProvisioningGroups = new ArrayList<>();
+      for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups())) {
+        if (targetGroup.getProvisioningGroupWrapper() == null || !targetGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().isSelectAllMembershipsResultProcessed()) {
+          targetProvisioningGroups.add(targetGroup);
+        }
+      }
 
       if (GrouperUtil.length(targetProvisioningGroups) == 0) {
         return null;
@@ -3561,8 +3558,13 @@ public class GrouperProvisioningLogic {
               .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)) {
         
       // deal with all entities, get the target entities already selected
-      List<ProvisioningEntity> targetProvisioningEntities = this.getGrouperProvisioner()
-          .retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities();
+      List<ProvisioningEntity> targetProvisioningEntities = new ArrayList<>();
+      for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities())) {
+        if (targetEntity.getProvisioningEntityWrapper() == null || !targetEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().isSelectAllMembershipsResultProcessed()) {
+          targetProvisioningEntities.add(targetEntity);
+        }
+      }
 
       if (GrouperUtil.length(targetProvisioningEntities) == 0) {
         return null;

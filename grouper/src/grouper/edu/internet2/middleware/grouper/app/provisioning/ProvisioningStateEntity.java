@@ -48,11 +48,6 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
   private boolean selectAllMemberships;
   
   /**
-   * if the memberships for this entity was attempted to be selected from target
-   */
-  private boolean selectMembershipResultProcessed;
-  
-  /**
    * set it to true if we want to select all memberships from the target for this group.
    * This happens when there are too many events for this group or if it's a new group or a deleted group
    * or manually kicked off from the UI
@@ -71,17 +66,6 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
   }
   
   
-  public boolean isSelectMembershipResultProcessed() {
-    return selectMembershipResultProcessed;
-  }
-
-
-  
-  public void setSelectMembershipResultProcessed(boolean selectMembershipResultProcessed) {
-    this.selectMembershipResultProcessed = selectMembershipResultProcessed;
-  }
-
-
   private String memberId;
   /**
    * if recalcing the entity memberships 
@@ -109,6 +93,13 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
   }
 
   private ProvisioningEntityWrapper provisioningEntityWrapper = null;
+
+  /**
+   * if the memberships for this entity was attempted to be selected from target
+   */
+  private boolean selectAllMembershipsResultProcessed;
+
+  private boolean selectSomeMembershipsResultProcessed;
   
   
   
@@ -151,6 +142,29 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
   public void setSelectAllMembershipResultProcessed(
       boolean selectAllMembershipResultProcessed) {
     this.selectAllMembershipResultProcessed = selectAllMembershipResultProcessed;
+  }
+
+  /**
+   * if the memberships for this entity was attempted to be selected from target
+   */
+  public boolean isSelectAllMembershipsResultProcessed() {
+    return selectAllMembershipsResultProcessed;
+  }
+
+  public boolean isSelectSomeMembershipsResultProcessed() {
+    return selectSomeMembershipsResultProcessed;
+  }
+
+  /**
+   * if the memberships for this entity was attempted to be selected from target
+   */
+  public void setSelectAllMembershipsResultProcessed(boolean selectMembershipResultProcessed) {
+    this.selectAllMembershipsResultProcessed = selectMembershipResultProcessed;
+  }
+
+  public void setSelectSomeMembershipsResultProcessed(
+      boolean selectSomeMembershipsResultProcessed) {
+    this.selectSomeMembershipsResultProcessed = selectSomeMembershipsResultProcessed;
   }
   
 }
