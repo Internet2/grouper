@@ -67,16 +67,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
-  @Override
-  public boolean canRecalcGroupMemberships() {
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes;
-  }
-
-  @Override
-  public boolean canRecalcEntityMemberships() {
-    return this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes;
-  }
-
   private static final Log LOG = GrouperUtil.getLog(LdapProvisioningTargetDao.class);
 
   /**
@@ -1079,18 +1069,22 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
     
     grouperProvisionerDaoCapabilities.setCanRetrieveGroups(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroups(true);
-
-    grouperProvisionerDaoCapabilities.setCanRetrieveGroupWithOrWithoutMembershipAttribute(true);
+    
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroupMembershipAttribute(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
 
     grouperProvisionerDaoCapabilities.setCanRetrieveEntities(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntities(true);
+
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithGroup(false);
+    }
+
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithEntity(false);
+    }
     
-    grouperProvisionerDaoCapabilities.setCanRetrieveEntityWithOrWithoutMembershipAttribute(true);
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembership(true);
   }
@@ -1182,6 +1176,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
+<<<<<<< GROUPER_5_BRANCH
   public TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups(TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest) {
 
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
@@ -1265,6 +1260,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
+=======
+>>>>>>> 4d8602b improve provisioning
   public TargetDaoDeleteEntityResponse deleteEntity(TargetDaoDeleteEntityRequest targetDaoDeleteEntityRequest) {
     
     long startNanos = System.nanoTime();

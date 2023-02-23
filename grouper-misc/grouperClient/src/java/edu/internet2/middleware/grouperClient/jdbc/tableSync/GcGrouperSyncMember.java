@@ -822,14 +822,6 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
   }
   
   /**
-   * if this group exists in the target/destination
-   * @param inTarget
-   */
-  public void setInTarget(Boolean inTarget) {
-    this.inTargetDb = inTarget ? "T" : "F";
-  }
-  
-  /**
    * uuid of the job in grouper_sync
    */
   private String grouperSyncId;

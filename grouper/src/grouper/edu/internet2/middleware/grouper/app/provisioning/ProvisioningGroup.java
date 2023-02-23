@@ -150,12 +150,17 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
         if (this.provisioningGroupWrapper.getProvisioningStateGroup().isDeleteResultProcessed()) {
           firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isDeleteResultProcessed());
         }
-        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships());
         if (this.provisioningGroupWrapper.getErrorCode() != null) {
           firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningGroupWrapper.getErrorCode().name());
         }
         if (this.provisioningGroupWrapper.getProvisioningStateGroup().getMillisSince1970() != null) {
           firstField = toStringAppendField(result, firstField, "millis1970", this.provisioningGroupWrapper.getProvisioningStateGroup().getMillisSince1970());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships()) {
+          firstField = toStringAppendField(result, firstField, "selectSomeMemberships", this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships()) {
+          firstField = toStringAppendField(result, firstField, "selectAllMemberships", this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships());
         }
         if (this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
           firstField = toStringAppendField(result, firstField, "selectProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed());

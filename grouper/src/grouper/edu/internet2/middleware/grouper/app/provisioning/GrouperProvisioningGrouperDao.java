@@ -1003,14 +1003,12 @@ public class GrouperProvisioningGrouperDao {
       //go from the actions that happened to what we need to retrieve from Grouper
       //retrieve everything whether recalc or not
       for (ProvisioningGroupWrapper provisioningGroupWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
-        if (provisioningGroupWrapper.getProvisioningStateGroup().isIncrementalSyncMemberships() 
-            || provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
+        if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
           groupIdsToRetrieveForMemberships.add(provisioningGroupWrapper.getGroupId());
         }
       }
       for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
-        if (provisioningEntityWrapper.getProvisioningStateEntity().isIncrementalSyncMemberships() 
-            || provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()) {
+        if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()) {
           memberIdsToRetrieveForMemberships.add(provisioningEntityWrapper.getMemberId());
         }
       }

@@ -10,26 +10,44 @@ public class TargetDaoRetrieveMembershipRequest {
   }
   private ProvisioningMembership targetMembership;
   
+  /**
+   * if doing group attributes, then these are groups with some values that should be retrieved (not all)
+   */
   private ProvisioningGroup targetGroup;
   
+  /**
+   * if doing entity attributes, then these are entities with some values that should be retrieved (not all)
+   */
   private ProvisioningEntity targetEntity;
   
-  
+  /**
+   * if doing group attributes, then these are groups with some values that should be retrieved (not all)
+   * @return
+   */
   public ProvisioningGroup getTargetGroup() {
     return targetGroup;
   }
 
-  
+  /**
+   * if doing group attributes, then these are groups with some values that should be retrieved (not all)
+   * @param targetGroup
+   */
   public void setTargetGroup(ProvisioningGroup targetGroup) {
     this.targetGroup = targetGroup;
   }
 
-  
+  /**
+   * if doing entity attributes, then these are entities with some values that should be retrieved (not all)
+   * @return
+   */
   public ProvisioningEntity getTargetEntity() {
     return targetEntity;
   }
 
-  
+  /**
+   * if doing entity attributes, then these are entities with some values that should be retrieved (not all)
+   * @param targetEntity
+   */
   public void setTargetEntity(ProvisioningEntity targetEntity) {
     this.targetEntity = targetEntity;
   }

@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 public abstract class GrouperProvisionerTargetDaoBase {
 
   /**
+<<<<<<< GROUPER_5_BRANCH
    * indicate if the dao is configured and able to recalc group memberships
    * @return
    */
@@ -87,6 +88,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   }
   
   /**
+=======
+>>>>>>> 4d8602b improve provisioning
    * start logging the source low level actions
    * @return true if the logging was started (i.e. can be stopped), or false if already started (in which case 
    * somewhere up the stack with stop it so dont stop it)
@@ -256,16 +259,6 @@ public abstract class GrouperProvisionerTargetDaoBase {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * bulk retrieve target provisioning Memberships, generally use the matching Ids in the targetMemberships
-   * @return the target provisioning Memberships
-   */
-  public TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk(
-      TargetDaoRetrieveMembershipsBulkRequest targetDaoRetrieveMembershipsBulkRequest) {
-    throw new UnsupportedOperationException();
-
-  }
-  
   /**
    * bulk retrieve all target provisioning Memberships related to these groups, generally use the matching Ids in the targetGroups
    * @return the target provisioning memberships
@@ -507,14 +500,6 @@ public abstract class GrouperProvisionerTargetDaoBase {
     
     throw new UnsupportedOperationException();
 
-  }
-  
-  public boolean canRetrieveMembershipsWithEntity() {
-    return true;
-  }
-  
-  public boolean canRetrieveMembershipsWithGroup() {
-    return true;
   }
   
 }
