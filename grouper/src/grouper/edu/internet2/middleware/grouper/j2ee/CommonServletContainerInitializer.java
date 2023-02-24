@@ -57,6 +57,8 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
       boolean runMockServices = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.mockServices", false);
 
       boolean runGrouperWs = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws", false);
+
+      boolean runGrouperWsSOAP = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ws.soap", false);
       
       boolean runGrouperScim = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.scim", false);
       
@@ -153,7 +155,11 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           String grouperWsServiceFilterName = "Grouper service filter";
           Class grouperWsServiceFilterClass = Class.forName("edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee");
           Dynamic grouperWsServiceFilter = context.addFilter(grouperWsServiceFilterName, grouperWsServiceFilterClass);
-          grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/services/*");
+          
+          if (runGrouperWs && runGrouperWsSOAP) {
+            grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/services/*");
+          }
+          
           grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/servicesRest/*");
           if (runGrouperScim) {
             grouperWsServiceFilter.addMappingForUrlPatterns(null, false, "/scim/*");
@@ -162,14 +168,16 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
           Class grouperWsJ2eeListener = Class.forName("edu.internet2.middleware.grouper.ws.j2ee.GrouperJ2eeListener");
           context.addListener(grouperWsJ2eeListener);
           
-          String axisServletName = "AxisServlet";
-          Class axisServletClass = Class.forName("edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet");
-          javax.servlet.ServletRegistration.Dynamic axisServlet = context.addServlet(axisServletName, axisServletClass);
-          axisServlet.addMapping("/services/*");
-          axisServlet.setLoadOnStartup(1);
-          
-          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperWsAxisWssec", false)) {
-            axisServlet.setInitParameter("wssec", "true");
+          if (runGrouperWs && runGrouperWsSOAP) {
+            String axisServletName = "AxisServlet";
+            Class axisServletClass = Class.forName("edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet");
+            javax.servlet.ServletRegistration.Dynamic axisServlet = context.addServlet(axisServletName, axisServletClass);
+            axisServlet.addMapping("/services/*");
+            axisServlet.setLoadOnStartup(1);
+            
+            if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperWsAxisWssec", false)) {
+              axisServlet.setInitParameter("wssec", "true");
+            }
           }
           
           String restServletName = "RestServlet";

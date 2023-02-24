@@ -30,66 +30,6 @@ import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
  */
 public enum WsSampleClientType {
 
-   /** generated capture type */
-   GENERATED_SOAP {
-     /**
-      * formats for this client type
-      * @return the formats (generally enums)
-      */
-     @Override
-     public Object[] formats() {
-       return new Object[]{WsSampleGeneratedType.soap};
-     }
-     
-     /**
-      * execute a sample based on format
-      * @param clientClass
-      * @param format
-      */
-     @Override
-     public void executeSample(Class<? extends WsSample> clientClass, Object format) {
-       WsSampleGenerated wsSampleGenerated = (WsSampleGenerated)GrouperUtil.newInstance(clientClass);
-       WsSampleGeneratedType wsSampleGeneratedType = (WsSampleGeneratedType)format;
-       wsSampleGenerated.executeSample(wsSampleGeneratedType);
-     }
-
-     /**
-      * friendly name
-      * @return friendly
-      */
-     @Override
-     public String friendlyName() {
-       return "code generated classes";
-     }
-
-
-     /**
-      * find the source file from the client class
-      * @param clientClass is the client which is running
-      * @return the source file
-      */
-     @Override
-     public File sourceFile(Class<?> clientClass) {
-       String projectDir = GrouperWsConfig.retrieveConfig().propertyValueString("ws.testing.generated.client.dir");
-       File file = new File(projectDir + "/src/" + clientClass.getName().replace('.', '/') + ".java");
-       if (!file.exists()) {
-         throw new RuntimeException("Source file doesnt exist: " + file.getAbsolutePath());
-       }
-       return file;
-     }
-     /**
-      * see if this client type supports this class and type
-      * @param format
-      * @param clientClass
-      * @return
-      */
-     @Override
-     public boolean validFormat(Class<?> clientClass, Object format) {
-       //all formats supported
-       return true;
-     }
-   },
-   
    /** manual rest */
    REST_BEANS {
      /**

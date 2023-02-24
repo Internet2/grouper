@@ -19,13 +19,12 @@
 package edu.internet2.middleware.grouper.ws;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.security.Principal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -37,18 +36,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.axis2.context.MessageContext;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.ThreadContext;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSecurityEngineResult;
-import org.apache.ws.security.WSUsernameTokenPrincipal;
-import org.apache.ws.security.handler.WSHandlerConstants;
-import org.apache.ws.security.handler.WSHandlerResult;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -187,31 +179,14 @@ public class GrouperServiceJ2ee implements Filter {
     if (StringUtils.isBlank(userIdLoggedIn)) {
       if (wssecServlet()) {
   
-        MessageContext msgCtx = MessageContext.getCurrentMessageContext();
-        Vector results = null;
-        if ((results = (Vector) msgCtx.getProperty(WSHandlerConstants.RECV_RESULTS)) == null) {
-          throw new RuntimeException("No Rampart security results!");
+        Class<?> clazz = GrouperUtil.forName("edu.internet2.middleware.grouper.ws.security.RampartUtil");
+        try {
+          Method method = clazz.getMethod("getUserIdLoggedIn");
+          userIdLoggedIn = (String)method.invoke(null);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
         }
-        LOG.debug("Number of rampart results: " + results.size());
-        OUTER: for (int i = 0; i < results.size(); i++) {
-          WSHandlerResult rResult = (WSHandlerResult) results.get(i);
-          List<WSSecurityEngineResult> wsSecEngineResults = rResult.getResults();
-  
-          for (int j = 0; j < wsSecEngineResults.size(); j++) {
-            WSSecurityEngineResult wser = wsSecEngineResults
-                .get(j);
-            if (GrouperUtil.equals(wser.get(WSSecurityEngineResult.TAG_ACTION), WSConstants.UT) && wser.get(WSSecurityEngineResult.TAG_PRINCIPAL) != null) {
-  
-              //Extract the principal
-              Principal principal = (Principal) wser.get(WSSecurityEngineResult.TAG_PRINCIPAL);
-  
-              //Get user
-              userIdLoggedIn = principal.getName();
-              break OUTER;
-  
-            }
-          }
-        }
+        
         GrouperUtil.assertion(StringUtils.isNotBlank(userIdLoggedIn),
             "There is no Rampart user logged in, make sure the container requires authentication");
       } else {
