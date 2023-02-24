@@ -42,11 +42,6 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>grouper-ws-java-generated-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>grouper-ws</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>

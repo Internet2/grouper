@@ -44,7 +44,6 @@ projects = [
     'grouper-misc/grouperClient',
     'grouper',
     'grouper-ui',
-    'grouper-ws/grouper-ws-java-generated-client',
     'grouper-ws/grouper-ws-java-manual-client',
     'grouper-ws/grouper-ws-test',
     'grouper-ws/grouper-ws',

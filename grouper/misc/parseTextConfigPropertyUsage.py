@@ -29,7 +29,6 @@ projects = [
     'grouper-ws/grouper-ws',
     'grouper-misc/grouper-pspng',
     'grouper-misc/grouper-installer',
-    'grouper-ws/grouper-ws-java-generated-client',
     'grouper-ws/grouper-ws-java-manual-client',
     'grouper-ws/grouper-ws-test',
     'grouper-misc/googleapps-grouper-provisioner',

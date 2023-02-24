@@ -63,79 +63,6 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.webservicesClient.RampartSampleGetGroupsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAcknowledgeMessage;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMember;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAddMemberLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefActions;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefNameInheritance;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributeDefNameInheritanceLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributes;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesBatch;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesWithValue;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignAttributesWithValueLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivileges;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignGrouperPrivilegesLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissions;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAssignPermissionsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefDelete;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefDeleteLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameDelete;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameDeleteLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameSave;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefNameSaveLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefSave;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleAttributeDefSaveLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMember;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleDeleteMemberLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleExternalSubjectDelete;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleExternalSubjectSave;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeAssignAction;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeAssignActionLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefNames;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefNamesLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefs;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindAttributeDefsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindExternalSubjects;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroups;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindGroupsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindStems;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleFindStemsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignActions;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignActionsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignments;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAttributeAssignmentsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAuditEntries;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetAuditEntriesLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGrouperPrivilegesLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroups;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsAdmins;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsAdminsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetGroupsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembers;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembersLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMemberships;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetMembershipsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetPermissionAssignments;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetPermissionAssignmentsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetSubjects;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGetSubjectsLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDelete;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDeleteLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupDetailSave;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupSave;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleGroupSaveLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMember;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleHasMemberLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleMemberChangeSubject;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleMemberChangeSubjectLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleReceiveMessage;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleSendMessage;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDelete;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemDeleteLite;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSave;
-import edu.internet2.middleware.grouper.webservicesClient.WsSampleStemSaveLite;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributeDefActionsRest;
 import edu.internet2.middleware.grouper.ws.samples.rest.attribute.WsSampleAssignAttributeDefNameInheritanceRest;
@@ -325,8 +252,6 @@ public class SampleCapture {
    * receive message
    */
   public static void captureSendMessage() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleSendMessage.class, "sendMessage", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleSendMessageRest.class, "sendMessage", null);
     
@@ -336,8 +261,6 @@ public class SampleCapture {
    * receive message
    */
   public static void captureReceiveMessage() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleReceiveMessage.class, "receiveMessage", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleReceiveMessageRest.class, "receiveMessage", null);
 
@@ -347,8 +270,6 @@ public class SampleCapture {
    * acknowledge message
    */
   public static void captureAcknowledgeMessage() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAcknowledgeMessage.class, "acknowledgeMessage", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAcknowledgeMessageRest.class, "acknowledgeMessage", null);
     
@@ -363,10 +284,6 @@ public class SampleCapture {
         WsSampleFindAttributeDefsRest.class, "findAttributeDefs", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleFindAttributeDefsRestLite.class, "findAttributeDefs", null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindAttributeDefs.class, "findAttributeDefs", null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindAttributeDefsLite.class, "findAttributeDefs", null);
     
   }
 
@@ -379,10 +296,6 @@ public class SampleCapture {
         WsSampleFindAttributeAssignActionRest.class, "findAttributeAssignAction", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleFindAttributeAssignActionRestLite.class, "findAttributeAssignAction", null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindAttributeAssignAction.class, "findAttributeAssignAction", null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindAttributeAssignActionLite.class, "findAttributeAssignAction", null);
     
   }
 
@@ -393,8 +306,6 @@ public class SampleCapture {
   public static void captureAssignAttributeDefActions() {
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributeDefActionsRest.class, "assignAttributeDefActions", null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignAttributeDefActions.class, "assignAttributeDefActions", (String)null);
 
   }
 
@@ -406,10 +317,6 @@ public class SampleCapture {
         WsSampleAttributeDefSaveRest.class, "attributeDefSave", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAttributeDefSaveRestLite.class, "attributeDefSave", null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAttributeDefSave.class, "attributeDefSave", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAttributeDefSaveLite.class, "attributeDefSave", (String)null);
 
   }
 
@@ -421,10 +328,6 @@ public class SampleCapture {
         WsSampleAttributeDefDeleteRest.class, "attributeDefDelete", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAttributeDefDeleteRestLite.class, "attributeDefDelete", null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAttributeDefDelete.class, "attributeDefDelete", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAttributeDefDeleteLite.class, "attributeDefDelete", (String)null);
     
   }
 
@@ -750,10 +653,6 @@ public class SampleCapture {
    * all add member captures
    */
   public static void captureAddMember() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAddMember.class, "addMember", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAddMemberLite.class, "addMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAddMemberRest.class, "addMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -769,10 +668,6 @@ public class SampleCapture {
    * all member change subject captures
    */
   public static void captureMemberChangeSubject() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleMemberChangeSubject.class, "memberChangeSubject", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleMemberChangeSubjectLite.class, "memberChangeSubject", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleMemberChangeSubjectRest.class, "memberChangeSubject", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -784,8 +679,6 @@ public class SampleCapture {
    * all member change subject captures
    */
   public static void captureGetGrouperPrivileges() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetGrouperPrivilegesLite.class, "getGrouperPrivileges", (String)null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetGrouperPrivilegesRestLite.class, "getGrouperPrivileges", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -797,14 +690,10 @@ public class SampleCapture {
    * all member change subject captures
    */
   public static void captureAssignGrouperPrivileges() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignGrouperPrivileges.class, "assignGrouperPrivileges", (String)null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignGrouperPrivilegesRest.class, "assignGrouperPrivileges", null);
 
     
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignGrouperPrivilegesLite.class, "assignGrouperPrivileges", (String)null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignGrouperPrivilegesRestLite.class, "assignGrouperPrivileges", null);
     
@@ -814,10 +703,6 @@ public class SampleCapture {
    * all delete member captures
    */
   public static void captureDeleteMember() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleDeleteMember.class, "deleteMember", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleDeleteMemberLite.class, "deleteMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleDeleteMemberRest.class, "deleteMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -831,10 +716,6 @@ public class SampleCapture {
    * all has member captures
    */
   public static void captureHasMember() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleHasMember.class, "hasMember", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleHasMemberLite.class, "hasMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleHasMemberRest.class, "hasMember", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -848,10 +729,6 @@ public class SampleCapture {
    * all group delete captures
    */
   public static void captureGroupDelete() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupDelete.class, "groupDelete", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupDeleteLite.class, "groupDelete", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGroupDeleteRest.class, "groupDelete", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -865,10 +742,6 @@ public class SampleCapture {
    * all stem delete captures
    */
   public static void captureStemDelete() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleStemDelete.class, "stemDelete", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleStemDeleteLite.class, "stemDelete", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleStemDeleteRest.class, "stemDelete", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -882,10 +755,6 @@ public class SampleCapture {
    * all stem save captures
    */
   public static void captureStemSave() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleStemSave.class, "stemSave", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleStemSaveLite.class, "stemSave", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleStemSaveRest.class, "stemSave", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -895,26 +764,12 @@ public class SampleCapture {
     
   }
 
-  /**
-   * rampart captures
-   */
-  public static void captureRampart() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        RampartSampleGetGroupsLite.class, "rampart", (String)null);
-    
-  }
   
   /**
    * all group save captures
    */
   public static void captureGroupSave() {
     
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupSave.class, "groupSave", (String)null, 5000);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupDetailSave.class, "groupSave", "_withDetail", 5000);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGroupSaveLite.class, "groupSave", null, 5000);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGroupSaveRest.class, "groupSave", null, 5000);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -930,10 +785,6 @@ public class SampleCapture {
    * all find stems captures
    */
   public static void captureFindStems() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindStems.class, "findStems", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindStemsLite.class, "findStems", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleFindStemsRest.class, "findStems", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -945,10 +796,6 @@ public class SampleCapture {
    * all get members captures
    */
   public static void captureGetMembers() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetMembers.class, "getMembers", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetMembersLite.class, "getMembers", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetMembersRest.class, "getMembers", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -962,10 +809,6 @@ public class SampleCapture {
    * all get members captures
    */
   public static void captureGetMemberships() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetMemberships.class, "getMemberships", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetMembershipsLite.class, "getMemberships", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetMembershipsRest.class, "getMemberships", null);
     //shold be commented out?
@@ -982,14 +825,6 @@ public class SampleCapture {
    * all get groups captures
    */
   public static void captureGetGroups() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetGroups.class, "getGroups", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetGroupsAdmins.class, "getGroups", "_admins");
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetGroupsLite.class, "getGroups", null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetGroupsAdminsLite.class, "getGroups", "_admins");
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetGroupsRest.class, "getGroups", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1193,10 +1028,6 @@ public class SampleCapture {
    * all get subjects captures
    */
   public static void captureGetSubjects() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetSubjects.class, "getSubjects", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetSubjectsLite.class, "getSubjects", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetSubjectsRest.class, "getSubjects", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1210,10 +1041,6 @@ public class SampleCapture {
    * all get members captures
    */
   public static void captureGetAttributeAssignments() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetAttributeAssignments.class, "getAttributeAssignments", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetAttributeAssignmentsLite.class, "getAttributeAssignments", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetAttributeAssignmentsRest.class, "getAttributeAssignments", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1225,10 +1052,6 @@ public class SampleCapture {
    * all get members captures
    */
   public static void captureGetAttributeAssignActions() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetAttributeAssignActions.class, "getAttributeAssignActions", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetAttributeAssignActionsLite.class, "getAttributeAssignActions", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetAttributeAssignActionsRest.class, "getAttributeAssignActions", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1240,10 +1063,6 @@ public class SampleCapture {
    * assign attributes captures
    */
   public static void captureAssignAttributes() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignAttributes.class, "assignAttributes", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignAttributesLite.class, "assignAttributes", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributesRest.class, "assignAttributes", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1255,8 +1074,6 @@ public class SampleCapture {
    * assign attributes batch captures
    */
   public static void captureAssignAttributesBatch() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-      WsSampleAssignAttributesBatch.class, "assignAttributesBatch", (String)null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributesBatchRest.class, "assignAttributesBatch", null);
   }
@@ -1265,10 +1082,6 @@ public class SampleCapture {
    * all get permissions captures
    */
   public static void captureGetPermissionAssignments() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetPermissionAssignments.class, "getPermissionAssignments", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetPermissionAssignmentsLite.class, "getPermissionAssignments", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetPermissionAssignmentsRest.class, "getPermissionAssignments", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1280,10 +1093,6 @@ public class SampleCapture {
    * assign permissions captures
    */
   public static void captureAssignPermissions() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignPermissions.class, "assignPermissions", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignPermissionsLite.class, "assignPermissions", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignPermissionsRest.class, "assignPermissions", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1295,10 +1104,6 @@ public class SampleCapture {
    * assign attributes captures
    */
   public static void captureAssignAttributesWithValue() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignAttributesWithValue.class, "assignAttributesWithValue", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignAttributesWithValueLite.class, "assignAttributesWithValue", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributesWithValueRest.class, "assignAttributesWithValue", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1313,10 +1118,6 @@ public class SampleCapture {
    */
   public static void captureFindAttributeDefNames() {
     
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindAttributeDefNames.class, "findAttributeDefNames", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindAttributeDefNamesLite.class, "findAttributeDefNames", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleFindAttributeDefNamesRest.class, "findAttributeDefNames", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1329,10 +1130,6 @@ public class SampleCapture {
    */
   public static void captureAssignAttributeDefNameInheritance() {
     
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignAttributeDefNameInheritance.class, "assignAttributeDefNameInheritance", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAssignAttributeDefNameInheritanceLite.class, "assignAttributeDefNameInheritance", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAssignAttributeDefNameInheritanceRest.class, "assignAttributeDefNameInheritance", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1345,10 +1142,6 @@ public class SampleCapture {
    */
   public static void captureAttributeDefNameSave() {
     
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAttributeDefNameSave.class, "attributeDefNameSave", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAttributeDefNameSaveLite.class, "attributeDefNameSave", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAttributeDefNameSaveRest.class, "attributeDefNameSave", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1361,10 +1154,6 @@ public class SampleCapture {
    */
   public static void captureAttributeDefNameDelete() {
     
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAttributeDefNameDelete.class, "attributeDefNameDelete", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleAttributeDefNameDeleteLite.class, "attributeDefNameDelete", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleAttributeDefNameDeleteRest.class, "attributeDefNameDelete", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1376,10 +1165,6 @@ public class SampleCapture {
    * all find groups captures
    */
   public static void captureFindGroups() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindGroups.class, "findGroups", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindGroupsLite.class, "findGroups", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleFindGroupsRest.class, "findGroups", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1391,10 +1176,6 @@ public class SampleCapture {
    * get audit entries captures
    */
   public static void captureGetAuditEntries() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetAuditEntries.class, "getAuditEntries", (String)null);
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleGetAuditEntriesLite.class, "getAuditEntries", null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleGetAuditEntriesRest.class, "getAuditEntries", null);
     captureSample(WsSampleClientType.REST_BEANS,  
@@ -1413,8 +1194,6 @@ public class SampleCapture {
    * all find external subjects captures
    */
   public static void captureFindExternalSubjects() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleFindExternalSubjects.class, "findExternalSubjects", (String)null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleFindExternalSubjectsRest.class, "findExternalSubjects", null);
     
@@ -1424,8 +1203,6 @@ public class SampleCapture {
    * all external subject delete captures
    */
   public static void captureExternalSubjectDelete() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleExternalSubjectDelete.class, "externalSubjectDelete", (String)null);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleExternalSubjectDeleteRest.class, "externalSubjectDelete", null);
     
@@ -1435,8 +1212,6 @@ public class SampleCapture {
    * all external subject save captures
    */
   public static void captureExternalSubjectSave() {
-    captureSample(WsSampleClientType.GENERATED_SOAP,  
-        WsSampleExternalSubjectSave.class, "externalSubjectSave", (String)null, 5000);
     captureSample(WsSampleClientType.REST_BEANS,  
         WsSampleExternalSubjectSaveRest.class, "externalSubjectSave", null, 5000);
     

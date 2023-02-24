@@ -16,8 +16,6 @@
 package edu.internet2.middleware.grouper.ws.coresoap;
 
 import java.sql.Timestamp;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.ws.rs.POST;
@@ -25,7 +23,6 @@ import javax.ws.rs.Path;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
@@ -52,8 +49,6 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.GrouperServiceAxisServlet;
-import edu.internet2.middleware.grouper.ws.GrouperServiceJ2ee;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.member.WsMemberFilter;
@@ -64,7 +59,6 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsInheritanceSetRelati
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeType;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
-import edu.internet2.middleware.subject.Subject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -275,12 +269,6 @@ public class GrouperService {
 
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
 
@@ -334,12 +322,6 @@ public class GrouperService {
     WsFindStemsResults wsFindStemsResults = new WsFindStemsResults();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -380,12 +362,6 @@ public class GrouperService {
     WsFindGroupsResults wsFindGroupsResults = new WsFindGroupsResults();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -497,12 +473,6 @@ public class GrouperService {
 
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
 
@@ -611,12 +581,6 @@ public class GrouperService {
     WsGetMembersResults wsGetMembersResults = new WsGetMembersResults();
   
     try {
-  
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -731,12 +695,6 @@ public class GrouperService {
     WsGetGroupsResults wsGetGroupsResults = new WsGetGroupsResults();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -837,12 +795,6 @@ public class GrouperService {
 
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       WsMemberFilter wsMemberFilter = GrouperServiceUtils
         .convertMemberFilter(memberFilter);
 
@@ -923,12 +875,6 @@ public class GrouperService {
     WsStemDeleteLiteResult wsStemDeleteLiteResult = new WsStemDeleteLiteResult();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -994,12 +940,6 @@ public class GrouperService {
     WsGroupDeleteLiteResult wsGroupDeleteLiteResult = new WsGroupDeleteLiteResult();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -1165,12 +1105,6 @@ public class GrouperService {
     WsGroupSaveLiteResult wsGroupSaveLiteResult = new WsGroupSaveLiteResult();
     GrouperVersion grouperWsVersion = null;
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -1255,12 +1189,6 @@ public class GrouperService {
     GrouperVersion grouperWsVersion = null;
     
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -1305,12 +1233,6 @@ public class GrouperService {
     WsGroupSaveResults wsGroupSaveResults = new WsGroupSaveResults();
     GrouperVersion grouperWsVersion = null;
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
@@ -1359,12 +1281,6 @@ public class GrouperService {
     WsStemSaveResults wsStemSaveResults = new WsStemSaveResults();
     GrouperVersion grouperWsVersion = null;
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
@@ -1409,12 +1325,6 @@ public class GrouperService {
     WsStemDeleteResults wsStemDeleteResults = new WsStemDeleteResults();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
@@ -1460,12 +1370,6 @@ public class GrouperService {
     WsGroupDeleteResults wsGroupDeleteResults = new WsGroupDeleteResults();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
@@ -1534,12 +1438,6 @@ public class GrouperService {
       WsAddMemberResults wsAddMemberResults = new WsAddMemberResults();
   
       try {
-  
-        if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-          if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-            LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-          }
-        }
         
         //convert tx type to object
         final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
@@ -1616,12 +1514,6 @@ public class GrouperService {
     WsDeleteMemberResults wsDeleteMemberResults = new WsDeleteMemberResults();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
@@ -1749,12 +1641,6 @@ public class GrouperService {
     WsGetGroupsLiteResult wsGetGroupsLiteResult = new WsGetGroupsLiteResult();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -1872,12 +1758,6 @@ public class GrouperService {
     WsAddMemberLiteResult wsAddMemberLiteResult = new WsAddMemberLiteResult();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -2172,12 +2052,6 @@ public class GrouperService {
       WsHasMemberLiteResult wsHasMemberLiteResult = new WsHasMemberLiteResult();
   
       try {
-  
-        if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-          if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-            LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-          }
-        }
         
         WsMemberFilter wsMemberFilter = GrouperServiceUtils
           .convertMemberFilter(memberFilter);
@@ -2276,12 +2150,6 @@ public class GrouperService {
     WsMemberChangeSubjectLiteResult wsMemberChangeSubjectLiteResult = new WsMemberChangeSubjectLiteResult();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       boolean deleteOldMemberBoolean = GrouperServiceUtils.booleanValue(
           deleteOldMember, true, "deleteOldMember");
@@ -2336,12 +2204,6 @@ public class GrouperService {
     WsMemberChangeSubjectResults wsMemberChangeSubjectResults = new WsMemberChangeSubjectResults();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
@@ -2433,12 +2295,6 @@ public class GrouperService {
     WsDeleteMemberLiteResult wsDeleteMemberLiteResult = new WsDeleteMemberLiteResult();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -2530,12 +2386,6 @@ public class GrouperService {
     WsFindStemsResults wsFindStemsResults = new WsFindStemsResults();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -2626,12 +2476,6 @@ public class GrouperService {
 
     WsGetGrouperPrivilegesLiteResult wsGetGrouperPrivilegesLiteResult = new WsGetGrouperPrivilegesLiteResult();
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       PrivilegeType privilegeTypeEnum = PrivilegeType.valueOfIgnoreCase(privilegeType);
       
@@ -2755,12 +2599,6 @@ public class GrouperService {
       new WsAssignGrouperPrivilegesLiteResult();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       PrivilegeType privilegeTypeEnum = PrivilegeType.valueOfIgnoreCase(privilegeType);
       
@@ -2905,12 +2743,6 @@ public class GrouperService {
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
   
     try {
-  
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -3106,12 +2938,6 @@ public class GrouperService {
     WsGetMembershipsResults wsGetMembershipsResults = new WsGetMembershipsResults();
     try {
       
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       WsMemberFilter memberFilter = GrouperServiceUtils
@@ -3216,12 +3042,6 @@ public class GrouperService {
     WsGetSubjectsResults wsGetSubjectsResults = new WsGetSubjectsResults();
   
     try {
-  
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -3324,12 +3144,6 @@ public class GrouperService {
     WsGetSubjectsResults wsGetSubjectsResults = new WsGetSubjectsResults();
     try {
       
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
       WsMemberFilter memberFilter = GrouperServiceUtils
@@ -3407,12 +3221,6 @@ public class GrouperService {
     WsAssignGrouperPrivilegesResults wsAssignGrouperPrivilegesResults = new WsAssignGrouperPrivilegesResults();
     
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
@@ -3544,13 +3352,6 @@ public class GrouperService {
     WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new WsGetAttributeAssignmentsResults();
   
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
 
@@ -3695,12 +3496,6 @@ public class GrouperService {
     WsGetAttributeAssignmentsResults wsGetAttributeAssignmentsResults = new WsGetAttributeAssignmentsResults();
     
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
@@ -3774,12 +3569,6 @@ public class GrouperService {
 
     try {
       
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       boolean assignBoolean = GrouperServiceUtils.booleanValue(assign, "assign");
 
       Boolean replaceAllExistingBoolean = GrouperServiceUtils.booleanObjectValue(
@@ -3824,12 +3613,6 @@ public class GrouperService {
 
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(clientVersion,
           true);
 
@@ -3888,13 +3671,7 @@ public class GrouperService {
     WsGetAttributeAssignActionsResults wsGetAttributeAssignActionsResults = new WsGetAttributeAssignActionsResults();
 
     try {
-      
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
+     
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(clientVersion, true);
 
       wsGetAttributeAssignActionsResults = GrouperServiceLogic.getAttributeAssignActionsLite(grouperWsVersion,
@@ -3975,12 +3752,6 @@ public class GrouperService {
     WsAssignAttributesResults wsAssignAttributesResults = new WsAssignAttributesResults();
   
     try {
-  
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       AttributeAssignOperation attributeAssignOperationEnum = GrouperServiceUtils.convertAttributeAssignOperation(attributeAssignOperation);
       AttributeAssignValueOperation attributeAssignValueOperationEnum = GrouperServiceUtils.convertAttributeAssignValueOperation(attributeAssignValueOperation);
@@ -4048,12 +3819,6 @@ public class GrouperService {
   
     try {
   
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
   
@@ -4173,12 +3938,6 @@ public class GrouperService {
     WsAssignAttributesLiteResults wsAssignAttributesLiteResults = new WsAssignAttributesLiteResults();
     
     try {
-  
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       AttributeAssignOperation attributeAssignOperationEnum = GrouperServiceUtils.convertAttributeAssignOperation(attributeAssignOperation);
       AttributeAssignValueOperation attributeAssignValueOperationEnum = GrouperServiceUtils.convertAttributeAssignValueOperation(attributeAssignValueOperation);
@@ -4288,12 +4047,6 @@ public class GrouperService {
   
     try {
   
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
   
@@ -4446,12 +4199,6 @@ public class GrouperService {
     
     try {
   
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
           includeGroupDetail, false, "includeGroupDetail");
   
@@ -4561,12 +4308,6 @@ public class GrouperService {
     WsAssignPermissionsResults wsAssignPermissionsResults = new WsAssignPermissionsResults();
   
     try {
-  
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       PermissionAssignOperation permissionAssignOperationEnum = GrouperServiceUtils.convertPermissionAssignOperation(permissionAssignOperation);
   
@@ -4674,12 +4415,6 @@ public class GrouperService {
     
     try {
   
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       PermissionAssignOperation permissionAssignOperationEnum = GrouperServiceUtils.convertPermissionAssignOperation(permissionAssignOperation);
       
       boolean includeGroupDetailBoolean = GrouperServiceUtils.booleanValue(
@@ -4750,12 +4485,6 @@ public class GrouperService {
     
     try {
   
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       boolean assignBoolean = GrouperServiceUtils.booleanValue(
           assign, "assign");
 
@@ -4833,12 +4562,6 @@ public class GrouperService {
     
     try {
   
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       boolean assignBoolean = GrouperServiceUtils.booleanValue(
           assign, "assign");
 
@@ -4886,12 +4609,6 @@ public class GrouperService {
 
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
@@ -4994,12 +4711,6 @@ public class GrouperService {
     GrouperVersion grouperWsVersion = null;
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -5069,12 +4780,6 @@ public class GrouperService {
     WsAttributeDefDeleteResults wsAttributeDefDeleteResults = new WsAttributeDefDeleteResults();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
@@ -5148,12 +4853,6 @@ public class GrouperService {
 
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
@@ -5218,12 +4917,6 @@ public class GrouperService {
 
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
@@ -5342,12 +5035,6 @@ public class GrouperService {
 
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
@@ -5415,12 +5102,6 @@ public class GrouperService {
     
     try {
   
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
@@ -5489,12 +5170,6 @@ public class GrouperService {
     
     try {
   
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
@@ -5537,12 +5212,6 @@ public class GrouperService {
     GrouperVersion grouperWsVersion = null;
     
     try {
-  
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -5629,12 +5298,6 @@ public class GrouperService {
     GrouperVersion grouperWsVersion = null;
     
     try {
-  
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -5712,12 +5375,6 @@ public class GrouperService {
     GrouperVersion grouperWsVersion = null;
 
     try {
-  
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -5841,12 +5498,6 @@ public class GrouperService {
     
     try {
   
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
   
@@ -5915,12 +5566,6 @@ public class GrouperService {
     GrouperVersion grouperWsVersion = null;
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -5969,12 +5614,6 @@ public class GrouperService {
 
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
@@ -6024,12 +5663,6 @@ public class GrouperService {
     GrouperVersion grouperWsVersion = null;
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -6081,12 +5714,6 @@ public class GrouperService {
 
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
           .convertTransactionType(txType);
@@ -6131,13 +5758,6 @@ public class GrouperService {
     WsExternalSubjectSaveResults wsExternalSubjectSaveResults = new WsExternalSubjectSaveResults();
 
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       //convert tx type to object
       final GrouperTransactionType grouperTransactionType = GrouperServiceUtils
           .convertTransactionType(txType);
@@ -6175,12 +5795,6 @@ public class GrouperService {
     WsFindExternalSubjectsResults wsFindExternalSubjectsResults = new WsFindExternalSubjectsResults();
 
     try {
-      
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -6267,12 +5881,6 @@ public class GrouperService {
     
     try {
 
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
-      
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
 
@@ -6362,12 +5970,6 @@ public class GrouperService {
     WsGetAuditEntriesResults results = new WsGetAuditEntriesResults();
     
     try {
-
-      if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
-        if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
-          LOG.warn("DEPRECATED-SOAP will be removed in Grouper 5.0.0+.  subjectLoggedIn=" + GrouperServiceJ2ee.retrieveSubjectLoggedIn());
-        }
-      }
       
       GrouperVersion grouperWsVersion = GrouperVersion.valueOfIgnoreCase(
           clientVersion, true);
@@ -6398,26 +6000,5 @@ public class GrouperService {
     GrouperServiceUtils.addResponseHeaders(results.getResultMetadata(), this.soap);
     
     return results;
-  }
-
-  private static Map<Subject, Long> soapDeprecationLastLogBySubject = Collections.synchronizedMap(new HashMap<Subject, Long>());
-  
-  /**
-   * Should log once a day per subject
-   * @param subject
-   * @return boolean
-   */
-  private static boolean shouldLogSOAPDeprecationForSubject(Subject subject) {
-    if (subject == null) {
-      // could this happen?
-      return true;
-    }
-    
-    if (soapDeprecationLastLogBySubject.get(subject) != null && (soapDeprecationLastLogBySubject.get(subject) + 24*60*60*1000L) > System.currentTimeMillis()) {
-      return false;
-    }
-    
-    soapDeprecationLastLogBySubject.put(subject, System.currentTimeMillis());
-    return true;
   }
 }
