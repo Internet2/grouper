@@ -112,6 +112,86 @@ public class GrouperProvisioningMatchingIdIndex {
   }
 
   /**
+   * these inputs might not have a entity wrapper, might not have a matching id
+   * @param targetEntities
+   */
+  public List<ProvisioningEntity> mergeInNewTargetEntitiesForMemberships(List<ProvisioningEntity> targetEntities) {
+    
+    List<ProvisioningEntity> result = new ArrayList<>();
+    if (GrouperUtil.length(targetEntities) == 0) {
+      return targetEntities;
+    }
+
+    int cantMatchMembershipEntity = 0;
+    
+    String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    
+    // index the existing target entities by matching id, and pick the best one if multiple
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningEntity> existingTargetMatchingAttributeToWrapper = new HashMap<>();
+
+    for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities())) {
+      if (GrouperUtil.length(targetEntity.getMatchingIdAttributeNameToValues()) > 0) {
+        ProvisioningUpdatableAttributeAndValue bestMatchingId = targetEntity.getMatchingIdAttributeNameToValues().iterator().next();
+        existingTargetMatchingAttributeToWrapper.put(bestMatchingId, targetEntity);
+      }
+    }
+    
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(membershipAttributeName);
+    
+    if (grouperProvisioningConfigurationAttribute == null) {
+      return targetEntities;
+    }
+    
+    String defaultValue = grouperProvisioningConfigurationAttribute.getDefaultValue();
+    if (StringUtils.equals(defaultValue, GrouperProvisioningAttributeManipulation.DEFAULT_VALUE_EMPTY_STRING_CONFIG)) {
+      defaultValue = "";
+    }
+    
+    for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetEntities)) {
+      if (GrouperUtil.length(targetEntity.getMatchingIdAttributeNameToValues()) > 0) {
+        
+        ProvisioningUpdatableAttributeAndValue bestMatchingId = targetEntity.getMatchingIdAttributeNameToValues().iterator().next();
+        
+        ProvisioningEntity existingTargetEntity = existingTargetMatchingAttributeToWrapper.get(bestMatchingId);        
+
+        if (existingTargetEntity != null) {
+          result.add(existingTargetEntity);
+          Set<?> values = targetEntity.retrieveAttributeValueSet(membershipAttributeName);
+
+          // if the new part has nothing, continue
+          if (GrouperUtil.length(values) == 0) {
+            continue;
+          }
+          
+          // if the new part only has default, then ignore it
+          if (GrouperUtil.length(values) == 0 && defaultValue != null && GrouperUtil.equals(defaultValue, values.iterator().next())) {
+            continue;
+          }
+          
+          // if the old part only has default, and the new exists, remove the old default
+          Set<?> membershipAttributeValueSet = existingTargetEntity.retrieveAttributeValueSet(membershipAttributeName);
+          if (GrouperUtil.length(membershipAttributeValueSet) == 1
+              && GrouperUtil.equals(defaultValue, values.iterator().next())) {
+            membershipAttributeValueSet.remove(defaultValue);
+          }
+          
+          for (Object membershipValue : GrouperUtil.nonNull(values)) {
+            existingTargetEntity.addAttributeValue(membershipAttributeName, membershipValue);
+          }
+        } else {
+          cantMatchMembershipEntity++;
+        }
+      }
+    }
+    
+    if (cantMatchMembershipEntity > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "cantMatchMembershipEntity", cantMatchMembershipEntity);
+    }
+    return result;
+  }
+
+  /**
    * 
    * @param targetGroups
    */
