@@ -100,38 +100,29 @@ public enum GrouperProvisioningObjectLogType {
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
 
-      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput()
-          .getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupSomeMembershipSync()) > 0) {
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
         appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request some group mships", 
             grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupSomeMembershipSync(), "groups");
+          appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request all group mships", 
+              grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupAllMembershipSync(), "groups");
       }
-      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput()
-          .getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupAllMembershipSync()) > 0) {
-        appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request all group mships", 
-            grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupAllMembershipSync(), "groups");
-      }
-      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput()
-          .getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntitySomeMembershipSync()) > 0) {
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
         appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request some entity mships", 
             grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntitySomeMembershipSync(), "entities");
-      }
-      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput()
-          .getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityAllMembershipSync()) > 0) {
         appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request all entity mships", 
             grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityAllMembershipSync(), "entities");
       }
-      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput()
-          .getTargetDaoRetrieveIncrementalDataRequest().getTargetMembershipObjectsForMembershipSync()) > 0) {
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
         appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request mships", 
             grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetMembershipObjectsForMembershipSync(), "memberships");
       }
-      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups()) > 0) {
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
         appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
       }
-      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities()) > 0) {
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
         appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities(), "entities");
       }
-      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships()) > 0) {
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
         appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningMemberships(), "memberships");
       }
     }
@@ -435,17 +426,6 @@ public enum GrouperProvisioningObjectLogType {
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       Collection<ProvisioningEntity> targetEntities = (Collection<ProvisioningEntity>)data[0];
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", targetEntities, "entities");
-      
-    }
-    
-  },
-  retrieveIndividualMissingMemberships {
-    
-    @Override
-    void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
-        GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      Collection<ProvisioningMembership> targetMemberships = (Collection<ProvisioningMembership>)data[0];
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target", targetMemberships, "memberships");
       
     }
     

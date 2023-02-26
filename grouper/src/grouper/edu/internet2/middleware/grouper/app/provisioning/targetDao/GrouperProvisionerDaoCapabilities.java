@@ -12,19 +12,16 @@ public class GrouperProvisionerDaoCapabilities {
 
   /**
    * if doing group attributes, if all memberships can be retrieved with group when the input flag is passed to do so
-   * default true
    */
-  private boolean canRetrieveMembershipsWithGroup = true;
+  private boolean canRetrieveMembershipsWithGroup = false;
 
   /**
    * if doing entity attributes, if all memberships can be retrieved with entity when the input flag is passed to do so
-   * default true
    */
-  private boolean canRetrieveMembershipsWithEntity = true;
+  private boolean canRetrieveMembershipsWithEntity = false;
 
   /**
    * if doing entity attributes, if all memberships can be retrieved with entity when the input flag is passed to do so
-   * default true
    * @return
    */
   public boolean isCanRetrieveMembershipsWithEntity() {
@@ -33,7 +30,6 @@ public class GrouperProvisionerDaoCapabilities {
 
   /**
    * if doing group attributes, if all memberships can be retrieved with group when the input flag is passed to do so
-   * default true
    * @return
    */
   public boolean isCanRetrieveMembershipsWithGroup() {
@@ -42,7 +38,6 @@ public class GrouperProvisionerDaoCapabilities {
 
   /**
    * if doing group attributes, if all memberships can be retrieved with group when the input flag is passed to do so
-   * default true
    * @param canRetrieveMembershipWithGroup
    */
   public void setCanRetrieveMembershipsWithGroup(boolean canRetrieveMembershipWithGroup) {
@@ -643,170 +638,261 @@ public class GrouperProvisionerDaoCapabilities {
   /**
    * if entity attributes, and retrieve memberships can have multiple entities each with one memberships attribute
    */
-  private Boolean canRetrieveMembershipByEntities;
+  private Boolean canRetrieveMembershipOneByEntities;
 
   /**
    * if entity attributes, and retrieve memberships can have multiple entities each with one memberships attribute
    * @return
    */
-  public Boolean getCanRetrieveMembershipByEntities() {
-    return canRetrieveMembershipByEntities;
+  public Boolean getCanRetrieveMembershipOneByEntities() {
+    return canRetrieveMembershipOneByEntities;
   }
 
   /**
    * if entity attributes, and retrieve memberships can have multiple entities each with one memberships attribute
    * @param canRetrieveMembershipByEntities
    */
-  public void setCanRetrieveMembershipByEntities(Boolean canRetrieveMembershipByEntities) {
-    this.canRetrieveMembershipByEntities = canRetrieveMembershipByEntities;
+  public void setCanRetrieveMembershipOneByEntities(Boolean canRetrieveMembershipOneByEntities) {
+    this.canRetrieveMembershipOneByEntities = canRetrieveMembershipOneByEntities;
   }
 
   /**
    * if entity attributes, and retrieve membership can have one entity with one membership attribute
    */
-  private Boolean canRetrieveMembershipByEntity;
+  private Boolean canRetrieveMembershipOneByEntity;
   
   /**
    * if entity attributes, and retrieve membership can have one entity with one membership attribute
    * @return
    */
-  public Boolean getCanRetrieveMembershipByEntity() {
-    return canRetrieveMembershipByEntity;
+  public Boolean getCanRetrieveMembershipOneByEntity() {
+    return canRetrieveMembershipOneByEntity;
   }
 
   /**
    * if entity attributes, and retrieve membership can have one entity with one membership attribute
    * @param canRetrieveMembershipByEntity
    */
-  public void setCanRetrieveMembershipByEntity(Boolean canRetrieveMembershipByEntity) {
-    this.canRetrieveMembershipByEntity = canRetrieveMembershipByEntity;
+  public void setCanRetrieveMembershipOneByEntity(Boolean canRetrieveMembershipByEntity) {
+    this.canRetrieveMembershipOneByEntity = canRetrieveMembershipByEntity;
   }
 
   /**
    * if group attributes, and retrieve membership can have one group with one membership attribute
    */
-  private Boolean canRetrieveMembershipByGroup;
+  private Boolean canRetrieveMembershipOneByGroup;
 
   /**
    * if group attributes, and retrieve membership can have one group with one membership attribute
    * @return
    */
-  public Boolean getCanRetrieveMembershipByGroup() {
-    return canRetrieveMembershipByGroup;
+  public Boolean getCanRetrieveMembershipOneByGroup() {
+    return canRetrieveMembershipOneByGroup;
   }
 
   /**
    * if group attributes, and retrieve membership can have one group with one membership attribute
    * @param canRetrieveMembershipByGroup
    */
-  public void setCanRetrieveMembershipByGroup(Boolean canRetrieveMembershipByGroup) {
-    this.canRetrieveMembershipByGroup = canRetrieveMembershipByGroup;
+  public void setCanRetrieveMembershipOneByGroup(Boolean canRetrieveMembershipOneByGroup) {
+    this.canRetrieveMembershipOneByGroup = canRetrieveMembershipOneByGroup;
   }
 
   /**
    * if group attributes, and retrieve memberships can have multiple groups each with one membership attribute
    */
-  private Boolean canRetrieveMembershipByGroups;
+  private Boolean canRetrieveMembershipOneByGroups;
   
   /**
    * if group attributes, and retrieve memberships can have multiple groups each with one membership attribute
    * @return
    */
-  public Boolean getCanRetrieveMembershipByGroups() {
-    return canRetrieveMembershipByGroups;
+  public Boolean getCanRetrieveMembershipOneByGroups() {
+    return canRetrieveMembershipOneByGroups;
   }
 
   /**
    * if group attributes, and retrieve memberships can have multiple groups each with one membership attribute
    * @param canRetrieveMembershipByGroups
    */
-  public void setCanRetrieveMembershipByGroups(Boolean canRetrieveMembershipByGroups) {
-    this.canRetrieveMembershipByGroups = canRetrieveMembershipByGroups;
+  public void setCanRetrieveMembershipOneByGroups(Boolean canRetrieveMembershipOneByGroups) {
+    this.canRetrieveMembershipOneByGroups = canRetrieveMembershipOneByGroups;
+  }
+
+  /**
+   * if can get all memberships for one group by implementing method: retrieveMembershipsByGroup()
+   */
+  private Boolean canRetrieveMembershipsAllByGroup;
+
+  /**
+   * if can get all memberships for one group by implementing method: retrieveMembershipsByGroup()
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsAllByGroup() {
+    return canRetrieveMembershipsAllByGroup;
+  }
+
+  /**
+   * if can get all memberships for one group by implementing method: retrieveMembershipsByGroup()
+   * @param canRetrieveMembershipsAllByGroup
+   */
+  public void setCanRetrieveMembershipsAllByGroup(
+      Boolean canRetrieveMembershipsAllByGroup) {
+    this.canRetrieveMembershipsAllByGroup = canRetrieveMembershipsAllByGroup;
+  }
+
+  /**
+   * if can get all memberships for multiple groups by implementing method: retrieveMembershipsByGroups()
+   */
+  private Boolean canRetrieveMembershipsAllByGroups;
+
+  
+  
+  /**
+   * if can get all memberships for multiple groups by implementing method: retrieveMembershipsByGroups()
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsAllByGroups() {
+    return canRetrieveMembershipsAllByGroups;
+  }
+
+  /**
+   * if can get all memberships for multiple groups by implementing method: retrieveMembershipsByGroups()
+   * @param canRetrieveMembershipsAllByGroups
+   */
+  public void setCanRetrieveMembershipsAllByGroups(
+      Boolean canRetrieveMembershipsAllByGroups) {
+    this.canRetrieveMembershipsAllByGroups = canRetrieveMembershipsAllByGroups;
+  }
+
+  /**
+   * if can get all memberships for multiple entites by implementing method: retrieveMembershipsByEntities()
+   */
+  private Boolean canRetrieveMembershipsAllByEntities;
+
+  /**
+   * if can get all memberships for multiple entites by implementing method: retrieveMembershipsByEntities()
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsAllByEntities() {
+    return canRetrieveMembershipsAllByEntities;
+  }
+
+  /**
+   * if can get all memberships for multiple entites by implementing method: retrieveMembershipsByEntities()
+   * @param canRetrieveMembershipsAllByEntities
+   */
+  public void setCanRetrieveMembershipsAllByEntities(
+      Boolean canRetrieveMembershipsAllByEntities) {
+    this.canRetrieveMembershipsAllByEntities = canRetrieveMembershipsAllByEntities;
+  }
+
+  /**
+   * if can get all memberships for one entity by implementing method: retrieveMembershipsByEntity()
+   */
+  private Boolean canRetrieveMembershipsAllByEntity;
+
+
+  /**
+   * if can get all memberships for one entity by implementing method: retrieveMembershipsByEntity()
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsAllByEntity() {
+    return canRetrieveMembershipsAllByEntity;
+  }
+
+  /**
+   * if can get all memberships for one entity by implementing method: retrieveMembershipsByEntity()
+   * @param canRetrieveMembershipsAllByEntity
+   */
+  public void setCanRetrieveMembershipsAllByEntity(
+      Boolean canRetrieveMembershipsAllByEntity) {
+    this.canRetrieveMembershipsAllByEntity = canRetrieveMembershipsAllByEntity;
   }
 
   /**
    * if entity attributes, if select memberships can take multiple entities and multiple membership attributes
    */
-  private Boolean canRetrieveMembershipsByEntities;
+  private Boolean canRetrieveMembershipsSomeByEntities;
 
   /**
    * if entity attributes, if select memberships can take multiple entities and multiple membership attributes
    * @return
    */
-  public Boolean getCanRetrieveMembershipsByEntities() {
-    return canRetrieveMembershipsByEntities;
+  public Boolean getCanRetrieveMembershipsSomeByEntities() {
+    return canRetrieveMembershipsSomeByEntities;
   }
   
   /**
    * if entity attributes, if select memberships can take multiple entities and multiple membership attributes
    * @param canRetrieveMembershipsByEntities
    */
-  public void setCanRetrieveMembershipsByEntities(
-      Boolean canRetrieveMembershipsByEntities) {
-    this.canRetrieveMembershipsByEntities = canRetrieveMembershipsByEntities;
+  public void setCanRetrieveMembershipsSomeByEntities(
+      Boolean canRetrieveMembershipsSomeByEntities) {
+    this.canRetrieveMembershipsSomeByEntities = canRetrieveMembershipsSomeByEntities;
   }
 
   /**
    * if entity attributes, if select membership can take one entity and multiple membership attributes
    */
-  private Boolean canRetrieveMembershipsByEntity;
+  private Boolean canRetrieveMembershipsSomeByEntity;
 
   /**
    * if entity attributes, if select membership can take one entity and multiple membership attributes
    * @return
    */
-  public Boolean getCanRetrieveMembershipsByEntity() {
-    return canRetrieveMembershipsByEntity;
+  public Boolean getCanRetrieveMembershipsSomeByEntity() {
+    return canRetrieveMembershipsSomeByEntity;
   }
 
   /**
    * if entity attributes, if select membership can take one entity and multiple membership attributes
    * @param canRetrieveMembershipsByEntity
    */
-  public void setCanRetrieveMembershipsByEntity(Boolean canRetrieveMembershipsByEntity) {
-    this.canRetrieveMembershipsByEntity = canRetrieveMembershipsByEntity;
+  public void setCanRetrieveMembershipsSomeByEntity(Boolean canRetrieveMembershipsSomeByEntity) {
+    this.canRetrieveMembershipsSomeByEntity = canRetrieveMembershipsSomeByEntity;
   }
   
   /**
    * if group attributes, if select membership can take one group and multiple membership attributes
    */
-  private Boolean canRetrieveMembershipsByGroup;
+  private Boolean canRetrieveMembershipsSomeByGroup;
 
   /**
    * if group attributes, if select membership can take one group and multiple membership attributes
    * @return
    */
-  public Boolean getCanRetrieveMembershipsByGroup() {
-    return canRetrieveMembershipsByGroup;
+  public Boolean getCanRetrieveMembershipsSomeByGroup() {
+    return canRetrieveMembershipsSomeByGroup;
   }
 
   /**
    * if group attributes, if select membership can take one group and multiple membership attributes
    * @param canRetrieveMembershipsByGroup
    */
-  public void setCanRetrieveMembershipsByGroup(Boolean canRetrieveMembershipsByGroup) {
-    this.canRetrieveMembershipsByGroup = canRetrieveMembershipsByGroup;
+  public void setCanRetrieveMembershipsSomeByGroup(Boolean canRetrieveMembershipsSomeByGroup) {
+    this.canRetrieveMembershipsSomeByGroup = canRetrieveMembershipsSomeByGroup;
   }
 
   /**
    * if group attributes, if select memberships can take multiple groups and multiple membership attributes
    */
-  private Boolean canRetrieveMembershipsByGroups;
+  private Boolean canRetrieveMembershipsSomeByGroups;
 
   /**
    * if group attributes, if select memberships can take multiple groups and multiple membership attributes
    * @return
    */
-  public Boolean getCanRetrieveMembershipsByGroups() {
-    return canRetrieveMembershipsByGroups;
+  public Boolean getCanRetrieveMembershipsSomeByGroups() {
+    return canRetrieveMembershipsSomeByGroups;
   }
 
   /**
    * if group attributes, if select memberships can take multiple groups and multiple membership attributes
    * @param canRetrieveMembershipsByGroups
    */
-  public void setCanRetrieveMembershipsByGroups(Boolean canRetrieveMembershipsByGroups) {
-    this.canRetrieveMembershipsByGroups = canRetrieveMembershipsByGroups;
+  public void setCanRetrieveMembershipsSomeByGroups(Boolean canRetrieveMembershipsSomeByGroups) {
+    this.canRetrieveMembershipsSomeByGroups = canRetrieveMembershipsSomeByGroups;
   }
   
 

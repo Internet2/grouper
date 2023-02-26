@@ -1375,7 +1375,7 @@ public class GrouperProvisioningLogicIncremental {
       
       if (recalcGroupMembershipIds.contains((String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(0))) {
         
-        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup()) {
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup()) {
           iterator.remove();
           this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
           filterNonRecalcActionsCapturedByRecalc++;
@@ -1385,7 +1385,7 @@ public class GrouperProvisioningLogicIncremental {
       
       if (recalcEntityMembershipIds.contains((String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(1))) {
         
-        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsForEntity()) {
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForEntity()) {
           iterator.remove();
           this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
           filterNonRecalcActionsCapturedByRecalc++;
@@ -1464,7 +1464,7 @@ public class GrouperProvisioningLogicIncremental {
          !(GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
         || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false));
     
-    if (!convertAllRecalcMembershipChangesToGroupSync && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup()) {
+    if (!convertAllRecalcMembershipChangesToGroupSync && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup()) {
       return;
     }
     
@@ -1524,7 +1524,7 @@ public class GrouperProvisioningLogicIncremental {
       }
     }
 
-    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup()) {
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup()) {
       groupsWithRecalcMembershipsThatCannotSelectMemberships = groupIdToHasRecalcMembership.size();
     }
     
@@ -2157,7 +2157,7 @@ public class GrouperProvisioningLogicIncremental {
                 ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGrouperTargetEntity();
                 if (memberId != null && !memberIdsAdded.contains(memberId) && grouperTargetEntity != null) {
                   provisioningEntitySomeMembershipsSync.add(grouperTargetEntity);
-                  provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
+                  provisioningEntityWrapper.getProvisioningStateEntity().setSelectSomeMembershipsResultProcessed(true);
                   memberIdsAdded.add(memberId);
                 }
               }
@@ -2180,7 +2180,7 @@ public class GrouperProvisioningLogicIncremental {
                 ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperTargetGroup();
                 if (groupId != null && !groupIdsAdded.contains(groupId) && grouperTargetGroup != null) {
                   provisioningGroupSomeMembershipsSync.add(grouperTargetGroup);
-                  provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
+                  provisioningGroupWrapper.getProvisioningStateGroup().setSelectSomeMembershipsResultProcessed(true);
                   groupIdsAdded.add(groupId);
                 }
               }
@@ -2317,7 +2317,7 @@ public class GrouperProvisioningLogicIncremental {
         }
         
         if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()
-            && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup()) {
+            && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup()) {
           provisioningGroupWrapper.getProvisioningStateGroup().setSelectAllMemberships(true);
         }
       }
@@ -2338,7 +2338,7 @@ public class GrouperProvisioningLogicIncremental {
         }
         
         if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()
-            && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsForEntity()) {
+            && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForEntity()) {
           provisioningEntityWrapper.getProvisioningStateEntity().setSelectAllMemberships(true);
         }
         
@@ -2349,8 +2349,9 @@ public class GrouperProvisioningLogicIncremental {
   public void determineMembershipsToSelect() {
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
-        && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup()) {
+        && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsSomeForGroup()) {
       int groupsWithSelectSomeMemberships = 0;
+      int selectSomeMemberships = 0;
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
         if (provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
           ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
@@ -2363,24 +2364,46 @@ public class GrouperProvisioningLogicIncremental {
           if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships()) {
             continue;
           }
-          if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships()) {
+          if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships()) {
+            provisioningGroupWrapper.getProvisioningStateGroup().setSelectSomeMemberships(true);
             groupsWithSelectSomeMemberships++;
-            continue;
           }
-          provisioningGroupWrapper.getProvisioningStateGroup().setSelectSomeMemberships(true);
-          groupsWithSelectSomeMemberships++;
           
         }
       }
+      
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+        ProvisioningGroup grouperProvisioningGroup = grouperProvisioningMembership == null ? null : grouperProvisioningMembership.getProvisioningGroup();
+        ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getProvisioningGroupWrapper();
+
+        if (provisioningGroupWrapper == null) {
+          continue;
+        }
+        if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships()) {
+          continue;
+        }
+        if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships()) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
+          selectSomeMemberships++;
+        }
+      }
+
+      
       if (groupsWithSelectSomeMemberships > 0) {
         this.getGrouperProvisioner().getDebugMap().put("groupsWithSelectSomeMemberships", groupsWithSelectSomeMemberships);
+      }
+      if (selectSomeMemberships > 0) {
+        this.getGrouperProvisioner().getDebugMap().put("selectSomeMemberships", selectSomeMemberships);
       }
     }
 
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
-        && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForEntity()) {
+        && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsSomeForEntity()) {
       int entitiesWithSelectSomeMemberships = 0;
-    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+      int selectSomeMemberships = 0;
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
         if (provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
           ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
           ProvisioningEntity grouperProvisioningEntity = grouperProvisioningMembership == null ? null : grouperProvisioningMembership.getProvisioningEntity();
@@ -2392,48 +2415,72 @@ public class GrouperProvisioningLogicIncremental {
           if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships()) {
             continue;
           }
-          if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMemberships()) {
+          if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMemberships()) {
+            provisioningEntityWrapper.getProvisioningStateEntity().setSelectSomeMemberships(true);
             entitiesWithSelectSomeMemberships++;
-            continue;
           }
-          provisioningEntityWrapper.getProvisioningStateEntity().setSelectSomeMemberships(true);
-          entitiesWithSelectSomeMemberships++;
           
         }
       }
+      
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+        ProvisioningEntity grouperProvisioningEntity = grouperProvisioningMembership == null ? null : grouperProvisioningMembership.getProvisioningEntity();
+        ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioningEntity == null ? null : grouperProvisioningEntity.getProvisioningEntityWrapper();
+
+        if (provisioningEntityWrapper == null) {
+          continue;
+        }
+        if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships()) {
+          continue;
+        }
+        if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMemberships()) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
+          selectSomeMemberships++;
+        }
+      }
+
+      
       if (entitiesWithSelectSomeMemberships > 0) {
         this.getGrouperProvisioner().getDebugMap().put("entitiesWithSelectSomeMemberships", entitiesWithSelectSomeMemberships);
       }
+      if (selectSomeMemberships > 0) {
+        this.getGrouperProvisioner().getDebugMap().put("selectSomeMemberships", selectSomeMemberships);
+      }
     }
 
-    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
-      if (!provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
-        continue;
-      }
-      
-      ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
-      ProvisioningGroup grouperProvisioningGroup = grouperProvisioningMembership == null ? null : grouperProvisioningMembership.getProvisioningGroup();
-      ProvisioningEntity grouperProvisioningEntity = grouperProvisioningMembership == null ? null : grouperProvisioningMembership.getProvisioningEntity();
-      ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getProvisioningGroupWrapper();
-      ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioningEntity == null ? null : grouperProvisioningEntity.getProvisioningEntityWrapper();
-
-      // by the time, it reaches here, determineGroupsToSelect might have set selectSomeMemberships to true and
-      // that's why, we skip them here
-      if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships()) {
-        provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(false);
-        continue;
-      }
-      // by the time, it reaches here, determineEntitiesToSelect might have set selectSomeMemberships to true and
-      // that's why, we skip them here
-      if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships()) {
-        provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(false);
-        continue;
-      } 
-
-      // when provisioning type is membership objects and it's recalc, 
-      // then only the following code is going to execute
-      if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsForMembership()) {
-        provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects
+        && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForMembership()) {
+      for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+        if (!provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
+          continue;
+        }
+        
+        ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+        ProvisioningGroup grouperProvisioningGroup = grouperProvisioningMembership == null ? null : grouperProvisioningMembership.getProvisioningGroup();
+        ProvisioningEntity grouperProvisioningEntity = grouperProvisioningMembership == null ? null : grouperProvisioningMembership.getProvisioningEntity();
+        ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getProvisioningGroupWrapper();
+        ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioningEntity == null ? null : grouperProvisioningEntity.getProvisioningEntityWrapper();
+  
+        // by the time, it reaches here, determineGroupsToSelect might have set selectSomeMemberships to true and
+        // that's why, we skip them here
+        if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships()) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(false);
+          continue;
+        }
+        // by the time, it reaches here, determineEntitiesToSelect might have set selectSomeMemberships to true and
+        // that's why, we skip them here
+        if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships()) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(false);
+          continue;
+        } 
+  
+        // when provisioning type is membership objects and it's recalc, 
+        // then only the following code is going to execute
+        if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsForMembership()) {
+          provisioningMembershipWrapper.getProvisioningStateMembership().setSelect(true);
+        }
       }
     }
   }
@@ -2572,7 +2619,7 @@ public class GrouperProvisioningLogicIncremental {
     
     int convertGroupsToRecalc = 0;
     
-    boolean selectMembershipsForGroup = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup();
+    boolean selectMembershipsForGroup = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForGroup();
 
     for (ProvisioningGroupWrapper provisioningGroupWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
 
@@ -2634,7 +2681,7 @@ public class GrouperProvisioningLogicIncremental {
   public void convertEntitiesToRecalc(boolean includeMemberships) {
     
     int convertEntitiesToRecalc = 0;
-    boolean selectMembershipsForEntity = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForEntity();
+    boolean selectMembershipsForEntity = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAllForEntity();
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
       
