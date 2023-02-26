@@ -2114,14 +2114,18 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithGroup(true);
-      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroups(true);
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByGroups(true);
     }
 
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithEntity(true);
-      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntities(true);
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByEntities(true);
     }
 
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByGroups(true);
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByEntities(true);
+    }
     
   }
 }

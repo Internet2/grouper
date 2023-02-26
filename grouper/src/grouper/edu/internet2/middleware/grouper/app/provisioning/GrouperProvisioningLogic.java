@@ -314,6 +314,7 @@ public class GrouperProvisioningLogic {
       }
     }
     
+<<<<<<< GROUPER_5_BRANCH
     {
       debugMap.put("state", "retrieveIndividualMissingMemberships");
       this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveIndividualMissingMemberships(); 
@@ -344,6 +345,11 @@ public class GrouperProvisioningLogic {
 =======
 >>>>>>> 478737e Provisioning related changes
       }
+=======
+    // at this point everything is a recalc
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+      provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+>>>>>>> ec34db7 improve incremental recalc memberships
     }
 
     this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
@@ -3835,6 +3841,7 @@ public class GrouperProvisioningLogic {
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualMissingGroups, targetGroups);
 
   }
+<<<<<<< GROUPER_5_BRANCH
   
   /**
    * 
@@ -3987,6 +3994,8 @@ public class GrouperProvisioningLogic {
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveIndividualMissingMemberships, membershipsRetrieved);
 
   }
+=======
+>>>>>>> ec34db7 improve incremental recalc memberships
 
   /**
    * if incremental, and there are missing groups or entities, then retrieve them
@@ -4172,10 +4181,10 @@ public class GrouperProvisioningLogic {
     // see if we can get memberships by group
     if (GrouperUtil.booleanValue(
         this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
-          .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)
+          .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroup(), false)
         || GrouperUtil.booleanValue(
             this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroups(), false)) {
       
       // deal with all groups, get the target groups already selected
       List<ProvisioningGroup> targetProvisioningGroups = new ArrayList<>();
@@ -4221,10 +4230,10 @@ public class GrouperProvisioningLogic {
       return membershipObjects;
     } else if (GrouperUtil.booleanValue(
           this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntity(), false)
           || GrouperUtil.booleanValue(
               this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
-              .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)) {
+              .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntities(), false)) {
         
       // deal with all entities, get the target entities already selected
       List<ProvisioningEntity> targetProvisioningEntities = new ArrayList<>();

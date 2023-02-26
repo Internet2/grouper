@@ -1077,14 +1077,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
     grouperProvisionerDaoCapabilities.setCanRetrieveEntities(true);
 
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithGroup(false);
-      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithGroup(true);
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipOneByGroup(true);
     }
 
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithEntity(false);
-      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithEntity(true);
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipOneByEntity(true);
     }
     
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);

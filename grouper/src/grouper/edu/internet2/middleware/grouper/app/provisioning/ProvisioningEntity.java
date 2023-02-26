@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -58,7 +60,6 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     }
     return result;
   }
-
 
   /**
    * do a deep clone of the data

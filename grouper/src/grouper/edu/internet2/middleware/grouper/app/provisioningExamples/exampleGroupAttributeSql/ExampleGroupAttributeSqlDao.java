@@ -278,7 +278,7 @@ public class ExampleGroupAttributeSqlDao extends SqlProvisioningDao {
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
   }
 

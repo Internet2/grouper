@@ -571,7 +571,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntity(true);
     
   }
 

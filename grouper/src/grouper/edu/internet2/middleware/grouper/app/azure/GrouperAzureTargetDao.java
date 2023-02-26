@@ -780,8 +780,8 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
 
     grouperProvisionerDaoCapabilities.setCanRetrieveGroups(true);
 
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntity(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
 
     grouperProvisionerDaoCapabilities.setCanUpdateEntities(true);
 

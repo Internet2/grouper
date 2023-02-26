@@ -711,7 +711,7 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
     
 
 //    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByEntity(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsByGroup(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
 
   }
 
