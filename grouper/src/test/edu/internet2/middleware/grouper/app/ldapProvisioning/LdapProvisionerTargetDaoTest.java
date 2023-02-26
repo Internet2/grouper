@@ -145,6 +145,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
     // now test retrieveMembership
     {
       ProvisioningGroup targetGroup = new ProvisioningGroup();
+      targetGroup.assignAttributeValue("businessCategory", testGroup.getIdIndex().toString());
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=jsmith,ou=People,dc=example,dc=edu");
       TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequest = new TargetDaoRetrieveMembershipRequest();
@@ -166,6 +167,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
       ProvisioningGroup targetGroup = new ProvisioningGroup();
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=banderson,ou=People,dc=example,dc=edu");
+      targetGroup.assignAttributeValue("businessCategory", testGroup.getIdIndex().toString());
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
@@ -182,6 +184,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
       ProvisioningGroup targetGroup = new ProvisioningGroup();
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=hdavis,ou=People,dc=example,dc=edu");
+      targetGroup.assignAttributeValue("businessCategory", testGroup.getIdIndex().toString());
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);
@@ -197,6 +200,8 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
       ProvisioningGroup targetGroup = new ProvisioningGroup();
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup:does:not:exist,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=hdavis,ou=People,dc=example,dc=edu");
+      targetGroup.assignAttributeValue("businessCategory", testGroup.getIdIndex().toString());
+
       
       grouperProvisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       grouperProvisioner.initialize(GrouperProvisioningType.incrementalProvisionChangeLog);

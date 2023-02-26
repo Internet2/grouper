@@ -152,7 +152,11 @@ public abstract class ProvisioningUpdatable {
    */
   public GrouperProvisioner getGrouperProvisioner() {
     ProvisioningUpdatableWrapper provisioningUpdatableWrapper = this.getProvisioningWrapper();
-    return provisioningUpdatableWrapper == null ? null : provisioningUpdatableWrapper.getGrouperProvisioner();
+    GrouperProvisioner grouperProvisioner = provisioningUpdatableWrapper == null ? null : provisioningUpdatableWrapper.getGrouperProvisioner();
+    if (grouperProvisioner == null) {
+      grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    }
+    return grouperProvisioner;
   }
   
   /**

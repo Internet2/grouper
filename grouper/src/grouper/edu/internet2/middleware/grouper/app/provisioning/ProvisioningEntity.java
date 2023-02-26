@@ -45,13 +45,17 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
       for (Object value : GrouperUtil.nonNull(provisioningEntity.retrieveAttributeValueSet(membershipAttribute))) {
         ProvisioningEntity provisioningUpdatableClone = (ProvisioningEntity)provisioningEntity.cloneWithoutMemberships();
 
-        ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(value);
+        ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperUtil.nonNull(provisioningAttribute.getValueToProvisioningMembershipWrapper()).get(value);
 
-        try {
-          GrouperProvisioningTranslator.assignThreadLocalProvisioningMembershipWrapper(provisioningMembershipWrapper);
-          provisioningUpdatableClone.addAttributeValueForMembership(membershipAttribute, value);
-        } finally {
-          GrouperProvisioningTranslator.clearThreadLocalProvisioningMembershipWrapper();
+        if (provisioningMembershipWrapper != null) {
+          try {
+            GrouperProvisioningTranslator.assignThreadLocalProvisioningMembershipWrapper(provisioningMembershipWrapper);
+            provisioningUpdatableClone.addAttributeValueForMembership(membershipAttribute, value);
+          } finally {
+            GrouperProvisioningTranslator.clearThreadLocalProvisioningMembershipWrapper();
+          }
+        } else {
+          provisioningUpdatableClone.addAttributeValue(membershipAttribute, value);
         }
         
         result.add(provisioningUpdatableClone);
