@@ -1731,8 +1731,13 @@ public class GrouperProvisioningCompare {
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
 =======
         if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed()
+<<<<<<< GROUPER_5_BRANCH
             && grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()) {
 >>>>>>> 4d8602b improve provisioning
+=======
+            && (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
+                || grouperTargetMembership.getProvisioningMembershipWrapper().getGrouperTargetMembership() == null)) {
+>>>>>>> 89c106f fix deletes
           groupIdEntityIdsToDelete.add(key);
         }
       }
