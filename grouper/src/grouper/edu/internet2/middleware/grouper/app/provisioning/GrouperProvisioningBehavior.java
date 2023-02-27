@@ -1603,6 +1603,7 @@ public class GrouperProvisioningBehavior {
       return this.selectMembershipsAll;
 >>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
     }
+<<<<<<< GROUPER_5_BRANCH
     
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
 <<<<<<< GROUPER_5_BRANCH
@@ -1703,6 +1704,12 @@ public class GrouperProvisioningBehavior {
         return this.selectMembershipsAll;
       }
 <<<<<<< GROUPER_5_BRANCH
+=======
+        
+    if (this.isSelectEntitiesAll() && this.isSelectMembershipsWithEntity()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+>>>>>>> 6fda193 fix test
     }
 =======
 
@@ -1740,14 +1747,9 @@ public class GrouperProvisioningBehavior {
 >>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
 =======
       
-    if (this.isSelectGroupsAll()) {
-      if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
-          .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroup(), false)
-        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroups(), false)) {
-        this.selectMembershipsAll = true;
-        return this.selectMembershipsAll;
-      }
+    if (this.isSelectGroupsAll() && this.isSelectMembershipsWithGroup()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
     }
 
 >>>>>>> dad5d51 Provisioning related changes, wip
