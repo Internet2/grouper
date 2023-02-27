@@ -1631,7 +1631,8 @@ public class GrouperProvisioningCompare {
       for (Object key : targetMatchingIdToTargetMembership.keySet()) {
         ProvisioningMembership grouperTargetMembership = targetMatchingIdToTargetMembership.get(key);
         if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed()
-            && grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()) {
+            && (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
+                || grouperTargetMembership.getProvisioningMembershipWrapper().getGrouperTargetMembership() == null)) {
           groupIdEntityIdsToDelete.add(key);
         }
       }
