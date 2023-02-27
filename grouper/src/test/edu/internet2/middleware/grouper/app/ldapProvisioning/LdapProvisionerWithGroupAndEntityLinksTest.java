@@ -2374,6 +2374,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
           .addExtraConfig("onlyLdapGroupDnOverride", "true")
           .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
           .assignDnOverrideConfig(true)
+          .addExtraConfig("logCommandsAlways", "true")
         );
             
     new StemSave(this.grouperSession).assignName("test").save();
@@ -2662,7 +2663,6 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
           .assignProvisioningStrategy("harvardGroupOfNames")
           .addExtraConfig("selectAllGroups", "false")
           .addExtraConfig("selectAllEntities", "false")
-          .addExtraConfig("logCommandsAlways", "true")
         );
 
     new StemSave(this.grouperSession).assignName("test").save();
