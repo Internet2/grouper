@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperAzureUser {
 
-  private boolean accountEnabled;
+  private boolean accountEnabled = true;
 
   private String displayName;
 

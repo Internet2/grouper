@@ -67,7 +67,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureDisplayName"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testDeleteEntityFromAzureAndThenRunProvisionerAgainFull"));
     //realAzureAddUsers();
   }
 
@@ -556,7 +556,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     AzureProvisionerTestUtils.configureAzureProvisioner(
         new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(2)
-          .assignRealAzure(true)
+          .assignRealAzure(false)
           .assignProvisioningStrategy("michiganAzure")
           .addExtraConfig("errorHandlingShow", "true")
           .addExtraConfig("errorHandlingTargetObjectDoesNotExistIsAnError", "false")
@@ -589,6 +589,9 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     if (!isFull) {
       fullProvision();
       incrementalProvision();
+    }
+    if (sleep) {
+      GrouperUtil.sleep(10000);
     }
 
     // this will create tables

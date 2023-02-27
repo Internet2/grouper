@@ -1574,48 +1574,15 @@ public class GrouperProvisioningBehavior {
       this.selectMembershipsAll = true;
       return this.selectMembershipsAll;
     }
-    
-    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-      if ((this.isSelectEntitiesAll() || this.isSelectEntities()) 
-            && this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter()
-            .getGrouperProvisionerDaoCapabilities().isCanRetrieveMembershipsWithEntity()) {
-        this.selectMembershipsAll = true;
-        return this.selectMembershipsAll;
-      } else {
-        this.selectMembershipsAll = false;
-        return this.selectMembershipsAll;
-      }
-    }
-    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      if ( (this.isSelectGroupsAll() || this.isSelectGroups()) 
-          && this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter()
-          .getGrouperProvisionerDaoCapabilities().isCanRetrieveMembershipsWithGroup()) {
-        this.selectMembershipsAll = true;
-        return this.selectMembershipsAll;
-      } else {
-        this.selectMembershipsAll = false;
-        return this.selectMembershipsAll;
-      }
-    }
-    
-    if (this.isSelectEntitiesAll()) {
-      if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
-          .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntity(), false)
-        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntities(), false)) {
-        this.selectMembershipsAll = true;
-        return this.selectMembershipsAll;
-      }
+        
+    if (this.isSelectEntitiesAll() && this.isSelectMembershipsWithEntity()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
     }
       
-    if (this.isSelectGroupsAll()) {
-      if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
-          .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroup(), false)
-        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroups(), false)) {
-        this.selectMembershipsAll = true;
-        return this.selectMembershipsAll;
-      }
+    if (this.isSelectGroupsAll() && this.isSelectMembershipsWithGroup()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
     }
 
     this.selectMembershipsAll = false;
