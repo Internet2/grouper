@@ -233,6 +233,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
         .addExtraConfig("customizeGroupCrud", "true")
         .addExtraConfig("deleteGroupsIfGrouperDeleted", "true")
         .addExtraConfig("deleteMembershipsOnlyInTrackedGroups", "false")
+        .addExtraConfig("logCommandsAlways", "true")
         );
     
     RegistrySubject.add(grouperSession, "Fred400@" + domain, "person", "Fred400@" + domain);

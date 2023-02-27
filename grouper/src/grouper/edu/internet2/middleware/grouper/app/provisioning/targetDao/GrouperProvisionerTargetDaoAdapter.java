@@ -917,8 +917,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 <<<<<<< GROUPER_5_BRANCH
       
       // we retrieved all we could from target based on grouper target groups, so every wrapper, is select result processed
-      for (ProvisioningGroupWrapper provisioningGroupWrapper :  this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
-        provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
+      for (ProvisioningGroup provisioningGroup :  GrouperUtil.nonNull(targetGroups)) {
+        provisioningGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectResultProcessed(true);
       }
 =======
 >>>>>>> dad5d51 Provisioning related changes, wip
@@ -948,8 +948,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
       // we retrieved all we could from target based on grouper target entities, so every wrapper, is select result processed
-      for (ProvisioningEntityWrapper provisioningEntityWrapper :  this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
-        provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
+      for (ProvisioningEntity provisioningEntity :  GrouperUtil.nonNull(targetObjects.getProvisioningEntities())) {
+        provisioningEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectResultProcessed(true);
       }
 
 
@@ -993,8 +993,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 <<<<<<< GROUPER_5_BRANCH
       
       // we retrieved all we could from target based on grouper target groups or entities, so every wrapper, is select result processed
-      for (ProvisioningMembershipWrapper provisioningMembershipWrapper :  this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
-        provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
+      for (ProvisioningMembership provisioningMembership :  GrouperUtil.nonNull(targetObjects.getProvisioningMemberships())) {
+        provisioningMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setSelectResultProcessed(true);
       }
 
 =======
