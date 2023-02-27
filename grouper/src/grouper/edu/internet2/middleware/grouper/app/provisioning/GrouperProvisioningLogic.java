@@ -3045,6 +3045,7 @@ public class GrouperProvisioningLogic {
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
 
       ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper.getGrouperProvisioningMembership();
+      ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
 
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
 
@@ -3094,6 +3095,12 @@ public class GrouperProvisioningLogic {
         
         groupUuidMemberUuidToProvisioningMembershipWrapper.put(provisioningMembershipWrapper.getGroupIdMemberId(), provisioningMembershipWrapper);
         
+      } else if (grouperProvisioningMembership == null && targetProvisioningMembership != null) {
+        boolean deleteMembershipsOnlyInTrackedGroups = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteMembershipsOnlyInTrackedGroups();
+        if (!deleteMembershipsOnlyInTrackedGroups) {
+          // it means we need to delete memberships from target because configuration says so
+          provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
+        }
       }
       provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
       
