@@ -246,10 +246,11 @@ public class GrouperProvisioningLogic {
         if (provisioningMembershipWrapper.getProvisioningEntityWrapper() != null) {
           provisioningMembershipWrapper.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectAllMembershipsResultProcessed(true);
         }
+        provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
       }
     }
     
-    // at this point everything is a recalc
+    // at this point everything is a recalc and selected
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
       provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
     }

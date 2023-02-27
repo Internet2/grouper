@@ -1598,6 +1598,9 @@ public class GrouperProvisioningCompare {
         if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed() || this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
           matchingIdsToInsert.add(key);
         } else if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.insert) {
+          // I dont think we need this case
+          matchingIdsToInsert.add(key);
+        } else if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isCreate()) {
           matchingIdsToInsert.add(key);
         }
         
