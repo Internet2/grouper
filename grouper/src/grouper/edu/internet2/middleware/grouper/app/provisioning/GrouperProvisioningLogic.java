@@ -311,9 +311,11 @@ public class GrouperProvisioningLogic {
         if (provisioningMembershipWrapper.getProvisioningEntityWrapper() != null) {
           provisioningMembershipWrapper.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectAllMembershipsResultProcessed(true);
         }
+        provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
       }
     }
     
+<<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
     {
       debugMap.put("state", "retrieveIndividualMissingMemberships");
@@ -347,6 +349,9 @@ public class GrouperProvisioningLogic {
       }
 =======
     // at this point everything is a recalc
+=======
+    // at this point everything is a recalc and selected
+>>>>>>> d5b5ac4 fix azure test
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
       provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
 >>>>>>> ec34db7 improve incremental recalc memberships

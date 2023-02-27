@@ -1687,6 +1687,9 @@ public class GrouperProvisioningCompare {
 >>>>>>> 478737e Provisioning related changes
           matchingIdsToInsert.add(key);
         } else if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.insert) {
+          // I dont think we need this case
+          matchingIdsToInsert.add(key);
+        } else if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isCreate()) {
           matchingIdsToInsert.add(key);
         }
         
