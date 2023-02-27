@@ -145,7 +145,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testIncrementalSyncSqlProvisioner"));
+    TestRunner.run(new SqlProvisionerTest("testIncrementalWithUnresolvableDontInsertAndDontRemove"));
     
   }
   
@@ -5195,6 +5195,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "dn", "cn=test:testGroup,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu")));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "gidNumber", "" + testGroup.getIdIndex())));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "objectClass", "group")));
+    // THIS ISNT IMPLEMENTED YET!!! IMPLEMENT OBJECT CACHE
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "member", "dn_test.subject.0")));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "member", "dn_test.subject.1")));
     //object changes
