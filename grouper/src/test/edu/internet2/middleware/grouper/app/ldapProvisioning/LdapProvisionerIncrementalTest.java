@@ -63,7 +63,7 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerIncrementalTest("testDoNotAddIfNotExistIncremental"));    
+    TestRunner.run(new LdapProvisionerIncrementalTest("testDoNotAddIfNotExistFull"));    
   }
   
   @Override
