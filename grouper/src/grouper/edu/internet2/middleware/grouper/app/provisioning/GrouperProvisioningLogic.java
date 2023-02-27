@@ -4157,11 +4157,6 @@ public class GrouperProvisioningLogic {
       return null;
     }
 
-    if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectAllEntities() && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectAllGroups()) {
-      return null;
-    }
-    
-    
     if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
       return null;
     }
