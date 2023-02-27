@@ -636,6 +636,68 @@ public class GrouperProvisioningBehavior {
     return this.selectMembershipsSomeForGroup;
   }
   
+  private Boolean selectMembershipsWithEntity;
+  
+  public boolean isSelectMembershipsWithEntity() {
+    
+    if (this.selectMembershipsWithEntity != null) {
+      return selectMembershipsWithEntity;
+    }
+    if (!this.isSelectEntities()) {
+      this.selectMembershipsWithEntity = false;
+      return selectMembershipsWithEntity;
+    }
+    if (!this.isSelectMembershipsInGeneral()) {
+      this.selectMembershipsWithEntity = false;
+      return selectMembershipsWithEntity;
+    }
+
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      this.selectMembershipsWithEntity = false;
+      return selectMembershipsWithEntity;
+    }
+    
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().isCanRetrieveMembershipsWithEntity(), false)) {
+      
+      this.selectMembershipsWithEntity = true;
+      return selectMembershipsWithEntity;
+    }
+
+    this.selectMembershipsWithEntity = false;
+    return this.selectMembershipsWithEntity;
+  }
+  
+  private Boolean selectMembershipsWithGroup;
+  
+  public boolean isSelectMembershipsWithGroup() {
+    
+    if (this.selectMembershipsWithGroup != null) {
+      return selectMembershipsWithGroup;
+    }
+    if (!this.isSelectEntities()) {
+      this.selectMembershipsWithGroup = false;
+      return selectMembershipsWithGroup;
+    }
+    if (!this.isSelectMembershipsInGeneral()) {
+      this.selectMembershipsWithGroup = false;
+      return selectMembershipsWithGroup;
+    }
+
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      this.selectMembershipsWithGroup = false;
+      return selectMembershipsWithGroup;
+    }
+    
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().isCanRetrieveMembershipsWithGroup(), false)) {
+      
+      this.selectMembershipsWithGroup = true;
+      return selectMembershipsWithGroup;
+    }
+
+    this.selectMembershipsWithGroup = false;
+    return this.selectMembershipsWithGroup;
+  }
+  
   public boolean isSelectMembershipsSomeForEntity() {
     if (this.selectMembershipsSomeForEntity != null) {
       return selectMembershipsSomeForEntity;
