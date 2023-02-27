@@ -99,27 +99,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
    */
   public TargetDaoRetrieveMembershipsResponse retrieveMemberships(TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest) {
     TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = new TargetDaoRetrieveMembershipsResponse();
-    if (GrouperUtil.length(targetDaoRetrieveMembershipsRequest.getTargetMemberships()) == 0) {
-      return targetDaoRetrieveMembershipsResponse;
-    }
-    
-    List<ProvisioningGroup> grouperTargetGroups = new ArrayList<ProvisioningGroup>();
-    List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
-    List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
-    
-    for (Object object : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
-      if (object instanceof ProvisioningGroup) {
-        grouperTargetGroups.add((ProvisioningGroup)object);
-      }
-      if (object instanceof ProvisioningEntity) {
-        grouperTargetEntities.add((ProvisioningEntity)object);
-      }
-      if (object instanceof ProvisioningMembership) {
-        grouperTargetMemberships.add((ProvisioningMembership)object);
-      }
-    }
-    
-    List<ProvisioningMembership> memberships = retrieveMemberships(grouperTargetGroups, grouperTargetEntities, (List<ProvisioningMembership>)(ProvisioningMembership)grouperTargetMemberships);
+    List<ProvisioningMembership> memberships = retrieveMemberships(targetDaoRetrieveMembershipsRequest.getTargetGroups(), 
+        targetDaoRetrieveMembershipsRequest.getTargetEntities(), targetDaoRetrieveMembershipsRequest.getTargetMemberships());
     targetDaoRetrieveMembershipsResponse.setTargetMemberships(memberships);
     return targetDaoRetrieveMembershipsResponse;
   }
