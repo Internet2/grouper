@@ -1585,6 +1585,16 @@ public class GrouperProvisioningBehavior {
       return this.selectMembershipsAll;
     }
 
+    if (this.isSelectEntitiesAll() && this.isSelectMembershipsAllForEntity()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+      
+    if (this.isSelectGroupsAll() && this.isSelectMembershipsAllForGroup()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+
     this.selectMembershipsAll = false;
     return this.selectMembershipsAll;
   }

@@ -67,7 +67,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testAddManyMembershipsUncgHelperFull"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzure"));
     //realAzureAddUsers();
   }
 
@@ -233,7 +233,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
         .addExtraConfig("customizeGroupCrud", "true")
         .addExtraConfig("deleteGroupsIfGrouperDeleted", "true")
         .addExtraConfig("deleteMembershipsOnlyInTrackedGroups", "false")
-        .addExtraConfig("logCommandsAlways", "true")
+        .addExtraConfig("logCommandsAlways", "false")
         );
     
     RegistrySubject.add(grouperSession, "Fred400@" + domain, "person", "Fred400@" + domain);
@@ -822,7 +822,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     AzureProvisionerTestUtils.configureAzureProvisioner(
         new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(2)
-        .assignRealAzure(true).assignUdelUseCase(true)
+        .assignRealAzure(false).assignUdelUseCase(true)
         .assignDisplayNameMapping("extension").addExtraConfig("azureGroupType", "true").addExtraConfig("makeChangesToEntities", "true")
         .addExtraConfig("welcomeEmailDisabled", "true")
         );
@@ -908,8 +908,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     for (ProvisioningEntityWrapper provisioningEntityWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
       assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
 
-      // ? should this be here?
-      assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
     }
     
     assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) > 0);
@@ -1010,13 +1008,13 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId()), "userPrincipalName");
     assertNotNull(grouperAzureUsers);
-    assertTrue(grouperAzureUsers.size() == 0);
+    assertEquals(0, grouperAzureUsers.size());
     grouperAzureUsers1 = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred1.getId()), "userPrincipalName");
     assertNotNull(grouperAzureUsers1);
-    assertTrue(grouperAzureUsers1.size() == 0);
+    assertEquals(0, grouperAzureUsers1.size());
     grouperAzureUsers3 = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred3.getId()), "userPrincipalName");
     assertNotNull(grouperAzureUsers3);
-    assertTrue(grouperAzureUsers3.size() == 0);
+    assertEquals(0, grouperAzureUsers3.size());
     
   }
   
@@ -1964,7 +1962,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName");
       assertEquals(1, grouperAzureGroups1.size());
 
-      grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(subjects.get(0).getAttributeValue("loginid") + "@" + domain), "userPrincipalName");
+      grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(subjects.get(0).getId() + "@" + domain), "userPrincipalName");
       assertEquals(1, grouperAzureUsers.size());
 
       userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", grouperAzureGroups1.get(0).getId());
