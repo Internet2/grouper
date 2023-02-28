@@ -1752,7 +1752,20 @@ public class GrouperProvisioningBehavior {
       return this.selectMembershipsAll;
     }
 
+<<<<<<< GROUPER_5_BRANCH
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+    if (this.isSelectEntitiesAll() && this.isSelectMembershipsAllForEntity()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+      
+    if (this.isSelectGroupsAll() && this.isSelectMembershipsAllForGroup()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+
+>>>>>>> 3846779 fix azure tests
     this.selectMembershipsAll = false;
     return this.selectMembershipsAll;
   }

@@ -1303,7 +1303,7 @@ public class GrouperProvisioningLogicIncremental {
       List<String> memberIds = gcGrouperSync.getGcGrouperSyncMemberDao().retrieveMemberIdsWithErrorsAfterMillis(millisToCheckFrom > 0 ? new Timestamp(millisToCheckFrom) : null);
       memberIdsSet = new HashSet<String>(GrouperUtil.nonNull(memberIds));
       for (String memberId : GrouperUtil.nonNull(memberIds)) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(memberId, true, true, null, null);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalEntity(memberId, true, true, null, null);
         addErrorsToQueue++;
       }
     }
