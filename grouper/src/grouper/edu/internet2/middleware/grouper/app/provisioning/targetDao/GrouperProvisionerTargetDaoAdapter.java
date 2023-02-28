@@ -4625,6 +4625,16 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             throw new RuntimeException("Dao did not set updated membership as provisioned: " + this.wrappedDao);
           }
         }
+        // any delete memberships in this group are also processed
+        for (ProvisioningMembershipWrapper provisioningMembershipWrapper: GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) { 
+          
+          if (provisioningMembershipWrapper.getProvisioningStateMembership().isDelete() 
+                && StringUtils.equals(provisioningMembershipWrapper.getProvisioningGroupWrapper().getGroupId(), 
+                    targetDaoReplaceGroupMembershipsRequest.getTargetGroup().getProvisioningGroupWrapper().getGroupId())) {
+            provisioningMembershipWrapper.getTargetMembership().setProvisioned(true);
+          }
+        }
+
         return targetDaoReplaceGroupMembershipsResponse;
       } catch (RuntimeException e) {
         hasError = true;

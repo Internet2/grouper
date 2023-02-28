@@ -176,7 +176,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
       assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
       assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
-      assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
+      assertNotNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
       assertNull(gcGrouperSyncGroup.getErrorMessage());
       assertNull(gcGrouperSyncGroup.getErrorTimestamp());
       assertNull(gcGrouperSyncGroup.getLastGroupSync());
@@ -315,7 +315,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
       assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
       assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
-      assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
+      assertNotNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
       assertNull(gcGrouperSyncGroup.getErrorMessage());
       assertNull(gcGrouperSyncGroup.getErrorTimestamp());
       assertNull(gcGrouperSyncGroup.getLastGroupSync());
@@ -441,7 +441,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
       assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
       assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
-      assertNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
+      assertNotNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
       assertNull(gcGrouperSyncGroup.getErrorMessage());
       assertNull(gcGrouperSyncGroup.getErrorTimestamp());
       assertNull(gcGrouperSyncGroup.getLastGroupSync());
