@@ -759,11 +759,14 @@ public class GrouperProvisioningTranslator {
       if (StringUtils.equals("subjectIdentifier0", field) && !StringUtils.isBlank(provisioningEntity.getSubjectIdentifier0())) {
         return provisioningEntity.getSubjectIdentifier0();
       }
-      if (StringUtils.equals("subjectIdentifier1", field)) {
+      if (StringUtils.equals("subjectIdentifier1", field) && !StringUtils.isBlank(provisioningEntity.getSubjectIdentifier1())) {
         return provisioningEntity.getSubjectIdentifier1();
       }
-      if (StringUtils.equals("subjectIdentifier2", field)) {
+      if (StringUtils.equals("subjectIdentifier2", field) && !StringUtils.isBlank(provisioningEntity.getSubjectIdentifier2())) {
         return provisioningEntity.getSubjectIdentifier2();
+      }
+      if (StringUtils.equals("subjectIdentifier", field)) {
+        return provisioningEntity.getSubjectIdentifier();
       }
       if (StringUtils.equals("idIndex", field)) {
         return provisioningEntity.getIdIndex();

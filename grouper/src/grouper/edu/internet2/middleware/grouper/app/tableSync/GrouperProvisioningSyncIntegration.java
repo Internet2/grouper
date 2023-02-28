@@ -604,7 +604,7 @@ public class GrouperProvisioningSyncIntegration {
             }
             
             if (!StringUtils.equals(newSubjectIdentifier, gcGrouperSyncMember.getSubjectIdentifier())) {
-              if (grouperProvisioningEntity == null && gcGrouperSyncMember.isInTarget() && newSubjectIdentifier == null) {
+              if (grouperProvisioningEntity == null && (gcGrouperSyncMember.isInTarget() || !grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) && newSubjectIdentifier == null) {
                 // don't remove the identifier if not provisionable but still in target
               } else {
                 gcGrouperSyncMember.setSubjectIdentifier(newSubjectIdentifier);

@@ -160,6 +160,26 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
   
   /**
    * 
+   * @return subjectIdentifier
+   */
+  public String getSubjectIdentifier() {
+    
+    String subjectIdentifierAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getSubjectIdentifierForMemberSyncTable();
+    
+    if (StringUtils.equals("subjectIdentifier0", subjectIdentifierAttribute)) {
+      return getSubjectIdentifier0();
+    } else if (StringUtils.equals("subjectIdentifier1", subjectIdentifierAttribute)) {
+      return getSubjectIdentifier1();
+    } else if (StringUtils.equals("subjectIdentifier2", subjectIdentifierAttribute)) {
+      return getSubjectIdentifier2();
+    } else {
+      throw new RuntimeException("Invalid value for subjectIdentifierAttribute: "+subjectIdentifierAttribute);
+    }
+    
+  }
+  
+  /**
+   * 
    * @param subjectIdentifier2
    */
   public void setSubjectIdentifier2(String subjectIdentifier2) {
