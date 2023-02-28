@@ -810,7 +810,7 @@ public class GrouperProvisioningGrouperSyncDao {
             ? null
             : provisioningMembershipWrapper.getTargetMembership();
 
-        if (grouperTargetMembership == null
+        if ((grouperTargetMembership == null || provisioningMembershipWrapper.getProvisioningStateMembership().isDelete())
             || (grouperTargetMembership.getException() == null && GrouperUtil
                 .booleanValue(grouperTargetMembership.getProvisioned(), false))) {
           if (gcGrouperSyncMembership != null) {

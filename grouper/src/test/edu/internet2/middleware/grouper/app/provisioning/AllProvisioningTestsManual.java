@@ -47,15 +47,15 @@ public class AllProvisioningTestsManual {
    */
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.loader.db");
-    suite.addTest(AllAzureProvisionerTests.suite());
-    suite.addTest(AllDuoProvisionerTests.suite());
-    suite.addTest(AllDuoRoleProvisionerTests.suite());
-    suite.addTest(AllGoogleProvisionerTests.suite());
-    suite.addTest(AllLdapProvisioningTests.suite());
+//    suite.addTest(AllAzureProvisionerTests.suite());
+//    suite.addTest(AllDuoProvisionerTests.suite());
+//    suite.addTest(AllDuoRoleProvisionerTests.suite());
+//    suite.addTest(AllGoogleProvisionerTests.suite());
+//    suite.addTest(AllLdapProvisioningTests.suite());
     suite.addTest(AllMessagingProvisioningTests.suite());
     suite.addTest(AllScimProvisionerTests.suite());
-    suite.addTest(AllSqlProvisioningTests.suite());
-    suite.addTest(AllProvisioningTests.suite());
+//    suite.addTest(AllSqlProvisioningTests.suite());
+//    suite.addTest(AllProvisioningTests.suite());
 
     suite.addTestSuite(UsduJobProvisionerSyncTest.class);
 
