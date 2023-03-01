@@ -43,7 +43,7 @@ services:
       - GROUPER_DATABASE_USERNAME=postgres
       - GROUPER_DATABASE_PASSWORD=pass
       - GROUPER_DATABASE_URL=jdbc:postgresql://postgres:5432/postgres
-      - GROUPER_AUTO_DDL_UPTOVERSION=v2.6.*
+      - GROUPER_AUTO_DDL_UPTOVERSION=v4.*.*
       # Optionally debug
       #- GROUPER_EXTRA_CATALINA_OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005
     volumes:
