@@ -85,7 +85,7 @@ public class PropertyName
     }
 
     /**
-     * @since 2.6
+     * @since 4.0
      */
     public static PropertyName construct(String simpleName)
     {

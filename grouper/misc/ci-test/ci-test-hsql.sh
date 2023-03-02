@@ -21,7 +21,7 @@ LOGTAG=$(date +%Y%m%d_%H%M%S)-$$
 TESTLOG=$GROUPER_LOGDIR/grouper-ci-test-$LOGTAG.log
 SUMMARYLOG=$GROUPER_LOGDIR/grouper-ci-test-$LOGTAG.summary.log
 BUILDLOG=$GROUPER_LOGDIR/grouper-ci-mvn-$LOGTAG.log
-CURRENT_BRANCH=GROUPER_2_6_BRANCH
+CURRENT_BRANCH=GROUPER_4_0_BRANCH
 
 # Whether to still run the tests even if there are no git updates
 # can enable these during debugging

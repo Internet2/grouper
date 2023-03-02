@@ -46,7 +46,7 @@ public class GrouperJdbcConnectionProvider implements JdbcConnectionProvider {
   private boolean readOnly;
   
   /**
-   * TODO at the beginning of a release (e.g. 2.6?) get rid of this and just use grouper pool
+   * TODO at the beginning of a release (e.g. 4.0?) get rid of this and just use grouper pool
    * bean to hold connection
    */
   public static class GrouperJdbcConnectionBean implements JdbcConnectionBean {

@@ -309,8 +309,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 
   @Override
   protected void setupInitDb() {
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion", "2.6.*");
-    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion.elConfig", "2.6.*");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion", "4.*.*");
+    GrouperHibernateConfig.retrieveConfig().propertiesOverrideMap().put("registry.auto.ddl.upToVersion.elConfig", "4.*.*");
   }
 
   /**

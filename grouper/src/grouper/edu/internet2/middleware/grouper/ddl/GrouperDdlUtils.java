@@ -1812,6 +1812,9 @@ public class GrouperDdlUtils {
     if (StringUtils.isBlank(autoDdlUpToVersionString)) {
       return false;
     }
+    if (autoDdlUpToVersionString.endsWith(".*.*")) {
+      autoDdlUpToVersionString = StringUtils.replace(autoDdlUpToVersionString, ".*.*", ".9999.9999");
+    }
     if (autoDdlUpToVersionString.endsWith(".*")) {
       autoDdlUpToVersionString = StringUtils.replace(autoDdlUpToVersionString, ".*", ".9999");
     }

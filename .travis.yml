@@ -30,7 +30,7 @@ os: linux
 # (DEPRECATED) sudo: false
 branches:
   only:
-  - GROUPER_2_6_BRANCH
+  - GROUPER_4_0_BRANCH
   - /^GROUPER_RELEASE_(\d+\.)+\d+(rc\d+)?$/
 jdk:
   - openjdk8
