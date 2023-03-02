@@ -13,8 +13,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.app.tableSync.GrouperProvisioningSyncIntegration;
-import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -1265,14 +1263,14 @@ public class GrouperProvisioningGrouperSyncDao {
    * process the results back to the sync objects
    * @param includeMembershipsIfApplicable true if this group includes memberships if 
    * it is even doing memberships as a group attribute
-   * @param grouperTargetGroupsToInsert
+   * @param grouperTargetGroupsDeleted
    */
   public void processResultsDeleteGroups(
-      List<ProvisioningGroup> grouperTargetGroupsToInsert,
+      List<ProvisioningGroup> grouperTargetGroupsDeleted,
       boolean includeMembershipsIfApplicable) {
 
     for (ProvisioningGroup grouperTargetGroup : GrouperUtil
-        .nonNull(grouperTargetGroupsToInsert)) {
+        .nonNull(grouperTargetGroupsDeleted)) {
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperTargetGroup
           .getProvisioningGroupWrapper();
       
@@ -1345,6 +1343,46 @@ public class GrouperProvisioningGrouperSyncDao {
         }
         this.getGrouperProvisioner().retrieveGrouperProvisioningOutput()
             .addRecordsWithDeleteErrors(1);
+      }
+    }
+    
+    Set<ProvisioningMembershipWrapper> membershipWrappers = GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
+    // look for ones not in target
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : membershipWrappers) {
+      
+      boolean groupIsDeleted = provisioningMembershipWrapper.getProvisioningGroupWrapper() == null ? false: provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().isDeleteResultProcessed();
+      boolean entityIsDeleted = provisioningMembershipWrapper.getProvisioningEntityWrapper() == null ? false: provisioningMembershipWrapper.getProvisioningEntityWrapper().getProvisioningStateEntity().isDeleteResultProcessed();
+      
+      if (!groupIsDeleted && !entityIsDeleted) {
+        continue;
+      }
+      
+      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+
+      Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
+      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper == null
+          ? null
+          : provisioningMembershipWrapper.getTargetMembership();
+      
+      if (grouperTargetMembership != null && grouperTargetMembership.getException() != null) {
+        continue;
+      }
+      
+      if (gcGrouperSyncMembership != null) {
+
+        if (gcGrouperSyncMembership.isInTarget()) {
+          gcGrouperSyncMembership.setInTarget(false);
+          gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
+          gcGrouperSyncMembership.setErrorMessage(null);
+          gcGrouperSyncMembership.setErrorTimestamp(null);
+          
+          if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
+            GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
+            gcGrouperSync.setRecordsCount(gcGrouperSync.getRecordsCount() - 1);
+          }
+          
+        }
+        
       }
     }
   }

@@ -637,7 +637,9 @@ public class SubjectSourceCache {
       statsCurrent.setItemsWith50Refresh(itemsWith50Refresh);
       statsCurrent.setItemsWithNoAccessSinceLastRefresh(itemsWithNoAccessSinceLastRefresh);
       
-      LOG.warn((statsYesterday != null ? (statsYesterday.statsLine() + "\n") : "") + statsCurrent.statsLine());
+      if (LOG.isDebugEnabled()) {
+        LOG.debug((statsYesterday != null ? (statsYesterday.statsLine() + "\n") : "") + statsCurrent.statsLine());
+      }
       
     } catch (RuntimeException re) {
       if (LOG.isDebugEnabled()) {
