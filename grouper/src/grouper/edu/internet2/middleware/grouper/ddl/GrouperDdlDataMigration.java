@@ -24,6 +24,7 @@ import org.hibernate.Transaction;
 import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.internal.SessionImpl;
 import org.hibernate.persister.entity.AbstractEntityPersister;
+import org.hibernate.persister.entity.EntityPersister;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -585,9 +586,10 @@ public class GrouperDdlDataMigration {
 
     SessionFactoryImpl sessionFactory = (SessionFactoryImpl)Hib3DAO.getSessionFactory("grouper");
 
-    for (String entityName : sessionFactory.getAllClassMetadata().keySet()) {
+    Map<String, EntityPersister> entityPersisters = sessionFactory.getMetamodel().entityPersisters();
+    for (String entityName : entityPersisters.keySet()) {
 
-      AbstractEntityPersister entityPersister = (AbstractEntityPersister)sessionFactory.getEntityPersister(entityName);
+      AbstractEntityPersister entityPersister = (AbstractEntityPersister)entityPersisters.get(entityName);
       String tableName = entityPersister.getTableName().toLowerCase();
       if (tableName.endsWith("_v")) {
         continue;
