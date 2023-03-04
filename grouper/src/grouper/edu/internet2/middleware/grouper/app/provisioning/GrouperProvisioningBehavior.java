@@ -486,9 +486,138 @@ public class GrouperProvisioningBehavior {
     return this.selectEntities;
 
   }
-
-
   
+  private Boolean selectEntitiesForRecalc;
+  
+  public boolean isSelectEntitiesForRecalc() {
+    
+    if (this.selectEntitiesForRecalc != null) {
+      return this.selectEntitiesForRecalc;
+    }
+    
+    if (getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull && this.isSelectEntitiesAll()) {
+      this.selectEntitiesForRecalc = true;
+      return true;
+    }
+    
+    selectEntitiesForRecalc = this.isSelectEntities();
+    return selectEntitiesForRecalc;
+  }
+  
+  
+  public void setSelectEntitiesForRecalc(Boolean selectEntitiesForRecalc) {
+    this.selectEntitiesForRecalc = selectEntitiesForRecalc;
+  }
+
+  private Boolean selectGroupsForRecalc;
+  
+  public boolean isSelectGroupsForRecalc() {
+    
+    if (this.selectGroupsForRecalc != null) {
+      return this.selectGroupsForRecalc;
+    }
+    
+    if (getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull && this.isSelectGroupsAll()) {
+      selectGroupsForRecalc = true;
+      return true;
+    }
+    
+    selectGroupsForRecalc = this.isSelectGroups();
+    return selectGroupsForRecalc;
+  }
+  
+  
+  public void setSelectGroupsForRecalc(Boolean selectGroupsForRecalc) {
+    this.selectGroupsForRecalc = selectGroupsForRecalc;
+  }
+
+  private Boolean selectMembershipsForRecalc;
+  public boolean isSelectMembershipsForRecalc() {
+    
+    if (this.selectMembershipsForRecalc != null) {
+      return this.selectMembershipsForRecalc;
+    }
+   
+    if ( (isSelectMembershipsAll() || isSelectMembershipsAllForEntity() || isSelectMembershipsAllForGroup()) && getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull) {
+      selectMembershipsForRecalc = true;
+      return true;
+    } 
+    
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes && isSelectMembershipsSomeForGroup()) {
+      selectMembershipsForRecalc = true;
+      return true;
+    }
+    
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes && isSelectMembershipsSomeForEntity()) {
+      selectMembershipsForRecalc = true;
+      return true;
+    }
+    
+    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects && isSelectMembershipsForMembership()) {
+      selectMembershipsForRecalc = true;
+      return true;
+    }
+    
+    selectMembershipsForRecalc = false;
+    return selectMembershipsForRecalc;
+    
+  }
+  
+  private Boolean selectGroupMembershipsForRecalc;
+  public boolean isSelectGroupMembershipsForRecalc() {
+    
+    if (this.selectGroupMembershipsForRecalc != null) {
+      return this.selectGroupMembershipsForRecalc;
+    }
+   
+    if ( (isSelectMembershipsAll()) && getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull) {
+      selectGroupMembershipsForRecalc = true;
+      return true;
+    } 
+    
+    if (isSelectMembershipsAllForGroup()) {
+      selectGroupMembershipsForRecalc = true;
+      return true;
+    }
+    
+    selectGroupMembershipsForRecalc = false;
+    return selectGroupMembershipsForRecalc;
+    
+  }
+  
+  private Boolean selectEntityMembershipsForRecalc;
+  public boolean isSelectEntityMembershipsForRecalc() {
+    
+    if (this.selectEntityMembershipsForRecalc != null) {
+      return this.selectEntityMembershipsForRecalc;
+    }
+   
+    if ( (isSelectMembershipsAll()) && getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull) {
+      selectEntityMembershipsForRecalc = true;
+      return true;
+    } 
+    
+    if (isSelectMembershipsAllForEntity()) {
+      selectEntityMembershipsForRecalc = true;
+      return true;
+    }
+    
+    selectEntityMembershipsForRecalc = false;
+    return selectEntityMembershipsForRecalc;
+    
+  }
+  
+  
+  public void setSelectGroupMembershipsForRecalc(Boolean selectGroupMembershipsForRecalc) {
+    this.selectGroupMembershipsForRecalc = selectGroupMembershipsForRecalc;
+  }
+  
+  public void setSelectEntityMembershipsForRecalc(
+      Boolean selectEntityMembershipsForRecalc) {
+    this.selectEntityMembershipsForRecalc = selectEntityMembershipsForRecalc;
+  }
+
+
   public void setSelectEntities(Boolean entitiesRetrieve) {
     this.selectEntities = entitiesRetrieve;
   }
@@ -797,8 +926,7 @@ public class GrouperProvisioningBehavior {
     this.replaceMemberships = replaceMemberships;
   }
 
-
-  public void setSelectMemberships(Boolean membershipsRetrieve) {
+  public void setSelectMembershipsInGeneral(Boolean membershipsRetrieve) {
     this.selectMembershipsInGeneral = membershipsRetrieve;
   }
 

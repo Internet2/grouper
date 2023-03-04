@@ -899,8 +899,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
       assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
-      // ? should this be here?
-      assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
     }
     
     assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) > 0);
@@ -1075,7 +1073,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       
       for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
         assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
-        // ? should this be here?
         assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
       }
       
@@ -1083,8 +1080,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       
       for (ProvisioningEntityWrapper provisioningEntityWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
         assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
-
-        // ? should this be here?
         assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
       }
       
@@ -1144,7 +1139,6 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(0, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAll"), 0));
       assertTrue(0 < GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllGroups")));
       assertTrue(0 < GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllEntities")));
-      //TODO looks correct?
       assertTrue(0 < GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetRetrieveAllMembershipsByGroups")));
       
     } finally {
