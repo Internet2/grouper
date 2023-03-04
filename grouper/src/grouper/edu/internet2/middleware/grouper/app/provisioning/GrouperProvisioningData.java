@@ -584,11 +584,11 @@ public class GrouperProvisioningData {
     }
 
     if (recalcGroup) {
-      provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
+      provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(recalcGroup);
     }
 
     if (recalcMemberships) {
-      provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+      provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(recalcMemberships);
     }
 
     if (grouperIncrementalDataAction != null) {
@@ -619,11 +619,11 @@ public class GrouperProvisioningData {
     }
 
     if (recalcEntity) {
-      provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+      provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(recalcEntity);
     }
 
     if (recalcMemberships) {
-      provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+      provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(recalcMemberships);
     }
     
     if (grouperIncrementalDataAction != null) {
@@ -689,7 +689,7 @@ public class GrouperProvisioningData {
     }
 
     if (recalcMembership) {
-      provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+      provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(recalcMembership);
     }
     
     if (grouperIncrementalDataAction != null) {

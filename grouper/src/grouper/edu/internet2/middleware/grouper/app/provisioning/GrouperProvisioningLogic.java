@@ -366,8 +366,12 @@ public class GrouperProvisioningLogic {
 =======
     // at this point everything is a recalc and selected
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+<<<<<<< GROUPER_5_BRANCH
       provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
 >>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
+=======
+      provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForRecalc());
+>>>>>>> 709ab3a Set recalc based on behavior
     }
 
     this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().processResultsSelectGroupsFull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers());
@@ -502,8 +506,9 @@ public class GrouperProvisioningLogic {
     
       // everything in a full sync is a recalc if it can be
       for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
-        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
-        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(true);
+        
+        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc());
+        provisioningGroupWrapper.getProvisioningStateGroup().setRecalcGroupMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupMembershipsForRecalc());
       }
 =======
     // everything in a full sync is a recalc if it can be
@@ -567,8 +572,9 @@ public class GrouperProvisioningLogic {
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities()) {
       for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
-        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
-        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(true);
+        
+        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc());
+        provisioningEntityWrapper.getProvisioningStateEntity().setRecalcEntityMemberships(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntityMembershipsForRecalc());
       }
     }
 =======
@@ -1413,7 +1419,7 @@ public class GrouperProvisioningLogic {
           // ######### Mark memberships retrieved by group or entity as recalc
           for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
             if (provisioningMembershipWrapper.getTargetProvisioningMembership() != null) {
-              provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(true);
+              provisioningMembershipWrapper.getProvisioningStateMembership().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForRecalc());
             }
           }
           
