@@ -1118,10 +1118,10 @@ public class GrouperProvisioningCompare {
         
         ProvisioningEntity entityToDelete = null;
         
-        if (provisioningEntityWrapper.getGrouperTargetEntity() != null) {
-          entityToDelete = provisioningEntityWrapper.getGrouperTargetEntity();
-        } else {
+        if (provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
           entityToDelete = provisioningEntityWrapper.getTargetProvisioningEntity();
+        } else {
+          entityToDelete = provisioningEntityWrapper.getGrouperTargetEntity();
         }
         
         if (entityToDelete == null) {
@@ -1359,10 +1359,10 @@ public class GrouperProvisioningCompare {
         
         ProvisioningGroup groupToDelete = null;
         
-        if (provisioningGroupWrapper.getGrouperTargetGroup() != null) {
-          groupToDelete = provisioningGroupWrapper.getGrouperTargetGroup();
-        } else {
+        if (provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
           groupToDelete = provisioningGroupWrapper.getTargetProvisioningGroup();
+        } else {
+          groupToDelete = provisioningGroupWrapper.getGrouperTargetGroup();
         }
         
         if (groupToDelete == null) {
