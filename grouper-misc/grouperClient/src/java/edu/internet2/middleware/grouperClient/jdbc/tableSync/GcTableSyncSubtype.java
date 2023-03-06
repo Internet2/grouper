@@ -508,7 +508,9 @@ public enum GcTableSyncSubtype {
       int[] results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSyncTableDataFrom, gcTableSyncTableDataTo);   
       recordsChanged += results[0] + results[1] + results[2];
       
-      gcTableSync.getGcGrouperSync().setRecordsCount(gcTableSync.getGcGrouperSync().getRecordsCount() + results[0] - results[2]);
+      if (gcTableSync.getGcGrouperSync().getRecordsCount() != null) {
+        gcTableSync.getGcGrouperSync().setRecordsCount(gcTableSync.getGcGrouperSync().getRecordsCount() + results[0] - results[2]);
+      }
   
       return recordsChanged;
       
@@ -578,7 +580,9 @@ public enum GcTableSyncSubtype {
       int[] results = runInsertsUpdatesDeletes(debugMap, gcTableSync, gcTableSyncTableDatas[0], 
           gcTableSyncTableDatas[1]);   
 
-      gcTableSync.getGcGrouperSync().setRecordsCount(gcTableSync.getGcGrouperSync().getRecordsCount() + results[0] - results[2]);
+      if (gcTableSync.getGcGrouperSync().getRecordsCount() != null) {
+        gcTableSync.getGcGrouperSync().setRecordsCount(gcTableSync.getGcGrouperSync().getRecordsCount() + results[0] - results[2]);
+      }
 
       recordsChanged += results[0] + results[1] + results[2];
       
