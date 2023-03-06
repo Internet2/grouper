@@ -174,7 +174,6 @@
         <postgresql.version>42.5.1</postgresql.version>
         <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
         <ldaptive.version>1.2.4</ldaptive.version>
-        <xml.apis.version>1.4.01</xml.apis.version>
         <aws.java.sdk.core>1.12.267</aws.java.sdk.core>
         <aws.java.sdk.s3>1.12.267</aws.java.sdk.s3>
         <aws.java.sdk.sqs>1.12.267</aws.java.sdk.sqs>
@@ -836,11 +835,6 @@
                 <groupId>xmlpull</groupId>
                 <artifactId>xmlpull</artifactId>
                 <version>${xmlpull.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>xml-apis</groupId>
-                <artifactId>xml-apis</artifactId>
-                <version>${xml.apis.version}</version>
             </dependency>
             <dependency>
 		      <groupId>com.squareup.okhttp3</groupId>
