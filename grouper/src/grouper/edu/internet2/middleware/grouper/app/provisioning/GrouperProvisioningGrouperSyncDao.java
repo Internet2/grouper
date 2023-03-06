@@ -777,7 +777,9 @@ public class GrouperProvisioningGrouperSyncDao {
             
             if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
               GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
-              gcGrouperSync.setRecordsCount(GrouperUtil.intValue(gcGrouperSync.getRecordsCount(), 0) + 1);
+              if (gcGrouperSync.getRecordsCount() != null) {
+                gcGrouperSync.setRecordsCount(gcGrouperSync.getRecordsCount() + 1);
+              }
             }
             
           } else {
@@ -821,7 +823,9 @@ public class GrouperProvisioningGrouperSyncDao {
               
               if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
                 GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
-                gcGrouperSync.setRecordsCount(gcGrouperSync.getRecordsCount() - 1);
+                if (gcGrouperSync.getRecordsCount() != null) {
+                  gcGrouperSync.setRecordsCount(gcGrouperSync.getRecordsCount() - 1);
+                }
               }
               
             }
@@ -938,7 +942,9 @@ public class GrouperProvisioningGrouperSyncDao {
         
         if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
           GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
-          gcGrouperSync.setRecordsCount(GrouperUtil.intValue(gcGrouperSync.getRecordsCount(), 0) + 1);
+          if (gcGrouperSync.getRecordsCount() != null) {
+            gcGrouperSync.setRecordsCount(GrouperUtil.intValue(gcGrouperSync.getRecordsCount(), 0) + 1);
+          }
         }
         
       } else {
@@ -1378,7 +1384,9 @@ public class GrouperProvisioningGrouperSyncDao {
           
           if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
             GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
-            gcGrouperSync.setRecordsCount(gcGrouperSync.getRecordsCount() - 1);
+            if (gcGrouperSync.getRecordsCount() != null) {
+              gcGrouperSync.setRecordsCount(gcGrouperSync.getRecordsCount() - 1);
+            }
           }
           
         }
@@ -1425,7 +1433,9 @@ public class GrouperProvisioningGrouperSyncDao {
 
           if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
             GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
-            gcGrouperSync.setRecordsCount(GrouperUtil.intValue(gcGrouperSync.getRecordsCount(), 0) - 1);
+            if (gcGrouperSync.getRecordsCount() != null) {
+              gcGrouperSync.setRecordsCount(gcGrouperSync.getRecordsCount() - 1);
+            }
           }
           
         }
