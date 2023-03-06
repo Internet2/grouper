@@ -1118,8 +1118,7 @@ public class GrouperProvisioningCompare {
         
         ProvisioningEntity entityToDelete = null;
         
-        if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed() && provisioningEntityWrapper.getProvisioningStateEntity().isDelete() && provisioningEntityWrapper.getGrouperTargetEntity() != null 
-            && provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
+        if (provisioningEntityWrapper.getGrouperTargetEntity() != null) {
           entityToDelete = provisioningEntityWrapper.getGrouperTargetEntity();
         } else {
           entityToDelete = provisioningEntityWrapper.getTargetProvisioningEntity();
@@ -1360,8 +1359,7 @@ public class GrouperProvisioningCompare {
         
         ProvisioningGroup groupToDelete = null;
         
-        if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed() && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getGrouperTargetGroup() != null 
-            && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+        if (provisioningGroupWrapper.getGrouperTargetGroup() != null) {
           groupToDelete = provisioningGroupWrapper.getGrouperTargetGroup();
         } else {
           groupToDelete = provisioningGroupWrapper.getTargetProvisioningGroup();
