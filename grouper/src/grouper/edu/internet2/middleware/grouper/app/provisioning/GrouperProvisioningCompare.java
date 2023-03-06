@@ -1144,6 +1144,7 @@ public class GrouperProvisioningCompare {
         
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
         if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed() && provisioningEntityWrapper.getProvisioningStateEntity().isDelete() && provisioningEntityWrapper.getGrouperTargetEntity() != null 
 =======
         if (!provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject() && provisioningEntityWrapper.getProvisioningStateEntity().isDelete() && provisioningEntityWrapper.getGrouperTargetEntity() != null 
@@ -1152,6 +1153,9 @@ public class GrouperProvisioningCompare {
         if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed() && provisioningEntityWrapper.getProvisioningStateEntity().isDelete() && provisioningEntityWrapper.getGrouperTargetEntity() != null 
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
             && provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
+=======
+        if (provisioningEntityWrapper.getGrouperTargetEntity() != null) {
+>>>>>>> 8293604 fix prov delete
           entityToDelete = provisioningEntityWrapper.getGrouperTargetEntity();
         } else {
           entityToDelete = provisioningEntityWrapper.getTargetProvisioningEntity();
@@ -1418,6 +1422,7 @@ public class GrouperProvisioningCompare {
         
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
         if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed() && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getGrouperTargetGroup() != null 
 =======
         if (!provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject() && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getGrouperTargetGroup() != null 
@@ -1426,6 +1431,9 @@ public class GrouperProvisioningCompare {
         if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed() && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getGrouperTargetGroup() != null 
 >>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
             && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+=======
+        if (provisioningGroupWrapper.getGrouperTargetGroup() != null) {
+>>>>>>> 8293604 fix prov delete
           groupToDelete = provisioningGroupWrapper.getGrouperTargetGroup();
         } else {
           groupToDelete = provisioningGroupWrapper.getTargetProvisioningGroup();
