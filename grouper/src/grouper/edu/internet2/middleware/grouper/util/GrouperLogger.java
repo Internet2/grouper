@@ -2,6 +2,9 @@ package edu.internet2.middleware.grouper.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.impl.Log4JLogger;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 
 public class GrouperLogger implements Log {
@@ -59,42 +62,62 @@ public class GrouperLogger implements Log {
   
   @Override
   public void debug(Object message) {
-    this.wrappedLog.debug(wrapLogMessage(message));
+    this.debug(message, null);
   }
 
   @Override
   public void debug(Object message, Throwable t) {
-    this.wrappedLog.debug(wrapLogMessage(message), t);
+    Object wrapLogMessage = wrapLogMessage(message);
+    if (this.wrappedLog instanceof Log4JLogger ) {
+      ((Log4JLogger)this.wrappedLog).getLogger().log(GrouperLogger.class.getName(), Level.DEBUG, wrapLogMessage, t);
+    } else {
+      this.wrappedLog.debug(wrapLogMessage);
+    }
   }
 
   @Override
   public void error(Object message) {
-    this.wrappedLog.error(wrapLogMessage(message));
+    this.error(message, null);
   }
 
   @Override
   public void error(Object message, Throwable t) {
-    this.wrappedLog.error(wrapLogMessage(message), t);
+    Object wrapLogMessage = wrapLogMessage(message);
+    if (this.wrappedLog instanceof Log4JLogger ) {
+      ((Log4JLogger)this.wrappedLog).getLogger().log(GrouperLogger.class.getName(), Level.ERROR, wrapLogMessage, t);
+    } else {
+      this.wrappedLog.debug(wrapLogMessage);
+    }
   }
 
   @Override
   public void fatal(Object message) {
-    this.wrappedLog.fatal(wrapLogMessage(message));
+    this.fatal(message, null);
   }
 
   @Override
   public void fatal(Object message, Throwable t) {
-    this.wrappedLog.fatal(wrapLogMessage(message), t);
+    Object wrapLogMessage = wrapLogMessage(message);
+    if (this.wrappedLog instanceof Log4JLogger ) {
+      ((Log4JLogger)this.wrappedLog).getLogger().log(GrouperLogger.class.getName(), Level.FATAL, wrapLogMessage, t);
+    } else {
+      this.wrappedLog.debug(wrapLogMessage);
+    }
   }
 
   @Override
   public void info(Object message) {
-    this.wrappedLog.info(wrapLogMessage(message));
+    this.info(message, null);
   }
 
   @Override
   public void info(Object message, Throwable t) {
-    this.wrappedLog.info(wrapLogMessage(message), t);
+    Object wrapLogMessage = wrapLogMessage(message);
+    if (this.wrappedLog instanceof Log4JLogger ) {
+      ((Log4JLogger)this.wrappedLog).getLogger().log(GrouperLogger.class.getName(), Level.INFO, wrapLogMessage, t);
+    } else {
+      this.wrappedLog.debug(wrapLogMessage);
+    }
   }
 
   @Override
@@ -129,22 +152,32 @@ public class GrouperLogger implements Log {
 
   @Override
   public void trace(Object message) {
-    this.wrappedLog.trace(wrapLogMessage(message));
+    this.trace(message, null);
   }
 
   @Override
   public void trace(Object message, Throwable t) {
-    this.wrappedLog.trace(wrapLogMessage(message), t);
+    Object wrapLogMessage = wrapLogMessage(message);
+    if (this.wrappedLog instanceof Log4JLogger ) {
+      ((Log4JLogger)this.wrappedLog).getLogger().log(GrouperLogger.class.getName(), Level.TRACE, wrapLogMessage, t);
+    } else {
+      this.wrappedLog.debug(wrapLogMessage);
+    }
   }
 
   @Override
   public void warn(Object message) {
-    this.wrappedLog.warn(wrapLogMessage(message));
+    this.warn(message, null);
   }
 
   @Override
   public void warn(Object message, Throwable t) {
-    this.wrappedLog.warn(wrapLogMessage(message), t);
+    Object wrapLogMessage = wrapLogMessage(message);
+    if (this.wrappedLog instanceof Log4JLogger ) {
+      ((Log4JLogger)this.wrappedLog).getLogger().log(GrouperLogger.class.getName(), Level.WARN, wrapLogMessage, t);
+    } else {
+      this.wrappedLog.debug(wrapLogMessage);
+    }
   }
 
 }
