@@ -1145,6 +1145,7 @@ public class GrouperProvisioningCompare {
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
         if (!provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed() && provisioningEntityWrapper.getProvisioningStateEntity().isDelete() && provisioningEntityWrapper.getGrouperTargetEntity() != null 
 =======
         if (!provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject() && provisioningEntityWrapper.getProvisioningStateEntity().isDelete() && provisioningEntityWrapper.getGrouperTargetEntity() != null 
@@ -1158,7 +1159,12 @@ public class GrouperProvisioningCompare {
 >>>>>>> 8293604 fix prov delete
           entityToDelete = provisioningEntityWrapper.getGrouperTargetEntity();
         } else {
+=======
+        if (provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
+>>>>>>> 51da162 delete target representation first if exists
           entityToDelete = provisioningEntityWrapper.getTargetProvisioningEntity();
+        } else {
+          entityToDelete = provisioningEntityWrapper.getGrouperTargetEntity();
         }
         
         if (entityToDelete == null) {
@@ -1423,6 +1429,7 @@ public class GrouperProvisioningCompare {
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
         if (!provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed() && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getGrouperTargetGroup() != null 
 =======
         if (!provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject() && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getGrouperTargetGroup() != null 
@@ -1436,7 +1443,12 @@ public class GrouperProvisioningCompare {
 >>>>>>> 8293604 fix prov delete
           groupToDelete = provisioningGroupWrapper.getGrouperTargetGroup();
         } else {
+=======
+        if (provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
+>>>>>>> 51da162 delete target representation first if exists
           groupToDelete = provisioningGroupWrapper.getTargetProvisioningGroup();
+        } else {
+          groupToDelete = provisioningGroupWrapper.getGrouperTargetGroup();
         }
         
         if (groupToDelete == null) {
