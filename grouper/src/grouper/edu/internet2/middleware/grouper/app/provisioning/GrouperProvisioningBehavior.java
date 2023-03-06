@@ -803,7 +803,7 @@ public class GrouperProvisioningBehavior {
     if (this.selectMembershipsWithGroup != null) {
       return selectMembershipsWithGroup;
     }
-    if (!this.isSelectEntities()) {
+    if (!this.isSelectGroups()) {
       this.selectMembershipsWithGroup = false;
       return selectMembershipsWithGroup;
     }
