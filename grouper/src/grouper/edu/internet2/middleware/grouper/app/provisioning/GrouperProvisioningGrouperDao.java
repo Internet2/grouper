@@ -601,6 +601,7 @@ public class GrouperProvisioningGrouperDao {
       } else {
         provisioningEntityWrapper.setGrouperProvisioningEntity(provisioningEntity);
       }
+      provisioningEntityWrapper.getProvisioningStateEntity().setUnresolvable(GrouperUtil.booleanValue(provisioningEntity.retrieveAttributeValueBoolean("grouperSubjectUnresolvable"), false));
     }
 
     Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper
@@ -807,9 +808,6 @@ public class GrouperProvisioningGrouperDao {
       Boolean subjectResolutionResolvable = GrouperUtil.booleanObjectValue(queryResult[11]);
       
       // check if skipping unresolvable subjects
-      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove() && !subjectResolutionResolvable) {
-        continue;
-      }
       
       ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity();
       grouperProvisioningEntity.setId(id);
@@ -823,6 +821,9 @@ public class GrouperProvisioningGrouperDao {
       grouperProvisioningEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
       grouperProvisioningEntity.assignAttributeValue("subjectIdentifier1", subjectIdentifier1);
       grouperProvisioningEntity.assignAttributeValue("subjectIdentifier2", subjectIdentifier2);
+      if (!subjectResolutionResolvable) {
+        grouperProvisioningEntity.assignAttributeValue("grouperSubjectUnresolvable", true);
+      }
       
       if (GrouperUtil.length(grouperProvisioningObjectMetadataItems) > 0) {
         if (!StringUtils.isBlank(jsonMetadata) && !StringUtils.equals("{}", jsonMetadata)) {
