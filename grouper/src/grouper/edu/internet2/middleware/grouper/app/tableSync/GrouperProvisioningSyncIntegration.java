@@ -604,8 +604,10 @@ public class GrouperProvisioningSyncIntegration {
             }
             
             if (!StringUtils.equals(newSubjectIdentifier, gcGrouperSyncMember.getSubjectIdentifier())) {
-              if (grouperProvisioningEntity == null && (gcGrouperSyncMember.isInTarget() || !grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) && newSubjectIdentifier == null) {
-                // don't remove the identifier if not provisionable but still in target
+              if (grouperProvisioningEntity == null && (gcGrouperSyncMember.isInTarget() 
+                  || !grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) && newSubjectIdentifier == null
+                  && provisioningEntityWrapper.getProvisioningStateEntity().isUnresolvable() ) {
+                // don't remove the identifier if not provisionable and unresolvable but still in target
               } else {
                 gcGrouperSyncMember.setSubjectIdentifier(newSubjectIdentifier);
               }
