@@ -2282,6 +2282,8 @@ public class GrouperProvisioningLogic {
 
     // incrementals need to consult sync objects to know what to delete
     calculateProvisioningDataToDelete(); 
+    
+    this.grouperProvisioner.retrieveGrouperDao().fixGrouperProvisioningMembershipReferences();
 
     GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
     gcGrouperSync.setGroupCount(GrouperUtil.length(grouperProvisioningLists.getProvisioningGroups()));
@@ -3702,6 +3704,8 @@ public class GrouperProvisioningLogic {
     Map<String, ProvisioningEntityWrapper> gcGrouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
     Map<String, ProvisioningGroupWrapper> gcGrouperSyncGroupIdToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper();
 
+    Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
+
     int provisioningMshipsToDelete = 0;
     
     // loop through sync groups
@@ -3748,6 +3752,8 @@ public class GrouperProvisioningLogic {
         // the group is either the provisioning group or provisioning group to delete
         if (provisioningEntityWrapper.getGrouperProvisioningEntity() != null) {
           provisioningMembership.setProvisioningEntity(provisioningEntityWrapper.getGrouperProvisioningEntity());
+        } else if (provisioningEntityWrapper.getProvisioningStateEntity().isUnresolvable()) {
+          //ignore it
         } else {
           throw new RuntimeException("Cant find provisioning entity: '" + memberId + "'");
         }
@@ -3755,11 +3761,19 @@ public class GrouperProvisioningLogic {
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
         provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
         
+        groupUuidMemberUuidToProvisioningMembershipWrapper.put(provisioningMembershipWrapper.getGroupIdMemberId(), provisioningMembershipWrapper);
+        
       } else if (provisioningMembershipWrapper.getProvisioningEntityWrapper() != null && provisioningMembershipWrapper.getProvisioningEntityWrapper().getProvisioningStateEntity().isUnresolvable()
           && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove()) {
         provisioningMshipsToDelete++;
         provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
         
+      }
+      provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+        
+      if (gcGrouperSyncMembership != null) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+        .getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), provisioningMembershipWrapper);
       }
       
     }      
