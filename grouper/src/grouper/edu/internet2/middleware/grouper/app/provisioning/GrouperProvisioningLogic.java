@@ -3518,7 +3518,7 @@ public class GrouperProvisioningLogic {
     
     Map<String, ProvisioningEntityWrapper> memberIdToEntityWrapperToDelete = new HashMap<>();
   
-    // loop through sync groups
+    // loop through sync entities
     for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
   
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
@@ -3530,7 +3530,13 @@ public class GrouperProvisioningLogic {
         
         memberIdToEntityWrapperToDelete.put(gcGrouperSyncMember.getMemberId(), provisioningEntityWrapper);
         provisioningEntitiesToDelete++;
+        continue;
+      }
+      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove() && provisioningEntityWrapper.getProvisioningStateEntity().isUnresolvable()) {
         
+        memberIdToEntityWrapperToDelete.put(gcGrouperSyncMember.getMemberId(), provisioningEntityWrapper);
+        provisioningEntitiesToDelete++;
+        continue;
       }
     }
     
@@ -3696,8 +3702,6 @@ public class GrouperProvisioningLogic {
     Map<String, ProvisioningEntityWrapper> gcGrouperSyncMemberIdToProvisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper();
     Map<String, ProvisioningGroupWrapper> gcGrouperSyncGroupIdToProvisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper();
 
-    Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper();
-
     int provisioningMshipsToDelete = 0;
     
     // loop through sync groups
@@ -3751,14 +3755,11 @@ public class GrouperProvisioningLogic {
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
         provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
         
-        groupUuidMemberUuidToProvisioningMembershipWrapper.put(provisioningMembershipWrapper.getGroupIdMemberId(), provisioningMembershipWrapper);
+      } else if (provisioningMembershipWrapper.getProvisioningEntityWrapper() != null && provisioningMembershipWrapper.getProvisioningEntityWrapper().getProvisioningStateEntity().isUnresolvable()
+          && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove()) {
+        provisioningMshipsToDelete++;
+        provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
         
-      }
-      provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
-      
-      if (gcGrouperSyncMembership != null) {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
-        .getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(new MultiKey(gcGrouperSyncMembership.getGrouperSyncGroupId(), gcGrouperSyncMembership.getGrouperSyncMemberId()), provisioningMembershipWrapper);
       }
       
     }      

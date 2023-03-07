@@ -8,7 +8,28 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
   
+  /**
+   * if this subject is marked as unresolvable in the members table
+   */
+  private boolean unresolvable;
   
+
+  /**
+   * if this subject is marked as unresolvable in the members table
+   * @return
+   */
+  public boolean isUnresolvable() {
+    return unresolvable;
+  }
+
+  /**
+   * if this subject is marked as unresolvable in the members table
+   * @param unresolvable
+   */
+  public void setUnresolvable(boolean unresolvable) {
+    this.unresolvable = unresolvable;
+  }
+
   /**
    * if the memberships for this entity was attempted to be selected from target
    */
