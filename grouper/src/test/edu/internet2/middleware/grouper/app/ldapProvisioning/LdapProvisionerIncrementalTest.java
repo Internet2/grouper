@@ -63,7 +63,7 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerIncrementalTest("testDoNotAddIfNotExistFull"));    
+    TestRunner.run(new LdapProvisionerIncrementalTest("testDoNotAddIfNotExistIncremental"));    
   }
   
   @Override
@@ -707,18 +707,15 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
 
     assertEquals(true, provisioningEntityWrapperJsmith.getProvisioningStateEntity().isRecalcObject());
     assertEquals(true, provisioningEntityWrapperJsmith.getProvisioningStateEntity().isSelectResultProcessed());
-    assertEquals(false, provisioningEntityWrapperJsmith.getProvisioningStateEntity().isRecalcEntityMemberships());
     assertEquals(false, provisioningEntityWrapperJsmith.getProvisioningStateEntity().isCreate());
 
     ProvisioningEntityWrapper provisioningEntityWrapperBanderson = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberBanderson.getId());
 
     assertEquals(true, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isRecalcObject());
     assertEquals(true, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isSelectResultProcessed());
-    assertEquals(false, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isRecalcEntityMemberships());
     assertEquals(false, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isCreate());
 
     assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
-    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
     assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()));
 
     ProvisioningMembershipWrapper provisioningMembershipWrapperJsmith = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
@@ -765,24 +762,18 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     
     assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
     assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed());
-    assertEquals(false, provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
-    assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships());
 
     provisioningEntityWrapperBanderson = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberBanderson.getId());
 
     assertEquals(true, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isRecalcObject());
     assertEquals(true, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isSelectResultProcessed());
-    assertEquals(false, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isRecalcEntityMemberships());
 
     assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
-    assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
-    assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()));
 
     provisioningMembershipWrapperBanderson = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
         .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), memberBanderson.getId()));
     
     assertEquals(true, provisioningMembershipWrapperBanderson.getProvisioningStateMembership().isRecalcObject());
-    assertEquals(true, provisioningMembershipWrapperBanderson.getProvisioningStateMembership().isSelect());
     assertEquals(true, provisioningMembershipWrapperBanderson.getProvisioningStateMembership().isSelectResultProcessed());
 
 
@@ -816,27 +807,18 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     provisioningGroupWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(testGroup.getId());
     
     assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
-    assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isSelect());
     assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed());
-    assertEquals(false, provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
 
     provisioningEntityWrapperBanderson = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberBanderson.getId());
 
     assertEquals(true, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isRecalcObject());
-    assertEquals(true, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isSelect());
-    assertEquals(true, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isSelectResultProcessed());
-    assertEquals(false, provisioningEntityWrapperBanderson.getProvisioningStateEntity().isRecalcEntityMemberships());
 
     assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
-    assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
-    assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()));
 
     provisioningMembershipWrapperBanderson = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
         .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), memberBanderson.getId()));
     
     assertEquals(true, provisioningMembershipWrapperBanderson.getProvisioningStateMembership().isRecalcObject());
-    assertEquals(true, provisioningMembershipWrapperBanderson.getProvisioningStateMembership().isSelect());
-    assertEquals(true, provisioningMembershipWrapperBanderson.getProvisioningStateMembership().isSelectResultProcessed());
 
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
     assertEquals(1, ldapEntries.size());
@@ -865,26 +847,18 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
     assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
-    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
-    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()));
 
     provisioningGroupWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(testGroup.getId());
     
     assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
-    assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed());
-    assertEquals(false, provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
 
     ProvisioningEntityWrapper provisioningEntityWrapperAclark = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberAclark.getId());
 
     assertEquals(true, provisioningEntityWrapperAclark.getProvisioningStateEntity().isRecalcObject());
-    assertEquals(true, provisioningEntityWrapperAclark.getProvisioningStateEntity().isSelectResultProcessed());
-    assertEquals(false, provisioningEntityWrapperAclark.getProvisioningStateEntity().isRecalcEntityMemberships());
 
     ProvisioningEntityWrapper provisioningEntityWrapperAdoe = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberAdoe.getId());
 
     assertEquals(true, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isRecalcObject());
-    assertEquals(true, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isSelectResultProcessed());
-    assertEquals(false, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isRecalcEntityMemberships());
 
     ProvisioningMembershipWrapper provisioningMembershipWrapperAclark = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
         .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), memberAclark.getId()));
@@ -893,12 +867,8 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
         .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), memberAdoe.getId()));
     
     assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isRecalcObject());
-    assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isSelect());
-    assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isSelectResultProcessed());
     
     assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isRecalcObject());
-    assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isSelect());
-    assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isSelectResultProcessed());
 
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
     assertEquals(1, ldapEntries.size());
@@ -932,25 +902,17 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     provisioningGroupWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(testGroup.getId());
     
     assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
-    assertEquals(true, provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed());
-    assertEquals(false, provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
 
     provisioningEntityWrapperAclark = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberAclark.getId());
 
     assertEquals(true, provisioningEntityWrapperAclark.getProvisioningStateEntity().isRecalcObject());
-    assertEquals(true, provisioningEntityWrapperAclark.getProvisioningStateEntity().isSelectResultProcessed());
-    assertEquals(false, provisioningEntityWrapperAclark.getProvisioningStateEntity().isRecalcEntityMemberships());
     assertEquals(false, provisioningEntityWrapperAclark.getProvisioningStateEntity().isCreate());
 
     provisioningEntityWrapperAdoe = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberAdoe.getId());
 
     assertEquals(true, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isRecalcObject());
-    assertEquals(true, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isSelectResultProcessed());
-    assertEquals(false, provisioningEntityWrapperAdoe.getProvisioningStateEntity().isRecalcEntityMemberships());
 
     assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
-    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()));
-    assertEquals(2, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()));
 
     provisioningMembershipWrapperAclark = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
         .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), memberAclark.getId()));
@@ -959,12 +921,8 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
         .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), memberAdoe.getId()));
     
     assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isRecalcObject());
-    assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isSelect());
-    assertEquals(true, provisioningMembershipWrapperAclark.getProvisioningStateMembership().isSelectResultProcessed());
     
     assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isRecalcObject());
-    assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isSelect());
-    assertEquals(true, provisioningMembershipWrapperAdoe.getProvisioningStateMembership().isSelectResultProcessed());
 
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
     assertEquals(1, ldapEntries.size());
@@ -979,8 +937,6 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
-
-
 
   }
 
