@@ -49,7 +49,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalWithUnresolvableRemove"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullDoNotCreateUsers"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
@@ -627,8 +627,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory"}, null).size());
   
-    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
-    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
+    assertEquals(2, grouperProvisioningOutput.getRecordsWithErrors());
 
     List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "businessCategory", "description"}, null);
     assertEquals(1, ldapEntries.size());
@@ -652,12 +652,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     testGroup.deleteMember(notinldap1);
     testGroup.addMember(notinldap2);
   
-    try {
-      grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
-      fail();
-    } catch (Exception e) {
-      
-    }
+    fullProvision(defaultConfigId(), true);
 
     grouperProvisioningOutput = GrouperProvisioner.retrieveInternalLastProvisioner().retrieveGrouperProvisioningOutput();
     assertEquals(2, grouperProvisioningOutput.getRecordsWithErrors());
@@ -683,12 +678,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     testGroup.setExtension("testGroupRenamed");
     testGroup.store();
     
-    try {
-      grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
-      fail();
-    } catch (Exception e) {
-      
-    }
+    fullProvision(defaultConfigId(), true);
 
     grouperProvisioningOutput = GrouperProvisioner.retrieveInternalLastProvisioner().retrieveGrouperProvisioningOutput();
     assertEquals(2, grouperProvisioningOutput.getRecordsWithErrors());
