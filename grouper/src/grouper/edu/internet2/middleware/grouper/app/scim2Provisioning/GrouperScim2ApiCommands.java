@@ -385,9 +385,16 @@ public class GrouperScim2ApiCommands {
   private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
       String urlSuffix, String acceptHeader) {
 
-    return executeMethod(debugMap, GrouperHttpMethod.get, configId, urlSuffix,
-        GrouperUtil.toSet(200, 404), new int[] { -1 }, null, acceptHeader);
-
+    int[] returnCode = new int[] { -1 };
+    
+    JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, urlSuffix,
+        GrouperUtil.toSet(200, 404), returnCode, null, acceptHeader);
+    
+    if (returnCode[0] == 404) {
+      return null;
+    }
+    
+    return jsonNode;
   }
 
   private static JsonNode executeMethod(Map<String, Object> debugMap,
@@ -711,6 +718,11 @@ public class GrouperScim2ApiCommands {
       }
       
       JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, acceptHeader);
+      
+      if (jsonNode == null) {
+        debugMap.put("found", false);
+        return null;
+      }
   
       if (StringUtils.equals(fieldName, "id")) {
         GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(jsonNode);
