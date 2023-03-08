@@ -238,9 +238,15 @@ public class GrouperGoogleApiCommands {
   
   private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId, String urlSuffix, boolean useSettingsBearerToken) {
 
-    return executeMethod(debugMap, "GET", configId, urlSuffix,
-        GrouperUtil.toSet(200, 404), new int[] { -1 }, null, useSettingsBearerToken);
-
+    int[] returnCode = new int[] { -1 };
+    JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
+        GrouperUtil.toSet(200, 404), returnCode, null, useSettingsBearerToken);
+    
+    if (returnCode[0] == 404) {
+      return null;
+    }
+    
+    return jsonNode;
   }
 
   private static JsonNode executeMethod(Map<String, Object> debugMap,

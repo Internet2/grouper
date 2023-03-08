@@ -1,17 +1,14 @@
 package edu.internet2.middleware.grouper.app.boxProvisioner;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -670,7 +667,14 @@ public class GrouperBoxApiCommands {
 //      String url = "https://api.box.com/2.0/groups/:group_id"
       
       String urlSuffix = "/groups/"+id+"?fields="+fieldsToSelectSingleString;
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, new int[] {-1});
+      
+      int[] returnCode = new int[] {-1};
+      
+      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
+      
+      if (returnCode[0] == 404) {
+        return null;
+      }
       
       if (jsonNode == null) {
         return null;
@@ -789,8 +793,14 @@ public class GrouperBoxApiCommands {
       
 //      String url = "https://api.box.com/2.0/users/:user_id?fields=id,type,name"
       
+      int[] returnCode = new int[] { -1 };
+      
       String urlSuffix = "/users/"+id+"?fields="+fieldsToSelectSingleString;
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, new int[] {-1});
+      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
+      
+      if (returnCode[0] == 404) {
+        return null;
+      }
       
       if (jsonNode == null) {
         return null;
