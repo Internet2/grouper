@@ -683,6 +683,8 @@ public class GrouperProvisioningConfigurationAttribute {
    * default value if there is not a value
    */
   private String defaultValue;
+
+  private boolean caseSensitiveCompare;
   
   /**
    * default value if there is not a value
@@ -733,4 +735,14 @@ public class GrouperProvisioningConfigurationAttribute {
       String translateFromStaticValuesCreateOnly) {
     this.translateFromStaticValuesCreateOnly = translateFromStaticValuesCreateOnly;
   }
+
+  public void setCaseSensitiveCompare(boolean caseSensitiveCompare) {
+   this.caseSensitiveCompare = caseSensitiveCompare;
+  }
+
+  
+  public boolean isCaseSensitiveCompare() {
+    return caseSensitiveCompare;
+  }
+  
 }
