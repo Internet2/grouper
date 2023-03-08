@@ -2532,6 +2532,13 @@ public abstract class GrouperProvisioningConfiguration {
                 }
               }
             }
+            
+            {
+             
+              Boolean caseSensitiveCompare = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".caseSensitiveCompare" , false), true);
+              attributeConfig.setCaseSensitiveCompare(caseSensitiveCompare);
+            }
+            
           }
         }
 
