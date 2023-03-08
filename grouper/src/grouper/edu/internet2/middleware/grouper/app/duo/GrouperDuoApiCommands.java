@@ -746,8 +746,13 @@ public class GrouperDuoApiCommands {
 
       String urlSuffix = "/groups/" + id;
 
+      int[] returnCode = new int[] { -1 };
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null, "v1");
+          GrouperUtil.toSet(200, 404), returnCode, null, null, "v1");
+      
+      if (returnCode[0] == 404) {
+        return null;
+      }
       
       //lets get the group node
       JsonNode groupNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
@@ -934,8 +939,14 @@ public class GrouperDuoApiCommands {
 
       String urlSuffix = "/users/" + id;
 
+      int[] returnCode = new int[] { -1 };
+      
       JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null, null, "v1");
+          GrouperUtil.toSet(200, 404), returnCode, null, null, "v1");
+      
+      if (returnCode[0] == 404) {
+        return null;
+      }
       
       JsonNode userNode = GrouperUtil.jsonJacksonGetNode(jsonNode, "response");
       if (userNode == null) {
