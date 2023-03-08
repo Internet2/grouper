@@ -215,9 +215,11 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   }
   
   public void setGrouperProvisioningGroup(ProvisioningGroup grouperProvisioningGroup) {
+    
     if (this.grouperProvisioningGroup == grouperProvisioningGroup) {
       return;
     }
+    
     ProvisioningGroup oldGrouperProvisioningGroup = this.grouperProvisioningGroup;
     ProvisioningGroupWrapper oldProvisioningGroupWrapper = oldGrouperProvisioningGroup == null ? null : oldGrouperProvisioningGroup.getProvisioningGroupWrapper();
 
