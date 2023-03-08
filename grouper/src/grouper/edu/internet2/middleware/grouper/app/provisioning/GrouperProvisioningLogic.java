@@ -2957,6 +2957,11 @@ public class GrouperProvisioningLogic {
       provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
       provisioningEntityWrapper.getProvisioningStateEntity().setDelete(true);
       
+      if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable()) {
+        provisioningEntityWrapper.getGcGrouperSyncMember().setProvisionable(false);
+        provisioningEntityWrapper.getGcGrouperSyncMember().setProvisionableEnd(new Timestamp(System.currentTimeMillis()));
+      }
+      
       memberUuidToProvisioningMemberWrapper.put(grouperProvisioningEntity.getId(), provisioningEntityWrapper);
       
     }
@@ -3096,8 +3101,6 @@ public class GrouperProvisioningLogic {
         // the group is either the provisioning group or provisioning group to delete
         if (provisioningEntityWrapper.getGrouperProvisioningEntity() != null) {
           provisioningMembership.setProvisioningEntity(provisioningEntityWrapper.getGrouperProvisioningEntity());
-        } else if (provisioningEntityWrapper.getProvisioningStateEntity().isUnresolvable()) {
-          //ignore it
         } else {
           throw new RuntimeException("Cant find provisioning entity: '" + memberId + "'");
         }

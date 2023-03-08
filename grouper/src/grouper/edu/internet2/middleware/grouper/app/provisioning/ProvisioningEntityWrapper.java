@@ -87,6 +87,11 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
   
   
   public void setGrouperProvisioningEntity(ProvisioningEntity grouperProvisioningEntity) {
+    
+    if (grouperProvisioningEntity == this.grouperProvisioningEntity) {
+      return;
+    }
+    
     ProvisioningEntity oldGrouperProvisioningEntity = this.grouperProvisioningEntity;
     ProvisioningEntityWrapper oldProvisioningEntityWrapper = oldGrouperProvisioningEntity == null ? null : oldGrouperProvisioningEntity.getProvisioningEntityWrapper();
 
@@ -99,7 +104,7 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
     if (oldGrouperProvisioningEntity != null) {
       oldGrouperProvisioningEntity.setProvisioningEntityWrapper(null);
     }
-    if (oldProvisioningEntityWrapper != null) {
+    if (oldProvisioningEntityWrapper != null && oldProvisioningEntityWrapper != this) {
       oldProvisioningEntityWrapper.grouperProvisioningEntity = null;
     }
     this.calculateMemberId();
