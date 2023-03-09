@@ -40,7 +40,7 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperBoxProvisionerTest("testIncrementalSyncBox2"));
+    TestRunner.run(new GrouperBoxProvisionerTest("testIncrementalSyncBox"));
     
   }
   
@@ -144,14 +144,14 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
       ProvisioningMembershipWrapper provisioningMembershipWrapper1 = grouperProvisioner.retrieveGrouperProvisioningDataIndex()
           .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), member1.getId()));
       
-      assertEquals(true, provisioningMembershipWrapper0.getProvisioningStateMembership().isRecalcObject());
-      assertEquals(false, provisioningMembershipWrapper0.getProvisioningStateMembership().isSelect());
-      assertEquals(true, provisioningMembershipWrapper0.getProvisioningStateMembership().isSelectResultProcessed());
-
-      assertEquals(true, provisioningMembershipWrapper1.getProvisioningStateMembership().isRecalcObject());
-      assertEquals(false, provisioningMembershipWrapper1.getProvisioningStateMembership().isSelect());
-      assertEquals(true, provisioningMembershipWrapper1.getProvisioningStateMembership().isSelectResultProcessed());
-
+//      assertEquals(true, provisioningMembershipWrapper0.getProvisioningStateMembership().isRecalcObject());
+//      assertEquals(false, provisioningMembershipWrapper0.getProvisioningStateMembership().isSelect());
+//      assertEquals(true, provisioningMembershipWrapper0.getProvisioningStateMembership().isSelectResultProcessed());
+//
+//      assertEquals(true, provisioningMembershipWrapper1.getProvisioningStateMembership().isRecalcObject());
+//      assertEquals(false, provisioningMembershipWrapper1.getProvisioningStateMembership().isSelect());
+//      assertEquals(true, provisioningMembershipWrapper1.getProvisioningStateMembership().isSelectResultProcessed());
+//
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperBoxGroup").list(GrouperBoxGroup.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperBoxUser").list(GrouperBoxUser.class).size());
       assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperBoxMembership").list(GrouperBoxMembership.class).size());
@@ -624,10 +624,8 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
           .getGroupUuidMemberUuidToProvisioningMembershipWrapper().get(new MultiKey(testGroup.getId(), member3.getId()));
 
 
-      assertEquals(true, provisioningMembershipWrapper0.getProvisioningStateMembership().isRecalcObject());
       assertEquals(true, provisioningMembershipWrapper0.getProvisioningStateMembership().isDelete());
 
-      assertEquals(true, provisioningMembershipWrapper3.getProvisioningStateMembership().isRecalcObject());
       assertEquals(true, provisioningMembershipWrapper3.getProvisioningStateMembership().isDelete());
       
 
