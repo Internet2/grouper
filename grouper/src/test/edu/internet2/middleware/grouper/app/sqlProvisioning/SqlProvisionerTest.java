@@ -145,7 +145,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
+    TestRunner.run(new SqlProvisionerTest("testGroupEntityMembershipRenameEntityIncrementalMatchOnOld"));
     
   }
   
@@ -5088,7 +5088,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     }
     
     // this wont work until entity recalc from message works
-    assertEquals(subject0EntityUUID, gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertEquals(gcGrouperSyncMember.getEntityAttributeValueCache0(), subject0EntityUUID);
   
     assertTrue(entityNameToAllAttributes.containsKey(subject0name));
     assertTrue(entityNameToAllAttributes.containsKey(SubjectTestHelper.SUBJ1.getName()));

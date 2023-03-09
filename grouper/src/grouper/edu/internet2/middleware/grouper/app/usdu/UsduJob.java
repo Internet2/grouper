@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.A
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -387,6 +388,10 @@ public class UsduJob extends OtherJobBase {
 
         
         Map<String, GcGrouperSyncMember> gcGrouperSyncMembers = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberIds(memberIds);
+        
+        Set<GcGrouperSyncMember> changedSyncMembers = new HashSet<GcGrouperSyncMember>();
+        
+        
         for (String memberId : gcGrouperSyncMembers.keySet()) {
           GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSyncMembers.get(memberId);
           Subject subject = memberIdToSubjectMap.get(memberId);
@@ -397,25 +402,41 @@ public class UsduJob extends OtherJobBase {
           
           Map<String, Object> variableMap = new HashMap<String, Object>();
           variableMap.put("subject", subject);
+          boolean hasChange = false;
           
           if (autoEntityAttributeValueCache0 && !StringUtils.isBlank(entityAttributeValueCache0)) {
             String entityAttributeValueCache0Value = GrouperUtil.substituteExpressionLanguage(entityAttributeValueCache0, variableMap);
-            gcGrouperSyncMember.setEntityAttributeValueCache0(entityAttributeValueCache0Value);
+            if (!StringUtils.equals(entityAttributeValueCache0Value, gcGrouperSyncMember.getEntityAttributeValueCache0())) {
+              gcGrouperSyncMember.setEntityAttributeValueCache0(entityAttributeValueCache0Value);
+              hasChange = true;
+            }
           }
           
           if (autoEntityAttributeValueCache1 && !StringUtils.isBlank(entityAttributeValueCache1)) {
             String entityAttributeValueCache1Value = GrouperUtil.substituteExpressionLanguage(entityAttributeValueCache1, variableMap);
-            gcGrouperSyncMember.setEntityAttributeValueCache1(entityAttributeValueCache1Value);
+            if (!StringUtils.equals(entityAttributeValueCache1Value, gcGrouperSyncMember.getEntityAttributeValueCache1())) {
+              gcGrouperSyncMember.setEntityAttributeValueCache1(entityAttributeValueCache1Value);
+              hasChange = true;
+            }
           }
           
           if (autoEntityAttributeValueCache2 && !StringUtils.isBlank(entityAttributeValueCache2)) {
             String entityAttributeValueCache2Value = GrouperUtil.substituteExpressionLanguage(entityAttributeValueCache2, variableMap);
-            gcGrouperSyncMember.setEntityAttributeValueCache2(entityAttributeValueCache2Value);
+            if (!StringUtils.equals(entityAttributeValueCache2Value, gcGrouperSyncMember.getEntityAttributeValueCache2())) {
+              gcGrouperSyncMember.setEntityAttributeValueCache2(entityAttributeValueCache2Value);
+              hasChange = true;
+            }
           }
           
           if (autoEntityAttributeValueCache3 && !StringUtils.isBlank(entityAttributeValueCache3)) {
             String entityAttributeValueCache3Value = GrouperUtil.substituteExpressionLanguage(entityAttributeValueCache3, variableMap);
-            gcGrouperSyncMember.setEntityAttributeValueCache3(entityAttributeValueCache3Value);
+            if (!StringUtils.equals(entityAttributeValueCache3Value, gcGrouperSyncMember.getEntityAttributeValueCache3())) {
+              gcGrouperSyncMember.setEntityAttributeValueCache3(entityAttributeValueCache3Value);
+              hasChange = true;
+            }
+          }
+          if (hasChange) {
+            changedSyncMembers.add(gcGrouperSyncMember);
           }
         }
         
@@ -423,6 +444,13 @@ public class UsduJob extends OtherJobBase {
 
         int currentObjectsStored = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
 
+        for (GcGrouperSyncMember gcGrouperSyncMember : changedSyncMembers) {
+          ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+          provisioningMessage.setMemberIdsForSync(new String[] {gcGrouperSyncMember.getMemberId()});
+          provisioningMessage.setBlocking(true);
+          provisioningMessage.send(configName);
+        }
+        
         gcGrouperSyncLog.setRecordsChanged(currentObjectsStored);
         
         LOG.info("Updated " + currentObjectsStored + " objects for configName=" + configName);
