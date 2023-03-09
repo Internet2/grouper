@@ -5087,7 +5087,6 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       }
     }
     
-    // this wont work until entity recalc from message works
     assertEquals(gcGrouperSyncMember.getEntityAttributeValueCache0(), subject0EntityUUID);
   
     assertTrue(entityNameToAllAttributes.containsKey(subject0name));
