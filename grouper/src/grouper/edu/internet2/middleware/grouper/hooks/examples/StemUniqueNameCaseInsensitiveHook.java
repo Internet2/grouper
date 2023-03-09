@@ -19,6 +19,8 @@
  */
 package edu.internet2.middleware.grouper.hooks.examples;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -119,10 +121,21 @@ public class StemUniqueNameCaseInsensitiveHook extends StemHooks {
           .setString("theName2", GrouperUtil.defaultIfEmpty(stem.getAlternateName(), stem.getName()).toLowerCase())
           .setString("theUuid", stem.getId()).uniqueResult(long.class);
       if (count > 0) {
-        throw new HookVeto(VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.stem.unique.idCaseInsensitive.default"));
-      } else {
-        throw new HookVeto(VETO_STEM_UNIQUE_NAME_CASE_INSENSITIVE, GrouperTextContainer.textOrNull("veto.stem.unique.nameCaseInsensitive.default"));
-      }
+        String stemNameErrorMessage = GrouperTextContainer.textOrNull("veto.stem.unique.idCaseInsensitive.default");
+
+        //substitute the stem name
+        stemNameErrorMessage = StringUtils.replace(stemNameErrorMessage, "$stemName$", GrouperUtil.xmlEscape(stem.getName()));
+        stemNameErrorMessage = StringUtils.replace(stemNameErrorMessage, "$stemDisplayName$", GrouperUtil.xmlEscape(stem.getDisplayName()));
+        
+        throw new HookVeto(VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE, stemNameErrorMessage);
+      } 
+      String stemNameErrorMessage = GrouperTextContainer.textOrNull("veto.stem.unique.nameCaseInsensitive.default");
+
+      //substitute the stem name
+      stemNameErrorMessage = StringUtils.replace(stemNameErrorMessage, "$stemName$", GrouperUtil.xmlEscape(stem.getName()));
+      stemNameErrorMessage = StringUtils.replace(stemNameErrorMessage, "$stemDisplayName$", GrouperUtil.xmlEscape(stem.getDisplayName()));
+
+      throw new HookVeto(VETO_STEM_UNIQUE_NAME_CASE_INSENSITIVE, stemNameErrorMessage);
     }
     
   }
