@@ -1,9 +1,11 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * 
@@ -12,14 +14,37 @@ import edu.internet2.middleware.grouper.misc.GrouperCloneable;
  */
 public class ProvisioningUpdatableAttributeAndValue implements GrouperCloneable {
 
+  /**
+   * compare value might be different than the actual value
+   */
+  private String compareValue;
+  
+  /**
+   * compare value might be different than the actual value
+   * @return
+   */
+  public String getCompareValue() {
+    return compareValue;
+  }
+
+  /**
+   * compare value might be different than the actual value
+   * @param compareValue
+   */
+  public void setCompareValue(String compareValue) {
+    this.compareValue = compareValue;
+  }
+
   /** 
    * clone an object (deep clone, on fields that make sense)
    * @see Object#clone()
    * @return the clone of the object
    */
   public Object clone() {
-    ProvisioningUpdatableAttributeAndValue clone = new ProvisioningUpdatableAttributeAndValue(
-        this.attributeName, this.attributeValue);
+    ProvisioningUpdatableAttributeAndValue clone = new ProvisioningUpdatableAttributeAndValue();
+    clone.attributeName = this.attributeName;
+    clone.attributeValue = this.attributeValue;
+    clone.compareValue = this.compareValue;
     clone.currentValue = this.currentValue;
     return clone;
   }
@@ -27,7 +52,7 @@ public class ProvisioningUpdatableAttributeAndValue implements GrouperCloneable 
   
   @Override
   public String toString() {
-    return "[" + this.attributeName + ", " + this.attributeValue + (this.currentValue == null ? "" : (", currentValue: " + this.currentValue) ) + "]";
+    return "[" + this.attributeName + ", val: " + this.attributeValue + ", compareVal: " + this.compareValue + (this.currentValue == null ? "" : (", currentValue: " + this.currentValue) ) + "]";
   }
 
   /**
@@ -41,10 +66,25 @@ public class ProvisioningUpdatableAttributeAndValue implements GrouperCloneable 
    * @param attributeName
    * @param attributeValue
    */
-  public ProvisioningUpdatableAttributeAndValue(String attributeName, Object attributeValue) {
+  public ProvisioningUpdatableAttributeAndValue(String attributeName, Object attributeValue, 
+      GrouperProvisioningConfigurationAttributeType grouperProvisioningConfigurationAttributeType) {
     super();
     this.attributeName = attributeName;
     this.attributeValue = attributeValue;
+    
+    if (grouperProvisioningConfigurationAttributeType == GrouperProvisioningConfigurationAttributeType.group) {
+      this.compareValue = GrouperProvisioner.retrieveCurrentGrouperProvisioner()
+          .retrieveGrouperProvisioningCompare().attributeValueForCompareGroup(
+          attributeName, attributeValue);
+    } else if (grouperProvisioningConfigurationAttributeType == GrouperProvisioningConfigurationAttributeType.entity) {
+      this.compareValue = GrouperProvisioner.retrieveCurrentGrouperProvisioner()
+          .retrieveGrouperProvisioningCompare().attributeValueForCompareEntity(
+          attributeName, attributeValue);
+    } else if (grouperProvisioningConfigurationAttributeType == GrouperProvisioningConfigurationAttributeType.membership) {
+      this.compareValue = GrouperUtil.stringValue(attributeValue);
+    } else {
+      throw new RuntimeException("Not expecting type: " + grouperProvisioningConfigurationAttributeType);
+    }
   }
 
   /**
@@ -107,7 +147,7 @@ public class ProvisioningUpdatableAttributeAndValue implements GrouperCloneable 
     if (this.hashCode == -1) {
       this.hashCode = new HashCodeBuilder()
           .append( this.attributeName)
-          .append( this.attributeValue)
+          .append( this.compareValue)
           .toHashCode();
     }
     return this.hashCode;
@@ -125,7 +165,7 @@ public class ProvisioningUpdatableAttributeAndValue implements GrouperCloneable 
 
     return new EqualsBuilder()
       .append(this.attributeName, other.attributeName)
-      .append(this.attributeValue, other.attributeValue)
+      .append(this.compareValue, other.compareValue)
       .isEquals();
   }
   

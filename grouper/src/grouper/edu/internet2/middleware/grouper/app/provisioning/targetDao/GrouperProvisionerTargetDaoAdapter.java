@@ -1095,7 +1095,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 continue;
               }
 
-              searchValueToSearchGrouperTargetGroup.put(GrouperUtil.stringValue(provisioningUpdatableAttributeAndValue.getAttributeValue()), grouperTargetGroup);
+              searchValueToSearchGrouperTargetGroup.put(provisioningUpdatableAttributeAndValue.getCompareValue(), grouperTargetGroup);
+
               searchAttributeValues.add(provisioningUpdatableAttributeAndValue.getAttributeValue());
             }              
           }
@@ -1117,7 +1118,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             for (ProvisioningGroup retrievedTargetGroup : GrouperUtil.nonNull(targetDaoRetrieveGroupsResponse.getTargetGroups())) {
               Object targetGroupValue = retrievedTargetGroup.retrieveAttributeValue(searchAttributeName);
               if(!GrouperUtil.isBlank(targetGroupValue)) {
-                ProvisioningGroup grouperTargetGroup = searchValueToSearchGrouperTargetGroup.get(GrouperUtil.stringValue(targetGroupValue));
+                 String targetGroupValueString = this.getGrouperProvisioner().retrieveGrouperProvisioningCompare().attributeValueForCompareGroup(
+                    searchAttributeName, targetGroupValue);
+                
+                ProvisioningGroup grouperTargetGroup = searchValueToSearchGrouperTargetGroup.get(targetGroupValueString);
                 if (grouperTargetGroup != null) {
                   if (!currentValue) {
                     retrieveGroupsFromCache++;
@@ -1305,7 +1309,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 continue;
               }
 
-              searchValueToSearchGrouperTargetGroup.put(GrouperUtil.stringValue(provisioningUpdatableAttributeAndValue.getAttributeValue()), grouperTargetGroup);
+              searchValueToSearchGrouperTargetGroup.put(provisioningUpdatableAttributeAndValue.getCompareValue(), grouperTargetGroup);
               searchAttributeValues.add(provisioningUpdatableAttributeAndValue.getAttributeValue());
             }              
             
@@ -1333,7 +1337,11 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
               // pluck each one out from the remaining groups to find
               Object targetGroupValue = retrievedTargetGroup.retrieveAttributeValue(searchAttributeName);
               if(!GrouperUtil.isBlank(targetGroupValue)) {
-                ProvisioningGroup grouperTargetGroup = searchValueToSearchGrouperTargetGroup.get(GrouperUtil.stringValue(targetGroupValue));
+
+                String targetGroupValueString = this.getGrouperProvisioner().retrieveGrouperProvisioningCompare().attributeValueForCompareGroup(
+                    searchAttributeName, targetGroupValue);
+                
+                ProvisioningGroup grouperTargetGroup = searchValueToSearchGrouperTargetGroup.get(targetGroupValueString);
                 if (grouperTargetGroup != null) {
                   if (!currentValue) {
                     retrieveGroupsFromCache++;
@@ -1620,7 +1628,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 continue;
               }
 
-              searchValueToSearchGrouperTargetEntity.put(GrouperUtil.stringValue(provisioningUpdatableAttributeAndValue.getAttributeValue()), grouperTargetEntity);
+              searchValueToSearchGrouperTargetEntity.put(provisioningUpdatableAttributeAndValue.getCompareValue(), grouperTargetEntity);
               searchAttributeValues.add(provisioningUpdatableAttributeAndValue.getAttributeValue());
             }              
             
@@ -1648,7 +1656,9 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
               // pluck each one out from the remaining entities to find
               Object targetEntityValue = retrievedTargetEntity.retrieveAttributeValue(searchAttributeName);
               if(!GrouperUtil.isBlank(targetEntityValue)) {
-                ProvisioningEntity grouperTargetEntity = searchValueToSearchGrouperTargetEntity.get(GrouperUtil.stringValue(targetEntityValue));
+                 String targetEntityValueString = this.getGrouperProvisioner().retrieveGrouperProvisioningCompare().attributeValueForCompareEntity(
+                    searchAttributeName, targetEntityValue);
+                ProvisioningEntity grouperTargetEntity = searchValueToSearchGrouperTargetEntity.get(targetEntityValueString);
                 if (grouperTargetEntity != null) {
                   if (!currentValue) {
                     retrieveEntitiesFromCache++;
@@ -2487,7 +2497,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                 continue;
               }
 
-              searchValueToSearchGrouperTargetEntity.put(GrouperUtil.stringValue(provisioningUpdatableAttributeAndValue.getAttributeValue()), grouperTargetEntity);
+              searchValueToSearchGrouperTargetEntity.put(provisioningUpdatableAttributeAndValue.getCompareValue(), grouperTargetEntity);
+              
               searchAttributeValues.add(provisioningUpdatableAttributeAndValue.getAttributeValue());
             }              
           }
@@ -2510,7 +2521,9 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
             for (ProvisioningEntity retrievedTargetEntity : GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse.getTargetEntities())) {
               Object targetEntityValue = retrievedTargetEntity.retrieveAttributeValue(searchAttributeName);
               if(!GrouperUtil.isBlank(targetEntityValue)) {
-                ProvisioningEntity grouperTargetEntity = searchValueToSearchGrouperTargetEntity.get(GrouperUtil.stringValue(targetEntityValue));
+                String targetEntityValueString = this.getGrouperProvisioner().retrieveGrouperProvisioningCompare().attributeValueForCompareEntity(
+                    searchAttributeName, targetEntityValue);
+                ProvisioningEntity grouperTargetEntity = searchValueToSearchGrouperTargetEntity.get(targetEntityValueString);
                 if (grouperTargetEntity != null) {
                   if (!currentValue) {
                     retrieveEntitiesFromCache++;
@@ -2525,7 +2538,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
                       provisioningEntityWrapper.setTargetProvisioningEntity(retrievedTargetEntity);
                       retrievedTargetEntity.setProvisioningEntityWrapper(provisioningEntityWrapper);
                       if (targetDaoRetrieveEntitiesResponse.getTargetEntityToTargetNativeEntity() != null) {
-                        provisioningEntityWrapper.setTargetNativeEntity(targetDaoRetrieveEntitiesResponse.getTargetEntityToTargetNativeEntity().get(retrievedTargetEntity));
+                        provisioningEntityWrapper.setTargetNativeEntity(targetDaoRetrieveEntitiesResponse
+                            .getTargetEntityToTargetNativeEntity().get(retrievedTargetEntity));
                       }
                     }
                   }

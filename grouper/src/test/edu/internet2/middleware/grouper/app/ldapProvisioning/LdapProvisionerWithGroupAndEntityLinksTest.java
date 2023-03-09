@@ -48,7 +48,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testLdapProvisionerWithGroupAndEntityLinksCaseInsensitiveMatchingFull"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testLdapProvisionerWithGroupAndEntityLinksCaseInsensitiveMatchingIncremental"));    
   }
   
   @Override
@@ -259,8 +259,13 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
         new LdapProvisionerTestConfigInput()
           .assignUpdateGroupsAndDn(true)
           .assignExplicitFilters(true)
+          .addExtraConfig("targetEntityAttribute.1.showAdvancedAttribute", "true")
+          .addExtraConfig("targetEntityAttribute.1.showAttributeValueSettings", "true")
+          .addExtraConfig("targetEntityAttribute.1.caseSensitiveCompare", "false")
+          .addExtraConfig("subjectSourcesToProvision", "personLdapSource,jdbc")
           .assignPosixGroup(true)
           .assignMembershipAttribute("description"));
+    
     
     
     if (!isFull) {
@@ -319,7 +324,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=banderson,ou=People,dc=example,dc=edu"));    
 
     // try update
-    testGroup.deleteMember(banderson);
+    testGroup.deleteMember(jsmith);
     if (isFull) {
       fullProvision();
     } else {
@@ -339,7 +344,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
-    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=banderson,ou=People,dc=example,dc=edu"));
     
   }
   
