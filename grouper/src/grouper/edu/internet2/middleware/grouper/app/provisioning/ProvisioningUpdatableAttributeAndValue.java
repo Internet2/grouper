@@ -14,6 +14,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class ProvisioningUpdatableAttributeAndValue implements GrouperCloneable {
 
+  private GrouperProvisioner grouperProvisioner;
+  
   /**
    * compare value might be different than the actual value
    */
@@ -42,6 +44,7 @@ public class ProvisioningUpdatableAttributeAndValue implements GrouperCloneable 
    */
   public Object clone() {
     ProvisioningUpdatableAttributeAndValue clone = new ProvisioningUpdatableAttributeAndValue();
+    clone.grouperProvisioner = this.grouperProvisioner;
     clone.attributeName = this.attributeName;
     clone.attributeValue = this.attributeValue;
     clone.compareValue = this.compareValue;
@@ -58,7 +61,7 @@ public class ProvisioningUpdatableAttributeAndValue implements GrouperCloneable 
   /**
    * 
    */
-  public ProvisioningUpdatableAttributeAndValue() {
+  private ProvisioningUpdatableAttributeAndValue() {
   }
 
   /**
@@ -66,18 +69,19 @@ public class ProvisioningUpdatableAttributeAndValue implements GrouperCloneable 
    * @param attributeName
    * @param attributeValue
    */
-  public ProvisioningUpdatableAttributeAndValue(String attributeName, Object attributeValue, 
+  public ProvisioningUpdatableAttributeAndValue(GrouperProvisioner grouperProvisioner, String attributeName, Object attributeValue, 
       GrouperProvisioningConfigurationAttributeType grouperProvisioningConfigurationAttributeType) {
     super();
+    this.grouperProvisioner = grouperProvisioner;
     this.attributeName = attributeName;
     this.attributeValue = attributeValue;
     
     if (grouperProvisioningConfigurationAttributeType == GrouperProvisioningConfigurationAttributeType.group) {
-      this.compareValue = GrouperProvisioner.retrieveCurrentGrouperProvisioner()
+      this.compareValue = this.grouperProvisioner
           .retrieveGrouperProvisioningCompare().attributeValueForCompareGroup(
           attributeName, attributeValue);
     } else if (grouperProvisioningConfigurationAttributeType == GrouperProvisioningConfigurationAttributeType.entity) {
-      this.compareValue = GrouperProvisioner.retrieveCurrentGrouperProvisioner()
+      this.compareValue = this.grouperProvisioner
           .retrieveGrouperProvisioningCompare().attributeValueForCompareEntity(
           attributeName, attributeValue);
     } else if (grouperProvisioningConfigurationAttributeType == GrouperProvisioningConfigurationAttributeType.membership) {

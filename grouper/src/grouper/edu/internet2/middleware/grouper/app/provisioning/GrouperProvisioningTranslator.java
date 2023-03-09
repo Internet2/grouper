@@ -1008,7 +1008,8 @@ public class GrouperProvisioningTranslator {
 
         if(!GrouperUtil.isBlank(targetCurrentValue)) {
           
-          ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(matchingAttributeName, targetCurrentValue,
+          ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(
+              this.getGrouperProvisioner(), matchingAttributeName, targetCurrentValue,
               GrouperProvisioningConfigurationAttributeType.group);
           provisioningUpdatableAttributeAndValue.setCurrentValue(true);
           provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
@@ -1032,7 +1033,7 @@ public class GrouperProvisioningTranslator {
             cachedValue = massageToString(cachedValue, 2);
             
             ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(
-                matchingAttributeName, cachedValue, GrouperProvisioningConfigurationAttributeType.group);
+                this.getGrouperProvisioner(), matchingAttributeName, cachedValue, GrouperProvisioningConfigurationAttributeType.group);
             provisioningUpdatableAttributeAndValue.setCurrentValue(false);
             
             // keep the order so see if its there before adding
@@ -1060,7 +1061,7 @@ public class GrouperProvisioningTranslator {
           if(!GrouperUtil.isBlank(targetCurrentValue)) {
             
             ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(
-                searchAttributeName, targetCurrentValue, GrouperProvisioningConfigurationAttributeType.group);
+                this.getGrouperProvisioner(), searchAttributeName, targetCurrentValue, GrouperProvisioningConfigurationAttributeType.group);
             provisioningUpdatableAttributeAndValue.setCurrentValue(true);
             provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
           }
@@ -1082,7 +1083,7 @@ public class GrouperProvisioningTranslator {
             if (!GrouperUtil.isEmpty(cachedValue)) {
               cachedValue = massageToString(cachedValue, 2);
               ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(
-                  searchAttributeName, cachedValue, GrouperProvisioningConfigurationAttributeType.group);
+                  this.getGrouperProvisioner(), searchAttributeName, cachedValue, GrouperProvisioningConfigurationAttributeType.group);
               provisioningUpdatableAttributeAndValue.setCurrentValue(false);
               // keep the order so see if its there before adding
               if (!provisioningUpdatableAttributeAndValues.contains(provisioningUpdatableAttributeAndValue)) {
@@ -1125,7 +1126,7 @@ public class GrouperProvisioningTranslator {
         if(!GrouperUtil.isBlank(targetCurrentValue)) {
           
           ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(
-              matchingAttributeName, targetCurrentValue, GrouperProvisioningConfigurationAttributeType.entity);
+              this.getGrouperProvisioner(), matchingAttributeName, targetCurrentValue, GrouperProvisioningConfigurationAttributeType.entity);
           provisioningUpdatableAttributeAndValue.setCurrentValue(true);
           provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
         }
@@ -1147,7 +1148,7 @@ public class GrouperProvisioningTranslator {
           if (!GrouperUtil.isEmpty(cachedValue)) {
             cachedValue = massageToString(cachedValue, 2);
             ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(
-                matchingAttributeName, cachedValue, GrouperProvisioningConfigurationAttributeType.entity);
+                this.getGrouperProvisioner(), matchingAttributeName, cachedValue, GrouperProvisioningConfigurationAttributeType.entity);
             provisioningUpdatableAttributeAndValue.setCurrentValue(false);
             
             // keep the order so see if its there before adding
@@ -1175,7 +1176,7 @@ public class GrouperProvisioningTranslator {
           if(!GrouperUtil.isBlank(targetCurrentValue)) {
             
             ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(
-                searchAttributeName, targetCurrentValue, GrouperProvisioningConfigurationAttributeType.entity);
+                this.getGrouperProvisioner(), searchAttributeName, targetCurrentValue, GrouperProvisioningConfigurationAttributeType.entity);
             provisioningUpdatableAttributeAndValue.setCurrentValue(true);
 
             provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
@@ -1198,7 +1199,7 @@ public class GrouperProvisioningTranslator {
             if (!GrouperUtil.isEmpty(cachedValue)) {
               cachedValue = massageToString(cachedValue, 2);
               ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(
-                  searchAttributeName, cachedValue, GrouperProvisioningConfigurationAttributeType.entity);
+                  this.getGrouperProvisioner(), searchAttributeName, cachedValue, GrouperProvisioningConfigurationAttributeType.entity);
               provisioningUpdatableAttributeAndValue.setCurrentValue(false);
               
               // keep the order so see if its there before adding
@@ -1300,7 +1301,8 @@ public class GrouperProvisioningTranslator {
         
       }
       // just hard code to "id" since memberships just have one matching id
-      ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue("id", id,
+      ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(
+          this.getGrouperProvisioner(), "id", id,
           GrouperProvisioningConfigurationAttributeType.membership);
       provisioningUpdatableAttributeAndValue.setCurrentValue(true);
 

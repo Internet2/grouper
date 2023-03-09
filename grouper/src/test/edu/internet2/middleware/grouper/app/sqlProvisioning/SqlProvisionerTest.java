@@ -145,7 +145,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testGroupEntityMembershipRenameEntityIncrementalMatchOnOld"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaMatchingIdMissingValidation"));
     
   }
   
@@ -4457,12 +4457,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     //attributeAssign.getAttributeValueDelegate().assignValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision())
     
     //lets sync these over
-    try {
-      grouperProvisioningOutput = fullProvision("sqlProvTest", true);
-      fail();
-    } catch (Exception e) {
-      
-    }
+    grouperProvisioningOutput = fullProvision("sqlProvTest", true);
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     
     // make sure some time has passed
@@ -4471,7 +4466,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("OTHER_JOB_provisioner_full_sqlProvTest");
     assertEquals(GrouperLoaderStatus.ERROR.name(), hib3GrouperLoaderLog.getStatus());
     
-    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    assertEquals(5, grouperProvisioningOutput.getRecordsWithErrors());
   
     String sql = "select uuid from testgrouper_prov_ldap_group";
     
@@ -4656,13 +4651,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(GcGrouperSyncErrorCode.DNE, gcGrouperSyncMembership4.getErrorCode());
     }  
 
-    // this should not retry
-    try {
-      hib3GrouperLoaderLog = incrementalProvision(defaultConfigId(), true, true, true);
-      fail();
-    } catch (Exception e) {
-      
-    }
+    // this should retry
+    hib3GrouperLoaderLog = incrementalProvision(defaultConfigId(), true, true, true);
     assertEquals("ERROR", hib3GrouperLoaderLog.getStatus());
     
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
