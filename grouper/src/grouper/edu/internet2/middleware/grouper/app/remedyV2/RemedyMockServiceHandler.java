@@ -431,7 +431,7 @@ public class RemedyMockServiceHandler extends MockServiceHandler {
   
   public void postAuth(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
         
-    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.remedy.mock.configId");
+    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.remedy.mock.configId", "myRemedy");
     
     String username = mockServiceRequest.getHttpServletRequest().getParameter("username");
     String password = mockServiceRequest.getHttpServletRequest().getParameter("password");
