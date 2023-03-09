@@ -20,6 +20,44 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 
 public class GrouperProvisioningCompare {
 
+  /**
+   * convert an attribute value to lower case if case insensitive
+   * @param attributeName
+   * @param attributeValue
+   * @return
+   */
+  public String attributeValueForCompareEntity(String attributeName, Object attributeValue) {
+    if (attributeValue == null) {
+      return null;
+    }
+    String attributeValueString = GrouperUtil.stringValue(attributeValue);
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(attributeName);
+    if (grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isCaseSensitiveCompare()) {
+      return attributeValueString.toLowerCase();
+    }
+    return attributeValueString;
+  }
+  
+  /**
+   * convert an attribute value to lower case if case insensitive
+   * @param attributeName
+   * @param attributeValue
+   * @return
+   */
+  public String attributeValueForCompareGroup(String attributeName, Object attributeValue) {
+    if (attributeValue == null) {
+      return null;
+    }
+    String attributeValueString = GrouperUtil.stringValue(attributeValue);
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeName);
+    if (grouperProvisioningConfigurationAttribute != null && !grouperProvisioningConfigurationAttribute.isCaseSensitiveCompare()) {
+      return attributeValueString.toLowerCase();
+    }
+    return attributeValueString;
+  }
+  
   private GrouperProvisioner grouperProvisioner = null;
 
   private int membershipAddCount = 0;

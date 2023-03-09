@@ -49,6 +49,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    */
   public static void main(String[] args) {
 <<<<<<< GROUPER_5_BRANCH
+<<<<<<< GROUPER_5_BRANCH
 <<<<<<< HEAD
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
@@ -77,6 +78,9 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
 =======
     TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testLdapProvisionerWithGroupAndEntityLinksCaseInsensitiveMatchingFull"));    
 >>>>>>> 29766ff Setup for case insensitive matches
+=======
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testLdapProvisionerWithGroupAndEntityLinksCaseInsensitiveMatchingIncremental"));    
+>>>>>>> 6d6bfa0 GRP-4599: Provisioner needs case-insensitive search/match option
   }
   
   @Override
@@ -287,8 +291,13 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
         new LdapProvisionerTestConfigInput()
           .assignUpdateGroupsAndDn(true)
           .assignExplicitFilters(true)
+          .addExtraConfig("targetEntityAttribute.1.showAdvancedAttribute", "true")
+          .addExtraConfig("targetEntityAttribute.1.showAttributeValueSettings", "true")
+          .addExtraConfig("targetEntityAttribute.1.caseSensitiveCompare", "false")
+          .addExtraConfig("subjectSourcesToProvision", "personLdapSource,jdbc")
           .assignPosixGroup(true)
           .assignMembershipAttribute("description"));
+    
     
     
     if (!isFull) {
@@ -347,7 +356,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=banderson,ou=People,dc=example,dc=edu"));    
 
     // try update
-    testGroup.deleteMember(banderson);
+    testGroup.deleteMember(jsmith);
     if (isFull) {
       fullProvision();
     } else {
@@ -367,7 +376,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
-    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("uid=banderson,ou=People,dc=example,dc=edu"));
     
   }
   

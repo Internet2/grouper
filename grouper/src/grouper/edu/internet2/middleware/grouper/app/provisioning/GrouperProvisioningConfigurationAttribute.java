@@ -684,7 +684,7 @@ public class GrouperProvisioningConfigurationAttribute {
    */
   private String defaultValue;
 
-  private boolean caseSensitiveCompare;
+  private boolean caseSensitiveCompare = true;
   
   /**
    * default value if there is not a value
