@@ -1964,6 +1964,14 @@ public class ChangeLogTempToEntity {
       pitGroupSet.setParentId(pitGroupSet.getId());
     } else {
       PITGroupSet pitParent = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(parentGroupSetId, false);
+      
+      if (pitParent == null) {
+        // missing the parent, skip and let the pit sync correct it.
+        // this could happen if change log entries are out of order.
+        // or if upgrading from a pre-2.6.17 release where (for example) a container not upgraded yet creates a group and the group is deleted before pit sync runs
+        return;
+      }
+      
       pitGroupSet.setParentId(pitParent.getId());
     }
 
