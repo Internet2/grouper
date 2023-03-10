@@ -552,6 +552,7 @@
                 <directory>src/grouper</directory>
                 <includes>
                     <include>**/*.hbm.xml</include>
+                    <include>**/*.gsh</include>
                     <include>edu/internet2/middleware/grouper/xml/export.properties</include>
                     <include>edu/internet2/middleware/grouper/xml/import.properties</include>
                 </includes>
