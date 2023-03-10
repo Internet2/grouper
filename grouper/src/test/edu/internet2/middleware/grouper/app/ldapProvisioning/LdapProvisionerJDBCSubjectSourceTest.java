@@ -489,12 +489,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     testGroup.addMember(blopez);
     testGroup.addMember(hdavis);
     
-    try {
-      grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
-      fail();
-    } catch (Exception e) {
-      
-    }
+    grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
     grouperProvisioningOutput = GrouperProvisioner.retrieveInternalLastProvisioner().retrieveGrouperProvisioningOutput();
     
     assertEquals(2, grouperProvisioningOutput.getRecordsWithErrors());
@@ -521,12 +516,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     testGroup.setExtension("testGroupRenamed");
     testGroup.store();
     
-    try {
-      grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
-      fail();
-    } catch (Exception e) {
-      
-    }
+    grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
+
     grouperProvisioningOutput = GrouperProvisioner.retrieveInternalLastProvisioner().retrieveGrouperProvisioningOutput();
     assertEquals(2, grouperProvisioningOutput.getRecordsWithErrors());
   
@@ -913,12 +904,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     testGroup.addMember(blopez);
     testGroup.addMember(hdavis);
     
-    try {
-      grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
-      fail();
-    } catch (Exception e) {
-      
-    }
+    grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
+
     grouperProvisioningOutput = GrouperProvisioner.retrieveInternalLastProvisioner().retrieveGrouperProvisioningOutput();
     
     assertEquals(2, grouperProvisioningOutput.getRecordsWithErrors());
@@ -944,12 +931,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     testGroup.setExtension("testGroupRenamed");
     testGroup.store();
     
-    try {
-      grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
-      fail();
-    } catch (Exception e) {
-      
-    }
+    grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
+
     grouperProvisioningOutput = GrouperProvisioner.retrieveInternalLastProvisioner().retrieveGrouperProvisioningOutput();
     
     assertEquals(2, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1230,12 +1213,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     testGroup.addMember(blopez);
     testGroup.addMember(hdavis);
     
-    try {
-      grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
-      fail();
-    } catch (Exception e) {
-      
-    }
+    grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
+
     grouperProvisioningOutput = GrouperProvisioner.retrieveInternalLastProvisioner().retrieveGrouperProvisioningOutput();
     
     assertEquals(2, grouperProvisioningOutput.getRecordsWithErrors());
@@ -1262,12 +1241,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     testGroup.setExtension("testGroupRenamed");
     testGroup.store();
     
-    try {
-      grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
-      fail();
-    } catch (Exception e) {
-      
-    }
+    grouperProvisioningOutput = fullProvision(defaultConfigId(), true);
+
     grouperProvisioningOutput = GrouperProvisioner.retrieveInternalLastProvisioner().retrieveGrouperProvisioningOutput();
     
     assertEquals(2, grouperProvisioningOutput.getRecordsWithErrors());
