@@ -553,6 +553,7 @@
                 <includes>
                     <include>**/*.hbm.xml</include>
                     <include>**/*.gsh</include>
+                    <include>**/*.jexl</include>
                     <include>edu/internet2/middleware/grouper/xml/export.properties</include>
                     <include>edu/internet2/middleware/grouper/xml/import.properties</include>
                 </includes>
@@ -564,6 +565,7 @@
                 <includes>
                     <include>**/*.xml</include>
                     <include>**/*.gsh</include>
+                    <include>**/*.jexl</include>
                     <include>**/*.properties</include>
                     <include>**/*.txt</include>
                     <include>**/*.sql</include>
