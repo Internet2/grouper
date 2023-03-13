@@ -247,7 +247,7 @@ public class GrouperVersion {
       if (grouperMatcher.matches()) {
         this.major = GrouperUtil.intValue(grouperMatcher.group(1));
         this.minor = GrouperUtil.intValue(grouperMatcher.group(2));
-        this.build = GrouperUtil.intValue(grouperMatcher.group(3));
+       this.build = GrouperUtil.intValue(grouperMatcher.group(3), 0);
         
         // snapshot will always be less than any rc version
         this.rc = -1;
