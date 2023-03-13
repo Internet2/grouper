@@ -8,12 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -30,92 +31,221 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
       Map<String, String> startWithSuffixToValue,
       Map<String, Object> provisionerSuffixToValue) {
     
+    
+    /**
+     * 
+     * ask for group matching/search attribute. dropdown - groupDisplayName or mailNickname
+     * ask for entity matching/search attribute. dropdown - userPrincipalName, mailNickname, onPremisesImmutableid, displayname
+     */
+    
     provisionerSuffixToValue.put("azureExternalSystemConfigId", startWithSuffixToValue.get("azureExternalSystemConfigId"));
     
-    if ( StringUtils.isNotBlank(startWithSuffixToValue.get("userAttributesType")) && !StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "core")) {
+    if (StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "entityResolver") || StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSourceAndEntityResolver")) {
       provisionerSuffixToValue.put("entityResolver.entityAttributesNotInSubjectSource", "true");
     }
+    
+    if (StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSource") 
+        || StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSourceAndEntityResolver")) {
+      provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
+      
+      String attributesCommaSeparated = startWithSuffixToValue.get("subjectSourceEntityResolverAttributes");
+      if (StringUtils.isNotBlank(attributesCommaSeparated)) {
+        provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
+        String[] attributes = GrouperUtil.splitTrim(attributesCommaSeparated, ",");
+        // by this time the validation is already done that there are no more than 3 attributes
+        for (int i=0; i<attributes.length; i++) {
+          int j = i+1;
+          provisionerSuffixToValue.put("entityAttributeValueCache"+j+"has", "true");
+          provisionerSuffixToValue.put("entityAttributeValueCache"+j+"source", "grouper");
+          provisionerSuffixToValue.put("entityAttributeValueCache"+j+"type", "subjectTranslationScript");
+          provisionerSuffixToValue.put("entityAttributeValueCache"+j+"translationScript", "${subject.getAttributeValue("+attributes[i]+")}");
+        }
+        
+      }
+      
+    }
+    
     
     {
       int numberOfGroupAttributes = 0;
       
       provisionerSuffixToValue.put("operateOnGrouperGroups", "true");
-      provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".name", startWithSuffixToValue.get("groupDisplayNameAttributeValue"));
+      
+      provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".name", "id");
+      numberOfGroupAttributes++;
+      
+      String groupDisplayNameAttributeType = startWithSuffixToValue.get("groupDisplayNameAttributeValue");
+      if (StringUtils.equals("script", groupDisplayNameAttributeType)) {
+        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".translateExpressionType", "translationScript");
+        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".translateExpression", startWithSuffixToValue.get("groupDisplayNameTranslationScript"));
+      } else if (StringUtils.equals("other", groupDisplayNameAttributeType)) {
+        //do nothing
+      } else { 
+        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".translateExpressionType", "grouperProvisioningGroupField");
+        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".translateFromGrouperProvisioningGroupField", groupDisplayNameAttributeType);
+      }
+      
+      provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".name", "displayName");
       numberOfGroupAttributes++;
       
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("useGroupDescription"), true)) {
         provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".name", "description");
+        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".translateExpressionType", "grouperProvisioningGroupField");
+        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".translateFromGrouperProvisioningGroupField", "description");
         numberOfGroupAttributes++;
       }
       
-      provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".name", startWithSuffixToValue.get("mailNicknameAttributeValue"));
+      String groupMailNicknameAttributeType = startWithSuffixToValue.get("mailNicknameAttributeValue");
+      if (StringUtils.equals("script", groupMailNicknameAttributeType)) {
+        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".translateExpressionType", "translationScript");
+        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".translateExpression", startWithSuffixToValue.get("mailNicknameTranslationScript"));
+      } else if (StringUtils.equals("other", groupMailNicknameAttributeType)) {
+        //do nothing
+      } else { 
+        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".translateExpressionType", "grouperProvisioningGroupField");
+        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".translateFromGrouperProvisioningGroupField", groupMailNicknameAttributeType);
+      }
+      
+      provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".name", "mailNickname");
       numberOfGroupAttributes++;
       
       provisionerSuffixToValue.put("numberOfGroupAttributes", numberOfGroupAttributes);
+      
+      provisionerSuffixToValue.put("groupAttributeValueCacheHas", "true");
+      provisionerSuffixToValue.put("groupAttributeValueCache0has", "true");
+      provisionerSuffixToValue.put("groupAttributeValueCache0source", "target");
+      provisionerSuffixToValue.put("groupAttributeValueCache0type", "groupAttribute");
+      provisionerSuffixToValue.put("groupAttributeValueCache0groupAttribute", "id");
+
+      provisionerSuffixToValue.put("hasTargetGroupLink", "true");
+      
+      String groupSearchMatchingAttribute = startWithSuffixToValue.get("groupSearchMatchingAttribute");
+      provisionerSuffixToValue.put("groupMatchingAttributeCount", "1");
+      provisionerSuffixToValue.put("groupMatchingAttribute0name", groupSearchMatchingAttribute);
+      
     }
     
+    
     {
-      int numberOfMetadataItems = 0;
       
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForGroupType"), true)) {
-        numberOfMetadataItems++;
-        provisionerSuffixToValue.put("metadata.0.name", "md_groupType");
-        provisionerSuffixToValue.put("metadata.0.showForGroup", "true");
+        provisionerSuffixToValue.put("azureGroupType", "true");
       }
       
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForAllowOnlyMembersToPost"), true)) {
-        numberOfMetadataItems++;
-        provisionerSuffixToValue.put("metadata.1.name", "md_allowOnlyMembersToPost");
-        provisionerSuffixToValue.put("metadata.1.showForGroup", "true");
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForAllowOnlyMembersToPost"), false)) {
+        provisionerSuffixToValue.put("allowOnlyMembersToPost", "true");
       }
       
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForHideGroupInOutlook"), true)) {
-        numberOfMetadataItems++;
-        provisionerSuffixToValue.put("metadata.2.name", "md_hideGroupInOutlook");
-        provisionerSuffixToValue.put("metadata.2.showForGroup", "true");
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForHideGroupInOutlook"), false)) {
+        provisionerSuffixToValue.put("hideGroupInOutlook", "true");
       }
       
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForSubscribeNewGroupMembers"), true)) {
-        numberOfMetadataItems++;
-        provisionerSuffixToValue.put("metadata.3.name", "md_subscribeNewGroupMembers");
-        provisionerSuffixToValue.put("metadata.3.showForGroup", "true");
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForSubscribeNewGroupMembers"), false)) {
+        provisionerSuffixToValue.put("subscribeNewGroupMembers", "true");
       }
       
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWelcomeEmailDisabled"), true)) {
-        numberOfMetadataItems++;
-        provisionerSuffixToValue.put("metadata.4.name", "md_welcomeEmailDisabled");
-        provisionerSuffixToValue.put("metadata.4.showForGroup", "true");
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWelcomeEmailDisabled"), false)) {
+        provisionerSuffixToValue.put("welcomeEmailDisabled", "true");
       }
       
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForResourceProvisioningOptionsTeam"), true)) {
-        numberOfMetadataItems++;
-        provisionerSuffixToValue.put("metadata.5.name", "md_resourceProvisioningOptionsTeam");
-        provisionerSuffixToValue.put("metadata.5.showForGroup", "true");
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForResourceProvisioningOptionsTeam"), false)) {
+        provisionerSuffixToValue.put("resourceProvisioningOptionsTeam", "true");
       }
       
-      if (numberOfMetadataItems > 0) {
-        provisionerSuffixToValue.put("configureMetadata", "true");
-      }
     }
     
     {
       int numberOfEntityAttributes = 0;
       
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("manageEntitiesInAzure"), false)) {
+        provisionerSuffixToValue.put("makeChangesToEntities", "true");
+      }
+      
       provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
-      provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".name", startWithSuffixToValue.get("entityUserPrincipalName"));
+      provisionerSuffixToValue.put("hasTargetEntityLink", "true");
+
+      provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".name", "id");
       numberOfEntityAttributes++;
       
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("useGroupDescription"), true)) {
-        provisionerSuffixToValue.put("targetGroupAttribute."+numberOfEntityAttributes+".name", "description");
+      String userPrincipalNameAttributeType = startWithSuffixToValue.get("entityUserPrincipalName");
+      if (StringUtils.isNotBlank(userPrincipalNameAttributeType)) {
+        if (StringUtils.equals("script", userPrincipalNameAttributeType)) {
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "translationScript");
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpression", startWithSuffixToValue.get("entityUserPrincipalNameTranslationScript"));
+        } else if (StringUtils.equals("other", userPrincipalNameAttributeType)) {
+          //do nothing
+        } else { 
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateFromGrouperProvisioningEntityField", userPrincipalNameAttributeType);
+        }
+        
+        provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".name", "userPrincipalName");
         numberOfEntityAttributes++;
       }
       
-      provisionerSuffixToValue.put("targetGroupAttribute."+numberOfEntityAttributes+".name", startWithSuffixToValue.get("mailNicknameAttributeValue"));
-      numberOfEntityAttributes++;
+      String entityMailNicknameType = startWithSuffixToValue.get("entityMailNickname");
+      if (StringUtils.isNotBlank(entityMailNicknameType)) {
+        if (StringUtils.equals("script", entityMailNicknameType)) {
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "translationScript");
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpression", startWithSuffixToValue.get("entityMailNicknameTranslationScript"));
+        } else if (StringUtils.equals("other", entityMailNicknameType)) {
+          //do nothing
+        } else {
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateFromGrouperProvisioningEntityField", entityMailNicknameType);
+        }
+        provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".name", "mailNickname");
+        numberOfEntityAttributes++;
+      }
       
-      provisionerSuffixToValue.put("numberOfGroupAttributes", numberOfEntityAttributes);
+      String entityOnPremisesImmutableIdType = startWithSuffixToValue.get("entityOnPremisesImmutableId");
+      if (StringUtils.isNotBlank(entityOnPremisesImmutableIdType)) {
+        if (StringUtils.equals("script", entityOnPremisesImmutableIdType)) {
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "translationScript");
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpression", startWithSuffixToValue.get("entityOnPremisesImmutableIdTranslationScript"));
+        } else if (StringUtils.equals("other", entityOnPremisesImmutableIdType)) {
+          //do nothing
+        } else {
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateFromGrouperProvisioningEntityField", entityOnPremisesImmutableIdType);
+        }
+        provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".name", "onPremisesImmutableId");
+        numberOfEntityAttributes++;
+      }
+      
+      
+      String entityDisplayNameAttributeType = startWithSuffixToValue.get("entityDisplayName");
+      if (StringUtils.isNotBlank(entityDisplayNameAttributeType)) {
+        if (StringUtils.equals("script", entityDisplayNameAttributeType)) {
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "translationScript");
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpression", startWithSuffixToValue.get("entityDisplayNameTranslationScript"));
+        } else if (StringUtils.equals("other", entityDisplayNameAttributeType)) {
+          //do nothing
+        } else { 
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateFromGrouperProvisioningEntityField", entityDisplayNameAttributeType);
+        }
+        
+        provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".name", "displayName");
+        numberOfEntityAttributes++;
+      }
+      
+      provisionerSuffixToValue.put("numberOfEntityAttributes", numberOfEntityAttributes);
+      provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
+
+      provisionerSuffixToValue.put("entityAttributeValueCache0has", "true");
+      provisionerSuffixToValue.put("entityAttributeValueCache0source", "target");
+      provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
+      provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", "id");
+      
+      String entitySearchMatchingAttribute = startWithSuffixToValue.get("entitySearchMatchingAttribute");
+      provisionerSuffixToValue.put("entityMatchingAttributeCount", "1");
+      provisionerSuffixToValue.put("entityMatchingAttribute0name", entitySearchMatchingAttribute);
+      
     }
     
+    provisionerSuffixToValue.put("operateOnGrouperMemberships", "true");
+    provisionerSuffixToValue.put("provisioningType", "membershipObjects");
     
   }
 
@@ -189,6 +319,38 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
       String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithAzureConfigurationValidationEntityFieldNotSelected");
       errorsToDisplay.add(errorMessage);
     }
+    
+    
+    GrouperConfigurationModuleAttribute subjectSourceEntityResoverModuleAttribute = this.retrieveAttributes().get("subjectSourceEntityResolverAttributes");
+    if (subjectSourceEntityResoverModuleAttribute != null && StringUtils.isNotBlank(subjectSourceEntityResoverModuleAttribute.getValue())) {
+      String commaSeparatedResolverAttributes = subjectSourceEntityResoverModuleAttribute.getValue();
+      List<String> list = GrouperUtil.splitTrimToList(commaSeparatedResolverAttributes, ",");
+      if (list.size() > 3) {
+        String errorMessage = GrouperTextContainer.textOrNull("subjectSourceEntityResolverAttributesMoreThanThreeAttributes");
+        validationErrorsToDisplay.put(subjectSourceEntityResoverModuleAttribute.getHtmlForElementIdHandle(), errorMessage);
+      }
+    }
+    
+    GrouperConfigurationModuleAttribute entitySearchMatchingAttribute = this.retrieveAttributes().get("entitySearchMatchingAttribute");
+    String searchMatchingAttributeValue = entitySearchMatchingAttribute.getValueOrExpressionEvaluation();
+    if (StringUtils.equals(searchMatchingAttributeValue, "mailNickname") && 
+        (mailNickNameAttribute == null || StringUtils.isBlank(mailNickNameAttribute.getValueOrExpressionEvaluation()))) {
+      String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithAzureConfigurationValidationEntitySearchMatchingAttributeNotValid");
+      validationErrorsToDisplay.put(entitySearchMatchingAttribute.getHtmlForElementIdHandle(), errorMessage);
+    }
+    
+    if (StringUtils.equals(searchMatchingAttributeValue, "onPremisesImmutableId") && 
+        (onPremAttribute == null || StringUtils.isBlank(onPremAttribute.getValueOrExpressionEvaluation()))) {
+      String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithAzureConfigurationValidationEntitySearchMatchingAttributeNotValid");
+      validationErrorsToDisplay.put(entitySearchMatchingAttribute.getHtmlForElementIdHandle(), errorMessage);
+    }
+    
+    if (StringUtils.equals(searchMatchingAttributeValue, "userPrincipalName") && 
+        (principalNameAttribute == null || StringUtils.isBlank(principalNameAttribute.getValueOrExpressionEvaluation()))) {
+      String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithAzureConfigurationValidationEntitySearchMatchingAttributeNotValid");
+      validationErrorsToDisplay.put(entitySearchMatchingAttribute.getHtmlForElementIdHandle(), errorMessage);
+    }
+    
     
   }
   
