@@ -67,31 +67,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    * @param args
    */
   public static void main(String[] args) {
-<<<<<<< HEAD
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLatestConfig_1"));    
-=======
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullOverrideDn"));    
->>>>>>> 1159d64 fix ldap provisioning test
-=======
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullOverrideDn"));    
->>>>>>> 1159d64 fix ldap provisioning test
-=======
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLatestConfig_1"));    
->>>>>>> 4572c59 fix ldap tests
-=======
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullLatestConfig_1"));    
->>>>>>> 4572c59 fix ldap tests
-=======
     TestRunner.run(new SimpleLdapProvisionerTest("testDeletingAGroupOnGrouperSideVariousDeleteTypesFullProvisioning"));    
->>>>>>> 49ec323 fix provisioning test
-=======
-    TestRunner.run(new SimpleLdapProvisionerTest("testDeletingAGroupOnGrouperSideVariousDeleteTypesFullProvisioning"));    
->>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
   }
   
   public SimpleLdapProvisionerTest() {

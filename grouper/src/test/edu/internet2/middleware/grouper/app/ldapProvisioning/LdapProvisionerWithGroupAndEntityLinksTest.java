@@ -48,39 +48,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< HEAD
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideFlat"));    
-=======
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullUmassActiveDirectory"));    
->>>>>>> 473f975 add umass test
-=======
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideFlat"));    
->>>>>>> 68048c1 adjust how we know if we are selecting memberships for group/entity in provisioning
-=======
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullFlatHarvard"));    
->>>>>>> a6357c0 get rid of sync object data store
-=======
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullOnlyDnOverrideFlat"));    
->>>>>>> bc8dc73 fix thread issue, and counts
-=======
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullFlatHarvardDontSelectAll"));    
->>>>>>> f049864 fix retrieve memberships if already done with group or entity
-=======
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullFlatHarvardDontSelectAll"));    
->>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
-=======
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testLdapProvisionerWithGroupAndEntityLinksCaseInsensitiveMatchingFull"));    
->>>>>>> 29766ff Setup for case insensitive matches
-=======
     TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testLdapProvisionerWithGroupAndEntityLinksCaseInsensitiveMatchingIncremental"));    
->>>>>>> 6d6bfa0 GRP-4599: Provisioner needs case-insensitive search/match option
   }
   
   @Override

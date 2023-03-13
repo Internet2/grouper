@@ -336,31 +336,6 @@ public class GrouperDuoApiCommands {
     grouperHttpCall.addHeader("Content-Type", "application/x-www-form-urlencoded");
     
     grouperHttpCall.assignBody(body);
-<<<<<<< GROUPER_5_BRANCH
-    
-    String PARAMS_LINE = paramsLine;
-    grouperHttpCall.setGrouperHttpClientSetupAuthorization(new GrouperHttpClientSetupAuthorization() {
-      
-      @Override
-      public void setupAuthorization(GrouperHttpClient httpClient) {
-        assignDateAndAuthorizationHeader(grouperHttpCall, httpMethodName, 
-            adminDomainName, version, urlSuffix, PARAMS_LINE, configId);
-        
-      }
-    });
-=======
->>>>>>> 87f4ca6 Handle 429s and connection time outs for duo
-    
-    String PARAMS_LINE = paramsLine;
-    grouperHttpCall.setGrouperHttpClientSetupAuthorization(new GrouperHttpClientSetupAuthorization() {
-      
-      @Override
-      public void setupAuthorization(GrouperHttpClient httpClient) {
-        assignDateAndAuthorizationHeader(grouperHttpCall, httpMethodName, 
-            adminDomainName, version, urlSuffix, PARAMS_LINE, configId);
-        
-      }
-    });
     
     String PARAMS_LINE = paramsLine;
     grouperHttpCall.setGrouperHttpClientSetupAuthorization(new GrouperHttpClientSetupAuthorization() {
@@ -376,9 +351,6 @@ public class GrouperDuoApiCommands {
     int code = -1;
     String json = null;
     
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
     grouperHttpCall.executeRequest();
     code = grouperHttpCall.getResponseCode();
     returnCode[0] = code;
@@ -388,68 +360,6 @@ public class GrouperDuoApiCommands {
     GrouperProvisioner currentGrouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
     if (currentGrouperProvisioner != null) {
       GrouperUtil.mapAddValue(currentGrouperProvisioner.getDebugMap(), "duoCommandsRetryCount", timesItWasRetried);
-=======
-    for (int i=0; i<5; i++) {
-      RuntimeException runtimeException = null;
-      boolean retry = false;
-      try {
-        assignDateAndAuthorizationHeader(grouperHttpCall, httpMethodName, 
-            adminDomainName, version, urlSuffix, paramsLine, configId);
-        grouperHttpCall.executeRequest();
-        code = grouperHttpCall.getResponseCode();
-        returnCode[0] = code;
-        json = grouperHttpCall.getResponseBody();
-      } catch (Exception e) {
-        
-        String fullStackTrace = GrouperUtil.getFullStackTrace(e);
-        if (StringUtils.isNotBlank(fullStackTrace) && StringUtils.contains(fullStackTrace, "timed out")) {
-          retry = true;
-        }
-        runtimeException = new RuntimeException("Error connecting to '" + debugMap.get("url") + "'", e);
-      }
-      if (code == 429) {
-        retry = true;
-      }
-      
-      if (i != 4 && retry) {
-        GrouperUtil.sleep(60000 * (i+1)); // 1 min -> 2 mins -> 3 mins ->>>>
-        GrouperProvisioner currentGrouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-        if (currentGrouperProvisioner != null) {
-          GrouperUtil.mapAddValue(currentGrouperProvisioner.getDebugMap(), "duoCommandsRetryCount", 1);
-        }
-        continue;
-      }
-      
-      if (runtimeException != null) {
-        throw runtimeException;
-      }
-      
-      if (!retry) {
-        break;
-      }
->>>>>>> 87f4ca6 Handle 429s and connection time outs for duo
-=======
-    grouperHttpCall.executeRequest();
-    code = grouperHttpCall.getResponseCode();
-    returnCode[0] = code;
-    json = grouperHttpCall.getResponseBody();
-    int timesItWasRetried = grouperHttpCall.getRetryForThrottlingTimesItWasRetried();
-    
-    GrouperProvisioner currentGrouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-    if (currentGrouperProvisioner != null) {
-      GrouperUtil.mapAddValue(currentGrouperProvisioner.getDebugMap(), "duoCommandsRetryCount", timesItWasRetried);
->>>>>>> c1e55fe Allow group and entity attributes for midpoint provisioning. Move retry logic to http client
-=======
-    grouperHttpCall.executeRequest();
-    code = grouperHttpCall.getResponseCode();
-    returnCode[0] = code;
-    json = grouperHttpCall.getResponseBody();
-    int timesItWasRetried = grouperHttpCall.getRetryForThrottlingTimesItWasRetried();
-    
-    GrouperProvisioner currentGrouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
-    if (currentGrouperProvisioner != null) {
-      GrouperUtil.mapAddValue(currentGrouperProvisioner.getDebugMap(), "duoCommandsRetryCount", timesItWasRetried);
->>>>>>> c1e55fe Allow group and entity attributes for midpoint provisioning. Move retry logic to http client
     }
       
     if (!allowedReturnCodes.contains(code)) {

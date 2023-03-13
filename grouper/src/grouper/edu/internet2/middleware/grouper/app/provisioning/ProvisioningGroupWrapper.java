@@ -93,72 +93,8 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   private ProvisioningGroup grouperProvisioningGroup;
 
   /**
-<<<<<<< GROUPER_5_BRANCH
    * this is what is retrieved from the target and structured in the target representation
    */
-<<<<<<< GROUPER_5_BRANCH
-=======
-  private boolean delete;
-  
-  
-  /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @return
-   */
-  public boolean isDelete() {
-    return delete;
-  }
-
-
-
-
-  /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @param delete
-   */
-  public void setDelete(boolean delete) {
-    this.delete = delete;
-  }
-  
-  
-  /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
-   * to be needed to be updated.  This is used to retrieve the correct
-   * incremental state from the target
-   */
-  private boolean update;
-  
-  
-  /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
-   * to be needed to be updated.  This is used to retrieve the correct
-   * incremental state from the target
-   * @return
-   */
-  public boolean isUpdate() {
-    return this.update;
-  }
-
-  /**
-   * if the grrouperProvisioningGroup side is for an update.  includes things that are known 
-   * to be needed to be updated.  This is used to retrieve the correct
-   * incremental state from the target
-   * @param update
-   */
-  public void setUpdate(boolean update) {
-    this.update = update;
-  }
-
-  /**
-=======
->>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
-   * this is what is retrieved from the target and structured in the target representation
-   */
->>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
   private ProvisioningGroup targetProvisioningGroup;
   
   /**
@@ -167,35 +103,8 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
   private ProvisioningGroup grouperTargetGroup;
 
   /**
-<<<<<<< GROUPER_5_BRANCH
    * this comes from the commands class and is target specific bean
    */
-<<<<<<< GROUPER_5_BRANCH
-=======
-  private boolean create;
-  
-  /**
-   * if this is for a create in target
-   * @return
-   */
-  public boolean isCreate() {
-    return create;
-  }
-
-  /**
-   * if this is for a create in target
-   * @param create
-   */
-  public void setCreate(boolean create) {
-    this.create = create;
-  }
-
-  /**
-=======
->>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
-   * this comes from the commands class and is target specific bean
-   */
->>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
   private Object targetNativeGroup;
   
   private GcGrouperSyncGroup gcGrouperSyncGroup;

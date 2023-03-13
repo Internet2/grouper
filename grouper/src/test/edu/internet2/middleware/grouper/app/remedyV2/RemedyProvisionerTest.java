@@ -112,8 +112,6 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
       assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) > 0);
       
       for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
         assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
         
         assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
@@ -132,33 +130,6 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
       
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
         assertTrue(provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
-=======
-        assertTrue(provisioningGroupWrapper.isRecalcObject());
-=======
-        assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
->>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
-        
-        assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
-      }
-      
-      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) > 0);
-      
-      for (ProvisioningEntityWrapper provisioningEntityWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
-        assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
-        
-        assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
-        
-      }
-      
-      assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) > 0);
-      
-      for (ProvisioningMembershipWrapper provisioningMembershipWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
-<<<<<<< GROUPER_5_BRANCH
-        assertTrue(provisioningMembershipWrapper.isRecalcObject());
->>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
-=======
-        assertTrue(provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject());
->>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
       }
       
       assertEquals("P123", grouperRemedyMembership.getPersonId());

@@ -356,10 +356,6 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
     ProvisioningEntity targetEntity = targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity();
     
     String targetEntityId = resolveTargetEntityId(targetEntity);
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
-=======
->>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
     List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
     
     if (StringUtils.isBlank(targetEntityId)) {
@@ -408,60 +404,6 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       if (targetGroup != null && StringUtils.isNotBlank(targetGroup.retrieveAttributeValueString("groupName"))) {
         groupName = targetGroup.retrieveAttributeValueString("groupName");
       }
-=======
-    List<Object> provisioningMemberships = new ArrayList<Object>();
-    
-    if (StringUtils.isBlank(targetEntityId)) {
-      return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
-    }
-    
-    try {
-      GrouperDigitalMarketplaceConfiguration digitalMarketplaceConfiguration = (GrouperDigitalMarketplaceConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-      String digitalMarketplaceExternalSystemConfigId = digitalMarketplaceConfiguration.getDigitalMarketplaceExternalSystemConfigId();
-      
-      GrouperDigitalMarketplaceUser digitalMarketplaceUser = GrouperDigitalMarketplaceApiCommands.retrieveDigitalMarketplaceUser(digitalMarketplaceExternalSystemConfigId, targetEntityId);
-      
-      if (digitalMarketplaceUser == null) {
-        return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
-      }
-      
-      for (String group : digitalMarketplaceUser.getGroups()) {
-        
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
-        
-        targetMembership.assignAttributeValue("groupName", group);
-        targetMembership.assignAttributeValue("loginName", targetEntityId);
-        
-        provisioningMemberships.add(targetMembership);
-      }
-      
-      return new TargetDaoRetrieveMembershipsByEntityResponse(provisioningMemberships);
-      
-    } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));
-    }
-  }
-  
-
-  @Override
-  public TargetDaoDeleteGroupResponse deleteGroup(
-      TargetDaoDeleteGroupRequest targetDaoDeleteGroupRequest) {
-    
-    long startNanos = System.nanoTime();
-    
-    try {
-      GrouperDigitalMarketplaceConfiguration digitalMarketplaceConfiguration = (GrouperDigitalMarketplaceConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-      String digitalMarketplaceExternalSystemConfigId = digitalMarketplaceConfiguration.getDigitalMarketplaceExternalSystemConfigId();
-      ProvisioningGroup targetGroup = targetDaoDeleteGroupRequest.getTargetGroup();
-<<<<<<< GROUPER_5_BRANCH
-      String groupName = resolveTargetGroupId(targetGroup);
->>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
-=======
-      String groupName = null;
-      if (targetGroup != null && StringUtils.isNotBlank(targetGroup.retrieveAttributeValueString("groupName"))) {
-        groupName = targetGroup.retrieveAttributeValueString("groupName");
-      }
->>>>>>> 59ea315 Add digital marketplace provisioner full sync test
       if (StringUtils.isBlank(groupName)) {
         return new TargetDaoDeleteGroupResponse();
       }

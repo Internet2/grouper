@@ -6,8 +6,6 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningStateGroup extends ProvisioningStateBase {
 
-<<<<<<< GROUPER_5_BRANCH
-<<<<<<< GROUPER_5_BRANCH
   public ProvisioningStateGroup() {
     
   }
@@ -101,16 +99,6 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   }
 
   /**
-<<<<<<< HEAD
-<<<<<<< GROUPER_5_BRANCH
-   * if this is incremental and the membership type is groupAttributes and recalcing any memberships for this group then all change log events for this group
-   * will be recalced
-<<<<<<< GROUPER_5_BRANCH
-   */
-  private boolean incrementalSyncMemberships;
-  /**
-=======
->>>>>>> 4d8602b improve provisioning
    * if recalcing the groupAttribute memberships 
    */
   private boolean recalcGroupMemberships;
@@ -139,58 +127,6 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   @Override
   public String toString() {
     return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore, "id='" + this.getProvisioningGroupWrapper().getGroupId() + "'");
-=======
-=======
-  public ProvisioningStateGroup() {
-    
-  }
-  
->>>>>>> a8d0568 improve logging of new provisioning state
-  /**
-   * if this is incremental, and syncing memberships for this group
-=======
->>>>>>> 3c25747 Provisioning related changes - make incremental sync more robust
-   */
-  private boolean incrementalSyncMemberships;
-  /**
-=======
->>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
-   * if recalcing the groupAttribute memberships 
-   */
-  private boolean recalcGroupMemberships;
-  private String groupId;
-  
-  
-  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningGroupWrapper");
-  
-  private ProvisioningGroupWrapper provisioningGroupWrapper = null;
-  
-  public ProvisioningGroupWrapper getProvisioningGroupWrapper() {
-    return provisioningGroupWrapper;
-  }
-
-
-  
-  public void setProvisioningGroupWrapper(
-      ProvisioningGroupWrapper provisioningGroupWrapper) {
-    this.provisioningGroupWrapper = provisioningGroupWrapper;
-  }
-
-
-  /**
-   * 
-   */
-  @Override
-  public String toString() {
-<<<<<<< GROUPER_5_BRANCH
-    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore);
->>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
-=======
-    return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore, "id='" + this.getProvisioningGroupWrapper().getGroupId() + "'");
-<<<<<<< HEAD
->>>>>>> a8d0568 improve logging of new provisioning state
-=======
->>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
   }
 
 
