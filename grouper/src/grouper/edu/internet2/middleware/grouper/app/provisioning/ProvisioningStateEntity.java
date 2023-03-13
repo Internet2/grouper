@@ -74,6 +74,7 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
   }
   
   
+<<<<<<< HEAD
   private String memberId;
   /**
    * if recalcing the entity memberships 
@@ -178,11 +179,9 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
 <<<<<<< GROUPER_5_BRANCH
 =======
 
+=======
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
   private String memberId;
-  /**
-   * if this is incremental, and syncing memberships for this group
-   */
-  private boolean incrementalSyncMemberships;
   /**
    * if recalcing the entity memberships 
    */
@@ -209,6 +208,13 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
   }
 
   private ProvisioningEntityWrapper provisioningEntityWrapper = null;
+
+  /**
+   * if the memberships for this entity was attempted to be selected from target
+   */
+  private boolean selectAllMembershipsResultProcessed;
+
+  private boolean selectSomeMembershipsResultProcessed;
   
   
   
@@ -226,29 +232,11 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
 
 
   /**
-   * if this is incremental, and syncing memberships for this group
-   * @return
-   */
-  public boolean isIncrementalSyncMemberships() {
-    return incrementalSyncMemberships;
-  }
-
-
-  /**
    * if recalcing the entity memberships 
    * @return
    */
   public boolean isRecalcEntityMemberships() {
     return recalcEntityMemberships;
-  }
-
-
-  /**
-   * if this is incremental, and syncing memberships for this group
-   * @param incrementalSyncMemberships1
-   */
-  public void setIncrementalSyncMemberships(boolean incrementalSyncMemberships1) {
-    this.incrementalSyncMemberships = incrementalSyncMemberships1;
   }
 
 
@@ -260,7 +248,44 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
     this.recalcEntityMemberships = recalcEntityMemberships1;
   }
 
+<<<<<<< HEAD
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
 =======
 >>>>>>> dad5d51 Provisioning related changes, wip
+=======
+  
+  public boolean isSelectAllMembershipResultProcessed() {
+    return selectAllMembershipResultProcessed;
+  }
+
+  
+  public void setSelectAllMembershipResultProcessed(
+      boolean selectAllMembershipResultProcessed) {
+    this.selectAllMembershipResultProcessed = selectAllMembershipResultProcessed;
+  }
+
+  /**
+   * if the memberships for this entity was attempted to be selected from target
+   */
+  public boolean isSelectAllMembershipsResultProcessed() {
+    return selectAllMembershipsResultProcessed;
+  }
+
+  public boolean isSelectSomeMembershipsResultProcessed() {
+    return selectSomeMembershipsResultProcessed;
+  }
+
+  /**
+   * if the memberships for this entity was attempted to be selected from target
+   */
+  public void setSelectAllMembershipsResultProcessed(boolean selectMembershipResultProcessed) {
+    this.selectAllMembershipsResultProcessed = selectMembershipResultProcessed;
+  }
+
+  public void setSelectSomeMembershipsResultProcessed(
+      boolean selectSomeMembershipsResultProcessed) {
+    this.selectSomeMembershipsResultProcessed = selectSomeMembershipsResultProcessed;
+  }
+  
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
 }

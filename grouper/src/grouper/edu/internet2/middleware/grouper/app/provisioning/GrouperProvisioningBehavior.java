@@ -1583,6 +1583,7 @@ public class GrouperProvisioningBehavior {
       selectMembershipsAll = false;
       return selectMembershipsAll;
     }
+<<<<<<< HEAD
 >>>>>>> 37c6ac9 Remedy V2 digital marketplace provisioner
 //    if (!this.isSelectMemberships()) {
 //      return false;
@@ -1693,7 +1694,15 @@ public class GrouperProvisioningBehavior {
         return this.selectMembershipsAll;
       }
 <<<<<<< GROUPER_5_BRANCH
+=======
+        
+    if (this.isSelectEntitiesAll() && this.isSelectMembershipsWithEntity()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
       
+<<<<<<< HEAD
       if (!this.isSelectEntitiesAll() &&
           (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getWrappedDao()
               .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)
@@ -1748,6 +1757,19 @@ public class GrouperProvisioningBehavior {
 =======
       
     if (this.isSelectGroupsAll() && this.isSelectMembershipsWithGroup()) {
+=======
+    if (this.isSelectGroupsAll() && this.isSelectMembershipsWithGroup()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+
+    if (this.isSelectEntitiesAll() && this.isSelectMembershipsAllForEntity()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+      
+    if (this.isSelectGroupsAll() && this.isSelectMembershipsAllForGroup()) {
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
       this.selectMembershipsAll = true;
       return this.selectMembershipsAll;
     }

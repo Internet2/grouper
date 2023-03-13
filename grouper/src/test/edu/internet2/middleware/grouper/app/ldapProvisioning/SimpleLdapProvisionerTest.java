@@ -67,6 +67,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    * @param args
    */
   public static void main(String[] args) {
+<<<<<<< HEAD
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
@@ -88,6 +89,9 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
 =======
     TestRunner.run(new SimpleLdapProvisionerTest("testDeletingAGroupOnGrouperSideVariousDeleteTypesFullProvisioning"));    
 >>>>>>> 49ec323 fix provisioning test
+=======
+    TestRunner.run(new SimpleLdapProvisionerTest("testDeletingAGroupOnGrouperSideVariousDeleteTypesFullProvisioning"));    
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
   }
   
   public SimpleLdapProvisionerTest() {

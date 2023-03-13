@@ -1178,6 +1178,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   @Override
+<<<<<<< HEAD
 <<<<<<< GROUPER_5_BRANCH
   public TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups(TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest) {
 
@@ -1264,6 +1265,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
 =======
 >>>>>>> 4d8602b improve provisioning
+=======
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
   public TargetDaoDeleteEntityResponse deleteEntity(TargetDaoDeleteEntityRequest targetDaoDeleteEntityRequest) {
     
     long startNanos = System.nanoTime();

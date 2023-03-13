@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 public abstract class GrouperProvisionerTargetDaoBase {
 
   /**
+<<<<<<< HEAD
 <<<<<<< GROUPER_5_BRANCH
    * indicate if the dao is configured and able to recalc group memberships
    * @return
@@ -90,6 +91,8 @@ public abstract class GrouperProvisionerTargetDaoBase {
   /**
 =======
 >>>>>>> 4d8602b improve provisioning
+=======
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
    * start logging the source low level actions
    * @return true if the logging was started (i.e. can be stopped), or false if already started (in which case 
    * somewhere up the stack with stop it so dont stop it)

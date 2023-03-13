@@ -378,6 +378,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
           firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningEntityWrapper.getProvisioningStateEntity().isDeleteResultProcessed());
         }
 
+<<<<<<< HEAD
         if (this.provisioningEntityWrapper.getErrorCode() != null) {
           firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningEntityWrapper.getErrorCode().name());
         }
@@ -433,11 +434,19 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
           firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningEntityWrapper.getProvisioningStateEntity().isDeleteResultProcessed());
         }
         firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningEntityWrapper.getProvisioningStateEntity().isIncrementalSyncMemberships());
+=======
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
         if (this.provisioningEntityWrapper.getErrorCode() != null) {
           firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningEntityWrapper.getErrorCode().name());
         }
         if (this.provisioningEntityWrapper.getProvisioningStateEntity().getMillisSince1970() != null) {
           firstField = toStringAppendField(result, firstField, "millis1970", this.provisioningEntityWrapper.getProvisioningStateEntity().getMillisSince1970());
+        }
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMemberships()) {
+          firstField = toStringAppendField(result, firstField, "selectSomeMemberships", this.provisioningEntityWrapper.getProvisioningStateEntity().isSelectSomeMemberships());
+        }
+        if (this.provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships()) {
+          firstField = toStringAppendField(result, firstField, "selectAllMemberships", this.provisioningEntityWrapper.getProvisioningStateEntity().isSelectAllMemberships());
         }
         if (this.provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
           firstField = toStringAppendField(result, firstField, "selectProcessed", this.provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed());

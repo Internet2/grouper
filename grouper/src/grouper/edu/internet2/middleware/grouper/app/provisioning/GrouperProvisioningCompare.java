@@ -1722,6 +1722,7 @@ public class GrouperProvisioningCompare {
       Set<Object> groupIdEntityIdsToDelete = new HashSet<Object>();
       for (Object key : targetMatchingIdToTargetMembership.keySet()) {
         ProvisioningMembership grouperTargetMembership = targetMatchingIdToTargetMembership.get(key);
+<<<<<<< HEAD
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
@@ -1741,6 +1742,11 @@ public class GrouperProvisioningCompare {
             && (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
                 || grouperTargetMembership.getProvisioningMembershipWrapper().getGrouperTargetMembership() == null)) {
 >>>>>>> 89c106f fix deletes
+=======
+        if (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed()
+            && (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
+                || grouperTargetMembership.getProvisioningMembershipWrapper().getGrouperTargetMembership() == null)) {
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
           groupIdEntityIdsToDelete.add(key);
         }
       }
@@ -1749,6 +1755,7 @@ public class GrouperProvisioningCompare {
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
         if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isSelectResultProcessed()) {
+<<<<<<< HEAD
 <<<<<<< GROUPER_5_BRANCH
 =======
         if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isRecalcObject()) {
@@ -1761,6 +1768,9 @@ public class GrouperProvisioningCompare {
 =======
           if  (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
 >>>>>>> 4d8602b improve provisioning
+=======
+          if  (grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
                   && (grouperTargetMembership.getProvisioningMembershipWrapper().getTargetProvisioningMembership() != null 
                   || grouperTargetMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership().isInTarget() )) {
             groupIdEntityIdsToDelete.add(key);

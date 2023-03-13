@@ -101,6 +101,7 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   }
 
   /**
+<<<<<<< HEAD
 <<<<<<< GROUPER_5_BRANCH
    * if this is incremental and the membership type is groupAttributes and recalcing any memberships for this group then all change log events for this group
    * will be recalced
@@ -152,6 +153,8 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
    */
   private boolean incrementalSyncMemberships;
   /**
+=======
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
    * if recalcing the groupAttribute memberships 
    */
   private boolean recalcGroupMemberships;
@@ -184,7 +187,10 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
 >>>>>>> 252ebc1 restructure how state is stored in provisioning wrappers
 =======
     return GrouperClientUtils.toStringReflection(this, toStringFieldNamesToIgnore, "id='" + this.getProvisioningGroupWrapper().getGroupId() + "'");
+<<<<<<< HEAD
 >>>>>>> a8d0568 improve logging of new provisioning state
+=======
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
   }
 
 

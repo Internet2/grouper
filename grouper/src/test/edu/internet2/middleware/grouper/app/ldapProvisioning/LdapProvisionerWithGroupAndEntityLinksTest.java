@@ -57,6 +57,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
+<<<<<<< HEAD
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
 <<<<<<< GROUPER_5_BRANCH
@@ -78,6 +79,9 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
 =======
     TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullFlatHarvardDontSelectAll"));    
 >>>>>>> f049864 fix retrieve memberships if already done with group or entity
+=======
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullFlatHarvardDontSelectAll"));    
+>>>>>>> cde0848eaefb94061e688bf390c1349ca347f98b
   }
   
   @Override
