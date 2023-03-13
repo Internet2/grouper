@@ -11361,7 +11361,8 @@ public class GrouperUtil {
             logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
           }
         }
-        LOG.debug(logMessage.toString());
+        // GRP-4622: do not log env vars in container since could be sensitive
+        LOG.trace(logMessage.toString());
       }
     }
   }
@@ -11487,7 +11488,8 @@ public class GrouperUtil {
             logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
           }
         }
-        LOG.debug(logMessage.toString());
+        // GRP-4622: do not log env vars in container since could be sensitive
+        LOG.trace(logMessage.toString());
       }
     }
   }
@@ -14534,7 +14536,8 @@ public class GrouperUtil {
             logMessage.append(", and exception: " + exception + ", " + ExceptionUtils.getFullStackTrace(exception));
           }
         }
-        LOG.debug(logMessage.toString());
+        // GRP-4622: do not log env vars in container since could be sensitive
+        LOG.trace(logMessage.toString());
       }
     }
   }
