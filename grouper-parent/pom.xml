@@ -152,6 +152,7 @@
         <jboss.logging.version>3.3.1.Final</jboss.logging.version>
         <jetty.version>6.1.26</jetty.version>
         <jetty.util.version>6.1.26</jetty.util.version>
+        <opensaml.version>2.6.4</opensaml.version>
         <openspml2.version>192-20100413</openspml2.version>
         <quartz.version>2.3.2</quartz.version>
         <slf4j.version>1.7.32</slf4j.version>
@@ -777,6 +778,11 @@
                 <groupId>jline</groupId>
                 <artifactId>jline</artifactId>
                 <version>${jline.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.opensaml</groupId>
+                <artifactId>opensaml</artifactId>
+                <version>${opensaml.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openspml</groupId>
