@@ -19,8 +19,9 @@ public class GrouperDataRowTest extends GrouperTest {
    */
   public void testInsert() {
     Long internalId = GrouperDataRowDao.findOrAdd("test");
-    GrouperDataAlias grouperDataAlias = GrouperDataAliasDao.selectByLowerName("test");
-    assertEquals((Long)internalId, (Long)grouperDataAlias.getDataRowInternalId());
+    GrouperDataRow grouperDataRow = GrouperDataRowDao.selectByConfigId("test");
+    assertEquals("test", grouperDataRow.getConfigId());
+    assertEquals(internalId.longValue(), grouperDataRow.getInternalId());
 
   }
 

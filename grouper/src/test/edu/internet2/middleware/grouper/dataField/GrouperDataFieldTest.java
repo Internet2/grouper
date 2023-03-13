@@ -19,8 +19,9 @@ public class GrouperDataFieldTest extends GrouperTest {
    */
   public void testInsert() {
     Long internalId = GrouperDataFieldDao.findOrAdd("Test");
-    GrouperDataAlias grouperDataAlias = GrouperDataAliasDao.selectByLowerName("test");
-    assertEquals((Long)internalId, (Long)grouperDataAlias.getDataFieldInternalId());
+    GrouperDataField grouperDataField = GrouperDataFieldDao.selectByText("Test");
+    assertEquals("Test", grouperDataField.getConfigId());
+    assertEquals(internalId.longValue(), grouperDataField.getInternalId());
   }
 
 }
