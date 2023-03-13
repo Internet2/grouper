@@ -1796,6 +1796,9 @@ public class GrouperDdlUtils {
         
         autoDdl2_5orAbove = false;
       } else {
+        if (autoDdlUpToVersion.endsWith(".*.*")) {
+          autoDdlUpToVersion = StringUtils.replace(autoDdlUpToVersion, ".*.*", ".0.0");
+        }
         if (autoDdlUpToVersion.endsWith(".*")) {
           autoDdlUpToVersion = StringUtils.replace(autoDdlUpToVersion, ".*", ".0");
         }
