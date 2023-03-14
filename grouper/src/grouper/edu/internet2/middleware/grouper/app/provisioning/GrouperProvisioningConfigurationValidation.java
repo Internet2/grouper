@@ -330,6 +330,7 @@ public class GrouperProvisioningConfigurationValidation {
   public void validateFromObjectModel() {
     validateOperateImpliesSelectOrInsert();
     validateMatchingAttributes();
+    validateMembershipAttributesAreNotCached();
   }
 
   
@@ -573,6 +574,52 @@ public class GrouperProvisioningConfigurationValidation {
       }
       if (!hasMemberMembershipId) {
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMembershipAttribute")));
+      }
+    }
+    
+  }
+  
+  public void validateMembershipAttributesAreNotCached() {
+    
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    if (grouperProvisioningConfiguration.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      
+      String groupMembershipAttributeName = grouperProvisioningConfiguration.getGroupMembershipAttributeName();
+      
+      if (StringUtils.isNotBlank(groupMembershipAttributeName)) {
+        
+        for (GrouperProvisioningConfigurationAttributeDbCache configurationAttributeDbCache : GrouperUtil.nonNull(grouperProvisioningConfiguration.getGroupAttributeDbCaches(), GrouperProvisioningConfigurationAttributeDbCache.class)) {
+          
+          if (configurationAttributeDbCache != null) {
+            if (StringUtils.equals(groupMembershipAttributeName, configurationAttributeDbCache.getAttributeName())) {
+              this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.membershipAttributeCanNotBeCached"))
+                  .assignJqueryHandle("groupAttributeValueCache"+configurationAttributeDbCache.getIndex()+"groupAttribute"));
+            break;
+            }
+          }
+        }
+        
+      }
+      
+     
+    } else if (grouperProvisioningConfiguration.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      
+      String entityMembershipAttributeName = grouperProvisioningConfiguration.getEntityMembershipAttributeName();
+      
+      if (StringUtils.isNotBlank(entityMembershipAttributeName)) {
+        
+        for (GrouperProvisioningConfigurationAttributeDbCache configurationAttributeDbCache : GrouperUtil.nonNull(grouperProvisioningConfiguration.getEntityAttributeDbCaches(), GrouperProvisioningConfigurationAttributeDbCache.class)) {
+          
+          if (configurationAttributeDbCache != null) {
+            if (StringUtils.equals(entityMembershipAttributeName, configurationAttributeDbCache.getAttributeName())) {
+              this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.membershipAttributeCanNotBeCached"))
+                    .assignJqueryHandle("entityAttributeValueCache"+configurationAttributeDbCache.getIndex()+"entityAttribute"));
+              break;
+            }
+          }
+        }
+        
       }
     }
     
