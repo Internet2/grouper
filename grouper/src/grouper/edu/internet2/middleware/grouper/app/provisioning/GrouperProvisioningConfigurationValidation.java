@@ -331,6 +331,7 @@ public class GrouperProvisioningConfigurationValidation {
     validateOperateImpliesSelectOrInsert();
     validateMatchingAttributes();
     validateMembershipAttributesAreNotCached();
+    validateMembershipAttributeDoesNotMatchSearchOrMatchingAttribute();
   }
 
   
@@ -574,6 +575,73 @@ public class GrouperProvisioningConfigurationValidation {
       }
       if (!hasMemberMembershipId) {
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntityMembershipAttribute")));
+      }
+    }
+    
+  }
+  
+ public void validateMembershipAttributeDoesNotMatchSearchOrMatchingAttribute() {
+    
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    if (grouperProvisioningConfiguration.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      
+      String groupMembershipAttributeName = grouperProvisioningConfiguration.getGroupMembershipAttributeName();
+      
+      if (StringUtils.isNotBlank(groupMembershipAttributeName)) {
+        
+        int groupMatchingAttributeCount = GrouperUtil.intValue(grouperProvisioningConfiguration.retrieveConfigInt("groupMatchingAttributeCount", false), 0);
+        for (int i=0;i<groupMatchingAttributeCount;i++) {
+          String configSuffix = "groupMatchingAttribute" + i + "name";
+          String matchingAttributeName = grouperProvisioningConfiguration.retrieveConfigString(configSuffix, false);
+          if (StringUtils.equals(groupMembershipAttributeName, matchingAttributeName)) {
+            this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.membershipAttributeCanNotBeMatchingAttribute"))
+                .assignJqueryHandle(configSuffix));
+            break;
+          }
+        }
+        
+        int groupSearchAttributeCount = GrouperUtil.intValue(grouperProvisioningConfiguration.retrieveConfigInt("groupSearchAttributeCount", false), 0);
+        for (int i=0;i<groupSearchAttributeCount;i++) {
+          String configSuffix = "groupSearchAttribute" + i + "name";
+          String searchAttributeName = grouperProvisioningConfiguration.retrieveConfigString(configSuffix, false);
+          if (StringUtils.equals(groupMembershipAttributeName, searchAttributeName)) {
+            this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.membershipAttributeCanNotBeSearchAttribute"))
+                .assignJqueryHandle(configSuffix));
+            break;
+          }
+        }
+      }
+      
+     
+    } else if (grouperProvisioningConfiguration.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      
+      String entityMembershipAttributeName = grouperProvisioningConfiguration.getEntityMembershipAttributeName();
+      
+      if (StringUtils.isNotBlank(entityMembershipAttributeName)) {
+        
+        int entityMatchingAttributeCount = GrouperUtil.intValue(grouperProvisioningConfiguration.retrieveConfigInt("entityMatchingAttributeCount", false), 0);
+        for (int i=0;i<entityMatchingAttributeCount;i++) {
+          String configSuffix = "entityMatchingAttribute" + i + "name";
+          String matchingAttributeName = grouperProvisioningConfiguration.retrieveConfigString(configSuffix, false);
+          if (StringUtils.equals(entityMembershipAttributeName, matchingAttributeName)) {
+            this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.membershipAttributeCanNotBeMatchingAttribute"))
+                .assignJqueryHandle(configSuffix));
+            break;
+          }
+        }
+        
+        int entitySearchAttributeCount = GrouperUtil.intValue(grouperProvisioningConfiguration.retrieveConfigInt("entitySearchAttributeCount", false), 0);
+        for (int i=0;i<entitySearchAttributeCount;i++) {
+          String configSuffix = "entitySearchAttribute" + i + "name";
+          String searchAttributeName = grouperProvisioningConfiguration.retrieveConfigString(configSuffix, false);
+          if (StringUtils.equals(entityMembershipAttributeName, searchAttributeName)) {
+            this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.membershipAttributeCanNotBeSearchAttribute"))
+                .assignJqueryHandle(configSuffix));
+            break;
+          }
+        }
+        
       }
     }
     
