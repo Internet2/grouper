@@ -30,6 +30,14 @@ public enum GrouperDataFieldType {
       grouperDataFieldAssign.setValueDictionaryInternalId(dictionaryId);
     }
     
+    @Override
+    public void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
+        Object value) {
+      String valueString = GrouperUtil.stringValue(value);
+      Long dictionaryId = GrouperDictionaryDao.findOrAdd(valueString);
+      grouperDataRowFieldAssign.setValueDictionaryInternalId(dictionaryId);
+    }
+    
     
   },
   
@@ -50,6 +58,12 @@ public enum GrouperDataFieldType {
       Long valueLong = GrouperUtil.longObjectValue(value, true);
       grouperDataFieldAssign.setValueInteger(valueLong);
     }
+    @Override
+    public void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
+        Object value) {
+      Long valueLong = GrouperUtil.longObjectValue(value, true);
+      grouperDataRowFieldAssign.setValueInteger(valueLong);
+    }
   },
   
   timestamp  {
@@ -69,6 +83,12 @@ public enum GrouperDataFieldType {
         Object value) {
       Long valueLong = GrouperUtil.longObjectValue(value, true);
       grouperDataFieldAssign.setValueInteger(valueLong);
+    }
+    @Override
+    public void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
+        Object value) {
+      Long valueLong = GrouperUtil.longObjectValue(value, true);
+      grouperDataRowFieldAssign.setValueInteger(valueLong);
     }
     
   },
@@ -92,6 +112,12 @@ public enum GrouperDataFieldType {
         Object value) {
       Boolean valueBoolean = GrouperUtil.booleanObjectValue(value);
       grouperDataFieldAssign.setValueInteger(valueBoolean == null ? null : (valueBoolean ? 1L : 0L));
+    }
+    @Override
+    public void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
+        Object value) {
+      Boolean valueBoolean = GrouperUtil.booleanObjectValue(value);
+      grouperDataRowFieldAssign.setValueInteger(valueBoolean == null ? null : (valueBoolean ? 1L : 0L));
     }
 
   };
@@ -156,7 +182,20 @@ public enum GrouperDataFieldType {
     assignValueHelper(grouperDataFieldAssign, value);
   }
 
+  
+  public void assignValue(GrouperDataRowFieldAssign grouperDataRowFieldAssign, Object value) {
+    grouperDataRowFieldAssign.setValueDictionaryInternalId(null);
+    grouperDataRowFieldAssign.setValueInteger(null);
+    if (value == Void.TYPE) {
+      return;
+    }
+    assignValueHelper(grouperDataRowFieldAssign, value);
+  }
+
   public abstract void assignValueHelper(GrouperDataFieldAssign grouperDataFieldAssign,
+      Object value);
+
+  public abstract void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
       Object value);
 
 

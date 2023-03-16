@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -56,18 +57,20 @@ public class GrouperAbac {
    * @param script
    * @return the error message or null for valid
    */
-  public static String validScript(String script) {
+  public static String validScript(String script, GrouperDataEngine grouperDataEngine) {
     if (script == null) {
       return "script is null";
     }
     script = script.trim();
     try {
       GrouperAbacEntity grouperAbacEntity = new GrouperAbacEntity();
+      grouperAbacEntity.setGrouperDataEngine(grouperDataEngine);
       grouperAbacEntity.setMultiValuedGroupExtensionInFolder(new HashMap<String, Set<String>>());
       grouperAbacEntity.setSingleValuedGroupExtensionInFolder(new HashMap<String, String>());
       grouperAbacEntity.setMemberOfGroupNames(new HashSet<String>());
       final JexlEngine jexlEngine = new JexlEngine();
       jexlEngine.setSilent(false);
+      // not sure this works
       jexlEngine.setLenient(true);
 
       jexlEngine.createScript(script.substring(2, script.length()-1));

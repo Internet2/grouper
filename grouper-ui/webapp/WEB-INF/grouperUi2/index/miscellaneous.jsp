@@ -73,6 +73,10 @@
                     	</c:if>
                       
                     </c:if>
+                    
+                    <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataFieldsSummary');" style="white-space: nowrap;"
+                      >${textContainer.text['miscAdminDataFieldsLink'] }</a>
+                    
                     <c:if test="${grouperRequestContainer.externalSystemContainer.canViewExternalSystems}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2ExternalSystem.viewExternalSystems');" style="white-space: nowrap;">
                       	${textContainer.text['adminExternalSystemsLink'] }</a>

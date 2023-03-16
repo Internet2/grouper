@@ -145,7 +145,7 @@ and gdfa.data_field_internal_id = gdf.internal_id;
 
 create view grouper_data_row_assign_v as
 select gdr.config_id data_row_config_id, gm.subject_id, 
-gdra.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id,
+gdr.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id,
 gm.subject_source subject_source_id, gm.id member_id
 from grouper_members gm, grouper_data_row_assign gdra, grouper_data_row gdr 
 where gdra.member_internal_id = gm.internal_id

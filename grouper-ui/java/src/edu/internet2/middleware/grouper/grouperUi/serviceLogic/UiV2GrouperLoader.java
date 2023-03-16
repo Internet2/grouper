@@ -56,6 +56,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGrouperLoaderJob;
@@ -1048,7 +1049,13 @@ public class UiV2GrouperLoader {
           
         }
         if (!hasError) {
-          String errorMessage = GrouperAbac.validScript(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript());
+          GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+          
+          GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+          
+          grouperDataEngine.loadFieldsAndRows(grouperConfig);
+
+          String errorMessage = GrouperAbac.validScript(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), grouperDataEngine);
           if (!StringUtils.isBlank(errorMessage)) {
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
                 TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptInvalid")
@@ -2008,7 +2015,13 @@ public class UiV2GrouperLoader {
           if (StringUtils.isBlank(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript())) {
             error = true;
           } else {
-            if (StringUtils.isNotBlank(GrouperAbac.validScript(grouperLoaderJexlScript))) {
+            GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+            
+            GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+            
+            grouperDataEngine.loadFieldsAndRows(grouperConfig);
+
+            if (StringUtils.isNotBlank(GrouperAbac.validScript(grouperLoaderJexlScript, grouperDataEngine))) {
               error = true;
             }
           }

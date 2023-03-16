@@ -17,6 +17,18 @@ public class GrouperDataMemberWrapper {
     this.internalId = memberInternalId;
   }
 
+  /**
+   * key is row internal id.
+   * value is a list of rows
+   * a row is a map of fieldInternalId to list of values
+   */
+  private Map<Long, List<Map<Long, List<Object>>>> dataProviderDataByDataRowInternalId = new HashMap<>();
+
+  
+  public Map<Long, List<Map<Long, List<Object>>>> getDataProviderDataByDataRowInternalId() {
+    return dataProviderDataByDataRowInternalId;
+  }
+
   private Map<Long, List<Object>> dataProviderDataByDataFieldInternalId = new HashMap<>();
   
   public Map<Long, List<Object>> getDataProviderDataByDataFieldIternalId() {

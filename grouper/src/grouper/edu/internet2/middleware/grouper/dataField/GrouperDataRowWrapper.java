@@ -13,6 +13,17 @@ public class GrouperDataRowWrapper {
   public GrouperDataRowWrapper(GrouperDataEngine grouperDataEngine, GrouperDataRow grouperDataRow) {
     this.grouperDataEngine = grouperDataEngine;
     this.grouperDataRow = grouperDataRow;
+    this.grouperDataRowConfig = grouperDataEngine.getRowConfigByConfigId().get(grouperDataRow.getConfigId());
+  }
+
+  private GrouperDataRowConfig grouperDataRowConfig;
+  
+  public GrouperDataRowConfig getGrouperDataRowConfig() {
+    return grouperDataRowConfig;
+  }
+  
+  public void setGrouperDataRowConfig(GrouperDataRowConfig grouperDataRowConfig) {
+    this.grouperDataRowConfig = grouperDataRowConfig;
   }
 
   private GrouperDataEngine grouperDataEngine;

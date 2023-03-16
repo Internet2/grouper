@@ -52,8 +52,31 @@ public class GrouperDataProviderIndex {
   private Map<Long, GrouperDataRowFieldAssignWrapper> rowFieldAssignWrapperByInternalId = new HashMap<>();
 
   private Map<String, GrouperDataFieldWrapper> fieldWrapperByConfigId = new HashMap<String, GrouperDataFieldWrapper>();
+
+  private Map<String, GrouperDataRowWrapper> rowWrapperByConfigId = new HashMap<String, GrouperDataRowWrapper>();
   
+  private Map<String, GrouperDataRowWrapper> rowWrapperByLowerAlias = new HashMap<String, GrouperDataRowWrapper>();
   
+  public Map<String, GrouperDataRowWrapper> getRowWrapperByLowerAlias() {
+    return rowWrapperByLowerAlias;
+  }
+
+
+
+  
+  public void setRowWrapperByLowerAlias(
+      Map<String, GrouperDataRowWrapper> rowWrapperByLowerAlias) {
+    this.rowWrapperByLowerAlias = rowWrapperByLowerAlias;
+  }
+
+
+
+  public Map<String, GrouperDataRowWrapper> getRowWrapperByConfigId() {
+    return rowWrapperByConfigId;
+  }
+
+
+
   public Map<String, GrouperDataFieldWrapper> getFieldWrapperByConfigId() {
     return fieldWrapperByConfigId;
   }

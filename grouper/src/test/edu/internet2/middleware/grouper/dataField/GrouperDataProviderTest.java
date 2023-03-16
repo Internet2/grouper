@@ -124,6 +124,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowAliases").value("affiliation").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowNumberOfDataFields").value("3").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.colDataFieldConfigId").value("affiliationCode").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.0.rowKeyField").value("true").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.1.colDataFieldConfigId").value("affiliationActive").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataRow.affiliation.rowDataField.2.colDataFieldConfigId").value("affiliationOrg").store();
     
@@ -171,7 +172,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectIdAttribute").value("subject_id").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectIdType").value("subjectId").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQuerySubjectSourceId").value("jdbc").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryNumberOfDataFields").value("1").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryNumberOfDataFields").value("3").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldConfigId").value("affiliationCode").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.0.providerDataFieldAttribute").value("affiliation_code").store();
@@ -212,10 +213,12 @@ public class GrouperDataProviderTest extends GrouperTest {
     Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
     Group testGroup2 = new GroupSave().assignName("test:testGroup2").assignCreateParentStemsIfNotExist(true).save();
     Group testGroup3 = new GroupSave().assignName("test:testGroup3").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroup4 = new GroupSave().assignName("test:testGroup4").assignCreateParentStemsIfNotExist(true).save();
     
     Subject testSubject0 = SubjectFinder.findById("test.subject.0", true);
     Subject testSubject1 = SubjectFinder.findById("test.subject.1", true);
     Subject testSubject2 = SubjectFinder.findById("test.subject.2", true);
+    Subject testSubject3 = SubjectFinder.findById("test.subject.3", true);
     
     testGroup2.addMember(testSubject1);
     
@@ -232,15 +235,26 @@ public class GrouperDataProviderTest extends GrouperTest {
         .assignAttributeDefName(attributeDefNameMarker).save();
     
     attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), 
-        "${entity.hasAttribute('affiliationCode', 'staf') || entity.hasAttribute('affiliationCode', 'stu')}");
+        "${entity.hasAttribute('jobNumber', '456') || entity.hasAttribute('active', 'false')}");
+
+    attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup4)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+    
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), 
+        "${entity.hasAttribute('affiliation', \"affiliation.hasAttribute('affiliationActive', 'true') && affiliation.hasAttribute('affiliationOrg', 'math')\")}");
 
     GrouperLoaderJexlScriptFullSync.runDaemonStandalone();
 
+    assertEquals(1, testGroup.getMembers().size());
     assertTrue(testGroup.hasMember(testSubject1));
 
-    assertTrue(testGroup3.hasMember(testSubject0));
+    assertEquals(2, testGroup3.getMembers().size());
+    assertTrue(testGroup3.hasMember(testSubject3));
     assertTrue(testGroup3.hasMember(testSubject1));
-    assertTrue(testGroup3.hasMember(testSubject2));
+
+    assertEquals(2, testGroup4.getMembers().size());
+    assertTrue(testGroup4.hasMember(testSubject3));
+    assertTrue(testGroup4.hasMember(testSubject0));
 
   }
 

@@ -3,8 +3,10 @@ package edu.internet2.middleware.grouper.dataField;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperDataRowAssignWrapper {
   
@@ -72,6 +74,48 @@ public class GrouperDataRowAssignWrapper {
   
   public void setGrouperDataRowWrapper(GrouperDataRowWrapper grouperDataRowWrapper) {
     this.grouperDataRowWrapper = grouperDataRowWrapper;
+  }
+
+  private MultiKey rowKey = null;
+
+  /**
+   * note text values are the actual value and not the dictionary id
+   * this is lazy loaded so if data changes it needs to be cleared
+   * @return
+   */
+  public MultiKey rowKey() {
+
+    if (rowKey == null) {
+      GrouperDataRowConfig grouperDataRowConfig = this.grouperDataRowWrapper.getGrouperDataRowConfig();
+      Set<String> rowKeyFieldConfigIds = grouperDataRowConfig.getRowKeyFieldConfigIds();
+      
+      if (GrouperUtil.length(rowKeyFieldConfigIds) == 0) {
+        throw new RuntimeException("Needs to have a row key: " + grouperDataRowConfig.getConfigId());
+      }
+      Object[] keyValues = new Object[rowKeyFieldConfigIds.size()];
+      int i = 0;
+      for (String rowKeyFieldConfigId : rowKeyFieldConfigIds) {
+        GrouperDataFieldConfig grouperDataFieldConfig = this.grouperDataEngine.getFieldConfigByConfigId().get(rowKeyFieldConfigId);
+        GrouperDataField grouperDataField = this.grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByConfigId().get(rowKeyFieldConfigId).getGrouperDataField();
+        List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers = this.rowFieldAssignWrappersByFieldInternalId.get(grouperDataField.getInternalId());
+        GrouperUtil.assertion(GrouperUtil.length(grouperDataRowFieldAssignWrappers) == 1, 
+            "Data row field key must have one value: " + grouperDataRowConfig.getConfigId() 
+            + ", rowAssignId: " + this.grouperDataRowAssign.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
+        if (grouperDataFieldConfig.getFieldDataType() == GrouperDataFieldType.string) {
+          keyValues[i] = grouperDataRowFieldAssignWrappers.get(0).getTextValue();
+        } else {
+          keyValues[i] = grouperDataRowFieldAssignWrappers.get(0).getGrouperDataRowFieldAssign().getValueInteger();
+        }
+        GrouperUtil.assertion(keyValues[i] != null, 
+            "Data row field key must not have a null value: " + grouperDataRowConfig.getConfigId() 
+            + ", rowAssignId: " + this.grouperDataRowAssign.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
+        i++;
+      }
+      
+      this.rowKey = new MultiKey(keyValues);
+      
+    }
+    return rowKey;
   }
 
 }

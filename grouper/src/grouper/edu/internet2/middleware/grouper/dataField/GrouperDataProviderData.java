@@ -5,15 +5,6 @@ import java.util.List;
 
 public class GrouperDataProviderData {
 
-  private List<GrouperDataFieldAssignWrapper> grouperDataFieldAssignWrappers = new ArrayList<GrouperDataFieldAssignWrapper>();
-  
-  
-  
-  
-  public List<GrouperDataFieldAssignWrapper> getGrouperDataFieldAssignWrappers() {
-    return grouperDataFieldAssignWrappers;
-  }
-
 
 
   private GrouperDataEngine grouperDataEngine;
