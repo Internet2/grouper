@@ -134,6 +134,13 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
           
         }
         
+        String membershipAttributeDefaultValue = startWithSuffixToValue.get("membershipAttributeDefaultValue");
+        if (!StringUtils.isEmpty(membershipAttributeDefaultValue)) {
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".showAdvancedAttribute", true);
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".showAttributeValueSettings", true);
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".defaultValue", membershipAttributeDefaultValue);
+        }
+        
         groupAttributes++;
         
       }
