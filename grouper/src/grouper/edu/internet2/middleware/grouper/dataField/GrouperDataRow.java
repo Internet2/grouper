@@ -31,7 +31,7 @@ public class GrouperDataRow implements GcSqlAssignPrimaryKey, GcDbVersionable, O
   /**
    * some required config to see what the rows are
    */
-  private static Pattern rowConfigIds = Pattern.compile("^grouperDataRow\\.([^.])+\\.rowAliases$");
+  private static Pattern rowConfigIds = Pattern.compile("^grouperDataRow\\.([^.]+)\\.rowAliases$");
   
   @Override
   public List<MultiKey> retrieveKeysAndLabels() {

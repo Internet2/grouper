@@ -31,7 +31,7 @@ public class GrouperDataField implements GcSqlAssignPrimaryKey, GcDbVersionable,
   /**
    * some required config to see what the fields are
    */
-  private static Pattern fieldConfigIds = Pattern.compile("^grouperDataField\\.([^.])+\\.fieldAliases$");
+  private static Pattern fieldConfigIds = Pattern.compile("^grouperDataField\\.([^.]+)\\.fieldAliases$");
   
   @Override
   public List<MultiKey> retrieveKeysAndLabels() {
