@@ -465,10 +465,19 @@ public abstract class GrouperProvisioningConfiguration {
   private String entityAttributesLdapLastUpdatedAttribute;
   private String entityAttributesLdapLastUpdatedAttributeFormat;
   
+  private String searchAttributeNameToRetrieveEntities;
   
   
+  public String getSearchAttributeNameToRetrieveEntities() {
+    return searchAttributeNameToRetrieveEntities;
+  }
+
   
-  
+  public void setSearchAttributeNameToRetrieveEntities(
+      String searchAttributeNameToRetrieveEntities) {
+    this.searchAttributeNameToRetrieveEntities = searchAttributeNameToRetrieveEntities;
+  }
+
   public boolean isFilterAllLDAPOnFull() {
     return filterAllLDAPOnFull;
   }
@@ -2839,6 +2848,7 @@ public abstract class GrouperProvisioningConfiguration {
     this.selectAllGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllGroups", false), this.operateOnGrouperGroups);
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
+    this.searchAttributeNameToRetrieveEntities = this.retrieveConfigString("searchAttributeNameToRetrieveEntities", false);
     
     this.loadEntitiesToGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGrouperTable", false), false);
     

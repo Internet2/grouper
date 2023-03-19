@@ -1,9 +1,11 @@
 package edu.internet2.middleware.grouper.app.azure;
 
 import java.sql.Types;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -25,7 +27,7 @@ public class GrouperAzureGroup {
   public static final boolean defaultMailEnabled = false;
   public static final boolean defaultSecurityEnabled = false;
   public static final String defaultVisibility = "Public";
-
+  
   public static void main(String[] args) {
     
     GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
@@ -71,6 +73,7 @@ public class GrouperAzureGroup {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_enabled", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "mail_nickname", Types.VARCHAR, "64", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "owners", Types.VARCHAR, "1024", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "security_enabled", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "visibility", Types.VARCHAR, "32", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "is_assignable_to_role", Types.VARCHAR, "1", false, true);
@@ -138,6 +141,11 @@ public class GrouperAzureGroup {
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
       grouperAzureGroup.setDisplayName(targetGroup.getDisplayName());
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupOwners")) {  
+      String owners = targetGroup.retrieveAttributeValueString("groupOwners");
+      grouperAzureGroup.setOwners(owners);
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeUnified")) {
@@ -229,11 +237,20 @@ public class GrouperAzureGroup {
   
   private String description;
   private AzureVisibility visibility;
+  private String owners;
 
   public static final String fieldsToSelect="isAssignableToRole,description,displayName,groupTypes,id,mailEnabled,mailNickname,securityEnabled,visibility,resourceBehaviorOptions,resourceProvisioningOptions";
   
   
+  public String getOwners() {
+    return owners;
+  }
+
   
+  public void setOwners(String owners) {
+    this.owners = owners;
+  }
+
   public String getId() {
     return id;
   }
@@ -437,6 +454,12 @@ public class GrouperAzureGroup {
       }
     }
     
+    Set<String> owners = GrouperUtil.jsonJacksonGetStringSet(groupNode, "owners@odata.bind");
+    if (owners != null && owners.size() > 0) {
+      String ownersJoined = GrouperUtil.join(owners.iterator(), ",");
+      grouperAzureGroup.setOwners(ownersJoined);
+    }
+    
     return grouperAzureGroup;
   }
 
@@ -460,6 +483,16 @@ public class GrouperAzureGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
       result.put("description", this.description);
     }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupOwners")) {
+      if (StringUtils.isNotBlank(this.owners)) {
+        String[] ownersArray = GrouperUtil.splitTrim(this.owners, ",");
+        if (ownersArray != null && ownersArray.length > 0) {
+          GrouperUtil.jsonJacksonAssignStringArray(result, "owners@odata.bind", Arrays.asList(ownersArray));
+        }
+      }
+    }
+    
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
       if (!StringUtils.isBlank(this.displayName)) {
         result.put("displayName", this.displayName);

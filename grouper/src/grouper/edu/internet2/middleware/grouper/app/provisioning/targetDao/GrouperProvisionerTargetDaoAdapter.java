@@ -17,8 +17,8 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
@@ -56,6 +56,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperProvisionerTargetDaoAdapter.class);
+  
   
   @Override
   public GrouperProvisionerDaoCapabilities getGrouperProvisionerDaoCapabilities() {
@@ -2573,7 +2574,59 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
   }
 
-
+  /**
+   * retrieve entities based on search values. Use preferred search attribute or the first search attribute.
+   * for e.g. if the user has owners metadata and listing values, look up entities based on those values
+   * @param searchValues
+   * @return
+   */
+  public TargetDaoRetrieveEntitiesByValuesResponse retrieveEntitiesBySearchValues(TargetDaoRetrieveEntitiesByValuesRequest targetDaoRetrieveEntitiesByValuesRequest) {
+    
+    
+    String searchAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSearchAttributeNameToRetrieveEntities();
+    
+    if (StringUtils.isBlank(searchAttributeName)) {
+      List<GrouperProvisioningConfigurationAttribute> entitySearchAttributes = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntitySearchAttributes();
+      searchAttributeName = entitySearchAttributes.get(0).getName();
+    }
+  
+    Set<Object> searchValues = targetDaoRetrieveEntitiesByValuesRequest.getSearchValues();
+    
+    List<ProvisioningEntity> entitiesToSearch = new ArrayList<>();
+    for (Object searchValue: GrouperUtil.nonNull(searchValues)) {
+      ProvisioningEntity targetEntity = new ProvisioningEntity();
+      targetEntity.assignAttributeValue(searchAttributeName, searchValue);
+      
+      ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = 
+          new ProvisioningUpdatableAttributeAndValue(this.getGrouperProvisioner(), searchAttributeName, searchValue,
+              GrouperProvisioningConfigurationAttributeType.entity);
+      provisioningUpdatableAttributeAndValue.setCurrentValue(true);
+      
+      targetEntity.setSearchIdAttributeNameToValues(GrouperUtil.toSet(provisioningUpdatableAttributeAndValue));
+      entitiesToSearch.add(targetEntity);
+    }
+    
+ 
+    TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest = new TargetDaoRetrieveEntitiesRequest();
+    targetDaoRetrieveEntitiesRequest.setTargetEntities(entitiesToSearch);
+    targetDaoRetrieveEntitiesRequest.setIncludeAllMembershipsIfApplicable(false);
+    TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntities(
+        targetDaoRetrieveEntitiesRequest);
+    
+    TargetDaoRetrieveEntitiesByValuesResponse byValuesResponse = new TargetDaoRetrieveEntitiesByValuesResponse();
+    Map<Object, ProvisioningEntity> searchValueToTargetEntity = new HashMap<>();
+    
+    for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse.getTargetEntities())) {
+      Object value = provisioningEntity.retrieveAttributeValue(searchAttributeName);
+      if (searchValues.contains(value)) {
+        searchValueToTargetEntity.put(value, provisioningEntity);
+      }
+    }
+    
+    byValuesResponse.setSearchValueToTargetEntity(searchValueToTargetEntity);
+    
+    return byValuesResponse;
+  }
 
   @Override
   public TargetDaoRetrieveEntitiesResponse retrieveEntities(

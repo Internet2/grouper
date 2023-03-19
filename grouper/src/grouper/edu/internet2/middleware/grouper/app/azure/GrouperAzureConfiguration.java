@@ -17,6 +17,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   private boolean subscribeNewGroupMembers;
   private boolean welcomeEmailDisabled;
   private boolean azureGroupType;
+  private boolean groupOwners;
   
   private boolean resourceProvisioningOptionsTeam;
 
@@ -25,8 +26,8 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
     super.configureAfterMetadata();
     
     for (String attributeName : new String[] {"assignableToRole", "azureGroupType", 
-        "allowOnlyMembersToPost", "hideGroupInOutlook", "subscribeNewGroupMembers", 
-        "welcomeEmailDisabled", "resourceProvisioningOptionsTeam"}) {
+        "groupOwners", "allowOnlyMembersToPost", "hideGroupInOutlook",
+        "subscribeNewGroupMembers", "welcomeEmailDisabled", "resourceProvisioningOptionsTeam"}) {
       
       // if metadata exists
       String metadataName = "md_grouper_" + attributeName;
@@ -64,6 +65,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
     
     this.assignableToRole = GrouperUtil.booleanValue(this.retrieveConfigString("assignableToRole", false), false);
     this.azureGroupType = GrouperUtil.booleanValue(this.retrieveConfigString("azureGroupType", false), false);
+    this.groupOwners = GrouperUtil.booleanValue(this.retrieveConfigString("groupOwners", false), false);
     this.allowOnlyMembersToPost = GrouperUtil.booleanValue(this.retrieveConfigString("allowOnlyMembersToPost", false), false);
     this.hideGroupInOutlook = GrouperUtil.booleanValue(this.retrieveConfigString("hideGroupInOutlook", false), false);
     this.subscribeNewGroupMembers = GrouperUtil.booleanValue(this.retrieveConfigString("subscribeNewGroupMembers", false), false);
@@ -97,6 +99,14 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   
   public void setAzureGroupType(boolean azureGroupType) {
     this.azureGroupType = azureGroupType;
+  }
+  
+  public boolean isGroupOwners() {
+    return groupOwners;
+  }
+  
+  public void setGroupOwners(boolean groupOwners) {
+    this.groupOwners = groupOwners;
   }
 
   public boolean isAllowOnlyMembersToPost() {

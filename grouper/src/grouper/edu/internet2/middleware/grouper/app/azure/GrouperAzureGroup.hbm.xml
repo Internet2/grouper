@@ -31,6 +31,7 @@
     </id>
 
     <property name="description" column="description" />
+    <property name="owners" column="owners" />
     <property name="displayName" column="display_name" />
     <property name="assignableToRoleDb" column="is_assignable_to_role" />
     <property name="groupTypeDynamicDb" column="group_type_dynamic" />

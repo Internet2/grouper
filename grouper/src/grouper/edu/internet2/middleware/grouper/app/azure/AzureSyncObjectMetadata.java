@@ -49,6 +49,23 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
     }
+    
+    if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isGroupOwners() &&
+        !this.containsMetadataItemByName("md_grouper_groupOwners")) {
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+
+      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataAzureCreateOwnersDescription");
+      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAzureCreateOwnersLabel");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_groupOwners");
+      grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
+      grouperProvisioningObjectMetadataItem.setCanUpdate(false);
+      
+      grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
+      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.TEXT);
+      
+      this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
+    }
 
     if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isAllowOnlyMembersToPost() &&
         !this.containsMetadataItemByName("md_grouper_allowOnlyMembersToPost")) {
