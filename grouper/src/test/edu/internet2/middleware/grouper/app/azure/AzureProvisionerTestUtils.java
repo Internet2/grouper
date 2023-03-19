@@ -231,8 +231,9 @@ public class AzureProvisionerTestUtils {
       configureMichiganAzure(provisioningTestConfigInput);  
     } else {
       
-      if (3 != provisioningTestConfigInput.getGroupAttributeCount() && 5 != provisioningTestConfigInput.getGroupAttributeCount()) {
-        throw new RuntimeException("Expecting 3, 5 for groupAttributeCount but was '" + provisioningTestConfigInput.getGroupAttributeCount() + "'");
+      if (3 != provisioningTestConfigInput.getGroupAttributeCount() && 5 != provisioningTestConfigInput.getGroupAttributeCount()
+          && 6 != provisioningTestConfigInput.getGroupAttributeCount()) {
+        throw new RuntimeException("Expecting 3, 5, 6 for groupAttributeCount but was '" + provisioningTestConfigInput.getGroupAttributeCount() + "'");
       }
       
       if (provisioningTestConfigInput.getEntityAttributeCount() == 5) {
@@ -403,6 +404,22 @@ public class AzureProvisionerTestUtils {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpression", "${'true'}");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.translateExpressionType", "translationScript");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.update", "false");
+        }
+        
+        if (provisioningTestConfigInput.getGroupAttributeCount() == 6) {
+          
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAttributeCrud", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.insert", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.name", "groupOwners");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.select", "false");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateFromStaticValues", "https://example.com/1,https://example.com/2,https://example.com/3");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateExpressionType", "staticValues");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.update", "false");
+        }
+        
+        if (provisioningTestConfigInput.isRealAzure()) {
+          String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpression", "${grouperProvisioningEntity.subjectId ? (grouperProvisioningEntity.subjectId + '@" + domain + "') : null}");
         }
         
       }    
