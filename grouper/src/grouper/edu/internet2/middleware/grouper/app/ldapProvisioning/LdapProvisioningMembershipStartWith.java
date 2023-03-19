@@ -112,6 +112,8 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
           provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateExpression", "${"+GrouperUtil.class.getName()+".stringFormatNameReverseReplaceTruncate(grouperProvisioningGroup.name, '_', 64)}");
         } else if (StringUtils.equals(rdnValueForGroups, "extensionUnderscoreIdIndex")) {
           provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateExpression", "${grouperProvisioningGroup.extension+'_'+grouperProvisioningGroup.idIndex}");
+        } else if (StringUtils.equals(rdnValueForGroups, "script")) {
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateExpression", startWithSuffixToValue.get("rdnValueForGroupsTranslationScript"));
         }
                 
       }
@@ -130,6 +132,13 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         } else {
           provisionerSuffixToValue.put("groupMembershipAttributeValue", "entityAttributeValueCache0");
           
+        }
+        
+        String membershipAttributeDefaultValue = startWithSuffixToValue.get("membershipAttributeDefaultValue");
+        if (!StringUtils.isEmpty(membershipAttributeDefaultValue)) {
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".showAdvancedAttribute", true);
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".showAttributeValueSettings", true);
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".defaultValue", membershipAttributeDefaultValue);
         }
         
         groupAttributes++;
@@ -161,6 +170,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
           provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateFromGrouperProvisioningGroupField", matchingSearchAttributeValueForGroups);
         } else if (StringUtils.equalsAny(matchingSearchAttributeValueForGroups, "script")){
           provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateExpressionType", "translationScript");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".translateExpression", startWithSuffixToValue.get("matchingSearchAttributeValueForGroupsTranslationScript"));
         }
         
         groupAttributes++;
@@ -246,6 +256,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
           
         } else if (StringUtils.equalsAny(rdnValueForEntities, "script")) {
           provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateExpressionType", "translationScript");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateExpression", startWithSuffixToValue.get("rdnValueForEntitiesTranslationScript"));
         }
         
         entityAttributes++;
@@ -262,7 +273,10 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         if (!GrouperUtil.booleanValue(startWithSuffixToValue.get("membershipValueDn"), false)) {
           
           String membershipValueForEntities = startWithSuffixToValue.get("membershipValueForEntities");
-          
+          if (StringUtils.equalsAny(membershipValueForEntities, "script")) {
+            provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateExpressionType", "translationScript");
+            provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateExpression", startWithSuffixToValue.get("membershipValueForEntitiesTranslationScript"));
+          }
         }
         
         entityAttributes++;
@@ -288,6 +302,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
           provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateFromGrouperProvisioningEntityField", matchingSearchAttributeValueForEntities);
         } else if (StringUtils.equalsAny(matchingSearchAttributeValueForEntities, "script")){
           provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateExpressionType", "translationScript");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributes+".translateExpression", startWithSuffixToValue.get("matchingSearchAttributeValueForEntitiesTranslationScript"));
         }
         
         entityAttributes++;
