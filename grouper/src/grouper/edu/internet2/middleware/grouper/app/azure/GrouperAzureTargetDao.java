@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
@@ -33,8 +34,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesByValuesRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesByValuesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
@@ -52,8 +53,15 @@ import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
+  
+  /**
+   * cache of owner identifier to owner url
+   */
+  private static ExpirableCache<Object, String> ownerIdentifierToOwnerUrl = new ExpirableCache<Object, String>(60);
+
 
   @Override
   public boolean loggingStart() {
@@ -239,6 +247,50 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
         
         if (grouperAzureGroup.isGroupTypeUnified()) {
           fieldNamesToInsert.add("groupTypeUnified");
+        }
+        
+        if (StringUtils.isNotBlank(grouperAzureGroup.getOwners())) {
+          // transform it into something that can be ingested by azure
+          
+          String[] ownersArray = GrouperUtil.splitTrim(grouperAzureGroup.getOwners(), ",");
+          
+          Set<String> ownersToBeSaved = new HashSet<>();
+          Set<Object> usersToFetchFromTarget = new HashSet<>();
+          
+          for (String owner: ownersArray) {
+            if (owner.startsWith("http://") || owner.startsWith("https://")) { // if it's already proper url format
+              ownersToBeSaved.add(owner);
+            } else if (ownerIdentifierToOwnerUrl.get(owner) != null) {
+              ownersToBeSaved.add(ownerIdentifierToOwnerUrl.get(owner));
+            } else {
+              // try to go fetch it and populate the cache
+              usersToFetchFromTarget.add(owner);
+            }
+          }
+          
+          
+          if (usersToFetchFromTarget.size() > 0) {
+            
+            TargetDaoRetrieveEntitiesByValuesRequest request = new TargetDaoRetrieveEntitiesByValuesRequest();
+            request.setSearchValues(usersToFetchFromTarget);
+            
+            TargetDaoRetrieveEntitiesByValuesResponse valuesResponse = this.getGrouperProvisioner()
+                .retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntitiesBySearchValues(request);
+            Map<Object, ProvisioningEntity> searchValueToTargetEntity = valuesResponse.getSearchValueToTargetEntity();
+            
+            for (Object searchValue: searchValueToTargetEntity.keySet()) {
+              ProvisioningEntity targetEntity = searchValueToTargetEntity.get(searchValue);
+              String id = targetEntity.getId();
+              String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+                  "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint");
+              String url = GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/users/"+id;
+              ownersToBeSaved.add(url);
+              ownerIdentifierToOwnerUrl.put(searchValue, url);
+            }
+          }
+          
+          grouperAzureGroup.setOwners(GrouperUtil.join(ownersToBeSaved.iterator(), ","));
+          
         }
         
         groupToFieldNamesToInsert.put(grouperAzureGroup, fieldNamesToInsert);
