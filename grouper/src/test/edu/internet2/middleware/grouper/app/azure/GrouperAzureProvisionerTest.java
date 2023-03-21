@@ -20,11 +20,14 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
+import edu.internet2.middleware.grouper.app.provisioningExamples.exampleWsReplaceProvisioner.ExampleWsProvisioningStartWith;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -67,7 +70,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureWithOwners"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureStartWith"));
     //realAzureAddUsers();
   }
 
@@ -1147,6 +1150,105 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
   }
   
+  public void testFullSyncAzureStartWith() {
+    
+    GrouperStartup.startup();
+    
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+    try {
+      AzureProvisionerTestUtils.setupAzureExternalSystem(false);
+      
+      AzureProvisioningStartWith startWith = new AzureProvisioningStartWith();
+      
+      Map<String, String> startWithSuffixToValue = new HashMap<>();
+      
+      startWithSuffixToValue.put("azureExternalSystemConfigId", "myAzure");
+      startWithSuffixToValue.put("azurePattern", "manageGroupsManageEntities");
+      startWithSuffixToValue.put("userAttributesType", "core");
+      startWithSuffixToValue.put("selectAllGroups", "true");
+      startWithSuffixToValue.put("groupDisplayNameAttributeValue", "name");
+      startWithSuffixToValue.put("mailNicknameAttributeValue", "extension");
+      startWithSuffixToValue.put("groupSearchMatchingAttribute", "displayName");
+      startWithSuffixToValue.put("selectAllEntities", "true");
+      startWithSuffixToValue.put("entityUserPrincipalName", "subjectId");
+      startWithSuffixToValue.put("entityMailNickname", "subjectIdentifier0");
+      startWithSuffixToValue.put("manageEntitiesInAzure", "true");
+      startWithSuffixToValue.put("entityDisplayName", "name");
+      startWithSuffixToValue.put("entitySearchMatchingAttribute", "userPrincipalName");
+      startWithSuffixToValue.put("hasMetadataForAllowOnlyMembersToPost", "true");
+      startWithSuffixToValue.put("hasMetadataForResourceProvisioningOptionsTeam", "true");
+      
+      Map<String, Object> provisionerSuffixToValue = new HashMap<>();
+      
+      startWith.populateProvisionerConfigurationValuesFromStartWith(startWithSuffixToValue, provisionerSuffixToValue);
+      
+      startWith.manipulateProvisionerConfigurationValue("myAzureProvisioner", startWithSuffixToValue, provisionerSuffixToValue);
+      
+      for (String key: provisionerSuffixToValue.keySet()) {
+        new GrouperDbConfig().configFileName("grouper-loader.properties")
+          .propertyName("provisioner.myAzureProvisioner."+key)
+          .value(GrouperUtil.stringValue(provisionerSuffixToValue.get(key))).store();
+      }
+      
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.debugLog").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.logAllObjectsVerbose").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.logCommandsAlways").value("true").store();
+
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_myAzureProvisioner.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_myAzureProvisioner.quartzCron").value("9 59 23 31 12 ? 2099").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_myAzureProvisioner.provisionerConfigId").value("myAzureProvisioner").store();
+            
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      
+      // mark some folders to provision
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup1").save();
+      
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+      
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("myAzureProvisioner");
+      attributeValue.setTargetName("myAzureProvisioner");
+      attributeValue.setStemScopeString("sub");
+      Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+      metadataNameValues.put("md_grouper_allowOnlyMembersToPost", true);
+      metadataNameValues.put("md_grouper_resourceProvisioningOptionsTeam", true);
+      attributeValue.setMetadataNameValues(metadataNameValues);
+  
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+      //lets sync these over
+      
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_azure_group").select(int.class));
+  
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
+      
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      
+      List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+     
+      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
+      GrouperAzureGroup grouperAzureGroup = HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).get(0);
+      
+      assertEquals("test:testGroup1", grouperAzureGroup.getDisplayName());
+      assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsAllowOnlyMembersToPostDb());
+      assertEquals("T", grouperAzureGroup.getResourceProvisioningOptionsTeamDb());
+      
+    } finally {
+      
+    }
+    
+  }
+  
   public void testFullSyncAzureWithOwners() {
     
     GrouperStartup.startup();
@@ -1163,7 +1265,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       Stem stem = new StemSave(grouperSession).assignName("test").save();
       
       // mark some folders to provision
-      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup1").save();
       
       testGroup.addMember(SubjectTestHelper.SUBJ0, false);
       testGroup.addMember(SubjectTestHelper.SUBJ1, false);
