@@ -132,6 +132,10 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
         provisionerSuffixToValue.put("azureGroupType", "true");
       }
       
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForGroupOwners"), true)) {
+        provisionerSuffixToValue.put("groupOwners", "true");
+      }
+      
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForAllowOnlyMembersToPost"), false)) {
         provisionerSuffixToValue.put("allowOnlyMembersToPost", "true");
       }
@@ -246,6 +250,7 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
     
     provisionerSuffixToValue.put("operateOnGrouperMemberships", "true");
     provisionerSuffixToValue.put("provisioningType", "membershipObjects");
+    provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.azure.GrouperAzureProvisioner");
     
   }
 
