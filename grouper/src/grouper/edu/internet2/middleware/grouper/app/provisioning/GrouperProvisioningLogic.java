@@ -457,14 +457,14 @@ public class GrouperProvisioningLogic {
           == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
 
         for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups())) {
-          originalTargetMembershipCount += GrouperUtil.length(provisioningGroup.retrieveAttributeValueSet(membershipAttribute));
+          originalTargetMembershipCount += GrouperUtil.length(provisioningGroup.retrieveAttributeValueSetForMemberships());
         }
       }
       if (GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
           == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
 
         for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities())) {
-          originalTargetMembershipCount += GrouperUtil.length(provisioningEntity.retrieveAttributeValueSet(membershipAttribute));
+          originalTargetMembershipCount += GrouperUtil.length(provisioningEntity.retrieveAttributeValueSetForMemberships());
         }
       }
     }
@@ -2437,7 +2437,7 @@ public class GrouperProvisioningLogic {
       String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
 
       for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(targetProvisioningGroups)) {
-        int membershipSize = GrouperUtil.length(provisioningGroup.retrieveAttributeValueSet(membershipAttributeName));
+        int membershipSize = GrouperUtil.length(provisioningGroup.retrieveAttributeValueSetForMemberships());
         GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetMembershipsRetrieved", 
             membershipSize);
         if (!isExtra) {
@@ -2515,7 +2515,7 @@ public class GrouperProvisioningLogic {
         == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
         
       for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(targetProvisioningEntities)) {
-        int membershipSize = GrouperUtil.length(provisioningEntity.retrieveAttributeValueSet(membershipAttributeName));
+        int membershipSize = GrouperUtil.length(provisioningEntity.retrieveAttributeValueSetForMemberships());
         GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "targetMembershipsRetrieved", 
             membershipSize);
         if (!isExtra) {

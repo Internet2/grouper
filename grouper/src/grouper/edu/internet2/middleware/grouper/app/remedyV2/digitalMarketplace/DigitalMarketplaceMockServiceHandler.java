@@ -325,7 +325,7 @@ private static boolean mockTablesThere = false;
   
   public void postAuth(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
         
-    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.digitalMarketplace.mock.configId");
+    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.digitalMarketplace.mock.configId", "myDigitalMarketplace");
     
     String body = mockServiceRequest.getRequestBody();
     JsonNode userPassword = GrouperUtil.jsonJacksonNode(body);
