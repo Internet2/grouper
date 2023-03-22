@@ -1108,7 +1108,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       dn = (targetDaoRetrieveMembershipRequest.getTargetGroup()).retrieveAttributeValueString(ldap_dn);
       
       if (targetDaoRetrieveMembershipRequest.getTargetGroup() != null) {
-        membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetGroup()).retrieveAttributeValueSet(membershipAttributeName);
+        membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetGroup()).retrieveAttributeValueSetForMemberships();
       }
       
     } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
@@ -1116,7 +1116,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       dn = (targetDaoRetrieveMembershipRequest.getTargetEntity()).retrieveAttributeValueString(ldap_dn);
 
       if (targetDaoRetrieveMembershipRequest.getTargetEntity() != null) {
-        membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetEntity()).retrieveAttributeValueSet(membershipAttributeName);
+        membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetEntity()).retrieveAttributeValueSetForMemberships();
       }
 
     } else {
@@ -1124,7 +1124,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     }
 
     if (targetDaoRetrieveMembershipRequest.getTargetMembership() != null && GrouperUtil.length(membershipAttributeValueSet) == 0) {
-      membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetMembership()).retrieveAttributeValueSet(membershipAttributeName);
+      membershipAttributeValueSet = (targetDaoRetrieveMembershipRequest.getTargetMembership()).retrieveAttributeValueSetForMemberships();
     }
     
     GrouperUtil.assertion(GrouperUtil.length(membershipAttributeValueSet) == 1, "Should be looking for one membership: " + GrouperUtil.length(membershipAttributeValueSet));

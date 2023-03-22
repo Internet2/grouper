@@ -234,7 +234,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
         continue;
       }
       
-      for (Object value : GrouperUtil.nonNull(provisioningGroup.retrieveAttributeValueSet(membershipAttribute))) {
+      for (Object value : GrouperUtil.nonNull(provisioningGroup.retrieveAttributeValueSetForMemberships())) {
         ProvisioningGroup provisioningUpdatableClone = (ProvisioningGroup)provisioningGroup.cloneWithoutMemberships();
 
         ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperUtil.nonNull(provisioningAttribute.getValueToProvisioningMembershipWrapper()).get(value);
