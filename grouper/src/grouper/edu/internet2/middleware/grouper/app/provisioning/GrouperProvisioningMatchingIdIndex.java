@@ -360,8 +360,8 @@ public class GrouperProvisioningMatchingIdIndex {
     if (previousNewTargetGroupWrapper == null) {
       useNew = true;
     } else if (isGroupAttributes 
-        && GrouperUtil.length(previousNewTargetGroupWrapper.getTargetProvisioningGroup().retrieveAttributeValueSet(groupMembershipAttribute))
-        > GrouperUtil.length(currentNewTargetGroupWrapper.getTargetProvisioningGroup().retrieveAttributeValueSet(groupMembershipAttribute))) {
+        && GrouperUtil.length(previousNewTargetGroupWrapper.getTargetProvisioningGroup().retrieveAttributeValueSetForMemberships())
+        > GrouperUtil.length(currentNewTargetGroupWrapper.getTargetProvisioningGroup().retrieveAttributeValueSetForMemberships())) {
       // if the current one that is new has the most memberships, then keep it
       useNew = false;
     } else {
@@ -382,8 +382,8 @@ public class GrouperProvisioningMatchingIdIndex {
     if (previousNewTargetEntityWrapper == null) {
       useNew = true;
     } else if (isEntityAttributes 
-        && GrouperUtil.length(previousNewTargetEntityWrapper.getTargetProvisioningEntity().retrieveAttributeValueSet(entityMembershipAttribute))
-        > GrouperUtil.length(currentNewTargetEntityWrapper.getTargetProvisioningEntity().retrieveAttributeValueSet(entityMembershipAttribute))) {
+        && GrouperUtil.length(previousNewTargetEntityWrapper.getTargetProvisioningEntity().retrieveAttributeValueSetForMemberships())
+        > GrouperUtil.length(currentNewTargetEntityWrapper.getTargetProvisioningEntity().retrieveAttributeValueSetForMemberships())) {
       // if the current one that is new has the most memberships, then keep it
       useNew = false;
     } else {
@@ -1428,7 +1428,7 @@ public class GrouperProvisioningMatchingIdIndex {
 
 
   public void mergeInMembershipValues(ProvisioningEntity existingTargetEntity, ProvisioningEntity targetEntity, String membershipAttributeName, Object defaultValue) {
-    Set<?> values = targetEntity.retrieveAttributeValueSet(membershipAttributeName);
+    Set<?> values = targetEntity.retrieveAttributeValueSetForMemberships();
   
     // if the new part has nothing, continue
     if (GrouperUtil.length(values) == 0) {
@@ -1441,7 +1441,7 @@ public class GrouperProvisioningMatchingIdIndex {
     }
     
     // if the old part only has default, and the new exists, remove the old default
-    Set<?> membershipAttributeValueSet = existingTargetEntity.retrieveAttributeValueSet(membershipAttributeName);
+    Set<?> membershipAttributeValueSet = existingTargetEntity.retrieveAttributeValueSetForMemberships();
     if (GrouperUtil.length(membershipAttributeValueSet) == 1
         && GrouperUtil.equals(defaultValue, values.iterator().next())) {
       membershipAttributeValueSet.remove(defaultValue);

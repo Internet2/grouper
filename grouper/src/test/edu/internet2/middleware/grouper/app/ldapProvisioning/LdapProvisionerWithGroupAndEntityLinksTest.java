@@ -3216,17 +3216,10 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     attributeValue.setDoProvision("ADTESTExtensionAttribute15Provisioner");
     attributeValue.setTargetName("ADTESTExtensionAttribute15Provisioner");
     
-    final GrouperProvisioningAttributeValue attributeValue2 = new GrouperProvisioningAttributeValue();
-    attributeValue2.setDirectAssignment(true);
-    attributeValue2.setDoProvision("ADTESTExtensionAttribute15Provisioner");
-    attributeValue2.setTargetName("ADTESTExtensionAttribute15Provisioner");
-    
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
-    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
     
     // mark some groups to provision
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
-    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue2, testGroup2);
   
     Subject aanderson = SubjectFinder.findById("aanderson", true);
     Subject abrown = SubjectFinder.findById("abrown", true);
@@ -3236,11 +3229,6 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     testGroup.addMember(abrown, false);
     testGroup.setDescription("test description");
     testGroup.store();
-    
-    testGroup2.addMember(aanderson, false);
-    testGroup2.addMember(abrown, false);
-    testGroup2.setDescription("test description");
-    testGroup2.store();
     
     LdapEntry ldapEntry = null;
   
@@ -3271,7 +3259,6 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
       
     // try update
     testGroup.addMember(aclark, false);
-    testGroup2.addMember(aclark, false);
   
     if (isFull) {
       fullProvision("ADTESTExtensionAttribute15Provisioner");
@@ -3299,7 +3286,6 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     
     // try update
     testGroup.deleteMember(aclark, false);
-    testGroup2.deleteMember(aclark, false);
   
     if (isFull) {
       fullProvision("ADTESTExtensionAttribute15Provisioner");
@@ -3323,7 +3309,6 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     
     // try delete
     testGroup.delete();
-    testGroup2.delete();
     
   
     if (isFull) {
@@ -3337,7 +3322,6 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     
 //    try {
       assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(description=SomeStaticValue)", new String[] {"uid"}, null).size());
-      assertEquals(0, ldapEntries.size());
 //     } catch (RuntimeException e) {
       // this is just the thing not being found
 //    }

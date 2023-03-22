@@ -1101,6 +1101,8 @@ public class GrouperProvisioningCompare {
                 if (!deleted) {
                   deleted = true;
                   provisioningEntityWrappersForUpdate.add(provisioningEntityWrapper);
+                  //this isnt a delete, its an update!
+                  provisioningEntityWrapper.getProvisioningStateEntity().setDelete(false);
                 }
               }
               
@@ -1340,6 +1342,8 @@ public class GrouperProvisioningCompare {
                 if (!deleted) {
                   deleted = true;
                   provisioningGroupWrappersForUpdate.add(provisioningGroupWrapper);
+                  //this isnt a delete, its an update!
+                  provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
                 }
               }
               
