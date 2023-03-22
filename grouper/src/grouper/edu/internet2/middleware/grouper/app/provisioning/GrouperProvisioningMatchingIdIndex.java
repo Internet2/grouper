@@ -101,7 +101,7 @@ public class GrouperProvisioningMatchingIdIndex {
   }
 
   public void mergeInMembershipValues(ProvisioningGroup existingTargetGroup, ProvisioningGroup targetGroup, String membershipAttributeName, Object defaultValue) {
-    Set<?> values = targetGroup.retrieveAttributeValueSet(membershipAttributeName);
+    Set<?> values = targetGroup.retrieveAttributeValueSetForMemberships();
 
     // if the new part has nothing, continue
     if (GrouperUtil.length(values) == 0) {
@@ -114,14 +114,14 @@ public class GrouperProvisioningMatchingIdIndex {
     }
     
     // if the old part only has default, and the new exists, remove the old default
-    Set<?> membershipAttributeValueSet = existingTargetGroup.retrieveAttributeValueSet(membershipAttributeName);
+    Set<?> membershipAttributeValueSet = existingTargetGroup.retrieveAttributeValueSetForMemberships();
     if (GrouperUtil.length(membershipAttributeValueSet) == 1
         && GrouperUtil.equals(defaultValue, values.iterator().next())) {
       membershipAttributeValueSet.remove(defaultValue);
     }
     
     for (Object membershipValue : GrouperUtil.nonNull(values)) {
-      existingTargetGroup.addAttributeValue(membershipAttributeName, membershipValue);
+      existingTargetGroup.addAttributeValueForMembership(membershipValue, null, false);
     }
 
   }
@@ -1448,7 +1448,7 @@ public class GrouperProvisioningMatchingIdIndex {
     }
     
     for (Object membershipValue : GrouperUtil.nonNull(values)) {
-      existingTargetEntity.addAttributeValue(membershipAttributeName, membershipValue);
+      existingTargetEntity.addAttributeValueForMembership(membershipValue, null, false);
     }
   
   }

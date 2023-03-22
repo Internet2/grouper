@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
@@ -2343,118 +2344,6 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
 
 
     
-    
-    
-    
-//
-//    
-//}
-//
-//throw new RuntimeException("Dao cannot retrieve memberships or membership");
-//}
-
-    
-//    
-//      
-//      List<ProvisioningMembership> processedTargetMemberships = new ArrayList<ProvisioningMembership>();
-//      List<ProvisioningGroup> processedTargetGroups = new ArrayList<>();
-//      List<ProvisioningEntity> processedTargetEntities = new ArrayList<>();
-//
-//      for (ProvisioningMembership targetMembership : targetMemberships) {
-//        processedTargetMemberships.add(targetMembership);
-//      }
-//
-//      for (ProvisioningGroup targetGroup : targetGroups) {
-//
-//        GrouperProvisioningConfiguration grouperProvisioningConfiguration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-//        String membershipAttributeName = grouperProvisioningConfiguration.getGroupMembershipAttributeName();
-//
-//        Set<?> membershipAttributeValueSet = targetGroup.retrieveAttributeValueSet(membershipAttributeName);
-//
-//        for (Object membershipValue: GrouperUtil.nonNull(membershipAttributeValueSet)) {
-//
-//          ProvisioningGroup clonedTargetGroup = targetGroup.clone();
-//          ProvisioningAttribute provisioningAttribute = new ProvisioningAttribute();
-//          provisioningAttribute.setValue(GrouperUtil.toSet(membershipValue));
-//          provisioningAttribute.setName(membershipAttributeName);
-//
-//          clonedTargetGroup.getAttributes().put(membershipAttributeName, provisioningAttribute);
-//          processedTargetGroups.add(clonedTargetGroup);
-//
-//        }
-//
-//      }
-//
-//      for (ProvisioningEntity targetEntity : targetEntities) {
-//
-//        GrouperProvisioningConfiguration grouperProvisioningConfiguration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-//        String membershipAttributeName = grouperProvisioningConfiguration.getEntityMembershipAttributeName();
-//
-//        Set<?> membershipAttributeValueSet = targetEntity.retrieveAttributeValueSet(membershipAttributeName);
-//
-//        for (Object membershipValue: GrouperUtil.nonNull(membershipAttributeValueSet)) {
-//
-//          ProvisioningEntity clonedTargetEntity = targetEntity.clone();
-//          ProvisioningAttribute provisioningAttribute = new ProvisioningAttribute();
-//          provisioningAttribute.setValue(GrouperUtil.toSet(membershipValue));
-//          provisioningAttribute.setName(membershipAttributeName);
-//
-//          clonedTargetEntity.getAttributes().put(membershipAttributeName, provisioningAttribute);
-//          processedTargetEntities.add(clonedTargetEntity);
-//        }
-//      }
-//
-//      
-//      for (ProvisioningGroup provisioningGroup: processedTargetGroups) {
-//        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveMembership_" + 
-//            this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-//
-//          @Override
-//          public Void callLogic() {
-//            TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequestLocal = new TargetDaoRetrieveMembershipRequest();
-//            targetDaoRetrieveMembershipRequestLocal.setTargetGroup(provisioningGroup);
-//            TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponseLocal = retrieveMembershipHelper(targetDaoRetrieveMembershipRequestLocal);
-//            synchronized(targetDaoRetrieveMembershipsResponse) {
-//              if (targetDaoRetrieveMembershipsResponse.getTargetGroups() == null) {
-//                List<ProvisioningGroup> targetGroupsLocal = new ArrayList<ProvisioningGroup>();
-//                targetDaoRetrieveMembershipsResponse.setTargetGroups(targetGroupsLocal);
-//              }
-//              if (targetDaoRetrieveMembershipResponseLocal.getTargetGroup() != null) {
-//                targetDaoRetrieveMembershipsResponse.getTargetGroups().add(targetDaoRetrieveMembershipResponseLocal.getTargetGroup());
-//              }
-//            }
-//
-//            return null;
-//          }
-//        };
-//        grouperCallables.add(grouperCallable);
-//      }
-//      
-//      for (ProvisioningEntity provisioningEntity: processedTargetEntities) {
-//        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveMembership_" + 
-//            this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
-//
-//          @Override
-//          public Void callLogic() {
-//            TargetDaoRetrieveMembershipRequest targetDaoRetrieveMembershipRequestLocal = new TargetDaoRetrieveMembershipRequest();
-//            targetDaoRetrieveMembershipRequestLocal.setTargetEntity(provisioningEntity);
-//            TargetDaoRetrieveMembershipResponse targetDaoRetrieveMembershipResponseLocal = retrieveMembershipHelper(targetDaoRetrieveMembershipRequestLocal);
-//            synchronized(targetDaoRetrieveMembershipsResponse) {
-//              if (targetDaoRetrieveMembershipsResponse.getTargetEntities() == null) {
-//                List<ProvisioningEntity> targetEntities = new ArrayList<ProvisioningEntity>();
-//                targetDaoRetrieveMembershipsResponse.setTargetEntities(targetEntities);
-//              }
-//              if (targetDaoRetrieveMembershipResponseLocal.getTargetEntity() != null) {
-//                targetDaoRetrieveMembershipsResponse.getTargetEntities().add(targetDaoRetrieveMembershipResponseLocal.getTargetEntity());
-//              }
-//            }
-//
-//            return null;
-//          }
-//        };
-//        grouperCallables.add(grouperCallable);
-//      }
-
   public TargetDaoRetrieveEntitiesResponse retrieveEntitiesHelper(
       TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest) {
     

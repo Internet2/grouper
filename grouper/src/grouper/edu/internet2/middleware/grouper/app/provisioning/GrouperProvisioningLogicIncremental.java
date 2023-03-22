@@ -1870,7 +1870,7 @@ public class GrouperProvisioningLogicIncremental {
       
       for (ProvisioningGroup provisioningGroupFromTarget: GrouperUtil.nonNull(targetGroupsWithMemberships)) { // because memberships are stored in group attributes, so we receive groups for memberships call
         
-        Set<Object> attributeValueSet = (Set<Object>)provisioningGroupFromTarget.retrieveAttributeValueSet(attributeForMemberships);
+        Set<Object> attributeValueSet = (Set<Object>)provisioningGroupFromTarget.retrieveAttributeValueSetForMemberships();
         
         ProvisioningGroupWrapper originalTargetGroupWrapper = provisioningGroupFromTarget.getProvisioningGroupWrapper();
         
@@ -1878,7 +1878,7 @@ public class GrouperProvisioningLogicIncremental {
         
         for (Object value: GrouperUtil.nonNull(attributeValueSet)) {
           
-          originalTargetGroup.addAttributeValue(attributeForMemberships, value);
+          originalTargetGroup.addAttributeValueForMembership(value, null, false);
           
         }
         
@@ -1943,7 +1943,7 @@ public class GrouperProvisioningLogicIncremental {
       
       for (ProvisioningEntity provisioningEntityFromTarget: GrouperUtil.nonNull(targetEntitiesWithMemberships)) { // because memberships are stored in group attributes, so we receive groups for memberships call
         
-        Set<Object> attributeValueSet = (Set<Object>)provisioningEntityFromTarget.retrieveAttributeValueSet(attributeForMemberships);
+        Set<Object> attributeValueSet = (Set<Object>)provisioningEntityFromTarget.retrieveAttributeValueSetForMemberships();
         
         ProvisioningEntityWrapper originalTargetEntityWrapper = provisioningEntityFromTarget.getProvisioningEntityWrapper();
         
@@ -1951,7 +1951,7 @@ public class GrouperProvisioningLogicIncremental {
         
         for (Object value: GrouperUtil.nonNull(attributeValueSet)) {
           
-          originalTargetEntity.addAttributeValue(attributeForMemberships, value);
+          originalTargetEntity.addAttributeValueForMembership(value, null, false);
           
         }
         

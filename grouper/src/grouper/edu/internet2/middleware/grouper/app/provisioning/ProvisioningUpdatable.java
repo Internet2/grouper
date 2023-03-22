@@ -585,23 +585,6 @@ public abstract class ProvisioningUpdatable {
   }
 
   /**
-   * 
-   * @param action insert or delete
-   * @param attributeName
-   * @param attributeValue
-   */
-  public void manageAttributeValue(String action, String attributeName, Object attributeValue) {
-    if (StringUtils.equals(action, "insert")) {
-      this.addAttributeValue(attributeName, attributeValue);
-    } else if (StringUtils.equals(action, "delete")) {
-      this.addAttributeValue(attributeName, attributeValue);
-    } else {
-      throw new RuntimeException("Invalid action: '" + action + "'");
-    }
-
-  }
-  
-  /**
    * after translation, toss this object
    */
   private boolean removeFromList = false;
@@ -632,7 +615,7 @@ public abstract class ProvisioningUpdatable {
   /**
    * more attributes in name/value pairs
    */
-  private Map<String, ProvisioningAttribute> attributes = null;
+  private Map<String, ProvisioningAttribute> attributes = new TreeMap<String, ProvisioningAttribute>();
 
   /**
    * 
@@ -667,24 +650,47 @@ public abstract class ProvisioningUpdatable {
    * @param name
    * @param value
    */
-  public void addAttributeValueForMembership(String name, Object value) {
+  public void addAttributeValueForMembership(Object value, ProvisioningMembershipWrapper provisioningMembershipWrapper, boolean requireMembershipWrapper) {
     
-    ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslator.retrieveThreadLocalProvisioningMembershipWrapper();
+    GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
     
-    if (provisioningMembershipWrapper == null) {
+    String name = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+        
+    if (requireMembershipWrapper && provisioningMembershipWrapper == null) {
       throw new NullPointerException("Cant find membership wrapper! " + name + ", " + value + ", " + this);
     }
 
-    this.addAttributeValue(name, value);
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = null;
+    GrouperProvisioningBehaviorMembershipType grouperProvisioningBehaviorMembershipType = grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
+
+    if (grouperProvisioningBehaviorMembershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(name);
+    } else if (grouperProvisioningBehaviorMembershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(name);
+    }
+
+    if ((grouperProvisioningBehaviorMembershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        && this instanceof ProvisioningGroup)
+        || (grouperProvisioningBehaviorMembershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes
+            && this instanceof ProvisioningEntity)) {
+      
+      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
+        this.addAttributeValue(name, value);
+      } else {
+        this.assignAttributeValue(name, value);
+      }
+    } else {
+
+      throw new RuntimeException("Invalid membership assign call: " + grouperProvisioningBehaviorMembershipType + ", " + this.getClass().getName() + ", " + name);
+    }
+    
 
     // keep track of membership this attribute value represents
     ProvisioningAttribute provisioningAttribute = this.getAttributes().get(name);
     
     if (provisioningAttribute == null) {
-      // maybe this is a delete? 
-      if (this.attributes == null) {
-        this.attributes = new TreeMap<String, ProvisioningAttribute>();
-      }
       
       provisioningAttribute = new ProvisioningAttribute();
       this.attributes.put(name, provisioningAttribute);
@@ -712,10 +718,6 @@ public abstract class ProvisioningUpdatable {
    */
   public void addAttributeValue(String name, Object value) {
 
-    if (this.attributes == null) {
-      this.attributes = new TreeMap<String, ProvisioningAttribute>();
-    }
-    
     ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
     
     Collection<Object> values = null;
@@ -744,10 +746,6 @@ public abstract class ProvisioningUpdatable {
    */
   public void assignAttributeValue(String name, Object value) {
     
-    if (this.attributes == null) {
-      this.attributes = new TreeMap<String, ProvisioningAttribute>();
-    }
-    
     ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
     
     if (provisioningAttribute == null) {
@@ -767,10 +765,6 @@ public abstract class ProvisioningUpdatable {
    */
   public void removeAttribute(String name) {
     
-    if (this.attributes == null) {
-      return;
-    }
-
     if (this.attributes.containsKey(name)) {
       this.attributes.remove(name);
     }
@@ -782,10 +776,6 @@ public abstract class ProvisioningUpdatable {
    * @param value
    */
   public Object retrieveAttributeValue(String name) {
-    
-    if (this.attributes == null) {
-      return null;
-    }
     
     ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
     
@@ -817,6 +807,46 @@ public abstract class ProvisioningUpdatable {
     
     return (Set<?>)this.retrieveAttributeValue(name);
     
+  }
+
+  /**
+   * 
+   * @param name
+   * @param value
+   */
+  public Set<?> retrieveAttributeValueSetForMemberships() {
+
+    GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
+    String membershipAttribute = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    GrouperProvisioningBehaviorMembershipType grouperProvisioningBehaviorMembershipType = grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
+    
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = null;
+    
+    if (grouperProvisioningBehaviorMembershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(membershipAttribute);
+    } else if (grouperProvisioningBehaviorMembershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+          .retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(membershipAttribute);
+    }
+    
+    if ((grouperProvisioningBehaviorMembershipType == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        && this instanceof ProvisioningGroup)
+        || (grouperProvisioningBehaviorMembershipType == GrouperProvisioningBehaviorMembershipType.entityAttributes
+            && this instanceof ProvisioningEntity)) {
+      
+      if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
+        return this.retrieveAttributeValueSet(membershipAttribute);
+      } 
+      Object membershipValue = this.retrieveAttributeValue(membershipAttribute);
+      if (membershipValue == null) {
+        return new HashSet<>();
+      }
+      return GrouperUtil.toSet(membershipValue);
+
+    }
+
+    throw new RuntimeException("Invalid membership retrieve call: " + grouperProvisioningBehaviorMembershipType + ", " + this.getClass().getName() + ", " + membershipAttribute);
   }
 
   /**
@@ -860,14 +890,6 @@ public abstract class ProvisioningUpdatable {
    */
   public Map<String, ProvisioningAttribute> getAttributes() {
     return this.attributes;
-  }
-
-  /**
-   * more attributes in name/value pairs
-   * @param attributes1
-   */
-  public void setAttributes(Map<String, ProvisioningAttribute> attributes1) {
-    this.attributes = attributes1;
   }
 
   /**
@@ -1036,21 +1058,17 @@ public abstract class ProvisioningUpdatable {
    */
   public void cloneUpdatable(ProvisioningUpdatable provisioningUpdatable, String ignoreAttribute) {
 
-    Map<String, ProvisioningAttribute> newAttributes = null;
-    if (this.attributes != null) {
-      newAttributes = new TreeMap<String, ProvisioningAttribute>();
-      for (String attributeName : this.attributes.keySet()) {
-        if (StringUtils.equals(ignoreAttribute, attributeName)) {
-          continue;
-        }
-        ProvisioningAttribute provisioningAttributeToClone = this.attributes.get(attributeName);
-        ProvisioningAttribute newProvisioningAttribute = null;
-        if (provisioningAttributeToClone != null) {
-          newProvisioningAttribute = provisioningAttributeToClone.clone();
-        }
-        newAttributes.put(attributeName, newProvisioningAttribute);
+    Map<String, ProvisioningAttribute> newAttributes = new TreeMap<String, ProvisioningAttribute>();
+    for (String attributeName : this.attributes.keySet()) {
+      if (StringUtils.equals(ignoreAttribute, attributeName)) {
+        continue;
       }
-      
+      ProvisioningAttribute provisioningAttributeToClone = this.attributes.get(attributeName);
+      ProvisioningAttribute newProvisioningAttribute = null;
+      if (provisioningAttributeToClone != null) {
+        newProvisioningAttribute = provisioningAttributeToClone.clone();
+      }
+      newAttributes.put(attributeName, newProvisioningAttribute);
     }
     provisioningUpdatable.attributes = newAttributes;
     provisioningUpdatable.exception = exception;
@@ -1063,7 +1081,6 @@ public abstract class ProvisioningUpdatable {
     provisioningUpdatable.truncatedAttributeNames = GrouperUtil.cloneValue(truncatedAttributeNames);
     
     
-    
   }
 
   /**
@@ -1072,15 +1089,18 @@ public abstract class ProvisioningUpdatable {
    */
   public void clearAttribute(String name) {
     
-    if (this.attributes != null) {
     
-      ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
-      
-      if (provisioningAttribute != null) {
-        Collection collection = (Collection)provisioningAttribute.getValue();
+    ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
+    
+    if (provisioningAttribute != null) {
+      Object value = provisioningAttribute.getValue();
+      if (value instanceof Collection) {
+        Collection collection = (Collection)value;
         if (collection != null) {
           collection.clear();
         }
+      } else {
+        this.attributes.remove(name);
       }
     }
     

@@ -1081,7 +1081,7 @@ public class GrouperProvisioningCompare {
               && provisioningEntityWrapper.getGrouperTargetEntity() != null) {
             String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
             
-            Set<?> attributeValueSet = provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValueSet(attributeForMemberships);
+            Set<?> attributeValueSet = provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValueSetForMemberships();
             ProvisioningAttribute provisioningAttribute = provisioningEntityWrapper.getGrouperTargetEntity().getAttributes().get(attributeForMemberships);
             boolean deleted = false;
             for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
@@ -1318,7 +1318,7 @@ public class GrouperProvisioningCompare {
               && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
             String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
             
-            Set<?> attributeValueSet = provisioningGroupWrapper.getGrouperTargetGroup().retrieveAttributeValueSet(attributeForMemberships);
+            Set<?> attributeValueSet = provisioningGroupWrapper.getGrouperTargetGroup().retrieveAttributeValueSetForMemberships();
             ProvisioningAttribute provisioningAttribute = provisioningGroupWrapper.getGrouperTargetGroup().getAttributes().get(attributeForMemberships);
             boolean deleted = false;
             for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {

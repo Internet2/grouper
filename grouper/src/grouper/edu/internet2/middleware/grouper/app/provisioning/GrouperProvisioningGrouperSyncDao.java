@@ -1614,7 +1614,7 @@ public class GrouperProvisioningGrouperSyncDao {
             }
 
             Set<?> membershipAttributes = targetProvisioningGroup
-                .retrieveAttributeValueSet(groupAttributeNameForMemberships);
+                .retrieveAttributeValueSetForMemberships();
 
             for (Object object : GrouperUtil.nonNull(membershipAttributes)) {
               String provisioningAttributeString = GrouperUtil.stringValue(object);
