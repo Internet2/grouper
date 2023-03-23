@@ -1266,6 +1266,18 @@ public class GrouperProvisioningLogic {
       if (gcGrouperSyncGroup == null) {
         continue;
       }
+      
+      if (exception != null && gcGrouperSyncGroup.getErrorCode() == null) {
+        gcGrouperSyncGroup.setErrorCode(GcGrouperSyncErrorCode.ERR);
+        gcGrouperSyncGroup.setErrorMessage(GrouperUtil.getFullStackTrace(exception));
+        gcGrouperSyncGroup.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+      }
+      
+      if (gcGrouperSyncGroup.getErrorCode() == null && provisioningGroupWrapper.getErrorCode() != null) {
+        gcGrouperSyncGroup.setErrorCode(provisioningGroupWrapper.getErrorCode());
+        gcGrouperSyncGroup.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+      }
+      
       if (gcGrouperSyncGroup.getErrorCode() == null) {
         continue;
       }
@@ -1279,6 +1291,16 @@ public class GrouperProvisioningLogic {
       if (gcGrouperSyncMember == null) {
         continue;
       }
+      if (exception != null && gcGrouperSyncMember.getErrorCode() == null) {
+        gcGrouperSyncMember.setErrorCode(GcGrouperSyncErrorCode.ERR);
+        gcGrouperSyncMember.setErrorMessage(GrouperUtil.getFullStackTrace(exception));
+        gcGrouperSyncMember.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+      }
+      
+      if (gcGrouperSyncMember.getErrorCode() == null && provisioningEntityWrapper.getErrorCode() != null) {
+        gcGrouperSyncMember.setErrorCode(provisioningEntityWrapper.getErrorCode());
+        gcGrouperSyncMember.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+      }
       if (gcGrouperSyncMember.getErrorCode() == null) {
         continue;
       }
@@ -1291,6 +1313,16 @@ public class GrouperProvisioningLogic {
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
       if (gcGrouperSyncMembership == null) {
         continue;
+      }
+      if (exception != null && gcGrouperSyncMembership.getErrorCode() == null) {
+        gcGrouperSyncMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+        gcGrouperSyncMembership.setErrorMessage(GrouperUtil.getFullStackTrace(exception));
+        gcGrouperSyncMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+      }
+      
+      if (gcGrouperSyncMembership.getErrorCode() == null && provisioningMembershipWrapper.getErrorCode() != null) {
+        gcGrouperSyncMembership.setErrorCode(provisioningMembershipWrapper.getErrorCode());
+        gcGrouperSyncMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
       }
       if (gcGrouperSyncMembership.getErrorCode() == null) {
         continue;
