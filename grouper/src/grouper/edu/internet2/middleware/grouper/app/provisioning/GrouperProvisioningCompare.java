@@ -730,6 +730,11 @@ public class GrouperProvisioningCompare {
         && !((ProvisioningGroup)grouperProvisioningUpdatable).getProvisioningGroupWrapper().getProvisioningStateGroup().isRecalcObject()) {
       return;
     }
+    if (grouperProvisioningUpdatable instanceof ProvisioningEntity
+        && !((ProvisioningEntity)grouperProvisioningUpdatable).getProvisioningEntityWrapper().getProvisioningStateEntity().isUpdate()
+        && !((ProvisioningEntity)grouperProvisioningUpdatable).getProvisioningEntityWrapper().getProvisioningStateEntity().isRecalcObject()) {
+      return;
+    }
     
     String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != null) {
@@ -1212,7 +1217,7 @@ public class GrouperProvisioningCompare {
     if (behaviorIsUpdateEntities) {
       
       for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappersForUpdate) {
-        
+        //TODO check if delete...  but not deleting...
         ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
         ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
 
