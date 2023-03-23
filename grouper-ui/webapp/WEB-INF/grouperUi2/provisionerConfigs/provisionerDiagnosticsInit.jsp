@@ -47,7 +47,9 @@
                       </div>
                     </div>
                   </c:if>
-                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()}">
+                  <c:if test="${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAll() && 
+                    grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsWithEntity() == false &&
+                    grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsWithGroup() == false}">
                     <div class="control-group">
                    
                       <div class="controls">
