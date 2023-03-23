@@ -250,7 +250,9 @@ public class GrouperAzureApiCommands {
     int index = 0;
     for (GrouperAzureGroup singleGroupToBeCreated: groupsInOneHttpRequest) {
       
-      JsonNode jsonToSend = singleGroupToBeCreated.toJson(groupToFieldNamesToInsert.get(singleGroupToBeCreated));
+      ObjectNode jsonToSend = singleGroupToBeCreated.toJson(groupToFieldNamesToInsert.get(singleGroupToBeCreated));
+      
+      jsonToSend.remove("id");
       
       ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
       innerRequestNode.put("id", String.valueOf(index));
@@ -446,7 +448,9 @@ public class GrouperAzureApiCommands {
       String password = generateRandomPassword();
       singleUserToBeCreated.setPassword(password);
       
-      JsonNode jsonToSend = singleUserToBeCreated.toJson(fieldsToCreate);
+      ObjectNode jsonToSend = singleUserToBeCreated.toJson(fieldsToCreate);
+      
+      jsonToSend.remove("id");
       
       ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
       innerRequestNode.put("id", String.valueOf(index));

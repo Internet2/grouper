@@ -20,9 +20,11 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
@@ -1195,6 +1197,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.debugLog").value("true").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.logAllObjectsVerbose").value("true").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.logCommandsAlways").value("true").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.myAzureProvisioner.subjectSourcesToProvision").value("jdbc").store();
 
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_myAzureProvisioner.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_myAzureProvisioner.quartzCron").value("9 59 23 31 12 ? 2099").store();
@@ -1243,10 +1246,37 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsAllowOnlyMembersToPostDb());
       assertEquals("T", grouperAzureGroup.getResourceProvisioningOptionsTeamDb());
       
+      GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("myAzureProvisioner");
+      provisioner.initialize(GrouperProvisioningType.diagnostics);
+      GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
+      grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupName("test:testGroup2");
+      grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsSubjectIdOrIdentifier("test.subject.4");
+      grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipInsert(true);
+      grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupInsert(true);
+      grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityInsert(true);
+      grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupsAllSelect(true);
+      grouperProvisioningOutput = provisioner.provision(GrouperProvisioningType.diagnostics);
+      assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+      validateNoErrors(grouperProvisioningDiagnosticsContainer);
+      
     } finally {
       
     }
     
+  }
+  
+  private void validateNoErrors(GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer) {
+    String[] lines = grouperProvisioningDiagnosticsContainer.getReportFinal().split("\n"); 
+    List<String> errorLines = new ArrayList<String>();
+    for (String line : lines) {
+      if (line.contains("'red'") || line.contains("Error:")) {
+        errorLines.add(line);
+      }
+    }
+    
+    if (errorLines.size() > 0) {
+      fail("There are " + errorLines.size() + " errors in report: " + errorLines);
+    }
   }
   
   public void testFullSyncAzureWithOwners() {
