@@ -886,6 +886,7 @@ public class GrouperProvisioningMatchingIdIndex {
       }
     }
     
+    // how many groups the target membership matches
     Map<ProvisioningMembership, Integer> targetProvisioningMembershipToMatchCount = new HashMap<>();
     Map<ProvisioningMembership, ProvisioningMembership> grouperTargetMembershipMatchesTargetProvisioningMembership = new HashMap<>();
     Map<ProvisioningMembership, Set<ProvisioningMembership>> targetProvisioningMembershipToSetOfTargetProvisioningMemberships = new HashMap<>();
