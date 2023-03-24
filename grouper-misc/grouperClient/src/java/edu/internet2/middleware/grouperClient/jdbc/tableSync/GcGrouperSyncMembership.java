@@ -645,6 +645,8 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
    * 
    */
   public GcGrouperSyncMembership() {
+    // innocuous line to set a breakpoint
+    this.id = null;
   }
   
   /**
