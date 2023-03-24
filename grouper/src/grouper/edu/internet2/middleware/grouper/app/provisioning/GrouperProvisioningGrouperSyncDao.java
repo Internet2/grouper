@@ -484,7 +484,7 @@ public class GrouperProvisioningGrouperSyncDao {
         if (provisioningMembershipWrapper == null) {
           
           if (!gcGrouperSyncMembership.isInTarget() 
-              && (!gcGrouperSyncGroup.isProvisionable() || gcGrouperSyncMember.isProvisionable())) {
+              && (!gcGrouperSyncGroup.isProvisionable() || !gcGrouperSyncMember.isProvisionable())) {
             continue;
           }
 
