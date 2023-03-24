@@ -1625,7 +1625,7 @@ public class GrouperProvisioningService {
           }
         }
         
-        return group.hasPrivilege(subject, AccessPrivilege.VIEW.getName());
+        return group.hasMember(subject);
         
       }
       
