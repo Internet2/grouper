@@ -9267,18 +9267,18 @@ public class GrouperServiceLogicTest extends GrouperTest {
           2, GrouperUtil.length(wsGetMembershipsResults.getWsMemberships()));
       
     }
-
+    
     /**
-     * test has member
+     * test add member with enable disable dates
      */
-    public void testAddRemoveMemberUpdatePrivs() {
-
+    public void testAddMemberEnableDisableDates() {
+    
       GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-
+    
       Group group1 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
         .assignGroupNameToEdit("test:group1").assignName("test:group1").assignCreateParentStemsIfNotExist(true)
         .assignDescription("description").save();
-      
+
       Group group2 = new GroupSave(GrouperSession.staticGrouperSession()).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
           .assignGroupNameToEdit("test:group2").assignName("test:group2").assignCreateParentStemsIfNotExist(true)
           .assignDescription("description").save();
@@ -9286,31 +9286,31 @@ public class GrouperServiceLogicTest extends GrouperTest {
       group1.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
       group1.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
       
-      group2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-      group2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.VIEW, false);
-
       group1.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.UPDATE);
+      group1.grantPriv(SubjectTestHelper.SUBJ1, AccessPrivilege.READ);
     
       ChangeLogTempToEntity.convertRecords();
-      
       
       WsGroupLookup wsGroupLookup = new WsGroupLookup(group1.getName(), group1.getUuid());
       WsSubjectLookup wsSubjectLookup5 = new WsSubjectLookup(SubjectTestHelper.SUBJ5.getId(), null, null);
       WsSubjectLookup[] wsSubjectLookups = new WsSubjectLookup[] {wsSubjectLookup5};
-    
-      //###############################################
-      //valid query, add member
+
+      Timestamp timestampInFuture = new Timestamp(System.currentTimeMillis() + 10000);
+      Timestamp timestampInFuture2 = new Timestamp(System.currentTimeMillis() + 20000);
+      Timestamp timestampInPast = new Timestamp(System.currentTimeMillis() - 5000);
+      
+      // new membership - enabled membership with dates
       {
         GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
 
         WsAddMemberResults wsAddMemberResults = GrouperServiceLogic.addMember(
             GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, false, 
-            null, null, null, false, false, null, null, null, null, false);
-        
+            null, null, null, false, false, null, null, timestampInFuture, timestampInPast, false);
+  
         assertEquals(wsAddMemberResults.getResultMetadata().getResultMessage(),
             WsAddMemberResultsCode.SUCCESS.name(), 
             wsAddMemberResults.getResultMetadata().getResultCode());
-        
+  
         WsGroup wsGroup = wsAddMemberResults.getWsGroupAssigned();
         assertEquals(group1.getUuid(), wsGroup.getUuid());
         assertEquals(group1.getName(), wsGroup.getName());
@@ -9320,10 +9320,108 @@ public class GrouperServiceLogicTest extends GrouperTest {
         
         assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject5.getId());
         assertEquals(WsAddMemberResultCode.SUCCESS.name(), wsAddMemberResults.getResults()[0].resultCode().name());
+        
+        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+        Membership membership = group1.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ5, false, true);
+        assertTrue(membership.isEnabled());
+        assertEquals(timestampInFuture, membership.getDisabledTime());
+        assertEquals(timestampInPast, membership.getEnabledTime());
+        membership.delete();
       }
       
-      //###############################################
-      //valid query, add member again
+      // new membership - disabled membership with dates
+      {
+        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+        WsAddMemberResults wsAddMemberResults = GrouperServiceLogic.addMember(
+            GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, false, 
+            null, null, null, false, false, null, null, null, timestampInFuture, false);
+  
+        assertEquals(wsAddMemberResults.getResultMetadata().getResultMessage(),
+            WsAddMemberResultsCode.SUCCESS.name(), 
+            wsAddMemberResults.getResultMetadata().getResultCode());
+  
+        WsGroup wsGroup = wsAddMemberResults.getWsGroupAssigned();
+        assertEquals(group1.getUuid(), wsGroup.getUuid());
+        assertEquals(group1.getName(), wsGroup.getName());
+        
+        assertEquals(1, GrouperUtil.length(wsAddMemberResults.getResults()));
+        WsSubject wsSubject5 = wsAddMemberResults.getResults()[0].getWsSubject();
+        
+        assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject5.getId());
+        assertEquals(WsAddMemberResultCode.SUCCESS.name(), wsAddMemberResults.getResults()[0].resultCode().name());
+        
+        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+        Membership membership = group1.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ5, false, true);
+        assertFalse(membership.isEnabled());
+        assertNull(membership.getDisabledTime());
+        assertEquals(timestampInFuture, membership.getEnabledTime());
+      }
+      
+      // update membership - disabled membership with dates -> disabled membership with other dates
+      {
+        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+        WsAddMemberResults wsAddMemberResults = GrouperServiceLogic.addMember(
+            GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, false, 
+            null, null, null, false, false, null, null, null, timestampInFuture2, false);
+  
+        assertEquals(wsAddMemberResults.getResultMetadata().getResultMessage(),
+            WsAddMemberResultsCode.SUCCESS.name(), 
+            wsAddMemberResults.getResultMetadata().getResultCode());
+  
+        WsGroup wsGroup = wsAddMemberResults.getWsGroupAssigned();
+        assertEquals(group1.getUuid(), wsGroup.getUuid());
+        assertEquals(group1.getName(), wsGroup.getName());
+        
+        assertEquals(1, GrouperUtil.length(wsAddMemberResults.getResults()));
+        WsSubject wsSubject5 = wsAddMemberResults.getResults()[0].getWsSubject();
+        
+        assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject5.getId());
+        assertEquals(WsAddMemberResultCode.SUCCESS.name(), wsAddMemberResults.getResults()[0].resultCode().name());
+        
+        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+        Membership membership = group1.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ5, false, true);
+        assertFalse(membership.isEnabled());
+        assertNull(membership.getDisabledTime());
+        assertEquals(timestampInFuture2, membership.getEnabledTime());
+      }
+      
+      // update membership - disabled membership with dates -> enabled membership with dates
+      {
+        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+        WsAddMemberResults wsAddMemberResults = GrouperServiceLogic.addMember(
+            GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, false, 
+            null, null, null, false, false, null, null, timestampInFuture, timestampInPast, false);
+  
+        assertEquals(wsAddMemberResults.getResultMetadata().getResultMessage(),
+            WsAddMemberResultsCode.SUCCESS.name(), 
+            wsAddMemberResults.getResultMetadata().getResultCode());
+  
+        WsGroup wsGroup = wsAddMemberResults.getWsGroupAssigned();
+        assertEquals(group1.getUuid(), wsGroup.getUuid());
+        assertEquals(group1.getName(), wsGroup.getName());
+        
+        assertEquals(1, GrouperUtil.length(wsAddMemberResults.getResults()));
+        WsSubject wsSubject5 = wsAddMemberResults.getResults()[0].getWsSubject();
+        
+        assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject5.getId());
+        assertEquals(WsAddMemberResultCode.SUCCESS.name(), wsAddMemberResults.getResults()[0].resultCode().name());
+        
+        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+        Membership membership = group1.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ5, false, true);
+        assertTrue(membership.isEnabled());
+        assertEquals(timestampInFuture, membership.getDisabledTime());
+        assertEquals(timestampInPast, membership.getEnabledTime());
+      }
+      
+
+      // update membership - enabled membership with dates -> enabled membership with no dates
       {
         GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
 
@@ -9343,112 +9441,46 @@ public class GrouperServiceLogicTest extends GrouperTest {
         WsSubject wsSubject5 = wsAddMemberResults.getResults()[0].getWsSubject();
         
         assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject5.getId());
-        assertEquals(WsAddMemberResultCode.SUCCESS.name(), wsAddMemberResults.getResults()[0].resultCode().name());
+        assertEquals(WsAddMemberResultCode.SUCCESS_ALREADY_EXISTED.name(), wsAddMemberResults.getResults()[0].resultCode().name());
+        
+        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
+
+        Membership membership = group1.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ5, false, true);
+        assertTrue(membership.isEnabled());
+        assertNull(membership.getDisabledTime());
+        assertNull(membership.getEnabledTime());
       }
       
-      //###############################################
-      //valid query, remove member
+
+      // update membership - enabled membership with no dates -> disabled membership with dates
       {
         GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
 
-        WsDeleteMemberResults wsDeleteMemberResults = GrouperServiceLogic.deleteMember(
-            GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, null, 
-            null, null, false, false, null, null);
-        
-        assertEquals(wsDeleteMemberResults.getResultMetadata().getResultMessage(),
-            WsDeleteMemberResultsCode.SUCCESS.name(), 
-            wsDeleteMemberResults.getResultMetadata().getResultCode());
-        
-        WsGroup wsGroup = wsDeleteMemberResults.getWsGroup();
+        WsAddMemberResults wsAddMemberResults = GrouperServiceLogic.addMember(
+            GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, false, 
+            null, null, null, false, false, null, null, null, timestampInFuture, false);
+  
+        assertEquals(wsAddMemberResults.getResultMetadata().getResultMessage(),
+            WsAddMemberResultsCode.SUCCESS.name(), 
+            wsAddMemberResults.getResultMetadata().getResultCode());
+  
+        WsGroup wsGroup = wsAddMemberResults.getWsGroupAssigned();
         assertEquals(group1.getUuid(), wsGroup.getUuid());
         assertEquals(group1.getName(), wsGroup.getName());
         
-        assertEquals(1, GrouperUtil.length(wsDeleteMemberResults.getResults()));
-        WsSubject wsSubject5 = wsDeleteMemberResults.getResults()[0].getWsSubject();
+        assertEquals(1, GrouperUtil.length(wsAddMemberResults.getResults()));
+        WsSubject wsSubject5 = wsAddMemberResults.getResults()[0].getWsSubject();
         
         assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject5.getId());
-        assertEquals(WsDeleteMemberResultCode.SUCCESS.name(), wsDeleteMemberResults.getResults()[0].resultCode().name());
-      }    
-
-      //###############################################
-      //valid query, remove member already removed
-      {
+        assertEquals(WsAddMemberResultCode.SUCCESS_ALREADY_EXISTED.name(), wsAddMemberResults.getResults()[0].resultCode().name());
+        
         GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
 
-        WsDeleteMemberResults wsDeleteMemberResults = GrouperServiceLogic.deleteMember(
-            GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, null, 
-            null, null, false, false, null, null);
-        
-        assertEquals(wsDeleteMemberResults.getResultMetadata().getResultMessage(),
-            WsDeleteMemberResultsCode.SUCCESS.name(), 
-            wsDeleteMemberResults.getResultMetadata().getResultCode());
-        
-        WsGroup wsGroup = wsDeleteMemberResults.getWsGroup();
-        assertEquals(group1.getUuid(), wsGroup.getUuid());
-        assertEquals(group1.getName(), wsGroup.getName());
-        
-        assertEquals(1, GrouperUtil.length(wsDeleteMemberResults.getResults()));
-        WsSubject wsSubject5 = wsDeleteMemberResults.getResults()[0].getWsSubject();
-        
-        assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject5.getId());
-        assertEquals(WsDeleteMemberResultCode.SUCCESS.name(), 
-            wsDeleteMemberResults.getResults()[0].resultCode().name());
+        Membership membership = group1.getImmediateMembership(Group.getDefaultList(), SubjectTestHelper.SUBJ5, false, true);
+        assertFalse(membership.isEnabled());
+        assertNull(membership.getDisabledTime());
+        assertEquals(timestampInFuture, membership.getEnabledTime());
       }
-
-      //add subj5 to group2, and add group2 to group1
-      GrouperServiceUtils.testSession = GrouperSession.startRootSession();
-      group2.addMember(SubjectTestHelper.SUBJ5, false);
-      group1.addMember(group2.toSubject(), false);
-      group1.addMember(SubjectTestHelper.SUBJ5, false);
-      GrouperSession.stopQuietly(GrouperServiceUtils.testSession);
-      
-      {
-        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
-
-        WsDeleteMemberResults wsDeleteMemberResults = GrouperServiceLogic.deleteMember(
-            GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, null, 
-            null, null, false, false, null, null);
-        
-        assertEquals(wsDeleteMemberResults.getResultMetadata().getResultMessage(),
-            WsDeleteMemberResultsCode.SUCCESS.name(), 
-            wsDeleteMemberResults.getResultMetadata().getResultCode());
-        
-        WsGroup wsGroup = wsDeleteMemberResults.getWsGroup();
-        assertEquals(group1.getUuid(), wsGroup.getUuid());
-        assertEquals(group1.getName(), wsGroup.getName());
-        
-        assertEquals(1, GrouperUtil.length(wsDeleteMemberResults.getResults()));
-        WsSubject wsSubject5 = wsDeleteMemberResults.getResults()[0].getWsSubject();
-        
-        assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject5.getId());
-        assertEquals(WsDeleteMemberResultCode.SUCCESS.name(), 
-            wsDeleteMemberResults.getResults()[0].resultCode().name());
-      }
-      
-      {
-        GrouperServiceUtils.testSession = GrouperSession.start(SubjectTestHelper.SUBJ1);
-
-        WsDeleteMemberResults wsDeleteMemberResults = GrouperServiceLogic.deleteMember(
-            GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, null, 
-            null, null, false, false, null, null);
-        
-        assertEquals(wsDeleteMemberResults.getResultMetadata().getResultMessage(),
-            WsDeleteMemberResultsCode.SUCCESS.name(), 
-            wsDeleteMemberResults.getResultMetadata().getResultCode());
-        
-        WsGroup wsGroup = wsDeleteMemberResults.getWsGroup();
-        assertEquals(group1.getUuid(), wsGroup.getUuid());
-        assertEquals(group1.getName(), wsGroup.getName());
-        
-        assertEquals(1, GrouperUtil.length(wsDeleteMemberResults.getResults()));
-        WsSubject wsSubject5 = wsDeleteMemberResults.getResults()[0].getWsSubject();
-        
-        assertEquals(SubjectTestHelper.SUBJ5.getId(), wsSubject5.getId());
-        assertEquals(WsDeleteMemberResultCode.SUCCESS.name(), 
-            wsDeleteMemberResults.getResults()[0].resultCode().name());
-      }
-
-
     }
 
     /**
@@ -9537,7 +9569,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
 
         WsAddMemberResults wsAddMemberResults = GrouperServiceLogic.addMember(
             GROUPER_VERSION, wsGroupLookup, wsSubjectLookups, false, 
-            null, null, null, false, false, null, null, new Timestamp(System.currentTimeMillis() + 10000), new Timestamp(System.currentTimeMillis() + 5000), false);
+            null, null, null, false, false, null, null, new Timestamp(System.currentTimeMillis() + 10000), new Timestamp(System.currentTimeMillis() - 5000), false);
   
         assertEquals(wsAddMemberResults.getResultMetadata().getResultMessage(),
             WsAddMemberResultsCode.SUCCESS.name(), 
