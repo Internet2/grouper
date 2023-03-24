@@ -120,19 +120,25 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
     }
-    
-    int numberOfConditions = GrouperUtil.length(objectClasses) + grouperProvisioningConfigurationAttributes.size();
+
+    int numberOfConditions = GrouperUtil.length(objectClasses) + (grouperProvisioningConfigurationAttributes.size() > 0 ? 1 : 0);
     
     if (numberOfConditions > 1) {
       filterBuilder.append("(&");
     }
 
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      filterBuilder.append("(|");
+    }
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
       if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getName(), ldap_dn)) {
         filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(ldapSyncConfiguration.getGroupRdnAttribute()) + "=*)");
       } else {
         filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(grouperProvisioningConfigurationAttribute.getName()) + "=*)");
       }
+    }
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      filterBuilder.append(")");
     }
     for (String objectClass : GrouperUtil.nonNull(objectClasses)) {
       filterBuilder.append("(objectclass=").append(GrouperUtil.ldapFilterEscape(objectClass)).append(")");
@@ -1481,18 +1487,24 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
     }
     
-    int numberOfConditions = GrouperUtil.length(objectClasses) + grouperProvisioningConfigurationAttributes.size();
+    int numberOfConditions = GrouperUtil.length(objectClasses) + (grouperProvisioningConfigurationAttributes.size() > 0 ? 1 : 0);
     
     if (numberOfConditions > 1) {
       filterBuilder.append("(&");
     }
 
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      filterBuilder.append("(|");
+    }
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
       if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getName(), ldap_dn)) {
         filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(ldapSyncConfiguration.getUserRdnAttribute()) + "=*)");
       } else {
         filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(grouperProvisioningConfigurationAttribute.getName()) + "=*)");
       }
+    }
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      filterBuilder.append(")");
     }
     for (String objectClass : GrouperUtil.nonNull(objectClasses)) {
       filterBuilder.append("(objectclass=").append(GrouperUtil.ldapFilterEscape(objectClass)).append(")");

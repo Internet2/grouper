@@ -52,7 +52,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testInternet2groupOfNamesFull"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testInternet2groupOfNamesTwoMatchesFull"));    
   }
   
   @Override
@@ -3326,13 +3326,35 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(description=SomeStaticValue)", new String[] {"uid"}, null).size());
   }
 
-  public void internet2groupOfNames(boolean isFull) {
+  public void internet2groupOfNames(boolean isFull, boolean twoCaches, boolean twoSearchAttributes) {
       
-    LdapProvisionerTestUtils.configureLdapProvisioner(
-        new LdapProvisionerTestConfigInput()
-          .assignConfigId("ldapGroupOfNames")
-          .assignProvisioningStrategy("internet2groupOfNames")
-        );
+    LdapProvisionerTestConfigInput ldapProvisionerTestConfigInput = new LdapProvisionerTestConfigInput()
+      .assignConfigId("ldapGroupOfNames")
+      .assignProvisioningStrategy("internet2groupOfNames")
+      .addExtraConfig("logCommandsAlways", "true");
+    
+    if (twoCaches) {
+      ldapProvisionerTestConfigInput.addExtraConfig("groupAttributeValueCache1groupAttribute", "businessCategory");
+      ldapProvisionerTestConfigInput.addExtraConfig("groupAttributeValueCache1has", "true");
+      ldapProvisionerTestConfigInput.addExtraConfig("groupAttributeValueCache1source", "target");
+      ldapProvisionerTestConfigInput.addExtraConfig("groupAttributeValueCache1type", "groupAttribute");
+
+      ldapProvisionerTestConfigInput.addExtraConfig("entityAttributeValueCache1entityAttribute", "uid");
+      ldapProvisionerTestConfigInput.addExtraConfig("entityAttributeValueCache1has", "true");
+      ldapProvisionerTestConfigInput.addExtraConfig("entityAttributeValueCache1source", "target");
+      ldapProvisionerTestConfigInput.addExtraConfig("entityAttributeValueCache1type", "entityAttribute");
+    
+    }
+
+    if (twoSearchAttributes) {
+      ldapProvisionerTestConfigInput.addExtraConfig("groupMatchingAttribute1name", "ldap_dn");
+      ldapProvisionerTestConfigInput.addExtraConfig("groupMatchingAttributeCount", "2");
+
+      ldapProvisionerTestConfigInput.addExtraConfig("entityMatchingAttribute1name", "ldap_dn");
+      ldapProvisionerTestConfigInput.addExtraConfig("entityMatchingAttributeCount", "2");
+      
+    }
+    LdapProvisionerTestUtils.configureLdapProvisioner(ldapProvisionerTestConfigInput);
   
     // init stuff
     if (!isFull) {
@@ -3520,12 +3542,28 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     assertEquals(0, GrouperUtil.length(ldapEntries));
   }
 
-  public void testInternet2groupOfNamesFull() {
-    internet2groupOfNames(true);
+  public void testInternet2groupOfNamesTwoMatchesFull() {
+    internet2groupOfNames(true, false, true);
   }
 
-  public void testInternet2groupOfNamesIncremental() {
-    internet2groupOfNames(false);
+  public void testInternet2groupOfNamesTwoMatchesIncremental() {
+    internet2groupOfNames(false, false, true);
+  }
+
+  public void testInternet2groupOfNamesTwoCachesFull() {
+    internet2groupOfNames(true, true, false);
+  }
+
+  public void testInternet2groupOfNamesTwoCachesIncremental() {
+    internet2groupOfNames(false, true, false);
+  }
+
+  public void testInternet2groupOfNamesTwoMatchesTwoCachesFull() {
+    internet2groupOfNames(true, true, true);
+  }
+
+  public void testInternet2groupOfNamesTwoMatchesTwoCachesIncremental() {
+    internet2groupOfNames(false, true, true);
   }
 
   private static void addPolicyType(Group group) {
