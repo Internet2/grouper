@@ -3421,7 +3421,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=abrown,ou=People,dc=example,dc=edu")); 
       
     // change id index
-    new GroupSave().assignName("test:testGroup").assignIdIndex(123L).save();
+    testGroup = new GroupSave().assignName("test:testGroup").assignIdIndex(123L).save();
     
     if (isFull) {
       fullProvision("ldapGroupOfNames");

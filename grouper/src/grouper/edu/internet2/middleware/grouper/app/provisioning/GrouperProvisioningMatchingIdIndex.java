@@ -519,6 +519,7 @@ public class GrouperProvisioningMatchingIdIndex {
       }
     }
     
+    // how many groups the target group matches
     Map<ProvisioningGroup, Integer> targetProvisioningGroupToMatchCount = new HashMap<>();
     Map<ProvisioningGroup, ProvisioningGroup> grouperTargetGroupMatchesTargetProvisioningGroup = new HashMap<>();
     Map<ProvisioningGroup, Set<ProvisioningGroup>> targetProvisioningGroupToSetOfTargetProvisioningGroups = new HashMap<>();
@@ -533,14 +534,15 @@ public class GrouperProvisioningMatchingIdIndex {
       // lets do current value of all attributes first
       for (boolean currentValue : new boolean[] {true, false}) {
 
-        targetProvisioningGroupToMatchCount.clear();
-        grouperTargetGroupMatchesTargetProvisioningGroup.clear();
-        targetProvisioningGroupToSetOfTargetProvisioningGroups.clear();
-        grouperTargetGroupToTargetId.clear();
-        
         // lets look in matching attributes in order
         // first do all current values, then do all past values
         for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) {
+          targetProvisioningGroupToMatchCount.clear();
+          grouperTargetGroupMatchesTargetProvisioningGroup.clear();
+          targetProvisioningGroupToSetOfTargetProvisioningGroups.clear();
+          grouperTargetGroupToTargetId.clear();
+          
+
           String matchingAttributeName = matchingAttribute.getName();
           
           // go through unmatched grouper objects and try to find a match
@@ -1178,6 +1180,7 @@ public class GrouperProvisioningMatchingIdIndex {
       }
     }
     
+    // how many entities the target entity matches
     Map<ProvisioningEntity, Integer> targetProvisioningEntityToMatchCount = new HashMap<>();
     Map<ProvisioningEntity, ProvisioningEntity> grouperTargetEntityMatchesTargetProvisioningEntity = new HashMap<>();
     Map<ProvisioningEntity, Set<ProvisioningEntity>> targetProvisioningEntityToSetOfTargetProvisioningEntities = new HashMap<>();
@@ -1192,14 +1195,16 @@ public class GrouperProvisioningMatchingIdIndex {
       // lets do current value of all attributes first
       for (boolean currentValue : new boolean[] {true, false}) {
   
-        targetProvisioningEntityToMatchCount.clear();
-        grouperTargetEntityMatchesTargetProvisioningEntity.clear();
-        targetProvisioningEntityToSetOfTargetProvisioningEntities.clear();
-        grouperTargetEntityToTargetId.clear();
-        
         // lets look in matching attributes in order
         // first do all current values, then do all past values
         for (GrouperProvisioningConfigurationAttribute matchingAttribute : this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) {
+          
+          targetProvisioningEntityToMatchCount.clear();
+          grouperTargetEntityMatchesTargetProvisioningEntity.clear();
+          targetProvisioningEntityToSetOfTargetProvisioningEntities.clear();
+          grouperTargetEntityToTargetId.clear();
+          
+
           String matchingAttributeName = matchingAttribute.getName();
           
           // go through unmatched grouper objects and try to find a match

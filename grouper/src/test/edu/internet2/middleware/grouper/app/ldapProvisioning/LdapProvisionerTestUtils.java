@@ -963,10 +963,15 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "target");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupAttribute");
+//    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1groupAttribute", "businessCategory");
+//    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1has", "true");
+//    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1source", "target");
+//    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache1type", "groupAttribute");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupDnType", "flat");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "businessCategory");
-    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute1name", "ldap_dn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "2");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeName", "member");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", "entityAttributeValueCache0");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupRdnAttribute", "cn");
