@@ -154,9 +154,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         groupAttributes++;
         
       }
-      
-      provisionerSuffixToValue.put("groupMatchingAttributeCount", "1");
-      
+            
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("matchingSearchAttributeDifferentThanRdnorIdIndex"), false)) {
         
         String matchingSearchAttributeNameForGroups = startWithSuffixToValue.get("matchingSearchAttributeNameForGroups");
@@ -175,11 +173,19 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         
         groupAttributes++;
         
+        provisionerSuffixToValue.put("groupMatchingAttributeCount", "1");
         provisionerSuffixToValue.put("groupMatchingAttribute0name", matchingSearchAttributeNameForGroups);
         
       } else {
         
-        provisionerSuffixToValue.put("groupMatchingAttribute0name", idIndexAttribute);
+        if (GrouperUtil.isBlank(idIndexAttribute)) {
+          provisionerSuffixToValue.put("groupMatchingAttributeCount", "1");
+          provisionerSuffixToValue.put("groupMatchingAttribute0name", "ldap_dn");
+        } else {
+          provisionerSuffixToValue.put("groupMatchingAttributeCount", "2");
+          provisionerSuffixToValue.put("groupMatchingAttribute0name", idIndexAttribute);
+          provisionerSuffixToValue.put("groupMatchingAttribute1name", "ldap_dn");
+        }
       }
       
       String objectClassesForGroups = startWithSuffixToValue.get("objectClassesForGroups");
