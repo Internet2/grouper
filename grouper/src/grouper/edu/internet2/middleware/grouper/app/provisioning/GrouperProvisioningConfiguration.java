@@ -716,6 +716,26 @@ public abstract class GrouperProvisioningConfiguration {
     return loadEntitiesToGrouperTable;
   }
 
+  /**
+   * group of users to exclude from provisioning
+   */
+  private String groupIdOfUsersNotToProvision;
+
+  /**
+   * group of users to exclude from provisioning
+   * @return
+   */
+  public String getGroupIdOfUsersNotToProvision() {
+    return groupIdOfUsersNotToProvision;
+  }
+
+  /**
+   * group of users to exclude from provisioning
+   * @param groupIdOfUsersNotToProvision
+   */
+  public void setGroupIdOfUsersNotToProvision(String groupIdOfUsersNotToProvision) {
+    this.groupIdOfUsersNotToProvision = groupIdOfUsersNotToProvision;
+  }
 
   /**
    * if set then only provision users who are in this group
@@ -2848,6 +2868,7 @@ public abstract class GrouperProvisioningConfiguration {
     this.selectAllGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllGroups", false), this.operateOnGrouperGroups);
 
     this.groupIdOfUsersToProvision = this.retrieveConfigString("groupIdOfUsersToProvision", false);
+    this.groupIdOfUsersNotToProvision = this.retrieveConfigString("groupIdOfUsersNotToProvision", false);
     this.searchAttributeNameToRetrieveEntities = this.retrieveConfigString("searchAttributeNameToRetrieveEntities", false);
     
     this.loadEntitiesToGrouperTable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("loadEntitiesToGrouperTable", false), false);
@@ -2892,9 +2913,6 @@ public abstract class GrouperProvisioningConfiguration {
     if (this.threadPoolSize < 1) {
       this.threadPoolSize = 1;
     }
-    
-    // init this in the behavior
-    this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().setGroupIdOfUsersToProvision(this.groupIdOfUsersToProvision);
     
     if (this.entityAttributesMultivalued == null) {
       this.entityAttributesMultivalued = new HashSet<String>();

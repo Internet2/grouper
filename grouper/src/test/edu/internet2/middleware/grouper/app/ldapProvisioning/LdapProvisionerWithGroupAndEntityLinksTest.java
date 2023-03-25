@@ -3332,7 +3332,9 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
       .assignConfigId("ldapGroupOfNames")
       .assignProvisioningStrategy("internet2groupOfNames")
       .addExtraConfig("logCommandsAlways", "true");
-    
+
+    ldapProvisionerTestConfigInput.addExtraConfig("groupIdOfUsersNotToProvision", "ref:excludeUsers");
+
     if (twoCaches) {
       ldapProvisionerTestConfigInput.addExtraConfig("groupAttributeValueCache1groupAttribute", "businessCategory");
       ldapProvisionerTestConfigInput.addExtraConfig("groupAttributeValueCache1has", "true");
@@ -3356,6 +3358,10 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     }
     LdapProvisionerTestUtils.configureLdapProvisioner(ldapProvisionerTestConfigInput);
   
+    Group excludeGroup = new GroupSave().assignName("ref:excludeUsers").assignCreateParentStemsIfNotExist(true).save();
+    Subject banderson = SubjectFinder.findById("banderson", true);
+    excludeGroup.addMember(banderson);
+    
     // init stuff
     if (!isFull) {
       fullProvision("ldapGroupOfNames");
@@ -3383,6 +3389,10 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     
     testGroup.addMember(aanderson, false);
     testGroup.addMember(abrown, false);
+
+    //excluded user
+    testGroup.addMember(banderson, false);
+    
     testGroup.setDescription("test description");
     testGroup.store();
       
@@ -3577,6 +3587,63 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
 
     assertEquals(1, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()));
     assertEquals(0, GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers().iterator().next().getGrouperTargetGroup().getInternal_objectChanges()));
+    
+    // add a member so we can remove later
+    testGroup.addMember(abrown, false);
+    
+    // add a group to the group, and a non provisionable member, and see what happens, should be nothing
+    testGroup.addMember(SubjectFinder.findRootSubject());
+    Group testGroup2 = new GroupSave()
+        .assignName("test2:testGroup2").assignCreateParentStemsIfNotExist(true).save();
+    testGroup.addMember(testGroup2.toSubject());
+
+    if (isFull) {
+      fullProvision("ldapGroupOfNames");
+    } else {
+      incrementalProvision("ldapGroupOfNames");
+    }
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(cn=test:testGroup)", new String[] {"objectClass", "cn", "member", "businessCategory", "description"}, null);
+    assertEquals(1, ldapEntries.size());
+
+    ldapEntry = ldapEntries.get(0);
+    
+    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(testGroup.getIdIndex()+"", ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+    assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertEquals(GrouperUtil.toStringForLog(ldapEntry.getAttribute("member").getStringValues()), 1, ldapEntry.getAttribute("member").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=abrown,ou=People,dc=example,dc=edu"));
+
+
+    testGroup.deleteMember(abrown, false);
+    
+    if (isFull) {
+      fullProvision("ldapGroupOfNames");
+    } else {
+      incrementalProvision("ldapGroupOfNames");
+    }
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(cn=test:testGroup)", new String[] {"objectClass", "cn", "member", "businessCategory", "description"}, null);
+    assertEquals(1, ldapEntries.size());
+
+    ldapEntry = ldapEntries.get(0);
+    
+    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(testGroup.getIdIndex()+"", ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+    assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertEquals(GrouperUtil.toStringForLog(ldapEntry.getAttribute("member").getStringValues()), 1, ldapEntry.getAttribute("member").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("cn=admin-seed-data,dc=example,dc=edu"));
+
     
     // try delete
     testGroup.delete();
