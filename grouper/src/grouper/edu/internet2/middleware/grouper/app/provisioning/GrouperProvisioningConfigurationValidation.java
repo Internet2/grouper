@@ -716,12 +716,26 @@ public class GrouperProvisioningConfigurationValidation {
     
     if (!StringUtils.isBlank(groupIdOfUsersToProvision)) {
        if (null == GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, false)) {
-         this.addErrorMessage(new ProvisioningValidationIssue()
+         if (null == GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, false)) {
+           this.addErrorMessage(new ProvisioningValidationIssue()
              .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.groupIdOfUsersToProvisionNotExist"))
              .assignJqueryHandle("groupIdOfUsersToProvision"));
-       }
-    
+         }
+       }    
     }
+
+    String groupIdOfUsersNotToProvision = suffixToConfigValue.get("groupIdOfUsersNotToProvision");
+    
+    if (!StringUtils.isBlank(groupIdOfUsersNotToProvision)) {
+       if (null == GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersNotToProvision, false)) {
+         if (null == GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupIdOfUsersNotToProvision, false)) {
+           this.addErrorMessage(new ProvisioningValidationIssue()
+             .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.groupIdOfUsersNotToProvisionNotExist"))
+             .assignJqueryHandle("groupIdOfUsersNotToProvision"));
+         }
+       }    
+    }
+
   }
 
   /**
