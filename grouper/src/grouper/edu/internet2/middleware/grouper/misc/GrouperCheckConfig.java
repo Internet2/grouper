@@ -3417,7 +3417,7 @@ public class GrouperCheckConfig {
         
       }      
 
-      boolean permissionsLimitsPublic = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.permissions.limits.builtin.createAs.public", true);
+      boolean permissionsLimitsPublic = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.permissions.limits.builtin.createAs.public", false);
       
       {
         String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
@@ -4212,7 +4212,7 @@ public class GrouperCheckConfig {
         
         Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(entityIdDef);
         
-        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.allow.everyEntity.privileges", true)) {
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.attribute.allow.everyEntity.privileges", false)) {
           
           //this is publicly assignable and readable
           entityIdDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
