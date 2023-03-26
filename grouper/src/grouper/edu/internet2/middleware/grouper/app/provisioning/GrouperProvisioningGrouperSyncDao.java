@@ -1254,9 +1254,21 @@ public class GrouperProvisioningGrouperSyncDao {
                 }
               }
               if (fullSyncSuccess) {
-                //gcGrouperSyncMember.setLastUserSync(nowTimestamp);
+                if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships()) {
+                        gcGrouperSyncMember
+                       .setLastUserSync(new Timestamp(System.currentTimeMillis()));
+                        gcGrouperSyncMember.setLastUserSyncStart(new Timestamp(
+                       this.getGrouperProvisioner().retrieveGrouperProvisioningLogic()
+                           .getRetrieveDataStartMillisSince1970()));
+                 }
               }
             }
+          }
+          
+          if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
+            gcGrouperSyncMember.setLastUserMetadataSync(new Timestamp(
+                this.getGrouperProvisioner().retrieveGrouperProvisioningLogic()
+                    .getRetrieveDataStartMillisSince1970()));
           }
           
           if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
@@ -1276,6 +1288,48 @@ public class GrouperProvisioningGrouperSyncDao {
             .addRecordsWithDeleteErrors(1);
       }
     }
+    
+    Set<ProvisioningMembershipWrapper> membershipWrappers = GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers());
+    // look for ones not in target
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : membershipWrappers) {
+      
+      boolean entityIsDeleted = provisioningMembershipWrapper.getProvisioningEntityWrapper() == null ? false: provisioningMembershipWrapper.getProvisioningEntityWrapper().getProvisioningStateEntity().isDeleteResultProcessed();
+      
+      if (!entityIsDeleted) {
+        continue;
+      }
+      
+      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+
+      Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
+      ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper == null
+          ? null
+          : provisioningMembershipWrapper.getTargetMembership();
+      
+      if (grouperTargetMembership != null && grouperTargetMembership.getException() != null) {
+        continue;
+      }
+      
+      if (gcGrouperSyncMembership != null) {
+
+        if (gcGrouperSyncMembership.isInTarget()) {
+          gcGrouperSyncMembership.setInTarget(false);
+          gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
+          gcGrouperSyncMembership.setErrorMessage(null);
+          gcGrouperSyncMembership.setErrorTimestamp(null);
+          
+          if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()) {
+            GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
+            if (gcGrouperSync.getRecordsCount() != null) {
+              gcGrouperSync.setRecordsCount(gcGrouperSync.getRecordsCount() - 1);
+            }
+          }
+          
+        }
+        
+      }
+    }
+    
   }
 
   /**
@@ -1370,9 +1424,8 @@ public class GrouperProvisioningGrouperSyncDao {
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : membershipWrappers) {
       
       boolean groupIsDeleted = provisioningMembershipWrapper.getProvisioningGroupWrapper() == null ? false: provisioningMembershipWrapper.getProvisioningGroupWrapper().getProvisioningStateGroup().isDeleteResultProcessed();
-      boolean entityIsDeleted = provisioningMembershipWrapper.getProvisioningEntityWrapper() == null ? false: provisioningMembershipWrapper.getProvisioningEntityWrapper().getProvisioningStateEntity().isDeleteResultProcessed();
       
-      if (!groupIsDeleted && !entityIsDeleted) {
+      if (!groupIsDeleted) {
         continue;
       }
       
