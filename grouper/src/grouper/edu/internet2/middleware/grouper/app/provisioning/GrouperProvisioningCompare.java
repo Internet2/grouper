@@ -591,36 +591,6 @@ public class GrouperProvisioningCompare {
       }
     } else {
 
-      // update
-      Collection<Object> targetCollection = null;
-      if (targetValue != null) {
-        if (targetValue instanceof Collection) {
-          targetCollection = (Collection)targetValue;
-        }
-      }
-      Collection<Object> grouperCollection = null;
-      if (grouperValue != null) {
-        if (grouperValue instanceof Collection) {
-          grouperCollection = new HashSet<Object>((Collection)grouperValue);
-        }
-      }
-      
-      if (grouperCollection != null) {
-        Iterator<Object> iterator = grouperCollection.iterator();
-        while (iterator.hasNext()) {
-          Object value = iterator.next();
-          value = filterDeletedMemberships(grouperAttribute, value);
-          
-          if (filterNonRecalcMemberships(grouperAttribute, value, recalcProvisioningUpdateable)) {
-            continue;
-          }
-          
-          if (value == null) {
-            iterator.remove();
-          }
-        }
-      }
-      //see if grouper needs a default
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = null;
       if (grouperProvisioningUpdatable instanceof ProvisioningGroup) {
         grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeForMemberships);
@@ -628,19 +598,33 @@ public class GrouperProvisioningCompare {
         grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(attributeForMemberships);
       }
 
-      if (grouperCollection.size() == 0 && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getDefaultValue())) {
+      boolean multiValued = grouperProvisioningConfigurationAttribute.isMultiValued();
       
-        String defaultMassagedValue = grouperProvisioningConfigurationAttribute.getDefaultValue();
-        if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getDefaultValue(), "<emptyString>")) {
-          defaultMassagedValue = "";
-        }
-        
-        grouperCollection.add(grouperProvisioningConfigurationAttribute.getValueType().convert(defaultMassagedValue));
-        
-      }
+      // update
+      Collection<Object> targetCollection = null;
+      Collection<Object> grouperCollection = null;
       
       // scalar
-      if (grouperCollection == null && targetCollection == null) {
+      if (!multiValued) {
+        if (grouperValue != null) {
+          grouperValue = filterDeletedMemberships(grouperAttribute, grouperValue);
+          
+          if (filterNonRecalcMemberships(grouperAttribute, grouperValue, recalcProvisioningUpdateable)) {
+            grouperValue = null;
+          }
+
+        }
+        
+        //see if grouper needs a default
+        if (grouperValue == null && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getDefaultValue())) {
+            
+          String defaultMassagedValue = grouperProvisioningConfigurationAttribute.getDefaultValue();
+          if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getDefaultValue(), "<emptyString>")) {
+            defaultMassagedValue = "";
+          }
+          
+          grouperValue = grouperProvisioningConfigurationAttribute.getValueType().convert(defaultMassagedValue);
+        }
         if (!attributeValueEquals(attributeName, grouperValue, targetValue, grouperProvisioningUpdatable)) {
           if (grouperProvisioningUpdatable.canUpdateAttribute(attributeName)) {
 
@@ -666,19 +650,51 @@ public class GrouperProvisioningCompare {
         }
         return;
       }
-
-      if (grouperCollection == null) {
-        grouperCollection = new HashSet<Object>();
-        if (grouperValue != null) {
-          grouperCollection.add(grouperValue);
-        }
-      }
-      if (targetCollection == null) {
-        targetCollection = new HashSet<Object>();
+      // multi-valued
+      
+      if (targetValue instanceof Collection) {
+        targetCollection = (Collection)targetValue;
+      } else if (targetCollection == null) {
+        targetCollection = new HashSet<>();
         if (targetValue != null) {
           targetCollection.add(targetValue);
         }
       }
+      if (grouperValue instanceof Collection) {
+        grouperCollection = new HashSet<Object>((Collection)grouperValue);
+      } else if (grouperCollection == null) {
+        grouperCollection = new HashSet<>();
+        if (grouperValue != null) {
+          grouperCollection.add(grouperValue);
+        }
+      }
+
+      if (GrouperUtil.length(grouperCollection) > 0) {
+        Iterator<Object> iterator = grouperCollection.iterator();
+        while (iterator.hasNext()) {
+          Object value = iterator.next();
+          value = filterDeletedMemberships(grouperAttribute, value);
+          
+          if (filterNonRecalcMemberships(grouperAttribute, value, recalcProvisioningUpdateable)) {
+            continue;
+          }
+          
+          if (value == null) {
+            iterator.remove();
+          }
+        }
+      }
+      if (GrouperUtil.length(grouperCollection) == 0 && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getDefaultValue())) {
+        
+        String defaultMassagedValue = grouperProvisioningConfigurationAttribute.getDefaultValue();
+        if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getDefaultValue(), "<emptyString>")) {
+          defaultMassagedValue = "";
+        }
+        
+        grouperCollection.add(grouperProvisioningConfigurationAttribute.getValueType().convert(defaultMassagedValue));
+        
+      }
+      
 
       Collection inserts = new HashSet<Object>(grouperCollection);
       inserts.removeAll(targetCollection);
