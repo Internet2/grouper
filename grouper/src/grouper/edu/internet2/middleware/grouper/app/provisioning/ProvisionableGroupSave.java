@@ -145,7 +145,7 @@ public class ProvisionableGroupSave {
   
   /**
    * assign group on which attributes need to be stored
-   * @param stem
+   * @param group
    * @return
    */
   public ProvisionableGroupSave assignGroup(Group group) {
@@ -155,7 +155,7 @@ public class ProvisionableGroupSave {
   
   /**
    * assign group id on which attributes need to be stored
-   * @param stem
+   * @param groupId
    * @return
    */
   public ProvisionableGroupSave assignGroupId(String groupId) {
@@ -165,7 +165,7 @@ public class ProvisionableGroupSave {
   
   /**
    * assign group name on which attributes need to be stored
-   * @param stem
+   * @param groupName
    * @return
    */
   public ProvisionableGroupSave assignGroupName(String groupName) {
@@ -369,15 +369,15 @@ public class ProvisionableGroupSave {
 
     GrouperProvisioningObjectMetadata provisioningObjectMetadata = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata();
     List<GrouperProvisioningObjectMetadataItem> metadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
-    List<GrouperProvisioningObjectMetadataItem> metadataItemsForFolder = metadataItems.stream()
-        .filter(metadataItem -> metadataItem.isShowForFolder())
+    List<GrouperProvisioningObjectMetadataItem> metadataItemsForGroup = metadataItems.stream()
+        .filter(metadataItem -> metadataItem.isShowForGroup())
         .collect(Collectors.toList());
     
-    Set<String> validMetadataNames = metadataItemsForFolder.stream().map(metadataItem -> metadataItem.getName()).collect(Collectors.toSet());
+    Set<String> validMetadataNames = metadataItemsForGroup.stream().map(metadataItem -> metadataItem.getName()).collect(Collectors.toSet());
     
     Map<String, Object> metadataNameValues = new HashMap<String, Object>();
     
-    for (GrouperProvisioningObjectMetadataItem metadataItem: metadataItemsForFolder) {
+    for (GrouperProvisioningObjectMetadataItem metadataItem: metadataItemsForGroup) {
       
       if (metadataItem.isRequired() && (!metadataMap.containsKey(metadataItem.getName()) || metadataMap.get(metadataItem.getName()) == null) ) {
         throw new RuntimeException(metadataItem.getName() +" is a required field. Add it to the metadataMap.");
@@ -396,10 +396,10 @@ public class ProvisionableGroupSave {
       
     }
     
-    Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
+    Map<String, String> validateMetadataInputForGroup = provisioningObjectMetadata.validateMetadataInputForGroup(metadataNameValues);
     
-    if (validateMetadataInputForFolder != null && validateMetadataInputForFolder.size() > 0) {
-      throw new RuntimeException("There are errors in metadata input. "+GrouperUtil.mapToString(validateMetadataInputForFolder));
+    if (validateMetadataInputForGroup != null && validateMetadataInputForGroup.size() > 0) {
+      throw new RuntimeException("There are errors in metadata input. "+GrouperUtil.mapToString(validateMetadataInputForGroup));
     }
     
     for (String metadataName: metadataMap.keySet()) {
