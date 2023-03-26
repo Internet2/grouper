@@ -14,11 +14,17 @@
        
          <div class="row-fluid">
            <div class="lead span9 pull-left"><h1>${textContainer.text['miscellaneousProvisionerConfigurationsErrorsDescription'] }</h1></div>
+           
            <div class="span2 pull-right">
              <c:set var="buttonSize" value="btn-medium" />
              <c:set var="buttonBlock" value="btn-block" />
              <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
            </div>
+         </div>
+         <div class="row-fluid">
+          <div class="lead span9 pull-left">
+            <p>${textContainer.text['provisionerConfigErrorSubtitle']}</p>
+          </div>
          </div>
        </div>
      </div>
