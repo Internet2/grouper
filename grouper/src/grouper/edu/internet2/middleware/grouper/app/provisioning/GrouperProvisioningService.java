@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
@@ -1025,6 +1026,477 @@ public class GrouperProvisioningService {
     
     return membershipsCount;
   }
+  
+  
+  /**
+   * 
+   * @param provisionerName
+   * @param objectType
+   * @param errorCode
+   * @param errorDuration
+   * @return
+   */
+  public static GrouperProvisioningErrorSummary retrieveProvisioningErrorSummary(String provisionerName, 
+      String objectType, GcGrouperSyncErrorCode errorCode,  String errorDuration) {
+    
+    if (StringUtils.isNotBlank(objectType)) {
+      
+      if (StringUtils.equals(objectType, "group")) {
+        GrouperProvisioningErrorSummary oneBigSummary = retrieveErrorsSummaryForGroup(provisionerName, errorCode, errorDuration);
+        oneBigSummary.setErrorsCount(oneBigSummary.getGroupErrorsCount());
+        return oneBigSummary;
+      }
+      else if (StringUtils.equals(objectType, "entity")) {
+        GrouperProvisioningErrorSummary oneBigSummary =  retrieveErrorsSummaryForEntity(provisionerName, errorCode, errorDuration);
+        oneBigSummary.setErrorsCount(oneBigSummary.getEntityErrorsCount());
+        return oneBigSummary;
+      }
+      else if (StringUtils.equals(objectType, "membership")) {
+        GrouperProvisioningErrorSummary oneBigSummary = retrieveErrorsSummaryForMembership(provisionerName, errorCode, errorDuration);
+        oneBigSummary.setErrorsCount(oneBigSummary.getMembershipErrorsCount());
+        return oneBigSummary;
+      } else {
+        throw new RuntimeException("Invalid objectType: "+objectType+". Valid values are group, entity, and membership.");
+      }
+      
+    }
+    
+    // retrieve all summaries
+    GrouperProvisioningErrorSummary oneBigSummary = retrieveErrorsSummaryForGroup(provisionerName, errorCode, errorDuration);
+    oneBigSummary.setErrorsCount(oneBigSummary.getGroupErrorsCount());
+    
+    GrouperProvisioningErrorSummary summaryForEntity = retrieveErrorsSummaryForEntity(provisionerName, errorCode, errorDuration);
+    oneBigSummary.setEntityErrorsCount(summaryForEntity.getEntityErrorsCount());
+    oneBigSummary.setEntityErrorTypeCount(summaryForEntity.getEntityErrorTypeCount());
+    oneBigSummary.setErrorsCount(oneBigSummary.getErrorsCount() +  summaryForEntity.getErrorsCount());
+    
+    GrouperProvisioningErrorSummary summaryForMembership = retrieveErrorsSummaryForMembership(provisionerName, errorCode, errorDuration);
+    oneBigSummary.setMembershipErrorsCount(summaryForMembership.getMembershipErrorsCount());
+    oneBigSummary.setMembershipsErrorTypeCount(summaryForMembership.getMembershipsErrorTypeCount());
+    oneBigSummary.setErrorsCount(oneBigSummary.getErrorsCount() +  summaryForMembership.getErrorsCount());
+    return oneBigSummary;
+    
+  }
+  
+  /**
+   * retrieve list of errors
+   * @param provisionerName
+   * @param objectType
+   * @param errorCode
+   * @param errorDuration
+   * @return
+   */
+  public static List<GrouperProvisioningError> retrieveProvisioningErrors(String provisionerName, 
+      String objectType, GcGrouperSyncErrorCode errorCode,  String errorDuration) {
+    
+    List<GrouperProvisioningError> provisioningErrors = new ArrayList<>();
+    
+    if (StringUtils.isNotBlank(objectType)) {
+      
+      if (StringUtils.equals(objectType, "group")) {
+        provisioningErrors = retrieveProvisioningGroupErrors(provisionerName, errorCode, errorDuration);
+      }
+      else if (StringUtils.equals(objectType, "entity")) {
+        provisioningErrors = retrieveProvisioningEntityErrors(provisionerName, errorCode, errorDuration);
+      }
+      else if (StringUtils.equals(objectType, "membership")) {
+        provisioningErrors = retrieveProvisioningMembershipErrors(provisionerName, errorCode, errorDuration);
+      } else {
+        throw new RuntimeException("Invalid objectType: "+objectType+". Valid values are group, entity, and membership.");
+      }
+      
+    } else {
+      
+      provisioningErrors = retrieveProvisioningGroupErrors(provisionerName, errorCode, errorDuration);
+      List<GrouperProvisioningError> entityErrors = retrieveProvisioningEntityErrors(provisionerName, errorCode, errorDuration);
+      List<GrouperProvisioningError> membershipErrors = retrieveProvisioningMembershipErrors(provisionerName, errorCode, errorDuration);
+
+      provisioningErrors.addAll(entityErrors);
+      provisioningErrors.addAll(membershipErrors);
+    }
+    
+    Collections.sort(provisioningErrors, new Comparator<GrouperProvisioningError>() {
+      @Override
+      public int compare(GrouperProvisioningError o1, GrouperProvisioningError o2) {
+        return o2.getErrorTimestamp().compareTo(o1.getErrorTimestamp());
+      }
+    });
+    
+    if (provisioningErrors.size() > 1000) {
+      provisioningErrors = provisioningErrors.subList(0, 1000);
+    }
+    
+    return provisioningErrors;
+  }
+  
+  /**
+   * 
+   * @param provisionerName
+   * @param errorCode
+   * @param errorDuration
+   * @return
+   */
+  private static List<GrouperProvisioningError> retrieveProvisioningGroupErrors(String provisionerName, GcGrouperSyncErrorCode errorCode, String errorDuration) {
+    
+    List<GrouperProvisioningError> result = new ArrayList<>();
+    
+    StringBuilder query = new StringBuilder("select gsg.group_name, gsg.error_message, gsg.error_code, gsg.error_timestamp from grouper_sync_group gsg, grouper_sync gs where gsg.grouper_sync_id  = gs.id and gs.provisioner_name = ? ");
+    
+    if (errorCode != null) {
+      query.append(" and gsg.error_code = ? ");
+    } else {
+      query.append(" and gsg.error_code is not null ");
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      query.append(" and gsg.error_timestamp > ? ");
+    }
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().sql(query.toString());
+    gcDbAccess.addBindVar(provisionerName);
+    if (errorCode != null) {
+      gcDbAccess.addBindVar(errorCode.name());
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      Timestamp errorTimestamp = convertErrorDurationToTimestamp(errorDuration);
+      gcDbAccess.addBindVar(errorTimestamp);
+    }
+    
+    List<Object[]> rows = gcDbAccess.selectList(Object[].class);
+    
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerName);
+    GrouperProvisioningConfiguration provisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    for (Object[] row: rows) {
+      
+      GrouperProvisioningError error = new GrouperProvisioningError();
+      error.setErrorCode(GrouperUtil.stringValue(row[2]));
+      error.setErrorDescription(GrouperUtil.stringValue(row[1]));
+      error.setErrorTimestamp( GrouperUtil.timestampObjectValue(row[3], true));
+      error.setFatal(isErrorFatal(provisioningConfiguration, GrouperUtil.stringValue(row[2])));
+      error.setGroupName(GrouperUtil.stringValue(row[0]));
+      error.setObjectType("group");
+      result.add(error);
+    }
+    
+    return result;
+  }
+  
+  /**
+   * 
+   * @param provisionerName
+   * @param errorCode
+   * @param errorDuration
+   * @return
+   */
+  private static List<GrouperProvisioningError> retrieveProvisioningEntityErrors(String provisionerName, GcGrouperSyncErrorCode errorCode, String errorDuration) {
+    
+    List<GrouperProvisioningError> result = new ArrayList<>();
+    
+    StringBuilder query = new StringBuilder("select gsm.subject_id, gsm.subject_identifier, gsm.error_message, gsm.error_code, gsm.error_timestamp from grouper_sync_member gsm, grouper_sync gs where gsm.grouper_sync_id  = gs.id and gs.provisioner_name = ? ");
+    
+    if (errorCode != null) {
+      query.append(" and gsm.error_code = ? ");
+    } else {
+      query.append(" and gsm.error_code is not null ");
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      query.append(" and gsm.error_timestamp > ? ");
+    }
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().sql(query.toString());
+    gcDbAccess.addBindVar(provisionerName);
+    if (errorCode != null) {
+      gcDbAccess.addBindVar(errorCode.name());
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      Timestamp errorTimestamp = convertErrorDurationToTimestamp(errorDuration);
+      gcDbAccess.addBindVar(errorTimestamp);
+    }
+    
+    List<Object[]> rows = gcDbAccess.selectList(Object[].class);
+    
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerName);
+    GrouperProvisioningConfiguration provisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    for (Object[] row: rows) {
+      
+      GrouperProvisioningError error = new GrouperProvisioningError();
+      error.setErrorCode(GrouperUtil.stringValue(row[3]));
+      error.setErrorDescription(GrouperUtil.stringValue(row[2]));
+      error.setErrorTimestamp( GrouperUtil.timestampObjectValue(row[4], true));
+      error.setFatal(isErrorFatal(provisioningConfiguration, GrouperUtil.stringValue(row[3])));
+      error.setSubjectId(GrouperUtil.stringValue(row[0]));
+      error.setSubjectIdentifier(GrouperUtil.stringValue(row[1]));
+      error.setObjectType("entity");
+      result.add(error);
+    }
+    
+    return result;
+  }
+  
+  /**
+   * 
+   * @param provisionerName
+   * @param errorCode
+   * @param errorDuration
+   * @return
+   */
+  private static List<GrouperProvisioningError> retrieveProvisioningMembershipErrors(String provisionerName, GcGrouperSyncErrorCode errorCode, String errorDuration) {
+    
+    List<GrouperProvisioningError> result = new ArrayList<>();
+    
+    StringBuilder query = new StringBuilder("select gsg.group_name, gsm2.subject_id, gsm2.subject_identifier, gsm.error_message, gsm.error_code, gsm.error_timestamp from grouper_sync_membership gsm, grouper_sync gs, grouper_sync_group gsg, grouper_sync_member gsm2 where gsm.grouper_sync_id  = gs.id and gsm.grouper_sync_group_id = gsg.id and gsm.grouper_sync_member_id = gsm2.id and gs.provisioner_name = ? ");
+    
+    if (errorCode != null) {
+      query.append(" and gsm.error_code = ? ");
+    } else {
+      query.append(" and gsm.error_code is not null ");
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      query.append(" and gsm.error_timestamp > ? ");
+    }
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().sql(query.toString());
+    gcDbAccess.addBindVar(provisionerName);
+    if (errorCode != null) {
+      gcDbAccess.addBindVar(errorCode.name());
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      Timestamp errorTimestamp = convertErrorDurationToTimestamp(errorDuration);
+      gcDbAccess.addBindVar(errorTimestamp);
+    }
+    
+    List<Object[]> rows = gcDbAccess.selectList(Object[].class);
+    
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerName);
+    GrouperProvisioningConfiguration provisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    for (Object[] row: rows) {
+      
+      GrouperProvisioningError error = new GrouperProvisioningError();
+      error.setErrorCode(GrouperUtil.stringValue(row[4]));
+      error.setErrorDescription(GrouperUtil.stringValue(row[3]));
+      error.setErrorTimestamp( GrouperUtil.timestampObjectValue(row[5], true));
+      error.setFatal(isErrorFatal(provisioningConfiguration, GrouperUtil.stringValue(row[4])));
+      error.setGroupName(GrouperUtil.stringValue(row[0]));
+      error.setSubjectId(GrouperUtil.stringValue(row[1]));
+      error.setSubjectIdentifier(GrouperUtil.stringValue(row[2]));
+      error.setObjectType("membership");
+      result.add(error);
+    }
+    
+    return result;
+  }
+  
+  /**
+   * 
+   * @param grouperProvisioningConfiguration
+   * @param errorCode
+   * @return
+   */
+  private static boolean isErrorFatal(GrouperProvisioningConfiguration grouperProvisioningConfiguration, String errorCode) {
+    
+    GcGrouperSyncErrorCode syncErrorCode = GcGrouperSyncErrorCode.valueOf(errorCode);
+    
+    if (syncErrorCode == GcGrouperSyncErrorCode.INV && grouperProvisioningConfiguration.isErrorHandlingInvalidDataIsAnError()) {
+      return true;
+    }
+    
+    if (syncErrorCode == GcGrouperSyncErrorCode.LEN && grouperProvisioningConfiguration.isErrorHandlingLengthValidationIsAnError()) {
+      return true;
+    }
+
+    if (syncErrorCode == GcGrouperSyncErrorCode.REQ && grouperProvisioningConfiguration.isErrorHandlingRequiredValidationIsAnError()) {
+      return true;
+    }
+
+    if (syncErrorCode == GcGrouperSyncErrorCode.MAT && grouperProvisioningConfiguration.isErrorHandlingMatchingValidationIsAnError()) {
+      return true;
+    }
+
+    if (syncErrorCode == GcGrouperSyncErrorCode.DNE && grouperProvisioningConfiguration.isErrorHandlingTargetObjectDoesNotExistIsAnError()) {
+      return true;
+    }
+    
+    return false;
+    
+  }
+  
+  /**
+   * convert duration string into timestamp
+   * @param durationString
+   * @return
+   */
+  private static Timestamp convertErrorDurationToTimestamp(String durationString) {
+    
+    if (StringUtils.equals(durationString, "last_15_minutes")) {
+      long millisIn15Minutes = 15*60*1000;
+      return new Timestamp(System.currentTimeMillis() - millisIn15Minutes);
+    } else if (StringUtils.equals(durationString, "last_hour")) {
+      long millisIn60Minutes = 60*60*1000;
+      return new Timestamp(System.currentTimeMillis() - millisIn60Minutes);
+    } else if (StringUtils.equals(durationString, "last_day")) {
+      long millisInOneDay = 1*24*60*60*1000;
+      return new Timestamp(System.currentTimeMillis() - millisInOneDay);
+    } else {
+      throw new RuntimeException("Invalid durationString: "+durationString+". Valid values are last_15_minutes, last_hour, and last_day.");
+    }
+  } 
+  
+  private static GrouperProvisioningErrorSummary retrieveErrorsSummaryForGroup(String provisionerName, GcGrouperSyncErrorCode errorCode, String errorDuration) {
+      
+    StringBuilder query = new StringBuilder("select count(gsg.id), gsg.error_code from grouper_sync_group gsg, grouper_sync gs where gsg.grouper_sync_id  = gs.id and gs.provisioner_name = ? ");
+    
+    if (errorCode != null) {
+      query.append(" and gsg.error_code = ? ");
+    } else {
+      query.append(" and gsg.error_code is not null ");
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      query.append(" and gsg.error_timestamp > ? ");
+    }
+    
+    query.append(" group by gsg.error_code");
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().sql(query.toString());
+    gcDbAccess.addBindVar(provisionerName);
+    if (errorCode != null) {
+      gcDbAccess.addBindVar(errorCode.name());
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      Timestamp errorTimestamp = convertErrorDurationToTimestamp(errorDuration);
+      gcDbAccess.addBindVar(errorTimestamp);
+    }
+    
+    List<Object[]> countAndErrorCodes = gcDbAccess.selectList(Object[].class);
+    
+    GrouperProvisioningErrorSummary summary = new GrouperProvisioningErrorSummary();
+    
+    Map<String, Long> groupErrorTypeCount = new HashMap<>();
+    
+    long totalGroupErrors = 0;
+    
+    for (Object[] errorCountAndErrorCode: countAndErrorCodes) {
+      groupErrorTypeCount.put(GrouperUtil.stringValue(errorCountAndErrorCode[1]), GrouperUtil.longValue(errorCountAndErrorCode[0], 0));
+      totalGroupErrors += GrouperUtil.longValue(errorCountAndErrorCode[0], 0);
+    }
+    
+    summary.setGroupErrorTypeCount(groupErrorTypeCount);
+    summary.setGroupErrorsCount(totalGroupErrors);
+    
+    return summary;
+    
+  }
+  
+  private static GrouperProvisioningErrorSummary retrieveErrorsSummaryForEntity(String provisionerName, GcGrouperSyncErrorCode errorCode, String errorDuration) {
+    
+    StringBuilder query = new StringBuilder("select count(gsm.id), gsm.error_code from grouper_sync_member gsm, grouper_sync gs where gsm.grouper_sync_id  = gs.id and gs.provisioner_name = ? ");
+    
+    if (errorCode != null) {
+      query.append(" and gsm.error_code = ? ");
+    } else {
+      query.append(" and gsm.error_code is not null ");
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      query.append(" and gsm.error_timestamp > ? ");
+    }
+    
+    query.append(" group by gsm.error_code");
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().sql(query.toString());
+    gcDbAccess.addBindVar(provisionerName);
+    if (errorCode != null) {
+      gcDbAccess.addBindVar(errorCode.name());
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      Timestamp errorTimestamp = convertErrorDurationToTimestamp(errorDuration);
+      gcDbAccess.addBindVar(errorTimestamp);
+    }
+    
+    List<Object[]> countAndErrorCodes = gcDbAccess.selectList(Object[].class);
+    
+    GrouperProvisioningErrorSummary summary = new GrouperProvisioningErrorSummary();
+    
+    Map<String, Long> entityErrorTypeCount = new HashMap<>();
+    
+    long totalEntityErrors = 0;
+    
+    for (Object[] errorCountAndErrorCode: countAndErrorCodes) {
+      entityErrorTypeCount.put(GrouperUtil.stringValue(errorCountAndErrorCode[1]), GrouperUtil.longValue(errorCountAndErrorCode[0], 0));
+      totalEntityErrors += GrouperUtil.longValue(errorCountAndErrorCode[0], 0);
+    }
+    
+    summary.setEntityErrorTypeCount(entityErrorTypeCount);
+    summary.setEntityErrorsCount(totalEntityErrors);
+    
+    return summary;
+    
+  }
+  
+  /**
+   * 
+   * @param provisionerName
+   * @param errorCode
+   * @param errorDuration
+   * @return
+   */
+  private static GrouperProvisioningErrorSummary retrieveErrorsSummaryForMembership(String provisionerName, GcGrouperSyncErrorCode errorCode, String errorDuration) {
+    
+    StringBuilder query = new StringBuilder("select count(gsm.id), gsm.error_code from grouper_sync_membership gsm, grouper_sync gs where gsm.grouper_sync_id  = gs.id and gs.provisioner_name = ? ");
+    
+    if (errorCode != null) {
+      query.append(" and gsm.error_code = ? ");
+    } else {
+      query.append(" and gsm.error_code is not null ");
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      query.append(" and gsm.error_timestamp > ? ");
+    }
+    
+    query.append(" group by gsm.error_code");
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().sql(query.toString());
+    gcDbAccess.addBindVar(provisionerName);
+    if (errorCode != null) {
+      gcDbAccess.addBindVar(errorCode.name());
+    }
+    
+    if (StringUtils.isNotBlank(errorDuration)) {
+      Timestamp errorTimestamp = convertErrorDurationToTimestamp(errorDuration);
+      gcDbAccess.addBindVar(errorTimestamp);
+    }
+    
+    List<Object[]> countAndErrorCodes = gcDbAccess.selectList(Object[].class);
+    
+    GrouperProvisioningErrorSummary summary = new GrouperProvisioningErrorSummary();
+    
+    Map<String, Long> membershipErrorTypeCount = new HashMap<>();
+    
+    long totalMembershipErrors = 0;
+    
+    for (Object[] errorCountAndErrorCode: countAndErrorCodes) {
+      membershipErrorTypeCount.put(GrouperUtil.stringValue(errorCountAndErrorCode[1]), GrouperUtil.longValue(errorCountAndErrorCode[0], 0));
+      totalMembershipErrors += GrouperUtil.longValue(errorCountAndErrorCode[0], 0);
+    }
+    
+    summary.setMembershipsErrorTypeCount(membershipErrorTypeCount);
+    summary.setMembershipErrorsCount(totalMembershipErrors);
+    
+    return summary;
+    
+  }
+  
   
   /**
    * retrieve recent activity for all the groups for a given provisioner name

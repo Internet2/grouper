@@ -24,6 +24,7 @@
                        </c:if>
                        
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerActivity&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewActivityActionOption'] }</a></li>
+                       <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerErrors&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewErrorsOption'] }</a></li>
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerJobs&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewJobsActionOption'] }</a></li>
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerLogs&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewLogsActionOption'] }</a></li>
                        

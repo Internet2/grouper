@@ -19,6 +19,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningError;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningErrorSummary;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
@@ -55,6 +57,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -605,6 +608,112 @@ public class UiV2ProvisionerConfiguration {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigViewActivity.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * user clicked on view errors action. Show page that presents with filter
+   * @param request
+   * @param response
+   */
+  public void viewProvisionerErrors(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
+      
+      String provisionerConfigId = request.getParameter("provisionerConfigId");
+      
+      if (StringUtils.isBlank(provisionerConfigId)) {
+        throw new RuntimeException("provisionerConfigId cannot be blank");
+      }
+      
+      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration(provisionerConfigId)) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigViewErrors.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * user submitted view provisioner errors form. show errors for the selected filters
+   * @param request
+   * @param response
+   */
+  public void viewProvisionerErrorsSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
+      
+      String provisionerConfigId = request.getParameter("provisionerConfigId");
+            
+      if (StringUtils.isBlank(provisionerConfigId)) {
+        throw new RuntimeException("provisionerConfigId cannot be blank");
+      }
+      
+      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration(provisionerConfigId)) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String provisionerConfigObjectType = request.getParameter("provisionerConfigObjectType");
+      String provisionerConfigErrorType = request.getParameter("provisionerConfigErrorType");
+      String provisionerConfigErrorDuration = request.getParameter("provisionerConfigErrorDuration");
+      
+      
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+      
+      GrouperProvisioningErrorSummary provisioningErrorSummary = GrouperProvisioningService.retrieveProvisioningErrorSummary(provisionerConfigId, provisionerConfigObjectType,
+          StringUtils.isBlank(provisionerConfigErrorType)? null: GcGrouperSyncErrorCode.valueOf(provisionerConfigErrorType), 
+          provisionerConfigErrorDuration);
+      
+      provisionerConfigurationContainer.setGrouperProvisioningErrorSummary(provisioningErrorSummary);
+      
+      List<GrouperProvisioningError> provisioningErrors = GrouperProvisioningService.retrieveProvisioningErrors(provisionerConfigId, provisionerConfigObjectType, 
+          StringUtils.isBlank(provisionerConfigErrorType)? null: GcGrouperSyncErrorCode.valueOf(provisionerConfigErrorType), 
+          provisionerConfigErrorDuration);
+      
+      provisionerConfigurationContainer.setGrouperProvisioningErrors(provisioningErrors);
+      
+      provisionerConfigurationContainer.setProvisionerConfigObjectType(provisionerConfigObjectType);
+      provisionerConfigurationContainer.setProvisionerConfigErrorDuration(provisionerConfigErrorDuration);
+      provisionerConfigurationContainer.setSelectedErrorCode(provisionerConfigErrorType);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/provisionerConfigs/provisionerConfigViewErrors.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
