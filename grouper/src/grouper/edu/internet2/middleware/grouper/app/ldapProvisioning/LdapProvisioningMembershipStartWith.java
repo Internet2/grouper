@@ -88,10 +88,10 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
       provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributes+".name", "ldap_dn");
       
       provisionerSuffixToValue.put("groupAttributeValueCacheHas", "true");
+      
       provisionerSuffixToValue.put("groupAttributeValueCache0has", "true");
       provisionerSuffixToValue.put("groupAttributeValueCache0source", "target");
       provisionerSuffixToValue.put("groupAttributeValueCache0type", "groupAttribute");
-      
       provisionerSuffixToValue.put("groupAttributeValueCache0groupAttribute", "ldap_dn");
 
       groupAttributes++;
@@ -154,8 +154,8 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         groupAttributes++;
         
       }
-      
-      provisionerSuffixToValue.put("groupMatchingAttributeCount", "1");
+            
+      String groupAttributeValueCache1Attribute = null;
       
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("matchingSearchAttributeDifferentThanRdnorIdIndex"), false)) {
         
@@ -175,11 +175,31 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         
         groupAttributes++;
         
+        provisionerSuffixToValue.put("groupMatchingAttributeCount", "1");
         provisionerSuffixToValue.put("groupMatchingAttribute0name", matchingSearchAttributeNameForGroups);
         
+        if (!"ldap_dn".equals(matchingSearchAttributeNameForGroups)) {
+          groupAttributeValueCache1Attribute = matchingSearchAttributeNameForGroups;
+        }
       } else {
         
-        provisionerSuffixToValue.put("groupMatchingAttribute0name", idIndexAttribute);
+        if (GrouperUtil.isBlank(idIndexAttribute)) {
+          provisionerSuffixToValue.put("groupMatchingAttributeCount", "1");
+          provisionerSuffixToValue.put("groupMatchingAttribute0name", "ldap_dn");
+        } else {
+          provisionerSuffixToValue.put("groupMatchingAttributeCount", "2");
+          provisionerSuffixToValue.put("groupMatchingAttribute0name", idIndexAttribute);
+          provisionerSuffixToValue.put("groupMatchingAttribute1name", "ldap_dn");
+          
+          groupAttributeValueCache1Attribute = idIndexAttribute;
+        }
+      }
+      
+      if (!GrouperUtil.isBlank(groupAttributeValueCache1Attribute)) {
+        provisionerSuffixToValue.put("groupAttributeValueCache1has", "true");
+        provisionerSuffixToValue.put("groupAttributeValueCache1source", "target");
+        provisionerSuffixToValue.put("groupAttributeValueCache1type", "groupAttribute");
+        provisionerSuffixToValue.put("groupAttributeValueCache1groupAttribute", groupAttributeValueCache1Attribute);
       }
       
       String objectClassesForGroups = startWithSuffixToValue.get("objectClassesForGroups");
@@ -228,10 +248,10 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
       provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
       
       provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
+      
       provisionerSuffixToValue.put("entityAttributeValueCache0has", "true");
       provisionerSuffixToValue.put("entityAttributeValueCache0source", "target");
       provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
-      
       provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", "ldap_dn");
       
 
@@ -309,6 +329,12 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
         
         provisionerSuffixToValue.put("entityMatchingAttribute0name", matchingSearchAttributeNameForEntities);
         
+        if (!"ldap_dn".equals(matchingSearchAttributeNameForEntities)) {
+          provisionerSuffixToValue.put("entityAttributeValueCache1has", "true");
+          provisionerSuffixToValue.put("entityAttributeValueCache1source", "target");
+          provisionerSuffixToValue.put("entityAttributeValueCache1type", "entityAttribute");
+          provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", matchingSearchAttributeNameForEntities);
+        }
       }
       
       

@@ -620,6 +620,24 @@ public class GrouperProvisioningCompare {
           }
         }
       }
+      //see if grouper needs a default
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = null;
+      if (grouperProvisioningUpdatable instanceof ProvisioningGroup) {
+        grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeForMemberships);
+      } else if (grouperProvisioningUpdatable instanceof ProvisioningEntity) {
+        grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(attributeForMemberships);
+      }
+
+      if (grouperCollection.size() == 0 && !StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getDefaultValue())) {
+      
+        String defaultMassagedValue = grouperProvisioningConfigurationAttribute.getDefaultValue();
+        if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getDefaultValue(), "<emptyString>")) {
+          defaultMassagedValue = "";
+        }
+        
+        grouperCollection.add(grouperProvisioningConfigurationAttribute.getValueType().convert(defaultMassagedValue));
+        
+      }
       
       // scalar
       if (grouperCollection == null && targetCollection == null) {
@@ -1894,9 +1912,17 @@ public class GrouperProvisioningCompare {
       return;
     }
     
+    String defaultMassagedValue = attribute.getDefaultValue();
+    if (StringUtils.equals(attribute.getDefaultValue(), "<emptyString>")) {
+      defaultMassagedValue = "";
+    }
+
     for (ProvisioningGroup grouperTargetGroupForUpdate : grouperTargetGroupsForUpdate) {
       
       boolean hasMembershipInsert = false;
+      boolean hasMembershipInsertNonDefault = false;
+      boolean hasMembershipDeleteDefault = false;
+
       int countMembershipDelete = 0;
       
       
@@ -1908,12 +1934,39 @@ public class GrouperProvisioningCompare {
         
         if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
           hasMembershipInsert = true;
+          
+          if (!StringUtils.equals(defaultMassagedValue, GrouperUtil.stringValue(provisioningObjectChange.getNewValue()))) {
+            hasMembershipInsertNonDefault = true;
+          }
+          
         }
         
         if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
           countMembershipDelete++;
+          
+          if (StringUtils.equals(defaultMassagedValue, GrouperUtil.stringValue(provisioningObjectChange.getOldValue()))) {
+            hasMembershipDeleteDefault = true;
+          }
+          
         }
         
+      }
+      
+      if (!hasMembershipInsertNonDefault && hasMembershipDeleteDefault) {
+        Iterator<ProvisioningObjectChange> iterator = grouperTargetGroupForUpdate.getInternal_objectChanges().iterator();
+        while (iterator.hasNext()) {
+          ProvisioningObjectChange provisioningObjectChange = iterator.next();
+          if (!StringUtils.equals(attributeForMemberships, provisioningObjectChange.getAttributeName())) {
+            continue;
+          }
+          // remove inserts and deletes with membership and default value
+          if ((provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert
+              && StringUtils.equals(defaultMassagedValue, GrouperUtil.stringValue(provisioningObjectChange.getNewValue())))
+              || (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete
+                  && StringUtils.equals(defaultMassagedValue, GrouperUtil.stringValue(provisioningObjectChange.getOldValue())))) {
+            iterator.remove();
+          }
+        }
       }
       
       if (countMembershipDelete == 0 || hasMembershipInsert == true) {

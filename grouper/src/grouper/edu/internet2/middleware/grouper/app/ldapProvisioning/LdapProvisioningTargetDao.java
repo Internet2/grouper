@@ -95,20 +95,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
+    StringBuilder filterBuilder = new StringBuilder();
+
     // get the search attribute
     List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = ldapSyncConfiguration.getGroupSearchAttributes();
-    if (grouperProvisioningConfigurationAttributes.size() > 1) {
-      throw new RuntimeException("Can currently only have one searchAttribute! " + grouperProvisioningConfigurationAttributes);
-    }
-    String searchFilter = null;
-    if (grouperProvisioningConfigurationAttributes.size() == 1) {
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
-      searchFilter = "(" + grouperProvisioningConfigurationAttribute.getName() + "=*)";
-
-    } else {
-      throw new RuntimeException("Why is groupSearchAllFilter empty?");
-    }
-
+    
     Collection<String> objectClasses = null;
     // see if there are object classes
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(ldapSyncConfiguration.getTargetGroupAttributeNameToConfig()).values()) {
@@ -117,7 +108,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpression())) {
           Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator()
               .runScript(grouperProvisioningConfigurationAttribute.getTranslateExpression(), null);
-          objectClasses = (Collection<String>)objectClassResult;
+          if (objectClassResult instanceof String) {
+            objectClasses = GrouperUtil.splitTrimToSet((String)objectClassResult, ",");
+          } else {
+            objectClasses = (Collection<String>)objectClassResult;
+          }
           break;
         } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues())) {
           objectClasses = GrouperUtil.splitTrimToSet(grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues(), ",");
@@ -126,14 +121,33 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
     }
 
-    if (GrouperUtil.length(objectClasses) == 0) {
-      return searchFilter;
+    int numberOfConditions = GrouperUtil.length(objectClasses) + (grouperProvisioningConfigurationAttributes.size() > 0 ? 1 : 0);
+    
+    if (numberOfConditions > 1) {
+      filterBuilder.append("(&");
     }
-    StringBuilder filterBuilder = new StringBuilder("(&" + searchFilter);
-    for (String objectClass : objectClasses) {
+
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      filterBuilder.append("(|");
+    }
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
+      if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getName(), ldap_dn)) {
+        filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(ldapSyncConfiguration.getGroupRdnAttribute()) + "=*)");
+      } else {
+        filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(grouperProvisioningConfigurationAttribute.getName()) + "=*)");
+      }
+    }
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      filterBuilder.append(")");
+    }
+    for (String objectClass : GrouperUtil.nonNull(objectClasses)) {
       filterBuilder.append("(objectclass=").append(GrouperUtil.ldapFilterEscape(objectClass)).append(")");
     }
-    filterBuilder.append(")");
+    
+    if (numberOfConditions > 1) {
+      filterBuilder.append(")");
+    }
+    
     return filterBuilder.toString();
   }
   
@@ -1446,21 +1460,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   public String generateUserSearchAllFilter() {
     
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-  
+
+    StringBuilder filterBuilder = new StringBuilder();
+
     // get the search attribute
     List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = ldapSyncConfiguration.getEntitySearchAttributes();
-    if (grouperProvisioningConfigurationAttributes.size() > 1) {
-      throw new RuntimeException("Can currently only have one searchAttribute! " + grouperProvisioningConfigurationAttributes);
-    }
-    String searchFilter = null;
-    if (grouperProvisioningConfigurationAttributes.size() == 1) {
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributes.get(0);
-      searchFilter = "(" + grouperProvisioningConfigurationAttribute.getName() + "=*)";
-  
-    } else {
-      throw new RuntimeException("Why is entitySearchAllFilter empty?");
-    }
-  
+    
     Collection<String> objectClasses = null;
     // see if there are object classes
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : GrouperUtil.nonNull(ldapSyncConfiguration.getTargetEntityAttributeNameToConfig()).values()) {
@@ -1469,7 +1474,11 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateExpression())) {
           Object objectClassResult = this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator()
               .runScript(grouperProvisioningConfigurationAttribute.getTranslateExpression(), null);
-          objectClasses = (Collection<String>)objectClassResult;
+          if (objectClassResult instanceof String) {
+            objectClasses = GrouperUtil.splitTrimToSet((String)objectClassResult, ",");
+          } else {
+            objectClasses = (Collection<String>)objectClassResult;
+          }
           break;
         } else if (!StringUtils.isBlank(grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues())) {
           objectClasses = GrouperUtil.splitTrimToSet(grouperProvisioningConfigurationAttribute.getTranslateFromStaticValues(), ",");
@@ -1477,16 +1486,36 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
     }
-  
-    if (GrouperUtil.length(objectClasses) == 0) {
-      return searchFilter;
+    
+    int numberOfConditions = GrouperUtil.length(objectClasses) + (grouperProvisioningConfigurationAttributes.size() > 0 ? 1 : 0);
+    
+    if (numberOfConditions > 1) {
+      filterBuilder.append("(&");
     }
-    StringBuilder filterBuilder = new StringBuilder("(&" + searchFilter);
-    for (String objectClass : objectClasses) {
+
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      filterBuilder.append("(|");
+    }
+    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
+      if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getName(), ldap_dn)) {
+        filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(ldapSyncConfiguration.getUserRdnAttribute()) + "=*)");
+      } else {
+        filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(grouperProvisioningConfigurationAttribute.getName()) + "=*)");
+      }
+    }
+    if (grouperProvisioningConfigurationAttributes.size() > 1) {
+      filterBuilder.append(")");
+    }
+    for (String objectClass : GrouperUtil.nonNull(objectClasses)) {
       filterBuilder.append("(objectclass=").append(GrouperUtil.ldapFilterEscape(objectClass)).append(")");
     }
-    filterBuilder.append(")");
+    
+    if (numberOfConditions > 1) {
+      filterBuilder.append(")");
+    }
+    
     return filterBuilder.toString();
+
   }
   
   private void checkParentFolderCaseChanges(LdapSyncConfiguration ldapSyncConfiguration, String oldDnString, String newDnString) {

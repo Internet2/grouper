@@ -26,29 +26,6 @@ public class GrouperProvisioningBehavior {
   private boolean createGroupsAndEntitiesBeforeTranslatingMemberships = true;
 
   /**
-   * if set then only provision users who are in this group
-   */
-  private String groupIdOfUsersToProvision;
-  
-  /**
-   * if set then only provision users who are in this group
-   * @return group id
-   */
-  public String getGroupIdOfUsersToProvision() {
-    return groupIdOfUsersToProvision;
-  }
-
-
-  /**
-   * if set then only provision users who are in this group
-   * @param groupIdOfUsersToProvision
-   */
-  public void setGroupIdOfUsersToProvision(String groupIdOfUsersToProvision) {
-    this.groupIdOfUsersToProvision = groupIdOfUsersToProvision;
-  }
-
-
-  /**
    * Only provision policy groups
    */
   private Boolean onlyProvisionPolicyGroups;

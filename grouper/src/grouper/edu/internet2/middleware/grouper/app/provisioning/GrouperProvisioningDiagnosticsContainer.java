@@ -1993,6 +1993,15 @@ public class GrouperProvisioningDiagnosticsContainer {
   public void appendSelectAllMemberships() {
     this.report.append("<h4>All memberships</h4>");
     this.report.append("<pre>");
+    
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+        this.report.append("<font color='gray'><b>Note:</b></font> See groups section as well for memberships\n");
+      } else if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+        this.report.append("<font color='gray'><b>Note:</b></font> See entity section as well for memberships\n");
+      }
+    }
+    
     if (!this.getGrouperProvisioningDiagnosticsSettings().isDiagnosticsMembershipsAllSelect()) {
       this.report.append("<font color='gray'><b>Note:</b></font> Not configured to retrieve all memberships\n");
     } else if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.membershipObjects) {

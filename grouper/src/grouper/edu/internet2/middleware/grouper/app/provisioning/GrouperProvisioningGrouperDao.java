@@ -155,17 +155,34 @@ public class GrouperProvisioningGrouperDao {
 
     List<ProvisioningEntity> results = new ArrayList<ProvisioningEntity>();
     
-    String groupIdOfUsersToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGroupIdOfUsersToProvision();
+    String groupIdOfUsersToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupIdOfUsersToProvision();
     boolean restrictUsersByGroupId = !StringUtils.isBlank(groupIdOfUsersToProvision);
+
+    if (restrictUsersByGroupId) {
+      if (groupIdOfUsersToProvision.contains(":")) {
+        groupIdOfUsersToProvision = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, true).getId();
+      } else {
+        groupIdOfUsersToProvision = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, true).getId();
+      }
+    }
+
+    String groupIdOfUsersToExclude = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupIdOfUsersNotToProvision();
+    boolean excludeUsersByGroupId = !StringUtils.isBlank(groupIdOfUsersToExclude);
+
+    if (excludeUsersByGroupId) {
+      if (groupIdOfUsersToExclude.contains(":")) {
+        groupIdOfUsersToExclude = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupIdOfUsersToExclude, true).getId();
+      } else {
+        groupIdOfUsersToExclude = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersToExclude, true).getId();
+      }
+    }
     
     StringBuilder sqlInitial = null;
     List<Object> paramsInitial = new ArrayList<Object>();
     List<Type> typesInitial = new ArrayList<Type>();
     
     if (restrictUsersByGroupId) {
-      
-      GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, true, new QueryOptions().secondLevelCache(false));
-      
+            
       sqlInitial = new StringBuilder("select " + 
           "    gm.id, " +
           "    gm.subject_source, " + 
@@ -266,6 +283,21 @@ public class GrouperProvisioningGrouperDao {
       sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(subjectSources));
       sqlInitial.append(") ");
     }
+    
+    if (excludeUsersByGroupId) {
+      sqlInitial.append(" and not exists (select 1 from grouper_memberships gmship_to_exclude, grouper_group_set gs_to_exclude " +
+            " where gmship_to_exclude.owner_id = gs_to_exclude.member_id " +
+            " and gmship_to_exclude.enabled='T' " +
+            " and gmship_to_exclude.field_id = gs_to_exclude.member_field_id " +
+            " and gs_to_exclude.field_id = ? " +
+            " and gmship_to_exclude.member_id = gm.id " +
+            " and gs_to_exclude.owner_group_id = ? ) ");
+      typesInitial.add(StringType.INSTANCE);
+      paramsInitial.add(Group.getDefaultList().getId());
+      typesInitial.add(StringType.INSTANCE);
+      paramsInitial.add(groupIdOfUsersToExclude);
+    }
+
     
     List<String[]> queryResults = null;
     if (retrieveAll) {
@@ -400,8 +432,27 @@ public class GrouperProvisioningGrouperDao {
     
     List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
     
-    String groupIdOfUsersToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGroupIdOfUsersToProvision();
-    boolean retrictUsersByGroupId = !StringUtils.isBlank(groupIdOfUsersToProvision);
+    String groupIdOfUsersToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupIdOfUsersToProvision();
+    boolean restrictUsersByGroupId = !StringUtils.isBlank(groupIdOfUsersToProvision);
+
+    if (restrictUsersByGroupId) {
+      if (groupIdOfUsersToProvision.contains(":")) {
+        groupIdOfUsersToProvision = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, true).getId();
+      } else {
+        groupIdOfUsersToProvision = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersToProvision, true).getId();
+      }
+    }
+
+    String groupIdOfUsersToExclude = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupIdOfUsersNotToProvision();
+    boolean excludeUsersByGroupId = !StringUtils.isBlank(groupIdOfUsersToExclude);
+
+    if (excludeUsersByGroupId) {
+      if (groupIdOfUsersToExclude.contains(":")) {
+        groupIdOfUsersToExclude = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupIdOfUsersToExclude, true).getId();
+      } else {
+        groupIdOfUsersToExclude = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOfUsersToExclude, true).getId();
+      }
+    }
 
     StringBuilder sqlInitial = new StringBuilder("select " + 
         GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, " +
@@ -426,7 +477,7 @@ public class GrouperProvisioningGrouperDao {
         "    grouper_memberships ms, " +
         "    grouper_group_set gs, " +
         "    grouper_sync_group gsg " +
-        (retrictUsersByGroupId ? ", grouper_memberships gmship_to_provision, grouper_group_set gs_to_provision " : "") +
+        (restrictUsersByGroupId ? ", grouper_memberships gmship_to_provision, grouper_group_set gs_to_provision " : "") +
         "where " +
         "    gsg.grouper_sync_id = ? " +
         "    and ms.owner_id = gs.member_id " +
@@ -437,7 +488,8 @@ public class GrouperProvisioningGrouperDao {
         "    and gsg.provisionable = 'T' " +
         "    and ms.enabled='T' " +
         "    and gm.subject_resolution_deleted='F' " +
-        (retrictUsersByGroupId ? (" and gmship_to_provision.owner_id = gs_to_provision.member_id " +
+        (restrictUsersByGroupId ? (" and gmship_to_provision.owner_id = gs_to_provision.member_id " +
+            " and gmship_to_provision.enabled='T' " +
             " and gmship_to_provision.field_id = gs_to_provision.member_field_id " +
             " and gs_to_provision.field_id = ? " +
             " and gmship_to_provision.member_id = gm.id " +
@@ -466,7 +518,7 @@ public class GrouperProvisioningGrouperDao {
     List<Object> paramsInitial = new ArrayList<Object>();
     paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
 
-    if (retrictUsersByGroupId) {
+    if (restrictUsersByGroupId) {
       paramsInitial.add(Group.getDefaultList().getId());
       paramsInitial.add(groupIdOfUsersToProvision);
     }
@@ -477,7 +529,7 @@ public class GrouperProvisioningGrouperDao {
     List<Type> typesInitial = new ArrayList<Type>();
     typesInitial.add(StringType.INSTANCE);
 
-    if (retrictUsersByGroupId) {
+    if (restrictUsersByGroupId) {
       typesInitial.add(StringType.INSTANCE);
       typesInitial.add(StringType.INSTANCE);
     }
@@ -495,6 +547,20 @@ public class GrouperProvisioningGrouperDao {
     sqlInitial.append(" and gs.field_id in (");
     sqlInitial.append(HibUtils.convertToInClauseForSqlStatic(fieldIds));
     sqlInitial.append(") ");
+    
+    if (excludeUsersByGroupId) {
+      sqlInitial.append(" and not exists (select 1 from grouper_memberships gmship_to_exclude, grouper_group_set gs_to_exclude " +
+            " where gmship_to_exclude.owner_id = gs_to_exclude.member_id " +
+            " and gmship_to_exclude.enabled='T' " +
+            " and gmship_to_exclude.field_id = gs_to_exclude.member_field_id " +
+            " and gs_to_exclude.field_id = ? " +
+            " and gmship_to_exclude.member_id = gm.id " +
+            " and gs_to_exclude.owner_group_id = ? ) ");
+      typesInitial.add(StringType.INSTANCE);
+      paramsInitial.add(Group.getDefaultList().getId());
+      typesInitial.add(StringType.INSTANCE);
+      paramsInitial.add(groupIdOfUsersToExclude);
+    }
     
     List<String[]> queryResults = null;
     if (retrieveAll) {
@@ -2244,12 +2310,12 @@ public class GrouperProvisioningGrouperDao {
         "    grouper_sync_membership sync_membership " +  
         "WHERE " +      
         "    sync_membership.grouper_sync_group_id = sync_group.id " +
-        "    AND sync_group.group_id = ? " +
+        "    AND sync_group.id = ? " +
         "    AND sync_group.provisionable = 'T' " +
         "    AND sync_membership.in_target = 'T' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
-    paramsInitial.add(provisioningGroupWrapper.getGroupId());
+    paramsInitial.add(provisioningGroupWrapper.getSyncGroupId());
 
     List<Type> typesInitial = new ArrayList<Type>();
     typesInitial.add(StringType.INSTANCE);
@@ -2272,11 +2338,11 @@ public class GrouperProvisioningGrouperDao {
         "WHERE " +      
         "    sync_membership.grouper_sync_member_id = sync_member.id " +
         "    AND sync_member.provisionable = 'T' " +
-        "    AND sync_member.member_id = ? " +
+        "    AND sync_member.id = ? " +
         "    AND sync_membership.in_target = 'T' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
-    paramsInitial.add(provisioningEntityWrapper.getMemberId());
+    paramsInitial.add(provisioningEntityWrapper.getSyncMemberId());
 
     List<Type> typesInitial = new ArrayList<Type>();
     typesInitial.add(StringType.INSTANCE);

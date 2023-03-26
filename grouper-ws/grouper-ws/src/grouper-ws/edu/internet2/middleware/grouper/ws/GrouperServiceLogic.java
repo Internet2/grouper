@@ -364,14 +364,14 @@ public class GrouperServiceLogic {
                         throws GrouperDAOException {
                       try {
                         boolean didntAlreadyExist = false;
-
-                        didntAlreadyExist = group.addMember(subject, FIELD_CALCULATED, false);
                         
-                        boolean needsUpdate = false;
-                        Membership membership = group.getImmediateMembership(FIELD_CALCULATED, subject, true, true);
+                        didntAlreadyExist = group.internal_addMember(subject, FIELD_CALCULATED, false, null, enabledTime, disabledTime);
                         
                         // if already existed then use the new dates, the new dates can be null
                         if (didntAlreadyExist == false) {
+                          boolean needsUpdate = false;
+                          Membership membership = group.getImmediateMembership(FIELD_CALCULATED, subject, true, true);
+
                           if (!GrouperUtil.equals(disabledTime, membership.getDisabledTime())) {
                             membership.setDisabledTime(disabledTime);
                             needsUpdate = true;
@@ -380,25 +380,12 @@ public class GrouperServiceLogic {
                             membership.setEnabledTime(enabledTime);
                             needsUpdate = true;
                           }
-                        } else {
-                          // if we're adding this membership for the first time, let's see if we need to set the dates
-                          final boolean dealWithDates = enabledTime != null || disabledTime != null;
-                          if (dealWithDates) {
-                            if (!GrouperUtil.equals(disabledTime, membership.getDisabledTime())) {
-                              membership.setDisabledTime(disabledTime);
-                              needsUpdate = true;
-                            }
-                            if (!GrouperUtil.equals(enabledTime, membership.getEnabledTime())) {
-                              membership.setEnabledTime(enabledTime);
-                              needsUpdate = true;
-                            }
+                          
+                          if (needsUpdate) {
+                            membership.update();
                           }
                         }
                         
-                        if (needsUpdate) {
-                          membership.update();
-                        }
-
                         wsAddMemberResult.assignResultCode(GrouperWsVersionUtils.addMemberSuccessResultCode(
                             didntAlreadyExist, wsSubjectLookup.retrieveSubjectFindResult(), canRead));
 

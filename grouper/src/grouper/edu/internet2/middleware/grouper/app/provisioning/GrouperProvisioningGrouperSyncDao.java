@@ -407,6 +407,9 @@ public class GrouperProvisioningGrouperSyncDao {
         String groupId = gcGrouperSyncGroup.getGroupId();
         ProvisioningGroupWrapper provisioningGroupWrapper = this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(groupId);
         if (provisioningGroupWrapper == null) {
+          if (!gcGrouperSyncGroup.isInTarget() && !gcGrouperSyncGroup.isProvisionable()) {
+            continue;
+          }
           provisioningGroupWrapper = new ProvisioningGroupWrapper();
           provisioningGroupWrapper.setGrouperProvisioner(this.getGrouperProvisioner());
           provisioningGroupWrapper.setGroupId(groupId);
@@ -437,6 +440,10 @@ public class GrouperProvisioningGrouperSyncDao {
         ProvisioningEntityWrapper provisioningEntityWrapper = this.grouperProvisioner.retrieveGrouperProvisioningDataIndex()
             .getMemberUuidToProvisioningEntityWrapper().get(memberId);
         if (provisioningEntityWrapper == null) {
+          if (!gcGrouperSyncMember.isInTarget() && !gcGrouperSyncMember.isProvisionable()) {
+            continue;
+          }
+
           provisioningEntityWrapper = new ProvisioningEntityWrapper();
           provisioningEntityWrapper.setGrouperProvisioner(this.getGrouperProvisioner());
           provisioningEntityWrapper.setMemberId(memberId);
@@ -475,6 +482,12 @@ public class GrouperProvisioningGrouperSyncDao {
         ProvisioningMembershipWrapper provisioningMembershipWrapper = groupUuidMemberUuidToProvisioningMembershipWrapper.get(gcGrouperSyncMembership);
         
         if (provisioningMembershipWrapper == null) {
+          
+          if (!gcGrouperSyncMembership.isInTarget() 
+              && (!gcGrouperSyncGroup.isProvisionable() || !gcGrouperSyncMember.isProvisionable())) {
+            continue;
+          }
+
           provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
           provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
           provisioningMembershipWrapper.setGroupIdMemberId(groupIdMemberId);
