@@ -5,17 +5,15 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningError;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningErrorSummary;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -332,6 +330,62 @@ public class ProvisionerConfigurationContainer {
   private boolean showStartWithSection;
 
   private String startWithSessionId;
+  
+  private String selectedErrorCode;
+  
+  private String provisionerConfigErrorDuration;
+  
+  private GrouperProvisioningErrorSummary grouperProvisioningErrorSummary;
+  
+  private List<GrouperProvisioningError> grouperProvisioningErrors;
+  
+  
+  public List<GrouperProvisioningError> getGrouperProvisioningErrors() {
+    return grouperProvisioningErrors;
+  }
+
+  
+  public void setGrouperProvisioningErrors(
+      List<GrouperProvisioningError> grouperProvisioningErrors) {
+    this.grouperProvisioningErrors = grouperProvisioningErrors;
+  }
+
+  public GrouperProvisioningErrorSummary getGrouperProvisioningErrorSummary() {
+    return grouperProvisioningErrorSummary;
+  }
+
+  
+  public void setGrouperProvisioningErrorSummary(
+      GrouperProvisioningErrorSummary grouperProvisioningErrorSummary) {
+    this.grouperProvisioningErrorSummary = grouperProvisioningErrorSummary;
+  }
+
+  public String getProvisionerConfigErrorDuration() {
+    return provisionerConfigErrorDuration;
+  }
+
+  
+  public void setProvisionerConfigErrorDuration(String provisionerConfigErrorDuration) {
+    this.provisionerConfigErrorDuration = provisionerConfigErrorDuration;
+  }
+
+  public String getSelectedErrorCode() {
+    return selectedErrorCode;
+  }
+
+  
+  public void setSelectedErrorCode(String selectedErrorCode) {
+    this.selectedErrorCode = selectedErrorCode;
+  }
+
+  public List<String> getAllGcGrouperSyncErrorCodes() {
+    GcGrouperSyncErrorCode[] values = GcGrouperSyncErrorCode.values();
+    List<String> errorCodes = new ArrayList<>();
+    for (GcGrouperSyncErrorCode errorCode: values) {
+      errorCodes.add(errorCode.name());
+    }
+    return errorCodes;
+  }
 
   public String getCurrentConfigSuffix() {
     return currentConfigSuffix;
