@@ -134,8 +134,11 @@ import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NullNode;
+import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import com.googlecode.ipv6.IPv6Address;
 import com.googlecode.ipv6.IPv6Network;
 import com.unboundid.ldap.sdk.DN;
@@ -6309,6 +6312,12 @@ public class GrouperUtil {
     if (object instanceof Boolean) {
       return (Boolean) object;
     }
+    if (object instanceof TextNode) {
+      TextNode textNode = (TextNode) object;
+      object = textNode.asText();
+    }
+    
+
     if (object instanceof String) {
       String string = (String) object;
       if (equalsIgnoreCase(string, "true")
@@ -6329,6 +6338,10 @@ public class GrouperUtil {
           "Invalid string to boolean conversion: '" + string
               + "' expecting true|false or t|f or yes|no or y|n case insensitive");
 
+    }
+    if (object instanceof BooleanNode) {
+      BooleanNode booleanNode = (BooleanNode) object;
+      return booleanNode.asBoolean();
     }
     throw new RuntimeException("Cant convert object to boolean: "
         + object.getClass());
@@ -7494,6 +7507,11 @@ public class GrouperUtil {
    */
   public static Timestamp toTimestamp(Object input) {
 
+    if (input instanceof TextNode) {
+      TextNode textNode = (TextNode) input;
+      input = textNode.asText();
+    }
+
     if (null == input) {
       return null;
     } else if (input instanceof java.sql.Timestamp) {
@@ -7548,6 +7566,11 @@ public class GrouperUtil {
     if (input instanceof byte[]) {
       return new String((byte[])input, StandardCharsets.UTF_8);
     }
+    if (input instanceof TextNode) {
+      TextNode textNode = (TextNode) input;
+      return textNode.asText();
+    }
+
     return input.toString();
   }
 
@@ -7828,12 +7851,20 @@ public class GrouperUtil {
    * @return the double equivalent
    */
   public static double doubleValue(Object input) {
+    if (input instanceof TextNode) {
+      TextNode textNode = (TextNode) input;
+      input = textNode.asText();
+    }
     if (input instanceof String) {
       String string = (String)input;
       return Double.parseDouble(string);
     }
     if (input instanceof Number) {
       return ((Number)input).doubleValue();
+    }
+    if (input instanceof NumericNode) {
+      NumericNode numericNode = (NumericNode) input;
+      return numericNode.asDouble();
     }
     throw new RuntimeException("Cannot convert to double: "  + className(input));
   }
@@ -7893,12 +7924,20 @@ public class GrouperUtil {
    * @return the float equivalent
    */
   public static float floatValue(Object input) {
+    if (input instanceof TextNode) {
+      TextNode textNode = (TextNode) input;
+      input = textNode.asText();
+    }
     if (input instanceof String) {
       String string = (String)input;
       return Float.parseFloat(string);
     }
     if (input instanceof Number) {
       return ((Number)input).floatValue();
+    }
+    if (input instanceof NumericNode) {
+      NumericNode numericNode = (NumericNode) input;
+      return Double.valueOf(numericNode.asDouble()).floatValue();
     }
     throw new RuntimeException("Cannot convert to float: " + className(input));
   }
@@ -7969,12 +8008,20 @@ public class GrouperUtil {
    * @return the number
    */
   public static int intValue(Object input) {
+    if (input instanceof TextNode) {
+      TextNode textNode = (TextNode) input;
+      input = textNode.asText();
+    }
     if (input instanceof String) {
       String string = (String)input;
       return Integer.parseInt(string);
     }
     if (input instanceof Number) {
       return ((Number)input).intValue();
+    }
+    if (input instanceof NumericNode) {
+      NumericNode numericNode = (NumericNode) input;
+      return numericNode.asInt();
     }
     throw new RuntimeException("Cannot convert to int: " + className(input));
   }
@@ -8262,6 +8309,10 @@ public class GrouperUtil {
    * @return the number
    */
   public static long longValue(Object input) {
+    if (input instanceof TextNode) {
+      TextNode textNode = (TextNode) input;
+      input = textNode.asText();
+    }
     if (input instanceof String) {
       String string = (String)input;
       return Long.parseLong(string);
@@ -8272,6 +8323,11 @@ public class GrouperUtil {
     if (input instanceof Timestamp) {
       return ((Timestamp)input).getTime();
     }
+    if (input instanceof NumericNode) {
+      NumericNode numericNode = (NumericNode) input;
+      return numericNode.longValue();
+    }
+
     throw new RuntimeException("Cannot convert to long: " + className(input));
   }
 

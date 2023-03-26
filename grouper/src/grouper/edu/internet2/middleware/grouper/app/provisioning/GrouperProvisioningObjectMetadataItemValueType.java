@@ -5,9 +5,10 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
+import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -21,11 +22,6 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
     public Object convert(Object value) {
       if (value == null || value instanceof String) {
         return value;
-      }
-      
-      if (value != null && value instanceof TextNode) {
-        TextNode textNode = (TextNode) value;
-        return textNode.asText();
       }
       
       return GrouperUtil.stringValue(value);
@@ -92,11 +88,6 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
     @Override
     public Object convert(Object value) {
       
-      if (value != null && value instanceof BooleanNode) {
-        BooleanNode booleanNode = (BooleanNode) value;
-        return booleanNode.asBoolean();
-      }
-      
       return GrouperUtil.booleanObjectValue(value);
     }
     
@@ -148,6 +139,11 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
         return value;
       }
       
+      if (value instanceof TextNode) {
+        TextNode textNode = (TextNode) value;
+        value = textNode.asText();
+      }
+
       if (value instanceof String) {
         Set<String> set = GrouperUtil.splitTrimToSet(value.toString(), ",");
         Set<String> newSet  = new LinkedHashSet<>();
