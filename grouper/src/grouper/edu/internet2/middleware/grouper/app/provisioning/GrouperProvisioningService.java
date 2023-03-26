@@ -1068,12 +1068,12 @@ public class GrouperProvisioningService {
     GrouperProvisioningErrorSummary summaryForEntity = retrieveErrorsSummaryForEntity(provisionerName, errorCode, errorDuration);
     oneBigSummary.setEntityErrorsCount(summaryForEntity.getEntityErrorsCount());
     oneBigSummary.setEntityErrorTypeCount(summaryForEntity.getEntityErrorTypeCount());
-    oneBigSummary.setErrorsCount(oneBigSummary.getErrorsCount() +  summaryForEntity.getErrorsCount());
+    oneBigSummary.setErrorsCount(oneBigSummary.getErrorsCount() +  summaryForEntity.getEntityErrorsCount());
     
     GrouperProvisioningErrorSummary summaryForMembership = retrieveErrorsSummaryForMembership(provisionerName, errorCode, errorDuration);
     oneBigSummary.setMembershipErrorsCount(summaryForMembership.getMembershipErrorsCount());
     oneBigSummary.setMembershipsErrorTypeCount(summaryForMembership.getMembershipsErrorTypeCount());
-    oneBigSummary.setErrorsCount(oneBigSummary.getErrorsCount() +  summaryForMembership.getErrorsCount());
+    oneBigSummary.setErrorsCount(oneBigSummary.getErrorsCount() +  summaryForMembership.getMembershipErrorsCount());
     return oneBigSummary;
     
   }
