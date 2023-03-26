@@ -6,7 +6,7 @@
       <thead>
         <tr>
         
-          <th><span>${textContainer.text['provisionerErrorsTableErrorTimestamp'] }</span></th>
+          <th style="width: 150px;"><span>${textContainer.text['provisionerErrorsTableErrorTimestamp'] }</span></th>
           <th><span>${textContainer.text['provisionerErrorsTableObjectType'] }</span></th>
           <th><span>${textContainer.text['provisionerErrorsTableGroupName'] }</span></th>
           <th><span>${textContainer.text['provisionerErrorsTableSubjectId'] }</span></th>
