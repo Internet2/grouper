@@ -11741,7 +11741,7 @@ public class GrouperInstaller {
   /**
    * tomcat version
    */
-  private String tomcatVersion = "8.5.84";
+  private String tomcatVersion = "8.5.87";
   
   /**
    * 
@@ -11753,7 +11753,7 @@ public class GrouperInstaller {
     if (this.tomcatVersion == null) {
       
       String defaultTomcatVersion = GrouperInstallerUtils.propertiesValue("grouperInstaller.default.tomcat.version", false);
-      defaultTomcatVersion = GrouperInstallerUtils.defaultIfBlank(defaultTomcatVersion, "8.5.84");
+      defaultTomcatVersion = GrouperInstallerUtils.defaultIfBlank(defaultTomcatVersion, "8.5.87");
       
       System.out.print("Enter the tomcat version (8.5.84 or 8.5.12 or 6.0.35) [" + defaultTomcatVersion + "]: ");
       this.tomcatVersion = readFromStdIn("grouperInstaller.autorun.tomcat.version");
