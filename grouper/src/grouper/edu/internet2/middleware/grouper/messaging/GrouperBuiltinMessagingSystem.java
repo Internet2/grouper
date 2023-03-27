@@ -565,6 +565,26 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
       throw new RuntimeException("topicName cant contain colon: " + topicName);
     }
     
+    RuntimeException exception = null;
+    try {
+      return createTopicHelper(topicName);
+    } catch (RuntimeException e) {
+      exception = e;
+      GrouperUtil.sleep(2000);
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
+      
+      Stem topicStem = StemFinder.findByName(grouperSession, queueStemName(), true, new QueryOptions().secondLevelCache(false));
+
+      AttributeDefName topicAttributeDefName = AttributeDefNameFinder.findByName(topicStem.getName() + ":" + topicName, false, new QueryOptions().secondLevelCache(false));
+      if (topicAttributeDefName != null) {
+        return false;
+      }
+      throw exception;
+    }
+
+  }
+
+  private static boolean createTopicHelper(String topicName) {
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
     
     Stem topicStem = StemFinder.findByName(grouperSession, topicStemName(), true, new QueryOptions().secondLevelCache(false));
@@ -583,9 +603,9 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
     }
     
     return false;
-    
-  }
 
+  }
+  
   /**
    * 
    * @param topicName
@@ -657,7 +677,6 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
    * @return if created or already created
    */
   public static boolean createQueue(String queueName) {
-    
     if (StringUtils.isBlank(queueName)) {
       throw new NullPointerException("queueName cant be blank");
     }
@@ -665,6 +684,26 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
     if (queueName.contains(":")) {
       throw new RuntimeException("queueName cant contain colon: " + queueName);
     }
+    
+    RuntimeException exception = null;
+    try {
+      return createQueueHelper(queueName);
+    } catch (RuntimeException e) {
+      exception = e;
+      GrouperUtil.sleep(2000);
+      GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
+      
+      Stem queueStem = StemFinder.findByName(grouperSession, queueStemName(), true, new QueryOptions().secondLevelCache(false));
+
+      AttributeDefName queueAttributeDefName = AttributeDefNameFinder.findByName(queueStem.getName() + ":" + queueName, false, new QueryOptions().secondLevelCache(false));
+      if (queueAttributeDefName != null) {
+        return false;
+      }
+      throw exception;
+    }
+  }
+  
+  private static boolean createQueueHelper(String queueName) {
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(true);
     
@@ -683,6 +722,7 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
     }
     
     return false;
+
   }
   
   /**
