@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerConf
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -108,7 +109,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute.setValue("flat");
 
     attribute = provisionerConfiguration.retrieveAttributes().get("numberOfGroupAttributes");
-    attribute.setValue("1");
+    attribute.setValue("2");
 
     attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.name");
     attribute.setValue("ldap_dn");
@@ -119,8 +120,11 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.0.translateFromGrouperProvisioningGroupField");
     attribute.setValue("name");
 
+    attribute = provisionerConfiguration.retrieveAttributes().get("targetGroupAttribute.1.name");
+    attribute.setValue("member");
+
     attribute = provisionerConfiguration.retrieveAttributes().get("groupMembershipAttributeName");
-    attribute.setValue("ldap_dn");
+    attribute.setValue("member");
 
     attribute = provisionerConfiguration.retrieveAttributes().get("groupMembershipAttributeValue");
     attribute.setValue("subjectId");
@@ -159,7 +163,7 @@ public class ProvisionerConfigurationTest extends GrouperTest {
     // insert config into db
     provisionerConfiguration.insertConfig(false, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
     
-    assertEquals(0, validationErrorsToDisplay.size());
+    assertEquals(GrouperUtil.toStringForLog(validationErrorsToDisplay), 0, validationErrorsToDisplay.size());
     assertEquals(0, errorsToDisplay.size());
     
     provisionerConfiguration = new LdapProvisionerConfiguration();
