@@ -1403,7 +1403,7 @@ public class GrouperProvisioningLogic {
 
       if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups() 
           && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()
-          && provisioningGroupWrapper.getProvisioningStateGroup().isCreate()
+          // && provisioningGroupWrapper.getProvisioningStateGroup().isCreate()
           && gcGrouperSyncGroup != null
           && !gcGrouperSyncGroup.isInTarget()) {
         shouldSkip = false;
