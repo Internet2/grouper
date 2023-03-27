@@ -959,6 +959,8 @@ public class GrouperProvisioningLogic {
             this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveTargetDataGroupsAndEntities);
           }
 
+          grouperProvisioningLogicIncremental.calculateGroupAction();
+          
           // ######### STEP 30: create groups / entities
           debugMap.put("state", "insertGroups");
           createMissingGroupsFull();

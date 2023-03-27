@@ -774,7 +774,7 @@ public class GrouperProvisioningDiagnosticsContainer {
       
       this.provisioningMembershipWrapper = grouperProvisioningMembership.getProvisioningMembershipWrapper();
       
-      grouperProvisioningMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setRecalcObject(true);
+      grouperProvisioningMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsForRecalc());
       this.provisioningMembershipWrapper.getGrouperProvisioningMembership().setProvisioningGroup(this.provisioningGroupWrapper.getGrouperProvisioningGroup());
       List<ProvisioningMembership> grouperTargetMemberships = this.grouperProvisioner.retrieveGrouperProvisioningTranslator().translateGrouperToTargetMemberships(GrouperUtil.toList(grouperProvisioningMembership), false);
 
@@ -1183,7 +1183,7 @@ public class GrouperProvisioningDiagnosticsContainer {
     try {
       this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStart();
 
-      this.provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
+      this.provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc());
       
       List<ProvisioningGroup> grouperTargetGroupsToInsert = GrouperUtil.toList(this.provisioningGroupWrapper.getGrouperTargetGroup());
       
@@ -1306,7 +1306,7 @@ public class GrouperProvisioningDiagnosticsContainer {
     try {
       this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStart();
 
-      this.provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(true);
+      this.provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc());
       
       List<ProvisioningGroup> grouperTargetGroupsToDelete = GrouperUtil.toList(this.provisioningGroupWrapper.getGrouperTargetGroup());
       
@@ -1397,7 +1397,7 @@ public class GrouperProvisioningDiagnosticsContainer {
     try {
       this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStart();
 
-      this.provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+      this.provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc());
 
       List<ProvisioningEntity> grouperTargetEntitiesToInsert = GrouperUtil.toList(this.provisioningEntityWrapper.getGrouperTargetEntity());
       
@@ -1507,7 +1507,7 @@ public class GrouperProvisioningDiagnosticsContainer {
     try {
       this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().loggingStart();
 
-      this.provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(true);
+      this.provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc());
       
       List<ProvisioningEntity> grouperTargetEntitiesToDelete = GrouperUtil.toList(this.provisioningEntityWrapper.getGrouperTargetEntity());
       

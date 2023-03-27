@@ -1758,48 +1758,6 @@ public class GrouperProvisioningLogicIncremental {
       this.getGrouperProvisioner().getDebugMap().put("convertInconsistentEventsActions", convertInconsistentEventsActions);
     }
   }
-
-
-  public void copyIncrementalStateToWrappers() {
-    
-    for (ProvisioningGroupWrapper provisioningGroupWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
-      
-      if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
-        continue;
-      }
-      
-      switch (provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction()) {
-        case insert:
-          if (!provisioningGroupWrapper.getProvisioningStateGroup().isUpdate() && !provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
-            provisioningGroupWrapper.getProvisioningStateGroup().setCreate(true);
-          } else if (provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
-            provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
-            provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(true);
-          } 
-          break;
-        case update:
-          if (!provisioningGroupWrapper.getProvisioningStateGroup().isCreate() && !provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
-            provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(true);
-          } else if (provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
-            provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
-            provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(true);
-          } 
-          break;
-        case delete:
-          if (!provisioningGroupWrapper.getProvisioningStateGroup().isCreate()) {
-            provisioningGroupWrapper.getProvisioningStateGroup().setDelete(true);
-            provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
-          } else {
-            provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
-          } 
-          break;
-        default:
-          throw new RuntimeException("Invalid");
-      }
-      
-    }
-  }
-
   
   public void retrieveTargetIncrementalMembershipsWithRecalcWhereContainerIsNotRecalc() {
     
@@ -2691,6 +2649,72 @@ public class GrouperProvisioningLogicIncremental {
       GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "convertEntitiesToRecalc", convertEntitiesToRecalc);
     }
     
+  }
+
+  /**
+   * based on group events, determine which action to perform on group (if not recalc already)
+   */
+  public void calculateGroupAction() {
+    
+    int calculateGroupActionInsert = 0;
+    int calculateGroupActionUpdate = 0;
+    int calculateGroupActionDelete = 0;
+    int calculateGroupActionReset = 0;
+    
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+      
+      if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null) {
+        continue;
+      }
+
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
+        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
+        provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
+        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
+        calculateGroupActionReset++;
+      } else if (!provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget() && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
+        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
+        calculateGroupActionInsert++;
+      } else if (provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget() && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()
+          && provisioningGroupWrapper.getProvisioningStateGroup().isUpdate()) {
+        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
+        provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
+        calculateGroupActionUpdate++;
+      } else if (provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget() && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()
+          && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getProvisioningStateGroup().isCreate()) {
+        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
+        provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
+        calculateGroupActionUpdate++;
+      } else if (provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget() && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
+        provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
+        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(true);
+        calculateGroupActionDelete++;
+      } else {
+        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
+        provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
+        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
+        calculateGroupActionReset++;
+      }
+      
+    }
+    if (calculateGroupActionInsert > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "calculateGroupActionInsert", calculateGroupActionInsert);
+    }
+    if (calculateGroupActionUpdate > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "calculateGroupActionUpdate", calculateGroupActionUpdate);
+    }
+    if (calculateGroupActionDelete > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "calculateGroupActionDelete", calculateGroupActionDelete);
+    }
+    if (calculateGroupActionReset > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "calculateGroupActionReset", calculateGroupActionReset);
+    }
+
   }
 
 }
