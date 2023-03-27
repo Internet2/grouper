@@ -593,6 +593,24 @@ public class GrouperProvisioningData {
 
     if (grouperIncrementalDataAction != null) {
       provisioningGroupWrapper.getProvisioningStateGroup().setGrouperIncrementalDataAction(grouperIncrementalDataAction);
+      switch (grouperIncrementalDataAction) {
+        case insert:
+          
+          provisioningGroupWrapper.getProvisioningStateGroup().setCreate(true);
+          break;
+          
+        case delete:
+          
+          provisioningGroupWrapper.getProvisioningStateGroup().setDelete(true);
+          break;
+
+        case update:
+          
+          provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(true);
+          break;
+        default:
+          break;
+      }
     }
   }
 
