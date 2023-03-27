@@ -36,7 +36,7 @@ import junit.textui.TestRunner;
 public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAwsProvisionerTest("testAWSIncrementalSyncProvisionGroupAndThenDeleteTheGroup"));
+    TestRunner.run(new GrouperAwsProvisionerTest("testAWSFullSyncProvisionGroupAndThenDeleteTheGroup"));
 
   }
   
@@ -363,7 +363,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
       assertNotNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
       assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
-      assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
+      assertNotNull(gcGrouperSyncMember.getLastUserMetadataSync());
       assertNull(gcGrouperSyncMember.getErrorMessage());
       assertNull(gcGrouperSyncMember.getErrorTimestamp());
       assertNull(gcGrouperSyncMember.getLastUserSync());
@@ -465,7 +465,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
       assertNotNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
       assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
-      assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
+      assertNotNull(gcGrouperSyncMember.getLastUserMetadataSync());
       assertNull(gcGrouperSyncMember.getErrorMessage());
       assertNull(gcGrouperSyncMember.getErrorTimestamp());
       assertNull(gcGrouperSyncMember.getLastUserSync());
@@ -485,7 +485,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
       assertNotNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
       assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
-      assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
+      assertNotNull(gcGrouperSyncMember.getLastUserMetadataSync());
       assertNull(gcGrouperSyncMember.getErrorMessage());
       assertNull(gcGrouperSyncMember.getErrorTimestamp());
       assertNull(gcGrouperSyncMember.getLastUserSync());
