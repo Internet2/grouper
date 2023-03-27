@@ -2667,11 +2667,9 @@ public class GrouperProvisioningLogicIncremental {
         continue;
       }
 
-      if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
-        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
-        provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
-        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
-        calculateGroupActionReset++;
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()
+          && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc()) {
+        continue;
       } else if (!provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget() && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
         provisioningGroupWrapper.getProvisioningStateGroup().setCreate(true);
         provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
