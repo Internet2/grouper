@@ -45,31 +45,6 @@
       <artifactId>grouper-messaging-rabbitmq</artifactId>
       <version>${grouper.version}</version>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>grouper-pspng</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>grouper-box</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>google-apps-provisioner</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>grouper-duo</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>grouper-azure-provisioner</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
   </dependencies>
 
 </project>

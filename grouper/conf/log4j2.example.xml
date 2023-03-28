@@ -18,9 +18,6 @@
         <Logger name="edu.internet2.middleware.grouper.app.loader.GrouperLoaderLog" level="debug" additivity="false">
             <AppenderRef ref="stderr"/>
         </Logger>
-        <Logger name="edu.internet2.middleware.grouper.pspng" level="info" additivity="false">
-            <AppenderRef ref="stderr"/>
-        </Logger>
         <Logger name="edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectLog" level="debug" additivity="false">
             <AppenderRef ref="stderr"/>
         </Logger>
