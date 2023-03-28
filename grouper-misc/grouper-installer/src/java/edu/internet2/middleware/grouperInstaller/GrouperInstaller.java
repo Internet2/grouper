@@ -4919,10 +4919,6 @@ public class GrouperInstaller {
     File libWsDir = new File(webInfDir+File.separator+"libWs");
     libWsDir.mkdirs();
     
-    File modulesDir = new File(webInfDir+File.separator+"modules");
-    modulesDir.mkdirs();
-    File servicesDir = new File(webInfDir+File.separator+"services");
-    servicesDir.mkdirs();
     File classesDir = new File(webInfDir+File.separator+"classes");
     classesDir.mkdirs();
     File binDir = new File(webInfDir+File.separator+"bin");
@@ -5044,8 +5040,6 @@ public class GrouperInstaller {
     File grouperWsWebinfDir = new File(grouperUntarredReleaseDir+File.separator+"grouper-ws"+File.separator+
         "grouper-ws"+File.separator+"webapp"+File.separator+"WEB-INF");
     
-    GrouperInstallerUtils.copyDirectory(new File(grouperWsWebinfDir.getAbsolutePath()+File.separator+"modules"), modulesDir);
-    GrouperInstallerUtils.copyDirectory(new File(grouperWsWebinfDir.getAbsolutePath()+File.separator+"services"), servicesDir);
     GrouperInstallerUtils.copyDirectory(new File(grouperWsWebinfDir.getAbsolutePath()+File.separator+"conf"), webInfConfDir);
     
     // now copy grouper/bin contents into outputDir/webapp/WEB-INF/bin
