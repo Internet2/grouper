@@ -33,7 +33,7 @@ import junit.textui.TestRunner;
 public class MembershipRequireEngineTest extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new MembershipRequireEngineTest("testConsumer"));
+    TestRunner.run(new MembershipRequireEngineTest("testHook"));
   }
   
   /**
@@ -226,7 +226,44 @@ public class MembershipRequireEngineTest extends GrouperTest {
     testPolicyGroupUnprotected.addMember(SubjectTestHelper.SUBJ2);
     testPolicyGroupUnprotected.addMember(SubjectTestHelper.SUBJ3);
     
+    // remove the members and do again
+    testPolicyGroupProtectedByStem.deleteMember(SubjectTestHelper.SUBJ2);
+    testPolicyGroupProtectedByStem.deleteMember(SubjectTestHelper.SUBJ3);
+    testPolicyGroupProtected.deleteMember(SubjectTestHelper.SUBJ2);
+    testPolicyGroupProtected.deleteMember(SubjectTestHelper.SUBJ3);
+    testPolicyGroupUnprotected.deleteMember(SubjectTestHelper.SUBJ1);
+    testPolicyGroupUnprotected.deleteMember(SubjectTestHelper.SUBJ2);
+    testPolicyGroupUnprotected.deleteMember(SubjectTestHelper.SUBJ3);
     
+    // disable hook for one config
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.membershipRequirement.myConfig.hookEnable", "false");
+    MembershipRequireEngine.clearCaches();
+
+    try {
+      testPolicyGroupProtectedByStem.addMember(SubjectTestHelper.SUBJ1);
+      fail();
+    } catch (HookVeto hv) {
+      
+    }
+    testPolicyGroupProtectedByStem.addMember(SubjectTestHelper.SUBJ2);
+    testPolicyGroupProtectedByStem.addMember(SubjectTestHelper.SUBJ3);
+    
+    testPolicyGroupProtected.addMember(SubjectTestHelper.SUBJ1);
+    testPolicyGroupProtected.addMember(SubjectTestHelper.SUBJ2);
+    testPolicyGroupProtected.addMember(SubjectTestHelper.SUBJ3);
+    
+    testPolicyGroupUnprotected.addMember(SubjectTestHelper.SUBJ1);
+    testPolicyGroupUnprotected.addMember(SubjectTestHelper.SUBJ2);
+    testPolicyGroupUnprotected.addMember(SubjectTestHelper.SUBJ3);
+    
+    // full sync should remove testPolicyGroupProtected -> SUBJ1
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperMembershipRequireFull");
+    Hib3GrouperLoaderLog hib3loaderLog = MembershipRequireFullSyncJob.internal_mostRecentHib3GrouperLoaderLog;
+    assertEquals(1, GrouperUtil.intValue(hib3loaderLog.getDeleteCount()));
+
+    assertFalse(testPolicyGroupProtected.hasMember(SubjectTestHelper.SUBJ1));
+    assertTrue(testPolicyGroupProtected.hasMember(SubjectTestHelper.SUBJ2));
+    assertTrue(testPolicyGroupProtected.hasMember(SubjectTestHelper.SUBJ3));
   }
 
   public void testConsumer() {
