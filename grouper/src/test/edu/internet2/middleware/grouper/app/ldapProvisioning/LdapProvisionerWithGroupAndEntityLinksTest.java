@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
@@ -52,7 +53,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testInternet2groupOfNamesTwoMatchesIncremental"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testInternet2memberOfIncremental"));    
   }
   
   @Override
@@ -3857,6 +3858,28 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
 
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=aclark)", new String[] {"description"}, null);
     assertEquals(0, GrouperUtil.length(ldapEntries.get(0).getAttribute("description").getStringValues()));
+    
+    // remove provisionable
+    testGroup.getAttributeDelegate().removeAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase());
+
+    if (isFull) {
+      fullProvision("ldapIsMemberOf");
+    } else {
+      incrementalProvision("ldapIsMemberOf");
+    }
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=abrown)", new String[] {"description"}, null);
+    assertEquals(0, GrouperUtil.length(ldapEntries.get(0).getAttribute("description").getStringValues()));
+
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=aanderson)", new String[] {"description"}, null);
+    assertEquals(0, GrouperUtil.length(ldapEntries.get(0).getAttribute("description").getStringValues()));
+
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=aclark)", new String[] {"description"}, null);
+    assertEquals(0, GrouperUtil.length(ldapEntries.get(0).getAttribute("description").getStringValues()));
+    
   }
 
   public void testInternet2memberOfFull() {

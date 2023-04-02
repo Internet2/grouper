@@ -458,9 +458,9 @@ public enum GrouperProvisioningObjectLogType {
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
 
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data to processed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalGroups(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data to processed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalEntities(), "entities");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data to processed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalMemberships(), "memberships");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data processed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalGroups(), "groups");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data processed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalEntities(), "entities");
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Incoming data processed", grouperProvisioner.retrieveGrouperProvisioningData().retrieveIncrementalMemberships(), "memberships");
 
     }
     
