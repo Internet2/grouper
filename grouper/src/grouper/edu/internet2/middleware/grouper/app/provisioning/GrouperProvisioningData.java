@@ -163,6 +163,40 @@ public class GrouperProvisioningData {
   
   /**
    * 
+   * @param provisioningEntityWrapper
+   */
+  public void removeAndUnindexEntityWrapper(ProvisioningEntityWrapper provisioningEntityWrapper) {
+    this.provisioningEntityWrappers.remove(provisioningEntityWrapper);
+    GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+    
+    if (StringUtils.isNotBlank(provisioningEntityWrapper.getMemberId())) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().remove(provisioningEntityWrapper.getMemberId());
+    }
+    
+    if (gcGrouperSyncMember != null) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper().remove(gcGrouperSyncMember.getId());
+    }    
+  }
+  
+  /**
+   * 
+   * @param provisioningGroupWrapper
+   */
+  public void removeAndUnindexGroupWrapper(ProvisioningGroupWrapper provisioningGroupWrapper) {
+    this.provisioningGroupWrappers.remove(provisioningGroupWrapper);
+    GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+    
+    if (StringUtils.isNotBlank(provisioningGroupWrapper.getGroupId())) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().remove(provisioningGroupWrapper.getGroupId());
+    }
+    
+    if (gcGrouperSyncGroup != null) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper().remove(gcGrouperSyncGroup.getId());
+    }    
+  }
+  
+  /**
+   * 
    * @param provisioningMembershipWrapper
    */
   public void addAndIndexMembershipWrapper(ProvisioningMembershipWrapper provisioningMembershipWrapper) {

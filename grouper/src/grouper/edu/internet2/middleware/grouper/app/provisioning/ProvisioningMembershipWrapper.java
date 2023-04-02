@@ -46,6 +46,18 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
         }
       }
     }
+    if (this.groupIdMemberId != null) {
+      ProvisioningGroupWrapper provisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(this.groupIdMemberId.getKey(0));
+      if (provisioningGroupWrapper != null) {
+        return provisioningGroupWrapper;
+      }
+    }
+    if (this.syncGroupIdSyncMemberId != null) {
+      ProvisioningGroupWrapper provisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper().get(this.syncGroupIdSyncMemberId.getKey(0));
+      if (provisioningGroupWrapper != null) {
+        return provisioningGroupWrapper;
+      }
+    }
     return null;
   }
 
@@ -76,6 +88,18 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
         if (this.commonProvisionToTargetMembership.getProvisioningEntity().getProvisioningEntityWrapper() != null) {
           return this.commonProvisionToTargetMembership.getProvisioningEntity().getProvisioningEntityWrapper();
         }
+      }
+    }
+    if (this.groupIdMemberId != null) {
+      ProvisioningEntityWrapper provisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(this.groupIdMemberId.getKey(1));
+      if (provisioningEntityWrapper != null) {
+        return provisioningEntityWrapper;
+      }
+    }
+    if (this.syncGroupIdSyncMemberId != null) {
+      ProvisioningEntityWrapper provisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper().get(this.syncGroupIdSyncMemberId.getKey(1));
+      if (provisioningEntityWrapper != null) {
+        return provisioningEntityWrapper;
       }
     }
 

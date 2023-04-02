@@ -30,6 +30,7 @@ public class LdapProvisionerTestUtils {
     setupSubjectSource();
   }
   
+  
   private static String dockerPath = null;
 
   public static void stopAndRemoveLdapContainer() {
