@@ -445,7 +445,7 @@ public class UsduJob extends OtherJobBase {
         int currentObjectsStored = gcGrouperSync.getGcGrouperSyncDao().storeAllObjects();
 
         for (GcGrouperSyncMember gcGrouperSyncMember : changedSyncMembers) {
-          if (gcGrouperSyncMember.isInTarget()) {
+          if ((gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget())) {
             ProvisioningMessage provisioningMessage = new ProvisioningMessage();
             provisioningMessage.setMemberIdsForSync(new String[] {gcGrouperSyncMember.getMemberId()});
             provisioningMessage.setBlocking(true);

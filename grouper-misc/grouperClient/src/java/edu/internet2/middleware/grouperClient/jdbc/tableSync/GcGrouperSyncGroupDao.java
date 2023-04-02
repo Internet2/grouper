@@ -53,6 +53,7 @@ public class GcGrouperSyncGroupDao {
    */
   public GcGrouperSyncGroup internal_groupRetrieveFromDbByGroupNameFromGroupId(String groupId) {
     
+    // TODO should we look at id, id_index, and group name?  find the one that has the most information?
     List<GcGrouperSyncGroup> gcGrouperSyncGroups = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
         .sql("select gsg.* from grouper_sync_group gsg, grouper_groups gg where gsg.grouper_sync_id = ? and gg.id = ? and gg.name = gsg.group_name")
           .addBindVar(this.getGcGrouperSync().getId()).addBindVar(groupId).selectList(GcGrouperSyncGroup.class);

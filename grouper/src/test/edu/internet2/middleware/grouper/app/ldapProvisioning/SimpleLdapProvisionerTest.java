@@ -667,9 +667,9 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     int size = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll().size();
     
     assertEquals(2, size);
-    assertTrue(gcGrouperSyncTestGroup.isInTarget());
+    assertTrue(gcGrouperSyncTestGroup.getInTarget() != null && gcGrouperSyncTestGroup.getInTarget());
     assertTrue(gcGrouperSyncTestGroup.isInTargetInsertOrExists());
-    assertTrue(gcGrouperSyncTestGroup2.isInTarget());
+    assertTrue(gcGrouperSyncTestGroup2.getInTarget() != null && gcGrouperSyncTestGroup2.getInTarget());
     assertFalse(gcGrouperSyncTestGroup2.isInTargetInsertOrExists());
     
 
@@ -795,9 +795,9 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     int size = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll().size();
     
     assertEquals(3, size);
-    assertTrue(gcGrouperSyncTestGroup.isInTarget());
+    assertTrue(gcGrouperSyncTestGroup.getInTarget() != null && gcGrouperSyncTestGroup.getInTarget());
     assertTrue(gcGrouperSyncTestGroup.isInTargetInsertOrExists());
-    assertTrue(gcGrouperSyncTestGroup2.isInTarget());
+    assertTrue(gcGrouperSyncTestGroup2.getInTarget() != null && gcGrouperSyncTestGroup2.getInTarget());
     assertFalse(gcGrouperSyncTestGroup2.isInTargetInsertOrExists());
     
 

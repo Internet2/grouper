@@ -221,7 +221,8 @@ public class GrouperProvisioningValidation {
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGcGrouperSyncMember();
 
       //if we're not provisioning this entity, maybe this is used in membership that needs to be removed so we shouldn't validate.  
-      if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable() && (!gcGrouperSyncMember.isInTarget() || provisioningEntityWrapper.getProvisioningStateEntity().isDelete())) {
+      // note validateGroups() only has the first part here
+      if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable() && ((gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) || provisioningEntityWrapper.getProvisioningStateEntity().isDelete())) {
         continue;
       }
       

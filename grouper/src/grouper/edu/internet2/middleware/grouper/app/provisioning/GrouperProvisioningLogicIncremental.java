@@ -157,12 +157,14 @@ public class GrouperProvisioningLogicIncremental {
         continue;
       }
       
-      if (gcGrouperSyncGroup.isProvisionable() || gcGrouperSyncGroup.isInTarget()) {
+      // allow null since we dont know if its in the target or not
+      if (gcGrouperSyncGroup.isProvisionable() || (gcGrouperSyncGroup.getInTarget() == null || gcGrouperSyncGroup.getInTarget())) {
         
         validGroupIds.add(gcGrouperSyncGroup.getGroupId());
         continue; 
       } 
       
+      // TODO batch these? and is query correct?  should it check grouper memberships to?
       int count = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMembershipDao().
           internal_membershipRetrieveFromDbCountByGroupSyncId(gcGrouperSyncGroup.getId());
         
@@ -2544,7 +2546,7 @@ public class GrouperProvisioningLogicIncremental {
           && provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships()) {
         continue;
       }
-      if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+      if (provisioningGroupWrapper.getGcGrouperSyncGroup() == null || (provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget())) {
         // we need to retrieve or create this, its probably already a recalc but...
         if (!provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
           provisioningGroupWrapper.getProvisioningStateGroup().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc());
@@ -2606,7 +2608,7 @@ public class GrouperProvisioningLogicIncremental {
           provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships() ) {
         continue;
       }
-      if (provisioningEntityWrapper.getGcGrouperSyncMember() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
+      if (provisioningEntityWrapper.getGcGrouperSyncMember() == null || (provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget())) {
         // we need to retrieve or create this, its probably already a recalc but...
         if (!provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
           provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc());
@@ -2670,24 +2672,24 @@ public class GrouperProvisioningLogicIncremental {
       if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()
           && this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc()) {
         continue;
-      } else if (!provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget() && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+      } else if ((provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget()) && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
         provisioningGroupWrapper.getProvisioningStateGroup().setCreate(true);
         provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
         provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
         calculateGroupActionInsert++;
-      } else if (provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget() && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()
+      } else if ((provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget()) && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()
           && provisioningGroupWrapper.getProvisioningStateGroup().isUpdate()) {
         provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
         provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(true);
         provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
         calculateGroupActionUpdate++;
-      } else if (provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget() && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()
+      } else if ((provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget()) && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()
           && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getProvisioningStateGroup().isCreate()) {
         provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
         provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(true);
         provisioningGroupWrapper.getProvisioningStateGroup().setDelete(false);
         calculateGroupActionUpdate++;
-      } else if (provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget() && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+      } else if ((provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget()) && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
         provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
         provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
         provisioningGroupWrapper.getProvisioningStateGroup().setDelete(true);

@@ -308,12 +308,12 @@ public class GrouperProvisioningLogic {
       // count total for full sync
       int totalCount = 0;
       for (GcGrouperSyncGroup gcGrouperSyncGroup : GrouperUtil.nonNull(this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveAll())) {
-        if (gcGrouperSyncGroup.isInTarget()) {
+        if (gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget()) {
           totalCount++;
         }
       }
       for (GcGrouperSyncMember gcGrouperSyncMember : GrouperUtil.nonNull(this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMemberDao().memberRetrieveAll())) {
-        if (gcGrouperSyncMember.isInTarget()) {
+        if (gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget()) {
           totalCount++;
         }
       }
@@ -1407,7 +1407,7 @@ public class GrouperProvisioningLogic {
           && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()
           // && provisioningGroupWrapper.getProvisioningStateGroup().isCreate()
           && gcGrouperSyncGroup != null
-          && !gcGrouperSyncGroup.isInTarget()) {
+          && (gcGrouperSyncGroup.getInTarget() == null || !gcGrouperSyncGroup.getInTarget())) {
         shouldSkip = false;
       }
       
@@ -1714,7 +1714,7 @@ public class GrouperProvisioningLogic {
           && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()
           // && provisioningEntityWrapper.isCreate()
           && gcGrouperSyncMember != null
-          && !gcGrouperSyncMember.isInTarget()) {
+          && (gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget())) {
         shouldSkip = false;
       }
       
@@ -2437,7 +2437,7 @@ public class GrouperProvisioningLogic {
       
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
 
-      if (gcGrouperSyncGroup != null && !gcGrouperSyncGroup.isInTarget()) {
+      if (gcGrouperSyncGroup != null && (gcGrouperSyncGroup.getInTarget() == null || !gcGrouperSyncGroup.getInTarget())) {
 
         Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
         gcGrouperSyncGroup.setInTarget(true);
@@ -2515,7 +2515,7 @@ public class GrouperProvisioningLogic {
       
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
 
-      if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isInTarget()) {
+      if (gcGrouperSyncMember != null && (gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget())) {
 
         Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
         gcGrouperSyncMember.setInTarget(true);
@@ -3264,7 +3264,7 @@ public class GrouperProvisioningLogic {
       }
 
       // the case we have a problem with is its in target but the target group is not there
-      if (!gcGrouperSyncGroup.isInTarget() || provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
+      if ((gcGrouperSyncGroup.getInTarget() == null || !gcGrouperSyncGroup.getInTarget()) || provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
         continue;
       }
             
@@ -3407,7 +3407,7 @@ public class GrouperProvisioningLogic {
       }
   
       // the case we have a problem with is its in target but the target group is not there
-      if (!gcGrouperSyncMember.isInTarget() || provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
+      if ((gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) || provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
         continue;
       }
       

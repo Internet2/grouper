@@ -407,7 +407,8 @@ public class GrouperProvisioningGrouperSyncDao {
         String groupId = gcGrouperSyncGroup.getGroupId();
         ProvisioningGroupWrapper provisioningGroupWrapper = this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidToProvisioningGroupWrapper().get(groupId);
         if (provisioningGroupWrapper == null) {
-          if (!gcGrouperSyncGroup.isInTarget() && !gcGrouperSyncGroup.isProvisionable()) {
+          // dont check the boolean since want nulls included since those dont even go to the target e.g. no select/insert
+          if (gcGrouperSyncGroup.getInTarget() != null && !gcGrouperSyncGroup.getInTarget() && !gcGrouperSyncGroup.isProvisionable()) {
             continue;
           }
           provisioningGroupWrapper = new ProvisioningGroupWrapper();
@@ -440,7 +441,8 @@ public class GrouperProvisioningGrouperSyncDao {
         ProvisioningEntityWrapper provisioningEntityWrapper = this.grouperProvisioner.retrieveGrouperProvisioningDataIndex()
             .getMemberUuidToProvisioningEntityWrapper().get(memberId);
         if (provisioningEntityWrapper == null) {
-          if (!gcGrouperSyncMember.isInTarget() && !gcGrouperSyncMember.isProvisionable()) {
+          // dont check the boolean since want nulls included since those dont even go to the target e.g. no select/insert
+          if (gcGrouperSyncMember.getInTarget() != null && !gcGrouperSyncMember.getInTarget() && !gcGrouperSyncMember.isProvisionable()) {
             continue;
           }
 
@@ -1545,7 +1547,7 @@ public class GrouperProvisioningGrouperSyncDao {
         continue;
       }
 
-      if (exists != gcGrouperSyncGroup.isInTarget()) {
+      if (exists != (gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget())) {
 
         Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
         gcGrouperSyncGroup.setInTarget(exists);
@@ -1587,7 +1589,7 @@ public class GrouperProvisioningGrouperSyncDao {
         continue;
       }
 
-      if (exists != gcGrouperSyncMember.isInTarget()) {
+      if (exists != (gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget())) {
 
         Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
         gcGrouperSyncMember.setInTarget(exists);

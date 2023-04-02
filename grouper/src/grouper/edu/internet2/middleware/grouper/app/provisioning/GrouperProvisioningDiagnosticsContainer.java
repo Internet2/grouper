@@ -383,7 +383,7 @@ public class GrouperProvisioningDiagnosticsContainer {
               }
             } else {
               if (!attributeInsertOrUpdate) {
-                if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isInTarget()) {
+                if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget()) {
                   this.report.append("<font color='red'><b>Error:</b></font> Grouper target group matching id is blank and it is currently in target\n");
                 } else {
                   this.report.append("<font color='green'><b>Success:</b></font> Grouper target group matching id is blank but it is not inserted or updated so it probably is not retrieved from target yet\n");
@@ -496,7 +496,7 @@ public class GrouperProvisioningDiagnosticsContainer {
                   }
                 } else {
                   if (!attributeInsertOrUpdate) {
-                    if (gcGrouperSyncMember != null && gcGrouperSyncMember.isInTarget()) {
+                    if (gcGrouperSyncMember != null && gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget()) {
                       this.report.append("<font color='red'><b>Error:</b></font> Grouper target entity matching id is blank and it is currently in target\n");
                     } else {
                       this.report.append("<font color='green'><b>Success:</b></font> Grouper target entity matching id is blank but it is not inserted or updated so it probably is not retrieved from target yet\n");

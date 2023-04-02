@@ -493,12 +493,14 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
 
   /**
    * if this group exists in the target/destination
+   * T means in target, F means not in target, and null means not applicable (not selecting or inserting)
    */
   @GcPersistableField(columnName="in_target")
   private String inTargetDb;
   
   /**
    * if this group exists in the target/destination
+   * T means in target, F means not in target, and null means not applicable (not selecting or inserting)
    * @return if in target
    */
   public String getInTargetDb() {
@@ -507,6 +509,7 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
 
   /**
    * if this group exists in the target/destination
+   * T means in target, F means not in target, and null means not applicable (not selecting or inserting)
    * @param inTargetDb1
    */
   public void setInTargetDb(String inTargetDb1) {
@@ -515,23 +518,17 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
 
   /**
    * if in target
-   * @return if in target
-   */
-  public boolean isInTarget() {
-    return GrouperClientUtils.booleanValue(this.inTargetDb, false);
-  }
-
-  /**
-   * if in target
+   * true means in target, false means not in target, null means unsure (not selecting or inserting)
    * @param in target
    */
-  public void setInTarget(boolean inTarget) {
-    this.inTargetDb = inTarget ? "T" : "F";
+  public void setInTarget(Boolean inTarget) {
+    this.inTargetDb = inTarget == null ? null : (inTarget ? "T" : "F");
   }
   
 
   /**
    * if this group exists in the target/destination
+   * true means in target, false means not in target, null means unsure (not selecting or inserting)
    * @return if is target
    */
   public Boolean getInTarget() {
