@@ -366,6 +366,12 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+      
+      Map<String, GrouperDuoGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+      if (groupNameToGroup != null) {
+        groupNameToGroup.remove(grouperDuoGroup.getName());
+      } 
+      
       return new TargetDaoDeleteGroupResponse();
     } catch (Exception e) {
       targetGroup.setProvisioned(false);
