@@ -35,8 +35,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllGroupsResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveAllMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
@@ -409,6 +407,13 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+      
+      Map<String, GrouperGoogleUser> userEmailToUser = cacheUserEmailToUser.get(Boolean.TRUE);
+      if (userEmailToUser != null) {
+        userEmailToUser.remove(grouperGoogleUser.getPrimaryEmail());
+      } 
+      
+      
       return new TargetDaoDeleteEntityResponse();
     } catch (Exception e) {
       targetEntity.setProvisioned(false);
@@ -438,6 +443,12 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
+      
+      Map<String, GrouperGoogleGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
+      if (groupNameToGroup != null) {
+        groupNameToGroup.remove(grouperGoogleGroup.getName());
+      } 
+      
       return new TargetDaoDeleteGroupResponse();
     } catch (Exception e) {
       targetGroup.setProvisioned(false);
