@@ -109,7 +109,7 @@ public class GrouperProvisioningTranslator {
       // if this is an add, and the user isnt there, then there is a problem
       boolean isDelete = gcGrouperSyncMembership.isInTarget() || provisioningMembershipWrapper.getProvisioningStateMembership().isDelete();
 
-      boolean isEntityInTarget = provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget() || provisioningEntityWrapper.getTargetProvisioningEntity() != null;
+      boolean isEntityInTarget = (provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget() != null && provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget()) || provisioningEntityWrapper.getTargetProvisioningEntity() != null;
       
       if (!isDelete && errorCode == null && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOnlyAddMembershipsIfUserExistsInTarget()
           && !isEntityInTarget) {
@@ -120,7 +120,6 @@ public class GrouperProvisioningTranslator {
         this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
         continue;
       }
-
 
       ProvisioningMembership grouperTargetMembership = new ProvisioningMembership();
       if (this.translateGrouperToTargetAutomatically) {

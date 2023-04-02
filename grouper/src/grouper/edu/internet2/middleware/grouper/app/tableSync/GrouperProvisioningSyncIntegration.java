@@ -196,7 +196,7 @@ public class GrouperProvisioningSyncIntegration {
         }
         
         // if we arent in target, dont worry about it
-        if (!gcGrouperSyncGroup.isInTarget() ) {
+        if ((gcGrouperSyncGroup.getInTarget() == null || !gcGrouperSyncGroup.getInTarget()) ) {
           groupIdToDeleteIterator.remove();
           groupUuidToSyncGroup.remove(gcGrouperSyncGroup.getGroupId());
         }
@@ -230,7 +230,7 @@ public class GrouperProvisioningSyncIntegration {
         }
         
         // if we arent in target, dont worry about it
-        if (!gcGrouperSyncMember.isInTarget() ) {
+        if ((gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) ) {
           memberIdToDeleteIterator.remove();
           memberUuidToSyncMember.remove(gcGrouperSyncMember.getMemberId());
         }
@@ -295,7 +295,7 @@ public class GrouperProvisioningSyncIntegration {
 //    }
 //    
     // keep it
-    if (groupIsProvisionable || gcGrouperSyncGroup.isProvisionable() || gcGrouperSyncGroup.isInTarget()) {
+    if (groupIsProvisionable || gcGrouperSyncGroup.isProvisionable() || (gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget())) {
       
       // see if needs to update
       {
@@ -328,7 +328,7 @@ public class GrouperProvisioningSyncIntegration {
       }
 
       // see if not provisionable
-      if (!gcGrouperSyncGroup.isInTarget() && groupIsProvisionable) {
+      if ((gcGrouperSyncGroup.getInTarget() == null || !gcGrouperSyncGroup.getInTarget()) && groupIsProvisionable) {
         groupIdsToInsert.add(gcGrouperSyncGroup.getGroupId());
       }
         
@@ -341,7 +341,7 @@ public class GrouperProvisioningSyncIntegration {
     groupUuidToSyncGroup.remove(gcGrouperSyncGroup.getGroupId());
 
     //if we arent provisionable, and the group has not been in the target for a week, then we done with that one
-    if (!gcGrouperSyncGroup.isInTarget() && !gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getInTargetEnd() != null) {
+    if ((gcGrouperSyncGroup.getInTarget() == null || !gcGrouperSyncGroup.getInTarget()) && !gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getInTargetEnd() != null) {
       long targetEndMillis = gcGrouperSyncGroup.getInTargetEnd() == null ? 0 : gcGrouperSyncGroup.getInTargetEnd().getTime();
       targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncGroup.getProvisionableEnd() == null ? 0 : gcGrouperSyncGroup.getProvisionableEnd().getTime());
       targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncGroup.getLastUpdated() == null ? 0 : gcGrouperSyncGroup.getLastUpdated().getTime());
@@ -406,7 +406,7 @@ public class GrouperProvisioningSyncIntegration {
         gcGrouperSyncMember.setMetadataJson(newMetadataJson);
 
         //if we arent provisionable, and the member has not been in the target for a week, then we done with that one
-        if (!gcGrouperSyncMember.isInTarget() && !gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.getInTargetEnd() != null) {
+        if ((gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) && !gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.getInTargetEnd() != null) {
           long targetEndMillis = gcGrouperSyncMember.getInTargetEnd() == null ? 0 : gcGrouperSyncMember.getInTargetEnd().getTime();
           targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncMember.getProvisionableEnd() == null ? 0 : gcGrouperSyncMember.getProvisionableEnd().getTime());
           targetEndMillis = Math.max(targetEndMillis, gcGrouperSyncMember.getLastUpdated() == null ? 0 : gcGrouperSyncMember.getLastUpdated().getTime());
@@ -578,7 +578,7 @@ public class GrouperProvisioningSyncIntegration {
         ProvisioningEntity grouperProvisioningEntity = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGrouperProvisioningEntity();
   
         // keep it
-        if (grouperProvisioningEntity != null || gcGrouperSyncMember.isProvisionable() || gcGrouperSyncMember.isInTarget()) {
+        if (grouperProvisioningEntity != null || gcGrouperSyncMember.isProvisionable() || (gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget())) {
           
           if (grouperProvisioningEntity != null && StringUtils.isBlank(gcGrouperSyncMember.getSubjectId())) {
             gcGrouperSyncMember.setSubjectId(grouperProvisioningEntity.getSubjectId());
@@ -604,7 +604,7 @@ public class GrouperProvisioningSyncIntegration {
             }
             
             if (!StringUtils.equals(newSubjectIdentifier, gcGrouperSyncMember.getSubjectIdentifier())) {
-              if (grouperProvisioningEntity == null && (gcGrouperSyncMember.isInTarget() 
+              if (grouperProvisioningEntity == null && ((gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget()) 
                   || !grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) && newSubjectIdentifier == null
                   && provisioningEntityWrapper.getProvisioningStateEntity().isUnresolvable() ) {
                 // don't remove the identifier if not provisionable and unresolvable but still in target
@@ -627,7 +627,7 @@ public class GrouperProvisioningSyncIntegration {
           }
           
           // see if not provisionable
-          if (!gcGrouperSyncMember.isInTarget() && grouperProvisioningEntity != null
+          if ((gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) && grouperProvisioningEntity != null
               && (provisioningEntityWrapper == null || !provisioningEntityWrapper.getProvisioningStateEntity().isDelete())) {
             memberIdsToInsert.add(gcGrouperSyncMember.getMemberId());
           }
@@ -639,7 +639,7 @@ public class GrouperProvisioningSyncIntegration {
           continue;
         }
         
-        if (grouperProvisioningEntity == null && !gcGrouperSyncMember.isProvisionable() && !gcGrouperSyncMember.isInTarget() && gcGrouperSyncMember.getSubjectIdentifier() != null) {
+        if (grouperProvisioningEntity == null && !gcGrouperSyncMember.isProvisionable() && (gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) && gcGrouperSyncMember.getSubjectIdentifier() != null) {
           gcGrouperSyncMember.setSubjectIdentifier(null);
         }
         
@@ -715,7 +715,7 @@ public class GrouperProvisioningSyncIntegration {
         }
         
         // if we arent in target, dont worry about it
-        if (!gcGrouperSyncMember.isInTarget() ) {
+        if ((gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) ) {
           memberIdToDeleteIterator.remove();
           memberUuidToSyncMember.remove(gcGrouperSyncMember.getMemberId());
         }

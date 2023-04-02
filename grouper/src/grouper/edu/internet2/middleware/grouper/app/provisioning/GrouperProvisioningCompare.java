@@ -1054,7 +1054,8 @@ public class GrouperProvisioningCompare {
 
       if (!provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
         
-        if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable() && !provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
+        if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable() && 
+            (provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget())) {
         
           if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
           
@@ -1071,7 +1072,7 @@ public class GrouperProvisioningCompare {
           }
         }
         if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable() 
-            && provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget() 
+            && provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget() != null &&  provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget()
             // if its entity attributes there could be memberships
             && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.entityAttributes
             && provisioningEntityWrapper.getProvisioningStateEntity().isCreate()) {
@@ -1215,7 +1216,8 @@ public class GrouperProvisioningCompare {
         
         if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteEntitiesIfGrouperDeleted()) {
           
-          if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
+          if (provisioningEntityWrapper.getGcGrouperSyncMember() != null 
+              && provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget() != null && provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget()) {
             shouldDelete = true;
           }
           
@@ -1224,7 +1226,7 @@ public class GrouperProvisioningCompare {
         if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteEntitiesIfGrouperCreated()) {
           
           if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isInTargetInsertOrExists() 
-                && provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget()) {
+              && provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget() != null && provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget()) {
             shouldDelete = true;
           }
           
@@ -1300,7 +1302,8 @@ public class GrouperProvisioningCompare {
 
       if (!provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
         
-        if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable() && !provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+        if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable() 
+            && (provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget())) {
         
           if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
           
@@ -1313,7 +1316,7 @@ public class GrouperProvisioningCompare {
         }
         
         if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable() 
-            && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()
+            && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget()
             && provisioningGroupWrapper.getProvisioningStateGroup().isCreate()
             // if its group attributes there could be memberships
             && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.groupAttributes ) {
@@ -1390,7 +1393,8 @@ public class GrouperProvisioningCompare {
           }
 
         }
-      } else if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()
+      } else if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null 
+          && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget()
           && provisioningGroupWrapper.getProvisioningStateGroup().isDelete() && provisioningGroupWrapper.getErrorCode() == GcGrouperSyncErrorCode.MEM) {
         provisioningGroupWrappersForDelete.add(provisioningGroupWrapper);
         continue;
@@ -1458,7 +1462,8 @@ public class GrouperProvisioningCompare {
         
         if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfGrouperDeleted()) {
           
-          if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+          if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null 
+              && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget()) {
             shouldDelete = true;
           }
           
@@ -1467,7 +1472,7 @@ public class GrouperProvisioningCompare {
         if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfGrouperCreated()) {
           
           if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTargetInsertOrExists() 
-                && provisioningGroupWrapper.getGcGrouperSyncGroup().isInTarget()) {
+              && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget()) {
             shouldDelete = true;
           }
           

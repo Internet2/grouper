@@ -258,7 +258,7 @@ public class GrouperProvisioningLinkLogic {
       
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
       
-      if (gcGrouperSyncGroup != null && !gcGrouperSyncGroup.isInTarget()) {
+      if (gcGrouperSyncGroup != null && (gcGrouperSyncGroup.getInTarget() == null || !gcGrouperSyncGroup.getInTarget())) {
         if (hasGroupLinkAttributeValueCache0) {
           gcGrouperSyncGroup.setGroupAttributeValueCache0(null);
         }
@@ -679,11 +679,28 @@ public class GrouperProvisioningLinkLogic {
   
       boolean hasChange = false;
       
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+
+      if (gcGrouperSyncMember != null && (gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget())) {
+        if (hasEntityLinkAttributeValueCache0) {
+          gcGrouperSyncMember.setEntityAttributeValueCache0(null);
+        }
+        if (hasEntityLinkAttributeValueCache1) {
+          gcGrouperSyncMember.setEntityAttributeValueCache1(null);
+        }
+        if (hasEntityLinkAttributeValueCache2) {
+          gcGrouperSyncMember.setEntityAttributeValueCache2(null);
+        }
+        if (hasEntityLinkAttributeValueCache3) {
+          gcGrouperSyncMember.setEntityAttributeValueCache3(null);
+        }
+      }
+      
       if (provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
         targetEntitiesForLinkNull++;
         continue;
       }
-      
+
       ProvisioningEntity targetEntity = provisioningEntityWrapper.getTargetProvisioningEntity().clone();
       
       if (targetEntity == null || (!copyFromTargetOrGrouperTarget && provisioningEntityWrapper.getGrouperTargetEntity() == null)) {

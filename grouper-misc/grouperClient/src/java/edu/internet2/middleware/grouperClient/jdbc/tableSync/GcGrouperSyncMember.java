@@ -793,12 +793,14 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
 
   /**
    * if this group exists in the target/destination
+   * T means in target, F means not in target, and null means not applicable (not selecting or inserting)
    */
   @GcPersistableField(columnName="in_target")
   private String inTargetDb;
   
   /**
    * if this group exists in the target/destination
+   * T means in target, F means not in target, and null means not applicable (not selecting or inserting)
    * @return if in target
    */
   public String getInTargetDb() {
@@ -807,6 +809,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
 
   /**
    * if this group exists in the target/destination
+   * T means in target, F means not in target, and null means not applicable (not selecting or inserting)
    * @param inTargetDb1
    */
   public void setInTargetDb(String inTargetDb1) {
@@ -814,13 +817,24 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
   }
 
   /**
+   * if in target
+   * true means in target, false means not in target, null means unsure (not selecting or inserting)
+   * @param in target
+   */
+  public void setInTarget(Boolean inTarget) {
+    this.inTargetDb = inTarget == null ? null : (inTarget ? "T" : "F");
+  }
+  
+
+  /**
    * if this group exists in the target/destination
+   * true means in target, false means not in target, null means unsure (not selecting or inserting)
    * @return if is target
    */
   public Boolean getInTarget() {
     return GrouperClientUtils.booleanObjectValue(this.inTargetDb);
   }
-  
+
   /**
    * uuid of the job in grouper_sync
    */
@@ -1088,22 +1102,6 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
     this.inTargetStart = inTargetStart1;
   }
 
-  /**
-   * if in target
-   * @return if in target
-   */
-  public boolean isInTarget() {
-    return GrouperClientUtils.booleanValue(this.inTargetDb, false);
-  }
-
-  /**
-   * if in target
-   * @param in target
-   */
-  public void setInTarget(boolean inTarget) {
-    this.inTargetDb = inTarget ? "T" : "F";
-  }
-  
   /**
    * additional metadata for group
    */
