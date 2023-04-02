@@ -52,13 +52,13 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
       if (StringUtils.isNotBlank(attributesCommaSeparated)) {
         provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
         String[] attributes = GrouperUtil.splitTrim(attributesCommaSeparated, ",");
-        // by this time the validation is already done that there are no more than 3 attributes
+        // by this time the validation is already done that there are no more than 2 attributes
         for (int i=0; i<attributes.length; i++) {
-          int j = i+1;
+          int j = i+2;
           provisionerSuffixToValue.put("entityAttributeValueCache"+j+"has", "true");
           provisionerSuffixToValue.put("entityAttributeValueCache"+j+"source", "grouper");
           provisionerSuffixToValue.put("entityAttributeValueCache"+j+"type", "subjectTranslationScript");
-          provisionerSuffixToValue.put("entityAttributeValueCache"+j+"translationScript", "${subject.getAttributeValue("+attributes[i]+")}");
+          provisionerSuffixToValue.put("entityAttributeValueCache"+j+"translationScript", "${subject.getAttributeValue('"+attributes[i]+"')}");
         }
         
       }
@@ -72,6 +72,10 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("operateOnGrouperGroups", "true");
       
       provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".name", "id");
+      provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".showAdvancedAttribute", "true");
+      provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".showAttributeCrud", "true");
+      provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".insert", "false");
+      provisionerSuffixToValue.put("targetGroupAttribute."+numberOfGroupAttributes+".update", "false");
       numberOfGroupAttributes++;
       
       String groupDisplayNameAttributeType = startWithSuffixToValue.get("groupDisplayNameAttributeValue");
@@ -117,11 +121,18 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("groupAttributeValueCache0type", "groupAttribute");
       provisionerSuffixToValue.put("groupAttributeValueCache0groupAttribute", "id");
 
+      String groupSearchMatchingAttribute = startWithSuffixToValue.get("groupSearchMatchingAttribute");
+      
+      provisionerSuffixToValue.put("groupAttributeValueCache1has", "true");
+      provisionerSuffixToValue.put("groupAttributeValueCache1source", "target");
+      provisionerSuffixToValue.put("groupAttributeValueCache1type", "groupAttribute");
+      provisionerSuffixToValue.put("groupAttributeValueCache1groupAttribute", groupSearchMatchingAttribute);
+
       provisionerSuffixToValue.put("hasTargetGroupLink", "true");
       
-      String groupSearchMatchingAttribute = startWithSuffixToValue.get("groupSearchMatchingAttribute");
-      provisionerSuffixToValue.put("groupMatchingAttributeCount", "1");
+      provisionerSuffixToValue.put("groupMatchingAttributeCount", "2");
       provisionerSuffixToValue.put("groupMatchingAttribute0name", groupSearchMatchingAttribute);
+      provisionerSuffixToValue.put("groupMatchingAttribute1name", "id");
       
     }
     
@@ -169,6 +180,14 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("hasTargetEntityLink", "true");
 
       provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".name", "id");
+      
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("manageEntitiesInAzure"), false)) {
+        provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".showAdvancedAttribute", "true");
+        provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".showAttributeCrud", "true");
+        provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".insert", "false");
+        provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".update", "false");
+      }
+      
       numberOfEntityAttributes++;
       
       String userPrincipalNameAttributeType = startWithSuffixToValue.get("entityUserPrincipalName");
@@ -243,8 +262,15 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", "id");
       
       String entitySearchMatchingAttribute = startWithSuffixToValue.get("entitySearchMatchingAttribute");
-      provisionerSuffixToValue.put("entityMatchingAttributeCount", "1");
+
+      provisionerSuffixToValue.put("entityAttributeValueCache1has", "true");
+      provisionerSuffixToValue.put("entityAttributeValueCache1source", "target");
+      provisionerSuffixToValue.put("entityAttributeValueCache1type", "entityAttribute");
+      provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", entitySearchMatchingAttribute);
+      
+      provisionerSuffixToValue.put("entityMatchingAttributeCount", "2");
       provisionerSuffixToValue.put("entityMatchingAttribute0name", entitySearchMatchingAttribute);
+      provisionerSuffixToValue.put("entityMatchingAttribute1name", "id");
       
     }
     
@@ -330,8 +356,8 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
     if (subjectSourceEntityResoverModuleAttribute != null && StringUtils.isNotBlank(subjectSourceEntityResoverModuleAttribute.getValue())) {
       String commaSeparatedResolverAttributes = subjectSourceEntityResoverModuleAttribute.getValue();
       List<String> list = GrouperUtil.splitTrimToList(commaSeparatedResolverAttributes, ",");
-      if (list.size() > 3) {
-        String errorMessage = GrouperTextContainer.textOrNull("subjectSourceEntityResolverAttributesMoreThanThreeAttributes");
+      if (list.size() > 2) {
+        String errorMessage = GrouperTextContainer.textOrNull("subjectSourceEntityResolverAttributesTooManyAttributes");
         validationErrorsToDisplay.put(subjectSourceEntityResoverModuleAttribute.getHtmlForElementIdHandle(), errorMessage);
       }
     }
