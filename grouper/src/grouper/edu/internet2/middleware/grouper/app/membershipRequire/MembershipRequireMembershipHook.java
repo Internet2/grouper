@@ -110,6 +110,10 @@ public class MembershipRequireMembershipHook extends MembershipHooks {
         }
 
         for (MembershipRequireConfigBean membershipRequireConfigBean : membershipRequireConfigBeans) {
+          if (!membershipRequireConfigBean.isHookEnable()) {
+            continue;
+          }
+          
           if (!MembershipRequireEngine.validMember(groupName, membershipRequireConfigBean, membership.getMemberUuid())) {
             throw new HookVeto("veto.membershipVeto.customComposite." + membershipRequireConfigBean.getUiKey(),
                 "User is not eligible to be in this group since they are not in: " + GrouperUtil.escapeHtml(membershipRequireConfigBean.getRequireGroupName(), true));

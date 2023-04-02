@@ -157,4 +157,21 @@ public class MembershipRequireConfigBean {
    */
   private String requireGroupName;
   
+  private boolean hookEnable = true;
+
+  /**
+   * If the hook is generally enabled, it can be disabled for a specific config.
+   * @return if hook enabled
+   */
+  public boolean isHookEnable() {
+    return hookEnable;
+  }
+
+  /**
+   * If the hook is generally enabled, it can be disabled for a specific config.
+   * @param hookEnable
+   */
+  public void setHookEnable(boolean hookEnable) {
+    this.hookEnable = hookEnable;
+  }
 }

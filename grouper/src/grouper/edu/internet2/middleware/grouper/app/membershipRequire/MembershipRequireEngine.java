@@ -285,11 +285,14 @@ public class MembershipRequireEngine {
               continue;
             }
             
+            boolean hookEnable = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.membershipRequirement." + configId + ".hookEnable", true);
+            
             MembershipRequireConfigBean membershipRequireConfigBean = new MembershipRequireConfigBean();
             membershipRequireConfigBean.setUiKey(uiKey);
             membershipRequireConfigBean.setAttributeName(attributeName);
             membershipRequireConfigBean.setRequireGroupName(groupName);
             membershipRequireConfigBean.setConfigId(configId);
+            membershipRequireConfigBean.setHookEnable(hookEnable);
             
             AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(attributeName, false);
             if (attributeDefName == null) {
