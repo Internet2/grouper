@@ -13552,14 +13552,17 @@ public class GrouperUtil {
       if (ipv4regex.matcher(networkIpString).matches()) {
         networkIpString = networkIpString + "/32";
       } else if (InetAddressValidator.getInstance().isValidInet6Address(networkIpString)) {
-        networkIpString = networkIpString + "/32";
+        networkIpString = networkIpString + "/128";
       }
       
       try {
         final IPv6Network ipV6Network = IPv6Network.fromString(networkIpString);
         final IPv6Address iPv6Address = IPv6Address.fromString(ipString);
         if (ipV6Network != null && iPv6Address != null) {
-          return ipV6Network.contains(iPv6Address);
+          if (ipV6Network.contains(iPv6Address)) {
+            return true;
+          }
+          continue;
         }
       } catch (Exception e) {
         // ignore and try ipv4
