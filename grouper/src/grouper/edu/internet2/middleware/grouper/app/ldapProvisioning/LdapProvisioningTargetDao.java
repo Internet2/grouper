@@ -295,12 +295,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       try {
         ldapSyncDaoForLdap.create(ldapConfigId, ldapEntry);
       } catch (Exception e) {
-        if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
-          createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, ldapEntry.getDn());
-          ldapSyncDaoForLdap.create(ldapConfigId, ldapEntry);
-        } else {
-          throw e;
-        }
+        createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, ldapEntry.getDn());
+        ldapSyncDaoForLdap.create(ldapConfigId, ldapEntry);
       }
       
       targetGroup.setProvisioned(true);
