@@ -3108,11 +3108,15 @@ public class GrouperProvisioningLogic {
         
         ProvisioningGroupWrapper provisioningGroupWrapper = gcGrouperSyncGroupIdToProvisioningGroupWrapper.get(gcGrouperSyncMembership.getGrouperSyncGroupId());
         if (provisioningGroupWrapper == null) {
-          throw new RuntimeException("Cant find groupId: '" + gcGrouperSyncMembership.getGrouperSyncGroupId() + "'");
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, GcGrouperSyncErrorCode.ERR, 
+              "Cant find syncGroupId: '" + gcGrouperSyncMembership.getGrouperSyncGroupId() + "'");
+          continue;
         }
         ProvisioningEntityWrapper provisioningEntityWrapper = gcGrouperSyncMemberIdToProvisioningEntityWrapper.get(gcGrouperSyncMembership.getGrouperSyncMemberId());
         if (provisioningEntityWrapper == null) {
-          throw new RuntimeException("Cant find entityId: '" + gcGrouperSyncMembership.getGrouperSyncMemberId() + "'");
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, GcGrouperSyncErrorCode.ERR, 
+              "Cant find syncMemberId: '" + gcGrouperSyncMembership.getGrouperSyncMemberId() + "'");
+          continue;
         }
 
         GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
@@ -3133,14 +3137,18 @@ public class GrouperProvisioningLogic {
         if (provisioningGroupWrapper.getGrouperProvisioningGroup() != null) {
           provisioningMembership.setProvisioningGroup(provisioningGroupWrapper.getGrouperProvisioningGroup());
         } else {
-          throw new RuntimeException("Cant find provisioning group: '" + groupId + "'");
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, GcGrouperSyncErrorCode.ERR, 
+              "Cant find provisioning group, groupId: '" + groupId + "'");
+          continue;
         }
   
         // the group is either the provisioning group or provisioning group to delete
         if (provisioningEntityWrapper.getGrouperProvisioningEntity() != null) {
           provisioningMembership.setProvisioningEntity(provisioningEntityWrapper.getGrouperProvisioningEntity());
         } else {
-          throw new RuntimeException("Cant find provisioning entity: '" + memberId + "'");
+          this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, GcGrouperSyncErrorCode.ERR, 
+              "Cant find provisioning entity, memberId: '" + memberId + "'");
+          continue;
         }
           
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);

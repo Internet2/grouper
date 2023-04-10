@@ -120,7 +120,7 @@ public class ScimProvisionerTestUtils {
     if (provisioningTestConfigInput.getGroupOfUsersToProvision() != null) {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupIdOfUsersToProvision", provisioningTestConfigInput.getGroupOfUsersToProvision().getUuid());
     }
-    configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
+    //configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
@@ -169,6 +169,9 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "false");
     }
     
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");

@@ -295,12 +295,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       try {
         ldapSyncDaoForLdap.create(ldapConfigId, ldapEntry);
       } catch (Exception e) {
-        if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
-          createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, ldapEntry.getDn());
-          ldapSyncDaoForLdap.create(ldapConfigId, ldapEntry);
-        } else {
-          throw e;
-        }
+        createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, ldapEntry.getDn());
+        ldapSyncDaoForLdap.create(ldapConfigId, ldapEntry);
       }
       
       targetGroup.setProvisioned(true);
@@ -403,12 +399,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             try {
               ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
             } catch (Exception e) {
-              if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
-                createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, (String)newValue);
-                ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
-              } else {
-                throw e;
-              }
+              createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, (String)newValue);
+              ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
             }
 
             movedDn = true;
@@ -1410,7 +1402,17 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         throw new RuntimeException("Group's parent dn is the base dn!");
       }
       
-      ldapDnsToCreate.add(parentDn);
+      // see if the parent dn exists.  If it does, nothing to do here.
+      try {
+        ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDn.toString(), "(objectClass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>());
+        return;
+      } catch (Exception e) {
+        if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+          ldapDnsToCreate.add(parentDn);
+        } else {
+          throw e;
+        }
+      }
       
       while (true) {
         parentDn = parentDn.getParent();

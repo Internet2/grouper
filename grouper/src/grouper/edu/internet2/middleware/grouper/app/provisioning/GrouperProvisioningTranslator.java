@@ -1255,6 +1255,13 @@ public class GrouperProvisioningTranslator {
         MultiKey matchingIdMultiKey = (MultiKey)id;
         for (int i=0; i<matchingIdMultiKey.size(); i++) {
           if (matchingIdMultiKey.getKey(i) == null) {
+            // if the membership is a delete and not in target then just dont worry about it, its old
+            if (targetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
+                && (targetMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership().getInTarget() == null
+                || !targetMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership().getInTarget())) {
+              this.getGrouperProvisioner().retrieveGrouperProvisioningData().removeAndUnindexMembershipWrapper(targetMembership.getProvisioningMembershipWrapper());
+              continue OUTER;
+            }
             GcGrouperSyncErrorCode errorCode = GcGrouperSyncErrorCode.DNE;
             String errorMessage = "membership multiKey has blank value in index: " + i;
             this.grouperProvisioner.retrieveGrouperProvisioningValidation()
@@ -1263,6 +1270,15 @@ public class GrouperProvisioningTranslator {
           }
         }
         
+      }
+      if (id == null) {
+        // if the membership is a delete and not in target then just dont worry about it, its old
+        if (targetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()
+            && (targetMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership().getInTarget() == null
+            || !targetMembership.getProvisioningMembershipWrapper().getGcGrouperSyncMembership().getInTarget())) {
+          this.getGrouperProvisioner().retrieveGrouperProvisioningData().removeAndUnindexMembershipWrapper(targetMembership.getProvisioningMembershipWrapper());
+          continue OUTER;
+        }
       }
       // just hard code to "id" since memberships just have one matching id
       ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue(

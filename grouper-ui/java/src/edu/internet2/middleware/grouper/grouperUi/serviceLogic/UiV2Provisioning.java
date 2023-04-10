@@ -1025,7 +1025,7 @@ public class UiV2Provisioning {
       GcGrouperSyncGroup gcGrouperSyncGroup = GrouperProvisioningService.retrieveGcGrouperGroup(group.getId(), provisionerName);
       
       if (gcGrouperSyncGroup != null) {
-        guiGrouperProvisioningAttributeValue.setInTarget(gcGrouperSyncGroup.isInTarget());
+        guiGrouperProvisioningAttributeValue.setInTarget(gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget());
         guiGrouperProvisioningAttributeValue.setLastTimeWorkWasDone(gcGrouperSyncGroup.getLastTimeWorkWasDone());
       }
       
@@ -1734,12 +1734,12 @@ public class UiV2Provisioning {
             metadataItem.setDefaultValue(value);
             
             if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
-              if (gcGrouperSync != null && gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.isInTarget()) {
+              if (gcGrouperSync != null && gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget()) {
                 metadataItem.setReadOnly(true);
               }
             }
             
-            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMember == null || gcGrouperSyncMember.isInTarget())) {
+            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMember == null || (gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget()))) {
               metadataItem.setReadOnly(true);
             }
             
@@ -1958,13 +1958,13 @@ public class UiV2Provisioning {
             metadataItem.setDefaultValue(value);
             
             if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
-              if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.isInTarget()) {
+              if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget()) {
                 metadataItem.setReadOnly(true);
               }
             }
             
             if (!metadataItem.isCanChange()) {
-              if (value != null && gcGrouperSyncGroup != null && gcGrouperSyncGroup.isInTarget()) {
+              if (value != null && gcGrouperSyncGroup != null && gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget()) {
                 metadataItem.setReadOnly(true);
               }
             }

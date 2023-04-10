@@ -709,5 +709,22 @@ public class GrouperProvisioningData {
 
   }
 
+  /**
+   * 
+   * @param provisioningMembershipWrapper
+   */
+  public void removeAndUnindexMembershipWrapper(ProvisioningMembershipWrapper provisioningMembershipWrapper) {
+    this.provisioningMembershipWrappers.remove(provisioningMembershipWrapper);
+    GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+    
+    if (provisioningMembershipWrapper.getGroupIdMemberId() != null) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
+    }
+    
+    if (gcGrouperSyncMembership != null) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getSyncGroupIdSyncMemberId());
+    }    
+  }
+
 
 }
