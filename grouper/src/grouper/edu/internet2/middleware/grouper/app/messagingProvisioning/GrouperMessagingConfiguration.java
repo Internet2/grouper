@@ -6,14 +6,15 @@ import java.util.Map;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 public class GrouperMessagingConfiguration extends GrouperProvisioningConfiguration {
 
-  private String messagingExternalSystemConfigId;
+  private String messagingType;
   
   private String routingKey; //applicable for rabbitmq only
   
-  private GrouperMessageQueueType queueType; 
+  private GrouperMessageQueueType queueType;
   
   private GrouperMessagingExchangeType exchangeType; //applicable for rabbitmq only
   
@@ -25,11 +26,25 @@ public class GrouperMessagingConfiguration extends GrouperProvisioningConfigurat
   
   private Map<String, Object> queueArguments = new HashMap<String, Object>();
 
+  private String messagingExternalSystemConfigId;
+
   @Override
   public void configureSpecificSettings() {
     
-    this.messagingExternalSystemConfigId = this.retrieveConfigString("messagingExternalSystemConfigId", true);
-    this.routingKey = this.retrieveConfigString("routingKey", false);
+    this.messagingType = this.retrieveConfigString("messagingType", true);
+    if (StringUtils.equals(this.messagingType, "ActiveMQ")) {
+      this.messagingExternalSystemConfigId = this.retrieveConfigString("messagingActiveMqExternalSystemConfigId", true);
+    } else if (StringUtils.equals(this.messagingType, "AWS_SQS")) {
+      this.messagingExternalSystemConfigId = this.retrieveConfigString("messagingAwsSqsExternalSystemConfigId", true);
+    } else if (StringUtils.equals(this.messagingType, "RabbitMQ")) {
+      this.messagingExternalSystemConfigId = this.retrieveConfigString("messagingRabbitMqExternalSystemConfigId", true);
+      this.routingKey = this.retrieveConfigString("routingKey", false);
+    } else if (StringUtils.equals(this.messagingType, "Grouper_Builtin")) {
+      this.messagingExternalSystemConfigId = "grouperBuiltinMessaging";
+    } else {
+      throw new RuntimeException("Invalid messaging type");
+    } 
+    
     this.queueOrTopicName = this.retrieveConfigString("queueOrTopicName", true);
     this.queueType = GrouperMessageQueueType.valueOfIgnoreCase(this.retrieveConfigString("queueType", true), true);
     this.exchangeType = GrouperMessagingExchangeType.valueOfIgnoreCase(this.retrieveConfigString("exchangeType", false), false);
@@ -46,16 +61,6 @@ public class GrouperMessagingConfiguration extends GrouperProvisioningConfigurat
     }
   }
 
-  public String getMessagingExternalSystemConfigId() {
-    return messagingExternalSystemConfigId;
-  }
-
-  
-  public void setMessagingExternalSystemConfigId(String messagingExternalSystemConfigId) {
-    this.messagingExternalSystemConfigId = messagingExternalSystemConfigId;
-  }
-
-  
   public String getRoutingKey() {
     return routingKey;
   }
@@ -123,6 +128,25 @@ public class GrouperMessagingConfiguration extends GrouperProvisioningConfigurat
   
   public void setMessagingFormatType(GrouperMessagingFormatType messagingFormatType) {
     this.messagingFormatType = messagingFormatType;
+  }
+
+  
+  public String getMessagingType() {
+    return messagingType;
+  }
+
+  
+  public void setMessagingType(String messagingType) {
+    this.messagingType = messagingType;
+  }
+  
+  public String getMessagingExternalSystemConfigId() {
+    return this.messagingExternalSystemConfigId;
+  }
+
+  
+  public void setMessagingExternalSystemConfigId(String messagingExternalSystemConfigId) {
+    this.messagingExternalSystemConfigId = messagingExternalSystemConfigId;
   }
   
 }

@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.app.duo;
+package edu.internet2.middleware.grouper.app.remedyV2;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,11 +12,11 @@ import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
-public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
+public class RemedyProvisioningStartWith extends ProvisionerStartWithBase {
   
   @Override
   public String getPropertyValueThatIdentifiesThisConfig() {
-    return "duoCommon";
+    return "remedyCommon";
   }
   
   @Override
@@ -24,7 +24,7 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
       Map<String, String> startWithSuffixToValue,
       Map<String, Object> provisionerSuffixToValue) {
     
-    provisionerSuffixToValue.put("duoExternalSystemConfigId", startWithSuffixToValue.get("duoExternalSystemConfigId"));
+    provisionerSuffixToValue.put("remedyExternalSystemConfigId", startWithSuffixToValue.get("remedyExternalSystemConfigId"));
     
     if (StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "entityResolver") || StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSourceAndEntityResolver")) {
       provisionerSuffixToValue.put("entityResolver.entityAttributesNotInSubjectSource", "true");
@@ -48,7 +48,6 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
         }
         
       }
-      
     }
     
     if (GrouperUtil.booleanValue(startWithSuffixToValue.get("manageGroups"), false)) {
@@ -56,48 +55,53 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("operateOnGrouperGroups", "true");
       provisionerSuffixToValue.put("numberOfGroupAttributes", 2);
       
-      provisionerSuffixToValue.put("targetGroupAttribute.0.name", "id");
+      provisionerSuffixToValue.put("targetGroupAttribute.0.name", "permissionGroupId");
       provisionerSuffixToValue.put("targetGroupAttribute.0.showAdvancedAttribute", "true");
       provisionerSuffixToValue.put("targetGroupAttribute.0.showAttributeCrud", "true");
       provisionerSuffixToValue.put("targetGroupAttribute.0.insert", "false");
       provisionerSuffixToValue.put("targetGroupAttribute.0.update", "false");
       
-      String groupNameAttributeValue = startWithSuffixToValue.get("groupNameAttributeValue");
-      if (StringUtils.equals("script", groupNameAttributeValue)) {
+      String permissionGroupAttributeValue = startWithSuffixToValue.get("permissionGroupAttributeValue");
+      if (StringUtils.equals("script", permissionGroupAttributeValue)) {
         provisionerSuffixToValue.put("targetGroupAttribute.1.translateExpressionType", "translationScript");
-        provisionerSuffixToValue.put("targetGroupAttribute.1.translateExpression", startWithSuffixToValue.get("groupNameTranslationScript"));
-      } else if (StringUtils.equals("other", groupNameAttributeValue)) {
+        provisionerSuffixToValue.put("targetGroupAttribute.1.translateExpression", startWithSuffixToValue.get("permissionGroupTranslationScript"));
+        provisionerSuffixToValue.put("targetMembershipAttribute.0.translateExpressionType", "translationScript");
+        provisionerSuffixToValue.put("targetMembershipAttribute.0.translateExpression", startWithSuffixToValue.get("permissionGroupTranslationScript"));
+      } else if (StringUtils.equals("other", permissionGroupAttributeValue)) {
         //do nothing
       } else { 
+        provisionerSuffixToValue.put("targetMembershipAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
+        provisionerSuffixToValue.put("targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField", permissionGroupAttributeValue);
         provisionerSuffixToValue.put("targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
-        provisionerSuffixToValue.put("targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", groupNameAttributeValue);
+        provisionerSuffixToValue.put("targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", permissionGroupAttributeValue);
       }
-      provisionerSuffixToValue.put("targetGroupAttribute.1.name", "name");
+      provisionerSuffixToValue.put("targetGroupAttribute.1.name", "permissionGroup");
+      provisionerSuffixToValue.put("targetMembershipAttribute.0.name", "permissionGroup");
       
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("useGroupDescription"), true)) {
-        
-        provisionerSuffixToValue.put("numberOfGroupAttributes", 3);
-        provisionerSuffixToValue.put("targetGroupAttribute.2.name", "description");
-        provisionerSuffixToValue.put("targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
-        provisionerSuffixToValue.put("targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "description");
-      }
+      provisionerSuffixToValue.put("targetMembershipAttribute.1.name", "permissionGroupId");
+      provisionerSuffixToValue.put("targetMembershipAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
+      provisionerSuffixToValue.put("targetMembershipAttribute.1.translateFromGrouperProvisioningGroupField", "groupAttributeValueCache0");
+
+      provisionerSuffixToValue.put("targetMembershipAttribute.2.name", "personId");
+      provisionerSuffixToValue.put("targetMembershipAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
+      provisionerSuffixToValue.put("targetMembershipAttribute.2.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache0");
       
       provisionerSuffixToValue.put("groupAttributeValueCacheHas", "true");
       provisionerSuffixToValue.put("groupAttributeValueCache0has", "true");
       provisionerSuffixToValue.put("groupAttributeValueCache0source", "target");
       provisionerSuffixToValue.put("groupAttributeValueCache0type", "groupAttribute");
-      provisionerSuffixToValue.put("groupAttributeValueCache0groupAttribute", "id");
+      provisionerSuffixToValue.put("groupAttributeValueCache0groupAttribute", "permissionGroupId");
       
       provisionerSuffixToValue.put("groupAttributeValueCache1has", "true");
       provisionerSuffixToValue.put("groupAttributeValueCache1source", "target");
       provisionerSuffixToValue.put("groupAttributeValueCache1type", "groupAttribute");
-      provisionerSuffixToValue.put("groupAttributeValueCache1groupAttribute", "name");
+      provisionerSuffixToValue.put("groupAttributeValueCache1groupAttribute", "permissionGroup");
 
       provisionerSuffixToValue.put("hasTargetGroupLink", "true");
       
       provisionerSuffixToValue.put("groupMatchingAttributeCount", "2");
-      provisionerSuffixToValue.put("groupMatchingAttribute0name", "name");
-      provisionerSuffixToValue.put("groupMatchingAttribute1name", "id");
+      provisionerSuffixToValue.put("groupMatchingAttribute0name", "permissionGroup");
+      provisionerSuffixToValue.put("groupMatchingAttribute1name", "permissionGroupId");
       
     }
     
@@ -109,7 +113,7 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
     
     provisionerSuffixToValue.put("hasTargetEntityLink", "true");
     
-    provisionerSuffixToValue.put("targetEntityAttribute.0.name", "id");
+    provisionerSuffixToValue.put("targetEntityAttribute.0.name", "personId");
     if (GrouperUtil.booleanValue(startWithSuffixToValue.get("manageEntities"), false)) {
       provisionerSuffixToValue.put("targetEntityAttribute.0.showAdvancedAttribute", "true");
       provisionerSuffixToValue.put("targetEntityAttribute.0.showAttributeCrud", "true");
@@ -117,78 +121,51 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("targetEntityAttribute.0.update", "false");
     }
     
-    String userNameAttributeType = startWithSuffixToValue.get("entityUserName");
-    if (StringUtils.isNotBlank(userNameAttributeType)) {
-      if (StringUtils.equals("script", userNameAttributeType)) {
-        provisionerSuffixToValue.put("targetEntityAttribute.1.translateExpressionType", "translationScript");
-        provisionerSuffixToValue.put("targetEntityAttribute.1.translateExpression", startWithSuffixToValue.get("entityUserNameTranslationScript"));
-      } else if (StringUtils.equals("other", userNameAttributeType)) {
-        //do nothing
-      } else { 
-        provisionerSuffixToValue.put("targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
-        provisionerSuffixToValue.put("targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", userNameAttributeType);
-      }
+    String loginId = startWithSuffixToValue.get("loginId");
+    if (StringUtils.equals("script", loginId)) {
+      provisionerSuffixToValue.put("targetEntityAttribute.1.translateExpressionType", "translationScript");
+      provisionerSuffixToValue.put("targetEntityAttribute.1.translateExpression", startWithSuffixToValue.get("loginIdTranslationScript"));
       
-      provisionerSuffixToValue.put("targetEntityAttribute.1.name", "loginId");
+      provisionerSuffixToValue.put("targetMembershipAttribute.3.translateExpressionType", "translationScript");
+      provisionerSuffixToValue.put("targetMembershipAttribute.3.translateExpression", startWithSuffixToValue.get("loginIdTranslationScript"));
       
+    } else if (StringUtils.equals("other", loginId)) {
+      //do nothing
+    } else { 
+      provisionerSuffixToValue.put("targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
+      provisionerSuffixToValue.put("targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", loginId);
+      
+      provisionerSuffixToValue.put("targetMembershipAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
+      provisionerSuffixToValue.put("targetMembershipAttribute.3.translateFromGrouperProvisioningEntityField", loginId);
     }
-      
-    int numberOfEntityAttributes = 2;
-    
-    String entityNameSubjectAttributeType = startWithSuffixToValue.get("entityNameSubjectAttribute");
-    if (StringUtils.isNotBlank(entityNameSubjectAttributeType)) {
-      if (StringUtils.equals("script", entityNameSubjectAttributeType)) {
-        provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "translationScript");
-        provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpression", startWithSuffixToValue.get("entityNameTranslationScript"));
-      } else if (StringUtils.equals("other", entityNameSubjectAttributeType)) {
-        //do nothing
-      } else { 
-        provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
-        provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", entityNameSubjectAttributeType);
-      }
-      
-      provisionerSuffixToValue.put("targetEntityAttribute.2.name", "name");
-      numberOfEntityAttributes++;
-      
-    }
-
-    String entityEmailSubjectAttributeType = startWithSuffixToValue.get("entityEmailSubjectAttribute");
-    if (StringUtils.isNotBlank(entityEmailSubjectAttributeType)) {
-      if (StringUtils.equals("script", entityEmailSubjectAttributeType)) {
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "translationScript");
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpression", startWithSuffixToValue.get("entityEmailTranslationScript"));
-      } else if (StringUtils.equals("other", entityEmailSubjectAttributeType)) {
-        //do nothing
-      } else { 
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", entityEmailSubjectAttributeType);
-      }
-      
-      provisionerSuffixToValue.put("targetEntityAttribute.3.name", "email");
-      numberOfEntityAttributes++;
-    }
-      
-    provisionerSuffixToValue.put("numberOfEntityAttributes", numberOfEntityAttributes);
+    provisionerSuffixToValue.put("targetEntityAttribute.1.name", "remedyLoginId");
+    provisionerSuffixToValue.put("targetMembershipAttribute.3.name", "remedyLoginId");
+  
+    provisionerSuffixToValue.put("numberOfEntityAttributes", "2");
+    provisionerSuffixToValue.put("numberOfMembershipAttributes", "4");
     
     provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
 
     provisionerSuffixToValue.put("entityAttributeValueCache0has", "true");
     provisionerSuffixToValue.put("entityAttributeValueCache0source", "target");
     provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
-    provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", "id");
+    provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", "personId");
     
     provisionerSuffixToValue.put("entityAttributeValueCache1has", "true");
     provisionerSuffixToValue.put("entityAttributeValueCache1source", "target");
     provisionerSuffixToValue.put("entityAttributeValueCache1type", "entityAttribute");
-    provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", "loginId");
+    provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", "remedyLoginId");
     
     provisionerSuffixToValue.put("entityMatchingAttributeCount", "2");
-    provisionerSuffixToValue.put("entityMatchingAttribute0name", "loginId");
-    provisionerSuffixToValue.put("entityMatchingAttribute1name", "id");
+    provisionerSuffixToValue.put("entityMatchingAttribute0name", "remedyLoginId");
+    provisionerSuffixToValue.put("entityMatchingAttribute1name", "personId");
     
     provisionerSuffixToValue.put("operateOnGrouperMemberships", "true");
     provisionerSuffixToValue.put("provisioningType", "membershipObjects");
-    provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.duo.GrouperDuoProvisioner");
+    provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyProvisioner");
+
+    provisionerSuffixToValue.put("membership2AdvancedOptions", "true");
+    provisionerSuffixToValue.put("membershipMatchingIdExpression", "${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('permissionGroupId'), targetMembership.retrieveAttributeValueString('remedyLoginId'))}");
     
   }
 
@@ -200,7 +177,7 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
     
     for (String suffixUserJustChanged: suffixesUserJustChanged) {
       
-      if (StringUtils.equals(suffixUserJustChanged, "duoPattern")) {
+      if (StringUtils.equals(suffixUserJustChanged, "remedyPattern")) {
         String valueUserEnteredOnScreen = suffixToValue.get(suffixUserJustChanged);
         if (StringUtils.equals(valueUserEnteredOnScreen, "manageGroupsManageEntities")) {
           result.put("manageGroups", "true");
@@ -247,6 +224,7 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
 
   @Override
   public Class<? extends ProvisioningConfiguration> getProvisioningConfiguration() {
-    return DuoProvisionerConfiguration.class;
+    return RemedyProvisionerConfiguration.class;
   }
+
 }

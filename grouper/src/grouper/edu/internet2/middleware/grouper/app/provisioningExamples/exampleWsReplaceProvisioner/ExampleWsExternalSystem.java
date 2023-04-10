@@ -1,8 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioningExamples.exampleWsReplaceProvisioner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,14 +8,9 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
-import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ExampleWsExternalSystem extends GrouperExternalSystem {
   

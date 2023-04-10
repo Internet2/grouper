@@ -376,11 +376,14 @@ public class GrouperProvisioningDiagnosticsContainer {
 
             if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMatchingAttributes()) == 0) {
               
-              if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isUpdateGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
-                this.report.append("<font color='red'><b>Error:</b></font> Cannot find the group matching attribute/field\n");
-              } else {
-                this.report.append("<font color='gray'><b>Note:</b></font> Cannot find the group matching attribute/field\n");
+              if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+                if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isUpdateGroups() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
+                  this.report.append("<font color='red'><b>Error:</b></font> Cannot find the group matching attribute/field\n");
+                } else {
+                  this.report.append("<font color='gray'><b>Note:</b></font> Cannot find the group matching attribute/field\n");
+                }
               }
+              
             } else {
               if (!attributeInsertOrUpdate) {
                 if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget()) {
@@ -489,11 +492,15 @@ public class GrouperProvisioningDiagnosticsContainer {
                 }
 
                 if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMatchingAttributes()) == 0) {
-                  if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isUpdateEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteEntities()) {
-                    this.report.append("<font color='red'><b>Error:</b></font> Cannot find the entity matching attribute/field\n");
-                  } else {
-                    this.report.append("<font color='gray'><b>Note:</b></font> Cannot find the entity matching attribute/field\n");
+                  
+                  if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+                    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isUpdateEntities() || this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteEntities()) {
+                      this.report.append("<font color='red'><b>Error:</b></font> Cannot find the entity matching attribute/field\n");
+                    } else {
+                      this.report.append("<font color='gray'><b>Note:</b></font> Cannot find the entity matching attribute/field\n");
+                    }
                   }
+                  
                 } else {
                   if (!attributeInsertOrUpdate) {
                     if (gcGrouperSyncMember != null && gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget()) {
@@ -1217,23 +1224,25 @@ public class GrouperProvisioningDiagnosticsContainer {
       }
       this.report.append("<font color='green'><b>Success:</b></font> No error inserting group into target\n");
       
-      //retrieve so we have a copy
-      TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
-          this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(new TargetDaoRetrieveGroupsRequest(grouperTargetGroupsToInsert, true));
-      
-      List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups());
-  
-      if (GrouperUtil.length(targetGroups) == 0) {
-        this.report.append("<font color='red'><b>Error:</b></font> Cannot find group from target after inserting!\n");
-        return;
+      if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+        //retrieve so we have a copy
+        TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = 
+            this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(new TargetDaoRetrieveGroupsRequest(grouperTargetGroupsToInsert, true));
+        
+        List<ProvisioningGroup> targetGroups = GrouperUtil.nonNull(targetDaoRetrieveGroupsResponse == null ? null : targetDaoRetrieveGroupsResponse.getTargetGroups());
+        
+        if (GrouperUtil.length(targetGroups) == 0) {
+          this.report.append("<font color='red'><b>Error:</b></font> Cannot find group from target after inserting!\n");
+          return;
+        }
+        if (GrouperUtil.length(targetGroups) > 1) {
+          this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetGroups) + " groups after inserting, should be 1!\n");
+          return;
+        }
+        this.report.append("<font color='green'><b>Success:</b></font> Found group from target after inserting\n");
+        
+        updateProvisioningGroupWrapperAfterTargetQuery(targetGroups);
       }
-      if (GrouperUtil.length(targetGroups) > 1) {
-        this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetGroups) + " groups after inserting, should be 1!\n");
-        return;
-      }
-      this.report.append("<font color='green'><b>Success:</b></font> Found group from target after inserting\n");
-
-      updateProvisioningGroupWrapperAfterTargetQuery(targetGroups);
       
       this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     } catch (RuntimeException re) {
@@ -1431,23 +1440,25 @@ public class GrouperProvisioningDiagnosticsContainer {
       }
       this.report.append("<font color='green'><b>Success:</b></font> No error inserting entity into target\n");
       
-      //retrieve so we have a copy
-      TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = 
-          this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntities(new TargetDaoRetrieveEntitiesRequest(grouperTargetEntitiesToInsert, true));
-      
-      List<ProvisioningEntity> targetEntities = GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse == null ? null : targetDaoRetrieveEntitiesResponse.getTargetEntities());
-  
-      if (GrouperUtil.length(targetEntities) == 0) {
-        this.report.append("<font color='red'><b>Error:</b></font> Cannot find entity from target after inserting!\n");
-        return;
+      if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+        //retrieve so we have a copy
+        TargetDaoRetrieveEntitiesResponse targetDaoRetrieveEntitiesResponse = 
+            this.grouperProvisioner.retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntities(new TargetDaoRetrieveEntitiesRequest(grouperTargetEntitiesToInsert, true));
+        
+        List<ProvisioningEntity> targetEntities = GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse == null ? null : targetDaoRetrieveEntitiesResponse.getTargetEntities());
+        
+        if (GrouperUtil.length(targetEntities) == 0) {
+          this.report.append("<font color='red'><b>Error:</b></font> Cannot find entity from target after inserting!\n");
+          return;
+        }
+        if (GrouperUtil.length(targetEntities) > 1) {
+          this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetEntities) + " entities after inserting, should be 1!\n");
+          return;
+        }
+        this.report.append("<font color='green'><b>Success:</b></font> Found entity from target after inserting\n");
+        
+        updateProvisioningEntityWrapperAfterTargetQuery(targetEntities);
       }
-      if (GrouperUtil.length(targetEntities) > 1) {
-        this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetEntities) + " entities after inserting, should be 1!\n");
-        return;
-      }
-      this.report.append("<font color='green'><b>Success:</b></font> Found entity from target after inserting\n");
-
-      updateProvisioningEntityWrapperAfterTargetQuery(targetEntities);
       
       this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
     } catch (RuntimeException re) {

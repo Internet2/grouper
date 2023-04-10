@@ -37,7 +37,7 @@ public class MessagingProvisionerTestUtils {
    */
   public static void configureMessagingProvisioner(MessagingProvisionerTestConfigInput provisioningTestConfigInput) {
 
-    configureProvisionerSuffix(provisioningTestConfigInput, "messagingExternalSystemConfigId", "grouperBuiltinMessaging");
+    configureProvisionerSuffix(provisioningTestConfigInput, "messagingType", "Grouper_Builtin");
     configureProvisionerSuffix(provisioningTestConfigInput, "class", "edu.internet2.middleware.grouper.app.messagingProvisioning.GrouperMessagingProvisioner");
     configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");

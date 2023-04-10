@@ -253,8 +253,8 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
     if (subjectSourceEntityResoverModuleAttribute != null && StringUtils.isNotBlank(subjectSourceEntityResoverModuleAttribute.getValue())) {
       String commaSeparatedResolverAttributes = subjectSourceEntityResoverModuleAttribute.getValue();
       List<String> list = GrouperUtil.splitTrimToList(commaSeparatedResolverAttributes, ",");
-      if (list.size() > 3) {
-        String errorMessage = GrouperTextContainer.textOrNull("subjectSourceEntityResolverAttributesMoreThanThreeAttributes");
+      if (list.size() > 2) {
+        String errorMessage = GrouperTextContainer.textOrNull("subjectSourceEntityResolverAttributesTooManyAttributes");
         validationErrorsToDisplay.put(subjectSourceEntityResoverModuleAttribute.getHtmlForElementIdHandle(), errorMessage);
       }
     }
@@ -367,9 +367,9 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       if (StringUtils.isNotBlank(attributesCommaSeparated)) {
         provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
         String[] attributes = GrouperUtil.splitTrim(attributesCommaSeparated, ",");
-        // by this time the validation is already done that there are no more than 3 attributes
+        // by this time the validation is already done that there are no more than 2 attributes
         for (int i=0; i<attributes.length; i++) {
-          int j = i+1;
+          int j = i+2;
           provisionerSuffixToValue.put("entityAttributeValueCache"+j+"has", "true");
           provisionerSuffixToValue.put("entityAttributeValueCache"+j+"source", "grouper");
           provisionerSuffixToValue.put("entityAttributeValueCache"+j+"type", "subjectTranslationScript");
