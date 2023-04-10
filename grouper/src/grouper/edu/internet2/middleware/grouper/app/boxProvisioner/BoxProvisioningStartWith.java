@@ -1,4 +1,4 @@
-package edu.internet2.middleware.grouper.app.duo;
+package edu.internet2.middleware.grouper.app.boxProvisioner;
 
 import java.util.HashMap;
 import java.util.List;
@@ -12,11 +12,13 @@ import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
-public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
+
+public class BoxProvisioningStartWith extends ProvisionerStartWithBase {
+
   
   @Override
   public String getPropertyValueThatIdentifiesThisConfig() {
-    return "duoCommon";
+    return "boxCommon";
   }
   
   @Override
@@ -24,7 +26,7 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
       Map<String, String> startWithSuffixToValue,
       Map<String, Object> provisionerSuffixToValue) {
     
-    provisionerSuffixToValue.put("duoExternalSystemConfigId", startWithSuffixToValue.get("duoExternalSystemConfigId"));
+    provisionerSuffixToValue.put("boxExternalSystemConfigId", startWithSuffixToValue.get("boxExternalSystemConfigId"));
     
     if (StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "entityResolver") || StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSourceAndEntityResolver")) {
       provisionerSuffixToValue.put("entityResolver.entityAttributesNotInSubjectSource", "true");
@@ -117,19 +119,19 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("targetEntityAttribute.0.update", "false");
     }
     
-    String userNameAttributeType = startWithSuffixToValue.get("entityUserName");
-    if (StringUtils.isNotBlank(userNameAttributeType)) {
-      if (StringUtils.equals("script", userNameAttributeType)) {
+    String entityLoginSubjectAttributeType = startWithSuffixToValue.get("entityLoginSubjectAttribute");
+    if (StringUtils.isNotBlank(entityLoginSubjectAttributeType)) {
+      if (StringUtils.equals("script", entityLoginSubjectAttributeType)) {
         provisionerSuffixToValue.put("targetEntityAttribute.1.translateExpressionType", "translationScript");
-        provisionerSuffixToValue.put("targetEntityAttribute.1.translateExpression", startWithSuffixToValue.get("entityUserNameTranslationScript"));
-      } else if (StringUtils.equals("other", userNameAttributeType)) {
+        provisionerSuffixToValue.put("targetEntityAttribute.1.translateExpression", startWithSuffixToValue.get("entityLoginTranslationScript"));
+      } else if (StringUtils.equals("other", entityLoginSubjectAttributeType)) {
         //do nothing
       } else { 
         provisionerSuffixToValue.put("targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
-        provisionerSuffixToValue.put("targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", userNameAttributeType);
+        provisionerSuffixToValue.put("targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", entityLoginSubjectAttributeType);
       }
       
-      provisionerSuffixToValue.put("targetEntityAttribute.1.name", "loginId");
+      provisionerSuffixToValue.put("targetEntityAttribute.1.name", "login");
       
     }
       
@@ -152,22 +154,6 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
       
     }
 
-    String entityEmailSubjectAttributeType = startWithSuffixToValue.get("entityEmailSubjectAttribute");
-    if (StringUtils.isNotBlank(entityEmailSubjectAttributeType)) {
-      if (StringUtils.equals("script", entityEmailSubjectAttributeType)) {
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "translationScript");
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpression", startWithSuffixToValue.get("entityEmailTranslationScript"));
-      } else if (StringUtils.equals("other", entityEmailSubjectAttributeType)) {
-        //do nothing
-      } else { 
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", entityEmailSubjectAttributeType);
-      }
-      
-      provisionerSuffixToValue.put("targetEntityAttribute.3.name", "email");
-      numberOfEntityAttributes++;
-    }
-      
     provisionerSuffixToValue.put("numberOfEntityAttributes", numberOfEntityAttributes);
     
     provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
@@ -180,17 +166,18 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
     provisionerSuffixToValue.put("entityAttributeValueCache1has", "true");
     provisionerSuffixToValue.put("entityAttributeValueCache1source", "target");
     provisionerSuffixToValue.put("entityAttributeValueCache1type", "entityAttribute");
-    provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", "loginId");
+    provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", "login");
     
     provisionerSuffixToValue.put("entityMatchingAttributeCount", "2");
-    provisionerSuffixToValue.put("entityMatchingAttribute0name", "loginId");
+    provisionerSuffixToValue.put("entityMatchingAttribute0name", "login");
     provisionerSuffixToValue.put("entityMatchingAttribute1name", "id");
     
     provisionerSuffixToValue.put("operateOnGrouperMemberships", "true");
     provisionerSuffixToValue.put("provisioningType", "membershipObjects");
-    provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.duo.GrouperDuoProvisioner");
+    provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.boxProvisioner.GrouperBoxProvisioner");
     
   }
+
 
   @Override
   public Map<String, String> screenRedraw(Map<String, String> suffixToValue,
@@ -200,7 +187,7 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
     
     for (String suffixUserJustChanged: suffixesUserJustChanged) {
       
-      if (StringUtils.equals(suffixUserJustChanged, "duoPattern")) {
+      if (StringUtils.equals(suffixUserJustChanged, "boxPattern")) {
         String valueUserEnteredOnScreen = suffixToValue.get(suffixUserJustChanged);
         if (StringUtils.equals(valueUserEnteredOnScreen, "manageGroupsManageEntities")) {
           result.put("manageGroups", "true");
@@ -247,6 +234,7 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
 
   @Override
   public Class<? extends ProvisioningConfiguration> getProvisioningConfiguration() {
-    return DuoProvisionerConfiguration.class;
+    return BoxProvisionerConfiguration.class;
   }
+
 }

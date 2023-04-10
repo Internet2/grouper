@@ -181,6 +181,10 @@
         <httpclient>4.5.13</httpclient>
         <httpcore>4.4.14</httpcore>
         <httpmime>4.5.13</httpmime>
+        <geronimo-jms.version>1.1</geronimo-jms.version>
+        <qpid-jms-client.version>0.61.0</qpid-jms-client.version>
+        <amqp-client.version>4.12.0</amqp-client.version>
+        
         <!-- note, jackson version is also in grouper pom -->
         <jackson.annotations>2.14.0</jackson.annotations>
         <jackson.core>2.14.0</jackson.core>
@@ -957,6 +961,24 @@
 		          <artifactId>java-ipv6</artifactId>
 		          <version>${java-ipv6.version}</version>
 		        </dependency>
+		        
+		        <dependency>
+              <groupId>org.apache.geronimo.specs</groupId>
+              <artifactId>geronimo-jms_1.1_spec</artifactId>
+              <version>${geronimo-jms.version}</version>
+            </dependency>
+            
+            <dependency>
+              <groupId>org.apache.qpid</groupId>
+              <artifactId>qpid-jms-client</artifactId>
+              <version>${qpid-jms-client.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.rabbitmq</groupId>
+                <artifactId>amqp-client</artifactId>
+                <version>${amqp-client.version}</version>
+            </dependency>
 
 
         </dependencies>

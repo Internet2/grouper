@@ -390,6 +390,29 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+          <groupId>org.apache.geronimo.specs</groupId>
+          <artifactId>geronimo-jms_1.1_spec</artifactId>
+        </dependency>
+        
+        <dependency>
+          <groupId>org.apache.qpid</groupId>
+          <artifactId>qpid-jms-client</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-sqs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-sns</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.rabbitmq</groupId>
+            <artifactId>amqp-client</artifactId>
+        </dependency>
 
         <!-- database drivers, using profiles proved too cumbersome for tests - this is not ideal -->
         <dependency>
