@@ -2142,6 +2142,8 @@ public class GrouperProvisioningDiagnosticsContainer {
         provisioningMembershipWrapper.setGrouperProvisioningMembership(grouperProvisioningMembership);
         provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
 
+        this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().updateEntityLink(GrouperUtil.toSet(provisioningEntityWrapper), true);
+
         this.grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().put(groupIdMemberId, provisioningMembershipWrapper);
 
         this.grouperProvisioner.retrieveGrouperProvisioningSyncIntegration().fullSyncMemberships();
