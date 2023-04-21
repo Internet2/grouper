@@ -7092,12 +7092,14 @@ public enum GrouperDdl implements DdlVersionable {
             "MEMBER_ID: uuid of the member"),
             "select distinct gm.SUBJECT_ID, gm.SUBJECT_SOURCE, gg.name as group_name, "
             + "gfl.NAME as list_name, gfl.TYPE as list_type, gg.ID as group_id, gm.ID as member_id  "
-            + "from grouper_memberships_all_v gms, grouper_members gm, " 
+            + "from grouper_memberships ms, grouper_group_set gs, grouper_members gm, " 
             + "grouper_groups gg, grouper_fields gfl "
-            + "where gms.OWNER_GROUP_ID = gg.id " 
-            + "and gms.FIELD_ID = gfl.ID "
-            + "and gms.MEMBER_ID = gm.ID "
-            +	"and gms.IMMEDIATE_MSHIP_ENABLED = 'T'");
+            + "where ms.OWNER_ID = gs.MEMBER_ID "
+            + "and ms.FIELD_ID = gs.MEMBER_FIELD_ID "
+            + "and gs.OWNER_GROUP_ID = gg.ID "
+            + "and gs.FIELD_ID = gfl.ID "
+            + "and ms.MEMBER_ID = gm.ID "
+            +	"and ms.ENABLED = 'T'");
 
     GrouperDdlUtils.ddlutilsCreateOrReplaceView(ddlVersionBean, "grouper_mship_stem_lw_v", 
         "grouper_mship_stem_lw_v unique membership records that can be read from a SQL interface outside of grouper for stems.  Immediate and effective memberships are represented here (distinct)",
