@@ -194,8 +194,8 @@ if [ -n "$GSH_CYGWIN" ]; then
 	GROUPER_CP=$(cygpath --path --windows "$GROUPER_CP")
 fi
 
-if [ -f /opt/tomee/lib/servlet-api.jar ]; then
-        GROUPER_CP=${GROUPER_CP}:/opt/tomee/lib/servlet-api.jar
+if [ -f /opt/tomcat/lib/servlet-api.jar ]; then
+        GROUPER_CP=${GROUPER_CP}:/opt/tomcat/lib/servlet-api.jar
 fi
 
 GROUPER_ADD_OPENS="--add-opens java.base/java.lang=ALL-UNNAMED \
