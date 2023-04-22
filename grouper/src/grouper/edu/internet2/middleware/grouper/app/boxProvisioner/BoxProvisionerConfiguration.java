@@ -170,12 +170,18 @@ public final static Set<String> startWithConfigClassNames = new LinkedHashSet<St
     }
 
     if (!entityNameThere) {
-      String errorMessage = GrouperTextContainer.textOrNull("grouperBoxProvisionerConfiugrationEntityNameRequired");
-      errorsToDisplay.add(errorMessage);
+      // entity name is required only if making changes to entities
+      GrouperConfigurationModuleAttribute attributeName = this.retrieveAttributes().get("makeChangesToEntities");
+      String value = attributeName.getValueOrExpressionEvaluation();
+      boolean makeChangesToEntities = GrouperUtil.booleanValue(value, false);
+      if (makeChangesToEntities) {
+        String errorMessage = GrouperTextContainer.textOrNull("grouperBoxProvisionerConfiugrationEntityNameRequired");
+        errorsToDisplay.add(errorMessage);
+      }
     }
     
     if (!entityLoginThere) {
-      String errorMessage = GrouperTextContainer.textOrNull("grouperBoxProvisionerConfiugrationEntityNameRequired");
+      String errorMessage = GrouperTextContainer.textOrNull("grouperBoxProvisionerConfiugrationEntityLoginRequired");
       errorsToDisplay.add(errorMessage);
     }
     
