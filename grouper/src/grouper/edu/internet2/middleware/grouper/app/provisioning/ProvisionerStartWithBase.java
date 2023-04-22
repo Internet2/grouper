@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
@@ -82,6 +83,21 @@ public abstract class ProvisionerStartWithBase extends GrouperConfigurationModul
     
       if (attributes.containsKey(key)) {
         provisionerSuffixToValue.put(key, startWithSuffixToValue.get(key));
+      }
+    }
+  }
+  
+  /**
+   * In the <code>map</code>, set all <code>allKeysToSetToNull</code> keys to null except in <code>keysToKeep</code> 
+   * @param map
+   * @param keysToKeep
+   * @param allKeysToSetToNull
+   */
+  public static void setValuesToNull(Map<String, String> map, Set<String> keysToKeep, Set<String> allKeysToSetToNull) {
+    
+    for (String keyToSetNull: allKeysToSetToNull) {
+      if (!keysToKeep.contains(keyToSetNull)) {
+        map.put(keyToSetNull, null);
       }
     }
   }

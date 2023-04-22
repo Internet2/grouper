@@ -413,6 +413,18 @@
             <groupId>com.rabbitmq</groupId>
             <artifactId>amqp-client</artifactId>
         </dependency>
+        
+        <!-- this dependency was in messaging modules and ui so we brought it here -->
+        <dependency>
+            <groupId>xerces</groupId>
+            <artifactId>xercesImpl</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>xml-apis</groupId>
+                    <artifactId>xml-apis</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
         <!-- database drivers, using profiles proved too cumbersome for tests - this is not ideal -->
         <dependency>
