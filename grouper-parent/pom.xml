@@ -37,10 +37,6 @@
         <module>../grouper-ui</module>
         <module>../grouper-ws</module>
         <module>../grouper-misc/grouper-installer</module>
-        <module>../grouper-misc/grouperActivemq</module>
-        <module>../grouper-misc/grouper-messaging-rabbitmq</module>
-        <module>../grouper-misc/grouper-messaging-aws</module>
-        <module>../grouper-misc/grouper-messaging-activemq</module>
         <module>../grouper-misc/webapp/grouper-ui-webapp</module>
     </modules>
 
