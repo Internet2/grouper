@@ -155,14 +155,15 @@ public class GrouperProvisioningTranslator {
         
         boolean continueTranslation = continueTranslation(elVariableMap, grouperProvisioningConfigurationAttribute);
         if (!continueTranslation) {
-          throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
+          grouperTargetMembership.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), null);
+          //throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
         }
         
-        if (StringUtils.isNotBlank(expressionToUse) 
+        if (continueTranslation && (StringUtils.isNotBlank(expressionToUse) 
             || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
             || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperTargetGroupField())
             || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperTargetEntityField())
-            || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
+            || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField()))) {
           Object result = attributeTranslationOrCache( 
               grouperTargetMembership.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, !gcGrouperSyncMembership.isInTarget(), 
               grouperProvisioningConfigurationAttribute, provisioningGroupWrapper, provisioningEntityWrapper);
@@ -416,12 +417,13 @@ public class GrouperProvisioningTranslator {
 
             boolean continueTranslation = continueTranslation(elVariableMap, grouperProvisioningConfigurationAttribute);
             if (!continueTranslation) {
-              throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
+              grouperTargetEntity.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), null);
+              // throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
             }
             
-            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningEntityField)
+            if (continueTranslation && (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningEntityField)
                 || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isEntityAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())
-                || this.shouldTranslateEntityAttribute(provisioningEntityWrapper, grouperProvisioningConfigurationAttribute)) { 
+                || this.shouldTranslateEntityAttribute(provisioningEntityWrapper, grouperProvisioningConfigurationAttribute))) { 
 
               Object result = attributeTranslationOrCache( 
                   grouperTargetEntity.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
@@ -585,12 +587,13 @@ public class GrouperProvisioningTranslator {
 
             boolean continueTranslation = continueTranslation(elVariableMap, grouperProvisioningConfigurationAttribute);
             if (!continueTranslation) {
-              throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
+              grouperTargetGroup.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), null);
+              //throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
             }
             
-            if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningGroupField)
+            if (continueTranslation && (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningGroupField)
                 || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isGroupAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())
-                || this.shouldTranslateGroupAttribute(provisioningGroupWrapper, grouperProvisioningConfigurationAttribute)) { 
+                || this.shouldTranslateGroupAttribute(provisioningGroupWrapper, grouperProvisioningConfigurationAttribute))) { 
               Object result = attributeTranslationOrCache( 
                   grouperTargetGroup.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
                   grouperProvisioningConfigurationAttribute, provisioningGroupWrapper, null);
